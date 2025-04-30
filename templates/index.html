@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BriefCheck - Detect Hallucinated Legal Citations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .citation-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .citation-real {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+        }
+        .citation-hallucinated {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+        }
+        .confidence-bar {
+            height: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .summary-box {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center text-dark text-decoration-none">
+                <span class="fs-4">BriefCheck</span>
+                <span class="ms-2 badge bg-primary">Beta</span>
+            </div>
+            <p class="lead">Detect hallucinated legal case citations in briefs</p>
+        </header>
+
+        <div class="row g-5">
+            <div class="col-md-12">
+                <form id="briefForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="briefText" class="form-label">Paste your legal brief text:</label>
+                        <textarea class="form-control" id="briefText" rows="10"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fileUpload" class="form-label">Or upload a document:</label>
+                        <input class="form-control" type="file" id="fileUpload" name="file" accept=".docx,.txt">
+                        <div class="form-text">Supported formats: Word (.docx), Text (.txt)</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="iterations" class="form-label">Number of summary iterations:</label>
+                            <input type="number" class="form-control" id="iterations" min="2" max="5" value="3">
+                            <div class="form-text">More iterations increase accuracy but take longer.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="threshold" class="form-label">Similarity threshold:</label>
+                            <input type="range" class="form-range" id="threshold" min="0.5" max="0.9" step="0.05" value="0.7">
+                            <div class="d-flex justify-content-between">
+                                <span>0.5 (Lenient)</span>
+                                <span id="thresholdValue">0.7</span>
+                                <span>0.9 (Strict)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Analyze Brief</button>
+                </form>
+
+                <div id="loading" class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing citations... This may take a moment.</p>
+                </div>
+
+                <div id="results" class="mt-4" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    <div class="alert alert-info" id="resultsSummary"></div>
+                    
+                    <div id="citationsContainer">
+                        <h4>Extracted Citations</h4>
+                        <div id="citationsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="pt-5 my-5 text-muted border-top">
+            BriefCheck &copy; 2025 &middot; A tool for detecting hallucinated legal case citations
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const briefForm = document.getElementById('briefForm');
+            const briefText = document.getElementById('briefText');
+            const iterations = document.getElementById('iterations');
+            const threshold = document.getElementById('threshold');
+            const thresholdValue = document.getElementById('thresholdValue');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const resultsSummary = document.getElementById('resultsSummary');
+            const citationsList = document.getElementById('citationsList');
+
+            // Update threshold value display
+            threshold.addEventListener('input', function() {
+                thresholdValue.textContent = this.value;
+            });
+
+            // Handle form submission
+            briefForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                
+                const fileUpload = document.getElementById('fileUpload');
+                const hasFile = fileUpload.files && fileUpload.files.length > 0;
+                const hasText = briefText.value.trim().length > 0;
+                
+                if (!hasFile && !hasText) {
+                    loading.style.display = 'none';
+                    results.style.display = 'block';
+                    resultsSummary.innerHTML = '<strong>Error:</strong> Please provide text or upload a file.';
+                    return;
+                }
+                
+                if (hasFile) {
+                    // Handle file upload
+                    const formData = new FormData();
+                    formData.append('file', fileUpload.files[0]);
+                    formData.append('iterations', iterations.value);
+                    formData.append('threshold', threshold.value);
+                    
+                    fetch('/analyze', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        displayResults(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loading.style.display = 'none';
+                        results.style.display = 'block';
+                        resultsSummary.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                    });
+                } else {
+                    // Handle text input
+                    // First, extract citations
+                    fetch('/extract', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'brief_text': briefText.value
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.citations.length === 0) {
+                            loading.style.display = 'none';
+                            results.style.display = 'block';
+                            resultsSummary.innerHTML = 'No case citations found in the text.';
+                            citationsList.innerHTML = '';
+                            return;
+                        }
+                        
+                        // Then analyze the brief
+                        return fetch('/analyze', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                'brief_text': briefText.value,
+                                'iterations': iterations.value,
+                                'threshold': threshold.value
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(results => {
+                            displayResults(results);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loading.style.display = 'none';
+                        results.style.display = 'block';
+                        resultsSummary.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                    });
+                }
+            });
+
+            function displayResults(data) {
+                // Hide loading indicator
+                loading.style.display = 'none';
+                
+                // Show results
+                results.style.display = 'block';
+                
+                // Display summary
+                resultsSummary.innerHTML = `
+                    <strong>Total citations found:</strong> ${data.total_citations}<br>
+                    <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                `;
+                
+                // Display citations
+                citationsList.innerHTML = '';
+                
+                if (data.results.length === 0) {
+                    citationsList.innerHTML = '<p>No citations to analyze.</p>';
+                    return;
+                }
+                
+                // Create accordion for citations
+                const accordion = document.createElement('div');
+                accordion.className = 'accordion';
+                accordion.id = 'citationsAccordion';
+                
+                data.results.forEach((result, index) => {
+                    const isHallucinated = result.is_hallucinated;
+                    const citationClass = isHallucinated ? 'citation-hallucinated' : 'citation-real';
+                    const statusBadge = isHallucinated ? 
+                        '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
+                        '<span class="badge bg-success">Likely Real</span>';
+                    
+                    const accordionItem = document.createElement('div');
+                    accordionItem.className = 'accordion-item ' + citationClass;
+                    
+                    const confidencePercent = Math.round(result.confidence * 100);
+                    const similarityPercent = result.similarity_score !== null ? 
+                        Math.round(result.similarity_score * 100) : 'N/A';
+                    
+                    accordionItem.innerHTML = `
+                        <h2 class="accordion-header" id="heading${index}">
+                            <button class="accordion-button ${isHallucinated ? '' : 'collapsed'}" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#collapse${index}" 
+                                    aria-expanded="${isHallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <span>${result.citation}</span>
+                                    ${statusBadge}
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse${index}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}" 
+                             aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Detection method:</strong> ${result.method === 'api' ? 'API Lookup' : 'Summary Comparison'}</p>
+                                <p><strong>Confidence:</strong> ${confidencePercent}%</p>
+                                <div class="progress confidence-bar">
+                                    <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
+                                         role="progressbar" style="width: ${confidencePercent}%" 
+                                         aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                ${result.similarity_score !== null ? `
+                                <p><strong>Similarity score:</strong> ${similarityPercent}%</p>
+                                <div class="progress confidence-bar">
+                                    <div class="progress-bar bg-info" role="progressbar" 
+                                         style="width: ${similarityPercent}%" aria-valuenow="${similarityPercent}" 
+                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                ` : ''}
+                                ${result.summaries && result.summaries.length > 0 ? `
+                                <div class="mt-3">
+                                    <p><strong>Generated summaries:</strong></p>
+                                    ${result.summaries.map((summary, i) => `
+                                        <div class="mb-2">
+                                            <p><strong>Summary ${i+1}:</strong></p>
+                                            <div class="summary-box">${summary}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    accordion.appendChild(accordionItem);
+                });
+                
+                citationsList.appendChild(accordion);
+            }
+
+            // Add sample data for testing
+            const sampleButton = document.createElement('button');
+            sampleButton.className = 'btn btn-outline-secondary mt-2';
+            sampleButton.textContent = 'Load Sample Brief';
+            sampleButton.addEventListener('click', function() {
+                briefText.value = `In the case of Pringle v JP Morgan Chase, the court established an important precedent regarding workplace discrimination claims. This ruling was later cited in Barnes v Yahoo, where the court addressed the limits of Section 230 immunity for internet service providers. The Barnes decision has been influential in subsequent cases involving online platforms and user-generated content.`;
+            });
+            
+            briefForm.appendChild(sampleButton);
+        });
+    </script>
+</body>
+</html>

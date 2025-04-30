@@ -1,0 +1,33 @@
+# BriefCheck dependencies
+
+# Web framework
+flask==2.3.3
+flask-cors==4.0.0
+
+# Scientific computing
+numpy==1.24.3
+scikit-learn==1.3.0
+
+# Natural language processing
+nltk==3.8.1
+
+# For API requests
+requests==2.31.0
+
+# For parsing HTML
+beautifulsoup4==4.12.2
+
+# For handling PDF files
+PyPDF2==3.0.1
+
+# For legal citation extraction
+eyecite==2.5.0
+
+# For Word document processing
+python-docx==0.8.11
+
+# For OpenAI API integration
+openai==1.3.0
+
+# For SSL/HTTPS support
+pyopenssl==23.2.0
