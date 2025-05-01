@@ -429,12 +429,13 @@ def set_use_local_pdf_search(enabled: bool) -> None:
     USE_LOCAL_PDF_SEARCH = enabled
     print(f"Local PDF search {'enabled' if enabled else 'disabled'}")
 
-def search_citation_in_local_pdfs(citation: str) -> bool:
+def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> bool:
     """
-    Search for a citation in local PDF folders.
+    Search for a citation in local PDF folders with timeout.
     
     Args:
         citation: The case citation to search for.
+        timeout_seconds: Maximum time in seconds to spend searching before giving up.
         
     Returns:
         bool: True if the citation is found in any PDF filename, False otherwise.
@@ -451,7 +452,22 @@ def search_citation_in_local_pdfs(citation: str) -> bool:
     parts = re.split(r'[^\w\d]+', citation)
     parts = [part for part in parts if part]  # Remove empty strings
     
+    # Keep only parts that are likely to be meaningful (at least 2 characters)
+    parts = [part for part in parts if len(part) >= 2]
+    
+    # If we have a year in parentheses, extract it as a separate part
+    year_match = re.search(r'\((\d{4})\)', citation)
+    if year_match:
+        year = year_match.group(1)
+        if year not in parts:
+            parts.append(year)
+    
+    print(f"Searching for citation parts: {parts}")
+    
     try:
+        # Track start time for timeout
+        start_time = time.time()
+        
         # Check if any of the PDF folders exist
         folders_exist = False
         for folder in LOCAL_PDF_FOLDERS:
@@ -465,28 +481,47 @@ def search_citation_in_local_pdfs(citation: str) -> bool:
         
         # Search in each folder
         for folder in LOCAL_PDF_FOLDERS:
+            # Check for timeout
+            if time.time() - start_time > timeout_seconds:
+                print(f"Search timeout after {timeout_seconds} seconds")
+                return False
+                
             if not os.path.exists(folder) or not os.path.isdir(folder):
                 print(f"Warning: Folder does not exist: {folder}")
                 continue
             
+            print(f"Searching in folder: {folder}")
+            
             try:
                 # List all PDF files in the folder
                 files = [f for f in os.listdir(folder) if f.lower().endswith('.pdf')]
+                print(f"Found {len(files)} PDF files in folder")
                 
                 # Check each file for a match
                 for file in files:
-                    # Check if all key parts of the citation are in the filename
-                    # This is a simple approach - in a real implementation, you might want to use more sophisticated matching
+                    # Check for timeout
+                    if time.time() - start_time > timeout_seconds:
+                        print(f"Search timeout after {timeout_seconds} seconds")
+                        return False
+                        
+                    # Check if key parts of the citation are in the filename
                     file_lower = file.lower()
                     match_count = 0
+                    matched_parts = []
+                    
                     for part in parts:
                         if part.lower() in file_lower:
                             match_count += 1
+                            matched_parts.append(part)
                     
-                    # If most of the key parts match, consider it a match
-                    # Adjust the threshold as needed
-                    if match_count >= min(2, len(parts)):
+                    # If enough key parts match, consider it a match
+                    # Adjust the threshold as needed - here we require at least 2 parts to match
+                    # or at least half of the parts if there are fewer than 4 parts
+                    min_matches = min(2, max(1, len(parts) // 2))
+                    
+                    if match_count >= min_matches:
                         print(f"Found potential match for '{citation}' in file: {file}")
+                        print(f"Matched parts: {matched_parts}")
                         return True
             except Exception as e:
                 print(f"Error searching folder {folder}: {str(e)}")
@@ -499,7 +534,7 @@ def search_citation_in_local_pdfs(citation: str) -> bool:
         print(f"Error searching local PDFs: {str(e)}")
         return False
 
-def check_citation_exists(citation: str, max_retries: int = 3) -> bool:
+def check_citation_exists(citation: str, max_retries: int = 3, local_search_timeout: int = 15) -> bool:
     """
     Check if a citation exists in the CourtListener database.
     
@@ -529,7 +564,8 @@ def check_citation_exists(citation: str, max_retries: int = 3) -> bool:
     
     # Check if we should use local PDF search
     if USE_LOCAL_PDF_SEARCH:
-        return search_citation_in_local_pdfs(citation)
+        print(f"Using local PDF search for citation: {citation}")
+        return search_citation_in_local_pdfs(citation, timeout_seconds=local_search_timeout)
     
     # Otherwise, use the API
     for attempt in range(max_retries):

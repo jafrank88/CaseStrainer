@@ -173,6 +173,11 @@
                 });
                 
                 function analyzeText(text) {
+                    // Set timeout for fetch - longer timeout for local PDF search
+                    const controller = new AbortController();
+                    const timeoutDuration = document.getElementById('useLocalPdfSearch').checked ? 120000 : 60000; // 120 seconds for local search, 60 seconds for API
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+                    
                     // Send the text to the server for analysis
                     fetch('https://wolf.law.uw.edu:5000/api/analyze', {
                         method: 'POST',
@@ -184,9 +189,13 @@
                             iterations: parseInt(iterations.value),
                             threshold: parseFloat(threshold.value),
                             use_local_pdf_search: document.getElementById('useLocalPdfSearch').checked
-                        })
+                        }),
+                        signal: controller.signal
                     })
                     .then(response => {
+                        // Clear the timeout since we got a response
+                        clearTimeout(timeoutId);
+                        
                         // Check if the response is valid JSON before parsing
                         if (!response.ok) {
                             return response.text().then(text => {
@@ -202,8 +211,16 @@
                         displayResults(data);
                     })
                     .catch(error => {
+                        // Clear the timeout if there was an error
+                        clearTimeout(timeoutId);
+                        
                         console.error('Error:', error);
-                        showError(error.message);
+                        
+                        if (error.name === 'AbortError') {
+                            showError('Request timed out. This may happen when using local PDF search on large folders.');
+                        } else {
+                            showError(error.message);
+                        }
                     });
                 }
                 
@@ -285,13 +302,21 @@
                                     ` : ''}
                                     ${result.summaries && result.summaries.length > 0 ? `
                                     <div class="mt-3">
-                                        <p><strong>Generated summaries:</strong></p>
-                                        ${result.summaries.map((summary, i) => `
-                                            <div class="mb-2">
-                                                <p><strong>Summary ${i+1}:</strong></p>
-                                                <div class="summary-box">${summary}</div>
+                                        <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#summaries${index}" 
+                                                aria-expanded="false" aria-controls="summaries${index}">
+                                            <strong>Show/Hide Generated Summaries</strong>
+                                        </button>
+                                        <div class="collapse" id="summaries${index}">
+                                            <div class="card card-body">
+                                                ${result.summaries.map((summary, i) => `
+                                                    <div class="mb-2">
+                                                        <p><strong>Summary ${i+1}:</strong></p>
+                                                        <div class="summary-box">${summary}</div>
+                                                    </div>
+                                                `).join('')}
                                             </div>
-                                        `).join('')}
+                                        </div>
                                     </div>
                                     ` : ''}
                                 </div>
