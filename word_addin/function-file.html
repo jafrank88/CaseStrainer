@@ -15,7 +15,7 @@
         function openTaskpane(event) {
             // Call the Office.js API to open the taskpane
             Office.context.ui.displayDialogAsync(
-                'https://localhost:5000/word-addin/taskpane.html',
+                'https://wolf.law.uw.edu:5000/word-addin/taskpane.html',
                 { height: 60, width: 30 },
                 function (result) {
                     if (result.status === Office.AsyncResultStatus.Failed) {

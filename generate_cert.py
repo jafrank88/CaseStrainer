@@ -26,7 +26,7 @@ with open('ssl/key.pem', 'wb') as f:
 
 # Create a self-signed certificate
 subject = issuer = x509.Name([
-    x509.NameAttribute(NameOID.COMMON_NAME, u'wolf.law.uw.edu'),
+    x509.NameAttribute(NameOID.COMMON_NAME, u'localhost'),
 ])
 
 cert = x509.CertificateBuilder().subject_name(
@@ -44,9 +44,10 @@ cert = x509.CertificateBuilder().subject_name(
     datetime.datetime.utcnow() + datetime.timedelta(days=365)
 ).add_extension(
     x509.SubjectAlternativeName([
-        x509.DNSName(u'wolf.law.uw.edu'),
         x509.DNSName(u'localhost'),
+        x509.DNSName(u'127.0.0.1'),
         x509.IPAddress(ipaddress.IPv4Address(u'127.0.0.1')),
+        x509.IPAddress(ipaddress.IPv4Address(u'0.0.0.0')),
         x509.IPAddress(ipaddress.IPv4Address(u'10.158.120.151'))
     ]),
     critical=False,

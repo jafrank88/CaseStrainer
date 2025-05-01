@@ -13,9 +13,9 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="BriefCheck" />
   <Description DefaultValue="Detect hallucinated legal case citations in briefs" />
-  <IconUrl DefaultValue="https://localhost:5000/word-addin/assets/icon-32.png" />
-  <HighResolutionIconUrl DefaultValue="https://localhost:5000/word-addin/assets/icon-64.png" />
-  <SupportUrl DefaultValue="https://localhost:5000/word-addin/help.html" />
+  <IconUrl DefaultValue="https://wolf.law.uw.edu:5000/word-addin/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="https://wolf.law.uw.edu:5000/word-addin/assets/icon-64.png" />
+  <SupportUrl DefaultValue="https://wolf.law.uw.edu:5000/word-addin/help.html" />
 
   <!-- Host Info -->
   <Hosts>
@@ -27,7 +27,7 @@
 
   <!-- Default Settings -->
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:5000/word-addin/taskpane.html" />
+    <SourceLocation DefaultValue="https://wolf.law.uw.edu:5000/word-addin/taskpane.html" />
   </DefaultSettings>
 
   <!-- Version Overrides -->
@@ -38,7 +38,7 @@
           <GetStarted>
             <Title>BriefCheck</Title>
             <Description>Detect hallucinated legal case citations in your briefs.</Description>
-            <LearnMoreUrl>https://localhost:5000/word-addin/help.html</LearnMoreUrl>
+            <LearnMoreUrl>https://wolf.law.uw.edu:5000/word-addin/help.html</LearnMoreUrl>
           </GetStarted>
           <FunctionFile resid="Contoso.DesktopFunctionFile.Url" />
 
@@ -79,13 +79,13 @@
     <!-- Resources -->
     <Resources>
       <bt:Images>
-        <bt:Image id="Contoso.tpicon_16x16" DefaultValue="https://localhost:5000/word-addin/assets/icon-16.png" />
-        <bt:Image id="Contoso.tpicon_32x32" DefaultValue="https://localhost:5000/word-addin/assets/icon-32.png" />
-        <bt:Image id="Contoso.tpicon_80x80" DefaultValue="https://localhost:5000/word-addin/assets/icon-80.png" />
+        <bt:Image id="Contoso.tpicon_16x16" DefaultValue="https://wolf.law.uw.edu:5000/word-addin/assets/icon-16.png" />
+        <bt:Image id="Contoso.tpicon_32x32" DefaultValue="https://wolf.law.uw.edu:5000/word-addin/assets/icon-32.png" />
+        <bt:Image id="Contoso.tpicon_80x80" DefaultValue="https://wolf.law.uw.edu:5000/word-addin/assets/icon-80.png" />
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Contoso.Taskpane.Url" DefaultValue="https://localhost:5000/word-addin/taskpane.html" />
-        <bt:Url id="Contoso.DesktopFunctionFile.Url" DefaultValue="https://localhost:5000/word-addin/function-file.html" />
+        <bt:Url id="Contoso.Taskpane.Url" DefaultValue="https://wolf.law.uw.edu:5000/word-addin/taskpane.html" />
+        <bt:Url id="Contoso.DesktopFunctionFile.Url" DefaultValue="https://wolf.law.uw.edu:5000/word-addin/function-file.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="Contoso.TaskpaneButton.Label" DefaultValue="BriefCheck" />
