@@ -364,7 +364,7 @@ if __name__ == '__main__':
             debug=debug_mode,
             host=host,
             port=port,
-            ssl_context=ssl_context
+            ssl_context=None  # Disable SSL for testing
         )
     except Exception as e:
         print(f"Failed to start the application: {str(e)}")
