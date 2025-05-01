@@ -3,16 +3,28 @@
 CourtListener API integration for CaseStrainer
 
 This module provides functions to check citations and generate case summaries using the CourtListener API.
+It also provides functions to search for citations in local PDF folders as an alternative to the API.
 """
 
 import os
 import json
 import time
 import requests
+import re
 from typing import Optional, Dict, Any, List, Tuple
 
 # Flag to track if CourtListener API is available
 COURTLISTENER_AVAILABLE = True
+
+# Local PDF folders for citation search
+LOCAL_PDF_FOLDERS = [
+    r"D:\WOLF Processing Folder\Wash 2d\Wash2d full vol pdfs",
+    r"D:\WOLF Processing Folder\Wash\Wash Full Vol pdfs",
+    r"D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs"
+]
+
+# Flag to track if local PDF search is enabled
+USE_LOCAL_PDF_SEARCH = False
 
 def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3) -> bool:
     """
@@ -406,6 +418,87 @@ def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 3
     # If we've exhausted all retries and still haven't returned, return an error
     return f"Error generating summary for {citation} after {max_retries} attempts."
 
+def set_use_local_pdf_search(enabled: bool) -> None:
+    """
+    Set whether to use local PDF search instead of the CourtListener API.
+    
+    Args:
+        enabled: Whether to enable local PDF search.
+    """
+    global USE_LOCAL_PDF_SEARCH
+    USE_LOCAL_PDF_SEARCH = enabled
+    print(f"Local PDF search {'enabled' if enabled else 'disabled'}")
+
+def search_citation_in_local_pdfs(citation: str) -> bool:
+    """
+    Search for a citation in local PDF folders.
+    
+    Args:
+        citation: The case citation to search for.
+        
+    Returns:
+        bool: True if the citation is found in any PDF filename, False otherwise.
+    """
+    if not citation or not citation.strip():
+        print("Error: Citation cannot be empty")
+        return False
+    
+    # Normalize citation to improve search results
+    citation = citation.strip()
+    
+    # Extract key parts from the citation for more flexible matching
+    # For example, from "Smith v. Jones, 123 Wn.2d 456 (1990)" we want to extract "Smith", "Jones", "123", "456"
+    parts = re.split(r'[^\w\d]+', citation)
+    parts = [part for part in parts if part]  # Remove empty strings
+    
+    try:
+        # Check if any of the PDF folders exist
+        folders_exist = False
+        for folder in LOCAL_PDF_FOLDERS:
+            if os.path.exists(folder) and os.path.isdir(folder):
+                folders_exist = True
+                break
+        
+        if not folders_exist:
+            print(f"Warning: None of the specified PDF folders exist")
+            return False
+        
+        # Search in each folder
+        for folder in LOCAL_PDF_FOLDERS:
+            if not os.path.exists(folder) or not os.path.isdir(folder):
+                print(f"Warning: Folder does not exist: {folder}")
+                continue
+            
+            try:
+                # List all PDF files in the folder
+                files = [f for f in os.listdir(folder) if f.lower().endswith('.pdf')]
+                
+                # Check each file for a match
+                for file in files:
+                    # Check if all key parts of the citation are in the filename
+                    # This is a simple approach - in a real implementation, you might want to use more sophisticated matching
+                    file_lower = file.lower()
+                    match_count = 0
+                    for part in parts:
+                        if part.lower() in file_lower:
+                            match_count += 1
+                    
+                    # If most of the key parts match, consider it a match
+                    # Adjust the threshold as needed
+                    if match_count >= min(2, len(parts)):
+                        print(f"Found potential match for '{citation}' in file: {file}")
+                        return True
+            except Exception as e:
+                print(f"Error searching folder {folder}: {str(e)}")
+                continue
+        
+        # No match found in any folder
+        print(f"No match found for '{citation}' in local PDF folders")
+        return False
+    except Exception as e:
+        print(f"Error searching local PDFs: {str(e)}")
+        return False
+
 def check_citation_exists(citation: str, max_retries: int = 3) -> bool:
     """
     Check if a citation exists in the CourtListener database.
@@ -434,7 +527,11 @@ def check_citation_exists(citation: str, max_retries: int = 3) -> bool:
         # This is our test hallucinated case
         return False
     
-    # For real citations, use the API
+    # Check if we should use local PDF search
+    if USE_LOCAL_PDF_SEARCH:
+        return search_citation_in_local_pdfs(citation)
+    
+    # Otherwise, use the API
     for attempt in range(max_retries):
         try:
             exists, _ = search_citation(citation)

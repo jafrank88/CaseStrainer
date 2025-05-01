@@ -43,7 +43,7 @@ except ImportError:
     print("Warning: openai_integration module not available. OpenAI API will not be used.")
 
 try:
-    from courtlistener_integration import setup_courtlistener_api, COURTLISTENER_AVAILABLE
+    from courtlistener_integration import setup_courtlistener_api, set_use_local_pdf_search, COURTLISTENER_AVAILABLE
 except ImportError:
     COURTLISTENER_AVAILABLE = False
     print("Warning: courtlistener_integration module not available. CourtListener API will not be used.")
@@ -167,6 +167,10 @@ def analyze():
                 return jsonify({
                     "error": "Similarity threshold must be between 0.1 and 1.0."
                 }), 400
+            
+            # Check if local PDF search is enabled
+            use_local_pdf_search = request.form.get('use_local_pdf_search', 'false').lower() == 'true'
+            set_use_local_pdf_search(use_local_pdf_search)
         except ValueError as e:
             return jsonify({
                 "error": f"Invalid parameter value: {str(e)}"
@@ -250,6 +254,10 @@ def api_analyze():
                 return jsonify({
                     "error": "Similarity threshold must be between 0.1 and 1.0."
                 }), 400
+            
+            # Check if local PDF search is enabled
+            use_local_pdf_search = data.get('use_local_pdf_search', False)
+            set_use_local_pdf_search(use_local_pdf_search)
         except ValueError as e:
             return jsonify({
                 "error": f"Invalid parameter value: {str(e)}"

@@ -90,6 +90,19 @@
                         </div>
                     </div>
                     
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="useLocalPdfSearch">
+                        <label class="form-check-label" for="useLocalPdfSearch">Search local PDF folders instead of using API</label>
+                        <div class="form-text">
+                            This will search for citations in the following folders:
+                            <ul class="small">
+                                <li>D:\WOLF Processing Folder\Wash 2d\Wash2d full vol pdfs</li>
+                                <li>D:\WOLF Processing Folder\Wash\Wash Full Vol pdfs</li>
+                                <li>D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary">Analyze Brief</button>
                 </form>
 
@@ -236,6 +249,9 @@
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
                     
+                    // Add local PDF search option to form data
+                    formData.append('use_local_pdf_search', document.getElementById('useLocalPdfSearch').checked);
+                    
                     fetch('/analyze', {
                         method: 'POST',
                         body: formData,
@@ -290,17 +306,18 @@
                             return null;
                         }
                         
-                        // Then analyze the brief
-                        return fetch('/analyze', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams({
-                                'brief_text': briefText.value,
-                                'iterations': iterations.value,
-                                'threshold': threshold.value
-                            }),
+                    // Then analyze the brief
+                    return fetch('/analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'brief_text': briefText.value,
+                            'iterations': iterations.value,
+                            'threshold': threshold.value,
+                            'use_local_pdf_search': document.getElementById('useLocalPdfSearch').checked
+                        }),
                             signal: controller.signal
                         })
                         .then(handleNetworkError);
