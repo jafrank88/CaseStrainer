@@ -27,19 +27,39 @@ def setup_openai_api(api_key: Optional[str] = None):
     
     Returns:
         bool: True if setup was successful, False otherwise.
+        
+    Raises:
+        ImportError: If the openai package is not available.
     """
     if not OPENAI_AVAILABLE:
-        return False
+        raise ImportError("openai package is not available. Please install it using: pip install openai")
     
-    # Get API key from parameter or environment variable
-    key = api_key or os.environ.get("OPENAI_API_KEY")
-    if not key:
-        print("Error: OpenAI API key not provided and OPENAI_API_KEY environment variable not set.")
+    try:
+        # Get API key from parameter or environment variable
+        key = api_key or os.environ.get("OPENAI_API_KEY")
+        if not key:
+            print("Error: OpenAI API key not provided and OPENAI_API_KEY environment variable not set.")
+            return False
+        
+        # Validate API key format (basic check)
+        if not key.startswith(('sk-', 'org-')):
+            print("Warning: API key format doesn't match expected pattern. Key should start with 'sk-' or 'org-'.")
+        
+        # Set up the client
+        openai.api_key = key
+        
+        # Test the API connection with a minimal request
+        try:
+            # Make a minimal API call to verify the key works
+            openai.Model.list()
+            print("OpenAI API connection successful.")
+            return True
+        except Exception as e:
+            print(f"Error testing OpenAI API connection: {str(e)}")
+            return False
+    except Exception as e:
+        print(f"Error setting up OpenAI API: {str(e)}")
         return False
-    
-    # Set up the client
-    openai.api_key = key
-    return True
 
 def generate_case_summary_with_openai(case_citation: str, model: str = "gpt-4") -> str:
     """
@@ -51,6 +71,11 @@ def generate_case_summary_with_openai(case_citation: str, model: str = "gpt-4") 
     
     Returns:
         str: A summary of the case.
+        
+    Raises:
+        ImportError: If the openai package is not available.
+        ValueError: If the API key is not set or if parameters are invalid.
+        RuntimeError: If the API call fails after multiple retries.
     """
     if not OPENAI_AVAILABLE:
         raise ImportError("openai package is not available. Please install it using: pip install openai")
@@ -58,6 +83,13 @@ def generate_case_summary_with_openai(case_citation: str, model: str = "gpt-4") 
     # Check if API key is set
     if not openai.api_key:
         raise ValueError("OpenAI API key not set. Call setup_openai_api() first.")
+    
+    # Validate inputs
+    if not case_citation or not case_citation.strip():
+        raise ValueError("Case citation cannot be empty")
+    
+    if not model or not model.strip():
+        raise ValueError("Model name cannot be empty")
     
     # Create the prompt
     prompt = f"""
@@ -77,6 +109,7 @@ def generate_case_summary_with_openai(case_citation: str, model: str = "gpt-4") 
     # Maximum retry attempts
     max_retries = 3
     retry_delay = 2  # seconds
+    last_error = None
     
     for attempt in range(max_retries):
         try:
@@ -91,14 +124,54 @@ def generate_case_summary_with_openai(case_citation: str, model: str = "gpt-4") 
                 max_tokens=1000
             )
             
+            # Validate response
+            if not response or not hasattr(response, 'choices') or not response.choices:
+                raise ValueError("Invalid response from OpenAI API: No choices returned")
+                
+            if not hasattr(response.choices[0], 'message') or not response.choices[0].message:
+                raise ValueError("Invalid response from OpenAI API: No message in first choice")
+                
+            if not hasattr(response.choices[0].message, 'content'):
+                raise ValueError("Invalid response from OpenAI API: No content in message")
+            
             # Extract and return the summary
-            return response.choices[0].message.content.strip()
+            summary = response.choices[0].message.content.strip()
+            
+            if not summary:
+                raise ValueError("Empty summary returned from OpenAI API")
+                
+            return summary
+            
+        except openai.error.RateLimitError as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                print(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
+                time.sleep(wait_time)
+            else:
+                print(f"Rate limit exceeded after {max_retries} attempts.")
+                raise RuntimeError(f"Failed to generate summary due to rate limits: {str(e)}") from e
+                
+        except openai.error.AuthenticationError as e:
+            print(f"Authentication error: {str(e)}")
+            raise ValueError(f"OpenAI API authentication failed: {str(e)}") from e
+            
+        except openai.error.InvalidRequestError as e:
+            print(f"Invalid request: {str(e)}")
+            raise ValueError(f"Invalid request to OpenAI API: {str(e)}") from e
             
         except Exception as e:
+            last_error = e
             if attempt < max_retries - 1:
-                print(f"Error calling OpenAI API: {e}. Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
-                retry_delay *= 2  # Exponential backoff
+                wait_time = retry_delay * (2 ** attempt)  # Exponential backoff
+                print(f"Error calling OpenAI API: {str(e)}. Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
             else:
-                print(f"Failed to generate summary after {max_retries} attempts: {e}")
-                raise
+                print(f"Failed to generate summary after {max_retries} attempts")
+                raise RuntimeError(f"Failed to generate summary after {max_retries} attempts: {str(e)}") from e
+    
+    # This should never be reached due to the raise in the loop, but just in case
+    if last_error:
+        raise RuntimeError(f"Failed to generate summary: {str(last_error)}") from last_error
+    else:
+        raise RuntimeError("Failed to generate summary for unknown reasons")

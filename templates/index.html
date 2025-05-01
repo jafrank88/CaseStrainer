@@ -69,8 +69,8 @@
                     
                     <div class="mb-3">
                         <label for="fileUpload" class="form-label">Or upload a document:</label>
-                        <input class="form-control" type="file" id="fileUpload" name="file" accept=".docx,.txt">
-                        <div class="form-text">Supported formats: Word (.docx), Text (.txt)</div>
+                        <input class="form-control" type="file" id="fileUpload" name="file" accept=".docx,.txt,.pdf">
+                        <div class="form-text">Supported formats: Word (.docx), PDF (.pdf), Text (.txt)</div>
                     </div>
                     
                     <div class="row mb-3">
@@ -135,9 +135,68 @@
                 thresholdValue.textContent = this.value;
             });
 
+            // Validate form inputs
+            function validateForm() {
+                // Validate text or file
+                const fileUpload = document.getElementById('fileUpload');
+                const hasFile = fileUpload.files && fileUpload.files.length > 0;
+                const hasText = briefText.value.trim().length > 0;
+                
+                if (!hasFile && !hasText) {
+                    showError('Please provide text or upload a file.');
+                    return false;
+                }
+                
+                // Validate iterations
+                const iterValue = parseInt(iterations.value);
+                if (isNaN(iterValue) || iterValue < 1 || iterValue > 10) {
+                    showError('Number of iterations must be between 1 and 10.');
+                    return false;
+                }
+                
+                // Validate threshold
+                const threshValue = parseFloat(threshold.value);
+                if (isNaN(threshValue) || threshValue < 0.1 || threshValue > 1.0) {
+                    showError('Similarity threshold must be between 0.1 and 1.0.');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Show error message
+            function showError(message) {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                resultsSummary.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> ${message}</div>`;
+            }
+            
+            // Handle network errors
+            function handleNetworkError(response) {
+                if (!response.ok) {
+                    if (response.status === 413) {
+                        throw new Error('File too large. Please upload a smaller file.');
+                    } else if (response.status === 429) {
+                        throw new Error('Too many requests. Please try again later.');
+                    } else if (response.status >= 500) {
+                        throw new Error('Server error. Please try again later.');
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.error || `Request failed with status ${response.status}`);
+                        });
+                    }
+                }
+                return response.json();
+            }
+            
             // Handle form submission
             briefForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Validate form
+                if (!validateForm()) {
+                    return;
+                }
                 
                 // Show loading indicator
                 loading.style.display = 'block';
@@ -145,42 +204,67 @@
                 
                 const fileUpload = document.getElementById('fileUpload');
                 const hasFile = fileUpload.files && fileUpload.files.length > 0;
-                const hasText = briefText.value.trim().length > 0;
-                
-                if (!hasFile && !hasText) {
-                    loading.style.display = 'none';
-                    results.style.display = 'block';
-                    resultsSummary.innerHTML = '<strong>Error:</strong> Please provide text or upload a file.';
-                    return;
-                }
                 
                 if (hasFile) {
+                    // Check file size
+                    const maxSize = 10 * 1024 * 1024; // 10MB
+                    if (fileUpload.files[0].size > maxSize) {
+                        showError(`File too large. Maximum size is ${maxSize / (1024 * 1024)}MB.`);
+                        return;
+                    }
+                    
+                    // Check file type
+                    const fileType = fileUpload.files[0].type;
+                    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+                    const validExtensions = ['.pdf', '.docx', '.txt'];
+                    
+                    const fileName = fileUpload.files[0].name;
+                    const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+                    
+                    if (!validTypes.includes(fileType) && !validExtensions.includes(fileExt)) {
+                        showError('Invalid file type. Please upload a PDF, DOCX, or TXT file.');
+                        return;
+                    }
+                    
                     // Handle file upload
                     const formData = new FormData();
                     formData.append('file', fileUpload.files[0]);
                     formData.append('iterations', iterations.value);
                     formData.append('threshold', threshold.value);
                     
+                    // Set timeout for fetch
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+                    
                     fetch('/analyze', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        signal: controller.signal
                     })
-                    .then(response => response.json())
+                    .then(handleNetworkError)
                     .then(data => {
+                        clearTimeout(timeoutId);
                         if (data.error) {
                             throw new Error(data.error);
                         }
                         displayResults(data);
                     })
                     .catch(error => {
+                        clearTimeout(timeoutId);
                         console.error('Error:', error);
-                        loading.style.display = 'none';
-                        results.style.display = 'block';
-                        resultsSummary.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                        
+                        if (error.name === 'AbortError') {
+                            showError('Request timed out. The file may be too large or the server is busy.');
+                        } else {
+                            showError(error.message || 'An unexpected error occurred.');
+                        }
                     });
                 } else {
                     // Handle text input
                     // First, extract citations
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                    
                     fetch('/extract', {
                         method: 'POST',
                         headers: {
@@ -188,16 +272,22 @@
                         },
                         body: new URLSearchParams({
                             'brief_text': briefText.value
-                        })
+                        }),
+                        signal: controller.signal
                     })
-                    .then(response => response.json())
+                    .then(handleNetworkError)
                     .then(data => {
-                        if (data.citations.length === 0) {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        if (!data.citations || data.citations.length === 0) {
+                            clearTimeout(timeoutId);
                             loading.style.display = 'none';
                             results.style.display = 'block';
-                            resultsSummary.innerHTML = 'No case citations found in the text.';
+                            resultsSummary.innerHTML = '<div class="alert alert-info">No case citations found in the text.</div>';
                             citationsList.innerHTML = '';
-                            return;
+                            return null;
                         }
                         
                         // Then analyze the brief
@@ -210,18 +300,29 @@
                                 'brief_text': briefText.value,
                                 'iterations': iterations.value,
                                 'threshold': threshold.value
-                            })
+                            }),
+                            signal: controller.signal
                         })
-                        .then(response => response.json())
-                        .then(results => {
+                        .then(handleNetworkError);
+                    })
+                    .then(results => {
+                        clearTimeout(timeoutId);
+                        if (results) {
+                            if (results.error) {
+                                throw new Error(results.error);
+                            }
                             displayResults(results);
-                        });
+                        }
                     })
                     .catch(error => {
+                        clearTimeout(timeoutId);
                         console.error('Error:', error);
-                        loading.style.display = 'none';
-                        results.style.display = 'block';
-                        resultsSummary.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                        
+                        if (error.name === 'AbortError') {
+                            showError('Request timed out. The server may be busy.');
+                        } else {
+                            showError(error.message || 'An unexpected error occurred.');
+                        }
                     });
                 }
             });
@@ -233,16 +334,39 @@
                 // Show results
                 results.style.display = 'block';
                 
+                // Check for errors in the data
+                if (data.error) {
+                    resultsSummary.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> ${data.error}</div>`;
+                    citationsList.innerHTML = '';
+                    return;
+                }
+                
                 // Display summary
-                resultsSummary.innerHTML = `
-                    <strong>Total citations found:</strong> ${data.total_citations}<br>
-                    <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                let summaryHTML = `
+                    <div class="alert alert-info">
+                        <strong>Total citations found:</strong> ${data.total_citations}<br>
+                        <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                    </div>
                 `;
+                
+                // Add errors section if present
+                if (data.errors && data.errors.length > 0) {
+                    summaryHTML += `
+                        <div class="alert alert-warning">
+                            <strong>Warning:</strong> Some citations could not be fully analyzed:
+                            <ul>
+                                ${data.errors.map(err => `<li>${err.citation}: ${err.error}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                resultsSummary.innerHTML = summaryHTML;
                 
                 // Display citations
                 citationsList.innerHTML = '';
                 
-                if (data.results.length === 0) {
+                if (!data.results || data.results.length === 0) {
                     citationsList.innerHTML = '<p>No citations to analyze.</p>';
                     return;
                 }
@@ -253,18 +377,55 @@
                 accordion.id = 'citationsAccordion';
                 
                 data.results.forEach((result, index) => {
-                    const isHallucinated = result.is_hallucinated;
+                    // Handle potential missing properties safely
+                    const isHallucinated = result.is_hallucinated === true;
                     const citationClass = isHallucinated ? 'citation-hallucinated' : 'citation-real';
-                    const statusBadge = isHallucinated ? 
-                        '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
-                        '<span class="badge bg-success">Likely Real</span>';
+                    
+                    let statusBadge;
+                    if (result.method === 'check_failed' || result.method === 'summary_comparison_failed' || 
+                        result.method === 'summary_generation_failed' || result.method === 'similarity_calculation_failed') {
+                        statusBadge = '<span class="badge bg-warning text-dark">Analysis Failed</span>';
+                    } else {
+                        statusBadge = isHallucinated ? 
+                            '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
+                            '<span class="badge bg-success">Likely Real</span>';
+                    }
                     
                     const accordionItem = document.createElement('div');
                     accordionItem.className = 'accordion-item ' + citationClass;
                     
-                    const confidencePercent = Math.round(result.confidence * 100);
-                    const similarityPercent = result.similarity_score !== null ? 
+                    const confidencePercent = Math.round((result.confidence || 0) * 100);
+                    const similarityPercent = result.similarity_score !== null && result.similarity_score !== undefined ? 
                         Math.round(result.similarity_score * 100) : 'N/A';
+                    
+                    // Get method display name
+                    let methodDisplay = 'Unknown';
+                    switch(result.method) {
+                        case 'api':
+                            methodDisplay = 'API Lookup';
+                            break;
+                        case 'summary_comparison':
+                            methodDisplay = 'Summary Comparison';
+                            break;
+                        case 'check_failed':
+                            methodDisplay = 'Analysis Failed';
+                            break;
+                        case 'summary_comparison_failed':
+                            methodDisplay = 'Summary Comparison Failed';
+                            break;
+                        case 'summary_generation_failed':
+                            methodDisplay = 'Summary Generation Failed';
+                            break;
+                        case 'similarity_calculation_failed':
+                            methodDisplay = 'Similarity Calculation Failed';
+                            break;
+                        default:
+                            methodDisplay = result.method || 'Unknown';
+                    }
+                    
+                    // Error message if present
+                    const errorMessage = result.error ? 
+                        `<div class="alert alert-warning mt-2"><strong>Error:</strong> ${result.error}</div>` : '';
                     
                     accordionItem.innerHTML = `
                         <h2 class="accordion-header" id="heading${index}">
@@ -272,7 +433,7 @@
                                     data-bs-toggle="collapse" data-bs-target="#collapse${index}" 
                                     aria-expanded="${isHallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
                                 <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <span>${result.citation}</span>
+                                    <span>${result.citation || 'Unknown Citation'}</span>
                                     ${statusBadge}
                                 </div>
                             </button>
@@ -280,14 +441,15 @@
                         <div id="collapse${index}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}" 
                              aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
                             <div class="accordion-body">
-                                <p><strong>Detection method:</strong> ${result.method === 'api' ? 'API Lookup' : 'Summary Comparison'}</p>
+                                <p><strong>Detection method:</strong> ${methodDisplay}</p>
+                                ${errorMessage}
                                 <p><strong>Confidence:</strong> ${confidencePercent}%</p>
                                 <div class="progress confidence-bar">
                                     <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
                                          role="progressbar" style="width: ${confidencePercent}%" 
                                          aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                ${result.similarity_score !== null ? `
+                                ${result.similarity_score !== null && result.similarity_score !== undefined ? `
                                 <p><strong>Similarity score:</strong> ${similarityPercent}%</p>
                                 <div class="progress confidence-bar">
                                     <div class="progress-bar bg-info" role="progressbar" 
@@ -301,7 +463,7 @@
                                     ${result.summaries.map((summary, i) => `
                                         <div class="mb-2">
                                             <p><strong>Summary ${i+1}:</strong></p>
-                                            <div class="summary-box">${summary}</div>
+                                            <div class="summary-box">${summary || 'No summary available'}</div>
                                         </div>
                                     `).join('')}
                                 </div>
