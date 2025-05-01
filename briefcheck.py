@@ -31,7 +31,7 @@ except ImportError:
 # Try to import eyecite for citation extraction
 try:
     from eyecite import get_citations
-    from eyecite.tokenizers import HyperscanTokenizer, DefaultTokenizer
+    from eyecite.tokenizers import HyperscanTokenizer, AhocorasickTokenizer, default_tokenizer
     
     # Check if hyperscan is available
     try:
@@ -39,7 +39,7 @@ try:
         HYPERSCAN_AVAILABLE = True
     except ImportError:
         HYPERSCAN_AVAILABLE = False
-        print("Warning: hyperscan not available, falling back to DefaultTokenizer")
+        print("Warning: hyperscan not available, falling back to AhocorasickTokenizer")
     
     EYECITE_AVAILABLE = True
 except ImportError:
@@ -222,8 +222,8 @@ def extract_case_citations(text: str) -> List[str]:
     
     if EYECITE_AVAILABLE:
         try:
-            # Use HyperscanTokenizer if available, otherwise use DefaultTokenizer
-            tokenizer = HyperscanTokenizer() if HYPERSCAN_AVAILABLE else DefaultTokenizer()
+            # Use HyperscanTokenizer if available, otherwise use AhocorasickTokenizer
+            tokenizer = HyperscanTokenizer() if HYPERSCAN_AVAILABLE else AhocorasickTokenizer()
             
             # Extract citations using eyecite
             citations = get_citations(text, tokenizer=tokenizer)
