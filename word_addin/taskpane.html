@@ -90,7 +90,10 @@
                     </div>
                 </div>
                 
-                <button id="analyze-button" class="btn btn-primary">Analyze Document</button>
+                <div class="d-flex gap-2">
+                    <button id="analyze-button" class="btn btn-primary">Analyze Document</button>
+                    <button id="clear-button" class="btn btn-secondary">Clear</button>
+                </div>
                 
                 <div id="loading" class="loading mt-3">
                     <div class="spinner-border text-primary" role="status">
@@ -132,6 +135,19 @@
                 // Update threshold value display
                 threshold.addEventListener('input', function() {
                     thresholdValue.textContent = this.value;
+                });
+                
+                // Handle clear button click
+                const clearButton = document.getElementById('clear-button');
+                clearButton.addEventListener('click', function() {
+                    // Hide results
+                    results.style.display = 'none';
+                    
+                    // Reset form to default values
+                    iterations.value = '3';
+                    threshold.value = '0.7';
+                    thresholdValue.textContent = '0.7';
+                    document.getElementById('useLocalPdfSearch').checked = false;
                 });
                 
                 // Handle analyze button click

@@ -103,7 +103,10 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Analyze Brief</button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Analyze Brief</button>
+                        <button type="button" id="clearButton" class="btn btn-secondary">Clear</button>
+                    </div>
                 </form>
 
                 <div id="loading" class="loading">
@@ -505,6 +508,26 @@
                 citationsList.appendChild(accordion);
             }
 
+            // Clear button functionality
+            const clearButton = document.getElementById('clearButton');
+            clearButton.addEventListener('click', function() {
+                // Clear text area
+                briefText.value = '';
+                
+                // Clear file input
+                const fileUpload = document.getElementById('fileUpload');
+                fileUpload.value = '';
+                
+                // Hide results
+                results.style.display = 'none';
+                
+                // Reset form to default values
+                iterations.value = '3';
+                threshold.value = '0.7';
+                thresholdValue.textContent = '0.7';
+                document.getElementById('useLocalPdfSearch').checked = false;
+            });
+            
             // Add sample data for testing
             const sampleButton = document.createElement('button');
             sampleButton.className = 'btn btn-outline-secondary mt-2';
