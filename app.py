@@ -11,6 +11,8 @@ import json
 import os
 import sys
 import tempfile
+import argparse
+from pathlib import Path
 
 # Third-party imports
 from flask import Flask, jsonify, render_template, request, send_from_directory
@@ -302,27 +304,61 @@ def word_addin_files(filename):
             "error": f"Failed to serve file: {str(e)}"
         }), 500
 
+def load_config():
+    """
+    Load configuration from config.json file if it exists.
+    
+    Returns:
+        dict: Configuration dictionary with API keys.
+    """
+    config_path = Path('config.json')
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+            print(f"Loaded configuration from {config_path}")
+            return config
+        except Exception as e:
+            print(f"Error loading configuration from {config_path}: {str(e)}")
+    return {}
+
 if __name__ == '__main__':
     try:
+        # Parse command line arguments
+        parser = argparse.ArgumentParser(description='CaseStrainer Web Interface')
+        parser.add_argument('--courtlistener-key', help='CourtListener API key')
+        parser.add_argument('--openai-key', help='OpenAI API key')
+        parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
+        parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
+        parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+        args = parser.parse_args()
+        
+        # Load configuration from file
+        config = load_config()
+        
         # Ensure templates directory exists
         os.makedirs('templates', exist_ok=True)
         
         # Initialize API integrations
         if 'OPENAI_AVAILABLE' in globals() and OPENAI_AVAILABLE:
-            openai_key = os.environ.get('OPENAI_API_KEY')
+            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
+            openai_key = args.openai_key or os.environ.get('OPENAI_API_KEY') or config.get('openai_api_key')
             if openai_key:
                 print("Initializing OpenAI API...")
                 setup_openai_api(openai_key)
             else:
-                print("Warning: OPENAI_API_KEY environment variable not set. OpenAI API will not be used.")
+                print("Warning: OpenAI API key not provided in command line, environment variable, or config file.")
+                print("OpenAI API will not be used.")
         
         if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
-            courtlistener_key = os.environ.get('COURTLISTENER_API_KEY')
+            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
+            courtlistener_key = args.courtlistener_key or os.environ.get('COURTLISTENER_API_KEY') or config.get('courtlistener_api_key')
             if courtlistener_key:
-                print("Initializing CourtListener API...")
+                print(f"Initializing CourtListener API with key: {courtlistener_key[:5]}...{courtlistener_key[-5:] if len(courtlistener_key) > 10 else ''}")
                 setup_courtlistener_api(courtlistener_key)
             else:
-                print("Warning: COURTLISTENER_API_KEY environment variable not set. CourtListener API will be used in limited mode.")
+                print("Warning: CourtListener API key not provided in command line, environment variable, or config file.")
+                print("CourtListener API will be used in limited mode (rate-limited).")
         
         # Check for SSL certificate and key
         cert_path = os.environ.get('SSL_CERT_PATH', 'ssl/cert.pem')
@@ -348,11 +384,12 @@ if __name__ == '__main__':
         
         # Parse environment variables with error handling
         try:
-            debug_mode = os.environ.get('DEBUG', 'True').lower() == 'true'
-            host = os.environ.get('HOST', '0.0.0.0')
+            # Use command line arguments if provided, otherwise use environment variables
+            debug_mode = args.debug if args.debug is not None else os.environ.get('DEBUG', 'True').lower() == 'true'
+            host = args.host or os.environ.get('HOST', '0.0.0.0')
             
             try:
-                port = int(os.environ.get('PORT', 5000))
+                port = args.port or int(os.environ.get('PORT', 5000))
                 if port < 0 or port > 65535:
                     print(f"Warning: Invalid port number {port}, using default port 5000")
                     port = 5000
@@ -361,7 +398,7 @@ if __name__ == '__main__':
                 port = 5000
                 
         except Exception as e:
-            print(f"Error parsing environment variables: {str(e)}")
+            print(f"Error parsing configuration: {str(e)}")
             print("Using default configuration...")
             debug_mode = True
             host = '0.0.0.0'

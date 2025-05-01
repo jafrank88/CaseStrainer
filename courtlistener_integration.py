@@ -26,13 +26,14 @@ LOCAL_PDF_FOLDERS = [
 # Flag to track if local PDF search is enabled
 USE_LOCAL_PDF_SEARCH = False
 
-def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3) -> bool:
+def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3, verbose: bool = True) -> bool:
     """
     Set up the CourtListener API with the provided key or from environment variable.
     
     Args:
         api_key: CourtListener API key. If None, will try to get from COURTLISTENER_API_KEY environment variable.
         max_retries: Maximum number of retry attempts for API calls.
+        verbose: Whether to print detailed information about the setup process.
     
     Returns:
         bool: True if setup was successful, False otherwise.
@@ -43,13 +44,16 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3)
         # Get API key from parameter or environment variable
         key = api_key or os.environ.get("COURTLISTENER_API_KEY")
         if not key:
-            print("Warning: CourtListener API key not provided and COURTLISTENER_API_KEY environment variable not set.")
-            print("CourtListener API will be used in limited mode (rate-limited).")
+            if verbose:
+                print("Warning: CourtListener API key not provided and COURTLISTENER_API_KEY environment variable not set.")
+                print("CourtListener API will be used in limited mode (rate-limited).")
             COURTLISTENER_AVAILABLE = True
             return True  # CourtListener allows some requests without API key
         
         # Store the API key in an environment variable for later use
         os.environ["COURTLISTENER_API_KEY"] = key
+        if verbose:
+            print(f"CourtListener API key set in environment variable: {key[:5]}...{key[-5:] if len(key) > 10 else ''}")
         
         # Test the API connection with a minimal request
         for attempt in range(max_retries):
@@ -62,7 +66,9 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3)
                 )
                 
                 if response.status_code == 200:
-                    print("CourtListener API connection successful.")
+                    if verbose:
+                        print("CourtListener API connection successful.")
+                        print("API is now available for full functionality.")
                     COURTLISTENER_AVAILABLE = True
                     return True
                 elif response.status_code == 429:  # Too Many Requests
@@ -76,8 +82,10 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3)
                         COURTLISTENER_AVAILABLE = False
                         return False
                 else:
-                    print(f"Error testing CourtListener API connection: Status code {response.status_code}")
-                    print(f"Response: {response.text}")
+                    if verbose:
+                        print(f"Error testing CourtListener API connection: Status code {response.status_code}")
+                        print(f"Response: {response.text}")
+                        print("This may indicate an invalid API key or a server issue.")
                     if attempt < max_retries - 1:
                         wait_time = 2 ** attempt  # Exponential backoff
                         print(f"Retrying in {wait_time} seconds...")
@@ -121,9 +129,14 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3)
         
         # If we've exhausted all retries and still haven't returned, set to False
         COURTLISTENER_AVAILABLE = False
+        if verbose:
+            print("Failed to set up CourtListener API after multiple attempts.")
+            print("API will be used in limited mode or local PDF search will be used instead.")
         return False
     except Exception as e:
-        print(f"Error setting up CourtListener API: {str(e)}")
+        if verbose:
+            print(f"Error setting up CourtListener API: {str(e)}")
+            print("API will be used in limited mode or local PDF search will be used instead.")
         COURTLISTENER_AVAILABLE = False
         return False
 
