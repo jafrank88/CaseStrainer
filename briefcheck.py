@@ -54,10 +54,22 @@ try:
 except ImportError:
     OPENAI_AVAILABLE = False
 
+# Try to import CourtListener integration
+try:
+    from courtlistener_integration import (
+        generate_case_summary_from_courtlistener, 
+        check_citation_exists, 
+        setup_courtlistener_api,
+        COURTLISTENER_AVAILABLE
+    )
+except ImportError:
+    COURTLISTENER_AVAILABLE = False
+    print("Warning: courtlistener_integration module not available. CourtListener API will not be used.")
+
 def generate_case_summary(case_citation: str) -> str:
     """
     Generate a summary of a legal case using an LLM.
-    Uses OpenAI API if available, otherwise falls back to mock implementation.
+    Uses OpenAI API if available, otherwise tries CourtListener API, then falls back to mock implementation.
     """
     # Try to use OpenAI API if available and configured
     if OPENAI_AVAILABLE:
@@ -65,9 +77,21 @@ def generate_case_summary(case_citation: str) -> str:
             return generate_case_summary_with_openai(case_citation)
         except Exception as e:
             print(f"Error using OpenAI API: {e}")
+            print("Trying CourtListener API...")
+    
+    # Try to use CourtListener API if available
+    if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+        try:
+            summary = generate_case_summary_from_courtlistener(case_citation)
+            if not summary.startswith("Error") and not summary.startswith("Case citation") and not summary.startswith("CourtListener API is not available"):
+                return summary
+            print(f"CourtListener API result: {summary}")
+            print("Falling back to mock implementation...")
+        except Exception as e:
+            print(f"Error using CourtListener API: {e}")
             print("Falling back to mock implementation...")
     
-    # Mock implementation for testing or when OpenAI is not available
+    # Mock implementation for testing or when both APIs are not available
     print("Using mock implementation for case summary generation")
     
     # For demonstration purposes, return predefined summaries for test cases
@@ -381,9 +405,21 @@ def calculate_simple_similarity(text1: str, text2: str) -> float:
 def check_citation_with_api(citation: str) -> bool:
     """
     Check if a citation exists using an external API like CourtListener.
-    This is a mock implementation that returns True for real cases and False for hallucinated ones.
+    Uses CourtListener API if available, otherwise falls back to mock implementation.
     """
-    # In a real implementation, this would call the CourtListener API
+    # Try to use CourtListener API if available
+    if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+        try:
+            exists = check_citation_exists(citation)
+            print(f"CourtListener API check for '{citation}': {'Found' if exists else 'Not found'}")
+            return exists
+        except Exception as e:
+            print(f"Error checking citation with CourtListener API: {e}")
+            print("Falling back to mock implementation...")
+    
+    # Mock implementation for testing or when CourtListener API is not available
+    print("Using mock implementation for citation check")
+    
     # For demonstration purposes, return predefined results for test cases
     if "Pringle v JP Morgan Chase" in citation:
         return False  # Our test hallucinated case
@@ -391,7 +427,6 @@ def check_citation_with_api(citation: str) -> bool:
         return True   # Our test real case
     else:
         # For any other case, assume it's real
-        # In a real implementation, this would check with the API
         return True
 
 def generate_multiple_summaries(citation: str, num_iterations: int = 3) -> List[str]:
@@ -634,6 +669,8 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.7, help="Similarity threshold for hallucination detection")
     parser.add_argument("--output", help="Path to output JSON file (optional)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("--openai-key", help="OpenAI API key (optional, can also use OPENAI_API_KEY env var)")
+    parser.add_argument("--courtlistener-key", help="CourtListener API key (optional, can also use COURTLISTENER_API_KEY env var)")
     
     try:
         args = parser.parse_args()
@@ -693,6 +730,15 @@ def main():
             except Exception as e:
                 print(f"Error with output file path: {str(e)}")
                 return 1
+        
+        # Set up API keys if provided
+        if OPENAI_AVAILABLE and args.openai_key:
+            print("Setting up OpenAI API...")
+            setup_openai_api(args.openai_key)
+        
+        if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE and args.courtlistener_key:
+            print("Setting up CourtListener API...")
+            setup_courtlistener_api(args.courtlistener_key)
         
         # Analyze brief
         try:

@@ -9,6 +9,7 @@ with support for Word documents and a Word add-in.
 # Standard library imports
 import json
 import os
+import sys
 import tempfile
 
 # Third-party imports
@@ -33,6 +34,19 @@ except ImportError:
 
 # Local application imports
 from briefcheck import analyze_brief, extract_case_citations
+
+# Try to import OpenAI and CourtListener integrations
+try:
+    from openai_integration import setup_openai_api, OPENAI_AVAILABLE
+except ImportError:
+    OPENAI_AVAILABLE = False
+    print("Warning: openai_integration module not available. OpenAI API will not be used.")
+
+try:
+    from courtlistener_integration import setup_courtlistener_api, COURTLISTENER_AVAILABLE
+except ImportError:
+    COURTLISTENER_AVAILABLE = False
+    print("Warning: courtlistener_integration module not available. CourtListener API will not be used.")
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for Word add-in support
@@ -284,6 +298,23 @@ if __name__ == '__main__':
     try:
         # Ensure templates directory exists
         os.makedirs('templates', exist_ok=True)
+        
+        # Initialize API integrations
+        if 'OPENAI_AVAILABLE' in globals() and OPENAI_AVAILABLE:
+            openai_key = os.environ.get('OPENAI_API_KEY')
+            if openai_key:
+                print("Initializing OpenAI API...")
+                setup_openai_api(openai_key)
+            else:
+                print("Warning: OPENAI_API_KEY environment variable not set. OpenAI API will not be used.")
+        
+        if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+            courtlistener_key = os.environ.get('COURTLISTENER_API_KEY')
+            if courtlistener_key:
+                print("Initializing CourtListener API...")
+                setup_courtlistener_api(courtlistener_key)
+            else:
+                print("Warning: COURTLISTENER_API_KEY environment variable not set. CourtListener API will be used in limited mode.")
         
         # Check for SSL certificate and key
         cert_path = os.environ.get('SSL_CERT_PATH', 'ssl/cert.pem')
