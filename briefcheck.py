@@ -531,7 +531,10 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
                     "confidence": 0.0,
                     "method": "summary_comparison_failed",
                     "similarity_score": None,
-                    "summaries": []
+                    "summaries": [],
+                    "exists": True,  # Default to assuming it exists
+                    "case_data": False,
+                    "case_summary": None
                 }
         except Exception as e:
             print(f"Error generating summaries for citation '{citation}': {str(e)}")
@@ -542,7 +545,10 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
                 "method": "summary_generation_failed",
                 "similarity_score": None,
                 "error": str(e),
-                "summaries": []
+                "summaries": [],
+                "exists": True,  # Default to assuming it exists
+                "case_data": False,
+                "case_summary": None
             }
         
         # Calculate average similarity
@@ -557,7 +563,10 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
                 "method": "similarity_calculation_failed",
                 "similarity_score": None,
                 "error": str(e),
-                "summaries": summaries
+                "summaries": summaries,
+                "exists": True,  # Default to assuming it exists
+                "case_data": False,
+                "case_summary": None
             }
         
         # Determine if the citation is likely hallucinated based on similarity
@@ -601,7 +610,10 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
             "method": "check_failed",
             "similarity_score": None,
             "error": str(e),
-            "summaries": []
+            "summaries": [],
+            "exists": True,  # Default to assuming it exists
+            "case_data": False,
+            "case_summary": None
         }
 
 def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: float = 0.7) -> Dict:
@@ -671,7 +683,10 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                     "method": "check_failed",
                     "error": str(e),
                     "similarity_score": None,
-                    "summaries": []
+                    "summaries": [],
+                    "exists": True,  # Default to assuming it exists
+                    "case_data": False,
+                    "case_summary": None
                 })
         
         # Compile results
