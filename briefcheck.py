@@ -484,6 +484,23 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
         # First, check with API (if available)
         try:
             api_result = check_citation_with_api(citation)
+            exists = api_result
+            case_data = None
+            
+            # If using CourtListener API, we can get more detailed information
+            if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+                try:
+                    from courtlistener_integration import search_citation
+                    exists, case_data = search_citation(citation)
+                except Exception as e:
+                    print(f"Warning: Failed to get detailed case data: {str(e)}")
+            
+            # Generate case summary
+            case_summary = None
+            try:
+                case_summary = generate_case_summary(citation)
+            except Exception as e:
+                print(f"Warning: Failed to generate case summary: {str(e)}")
             
             # If API confirms the citation doesn't exist, we can skip the summary comparison
             if not api_result:
@@ -493,7 +510,10 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
                     "confidence": 1.0,
                     "method": "api",
                     "similarity_score": None,
-                    "summaries": []
+                    "summaries": [],
+                    "exists": exists,
+                    "case_data": case_data is not None,
+                    "case_summary": case_summary
                 }
         except Exception as e:
             print(f"Warning: API check failed for citation '{citation}': {str(e)}")
@@ -547,13 +567,30 @@ def check_citation(citation: str, num_iterations: int = 3, similarity_threshold:
         confidence = abs(avg_similarity - similarity_threshold) / max(similarity_threshold, 1 - similarity_threshold)
         confidence = min(confidence * 2, 1.0)  # Scale and cap confidence
         
+        # Generate case summary if not already generated
+        case_summary = None
+        if 'case_summary' not in locals() or case_summary is None:
+            try:
+                case_summary = generate_case_summary(citation)
+            except Exception as e:
+                print(f"Warning: Failed to generate case summary: {str(e)}")
+        
+        # Set default values for exists and case_data if not already set
+        if 'exists' not in locals():
+            exists = not is_hallucinated
+        if 'case_data' not in locals():
+            case_data = False
+        
         return {
             "citation": citation,
             "is_hallucinated": is_hallucinated,
             "confidence": confidence,
             "method": "summary_comparison",
             "similarity_score": avg_similarity,
-            "summaries": summaries
+            "summaries": summaries,
+            "exists": exists,
+            "case_data": case_data is not None,
+            "case_summary": case_summary
         }
     except Exception as e:
         print(f"Unexpected error checking citation '{citation}': {str(e)}")
