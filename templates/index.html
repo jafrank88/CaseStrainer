@@ -136,6 +136,117 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Improved EventSource with reconnection logic
+        function setupEventSource(url, options = {}) {
+            const defaultOptions = {
+                onMessage: () => {},
+                onOpen: () => {},
+                onError: () => {},
+                onComplete: () => {},
+                maxReconnectAttempts: 5,
+                reconnectDelay: 3000,
+                timeout: 300000 // 5 minutes
+            };
+            
+            const config = {...defaultOptions, ...options};
+            let reconnectAttempts = 0;
+            let eventSource = null;
+            let reconnectTimeout = null;
+            let connectionTimeout = null;
+            
+            function connect() {
+                // Clear any existing timeouts
+                if (reconnectTimeout) clearTimeout(reconnectTimeout);
+                
+                // Set a connection timeout
+                if (connectionTimeout) clearTimeout(connectionTimeout);
+                connectionTimeout = setTimeout(() => {
+                    console.warn('Connection timeout reached. Reconnecting...');
+                    reconnect();
+                }, config.timeout);
+                
+                // Create new EventSource
+                eventSource = new EventSource(url);
+                
+                eventSource.onopen = function(event) {
+                    console.log('EventSource connection established');
+                    reconnectAttempts = 0; // Reset reconnect attempts on successful connection
+                    config.onOpen(event);
+                };
+                
+                eventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        config.onMessage(data);
+                        
+                        // If we get a complete status, close the connection
+                        if (data.status === 'complete') {
+                            console.log('Received complete status, closing connection');
+                            close();
+                            config.onComplete(data);
+                        }
+                    } catch (error) {
+                        console.error('Error parsing event data:', error, event.data);
+                    }
+                };
+                
+                eventSource.onerror = function(event) {
+                    console.error('EventSource error:', event);
+                    config.onError(event);
+                    reconnect();
+                };
+                
+                return eventSource;
+            }
+            
+            function reconnect() {
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
+                
+                reconnectAttempts++;
+                
+                if (reconnectAttempts <= config.maxReconnectAttempts) {
+                    console.log(`Reconnect attempt ${reconnectAttempts}/${config.maxReconnectAttempts} in ${config.reconnectDelay}ms`);
+                    
+                    reconnectTimeout = setTimeout(() => {
+                        console.log(`Attempting to reconnect (${reconnectAttempts}/${config.maxReconnectAttempts})...`);
+                        connect();
+                    }, config.reconnectDelay);
+                } else {
+                    console.error(`Max reconnect attempts (${config.maxReconnectAttempts}) reached. Giving up.`);
+                    config.onError(new Error('Max reconnect attempts reached'));
+                }
+            }
+            
+            function close() {
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
+                
+                if (reconnectTimeout) {
+                    clearTimeout(reconnectTimeout);
+                    reconnectTimeout = null;
+                }
+                
+                if (connectionTimeout) {
+                    clearTimeout(connectionTimeout);
+                    connectionTimeout = null;
+                }
+            }
+            
+            // Initial connection
+            connect();
+            
+            // Return control methods
+            return {
+                close,
+                reconnect
+            };
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             const briefForm = document.getElementById('briefForm');
             const briefText = document.getElementById('briefText');
@@ -146,6 +257,7 @@
             const results = document.getElementById('results');
             const resultsSummary = document.getElementById('resultsSummary');
             const citationsList = document.getElementById('citationsList');
+            let activeEventSource = null;
 
             // Update threshold value display
             threshold.addEventListener('input', function() {
@@ -281,10 +393,46 @@
                     resultsContainer.id = 'citationsAccordion';
                     citationsList.appendChild(resultsContainer);
                     
-                    // Use EventSource for Server-Sent Events
-                    const eventSource = new EventSource('/analyze?' + new URLSearchParams({
+                    // Track citation results
+                    const citationResults = [];
+                    let totalCitations = 0;
+                    let hallucinated = 0;
+                    
+                    // Close any existing EventSource
+                    if (activeEventSource) {
+                        activeEventSource.close();
+                    }
+                    
+                    // Use improved EventSource with reconnection logic
+                    activeEventSource = setupEventSource('/analyze?' + new URLSearchParams({
                         _formData: 'placeholder' // This is just to make the URL unique to avoid caching
-                    }).toString());
+                    }).toString(), {
+                        onOpen: () => {
+                            console.log('Connection to server established');
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = 'Connection established. Waiting for results...';
+                                progressContainer.className = 'alert alert-info';
+                            }
+                        },
+                        onMessage: (data) => {
+                            handleStreamEvent(data, resultsContainer, citationResults);
+                        },
+                        onError: (error) => {
+                            console.error('Connection error:', error);
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection issue detected. Attempting to reconnect...';
+                                progressContainer.className = 'alert alert-warning';
+                            }
+                        },
+                        onComplete: (data) => {
+                            console.log('Analysis complete:', data);
+                        },
+                        maxReconnectAttempts: 5,
+                        reconnectDelay: 3000,
+                        timeout: 600000 // 10 minutes
+                    });
                     
                     // Send the form data using a separate fetch
                     fetch('/analyze', {
@@ -292,61 +440,9 @@
                         body: formDataForFetch
                     }).catch(error => {
                         console.error('Error sending form data:', error);
-                        eventSource.close();
+                        if (activeEventSource) activeEventSource.close();
                         showError('Failed to send analysis request: ' + error.message);
                     });
-                    
-                    // Track citation results
-                    const citationResults = [];
-                    let totalCitations = 0;
-                    let hallucinated = 0;
-                    
-                    // Handle SSE events
-                    eventSource.onmessage = function(event) {
-                        try {
-                            const data = JSON.parse(event.data);
-                            handleStreamEvent(data, resultsContainer, citationResults);
-                        } catch (error) {
-                            console.error('Error parsing event data:', error, event.data);
-                        }
-                    };
-                    
-                    eventSource.onerror = function(error) {
-                        console.error('EventSource error:', error);
-                        
-                        // Don't close the connection immediately, try to reconnect
-                        console.log('Attempting to reconnect...');
-                        
-                        // Show a warning but don't close the connection yet
-                        const progressContainer = document.getElementById('progress-container');
-                        if (progressContainer) {
-                            progressContainer.innerHTML = '<strong>Warning:</strong> Connection issue detected. Attempting to reconnect...';
-                            progressContainer.className = 'alert alert-warning';
-                        }
-                        
-                        // Only show error and close connection after multiple failures
-                        if (this.reconnectAttempts === undefined) {
-                            this.reconnectAttempts = 1;
-                        } else {
-                            this.reconnectAttempts++;
-                        }
-                        
-                        if (this.reconnectAttempts > 3) {
-                            console.error('Max reconnect attempts reached. Closing connection.');
-                            eventSource.close();
-                            
-                            // If we have no results yet, show an error
-                            if (citationResults.length === 0) {
-                                showError('Connection to server lost after multiple attempts. Please try again.');
-                            } else {
-                                // Otherwise, show what we have so far
-                                if (progressContainer) {
-                                    progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
-                                    progressContainer.className = 'alert alert-warning';
-                                }
-                            }
-                        }
-                    };
                 } else {
                     // Handle text input using SSE
                     // Initialize results display
@@ -360,10 +456,46 @@
                     resultsContainer.id = 'citationsAccordion';
                     citationsList.appendChild(resultsContainer);
                     
-                    // Use EventSource for Server-Sent Events
-                    const eventSource = new EventSource('/analyze?' + new URLSearchParams({
+                    // Track citation results
+                    const citationResults = [];
+                    let totalCitations = 0;
+                    let hallucinated = 0;
+                    
+                    // Close any existing EventSource
+                    if (activeEventSource) {
+                        activeEventSource.close();
+                    }
+                    
+                    // Use improved EventSource with reconnection logic
+                    activeEventSource = setupEventSource('/analyze?' + new URLSearchParams({
                         _formData: 'placeholder' // This is just to make the URL unique to avoid caching
-                    }).toString());
+                    }).toString(), {
+                        onOpen: () => {
+                            console.log('Connection to server established');
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = 'Connection established. Waiting for results...';
+                                progressContainer.className = 'alert alert-info';
+                            }
+                        },
+                        onMessage: (data) => {
+                            handleStreamEvent(data, resultsContainer, citationResults);
+                        },
+                        onError: (error) => {
+                            console.error('Connection error:', error);
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection issue detected. Attempting to reconnect...';
+                                progressContainer.className = 'alert alert-warning';
+                            }
+                        },
+                        onComplete: (data) => {
+                            console.log('Analysis complete:', data);
+                        },
+                        maxReconnectAttempts: 5,
+                        reconnectDelay: 3000,
+                        timeout: 600000 // 10 minutes
+                    });
                     
                     // Send the form data using a separate fetch
                     fetch('/analyze', {
@@ -379,41 +511,9 @@
                         })
                     }).catch(error => {
                         console.error('Error sending form data:', error);
-                        eventSource.close();
+                        if (activeEventSource) activeEventSource.close();
                         showError('Failed to send analysis request: ' + error.message);
                     });
-                    
-                    // Track citation results
-                    const citationResults = [];
-                    let totalCitations = 0;
-                    let hallucinated = 0;
-                    
-                    // Handle SSE events
-                    eventSource.onmessage = function(event) {
-                        try {
-                            const data = JSON.parse(event.data);
-                            handleStreamEvent(data, resultsContainer, citationResults);
-                        } catch (error) {
-                            console.error('Error parsing event data:', error, event.data);
-                        }
-                    };
-                    
-                    eventSource.onerror = function(error) {
-                        console.error('EventSource error:', error);
-                        eventSource.close();
-                        
-                        // If we have no results yet, show an error
-                        if (citationResults.length === 0) {
-                            showError('Connection to server lost. Please try again.');
-                        } else {
-                            // Otherwise, show what we have so far
-                            const progressContainer = document.getElementById('progress-container');
-                            if (progressContainer) {
-                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
-                                progressContainer.className = 'alert alert-warning';
-                            }
-                        }
-                    };
                 }
             });
 
@@ -503,8 +603,8 @@
                         `;
                         
                         // Close the event source
-                        if (eventSource) {
-                            eventSource.close();
+                        if (activeEventSource) {
+                            activeEventSource.close();
                         }
                         break;
                         
@@ -851,6 +951,12 @@
                 threshold.value = '0.7';
                 thresholdValue.textContent = '0.7';
                 document.getElementById('useLocalPdfSearch').checked = false;
+                
+                // Close any active EventSource
+                if (activeEventSource) {
+                    activeEventSource.close();
+                    activeEventSource = null;
+                }
             });
             
             // Add sample data for testing

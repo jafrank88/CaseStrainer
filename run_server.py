@@ -10,14 +10,73 @@ import subprocess
 import argparse
 import ssl
 
+# Worker process function for multiprocessing
+def worker_process(host, port, threads, connection_limit, channel_timeout, cert_path, key_path, worker_id=0):
+    try:
+        # Import CherryPy for SSL support
+        import cheroot.wsgi
+        import cheroot.ssl.builtin
+        
+        # Create SSL adapter
+        ssl_adapter = cheroot.ssl.builtin.BuiltinSSLAdapter(cert_path, key_path)
+        ssl_adapter.context.check_hostname = False
+        
+        # Create server - use a different port for each worker to avoid conflicts
+        from wsgi import app
+        
+        # If worker_id > 0, use a different port to avoid conflicts
+        worker_port = port + worker_id if worker_id > 0 else port
+        
+        server = cheroot.wsgi.Server(
+            bind_addr=(host, worker_port),
+            wsgi_app=app,
+            server_name=f'casestrainer-worker-{worker_id}',
+            numthreads=threads,
+            request_queue_size=connection_limit,
+            timeout=channel_timeout
+        )
+        
+        # Set SSL adapter
+        server.ssl_adapter = ssl_adapter
+        
+        # Start server
+        server.start()
+    except Exception as e:
+        print(f"Worker process error: {e}")
+
+# HTTP worker process
+def http_worker_process(host, port, threads, connection_limit, channel_timeout, cleanup_interval, worker_id=0):
+    try:
+        # Use Waitress for HTTP - use a different port for each worker to avoid conflicts
+        import waitress
+        from wsgi import app
+        
+        # If worker_id > 0, use a different port to avoid conflicts
+        worker_port = port + worker_id if worker_id > 0 else port
+        
+        waitress.serve(
+            app,
+            host=host,
+            port=worker_port,
+            threads=threads,
+            url_scheme='http',
+            connection_limit=connection_limit,
+            channel_timeout=channel_timeout,
+            cleanup_interval=cleanup_interval
+        )
+    except Exception as e:
+        print(f"Worker process error: {e}")
+
 def run_server():
     """Run the CaseStrainer web application using Waitress."""
     parser = argparse.ArgumentParser(description='Run CaseStrainer web application with Waitress')
     parser.add_argument('--threads', type=int, default=8, help='Number of threads')
+    parser.add_argument('--workers', type=int, default=1, help='Number of worker processes (requires multiprocessing)')
     parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
     parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
-    parser.add_argument('--connection-limit', type=int, default=1000, help='Maximum number of connections')
-    parser.add_argument('--channel-timeout', type=int, default=120, help='Channel timeout in seconds')
+    parser.add_argument('--connection-limit', type=int, default=2000, help='Maximum number of connections')
+    parser.add_argument('--channel-timeout', type=int, default=300, help='Channel timeout in seconds')
+    parser.add_argument('--timeout', type=int, default=300, help='Worker timeout in seconds')
     args = parser.parse_args()
     
     # Check if Waitress is installed
@@ -37,8 +96,8 @@ def run_server():
     from wsgi import app
     
     # Check for SSL certificate and key
-    cert_path = os.environ.get('SSL_CERT_PATH', 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt')
-    key_path = os.environ.get('SSL_KEY_PATH', 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key')
+    cert_path = os.environ.get('SSL_CERT_PATH', 'ssl/cert.pem')
+    key_path = os.environ.get('SSL_KEY_PATH', 'ssl/key.pem')
     
     # Enable SSL
     use_ssl = True
@@ -46,6 +105,33 @@ def run_server():
         print(f"Using SSL certificate: {cert_path}")
         print(f"Using SSL key: {key_path}")
         use_ssl = True
+        
+        # Check if we should use multiple worker processes
+        if args.workers > 1:
+            print(f"Starting {args.workers} worker processes with {args.threads} threads each")
+            try:
+                import multiprocessing
+                
+                # Start worker processes
+                processes = []
+                for i in range(args.workers):
+                    p = multiprocessing.Process(
+                        target=worker_process,
+                        args=(args.host, args.port, args.threads, args.connection_limit, args.channel_timeout, cert_path, key_path, i)
+                    )
+                    p.daemon = True
+                    p.start()
+                    processes.append(p)
+                
+                print(f"Workers started on ports {args.port} to {args.port + args.workers - 1}")
+                
+                # Wait for all processes to complete
+                for p in processes:
+                    p.join()
+                
+                return
+            except ImportError:
+                print("Multiprocessing not available. Running with a single process.")
         
         # For SSL support, we'll use a separate WSGI server that supports SSL directly
         # Waitress doesn't have built-in SSL support, so we'll use CherryPy's server
@@ -77,6 +163,8 @@ def run_server():
                 request_queue_size=args.connection_limit,
                 timeout=args.channel_timeout
             )
+            
+            # Set maximum request body size
             
             # Set maximum request body size (this is done at the Flask level)
             from wsgi import app
@@ -110,6 +198,33 @@ def run_server():
     print(f"Starting CaseStrainer with {args.threads} threads")
     print(f"Server will be available at http://{args.host}:{args.port}")
     
+    # Check if we should use multiple worker processes
+    if args.workers > 1 and not use_ssl:
+        print(f"Starting {args.workers} worker processes with {args.threads} threads each")
+        try:
+            import multiprocessing
+            
+            # Start worker processes
+            processes = []
+            for i in range(args.workers):
+                p = multiprocessing.Process(
+                    target=http_worker_process,
+                    args=(args.host, args.port, args.threads, args.connection_limit, args.channel_timeout, args.timeout, i)
+                )
+                p.daemon = True
+                p.start()
+                processes.append(p)
+            
+            print(f"Workers started on ports {args.port} to {args.port + args.workers - 1}")
+            
+            # Wait for all processes to complete
+            for p in processes:
+                p.join()
+            
+            return
+        except ImportError:
+            print("Multiprocessing not available. Running with a single process.")
+    
     try:
         # Use a simpler configuration for Waitress
         waitress.serve(
@@ -117,7 +232,10 @@ def run_server():
             host=args.host,
             port=args.port,
             threads=args.threads,
-            url_scheme='http'
+            url_scheme='http',
+            connection_limit=args.connection_limit,
+            channel_timeout=args.channel_timeout,
+            cleanup_interval=args.timeout
         )
     except KeyboardInterrupt:
         print("Server stopped.")
