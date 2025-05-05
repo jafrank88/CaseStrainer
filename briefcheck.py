@@ -31,20 +31,11 @@ except ImportError:
 # Try to import eyecite for citation extraction
 try:
     from eyecite import get_citations
-    from eyecite.tokenizers import HyperscanTokenizer, AhocorasickTokenizer, default_tokenizer
-    
-    # Check if hyperscan is available
-    try:
-        import hyperscan
-        HYPERSCAN_AVAILABLE = True
-    except ImportError:
-        HYPERSCAN_AVAILABLE = False
-        print("Warning: hyperscan not available, falling back to AhocorasickTokenizer")
+    from eyecite.tokenizers import AhocorasickTokenizer, default_tokenizer
     
     EYECITE_AVAILABLE = True
 except ImportError:
     EYECITE_AVAILABLE = False
-    HYPERSCAN_AVAILABLE = False
     print("Warning: eyecite not available, falling back to regex-based citation extraction")
 
 # Mock LLM function - in a real implementation, this would call an actual LLM API
@@ -261,8 +252,8 @@ def extract_case_citations(text: str) -> List[str]:
     
     if EYECITE_AVAILABLE:
         try:
-            # Use HyperscanTokenizer if available, otherwise use AhocorasickTokenizer
-            tokenizer = HyperscanTokenizer() if HYPERSCAN_AVAILABLE else AhocorasickTokenizer()
+            # Use AhocorasickTokenizer
+            tokenizer = AhocorasickTokenizer()
             
             # Extract citations using eyecite
             citations = get_citations(text, tokenizer=tokenizer)
@@ -881,6 +872,27 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         <p class="status"><span class="warning">⚠</span> POTENTIALLY HALLUCINATED</p>
                         <p class="confidence">Confidence: {result.get('confidence', 0.0):.2f}</p>
                         <p class="similarity">Similarity Score: {result.get('similarity_score', 'N/A')}</p>
+                        
+                        <div class="summaries-container">
+                            <h4>Generated Summaries:</h4>
+                            <div class="summaries-accordion">
+                    """
+                    
+                    # Add each summary to the HTML
+                    summaries = result.get("summaries", [])
+                    for i, summary in enumerate(summaries, 1):
+                        html_result += f"""
+                                <div class="summary-item">
+                                    <h5>Summary {i}</h5>
+                                    <div class="summary-content">
+                                        <pre>{summary}</pre>
+                                    </div>
+                                </div>
+                        """
+                    
+                    html_result += """
+                            </div>
+                        </div>
                     </div>
                     """
                 else:
@@ -895,6 +907,27 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         <p class="status"><span class="checkmark">✓</span> LIKELY VALID</p>
                         <p class="confidence">Confidence: {result.get('confidence', 0.0):.2f}</p>
                         <p class="similarity">Similarity Score: {result.get('similarity_score', 'N/A')}</p>
+                        
+                        <div class="summaries-container">
+                            <h4>Generated Summaries:</h4>
+                            <div class="summaries-accordion">
+                    """
+                    
+                    # Add each summary to the HTML
+                    summaries = result.get("summaries", [])
+                    for i, summary in enumerate(summaries, 1):
+                        html_result += f"""
+                                <div class="summary-item">
+                                    <h5>Summary {i}</h5>
+                                    <div class="summary-content">
+                                        <pre>{summary}</pre>
+                                    </div>
+                                </div>
+                        """
+                    
+                    html_result += """
+                            </div>
+                        </div>
                     </div>
                     """
                 
