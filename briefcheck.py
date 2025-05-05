@@ -726,10 +726,17 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
         for i, citation in enumerate(unique_citations, 1):
             print(f"Checking citation {i}/{total_unique}: {citation}")
             try:
-                # First check if the case exists in CourtListener
+                # Check if this is a WestLaw citation
+                is_westlaw = re.search(r'\d{4}\s*W\.?\s*L\.?\s*\d+', citation) is not None
+                
+                # First check if the case exists in CourtListener (but note WL citations can't be reliably checked)
                 print(f"  Checking if '{citation}' exists in CourtListener...")
                 
-                if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+                if is_westlaw:
+                    print(f"  ! This is a WestLaw (WL) citation which cannot be reliably verified with CourtListener")
+                    exists = False
+                    case_data = None
+                elif 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
                     from courtlistener_integration import search_citation
                     exists, case_data = search_citation(citation)
                     
@@ -842,8 +849,21 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         print(f"  ! LangSearch check failed: {str(e)}")
                         print(f"  Falling back to summary comparison method...")
                 
-                # If all else fails, use the summary comparison method
-                result = check_citation(citation, num_iterations, similarity_threshold)
+                # For WestLaw citations, use a lower similarity threshold to be more conservative
+                if is_westlaw:
+                    print(f"  Using a lower similarity threshold for WestLaw citation")
+                    # Use a more conservative threshold for WestLaw citations
+                    wl_similarity_threshold = max(0.1, similarity_threshold - 0.2)
+                    result = check_citation(citation, num_iterations, wl_similarity_threshold)
+                    
+                    # If the result is not hallucinated but the similarity score is low, mark it as potentially hallucinated
+                    if not result.get("is_hallucinated", False) and result.get("similarity_score", 1.0) < similarity_threshold:
+                        result["is_hallucinated"] = True
+                        result["confidence"] = 0.7
+                        print(f"  Marking WestLaw citation as potentially hallucinated due to low similarity score")
+                else:
+                    # If all else fails, use the summary comparison method with standard threshold
+                    result = check_citation(citation, num_iterations, similarity_threshold)
                 
                 # Print result immediately
                 print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
