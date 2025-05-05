@@ -771,12 +771,52 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         print(f"Confidence: High")
                         print("-------------------------------------------\n")
                         
+                        # Generate multiple summaries for display
+                        try:
+                            print(f"  Generating additional summaries for display...")
+                            summaries = generate_multiple_summaries(citation, num_iterations)
+                            result["summaries"] = summaries
+                        except Exception as e:
+                            print(f"  Warning: Failed to generate additional summaries: {str(e)}")
+                            summaries = []
+                        
                         # Add HTML result to the case_summary for website display
                         html_result = f"""
                         <div class="citation-result verified">
                             <h3>Citation: {citation}</h3>
                             <p class="status"><span class="checkmark">✓</span> VERIFIED (found in CourtListener)</p>
                             <p class="confidence">Confidence: High</p>
+                            
+                            <div class="summaries-container">
+                                <h4>Generated Summaries:</h4>
+                                <div class="summaries-accordion">
+                        """
+                        
+                        # Add each summary to the HTML
+                        if summaries:
+                            for i, summary in enumerate(summaries, 1):
+                                html_result += f"""
+                                    <div class="summary-item">
+                                        <h5>Summary {i}</h5>
+                                        <div class="summary-content">
+                                            <pre>{summary}</pre>
+                                        </div>
+                                    </div>
+                                """
+                        else:
+                            # If no additional summaries were generated, at least show the main summary
+                            html_result += f"""
+                                <div class="summary-item">
+                                    <h5>Summary</h5>
+                                    <div class="summary-content">
+                                        <pre>{case_summary}</pre>
+                                    </div>
+                                </div>
+                            """
+                        
+                        html_result += """
+                                </div>
+                            </div>
                         </div>
                         """
                         
@@ -819,12 +859,52 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         print(f"Confidence: Medium")
                         print("-------------------------------------------\n")
                         
+                        # Generate multiple summaries for display
+                        try:
+                            print(f"  Generating additional summaries for display...")
+                            summaries = generate_multiple_summaries(citation, num_iterations)
+                            result["summaries"] = summaries
+                        except Exception as e:
+                            print(f"  Warning: Failed to generate additional summaries: {str(e)}")
+                            summaries = []
+                        
                         # Add HTML result to the case_summary for website display
                         html_result = f"""
                         <div class="citation-result verified">
                             <h3>Citation: {citation}</h3>
                             <p class="status"><span class="checkmark">✓</span> VERIFIED (found via LangSearch)</p>
                             <p class="confidence">Confidence: Medium</p>
+                            
+                            <div class="summaries-container">
+                                <h4>Generated Summaries:</h4>
+                                <div class="summaries-accordion">
+                        """
+                        
+                        # Add each summary to the HTML
+                        if summaries:
+                            for i, summary in enumerate(summaries, 1):
+                                html_result += f"""
+                                    <div class="summary-item">
+                                        <h5>Summary {i}</h5>
+                                        <div class="summary-content">
+                                            <pre>{summary}</pre>
+                                        </div>
+                                    </div>
+                                """
+                        else:
+                            # If no additional summaries were generated, at least show the main summary
+                            html_result += f"""
+                                <div class="summary-item">
+                                    <h5>Summary</h5>
+                                    <div class="summary-content">
+                                        <pre>{case_summary}</pre>
+                                    </div>
+                                </div>
+                            """
+                        
+                        html_result += """
+                                </div>
+                            </div>
                         </div>
                         """
                         
