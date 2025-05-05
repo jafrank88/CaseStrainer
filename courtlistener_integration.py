@@ -140,6 +140,24 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
         COURTLISTENER_AVAILABLE = False
         return False
 
+def normalize_westlaw_citation(citation: str) -> str:
+    """
+    Normalize a WestLaw citation for better search results.
+    
+    Args:
+        citation: The WestLaw citation to normalize.
+        
+    Returns:
+        str: The normalized citation.
+    """
+    # Check if this is a WestLaw citation (e.g., 2018 WL 3037217)
+    wl_match = re.search(r'(\d{4})\s*W\.?\s*L\.?\s*(\d+)', citation)
+    if wl_match:
+        year, number = wl_match.groups()
+        # Format as "2018 WL 3037217" (standard format)
+        return f"{year} WL {number}"
+    return citation
+
 def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
     Search for a case citation in the CourtListener API.
@@ -160,6 +178,14 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
     # Normalize citation to improve search results
     citation = citation.strip()
     
+    # Check if this is a WestLaw citation
+    is_westlaw = re.search(r'\d{4}\s*W\.?\s*L\.?\s*\d+', citation) is not None
+    if is_westlaw:
+        print(f"Detected WestLaw citation: {citation}")
+        citation = normalize_westlaw_citation(citation)
+        print(f"Normalized to: {citation}")
+        print("Note: WestLaw citations may not be directly supported by CourtListener")
+    
     # Retry mechanism for API calls
     for attempt in range(max_retries):
         try:
@@ -167,7 +193,39 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
             api_key = os.environ.get("COURTLISTENER_API_KEY")
             headers = {"Authorization": f"Token {api_key}"} if api_key else {}
             
-            # First try to search by citation
+            # For standard reporter citations, try the citation lookup API first
+            # This API doesn't support WestLaw or Lexis citations
+            if not is_westlaw and not "lexis" in citation.lower():
+                try:
+                    # The citation lookup API expects a properly formatted citation
+                    # Example: /api/rest/v3/citation-lookup/?citation=410 U.S. 113
+                    lookup_url = f"https://www.courtlistener.com/api/rest/v3/citation-lookup/?citation={citation}"
+                    
+                    print(f"Trying citation lookup API: {lookup_url}")
+                    
+                    response = requests.get(
+                        lookup_url,
+                        headers=headers,
+                        timeout=10  # Add timeout to prevent hanging requests
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        if data and len(data) > 0:
+                            # Found at least one matching case
+                            print(f"Citation found via citation lookup API")
+                            return True, data[0]
+                    elif response.status_code != 404:  # 404 means citation not found, which is expected
+                        print(f"Citation lookup API returned status code {response.status_code}")
+                        print(f"Response: {response.text}")
+                except Exception as e:
+                    print(f"Error using citation lookup API: {str(e)}")
+                    print("Falling back to search API")
+            
+            # If citation lookup API didn't work or wasn't used, try the search API
+            print(f"Trying search API with citation: {citation}")
+            
+            # Search by citation
             params = {
                 "cite": citation,
                 "format": "json"
@@ -356,6 +414,13 @@ def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 3
     
     # Normalize citation to improve search results
     citation = citation.strip()
+    
+    # Check if this is a WestLaw citation
+    is_westlaw = re.search(r'\d{4}\s*W\.?\s*L\.?\s*\d+', citation) is not None
+    if is_westlaw:
+        print(f"Detected WestLaw citation: {citation}")
+        citation = normalize_westlaw_citation(citation)
+        print(f"Normalized to: {citation}")
     
     if not COURTLISTENER_AVAILABLE:
         return f"CourtListener API is not available. Cannot generate summary for {citation}."
@@ -554,6 +619,7 @@ def check_citation_exists(citation: str, max_retries: int = 3, local_search_time
     Args:
         citation: The case citation to check.
         max_retries: Maximum number of retry attempts for API calls.
+        local_search_timeout: Timeout in seconds for local PDF search.
     
     Returns:
         bool: True if the citation exists, False if it definitely doesn't exist.
@@ -569,6 +635,13 @@ def check_citation_exists(citation: str, max_retries: int = 3, local_search_time
     
     # Normalize citation to improve search results
     citation = citation.strip()
+    
+    # Check if this is a WestLaw citation
+    is_westlaw = re.search(r'\d{4}\s*W\.?\s*L\.?\s*\d+', citation) is not None
+    if is_westlaw:
+        print(f"Detected WestLaw citation: {citation}")
+        citation = normalize_westlaw_citation(citation)
+        print(f"Normalized to: {citation}")
     
     # Special case for obviously fake citations
     if "Pringle v JP Morgan Chase" in citation:

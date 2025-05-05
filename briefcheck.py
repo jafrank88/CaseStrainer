@@ -766,12 +766,27 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                             "case_summary": case_summary
                         }
                         
-                        # Print result immediately
+                        # Print result immediately in terminal
                         print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
                         print(f"Citation: {citation}")
                         print(f"Status: ✓ VERIFIED (found in CourtListener)")
                         print(f"Confidence: High")
                         print("-------------------------------------------\n")
+                        
+                        # Add HTML result to the case_summary for website display
+                        html_result = f"""
+                        <div class="citation-result verified">
+                            <h3>Citation: {citation}</h3>
+                            <p class="status"><span class="checkmark">✓</span> VERIFIED (found in CourtListener)</p>
+                            <p class="confidence">Confidence: High</p>
+                        </div>
+                        """
+                        
+                        # Append HTML result to case_summary
+                        if "case_summary" in result and result["case_summary"]:
+                            result["case_summary"] = html_result + result["case_summary"]
+                        else:
+                            result["case_summary"] = html_result
                         
                         results.append(result)
                         continue
@@ -806,6 +821,21 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         print(f"Confidence: Medium")
                         print("-------------------------------------------\n")
                         
+                        # Add HTML result to the case_summary for website display
+                        html_result = f"""
+                        <div class="citation-result verified">
+                            <h3>Citation: {citation}</h3>
+                            <p class="status"><span class="checkmark">✓</span> VERIFIED (found via LangSearch)</p>
+                            <p class="confidence">Confidence: Medium</p>
+                        </div>
+                        """
+                        
+                        # Append HTML result to case_summary
+                        if "case_summary" in result and result["case_summary"]:
+                            result["case_summary"] = html_result + result["case_summary"]
+                        else:
+                            result["case_summary"] = html_result
+                        
                         results.append(result)
                         continue
                     except Exception as e:
@@ -823,12 +853,38 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                     print(f"Status: ⚠ POTENTIALLY HALLUCINATED")
                     print(f"Confidence: {result.get('confidence', 0.0):.2f}")
                     print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
+                    
+                    # Add HTML result to the case_summary for website display
+                    html_result = f"""
+                    <div class="citation-result hallucinated">
+                        <h3>Citation: {citation}</h3>
+                        <p class="status"><span class="warning">⚠</span> POTENTIALLY HALLUCINATED</p>
+                        <p class="confidence">Confidence: {result.get('confidence', 0.0):.2f}</p>
+                        <p class="similarity">Similarity Score: {result.get('similarity_score', 'N/A')}</p>
+                    </div>
+                    """
                 else:
                     print(f"Status: ✓ LIKELY VALID")
                     print(f"Confidence: {result.get('confidence', 0.0):.2f}")
                     print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
+                    
+                    # Add HTML result to the case_summary for website display
+                    html_result = f"""
+                    <div class="citation-result valid">
+                        <h3>Citation: {citation}</h3>
+                        <p class="status"><span class="checkmark">✓</span> LIKELY VALID</p>
+                        <p class="confidence">Confidence: {result.get('confidence', 0.0):.2f}</p>
+                        <p class="similarity">Similarity Score: {result.get('similarity_score', 'N/A')}</p>
+                    </div>
+                    """
                 
                 print("-------------------------------------------\n")
+                
+                # Append HTML result to case_summary
+                if "case_summary" in result and result["case_summary"]:
+                    result["case_summary"] = html_result + result["case_summary"]
+                else:
+                    result["case_summary"] = html_result
                 
                 results.append(result)
             except Exception as e:
@@ -858,6 +914,21 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                 print(f"Status: ! ERROR CHECKING CITATION")
                 print(f"Error: {str(e)}")
                 print("-------------------------------------------\n")
+                
+                # Add HTML result to the case_summary for website display
+                html_result = f"""
+                <div class="citation-result error">
+                    <h3>Citation: {citation}</h3>
+                    <p class="status"><span class="error-icon">!</span> ERROR CHECKING CITATION</p>
+                    <p class="error-message">Error: {str(e)}</p>
+                </div>
+                """
+                
+                # Append HTML result to case_summary
+                if "case_summary" in result and result["case_summary"]:
+                    result["case_summary"] = html_result + result["case_summary"]
+                else:
+                    result["case_summary"] = html_result
                 
                 results.append(result)
         
