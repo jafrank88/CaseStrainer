@@ -39,12 +39,6 @@ from briefcheck import analyze_brief, extract_case_citations
 
 # Try to import API integrations
 try:
-    from openai_integration import setup_openai_api, OPENAI_AVAILABLE
-except ImportError:
-    OPENAI_AVAILABLE = False
-    print("Warning: openai_integration module not available. OpenAI API will not be used.")
-
-try:
     from langsearch_integration import setup_langsearch_api, LANGSEARCH_AVAILABLE
 except ImportError:
     LANGSEARCH_AVAILABLE = False
@@ -333,7 +327,6 @@ if __name__ == '__main__':
         # Parse command line arguments
         parser = argparse.ArgumentParser(description='CaseStrainer Web Interface')
         parser.add_argument('--courtlistener-key', help='CourtListener API key')
-        parser.add_argument('--openai-key', help='OpenAI API key')
         parser.add_argument('--langsearch-key', help='LangSearch API key')
         parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
         parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
@@ -347,16 +340,6 @@ if __name__ == '__main__':
         os.makedirs('templates', exist_ok=True)
         
         # Initialize API integrations
-        if 'OPENAI_AVAILABLE' in globals() and OPENAI_AVAILABLE:
-            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
-            openai_key = args.openai_key or os.environ.get('OPENAI_API_KEY') or config.get('openai_api_key')
-            if openai_key:
-                print("Initializing OpenAI API...")
-                setup_openai_api(openai_key)
-            else:
-                print("Warning: OpenAI API key not provided in command line, environment variable, or config file.")
-                print("OpenAI API will not be used.")
-        
         if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
             # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
             courtlistener_key = args.courtlistener_key or os.environ.get('COURTLISTENER_API_KEY') or config.get('courtlistener_api_key')

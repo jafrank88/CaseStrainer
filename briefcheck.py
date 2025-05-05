@@ -41,11 +41,6 @@ except ImportError:
 # Mock LLM function - in a real implementation, this would call an actual LLM API
 # Try to import API integrations
 try:
-    from openai_integration import generate_case_summary_with_openai, setup_openai_api, OPENAI_AVAILABLE
-except ImportError:
-    OPENAI_AVAILABLE = False
-
-try:
     from langsearch_integration import generate_case_summary_with_langsearch, setup_langsearch_api, LANGSEARCH_AVAILABLE
 except ImportError:
     LANGSEARCH_AVAILABLE = False
@@ -66,17 +61,9 @@ except ImportError:
 def generate_case_summary(case_citation: str) -> str:
     """
     Generate a summary of a legal case using an LLM.
-    Uses OpenAI API if available, otherwise tries LangSearch API, then CourtListener API, 
+    Uses LangSearch API if available, then CourtListener API, 
     then falls back to mock implementation.
     """
-    # Try to use OpenAI API if available and configured
-    if OPENAI_AVAILABLE:
-        try:
-            return generate_case_summary_with_openai(case_citation)
-        except Exception as e:
-            print(f"Error using OpenAI API: {e}")
-            print("Trying LangSearch API...")
-    
     # Try to use LangSearch API if available
     if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
         try:
@@ -799,12 +786,22 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                                 <p class="confidence">Confidence: Medium</p>
                             """
                         else:
+                            # Get the CourtListener URL for the case
+                            case_id = case_data.get("id")
+                            courtlistener_url = f"https://www.courtlistener.com/opinion/{case_id}/" if case_id else None
+                            
                             html_result = f"""
                             <div class="citation-result verified">
                                 <h3>Citation: {citation}</h3>
                                 <p class="status"><span class="checkmark">✓</span> VERIFIED (found in CourtListener)</p>
                                 <p class="confidence">Confidence: High</p>
                             """
+                            
+                            # Add link to CourtListener if available
+                            if courtlistener_url:
+                                html_result += f"""
+                                <p class="source-link"><a href="{courtlistener_url}" target="_blank">View on CourtListener</a></p>
+                                """
                         
                         # Add summaries section to the HTML
                         html_result += f"""
@@ -854,23 +851,41 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                 else:
                     print(f"  ! CourtListener not available, trying LangSearch...")
                 
-                # If not found in CourtListener, try LangSearch
+                # If not found in CourtListener, use LangSearch to generate multiple summaries and compare them
                 if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
                     try:
-                        from langsearch_integration import generate_case_summary_with_langsearch_api
-                        case_summary = generate_case_summary_with_langsearch_api(citation)
+                        print(f"  Using LangSearch to generate multiple summaries for comparison...")
                         
-                        # If we got a summary without errors, assume the case exists
+                        # Generate multiple summaries using LangSearch
+                        summaries = []
+                        for i in range(num_iterations):
+                            print(f"  - Generating summary {i+1}/{num_iterations}")
+                            from langsearch_integration import generate_case_summary_with_langsearch_api
+                            summary = generate_case_summary_with_langsearch_api(citation)
+                            summaries.append(summary)
+                        
+                        # Calculate similarity between summaries
+                        avg_similarity = calculate_average_similarity(summaries)
+                        print(f"  Average similarity between summaries: {avg_similarity:.2f}")
+                        
+                        # Determine if the citation is likely hallucinated based on similarity
+                        is_hallucinated = avg_similarity < similarity_threshold
+                        
+                        # Calculate confidence based on how far the similarity is from the threshold
+                        confidence = abs(avg_similarity - similarity_threshold) / max(similarity_threshold, 1 - similarity_threshold)
+                        confidence = min(confidence * 2, 1.0)  # Scale and cap confidence
+                        
+                        # Create result
                         result = {
                             "citation": citation,
-                            "is_hallucinated": False,
-                            "confidence": 0.8,
-                            "method": "langsearch",
-                            "similarity_score": None,
-                            "summaries": [],
-                            "exists": True,
+                            "is_hallucinated": is_hallucinated,
+                            "confidence": confidence,
+                            "method": "langsearch_comparison",
+                            "similarity_score": avg_similarity,
+                            "summaries": summaries,
+                            "exists": not is_hallucinated,
                             "case_data": False,
-                            "case_summary": case_summary
+                            "case_summary": summaries[0] if summaries else None
                         }
                         
                         # Print result immediately
@@ -1148,7 +1163,6 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.7, help="Similarity threshold for hallucination detection")
     parser.add_argument("--output", help="Path to output JSON file (optional)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--openai-key", help="OpenAI API key (optional, can also use OPENAI_API_KEY env var)")
     parser.add_argument("--langsearch-key", help="LangSearch API key (optional, can also use LANGSEARCH_API_KEY env var)")
     parser.add_argument("--courtlistener-key", help="CourtListener API key (optional, can also use COURTLISTENER_API_KEY env var)")
     
@@ -1212,10 +1226,6 @@ def main():
                 return 1
         
         # Set up API keys if provided
-        if OPENAI_AVAILABLE and args.openai_key:
-            print("Setting up OpenAI API...")
-            setup_openai_api(args.openai_key)
-        
         if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE and args.langsearch_key:
             print("Setting up LangSearch API...")
             setup_langsearch_api(args.langsearch_key)
