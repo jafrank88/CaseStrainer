@@ -75,13 +75,22 @@ def analyze():
     
     try:
         # Check if this is a file upload or direct text input
+        print("Analyzing request...")
+        print(f"Request method: {request.method}")
+        print(f"Request content type: {request.content_type}")
+        print(f"Request files: {list(request.files.keys()) if request.files else 'None'}")
+        print(f"Request form: {list(request.form.keys()) if request.form else 'None'}")
+        
         if 'file' in request.files and request.files['file'].filename:
             uploaded_file = request.files['file']
+            print(f"File upload detected: {uploaded_file.filename}")
             file_extension = os.path.splitext(uploaded_file.filename.lower())[1]
+            print(f"File extension: {file_extension}")
             
             # Validate file extension
             valid_extensions = ['.docx', '.pdf', '.txt']
             if file_extension not in valid_extensions:
+                print(f"Invalid file extension: {file_extension}")
                 return jsonify({
                     "error": f"Unsupported file format: {file_extension}. Please upload a .docx, .pdf, or .txt file."
                 }), 400
@@ -104,26 +113,38 @@ def analyze():
                         doc = docx.Document(temp_file.name)
                         brief_text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
                     except Exception as e:
+                        print(f"Error processing DOCX file: {str(e)}")
                         return jsonify({
                             "error": f"Failed to process Word document: {str(e)}"
                         }), 400
                         
                 elif file_extension == '.pdf':
                     if not PDF_AVAILABLE:
+                        print("PDF support not available. PyPDF2 package is missing.")
                         return jsonify({
                             "error": "PDF support not available. Please install PyPDF2 package."
                         }), 400
                     
                     try:
                         # Extract text from PDF document
+                        print(f"Processing PDF file: {temp_file.name}")
                         text = ""
                         with open(temp_file.name, 'rb') as f:
-                            pdf_reader = PyPDF2.PdfReader(f)
-                            for page_num in range(len(pdf_reader.pages)):
-                                page = pdf_reader.pages[page_num]
-                                text += page.extract_text() + "\n"
+                            try:
+                                pdf_reader = PyPDF2.PdfReader(f)
+                                print(f"PDF has {len(pdf_reader.pages)} pages")
+                                for page_num in range(len(pdf_reader.pages)):
+                                    page = pdf_reader.pages[page_num]
+                                    page_text = page.extract_text()
+                                    text += page_text + "\n"
+                                    print(f"Extracted {len(page_text)} characters from page {page_num+1}")
+                            except Exception as pdf_error:
+                                print(f"Error reading PDF: {str(pdf_error)}")
+                                raise pdf_error
                         brief_text = text
+                        print(f"Total extracted text length: {len(brief_text)} characters")
                     except Exception as e:
+                        print(f"Error processing PDF file: {str(e)}")
                         return jsonify({
                             "error": f"Failed to process PDF document: {str(e)}"
                         }), 400

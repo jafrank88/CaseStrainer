@@ -64,7 +64,8 @@
                 <form id="briefForm" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="briefText" class="form-label">Paste your legal brief text:</label>
-                        <textarea class="form-control" id="briefText" rows="10"></textarea>
+                        <textarea class="form-control" id="briefText" rows="10" placeholder="Enter the text of your legal brief here. Do not enter file:/// URLs, use the file upload option below instead."></textarea>
+                        <div class="form-text text-danger">Do not enter file:/// URLs here. Use the file upload option below instead.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -262,6 +263,12 @@
                     formDataForFetch.append('iterations', iterations.value);
                     formDataForFetch.append('threshold', threshold.value);
                     formDataForFetch.append('use_local_pdf_search', document.getElementById('useLocalPdfSearch').checked);
+                    
+                    // Add debugging information
+                    console.log('File upload details:');
+                    console.log('File name:', fileUpload.files[0].name);
+                    console.log('File size:', fileUpload.files[0].size);
+                    console.log('File type:', fileUpload.files[0].type);
                     
                     // Initialize results display
                     results.style.display = 'block';

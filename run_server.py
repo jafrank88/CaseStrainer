@@ -78,11 +78,18 @@ def run_server():
                 timeout=args.channel_timeout
             )
             
+            # Set maximum request body size (this is done at the Flask level)
+            from wsgi import app
+            app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max request size
+            print("Maximum request body size set to 100MB")
+            
             # Set SSL adapter
             server.ssl_adapter = ssl_adapter
             
             print(f"Starting CaseStrainer with {args.threads} threads")
             print(f"Server will be available at https://{args.host}:{args.port}")
+            print("\nIMPORTANT: To analyze PDF files, use the 'Choose File' button in the web interface.")
+            print("Do not enter file:/// URLs in the text area, as the server cannot access files on your local machine directly.")
             
             try:
                 server.start()
