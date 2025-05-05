@@ -8,7 +8,7 @@ CaseStrainer analyzes legal documents to identify case citations that may be hal
 
 1. **API-based verification**: Checks citations against the CourtListener database
 2. **Local PDF search**: Searches for citations in local PDF folders
-3. **Summary comparison**: Generates and compares multiple summaries of each citation to detect inconsistencies
+3. **Summary comparison**: Generates and compares multiple summaries of each citation using LangSearch or OpenAI APIs to detect inconsistencies
 
 ## Features
 
@@ -52,13 +52,14 @@ CaseStrainer supports several command line options:
 
 - `--courtlistener-key KEY`: Provide your CourtListener API key
 - `--openai-key KEY`: Provide your OpenAI API key
+- `--langsearch-key KEY`: Provide your LangSearch API key
 - `--port PORT`: Specify the port to run the server on (default: 5000)
 - `--host HOST`: Specify the host to run the server on (default: 0.0.0.0)
 - `--debug`: Run in debug mode
 
 Example:
 ```
-python app.py --courtlistener-key YOUR_KEY --port 8080
+python app.py --courtlistener-key YOUR_CL_KEY --langsearch-key YOUR_LS_KEY --port 8080
 ```
 
 For more details on API setup, see the [API Setup Guide](API_SETUP.md).

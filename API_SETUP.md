@@ -2,6 +2,54 @@
 
 This guide explains how to set up API keys for CaseStrainer.
 
+## LangSearch API
+
+CaseStrainer can use the LangSearch API to generate case summaries. To use this feature, you need to provide a LangSearch API key.
+
+### Setting Up the LangSearch API Key
+
+There are three ways to provide your LangSearch API key to CaseStrainer:
+
+#### 1. Command Line Argument (Recommended)
+
+When starting the application, use the `--langsearch-key` argument:
+
+```bash
+python app.py --langsearch-key YOUR_API_KEY
+```
+
+This is the most straightforward method and ensures the API key is correctly set for the current session.
+
+#### 2. Environment Variable
+
+Set the `LANGSEARCH_API_KEY` environment variable before running the application:
+
+**Windows:**
+```cmd
+set LANGSEARCH_API_KEY=YOUR_API_KEY
+python app.py
+```
+
+**Linux/macOS:**
+```bash
+export LANGSEARCH_API_KEY=YOUR_API_KEY
+python app.py
+```
+
+#### 3. Configuration File
+
+CaseStrainer can load API keys from a configuration file named `config.json` in the root directory of the project. This is a convenient way to store your API keys without having to provide them each time you run the application.
+
+Create or update the `config.json` file with the following structure:
+
+```json
+{
+    "langsearch_api_key": "YOUR_LANGSEARCH_API_KEY"
+}
+```
+
+Replace `YOUR_LANGSEARCH_API_KEY` with your actual LangSearch API key.
+
 ## CourtListener API
 
 CaseStrainer can use the CourtListener API to check if case citations exist and to generate summaries of cases. To use this feature, you need to obtain an API key from CourtListener.

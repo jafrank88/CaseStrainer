@@ -48,11 +48,17 @@ except ImportError:
     print("Warning: eyecite not available, falling back to regex-based citation extraction")
 
 # Mock LLM function - in a real implementation, this would call an actual LLM API
-# Try to import OpenAI integration
+# Try to import API integrations
 try:
     from openai_integration import generate_case_summary_with_openai, setup_openai_api, OPENAI_AVAILABLE
 except ImportError:
     OPENAI_AVAILABLE = False
+
+try:
+    from langsearch_integration import generate_case_summary_with_langsearch, setup_langsearch_api, LANGSEARCH_AVAILABLE
+except ImportError:
+    LANGSEARCH_AVAILABLE = False
+    print("Warning: langsearch_integration module not available. LangSearch API will not be used.")
 
 # Try to import CourtListener integration
 try:
@@ -69,7 +75,8 @@ except ImportError:
 def generate_case_summary(case_citation: str) -> str:
     """
     Generate a summary of a legal case using an LLM.
-    Uses OpenAI API if available, otherwise tries CourtListener API, then falls back to mock implementation.
+    Uses OpenAI API if available, otherwise tries LangSearch API, then CourtListener API, 
+    then falls back to mock implementation.
     """
     # Try to use OpenAI API if available and configured
     if OPENAI_AVAILABLE:
@@ -77,6 +84,14 @@ def generate_case_summary(case_citation: str) -> str:
             return generate_case_summary_with_openai(case_citation)
         except Exception as e:
             print(f"Error using OpenAI API: {e}")
+            print("Trying LangSearch API...")
+    
+    # Try to use LangSearch API if available
+    if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
+        try:
+            return generate_case_summary_with_langsearch(case_citation)
+        except Exception as e:
+            print(f"Error using LangSearch API: {e}")
             print("Trying CourtListener API...")
     
     # Try to use CourtListener API if available
@@ -722,6 +737,7 @@ def main():
     parser.add_argument("--output", help="Path to output JSON file (optional)")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--openai-key", help="OpenAI API key (optional, can also use OPENAI_API_KEY env var)")
+    parser.add_argument("--langsearch-key", help="LangSearch API key (optional, can also use LANGSEARCH_API_KEY env var)")
     parser.add_argument("--courtlistener-key", help="CourtListener API key (optional, can also use COURTLISTENER_API_KEY env var)")
     
     try:
@@ -787,6 +803,10 @@ def main():
         if OPENAI_AVAILABLE and args.openai_key:
             print("Setting up OpenAI API...")
             setup_openai_api(args.openai_key)
+        
+        if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE and args.langsearch_key:
+            print("Setting up LangSearch API...")
+            setup_langsearch_api(args.langsearch_key)
         
         if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE and args.courtlistener_key:
             print("Setting up CourtListener API...")

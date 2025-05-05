@@ -37,12 +37,18 @@ except ImportError:
 # Local application imports
 from briefcheck import analyze_brief, extract_case_citations
 
-# Try to import OpenAI and CourtListener integrations
+# Try to import API integrations
 try:
     from openai_integration import setup_openai_api, OPENAI_AVAILABLE
 except ImportError:
     OPENAI_AVAILABLE = False
     print("Warning: openai_integration module not available. OpenAI API will not be used.")
+
+try:
+    from langsearch_integration import setup_langsearch_api, LANGSEARCH_AVAILABLE
+except ImportError:
+    LANGSEARCH_AVAILABLE = False
+    print("Warning: langsearch_integration module not available. LangSearch API will not be used.")
 
 try:
     from courtlistener_integration import setup_courtlistener_api, set_use_local_pdf_search, COURTLISTENER_AVAILABLE
@@ -328,6 +334,7 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='CaseStrainer Web Interface')
         parser.add_argument('--courtlistener-key', help='CourtListener API key')
         parser.add_argument('--openai-key', help='OpenAI API key')
+        parser.add_argument('--langsearch-key', help='LangSearch API key')
         parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
         parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
         parser.add_argument('--debug', action='store_true', help='Run in debug mode')
@@ -359,6 +366,16 @@ if __name__ == '__main__':
             else:
                 print("Warning: CourtListener API key not provided in command line, environment variable, or config file.")
                 print("CourtListener API will be used in limited mode (rate-limited).")
+        
+        if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
+            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
+            langsearch_key = args.langsearch_key or os.environ.get('LANGSEARCH_API_KEY') or config.get('langsearch_api_key')
+            if langsearch_key:
+                print(f"Initializing LangSearch API with key: {langsearch_key[:5]}...{langsearch_key[-5:] if len(langsearch_key) > 10 else ''}")
+                setup_langsearch_api(langsearch_key)
+            else:
+                print("Warning: LangSearch API key not provided in command line, environment variable, or config file.")
+                print("LangSearch API will not be used.")
         
         # Check for SSL certificate and key
         cert_path = os.environ.get('SSL_CERT_PATH', 'ssl/cert.pem')
