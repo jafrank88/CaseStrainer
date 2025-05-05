@@ -256,63 +256,90 @@
                     // Add local PDF search option to form data
                     formData.append('use_local_pdf_search', document.getElementById('useLocalPdfSearch').checked);
                     
+                    // Create a new FormData object for the fetch request
+                    const formDataForFetch = new FormData();
+                    formDataForFetch.append('file', fileUpload.files[0]);
+                    formDataForFetch.append('iterations', iterations.value);
+                    formDataForFetch.append('threshold', threshold.value);
+                    formDataForFetch.append('use_local_pdf_search', document.getElementById('useLocalPdfSearch').checked);
+                    
+                    // Initialize results display
+                    results.style.display = 'block';
+                    resultsSummary.innerHTML = '<div class="alert alert-info">Analysis started. Results will appear as they become available.</div>';
+                    citationsList.innerHTML = '<div id="progress-container" class="alert alert-secondary">Extracting citations...</div>';
+                    
+                    // Create a container for results that will be populated as they come in
+                    const resultsContainer = document.createElement('div');
+                    resultsContainer.className = 'accordion';
+                    resultsContainer.id = 'citationsAccordion';
+                    citationsList.appendChild(resultsContainer);
+                    
+                    // Use EventSource for Server-Sent Events
+                    const eventSource = new EventSource('/analyze?' + new URLSearchParams({
+                        _formData: 'placeholder' // This is just to make the URL unique to avoid caching
+                    }).toString());
+                    
+                    // Send the form data using a separate fetch
                     fetch('/analyze', {
                         method: 'POST',
-                        body: formData,
-                        signal: controller.signal
-                    })
-                    .then(handleNetworkError)
-                    .then(data => {
-                        clearTimeout(timeoutId);
-                        if (data.error) {
-                            throw new Error(data.error);
-                        }
-                        displayResults(data);
-                    })
-                    .catch(error => {
-                        clearTimeout(timeoutId);
-                        console.error('Error:', error);
-                        
-                        if (error.name === 'AbortError') {
-                            showError('Request timed out. The file may be too large or the server is busy.');
-                        } else {
-                            showError(error.message || 'An unexpected error occurred.');
-                        }
+                        body: formDataForFetch
+                    }).catch(error => {
+                        console.error('Error sending form data:', error);
+                        eventSource.close();
+                        showError('Failed to send analysis request: ' + error.message);
                     });
-                } else {
-                    // Handle text input
-                    // First, extract citations
-                    const controller = new AbortController();
-                    const timeoutDuration = document.getElementById('useLocalPdfSearch').checked ? 120000 : 30000; // 120 seconds for local search, 30 seconds for API
-                    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
                     
-                    fetch('/extract', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams({
-                            'brief_text': briefText.value
-                        }),
-                        signal: controller.signal
-                    })
-                    .then(handleNetworkError)
-                    .then(data => {
-                        if (data.error) {
-                            throw new Error(data.error);
+                    // Track citation results
+                    const citationResults = [];
+                    let totalCitations = 0;
+                    let hallucinated = 0;
+                    
+                    // Handle SSE events
+                    eventSource.onmessage = function(event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            handleStreamEvent(data, resultsContainer, citationResults);
+                        } catch (error) {
+                            console.error('Error parsing event data:', error, event.data);
                         }
+                    };
+                    
+                    eventSource.onerror = function(error) {
+                        console.error('EventSource error:', error);
+                        eventSource.close();
                         
-                        if (!data.citations || data.citations.length === 0) {
-                            clearTimeout(timeoutId);
-                            loading.style.display = 'none';
-                            results.style.display = 'block';
-                            resultsSummary.innerHTML = '<div class="alert alert-info">No case citations found in the text.</div>';
-                            citationsList.innerHTML = '';
-                            return null;
+                        // If we have no results yet, show an error
+                        if (citationResults.length === 0) {
+                            showError('Connection to server lost. Please try again.');
+                        } else {
+                            // Otherwise, show what we have so far
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
+                                progressContainer.className = 'alert alert-warning';
+                            }
                         }
-                        
-                    // Then analyze the brief
-                    return fetch('/analyze', {
+                    };
+                } else {
+                    // Handle text input using SSE
+                    // Initialize results display
+                    results.style.display = 'block';
+                    resultsSummary.innerHTML = '<div class="alert alert-info">Analysis started. Results will appear as they become available.</div>';
+                    citationsList.innerHTML = '<div id="progress-container" class="alert alert-secondary">Extracting citations...</div>';
+                    
+                    // Create a container for results that will be populated as they come in
+                    const resultsContainer = document.createElement('div');
+                    resultsContainer.className = 'accordion';
+                    resultsContainer.id = 'citationsAccordion';
+                    citationsList.appendChild(resultsContainer);
+                    
+                    // Use EventSource for Server-Sent Events
+                    const eventSource = new EventSource('/analyze?' + new URLSearchParams({
+                        _formData: 'placeholder' // This is just to make the URL unique to avoid caching
+                    }).toString());
+                    
+                    // Send the form data using a separate fetch
+                    fetch('/analyze', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -322,33 +349,304 @@
                             'iterations': iterations.value,
                             'threshold': threshold.value,
                             'use_local_pdf_search': document.getElementById('useLocalPdfSearch').checked
-                        }),
-                            signal: controller.signal
                         })
-                        .then(handleNetworkError);
-                    })
-                    .then(results => {
-                        clearTimeout(timeoutId);
-                        if (results) {
-                            if (results.error) {
-                                throw new Error(results.error);
-                            }
-                            displayResults(results);
-                        }
-                    })
-                    .catch(error => {
-                        clearTimeout(timeoutId);
-                        console.error('Error:', error);
-                        
-                        if (error.name === 'AbortError') {
-                            showError('Request timed out. The server may be busy.');
-                        } else {
-                            showError(error.message || 'An unexpected error occurred.');
-                        }
+                    }).catch(error => {
+                        console.error('Error sending form data:', error);
+                        eventSource.close();
+                        showError('Failed to send analysis request: ' + error.message);
                     });
+                    
+                    // Track citation results
+                    const citationResults = [];
+                    let totalCitations = 0;
+                    let hallucinated = 0;
+                    
+                    // Handle SSE events
+                    eventSource.onmessage = function(event) {
+                        try {
+                            const data = JSON.parse(event.data);
+                            handleStreamEvent(data, resultsContainer, citationResults);
+                        } catch (error) {
+                            console.error('Error parsing event data:', error, event.data);
+                        }
+                    };
+                    
+                    eventSource.onerror = function(error) {
+                        console.error('EventSource error:', error);
+                        eventSource.close();
+                        
+                        // If we have no results yet, show an error
+                        if (citationResults.length === 0) {
+                            showError('Connection to server lost. Please try again.');
+                        } else {
+                            // Otherwise, show what we have so far
+                            const progressContainer = document.getElementById('progress-container');
+                            if (progressContainer) {
+                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
+                                progressContainer.className = 'alert alert-warning';
+                            }
+                        }
+                    };
                 }
             });
 
+            // Handle streaming events from the server
+            function handleStreamEvent(data, resultsContainer, citationResults) {
+                // Hide loading indicator
+                loading.style.display = 'none';
+                
+                // Process different event types
+                switch(data.status) {
+                    case 'started':
+                        // Update progress container with total citations
+                        const progressContainer = document.getElementById('progress-container');
+                        if (progressContainer) {
+                            progressContainer.innerHTML = `<strong>Found ${data.total_citations} citations.</strong> Analyzing...`;
+                        }
+                        
+                        // Update summary
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total_citations}<br>
+                                <strong>Analysis in progress...</strong>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'progress':
+                        // Update progress container
+                        const progressCont = document.getElementById('progress-container');
+                        if (progressCont) {
+                            progressCont.innerHTML = `<strong>Progress:</strong> Checking citation ${data.current}/${data.total}: ${data.message}`;
+                        }
+                        break;
+                        
+                    case 'result':
+                        // Process individual citation result
+                        const result = data.result;
+                        citationResults[data.citation_index] = result;
+                        
+                        // Update hallucinated count
+                        if (result.is_hallucinated) {
+                            hallucinated++;
+                        }
+                        
+                        // Create accordion item for this result
+                        const accordionItem = createAccordionItem(result, data.citation_index);
+                        
+                        // Add to results container
+                        resultsContainer.appendChild(accordionItem);
+                        
+                        // Update summary
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total}<br>
+                                <strong>Analyzed so far:</strong> ${citationResults.length}<br>
+                                <strong>Potentially hallucinated:</strong> ${hallucinated}
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'error':
+                        // Handle error for a specific citation
+                        console.error('Error processing citation:', data.error);
+                        
+                        // Create error accordion item
+                        const errorResult = data.result;
+                        const errorItem = createAccordionItem(errorResult, data.citation_index);
+                        
+                        // Add to results container
+                        resultsContainer.appendChild(errorItem);
+                        break;
+                        
+                    case 'complete':
+                        // Final update with complete results
+                        const progressContFinal = document.getElementById('progress-container');
+                        if (progressContFinal) {
+                            progressContFinal.innerHTML = `<strong>Analysis complete!</strong> Processed ${data.total_citations} citations.`;
+                            progressContFinal.className = 'alert alert-success';
+                        }
+                        
+                        // Update summary with final counts
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total_citations}<br>
+                                <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                            </div>
+                        `;
+                        
+                        // Close the event source
+                        if (eventSource) {
+                            eventSource.close();
+                        }
+                        break;
+                        
+                    default:
+                        console.warn('Unknown event type:', data.status);
+                }
+            }
+            
+            // Create an accordion item for a citation result
+            function createAccordionItem(result, index) {
+                // Handle potential missing properties safely
+                const isHallucinated = result.is_hallucinated === true;
+                const citationClass = isHallucinated ? 'citation-hallucinated' : 'citation-real';
+                
+                let statusBadge;
+                if (result.method === 'check_failed' || result.method === 'summary_comparison_failed' || 
+                    result.method === 'summary_generation_failed' || result.method === 'similarity_calculation_failed') {
+                    statusBadge = '<span class="badge bg-warning text-dark">Analysis Failed</span>';
+                } else if (result.method === 'westlaw_unverifiable') {
+                    statusBadge = '<span class="badge bg-secondary">Unable to Verify</span>';
+                } else {
+                    statusBadge = isHallucinated ? 
+                        '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
+                        '<span class="badge bg-success">Likely Real</span>';
+                }
+                
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item ' + citationClass;
+                
+                const confidencePercent = Math.round((result.confidence || 0) * 100);
+                const similarityPercent = result.similarity_score !== null && result.similarity_score !== undefined ? 
+                    Math.round(result.similarity_score * 100) : 'N/A';
+                
+                // Get method display name
+                let methodDisplay = 'Unknown';
+                switch(result.method) {
+                    case 'api':
+                        methodDisplay = 'API Lookup';
+                        break;
+                    case 'courtlistener':
+                        methodDisplay = 'CourtListener';
+                        break;
+                    case 'langsearch':
+                        methodDisplay = 'LangSearch';
+                        break;
+                    case 'langsearch_comparison':
+                        methodDisplay = 'LangSearch Comparison';
+                        break;
+                    case 'summary_comparison':
+                        methodDisplay = 'Summary Comparison';
+                        break;
+                    case 'westlaw_unverifiable':
+                        methodDisplay = 'WestLaw Citation (Unverifiable)';
+                        break;
+                    case 'check_failed':
+                        methodDisplay = 'Analysis Failed';
+                        break;
+                    case 'summary_comparison_failed':
+                        methodDisplay = 'Summary Comparison Failed';
+                        break;
+                    case 'summary_generation_failed':
+                        methodDisplay = 'Summary Generation Failed';
+                        break;
+                    case 'similarity_calculation_failed':
+                        methodDisplay = 'Similarity Calculation Failed';
+                        break;
+                    default:
+                        methodDisplay = result.method || 'Unknown';
+                }
+                
+                // Error message if present
+                const errorMessage = result.error ? 
+                    `<div class="alert alert-warning mt-2"><strong>Error:</strong> ${result.error}</div>` : '';
+                
+                // Check if case_summary contains HTML
+                let caseSummaryDisplay = '';
+                if (result.case_summary) {
+                    if (result.case_summary.trim().startsWith('<div')) {
+                        // It's already HTML, use it directly
+                        caseSummaryDisplay = `
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#caseSummary${index}" 
+                                        aria-expanded="false" aria-controls="caseSummary${index}">
+                                    <strong>Show/Hide Case Summary</strong>
+                                </button>
+                                <div class="collapse" id="caseSummary${index}">
+                                    <div class="card card-body">
+                                        ${result.case_summary}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // It's plain text, wrap it in a pre tag
+                        caseSummaryDisplay = `
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#caseSummary${index}" 
+                                        aria-expanded="false" aria-controls="caseSummary${index}">
+                                    <strong>Show/Hide Case Summary</strong>
+                                </button>
+                                <div class="collapse" id="caseSummary${index}">
+                                    <div class="card card-body">
+                                        <pre class="summary-box">${result.case_summary}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                accordionItem.innerHTML = `
+                    <h2 class="accordion-header" id="heading${index}">
+                        <button class="accordion-button ${isHallucinated ? '' : 'collapsed'}" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#collapse${index}" 
+                                aria-expanded="${isHallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <span>${result.citation || 'Unknown Citation'}</span>
+                                ${statusBadge}
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse${index}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}" 
+                         aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
+                        <div class="accordion-body">
+                            <p><strong>Detection method:</strong> ${methodDisplay}</p>
+                            ${errorMessage}
+                            <p><strong>Confidence:</strong> ${confidencePercent}%</p>
+                            <div class="progress confidence-bar">
+                                <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
+                                     role="progressbar" style="width: ${confidencePercent}%" 
+                                     aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            ${result.similarity_score !== null && result.similarity_score !== undefined ? `
+                            <p><strong>Similarity score:</strong> ${similarityPercent}%</p>
+                            <div class="progress confidence-bar">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     style="width: ${similarityPercent}%" aria-valuenow="${similarityPercent}" 
+                                     aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            ` : ''}
+                            ${caseSummaryDisplay}
+                            ${result.summaries && result.summaries.length > 0 ? `
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#summaries${index}" 
+                                        aria-expanded="false" aria-controls="summaries${index}">
+                                    <strong>Show/Hide Generated Summaries</strong>
+                                </button>
+                                <div class="collapse" id="summaries${index}">
+                                    <div class="card card-body">
+                                        ${result.summaries.map((summary, i) => `
+                                            <div class="mb-2">
+                                                <p><strong>Summary ${i+1}:</strong></p>
+                                                <div class="summary-box">${summary || 'No summary available'}</div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                return accordionItem;
+            }
+            
             function displayResults(data) {
                 // Hide loading indicator
                 loading.style.display = 'none';

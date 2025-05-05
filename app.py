@@ -180,8 +180,109 @@ def analyze():
         
         # Analyze brief
         try:
-            results = analyze_brief(brief_text, num_iterations, similarity_threshold)
-            return jsonify(results)
+            # Use Server-Sent Events to stream results as they become available
+            def generate():
+                # First, extract citations
+                try:
+                    citations = extract_case_citations(brief_text)
+                    
+                    if not citations:
+                        yield f"data: {json.dumps({'status': 'complete', 'total_citations': 0, 'hallucinated_citations': 0, 'results': []})}\n\n"
+                        return
+                    
+                    # Deduplicate citations
+                    seen_citations = set()
+                    unique_citations = []
+                    
+                    def normalize_citation(citation):
+                        """Normalize citation for deduplication"""
+                        # Convert to lowercase and strip whitespace
+                        norm = citation.strip().lower()
+                        
+                        # Remove all spaces
+                        no_spaces = re.sub(r'\s+', '', norm)
+                        
+                        # For WestLaw citations (e.g., 2018 WL 3037217)
+                        wl_match = re.search(r'(\d{4})(?:\s*W\.?\s*L\.?\s*)(\d+)', norm)
+                        if wl_match:
+                            year, number = wl_match.groups()
+                            return f"{year}wl{number}"
+                        
+                        # For standard case citations, remove punctuation
+                        return re.sub(r'[^\w\d]', '', norm)
+                    
+                    for citation in citations:
+                        normalized_citation = normalize_citation(citation)
+                        if normalized_citation not in seen_citations:
+                            seen_citations.add(normalized_citation)
+                            unique_citations.append(citation)
+                    
+                    # Send initial data with total citations
+                    total_unique = len(unique_citations)
+                    yield f"data: {json.dumps({'status': 'started', 'total_citations': total_unique, 'message': f'Found {total_unique} unique citations in the document'})}\n\n"
+                    
+                    # Process each citation and send results as they become available
+                    results = []
+                    hallucinated_count = 0
+                    
+                    for i, citation in enumerate(unique_citations, 1):
+                        # Send progress update
+                        yield f"data: {json.dumps({'status': 'progress', 'current': i, 'total': total_unique, 'message': f'Checking citation {i}/{total_unique}: {citation}'})}\n\n"
+                        
+                        try:
+                            # Check the citation
+                            from briefcheck import check_citation
+                            result = check_citation(citation, num_iterations, similarity_threshold)
+                            
+                            # Update hallucinated count
+                            if result.get('is_hallucinated', False):
+                                hallucinated_count += 1
+                            
+                            # Add result to results list
+                            results.append(result)
+                            
+                            # Send the individual result
+                            yield f"data: {json.dumps({'status': 'result', 'citation_index': i-1, 'citation': citation, 'result': result})}\n\n"
+                            
+                        except Exception as e:
+                            # Send error for this citation
+                            error_result = {
+                                "citation": citation,
+                                "is_hallucinated": False,
+                                "confidence": 0.0,
+                                "method": "check_failed",
+                                "error": str(e),
+                                "similarity_score": None,
+                                "summaries": [],
+                                "exists": True,
+                                "case_data": False,
+                                "case_summary": f"Error checking citation: {str(e)}"
+                            }
+                            results.append(error_result)
+                            yield f"data: {json.dumps({'status': 'error', 'citation_index': i-1, 'citation': citation, 'error': str(e), 'result': error_result})}\n\n"
+                    
+                    # Send final complete message
+                    final_result = {
+                        "status": "complete",
+                        "total_citations": total_unique,
+                        "hallucinated_citations": hallucinated_count,
+                        "results": results
+                    }
+                    yield f"data: {json.dumps(final_result)}\n\n"
+                    
+                except Exception as e:
+                    # Send error message
+                    yield f"data: {json.dumps({'status': 'error', 'error': str(e)})}\n\n"
+            
+            # Return the streaming response
+            return app.response_class(
+                generate(),
+                mimetype='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'X-Accel-Buffering': 'no'  # Disable buffering for Nginx
+                }
+            )
         except Exception as e:
             return jsonify({
                 "error": f"Analysis failed: {str(e)}"
