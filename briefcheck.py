@@ -773,8 +773,12 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         # Print result immediately in terminal
                         print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
                         print(f"Citation: {citation}")
-                        print(f"Status: ✓ VERIFIED (found in CourtListener)")
-                        print(f"Confidence: High")
+                        if insufficient_data:
+                            print(f"Status: ⚠ POTENTIALLY HALLUCINATED (insufficient data)")
+                            print(f"Confidence: Medium")
+                        else:
+                            print(f"Status: ✓ VERIFIED (found in CourtListener)")
+                            print(f"Confidence: High")
                         print("-------------------------------------------\n")
                         
                         # Generate multiple summaries for display
@@ -787,15 +791,26 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                             summaries = []
                         
                         # Add HTML result to the case_summary for website display
-                        html_result = f"""
-                        <div class="citation-result verified">
-                            <h3>Citation: {citation}</h3>
-                            <p class="status"><span class="checkmark">✓</span> VERIFIED (found in CourtListener)</p>
-                            <p class="confidence">Confidence: High</p>
-                            
-                            <div class="summaries-container">
-                                <h4>Generated Summaries:</h4>
-                                <div class="summaries-accordion">
+                        if insufficient_data:
+                            html_result = f"""
+                            <div class="citation-result hallucinated">
+                                <h3>Citation: {citation}</h3>
+                                <p class="status"><span class="warning">⚠</span> POTENTIALLY HALLUCINATED (insufficient data)</p>
+                                <p class="confidence">Confidence: Medium</p>
+                            """
+                        else:
+                            html_result = f"""
+                            <div class="citation-result verified">
+                                <h3>Citation: {citation}</h3>
+                                <p class="status"><span class="checkmark">✓</span> VERIFIED (found in CourtListener)</p>
+                                <p class="confidence">Confidence: High</p>
+                            """
+                        
+                        # Add summaries section to the HTML
+                        html_result += f"""
+                        <div class="summaries-container">
+                            <h4>Generated Summaries:</h4>
+                            <div class="summaries-accordion">
                         """
                         
                         # Add each summary to the HTML
