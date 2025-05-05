@@ -3,12 +3,16 @@
 LangSearch API integration for CaseStrainer
 
 This module provides functions to generate case summaries using the LangSearch API.
+It first checks if the case is found in CourtListener, and if not, then uses the LangSearch API.
 """
 
 import os
 import time
 import requests
 from typing import Optional
+
+# Import CourtListener functions
+from courtlistener_integration import search_citation, generate_case_summary_from_courtlistener
 
 # Flag to track if LangSearch API is available
 LANGSEARCH_AVAILABLE = True
@@ -45,7 +49,7 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 "Content-Type": "application/json"
             }
             response = requests.get(
-                "https://api.langsearch.ai/v1/models",
+                "https://api.langsearch.com/v1/models",
                 headers=headers,
                 timeout=10
             )
@@ -64,7 +68,7 @@ def setup_langsearch_api(api_key: Optional[str] = None):
         print(f"Error setting up LangSearch API: {str(e)}")
         return False
 
-def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-4") -> str:
+def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "gpt-4") -> str:
     """
     Generate a summary of a legal case using LangSearch API.
     
@@ -120,18 +124,18 @@ def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-
             }
             
             payload = {
+                "query": f"legal case summary: {case_citation}",
                 "model": model,
-                "messages": [
-                    {"role": "system", "content": "You are a legal expert specializing in case law summaries."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.7,
-                "max_tokens": 1000
+                "num_results": 5,
+                "include_domains": ["scholar.google.com", "law.cornell.edu", "justia.com", "caselaw.findlaw.com", "courtlistener.com"],
+                "exclude_domains": [],
+                "time_range": "year",
+                "safe_search": True
             }
             
             # Call the LangSearch API
             response = requests.post(
-                "https://api.langsearch.ai/v1/chat/completions",
+                "https://api.langsearch.com/v1/web-search",
                 headers=headers,
                 json=payload,
                 timeout=30
@@ -142,17 +146,17 @@ def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-
                 response_data = response.json()
                 
                 # Validate response structure
-                if not response_data or "choices" not in response_data or not response_data["choices"]:
-                    raise ValueError("Invalid response from LangSearch API: No choices returned")
+                if not response_data or "results" not in response_data or not response_data["results"]:
+                    raise ValueError("Invalid response from LangSearch API: No results returned")
                 
-                if "message" not in response_data["choices"][0] or not response_data["choices"][0]["message"]:
-                    raise ValueError("Invalid response from LangSearch API: No message in first choice")
+                # Compile a summary from the search results
+                summary = f"Summary for case: {case_citation}\n\n"
                 
-                if "content" not in response_data["choices"][0]["message"]:
-                    raise ValueError("Invalid response from LangSearch API: No content in message")
-                
-                # Extract and return the summary
-                summary = response_data["choices"][0]["message"]["content"].strip()
+                for i, result in enumerate(response_data["results"], 1):
+                    if "title" in result and "url" in result and "snippet" in result:
+                        summary += f"Source {i}: {result['title']}\n"
+                        summary += f"URL: {result['url']}\n"
+                        summary += f"Excerpt: {result['snippet']}\n\n"
                 
                 if not summary:
                     raise ValueError("Empty summary returned from LangSearch API")
@@ -215,3 +219,36 @@ def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-
         raise RuntimeError(f"Failed to generate summary: {last_error}")
     else:
         raise RuntimeError("Failed to generate summary for unknown reasons")
+
+def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-4") -> str:
+    """
+    Generate a summary of a legal case.
+    First checks if the case is found in CourtListener, and if so, returns that information.
+    If the case is not found in CourtListener, then uses the LangSearch API.
+    
+    Args:
+        case_citation: The case citation to summarize.
+        model: The model to use for LangSearch API (default: gpt-4).
+    
+    Returns:
+        str: A summary of the case.
+    """
+    # Validate inputs
+    if not case_citation or not case_citation.strip():
+        raise ValueError("Case citation cannot be empty")
+    
+    # First, check if the case is found in CourtListener
+    exists, case_data = search_citation(case_citation)
+    
+    if exists:
+        # Case found in CourtListener, use CourtListener to generate summary
+        print(f"Case '{case_citation}' found in CourtListener. Generating summary from CourtListener.")
+        return generate_case_summary_from_courtlistener(case_citation)
+    else:
+        # Case not found in CourtListener, use LangSearch API
+        print(f"Case '{case_citation}' not found in CourtListener. Using LangSearch API.")
+        try:
+            return generate_case_summary_with_langsearch_api(case_citation, model)
+        except Exception as e:
+            print(f"Error generating summary with LangSearch API: {str(e)}")
+            return f"Error: Could not generate summary for '{case_citation}'. Case not found in CourtListener and LangSearch API failed: {str(e)}"
