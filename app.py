@@ -15,8 +15,12 @@ import argparse
 from pathlib import Path
 
 # Third-party imports
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory, session
 from flask_cors import CORS
+import uuid
+import threading
+import queue
+import re
 
 # Try to import docx for Word document processing
 try:
@@ -51,6 +55,7 @@ except ImportError:
     print("Warning: courtlistener_integration module not available. CourtListener API will not be used.")
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24).hex())  # Set a secret key for sessions
 CORS(app)  # Enable CORS for Word add-in support
 
 # Directory for Word add-in files
@@ -462,8 +467,8 @@ if __name__ == '__main__':
                 print("LangSearch API will not be used.")
         
         # Check for SSL certificate and key
-        cert_path = os.environ.get('SSL_CERT_PATH', 'ssl/cert.pem')
-        key_path = os.environ.get('SSL_KEY_PATH', 'ssl/key.pem')
+        cert_path = os.environ.get('SSL_CERT_PATH', 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt')
+        key_path = os.environ.get('SSL_KEY_PATH', 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key')
         
         # Check if SSL certificate and key exist
         ssl_context = None
@@ -487,7 +492,7 @@ if __name__ == '__main__':
         try:
             # Use command line arguments if provided, otherwise use environment variables
             debug_mode = args.debug if args.debug is not None else os.environ.get('DEBUG', 'True').lower() == 'true'
-            host = args.host or os.environ.get('HOST', '0.0.0.0')
+            host = args.host or os.environ.get('HOST', 'wolf.law.uw.edu')
             
             try:
                 port = args.port or int(os.environ.get('PORT', 5000))
