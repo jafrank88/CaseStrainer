@@ -449,7 +449,9 @@ def generate_multiple_summaries(citation: str, num_iterations: int = 3) -> List[
     Generate multiple summaries for a given case citation.
     """
     summaries = []
-    for _ in range(num_iterations):
+    print(f"  Generating {num_iterations} summaries for comparison...")
+    for i in range(num_iterations):
+        print(f"  - Generating summary {i+1}/{num_iterations}")
         summary = generate_case_summary(citation)
         summaries.append(summary)
     return summaries
@@ -463,10 +465,17 @@ def calculate_average_similarity(summaries: List[str]) -> float:
     
     # Calculate pairwise similarities
     similarities = []
+    total_comparisons = (len(summaries) * (len(summaries) - 1)) // 2
+    print(f"  Calculating similarity across {total_comparisons} summary pairs...")
+    
+    comparison_count = 0
     for i in range(len(summaries)):
         for j in range(i + 1, len(summaries)):
+            comparison_count += 1
             similarity = calculate_similarity(summaries[i], summaries[j])
             similarities.append(similarity)
+            if comparison_count % 5 == 0 or comparison_count == total_comparisons:
+                print(f"  - Completed {comparison_count}/{total_comparisons} comparisons")
     
     # Calculate average similarity
     return sum(similarities) / len(similarities) if similarities else 0.0
@@ -679,8 +688,26 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
         # Deduplicate citations before checking
         seen_citations = set()
         unique_citations = []
+        
+        def normalize_citation(citation):
+            """Normalize citation for deduplication"""
+            # Convert to lowercase and strip whitespace
+            norm = citation.strip().lower()
+            
+            # Remove all spaces
+            no_spaces = re.sub(r'\s+', '', norm)
+            
+            # For WestLaw citations (e.g., 2018 WL 3037217)
+            wl_match = re.search(r'(\d{4})(?:\s*W\.?\s*L\.?\s*)(\d+)', norm)
+            if wl_match:
+                year, number = wl_match.groups()
+                return f"{year}wl{number}"
+            
+            # For standard case citations, remove punctuation
+            return re.sub(r'[^\w\d]', '', norm)
+        
         for citation in citations:
-            normalized_citation = citation.strip().lower()
+            normalized_citation = normalize_citation(citation)
             if normalized_citation not in seen_citations:
                 seen_citations.add(normalized_citation)
                 unique_citations.append(citation)
@@ -691,13 +718,19 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
         # Check each unique citation
         results = []
         errors = []
+        total_unique = len(unique_citations)
         
-        for citation in unique_citations:
+        print(f"\nFound {total_unique} unique citations in the document")
+        print(f"Starting citation verification process...\n")
+        
+        for i, citation in enumerate(unique_citations, 1):
+            print(f"Checking citation {i}/{total_unique}: {citation}")
             try:
                 result = check_citation(citation, num_iterations, similarity_threshold)
                 results.append(result)
             except Exception as e:
                 print(f"Error checking citation '{citation}': {str(e)}")
+                print(f"Continuing with next citation...")
                 errors.append({
                     "citation": citation,
                     "error": str(e)
@@ -718,6 +751,9 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
         
         # Compile results
         hallucinated_citations = [r for r in results if r.get("is_hallucinated", False)]
+        
+        print(f"\nCitation verification complete: {total_unique}/{total_unique} citations processed")
+        print(f"Found {len(hallucinated_citations)} potentially hallucinated citations")
         
         analysis_result = {
             "total_citations": len(citations),

@@ -209,6 +209,7 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 time.sleep(wait_time)
             else:
                 print(f"Request timed out after {max_retries} attempts.")
+                print("This may be due to a large file or server load. Processing will continue with other methods.")
                 raise RuntimeError(f"Failed to generate summary: Request timed out after {max_retries} attempts")
         except requests.exceptions.RequestException as e:
             last_error = str(e)
