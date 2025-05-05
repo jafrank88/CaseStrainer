@@ -492,7 +492,7 @@ if __name__ == '__main__':
         try:
             # Use command line arguments if provided, otherwise use environment variables
             debug_mode = args.debug if args.debug is not None else os.environ.get('DEBUG', 'True').lower() == 'true'
-            host = args.host or os.environ.get('HOST', 'wolf.law.uw.edu')
+            host = args.host or os.environ.get('HOST', '0.0.0.0')
             
             try:
                 port = args.port or int(os.environ.get('PORT', 5000))

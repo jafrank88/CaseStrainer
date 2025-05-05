@@ -15,7 +15,7 @@ def run_server():
     parser = argparse.ArgumentParser(description='Run CaseStrainer web application with Waitress')
     parser.add_argument('--threads', type=int, default=8, help='Number of threads')
     parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
-    parser.add_argument('--host', default='wolf.law.uw.edu', help='Host to run the server on')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
     parser.add_argument('--connection-limit', type=int, default=1000, help='Maximum number of connections')
     parser.add_argument('--channel-timeout', type=int, default=120, help='Channel timeout in seconds')
     args = parser.parse_args()
