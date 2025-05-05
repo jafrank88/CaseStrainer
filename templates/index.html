@@ -313,17 +313,37 @@
                     
                     eventSource.onerror = function(error) {
                         console.error('EventSource error:', error);
-                        eventSource.close();
                         
-                        // If we have no results yet, show an error
-                        if (citationResults.length === 0) {
-                            showError('Connection to server lost. Please try again.');
+                        // Don't close the connection immediately, try to reconnect
+                        console.log('Attempting to reconnect...');
+                        
+                        // Show a warning but don't close the connection yet
+                        const progressContainer = document.getElementById('progress-container');
+                        if (progressContainer) {
+                            progressContainer.innerHTML = '<strong>Warning:</strong> Connection issue detected. Attempting to reconnect...';
+                            progressContainer.className = 'alert alert-warning';
+                        }
+                        
+                        // Only show error and close connection after multiple failures
+                        if (this.reconnectAttempts === undefined) {
+                            this.reconnectAttempts = 1;
                         } else {
-                            // Otherwise, show what we have so far
-                            const progressContainer = document.getElementById('progress-container');
-                            if (progressContainer) {
-                                progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
-                                progressContainer.className = 'alert alert-warning';
+                            this.reconnectAttempts++;
+                        }
+                        
+                        if (this.reconnectAttempts > 3) {
+                            console.error('Max reconnect attempts reached. Closing connection.');
+                            eventSource.close();
+                            
+                            // If we have no results yet, show an error
+                            if (citationResults.length === 0) {
+                                showError('Connection to server lost after multiple attempts. Please try again.');
+                            } else {
+                                // Otherwise, show what we have so far
+                                if (progressContainer) {
+                                    progressContainer.innerHTML = '<strong>Warning:</strong> Connection to server lost. Results may be incomplete.';
+                                    progressContainer.className = 'alert alert-warning';
+                                }
                             }
                         }
                     };

@@ -301,14 +301,20 @@ def analyze():
                     yield f"data: {json.dumps({'status': 'error', 'error': str(e)})}\n\n"
             
             # Return the streaming response
-            return app.response_class(
+            response = app.response_class(
                 generate(),
                 mimetype='text/event-stream',
                 headers={
                     'Cache-Control': 'no-cache',
-                    'X-Accel-Buffering': 'no'  # Disable buffering for Nginx
+                    'X-Accel-Buffering': 'no',  # Disable buffering for Nginx
+                    'Connection': 'keep-alive',
+                    'Access-Control-Allow-Origin': '*',  # Allow cross-origin requests
+                    'Access-Control-Allow-Headers': 'Content-Type',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS'
                 }
             )
+            print("Sending SSE response with headers:", response.headers)
+            return response
         except Exception as e:
             return jsonify({
                 "error": f"Analysis failed: {str(e)}"
