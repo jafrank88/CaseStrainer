@@ -676,11 +676,23 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                 "results": []
             }
         
-        # Check each citation
+        # Deduplicate citations before checking
+        seen_citations = set()
+        unique_citations = []
+        for citation in citations:
+            normalized_citation = citation.strip().lower()
+            if normalized_citation not in seen_citations:
+                seen_citations.add(normalized_citation)
+                unique_citations.append(citation)
+        
+        if len(unique_citations) < len(citations):
+            print(f"Removed {len(citations) - len(unique_citations)} duplicate citations")
+        
+        # Check each unique citation
         results = []
         errors = []
         
-        for citation in citations:
+        for citation in unique_citations:
             try:
                 result = check_citation(citation, num_iterations, similarity_threshold)
                 results.append(result)
