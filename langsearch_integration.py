@@ -9,7 +9,7 @@ It first checks if the case is found in CourtListener, and if not, then uses the
 import os
 import time
 import requests
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # Import CourtListener functions
 from courtlistener_integration import search_citation, generate_case_summary_from_courtlistener
@@ -48,9 +48,17 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 "Authorization": f"Bearer {key}",
                 "Content-Type": "application/json"
             }
-            response = requests.get(
-                "https://api.langsearch.com/v1/models",
+            
+            # Use a simple query to test the API connection
+            payload = {
+                "query": "test query",
+                "count": 1
+            }
+            
+            response = requests.post(
+                "https://api.langsearch.com/v1/web-search",
                 headers=headers,
+                json=payload,
                 timeout=10
             )
             
@@ -68,13 +76,12 @@ def setup_langsearch_api(api_key: Optional[str] = None):
         print(f"Error setting up LangSearch API: {str(e)}")
         return False
 
-def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "gpt-4") -> str:
+def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
     """
     Generate a summary of a legal case using LangSearch API.
     
     Args:
         case_citation: The case citation to summarize.
-        model: The model to use (default: gpt-4).
     
     Returns:
         str: A summary of the case.
@@ -91,9 +98,6 @@ def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "
     # Validate inputs
     if not case_citation or not case_citation.strip():
         raise ValueError("Case citation cannot be empty")
-    
-    if not model or not model.strip():
-        raise ValueError("Model name cannot be empty")
     
     # Create the prompt
     prompt = f"""
@@ -125,12 +129,9 @@ def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "
             
             payload = {
                 "query": f"legal case summary: {case_citation}",
-                "model": model,
-                "num_results": 5,
-                "include_domains": ["scholar.google.com", "law.cornell.edu", "justia.com", "caselaw.findlaw.com", "courtlistener.com"],
-                "exclude_domains": [],
-                "time_range": "year",
-                "safe_search": True
+                "count": 5,
+                "timeframe": "oneYear",
+                "summary": True
             }
             
             # Call the LangSearch API
@@ -146,17 +147,31 @@ def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "
                 response_data = response.json()
                 
                 # Validate response structure
-                if not response_data or "results" not in response_data or not response_data["results"]:
-                    raise ValueError("Invalid response from LangSearch API: No results returned")
+                if not response_data or "data" not in response_data:
+                    raise ValueError("Invalid response from LangSearch API: No data returned")
+                
+                data = response_data["data"]
+                if "_type" not in data or data["_type"] != "SearchResponse":
+                    raise ValueError("Invalid response from LangSearch API: Not a SearchResponse")
+                
+                if "webPages" not in data or "value" not in data["webPages"]:
+                    raise ValueError("Invalid response from LangSearch API: No web pages returned")
                 
                 # Compile a summary from the search results
                 summary = f"Summary for case: {case_citation}\n\n"
                 
-                for i, result in enumerate(response_data["results"], 1):
-                    if "title" in result and "url" in result and "snippet" in result:
-                        summary += f"Source {i}: {result['title']}\n"
+                for i, result in enumerate(data["webPages"]["value"], 1):
+                    if "name" in result and "url" in result:
+                        summary += f"Source {i}: {result['name']}\n"
                         summary += f"URL: {result['url']}\n"
-                        summary += f"Excerpt: {result['snippet']}\n\n"
+                        
+                        if "snippet" in result:
+                            summary += f"Excerpt: {result['snippet']}\n"
+                        
+                        if "summary" in result:
+                            summary += f"Summary: {result['summary']}\n"
+                        
+                        summary += "\n"
                 
                 if not summary:
                     raise ValueError("Empty summary returned from LangSearch API")
@@ -220,7 +235,57 @@ def generate_case_summary_with_langsearch_api(case_citation: str, model: str = "
     else:
         raise RuntimeError("Failed to generate summary for unknown reasons")
 
-def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-4") -> str:
+def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
+    """
+    Generate a summary of a legal case using the provided case data.
+    
+    Args:
+        case_data: The case data from CourtListener.
+    
+    Returns:
+        str: A summary of the case.
+    """
+    try:
+        # Extract relevant information for the summary
+        case_name = case_data.get("case_name", "Unknown case name")
+        court = case_data.get("court_name", "Unknown court")
+        date_filed = case_data.get("date_filed", "Unknown date")
+        docket_number = case_data.get("docket_number", "Unknown docket number")
+        citation_string = case_data.get("citation", "Unknown citation")
+        
+        # Extract the opinion text
+        opinion_text = case_data.get("plain_text", "")
+        
+        # Create a summary
+        summary = f"""
+        Case Summary: {case_name}
+        
+        Citation: {citation_string}
+        Court: {court}
+        Date Filed: {date_filed}
+        Docket Number: {docket_number}
+        
+        """
+        
+        # Add a brief excerpt from the opinion if available
+        if opinion_text:
+            # Get the first 500 characters as a preview
+            preview = opinion_text[:500].strip()
+            if len(opinion_text) > 500:
+                preview += "..."
+            
+            summary += f"""
+            Opinion Excerpt:
+            {preview}
+            
+            Full opinion available at: https://www.courtlistener.com/opinion/{case_data.get('id', '')}/
+            """
+        
+        return summary
+    except Exception as e:
+        return f"Error generating summary from case data: {str(e)}"
+
+def generate_case_summary_with_langsearch(case_citation: str) -> str:
     """
     Generate a summary of a legal case.
     First checks if the case is found in CourtListener, and if so, returns that information.
@@ -228,7 +293,6 @@ def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-
     
     Args:
         case_citation: The case citation to summarize.
-        model: The model to use for LangSearch API (default: gpt-4).
     
     Returns:
         str: A summary of the case.
@@ -241,14 +305,23 @@ def generate_case_summary_with_langsearch(case_citation: str, model: str = "gpt-
     exists, case_data = search_citation(case_citation)
     
     if exists:
-        # Case found in CourtListener, use CourtListener to generate summary
-        print(f"Case '{case_citation}' found in CourtListener. Generating summary from CourtListener.")
-        return generate_case_summary_from_courtlistener(case_citation)
+        # Case found in CourtListener, use the case data directly
+        print(f"Case '{case_citation}' found in CourtListener. Generating summary from case data.")
+        
+        # Get more detailed information if we have a case ID
+        case_id = case_data.get("id")
+        if case_id:
+            from courtlistener_integration import get_case_details
+            details = get_case_details(case_id)
+            if details:
+                case_data = details
+        
+        return generate_case_summary_from_data(case_data)
     else:
         # Case not found in CourtListener, use LangSearch API
         print(f"Case '{case_citation}' not found in CourtListener. Using LangSearch API.")
         try:
-            return generate_case_summary_with_langsearch_api(case_citation, model)
+            return generate_case_summary_with_langsearch_api(case_citation)
         except Exception as e:
             print(f"Error generating summary with LangSearch API: {str(e)}")
             return f"Error: Could not generate summary for '{case_citation}'. Case not found in CourtListener and LangSearch API failed: {str(e)}"
