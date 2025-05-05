@@ -726,7 +726,110 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
         for i, citation in enumerate(unique_citations, 1):
             print(f"Checking citation {i}/{total_unique}: {citation}")
             try:
+                # First check if the case exists in CourtListener
+                print(f"  Checking if '{citation}' exists in CourtListener...")
+                
+                if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
+                    from courtlistener_integration import search_citation
+                    exists, case_data = search_citation(citation)
+                    
+                    if exists:
+                        print(f"  ✓ Case found in CourtListener")
+                        # Generate summary from CourtListener data
+                        from courtlistener_integration import get_case_details
+                        
+                        # Get more detailed information if we have a case ID
+                        case_id = case_data.get("id")
+                        if case_id:
+                            details = get_case_details(case_id)
+                            if details:
+                                case_data = details
+                        
+                        # Generate summary from case data
+                        if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
+                            from langsearch_integration import generate_case_summary_from_data
+                            case_summary = generate_case_summary_from_data(case_data)
+                        else:
+                            from courtlistener_integration import generate_case_summary_from_courtlistener
+                            case_summary = generate_case_summary_from_courtlistener(citation)
+                        
+                        # Create result
+                        result = {
+                            "citation": citation,
+                            "is_hallucinated": False,
+                            "confidence": 1.0,
+                            "method": "courtlistener",
+                            "similarity_score": None,
+                            "summaries": [],
+                            "exists": True,
+                            "case_data": True,
+                            "case_summary": case_summary
+                        }
+                        
+                        # Print result immediately
+                        print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
+                        print(f"Citation: {citation}")
+                        print(f"Status: ✓ VERIFIED (found in CourtListener)")
+                        print(f"Confidence: High")
+                        print("-------------------------------------------\n")
+                        
+                        results.append(result)
+                        continue
+                    else:
+                        print(f"  ✗ Case not found in CourtListener, trying LangSearch...")
+                else:
+                    print(f"  ! CourtListener not available, trying LangSearch...")
+                
+                # If not found in CourtListener, try LangSearch
+                if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
+                    try:
+                        from langsearch_integration import generate_case_summary_with_langsearch_api
+                        case_summary = generate_case_summary_with_langsearch_api(citation)
+                        
+                        # If we got a summary without errors, assume the case exists
+                        result = {
+                            "citation": citation,
+                            "is_hallucinated": False,
+                            "confidence": 0.8,
+                            "method": "langsearch",
+                            "similarity_score": None,
+                            "summaries": [],
+                            "exists": True,
+                            "case_data": False,
+                            "case_summary": case_summary
+                        }
+                        
+                        # Print result immediately
+                        print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
+                        print(f"Citation: {citation}")
+                        print(f"Status: ✓ VERIFIED (found via LangSearch)")
+                        print(f"Confidence: Medium")
+                        print("-------------------------------------------\n")
+                        
+                        results.append(result)
+                        continue
+                    except Exception as e:
+                        print(f"  ! LangSearch check failed: {str(e)}")
+                        print(f"  Falling back to summary comparison method...")
+                
+                # If all else fails, use the summary comparison method
                 result = check_citation(citation, num_iterations, similarity_threshold)
+                
+                # Print result immediately
+                print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
+                print(f"Citation: {citation}")
+                
+                if result.get("is_hallucinated", False):
+                    print(f"Status: ⚠ POTENTIALLY HALLUCINATED")
+                    print(f"Confidence: {result.get('confidence', 0.0):.2f}")
+                    print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
+                else:
+                    print(f"Status: ✓ LIKELY VALID")
+                    print(f"Confidence: {result.get('confidence', 0.0):.2f}")
+                    print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
+                
+                print("-------------------------------------------\n")
+                
                 results.append(result)
             except Exception as e:
                 print(f"Error checking citation '{citation}': {str(e)}")
@@ -736,7 +839,7 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                     "error": str(e)
                 })
                 # Add a placeholder result to maintain citation count
-                results.append({
+                result = {
                     "citation": citation,
                     "is_hallucinated": False,  # Default to not hallucinated if we can't check
                     "confidence": 0.0,
@@ -747,7 +850,16 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                     "exists": True,  # Default to assuming it exists
                     "case_data": False,
                     "case_summary": None
-                })
+                }
+                
+                # Print result immediately
+                print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
+                print(f"Citation: {citation}")
+                print(f"Status: ! ERROR CHECKING CITATION")
+                print(f"Error: {str(e)}")
+                print("-------------------------------------------\n")
+                
+                results.append(result)
         
         # Compile results
         hallucinated_citations = [r for r in results if r.get("is_hallucinated", False)]
