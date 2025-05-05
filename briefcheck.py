@@ -840,18 +840,45 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                         print(f"  ! LangSearch check failed: {str(e)}")
                         print(f"  Falling back to summary comparison method...")
                 
-                # For WestLaw citations, use a lower similarity threshold to be more conservative
+                # For WestLaw citations, mark as unable to verify
                 if is_westlaw:
-                    print(f"  Using a lower similarity threshold for WestLaw citation")
-                    # Use a more conservative threshold for WestLaw citations
-                    wl_similarity_threshold = max(0.1, similarity_threshold - 0.2)
-                    result = check_citation(citation, num_iterations, wl_similarity_threshold)
+                    print(f"  WestLaw citations cannot be reliably verified")
                     
-                    # If the result is not hallucinated but the similarity score is low, mark it as potentially hallucinated
-                    if not result.get("is_hallucinated", False) and result.get("similarity_score", 1.0) < similarity_threshold:
-                        result["is_hallucinated"] = True
-                        result["confidence"] = 0.7
-                        print(f"  Marking WestLaw citation as potentially hallucinated due to low similarity score")
+                    # Create a result indicating the citation cannot be verified
+                    result = {
+                        "citation": citation,
+                        "is_hallucinated": False,  # Not marking as hallucinated since we can't verify
+                        "is_unverifiable": True,   # New flag to indicate the citation cannot be verified
+                        "confidence": 0.0,
+                        "method": "westlaw_unverifiable",
+                        "similarity_score": None,
+                        "summaries": [],
+                        "exists": None,  # Unknown if it exists
+                        "case_data": False,
+                        "case_summary": f"WestLaw citation '{citation}' cannot be verified. WestLaw citations require access to the WestLaw database."
+                    }
+                    
+                    # Print result immediately
+                    print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
+                    print(f"Citation: {citation}")
+                    print(f"Status: ! UNABLE TO VERIFY (WestLaw citation)")
+                    print(f"Note: WestLaw citations require access to the WestLaw database")
+                    print("-------------------------------------------\n")
+                    
+                    # Add HTML result to the case_summary for website display
+                    html_result = f"""
+                    <div class="citation-result unverifiable">
+                        <h3>Citation: {citation}</h3>
+                        <p class="status"><span class="warning">!</span> UNABLE TO VERIFY (WestLaw citation)</p>
+                        <p class="note">WestLaw citations require access to the WestLaw database.</p>
+                    </div>
+                    """
+                    
+                    # Append HTML result to case_summary
+                    result["case_summary"] = html_result
+                    
+                    results.append(result)
+                    continue
                 else:
                     # If all else fails, use the summary comparison method with standard threshold
                     result = check_citation(citation, num_iterations, similarity_threshold)
