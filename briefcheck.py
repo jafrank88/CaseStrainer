@@ -751,16 +751,22 @@ def analyze_brief(text: str, num_iterations: int = 3, similarity_threshold: floa
                             from courtlistener_integration import generate_case_summary_from_courtlistener
                             case_summary = generate_case_summary_from_courtlistener(citation)
                         
+                        # Check if the summary indicates insufficient data
+                        insufficient_data = False
+                        if "WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA" in case_summary:
+                            insufficient_data = True
+                            print(f"  ! Warning: Case data is insufficient for verification")
+                        
                         # Create result
                         result = {
                             "citation": citation,
-                            "is_hallucinated": False,
-                            "confidence": 1.0,
+                            "is_hallucinated": insufficient_data,  # Mark as hallucinated if data is insufficient
+                            "confidence": 0.8 if not insufficient_data else 0.7,
                             "method": "courtlistener",
                             "similarity_score": None,
                             "summaries": [],
-                            "exists": True,
-                            "case_data": True,
+                            "exists": not insufficient_data,
+                            "case_data": not insufficient_data,
                             "case_summary": case_summary
                         }
                         

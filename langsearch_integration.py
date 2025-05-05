@@ -128,7 +128,7 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
             }
             
             payload = {
-                "query": f"legal case summary: {case_citation}",
+                "query": f"summarize the legal case {case_citation}",
                 "count": 5,
                 "timeframe": "oneYear",
                 "summary": True
@@ -245,6 +245,10 @@ def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
     
     Returns:
         str: A summary of the case.
+        
+    Note:
+        If the summary contains mostly "Unknown" values, the caller should
+        consider the case as not verified.
     """
     try:
         # Extract relevant information for the summary
@@ -257,6 +261,14 @@ def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
         # Extract the opinion text
         opinion_text = case_data.get("plain_text", "")
         
+        # Check if we have mostly unknown values
+        unknown_count = 0
+        if case_name == "Unknown case name": unknown_count += 1
+        if court == "Unknown court": unknown_count += 1
+        if date_filed == "Unknown date": unknown_count += 1
+        if docket_number == "Unknown docket number": unknown_count += 1
+        if citation_string == "Unknown citation": unknown_count += 1
+        
         # Create a summary
         summary = f"""
         Case Summary: {case_name}
@@ -267,6 +279,10 @@ def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
         Docket Number: {docket_number}
         
         """
+        
+        # Add a warning if most values are unknown
+        if unknown_count >= 3:
+            summary = f"WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA\n\n" + summary
         
         # Add a brief excerpt from the opinion if available
         if opinion_text:
