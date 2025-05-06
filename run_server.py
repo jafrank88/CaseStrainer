@@ -17,10 +17,18 @@ def worker_process(host, port, threads, connection_limit, channel_timeout, cert_
         import cheroot.wsgi
         import cheroot.ssl.builtin
         
-        # Create SSL adapter with more permissive settings for development
+        # Create SSL adapter with more robust settings
         ssl_adapter = cheroot.ssl.builtin.BuiltinSSLAdapter(cert_path, key_path)
+        
+        # Configure SSL context with more robust settings
         ssl_adapter.context.check_hostname = False
         ssl_adapter.context.verify_mode = ssl.CERT_NONE  # Disable certificate verification
+        
+        # Set minimum TLS version to TLS 1.2 for better security
+        ssl_adapter.context.minimum_version = ssl.TLSVersion.TLSv1_2
+        
+        # Set cipher suite to modern secure ciphers
+        ssl_adapter.context.set_ciphers('ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384')
         
         # Create server - use a different port for each worker to avoid conflicts
         from wsgi import app
@@ -40,8 +48,25 @@ def worker_process(host, port, threads, connection_limit, channel_timeout, cert_
         # Set SSL adapter
         server.ssl_adapter = ssl_adapter
         
-        # Start server
-        server.start()
+        # Add a custom error handler for SSL errors
+        def ssl_error_handler(exc, environ, start_response, traceback=None):
+            status = '400 Bad Request'
+            headers = [('Content-Type', 'text/plain')]
+            start_response(status, headers)
+            return [b'HTTPS is required for this server. Please use a secure connection.']
+        
+        # Set the error handler
+        server.error_handler = ssl_error_handler
+        
+        # Start server with error handling
+        try:
+            server.start()
+        except ssl.SSLError as e:
+            print(f"Worker {worker_id} SSL Error: {e}")
+            print("This is likely due to a client attempting to connect with an incompatible SSL/TLS version.")
+            print("The worker will continue running.")
+            # Restart the server
+            server.start()
     except Exception as e:
         print(f"Worker process error: {e}")
 
@@ -150,11 +175,18 @@ def run_server():
                 import cheroot.ssl.builtin
                 print("CherryPy/Cheroot installed successfully.")
             
-            # Create SSL adapter with more permissive settings for development
+            # Create SSL adapter with more robust settings
             ssl_adapter = cheroot.ssl.builtin.BuiltinSSLAdapter(cert_path, key_path)
-            # Set SSL context to not verify hostname
+            
+            # Configure SSL context with more robust settings
             ssl_adapter.context.check_hostname = False
             ssl_adapter.context.verify_mode = ssl.CERT_NONE  # Disable certificate verification
+            
+            # Set minimum TLS version to TLS 1.2 for better security
+            ssl_adapter.context.minimum_version = ssl.TLSVersion.TLSv1_2
+            
+            # Set cipher suite to modern secure ciphers
+            ssl_adapter.context.set_ciphers('ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384')
             
             # Create server with correct parameters - explicitly bind to all interfaces
             server = cheroot.wsgi.Server(
@@ -182,10 +214,27 @@ def run_server():
             print("Do not enter file:/// URLs in the text area, as the server cannot access files on your local machine directly.")
             
             try:
+                # Add a custom error handler for SSL errors
+                def ssl_error_handler(exc, environ, start_response, traceback=None):
+                    status = '400 Bad Request'
+                    headers = [('Content-Type', 'text/plain')]
+                    start_response(status, headers)
+                    return [b'HTTPS is required for this server. Please use a secure connection.']
+                
+                # Set the error handler
+                server.error_handler = ssl_error_handler
+                
+                # Start the server
                 server.start()
             except KeyboardInterrupt:
                 print("Server stopped.")
                 server.stop()
+            except ssl.SSLError as e:
+                print(f"SSL Error: {e}")
+                print("This is likely due to a client attempting to connect with an incompatible SSL/TLS version.")
+                print("The server will continue running.")
+                # Restart the server
+                server.start()
             
             return
         except Exception as e:
