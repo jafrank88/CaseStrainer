@@ -73,7 +73,7 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
                     return True
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
@@ -87,7 +87,7 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
                         print(f"Response: {response.text}")
                         print("This may indicate an invalid API key or a server issue.")
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
@@ -97,7 +97,7 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
             except requests.exceptions.Timeout:
                 print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -108,7 +108,7 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
             except requests.exceptions.RequestException as e:
                 print(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -119,7 +119,7 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
             except Exception as e:
                 print(f"Error testing CourtListener API connection: {str(e)}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -158,7 +158,7 @@ def normalize_westlaw_citation(citation: str) -> str:
         return f"{year} WL {number}"
     return citation
 
-def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional[Dict[str, Any]]]:
+def search_citation(citation: str, max_retries: int = 5) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
     Search for a case citation in the CourtListener API.
     
@@ -269,7 +269,7 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
                     return False, None
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
@@ -280,7 +280,7 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
                     print(f"Error searching CourtListener API: Status code {response.status_code}")
                     print(f"Response: {response.text}")
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
@@ -289,7 +289,7 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
             except requests.exceptions.Timeout:
                 print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -298,7 +298,7 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
             except requests.exceptions.RequestException as e:
                 print(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -307,7 +307,7 @@ def search_citation(citation: str, max_retries: int = 3) -> Tuple[bool, Optional
         except Exception as e:
             print(f"Error searching CourtListener API: {str(e)}")
             if attempt < max_retries - 1:
-                wait_time = 2 ** attempt  # Exponential backoff
+                wait_time = 3 ** attempt  # Increased exponential backoff
                 print(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
@@ -350,7 +350,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
                     return response.json()
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
@@ -361,7 +361,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
                     print(f"Error getting case details from CourtListener API: Status code {response.status_code}")
                     print(f"Response: {response.text}")
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt  # Exponential backoff
+                        wait_time = 3 ** attempt  # Increased exponential backoff
                         print(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
@@ -370,7 +370,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
             except requests.exceptions.Timeout:
                 print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -379,7 +379,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
             except requests.exceptions.RequestException as e:
                 print(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt  # Exponential backoff
+                    wait_time = 3 ** attempt  # Increased exponential backoff
                     print(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
@@ -388,7 +388,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
         except Exception as e:
             print(f"Error getting case details from CourtListener API: {str(e)}")
             if attempt < max_retries - 1:
-                wait_time = 2 ** attempt  # Exponential backoff
+                wait_time = 3 ** attempt  # Increased exponential backoff
                 print(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
@@ -398,7 +398,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
     # If we've exhausted all retries and still haven't returned, return None
     return None
 
-def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 3) -> str:
+def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 5) -> str:
     """
     Generate a summary of a legal case using the CourtListener API.
     
@@ -485,7 +485,7 @@ def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 3
         except Exception as e:
             print(f"Error generating summary from CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}")
             if attempt < max_retries - 1:
-                wait_time = 2 ** attempt  # Exponential backoff
+                wait_time = 3 ** attempt  # Increased exponential backoff
                 print(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
@@ -612,7 +612,7 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
         print(f"Error searching local PDFs: {str(e)}")
         return False
 
-def check_citation_exists(citation: str, max_retries: int = 3, local_search_timeout: int = 15) -> bool:
+def check_citation_exists(citation: str, max_retries: int = 5, local_search_timeout: int = 15) -> bool:
     """
     Check if a citation exists in the CourtListener database.
     
@@ -661,7 +661,7 @@ def check_citation_exists(citation: str, max_retries: int = 3, local_search_time
         except Exception as e:
             print(f"Error checking citation with CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}")
             if attempt < max_retries - 1:
-                wait_time = 2 ** attempt  # Exponential backoff
+                wait_time = 3 ** attempt  # Increased exponential backoff
                 print(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue

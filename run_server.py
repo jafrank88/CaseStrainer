@@ -17,9 +17,10 @@ def worker_process(host, port, threads, connection_limit, channel_timeout, cert_
         import cheroot.wsgi
         import cheroot.ssl.builtin
         
-        # Create SSL adapter
+        # Create SSL adapter with more permissive settings for development
         ssl_adapter = cheroot.ssl.builtin.BuiltinSSLAdapter(cert_path, key_path)
         ssl_adapter.context.check_hostname = False
+        ssl_adapter.context.verify_mode = ssl.CERT_NONE  # Disable certificate verification
         
         # Create server - use a different port for each worker to avoid conflicts
         from wsgi import app
@@ -149,14 +150,15 @@ def run_server():
                 import cheroot.ssl.builtin
                 print("CherryPy/Cheroot installed successfully.")
             
-            # Create SSL adapter with server_side=True to disable client verification
+            # Create SSL adapter with more permissive settings for development
             ssl_adapter = cheroot.ssl.builtin.BuiltinSSLAdapter(cert_path, key_path)
             # Set SSL context to not verify hostname
             ssl_adapter.context.check_hostname = False
+            ssl_adapter.context.verify_mode = ssl.CERT_NONE  # Disable certificate verification
             
-            # Create server with correct parameters
+            # Create server with correct parameters - explicitly bind to all interfaces
             server = cheroot.wsgi.Server(
-                bind_addr=(args.host, args.port),
+                bind_addr=('0.0.0.0', args.port),
                 wsgi_app=app,
                 server_name='casestrainer',
                 numthreads=args.threads,
