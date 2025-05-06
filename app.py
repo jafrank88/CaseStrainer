@@ -606,13 +606,10 @@ if __name__ == '__main__':
                 print("LangSearch API will not be used.")
         
         # Check for SSL certificate and key
-        cert_path = os.environ.get('SSL_CERT_PATH', 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt')
-        key_path = os.environ.get('SSL_KEY_PATH', 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key')
+        cert_path = os.environ.get('SSL_CERT_PATH') or config.get('ssl_cert_path', 'ssl/cert.pem')
+        key_path = os.environ.get('SSL_KEY_PATH') or config.get('ssl_key_path', 'ssl/key.pem')
         
-        # Use SSL certificates from the specified location
-        cert_path = 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt'
-        key_path = 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key'
-        
+        # Remove hardcoded paths
         if os.path.exists(cert_path) and os.path.exists(key_path):
             try:
                 # Verify the certificate and key are valid

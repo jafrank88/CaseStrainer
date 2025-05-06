@@ -18,6 +18,7 @@ import sys
 import json
 import argparse
 from pathlib import Path
+import time
 
 def print_header(text):
     """Print a formatted header."""
@@ -163,16 +164,104 @@ def generate_systemd_config(config):
     except Exception as e:
         print(f"Error generating systemd configuration: {e}")
 
+def generate_secure_key():
+    """Generate a secure random key."""
+    import secrets
+    return secrets.token_hex(32)
+
+def encrypt_api_key(key: str, master_key: str) -> str:
+    """Encrypt an API key using Fernet symmetric encryption."""
+    from cryptography.fernet import Fernet
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+    import base64
+    
+    # Derive a key from the master key
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b'casestrainer_salt',  # In production, use a unique salt per key
+        iterations=100000,
+    )
+    key_bytes = base64.urlsafe_b64encode(kdf.derive(master_key.encode()))
+    f = Fernet(key_bytes)
+    
+    # Encrypt the API key
+    return f.encrypt(key.encode()).decode()
+
+def decrypt_api_key(encrypted_key: str, master_key: str) -> str:
+    """Decrypt an API key using Fernet symmetric encryption."""
+    from cryptography.fernet import Fernet
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+    import base64
+    
+    # Derive the key from the master key
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b'casestrainer_salt',  # Must match the salt used in encryption
+        iterations=100000,
+    )
+    key_bytes = base64.urlsafe_b64encode(kdf.derive(master_key.encode()))
+    f = Fernet(key_bytes)
+    
+    # Decrypt the API key
+    return f.decrypt(encrypted_key.encode()).decode()
+
+def rotate_api_key(api_name: str, config: dict) -> bool:
+    """Rotate an API key by generating a new one and updating the configuration."""
+    try:
+        # Generate new key
+        new_key = generate_secure_key()
+        
+        # Get master key from environment or prompt user
+        master_key = os.environ.get('MASTER_KEY')
+        if not master_key:
+            master_key = get_input("Enter master key for encryption", password=True)
+        
+        # Encrypt the new key
+        encrypted_key = encrypt_api_key(new_key, master_key)
+        
+        # Update config
+        config[f'{api_name}_api_key'] = encrypted_key
+        config[f'{api_name}_key_rotation_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Save config
+        if save_config(config):
+            print(f"Successfully rotated {api_name} API key")
+            return True
+        return False
+    except Exception as e:
+        print(f"Error rotating {api_name} API key: {e}")
+        return False
+
 def main():
     """Main function to set up API keys."""
     parser = argparse.ArgumentParser(description='CaseStrainer API Key Setup Utility')
     parser.add_argument('--no-test', action='store_true', help='Skip API connectivity tests')
+    parser.add_argument('--rotate', choices=['courtlistener', 'langsearch', 'openai', 'all'],
+                      help='Rotate specified API key(s)')
     args = parser.parse_args()
     
     print_header("CaseStrainer API Key Setup Utility")
     
     # Load existing configuration
     config = load_config()
+    
+    # Handle key rotation if requested
+    if args.rotate:
+        if args.rotate == 'all':
+            for api in ['courtlistener', 'langsearch', 'openai']:
+                rotate_api_key(api, config)
+        else:
+            rotate_api_key(args.rotate, config)
+        return
+    
+    # Get master key for encryption
+    master_key = os.environ.get('MASTER_KEY')
+    if not master_key:
+        master_key = get_input("Enter master key for encryption", password=True)
     
     # Get CourtListener API key
     print("\nCourtListener API Key")
@@ -187,7 +276,10 @@ def main():
     )
     
     if courtlistener_key:
-        config['courtlistener_api_key'] = courtlistener_key
+        # Encrypt the key before storing
+        encrypted_key = encrypt_api_key(courtlistener_key, master_key)
+        config['courtlistener_api_key'] = encrypted_key
+        config['courtlistener_key_rotation_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
         if not args.no_test:
             test_courtlistener_api(courtlistener_key)
     else:
@@ -206,7 +298,10 @@ def main():
     )
     
     if langsearch_key:
-        config['langsearch_api_key'] = langsearch_key
+        # Encrypt the key before storing
+        encrypted_key = encrypt_api_key(langsearch_key, master_key)
+        config['langsearch_api_key'] = encrypted_key
+        config['langsearch_key_rotation_date'] = time.strftime('%Y-%m-%d %H:%M:%S')
         if not args.no_test:
             test_langsearch_api(langsearch_key)
     else:
@@ -247,10 +342,9 @@ def main():
         print("\nAPI key setup complete!")
         print("\nTo use these keys in your current terminal session:")
         for key, value in config.items():
-            env_key = key.upper()
             if key.endswith('_api_key'):
                 env_key = key[:-8].upper() + '_API_KEY'
-            print(f"export {env_key}='{value}'")
+                print(f"export {env_key}='{value}'")
         
         print("\nTo start CaseStrainer with these keys:")
         print("python run_server.py --threads 8 --workers 2 --channel-timeout 300 --connection-limit 2000 --timeout 300")

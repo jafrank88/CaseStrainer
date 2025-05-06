@@ -26,6 +26,19 @@ LOCAL_PDF_FOLDERS = [
 # Flag to track if local PDF search is enabled
 USE_LOCAL_PDF_SEARCH = False
 
+def decrypt_api_key(encrypted_key: str) -> str:
+    """Decrypt an API key using the master key."""
+    try:
+        from setup_api_keys import decrypt_api_key as decrypt
+        master_key = os.environ.get('MASTER_KEY')
+        if not master_key:
+            print("Warning: MASTER_KEY environment variable not set. Using encrypted key as-is.")
+            return encrypted_key
+        return decrypt(encrypted_key, master_key)
+    except Exception as e:
+        print(f"Warning: Could not decrypt API key: {e}")
+        return encrypted_key
+
 def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3, verbose: bool = True) -> bool:
     """
     Set up the CourtListener API with the provided key or from environment variable.
@@ -49,6 +62,12 @@ def setup_courtlistener_api(api_key: Optional[str] = None, max_retries: int = 3,
                 print("CourtListener API will be used in limited mode (rate-limited).")
             COURTLISTENER_AVAILABLE = True
             return True  # CourtListener allows some requests without API key
+        
+        # Try to decrypt the key if it's encrypted
+        try:
+            key = decrypt_api_key(key)
+        except:
+            pass  # If decryption fails, use the key as-is
         
         # Store the API key in an environment variable for later use
         os.environ["COURTLISTENER_API_KEY"] = key

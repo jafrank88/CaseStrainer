@@ -17,6 +17,19 @@ from courtlistener_integration import search_citation, generate_case_summary_fro
 # Flag to track if LangSearch API is available
 LANGSEARCH_AVAILABLE = True
 
+def decrypt_api_key(encrypted_key: str) -> str:
+    """Decrypt an API key using the master key."""
+    try:
+        from setup_api_keys import decrypt_api_key as decrypt
+        master_key = os.environ.get('MASTER_KEY')
+        if not master_key:
+            print("Warning: MASTER_KEY environment variable not set. Using encrypted key as-is.")
+            return encrypted_key
+        return decrypt(encrypted_key, master_key)
+    except Exception as e:
+        print(f"Warning: Could not decrypt API key: {e}")
+        return encrypted_key
+
 def setup_langsearch_api(api_key: Optional[str] = None):
     """
     Set up the LangSearch API with the provided key or from environment variable.
@@ -33,6 +46,12 @@ def setup_langsearch_api(api_key: Optional[str] = None):
         if not key:
             print("Error: LangSearch API key not provided and LANGSEARCH_API_KEY environment variable not set.")
             return False
+        
+        # Try to decrypt the key if it's encrypted
+        try:
+            key = decrypt_api_key(key)
+        except:
+            pass  # If decryption fails, use the key as-is
         
         # Validate API key format (basic check)
         if not key.startswith('sk-'):
