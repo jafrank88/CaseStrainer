@@ -12,6 +12,7 @@ import os
 import sys
 import tempfile
 import argparse
+import time
 from pathlib import Path
 
 # Third-party imports
@@ -67,11 +68,20 @@ def index():
     """Render the main page."""
     return render_template('index.html')
 
+# Global queue for storing analysis results
+analysis_queues = {}
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     """Analyze a brief for hallucinated case citations."""
     brief_text = ""
     temp_file = None
+    
+    # Generate a unique session ID for this analysis request
+    session_id = str(uuid.uuid4())
+    
+    # Create a queue for this session
+    analysis_queues[session_id] = queue.Queue()
     
     try:
         # Check if this is a file upload or direct text input
@@ -208,8 +218,15 @@ def analyze():
         try:
             # Use Server-Sent Events to stream results as they become available
             def generate():
+                # Set a keep-alive interval
+                keep_alive_interval = 15  # seconds
+                last_message_time = 0
+                
                 # First, extract citations
                 try:
+                    # Send an initial keep-alive message
+                    yield f"data: {json.dumps({'status': 'connecting', 'message': 'Connection established'})}\n\n"
+                    
                     citations = extract_case_citations(brief_text)
                     
                     if not citations:
@@ -246,59 +263,153 @@ def analyze():
                     # Send initial data with total citations
                     total_unique = len(unique_citations)
                     yield f"data: {json.dumps({'status': 'started', 'total_citations': total_unique, 'message': f'Found {total_unique} unique citations in the document'})}\n\n"
+                    last_message_time = time.time()
+                    
+                    # Start a background thread to process citations
+                    def process_citations():
+                        results = []
+                        hallucinated_count = 0
+                        
+                        try:
+                            for i, citation in enumerate(unique_citations, 1):
+                                # Put progress update in the queue
+                                analysis_queues[session_id].put({
+                                    'status': 'progress', 
+                                    'current': i, 
+                                    'total': total_unique, 
+                                    'message': f'Checking citation {i}/{total_unique}: {citation}'
+                                })
+                                
+                                try:
+                                    # Check the citation
+                                    from briefcheck import check_citation
+                                    result = check_citation(citation, num_iterations, similarity_threshold)
+                                    
+                                    # Update hallucinated count
+                                    if result.get('is_hallucinated', False):
+                                        hallucinated_count += 1
+                                    
+                                    # Add result to results list
+                                    results.append(result)
+                                    
+                                    # Put the individual result in the queue
+                                    analysis_queues[session_id].put({
+                                        'status': 'result', 
+                                        'citation_index': i-1, 
+                                        'citation': citation, 
+                                        'result': result,
+                                        'total': total_unique,
+                                        'hallucinated_count': hallucinated_count
+                                    })
+                                    
+                                except Exception as e:
+                                    # Put error for this citation in the queue
+                                    error_result = {
+                                        "citation": citation,
+                                        "is_hallucinated": False,
+                                        "confidence": 0.0,
+                                        "method": "check_failed",
+                                        "error": str(e),
+                                        "similarity_score": None,
+                                        "summaries": [],
+                                        "exists": True,
+                                        "case_data": False,
+                                        "case_summary": f"Error checking citation: {str(e)}"
+                                    }
+                                    results.append(error_result)
+                                    analysis_queues[session_id].put({
+                                        'status': 'error', 
+                                        'citation_index': i-1, 
+                                        'citation': citation, 
+                                        'error': str(e), 
+                                        'result': error_result,
+                                        'total': total_unique,
+                                        'hallucinated_count': hallucinated_count
+                                    })
+                            
+                            # Put final complete message in the queue
+                            final_result = {
+                                "status": "complete",
+                                "total_citations": total_unique,
+                                "hallucinated_citations": hallucinated_count,
+                                "results": results
+                            }
+                            analysis_queues[session_id].put(final_result)
+                            
+                        except Exception as e:
+                            # Put error message in the queue
+                            analysis_queues[session_id].put({'status': 'error', 'error': str(e)})
+                    
+                    # Start the background thread
+                    thread = threading.Thread(target=process_citations)
+                    thread.daemon = True
+                    thread.start()
                     
                     # Process each citation and send results as they become available
                     results = []
                     hallucinated_count = 0
                     
-                    for i, citation in enumerate(unique_citations, 1):
-                        # Send progress update
-                        yield f"data: {json.dumps({'status': 'progress', 'current': i, 'total': total_unique, 'message': f'Checking citation {i}/{total_unique}: {citation}'})}\n\n"
-                        
-                        try:
-                            # Check the citation
-                            from briefcheck import check_citation
-                            result = check_citation(citation, num_iterations, similarity_threshold)
-                            
-                            # Update hallucinated count
-                            if result.get('is_hallucinated', False):
-                                hallucinated_count += 1
-                            
-                            # Add result to results list
-                            results.append(result)
-                            
-                            # Send the individual result
-                            yield f"data: {json.dumps({'status': 'result', 'citation_index': i-1, 'citation': citation, 'result': result})}\n\n"
-                            
-                        except Exception as e:
-                            # Send error for this citation
-                            error_result = {
-                                "citation": citation,
-                                "is_hallucinated": False,
-                                "confidence": 0.0,
-                                "method": "check_failed",
-                                "error": str(e),
-                                "similarity_score": None,
-                                "summaries": [],
-                                "exists": True,
-                                "case_data": False,
-                                "case_summary": f"Error checking citation: {str(e)}"
-                            }
-                            results.append(error_result)
-                            yield f"data: {json.dumps({'status': 'error', 'citation_index': i-1, 'citation': citation, 'error': str(e), 'result': error_result})}\n\n"
+                    # Keep-alive timer
+                    last_message_time = 0
                     
-                    # Send final complete message
-                    final_result = {
-                        "status": "complete",
-                        "total_citations": total_unique,
-                        "hallucinated_citations": hallucinated_count,
-                        "results": results
-                    }
-                    yield f"data: {json.dumps(final_result)}\n\n"
+                    # Stream results from the queue
+                    while True:
+                        try:
+                            # Check if we need to send a keep-alive message
+                            current_time = time.time()
+                            if current_time - last_message_time > keep_alive_interval:
+                                yield f"data: {json.dumps({'status': 'keep-alive', 'timestamp': current_time})}\n\n"
+                                last_message_time = current_time
+                            
+                            # Try to get a message from the queue with a timeout
+                            try:
+                                message = analysis_queues[session_id].get(timeout=1)
+                            except queue.Empty:
+                                # No message available, continue and check for keep-alive
+                                continue
+                            
+                            # Update the last message time
+                            last_message_time = time.time()
+                            
+                            # Process the message
+                            if message['status'] == 'complete':
+                                # Final message, send it and break the loop
+                                yield f"data: {json.dumps(message)}\n\n"
+                                break
+                            elif message['status'] == 'error':
+                                # Error message, send it and break the loop
+                                yield f"data: {json.dumps(message)}\n\n"
+                                break
+                            else:
+                                # Regular message, send it
+                                yield f"data: {json.dumps(message)}\n\n"
+                                
+                                # Update our local tracking variables
+                                if message['status'] == 'result':
+                                    if message['result'].get('is_hallucinated', False):
+                                        hallucinated_count = message.get('hallucinated_count', hallucinated_count + 1)
+                        except GeneratorExit:
+                            # Client disconnected
+                            print(f"Client disconnected for session {session_id}")
+                            if session_id in analysis_queues:
+                                del analysis_queues[session_id]
+                            return
+                        except Exception as e:
+                            # Send error message
+                            yield f"data: {json.dumps({'status': 'error', 'error': f'Stream error: {str(e)}'})}\n\n"
+                            break
+                    
+                    # Clean up
+                    if session_id in analysis_queues:
+                        del analysis_queues[session_id]
                     
                 except Exception as e:
                     # Send error message
                     yield f"data: {json.dumps({'status': 'error', 'error': str(e)})}\n\n"
+                    
+                    # Clean up
+                    if session_id in analysis_queues:
+                        del analysis_queues[session_id]
             
             # Return the streaming response
             response = app.response_class(
@@ -310,7 +421,8 @@ def analyze():
                     'Connection': 'keep-alive',
                     'Access-Control-Allow-Origin': '*',  # Allow cross-origin requests
                     'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Transfer-Encoding': 'chunked'  # Use chunked encoding for better streaming
                 }
             )
             print("Sending SSE response with headers:", response.headers)

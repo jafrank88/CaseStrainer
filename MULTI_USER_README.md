@@ -64,12 +64,41 @@ For production environments, use the provided configuration files:
 2. **Systemd Service**
    - Copy `casestrainer.service` to `/etc/systemd/system/`
    - Edit the file to update paths and user information
+   - **Important**: Configure the API keys in the Environment variables section:
+     ```ini
+     Environment="SSL_CERT_PATH=/path/to/cert.pem"
+     Environment="SSL_KEY_PATH=/path/to/key.pem"
+     Environment="COURTLISTENER_API_KEY=your_api_key_here"
+     Environment="LANGSEARCH_API_KEY=your_api_key_here"
+     Environment="SECRET_KEY=your_secret_key_here"
+     ```
    - Enable and start the service:
      ```bash
      systemctl daemon-reload
      systemctl enable casestrainer
      systemctl start casestrainer
      ```
+
+3. **API Keys Configuration**
+   - Use the provided setup script to configure API keys:
+     ```bash
+     python setup_api_keys.py
+     ```
+     This script will:
+     - Prompt for your API keys
+     - Test the API connections
+     - Save the keys to config.json
+     - Generate a configured systemd service file
+     - Set up environment variables for the current session
+   
+   - **CourtListener API Key**: Required for citation lookup and case data retrieval
+     - Register at https://www.courtlistener.com/help/api/rest/
+     - Set the key in the systemd service file or as an environment variable
+   - **LangSearch API Key**: Required for advanced case summary generation
+     - Contact LangSearch provider for API access
+     - Set the key in the systemd service file or as an environment variable
+   - Without proper API keys, the application will fall back to rate-limited public access
+     which may result in "Authentication credentials were not provided" errors
 
 ### Monitoring the Service
 
