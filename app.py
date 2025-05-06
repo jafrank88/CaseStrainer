@@ -609,8 +609,10 @@ if __name__ == '__main__':
         cert_path = os.environ.get('SSL_CERT_PATH', 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt')
         key_path = os.environ.get('SSL_KEY_PATH', 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key')
         
-        # Check if SSL certificate and key exist
-        ssl_context = None
+        # Use SSL certificates from the specified location
+        cert_path = 'D:/dify/docker/nginx/ssl/WolfCertBundle.crt'
+        key_path = 'D:/dify/docker/nginx/ssl/wolf.law.uw.edu.key'
+        
         if os.path.exists(cert_path) and os.path.exists(key_path):
             try:
                 # Verify the certificate and key are valid
@@ -620,12 +622,11 @@ if __name__ == '__main__':
             except Exception as e:
                 print(f"Error loading SSL certificate or key: {str(e)}")
                 print("Running without SSL...")
+                ssl_context = None
         else:
-            print("Warning: SSL certificate or key not found.")
-            print("For production use with Word add-in, HTTPS is required.")
-            print("You can generate a self-signed certificate for development:")
-            print("mkdir -p ssl")
-            print("openssl req -x509 -newkey rsa:4096 -nodes -out ssl/cert.pem -keyout ssl/key.pem -days 365")
+            print(f"Warning: SSL certificate or key not found at {cert_path} and {key_path}")
+            print("Running without SSL...")
+            ssl_context = None
         
         # Parse environment variables with error handling
         try:
