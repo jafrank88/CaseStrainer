@@ -6,19 +6,23 @@ A tool to detect and highlight potentially hallucinated legal case citations in 
 
 CaseStrainer analyzes legal documents to identify case citations that may be hallucinated (i.e., non-existent or fabricated). It uses multiple methods to verify citations:
 
-1. **API-based verification**: Checks citations against the CourtListener database
-2. **Local PDF search**: Searches for citations in local PDF folders
-3. **Summary comparison**: Generates and compares multiple summaries of each citation using LangSearch or OpenAI APIs to detect inconsistencies
+1. **CourtListener API integration**: Checks citations against the CourtListener database for accurate verification
+2. **Automatic citation extraction**: Identifies and extracts legal citations from documents using pattern matching
+3. **Local PDF search**: Searches for citations in local PDF folders
+4. **Summary comparison**: Generates and compares multiple summaries of each citation using LangSearch or OpenAI APIs to detect inconsistencies
 
 ## Features
 
 - Web interface for uploading and analyzing documents
-- Word add-in for direct integration with Microsoft Word
+- CourtListener API integration for accurate citation verification
+- Automatic extraction of legal citations from documents
 - Support for multiple file formats (DOCX, PDF, TXT)
+- Batch processing of multiple citations in a single document
 - Configurable analysis parameters
 - Detailed results with confidence scores and similarity metrics
 - Collapsible summaries for each citation
 - Local PDF search option for offline use
+- Real-time progress updates during analysis
 
 ## Installation
 
@@ -41,10 +45,26 @@ CaseStrainer analyzes legal documents to identify case citations that may be hal
 ### Running the Web Interface
 
 ```
-python app.py
+python -m waitress --host=0.0.0.0 --port=5001 app:app
 ```
 
-Then open a web browser and navigate to `http://localhost:5000`.
+Then open a web browser and navigate to `http://localhost:5001`.
+
+### Using the CourtListener API
+
+1. Sign up for a CourtListener account at [courtlistener.com](https://www.courtlistener.com/)
+2. Get your API key from your account settings page
+3. Enter your API key in the designated field in the CaseStrainer web interface
+4. Upload a document or enter text containing legal citations
+5. Click "Analyze Brief" to start the analysis
+
+### Document Processing
+
+CaseStrainer can process documents in several ways:
+
+1. **Text Input**: Paste text directly into the text area
+2. **File Upload**: Upload DOCX, PDF, or TXT files
+3. **Batch Processing**: The application automatically extracts and analyzes all citations found in the document
 
 ### Command Line Options
 

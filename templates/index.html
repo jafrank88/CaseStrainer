@@ -404,7 +404,7 @@
                     }
                     
                     // Use improved EventSource with reconnection logic
-                    activeEventSource = setupEventSource('/analyze?' + new URLSearchParams({
+                    activeEventSource = setupEventSource('/casestrainer/analyze?' + new URLSearchParams({
                         _formData: 'placeholder' // This is just to make the URL unique to avoid caching
                     }).toString(), {
                         onOpen: () => {
@@ -435,7 +435,7 @@
                     });
                     
                     // Send the form data using a separate fetch
-                    fetch('/analyze', {
+                    fetch('/casestrainer/analyze', {
                         method: 'POST',
                         body: formDataForFetch
                     }).catch(error => {
@@ -467,7 +467,7 @@
                     }
                     
                     // Use improved EventSource with reconnection logic
-                    activeEventSource = setupEventSource('/analyze?' + new URLSearchParams({
+                    activeEventSource = setupEventSource('/casestrainer/analyze?' + new URLSearchParams({
                         _formData: 'placeholder' // This is just to make the URL unique to avoid caching
                     }).toString(), {
                         onOpen: () => {
@@ -498,7 +498,7 @@
                     });
                     
                     // Send the form data using a separate fetch
-                    fetch('/analyze', {
+                    fetch('/casestrainer/analyze', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',

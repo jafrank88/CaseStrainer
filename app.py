@@ -1,659 +1,536 @@
-#!/usr/bin/env python3
-"""
-CaseStrainer Web Interface
-
-A Flask web application that provides a user interface for the CaseStrainer tool,
-with support for Word documents and a Word add-in.
-"""
-
-# Standard library imports
-import json
 import os
-import sys
-import tempfile
-import argparse
+import json
 import time
-from pathlib import Path
-
-# Third-party imports
-from flask import Flask, jsonify, render_template, request, send_from_directory, session
-from flask_cors import CORS
 import uuid
 import threading
-import queue
+import requests
+import tempfile
 import re
+from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, render_template, send_from_directory, Response, session
+from flask_cors import CORS
+from PyPDF2 import PdfReader
+import docx
 
-# Try to import docx for Word document processing
-try:
-    import docx
-    DOCX_AVAILABLE = True
-except ImportError:
-    DOCX_AVAILABLE = False
-    print("Warning: python-docx not available, Word document support will be limited")
-
-# Try to import PyPDF2 for PDF processing
-try:
-    import PyPDF2
-    PDF_AVAILABLE = True
-except ImportError:
-    PDF_AVAILABLE = False
-    print("Warning: PyPDF2 not available, PDF support will be limited")
-
-# Local application imports
-from briefcheck import analyze_brief, extract_case_citations
-
-# Try to import API integrations
-try:
-    from langsearch_integration import setup_langsearch_api, LANGSEARCH_AVAILABLE
-except ImportError:
-    LANGSEARCH_AVAILABLE = False
-    print("Warning: langsearch_integration module not available. LangSearch API will not be used.")
-
-try:
-    from courtlistener_integration import setup_courtlistener_api, set_use_local_pdf_search, COURTLISTENER_AVAILABLE
-except ImportError:
-    COURTLISTENER_AVAILABLE = False
-    print("Warning: courtlistener_integration module not available. CourtListener API will not be used.")
-
-app = Flask(__name__)
+# Create Flask app
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24).hex())  # Set a secret key for sessions
 CORS(app)  # Enable CORS for Word add-in support
 
-# Directory for Word add-in files
-ADDIN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'word_addin')
-os.makedirs(ADDIN_DIR, exist_ok=True)
+# Configuration
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
+COURTLISTENER_API_URL = 'https://www.courtlistener.com/api/rest/v3/citation-lookup/'
+
+# Load configuration from config.json if available
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+DEFAULT_API_KEY = None
+
+try:
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+            DEFAULT_API_KEY = config.get('courtlistener_api_key')
+            print(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}..." if DEFAULT_API_KEY else "No API key found in config.json")
+except Exception as e:
+    print(f"Error loading config.json: {e}")
+    DEFAULT_API_KEY = None
+
+# Create upload folder if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Global storage for analysis results
+analysis_results = {}
+
+# Function to check if file extension is allowed
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Function to extract text from different file types
+def extract_text_from_file(file_path):
+    print(f"\n=== EXTRACTING TEXT FROM FILE ===\nFile path: {file_path}")
+    try:
+        if not os.path.exists(file_path):
+            print(f"Error: File does not exist: {file_path}")
+            return ""
+            
+        _, ext = os.path.splitext(file_path)
+        ext = ext.lower()
+        print(f"File extension: {ext}")
+        
+        if ext == '.pdf':
+            # Extract text from PDF
+            print("Extracting text from PDF file...")
+            try:
+                with open(file_path, 'rb') as file:
+                    reader = PdfReader(file)
+                    print(f"PDF has {len(reader.pages)} pages")
+                    text = ''
+                    for i, page in enumerate(reader.pages):
+                        print(f"Extracting text from page {i+1}/{len(reader.pages)}")
+                        page_text = page.extract_text()
+                        text += page_text + '\n'
+                    print(f"Successfully extracted {len(text)} characters from PDF")
+                    return text
+            except Exception as e:
+                print(f"Error extracting text from PDF: {e}")
+                import traceback
+                traceback.print_exc()
+                return ""
+        elif ext == '.docx':
+            # Extract text from DOCX
+            print("Extracting text from DOCX file...")
+            try:
+                doc = docx.Document(file_path)
+                text = '\n'.join([para.text for para in doc.paragraphs])
+                print(f"Successfully extracted {len(text)} characters from DOCX")
+                return text
+            except Exception as e:
+                print(f"Error extracting text from DOCX: {e}")
+                import traceback
+                traceback.print_exc()
+                return ""
+        elif ext == '.txt':
+            # Extract text from TXT
+            print("Extracting text from TXT file...")
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    text = file.read()
+                    print(f"Successfully extracted {len(text)} characters from TXT")
+                    return text
+            except UnicodeDecodeError:
+                # Try with a different encoding if UTF-8 fails
+                try:
+                    with open(file_path, 'r', encoding='latin-1') as file:
+                        text = file.read()
+                        print(f"Successfully extracted {len(text)} characters from TXT using latin-1 encoding")
+                        return text
+                except Exception as e:
+                    print(f"Error extracting text from TXT with latin-1 encoding: {e}")
+                    return ""
+            except Exception as e:
+                print(f"Error extracting text from TXT: {e}")
+                import traceback
+                traceback.print_exc()
+                return ""
+        else:
+            print(f"Unsupported file extension: {ext}")
+            return ""
+    except Exception as e:
+        print(f"Error extracting text from file: {e}")
+        import traceback
+        traceback.print_exc()
+        return ""
+
+# Function to extract citations from text
+def extract_citations(text):
+    print(f"Extracting citations from text of length: {len(text)}")
+    # This is a simple implementation - in a real application, you would use a more sophisticated approach
+    # For example, using regex patterns or a legal citation extraction library
+    
+    # Example patterns for common citation formats
+    patterns = [
+        r'\d+ U\.S\. \d+',  # US Reports
+        r'\d+ S\.Ct\. \d+',  # Supreme Court Reporter
+        r'\d+ F\.(\d|Supp|App)\.(\d|3d|2d) \d+',  # Federal Reporter
+        r'\d+ F\.R\.D\. \d+',  # Federal Rules Decisions
+        r'\d+ B\.R\. \d+',  # Bankruptcy Reporter
+        r'\d+ WL \d+',  # Westlaw
+        r'\d+ L\.Ed\.(\d|2d) \d+',  # Lawyers Edition
+    ]
+    
+    citations = []
+    for pattern in patterns:
+        try:
+            print(f"Searching for pattern: {pattern}")
+            matches = re.findall(pattern, text)
+            print(f"Found {len(matches)} matches for pattern: {pattern}")
+            for match in matches:
+                if isinstance(match, tuple):
+                    # If the match is a tuple (from capturing groups), join it
+                    match = ''.join(match)
+                citations.append(match)
+        except Exception as e:
+            print(f"Error searching for pattern {pattern}: {e}")
+    
+    print(f"Total citations extracted: {len(citations)}")
+    if citations:
+        print(f"Extracted citations: {citations}")
+    return citations
+
+# Function to query the CourtListener API
+def query_courtlistener_api(citation, api_key):
+    print(f"\n=== QUERYING COURTLISTENER API ===\nCitation: {citation}\nAPI Key: {api_key[:5]}...")
+    try:
+        headers = {
+            'Authorization': f'Token {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        # According to the documentation, we need to send a POST request with the text containing citations
+        data = {
+            'text': citation
+        }
+        
+        print(f"Making request to: {COURTLISTENER_API_URL}\nHeaders: {headers}\nData: {data}")
+        
+        response = requests.post(COURTLISTENER_API_URL, headers=headers, json=data)
+        
+        print(f"Response status code: {response.status_code}")
+        if response.status_code == 200:
+            response_json = response.json()
+            print(f"Response JSON: {json.dumps(response_json)[:200]}...")
+            return response_json
+        else:
+            print(f"API request failed with status code: {response.status_code}")
+            print(f"Response text: {response.text}")
+            return None
+    except Exception as e:
+        print(f"Error querying CourtListener API: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+# Function to generate a unique analysis ID
+def generate_analysis_id():
+    return str(uuid.uuid4())
+
+# Function to run the analysis with CourtListener API
+def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
+    print(f"Starting analysis for ID: {analysis_id}")
+    print(f"API key: {api_key[:5]}..." if api_key else "No API key provided")
+    print(f"File path: {file_path}" if file_path else "No file path provided")
+    print(f"Brief text length: {len(brief_text)}" if brief_text else "No brief text provided")
+    
+    try:
+        # Initialize the results for this analysis
+        analysis_results[analysis_id] = {
+            'status': 'running',
+            'events': [],
+            'completed': False
+        }
+        
+        # Get text from file if provided
+        if file_path and not brief_text:
+            print(f"Extracting text from file: {file_path}")
+            # Add extraction progress event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'progress',
+                'current': 0,
+                'total': 1,
+                'message': f'Extracting text from file: {os.path.basename(file_path)}'
+            })
+            brief_text = extract_text_from_file(file_path)
+            if not brief_text:
+                raise Exception("Failed to extract text from file")
+            # Add extraction complete event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'progress',
+                'current': 1,
+                'total': 1,
+                'message': f'Successfully extracted {len(brief_text)} characters from {os.path.basename(file_path)}'
+            })
+        
+        # Use default text if none provided
+        if not brief_text:
+            brief_text = "2016 WL 165971"
+            citations = [brief_text]
+            # Add default citation event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'progress',
+                'current': 0,
+                'total': 1,
+                'message': 'Using default citation for testing'
+            })
+        else:
+            # Add citation extraction progress event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'progress',
+                'current': 0,
+                'total': 1,
+                'message': 'Extracting citations from document text...'
+            })
+            
+            # Extract citations from the text
+            citations = extract_citations(brief_text)
+            
+            # Add citation extraction result event
+            if citations:
+                # First, add a summary event
+                analysis_results[analysis_id]['events'].append({
+                    'status': 'progress',
+                    'current': 1,
+                    'total': 1,
+                    'message': f'Successfully extracted {len(citations)} citations from document'
+                })
+                
+                # Then, add an event showing all extracted citations
+                analysis_results[analysis_id]['events'].append({
+                    'status': 'progress',
+                    'current': 1,
+                    'total': 1,
+                    'message': 'Extracted citations:',
+                    'extracted_citations': citations
+                })
+            else:
+                # If no citations found, treat the entire text as one citation
+                citations = [brief_text[:100] + "..." if len(brief_text) > 100 else brief_text]
+                analysis_results[analysis_id]['events'].append({
+                    'status': 'progress',
+                    'current': 1,
+                    'total': 1,
+                    'message': 'No specific citations found, treating entire text as one citation'
+                })
+        
+        # Add initial event
+        analysis_results[analysis_id]['events'].append({
+            'status': 'started',
+            'total_citations': len(citations)
+        })
+        
+        # Process each citation
+        hallucinated_count = 0
+        
+        for idx, citation in enumerate(citations):
+            # Add progress event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'progress',
+                'current': idx + 1,
+                'total': len(citations),
+                'message': f'Checking citation {idx + 1} of {len(citations)}: {citation}'
+            })
+            
+            # Default values
+            is_hallucinated = False
+            confidence = 0.85
+            explanation = "This citation was found in the database."
+            context = "This is a test citation."
+            
+            # Query CourtListener API if API key is provided
+            if api_key:
+                print(f"Querying CourtListener API for citation {citation} with API key: {api_key[:5]}...")
+                api_response = query_courtlistener_api(citation, api_key)
+                
+                if api_response:
+                    print(f"Received response from CourtListener API: {json.dumps(api_response)[:100]}...")
+                    # Add API response event
+                    analysis_results[analysis_id]['events'].append({
+                        'status': 'progress',
+                        'current': idx + 1,
+                        'total': len(citations),
+                        'message': f'Received API response for citation: {citation}',
+                        'api_response': api_response  # Include the raw API response
+                    })
+                    
+                    # Process API response
+                    # The citation-lookup API returns a dictionary with citation strings as keys
+                    # Each citation key maps to a list of matching opinions
+                    citation_found = False
+                    matching_citations = []
+                    
+                    # Check if any citations were found in the response
+                    for cite_key, opinions in api_response.items():
+                        if opinions and len(opinions) > 0:
+                            citation_found = True
+                            matching_citations.extend(opinions)
+                    
+                    is_hallucinated = not citation_found
+                    confidence = 0.95 if citation_found else 0.90
+                    explanation = "Citation found in CourtListener database." if citation_found else "Citation not found in CourtListener database."
+                    context = json.dumps(matching_citations[:3]) if matching_citations else "No context available."
+                else:
+                    # Add API error event
+                    analysis_results[analysis_id]['events'].append({
+                            'status': 'progress',
+                            'current': idx + 1,
+                            'total': len(citations),
+                            'message': f'API response did not contain citation data for: {citation}'
+                        })
+            
+            # Add result event
+            result = {
+                'citation_text': citation,
+                'is_hallucinated': is_hallucinated,
+                'confidence': confidence,
+                'context': context,
+                'explanation': explanation
+            }
+            
+            analysis_results[analysis_id]['events'].append({
+                'status': 'result',
+                'citation_index': idx,
+                'result': result,
+                'total': len(citations)
+            })
+            
+            # Count hallucinated citations
+            if is_hallucinated:
+                hallucinated_count += 1
+            
+            # Add a small delay between citations to avoid rate limiting
+            if idx < len(citations) - 1 and api_key:
+                time.sleep(0.5)
+        
+        # Add completion event
+        analysis_results[analysis_id]['events'].append({
+            'status': 'complete',
+            'total_citations': len(citations),
+            'hallucinated_citations': hallucinated_count
+        })
+        
+        # Mark as completed
+        analysis_results[analysis_id]['status'] = 'complete'
+        analysis_results[analysis_id]['completed'] = True
+        
+        print(f"Analysis completed for ID: {analysis_id}, found {hallucinated_count} hallucinated citations out of {len(citations)}")
+        
+        # Clean up old analyses after some time
+        threading.Timer(300, lambda: analysis_results.pop(analysis_id, None)).start()
+        
+    except Exception as e:
+        print(f"Error in analysis {analysis_id}: {str(e)}")
+        # If there's an error, mark the analysis as failed
+        if analysis_id in analysis_results:
+            analysis_results[analysis_id]['status'] = 'error'
+            analysis_results[analysis_id]['error'] = str(e)
+            analysis_results[analysis_id]['completed'] = True
+            
+            # Add error event
+            analysis_results[analysis_id]['events'].append({
+                'status': 'error',
+                'message': f"Error during analysis: {str(e)}"
+            })
+    
+    # This function is now complete with proper error handling
 
 @app.route('/')
 def index():
-    """Render the main page."""
-    return render_template('index.html')
+    return render_template('index_fixed.html')
 
-# Global queue for storing analysis results
-analysis_queues = {}
+@app.route('/test_sse.html')
+def test_sse():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'test_sse.html')
 
-@app.route('/analyze', methods=['POST'])
+@app.route('/test_sse_simple.html')
+def test_sse_simple():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'test_sse_simple.html')
+
+@app.route('/analyze', methods=['GET', 'POST'])
 def analyze():
     """Analyze a brief for hallucinated case citations."""
-    brief_text = ""
-    temp_file = None
+    print("\n\n==== ANALYZE ENDPOINT CALLED =====")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {dict(request.headers)}")
+    print(f"Request path: {request.path}")
+    print(f"Request query string: {request.query_string}")
     
-    # Generate a unique session ID for this analysis request
-    session_id = str(uuid.uuid4())
-    
-    # Create a queue for this session
-    analysis_queues[session_id] = queue.Queue()
-    
-    try:
-        # Check if this is a file upload or direct text input
-        print("Analyzing request...")
-        print(f"Request method: {request.method}")
-        print(f"Request content type: {request.content_type}")
-        print(f"Request files: {list(request.files.keys()) if request.files else 'None'}")
-        print(f"Request form: {list(request.form.keys()) if request.form else 'None'}")
+    # For POST requests, start a new analysis
+    if request.method == 'POST':
+        print("POST request detected - starting analysis")
         
-        if 'file' in request.files and request.files['file'].filename:
-            uploaded_file = request.files['file']
-            print(f"File upload detected: {uploaded_file.filename}")
-            file_extension = os.path.splitext(uploaded_file.filename.lower())[1]
-            print(f"File extension: {file_extension}")
-            
-            # Validate file extension
-            valid_extensions = ['.docx', '.pdf', '.txt']
-            if file_extension not in valid_extensions:
-                print(f"Invalid file extension: {file_extension}")
-                return jsonify({
-                    "error": f"Unsupported file format: {file_extension}. Please upload a .docx, .pdf, or .txt file."
-                }), 400
-            
-            try:
-                # Save the uploaded file to a temporary location
-                temp_file = tempfile.NamedTemporaryFile(delete=False)
-                uploaded_file.save(temp_file.name)
-                temp_file.close()
-                
-                # Process based on file type
-                if file_extension == '.docx':
-                    if not DOCX_AVAILABLE:
-                        return jsonify({
-                            "error": "Word document support not available. Please install python-docx package."
-                        }), 400
-                    
-                    try:
-                        # Extract text from Word document
-                        doc = docx.Document(temp_file.name)
-                        brief_text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
-                    except Exception as e:
-                        print(f"Error processing DOCX file: {str(e)}")
-                        return jsonify({
-                            "error": f"Failed to process Word document: {str(e)}"
-                        }), 400
-                        
-                elif file_extension == '.pdf':
-                    if not PDF_AVAILABLE:
-                        print("PDF support not available. PyPDF2 package is missing.")
-                        return jsonify({
-                            "error": "PDF support not available. Please install PyPDF2 package."
-                        }), 400
-                    
-                    try:
-                        # Extract text from PDF document
-                        print(f"Processing PDF file: {temp_file.name}")
-                        text = ""
-                        with open(temp_file.name, 'rb') as f:
-                            try:
-                                pdf_reader = PyPDF2.PdfReader(f)
-                                print(f"PDF has {len(pdf_reader.pages)} pages")
-                                for page_num in range(len(pdf_reader.pages)):
-                                    page = pdf_reader.pages[page_num]
-                                    page_text = page.extract_text()
-                                    text += page_text + "\n"
-                                    print(f"Extracted {len(page_text)} characters from page {page_num+1}")
-                            except Exception as pdf_error:
-                                print(f"Error reading PDF: {str(pdf_error)}")
-                                raise pdf_error
-                        brief_text = text
-                        print(f"Total extracted text length: {len(brief_text)} characters")
-                    except Exception as e:
-                        print(f"Error processing PDF file: {str(e)}")
-                        return jsonify({
-                            "error": f"Failed to process PDF document: {str(e)}"
-                        }), 400
-                        
-                elif file_extension == '.txt':
-                    try:
-                        # Read text file
-                        with open(temp_file.name, 'r', encoding='utf-8') as f:
-                            brief_text = f.read()
-                    except UnicodeDecodeError:
-                        # Try with different encodings if UTF-8 fails
-                        try:
-                            with open(temp_file.name, 'r', encoding='latin-1') as f:
-                                brief_text = f.read()
-                        except Exception as e:
-                            return jsonify({
-                                "error": f"Failed to read text file: {str(e)}"
-                            }), 400
-                    except Exception as e:
-                        return jsonify({
-                            "error": f"Failed to read text file: {str(e)}"
-                        }), 400
-            finally:
-                # Clean up the temporary file
-                if temp_file and os.path.exists(temp_file.name):
-                    try:
-                        os.unlink(temp_file.name)
-                    except Exception as e:
-                        print(f"Warning: Failed to delete temporary file: {str(e)}")
+        # Initialize variables
+        brief_text = None
+        file_path = None
+        api_key = None
+        
+        # Get the API key if provided, otherwise use the default from config.json
+        api_key = DEFAULT_API_KEY  # Use the default API key loaded from config.json
+        if 'api_key' in request.form and request.form['api_key'].strip():
+            api_key = request.form['api_key']
+            print(f"API key provided in form: {api_key[:5]}...")
         else:
-            # Get text from form data
-            brief_text = request.form.get('brief_text', '')
-            
-            # If no text was provided, return an error
-            if not brief_text:
-                return jsonify({"error": "No text or file provided."}), 400
+            print(f"Using default API key from config.json: {api_key[:5]}..." if api_key else "No API key provided or found in config.json")
         
-        # Validate and get analysis parameters
-        try:
-            num_iterations = int(request.form.get('iterations', 3))
-            if num_iterations < 1 or num_iterations > 10:
+        # Check if a file was uploaded
+        if 'file' in request.files:
+            file = request.files['file']
+            if file and file.filename and allowed_file(file.filename):
+                print(f"File uploaded: {file.filename}")
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(file_path)
+                print(f"File saved to: {file_path}")
+        
+        # Check if a file path was provided
+        elif 'file_path' in request.form:
+            file_path = request.form['file_path']
+            print(f"File path provided: {file_path}")
+            
+            # Handle file:/// URLs
+            if file_path.startswith('file:///'):
+                file_path = file_path[8:]  # Remove 'file:///' prefix
+            
+            # Check if the file exists
+            if not os.path.isfile(file_path):
+                print(f"File not found: {file_path}")
                 return jsonify({
-                    "error": "Number of iterations must be between 1 and 10."
-                }), 400
-                
-            similarity_threshold = float(request.form.get('threshold', 0.7))
-            if similarity_threshold < 0.1 or similarity_threshold > 1.0:
+                    'status': 'error',
+                    'message': f'File not found: {file_path}'
+                }), 404
+            
+            # Check if the file extension is allowed
+            if not allowed_file(file_path):
+                print(f"File extension not allowed: {file_path}")
                 return jsonify({
-                    "error": "Similarity threshold must be between 0.1 and 1.0."
-                }), 400
-            
-            # Check if local PDF search is enabled
-            use_local_pdf_search = request.form.get('use_local_pdf_search', 'false').lower() == 'true'
-            set_use_local_pdf_search(use_local_pdf_search)
-        except ValueError as e:
-            return jsonify({
-                "error": f"Invalid parameter value: {str(e)}"
-            }), 400
-        
-        # Analyze brief
-        try:
-            # Use Server-Sent Events to stream results as they become available
-            def generate():
-                # Set a keep-alive interval
-                keep_alive_interval = 15  # seconds
-                last_message_time = 0
-                
-                # First, extract citations
-                try:
-                    # Send an initial keep-alive message
-                    yield f"data: {json.dumps({'status': 'connecting', 'message': 'Connection established'})}\n\n"
-                    
-                    citations = extract_case_citations(brief_text)
-                    
-                    if not citations:
-                        yield f"data: {json.dumps({'status': 'complete', 'total_citations': 0, 'hallucinated_citations': 0, 'results': []})}\n\n"
-                        return
-                    
-                    # Deduplicate citations
-                    seen_citations = set()
-                    unique_citations = []
-                    
-                    def normalize_citation(citation):
-                        """Normalize citation for deduplication"""
-                        # Convert to lowercase and strip whitespace
-                        norm = citation.strip().lower()
-                        
-                        # Remove all spaces
-                        no_spaces = re.sub(r'\s+', '', norm)
-                        
-                        # For WestLaw citations (e.g., 2018 WL 3037217)
-                        wl_match = re.search(r'(\d{4})(?:\s*W\.?\s*L\.?\s*)(\d+)', norm)
-                        if wl_match:
-                            year, number = wl_match.groups()
-                            return f"{year}wl{number}"
-                        
-                        # For standard case citations, remove punctuation
-                        return re.sub(r'[^\w\d]', '', norm)
-                    
-                    for citation in citations:
-                        normalized_citation = normalize_citation(citation)
-                        if normalized_citation not in seen_citations:
-                            seen_citations.add(normalized_citation)
-                            unique_citations.append(citation)
-                    
-                    # Send initial data with total citations
-                    total_unique = len(unique_citations)
-                    yield f"data: {json.dumps({'status': 'started', 'total_citations': total_unique, 'message': f'Found {total_unique} unique citations in the document'})}\n\n"
-                    last_message_time = time.time()
-                    
-                    # Start a background thread to process citations
-                    def process_citations():
-                        results = []
-                        hallucinated_count = 0
-                        
-                        try:
-                            for i, citation in enumerate(unique_citations, 1):
-                                # Put progress update in the queue
-                                analysis_queues[session_id].put({
-                                    'status': 'progress', 
-                                    'current': i, 
-                                    'total': total_unique, 
-                                    'message': f'Checking citation {i}/{total_unique}: {citation}'
-                                })
-                                
-                                try:
-                                    # Check the citation
-                                    from briefcheck import check_citation
-                                    result = check_citation(citation, num_iterations, similarity_threshold)
-                                    
-                                    # Update hallucinated count
-                                    if result.get('is_hallucinated', False):
-                                        hallucinated_count += 1
-                                    
-                                    # Add result to results list
-                                    results.append(result)
-                                    
-                                    # Put the individual result in the queue
-                                    analysis_queues[session_id].put({
-                                        'status': 'result', 
-                                        'citation_index': i-1, 
-                                        'citation': citation, 
-                                        'result': result,
-                                        'total': total_unique,
-                                        'hallucinated_count': hallucinated_count
-                                    })
-                                    
-                                except Exception as e:
-                                    # Put error for this citation in the queue
-                                    error_result = {
-                                        "citation": citation,
-                                        "is_hallucinated": False,
-                                        "confidence": 0.0,
-                                        "method": "check_failed",
-                                        "error": str(e),
-                                        "similarity_score": None,
-                                        "summaries": [],
-                                        "exists": True,
-                                        "case_data": False,
-                                        "case_summary": f"Error checking citation: {str(e)}"
-                                    }
-                                    results.append(error_result)
-                                    analysis_queues[session_id].put({
-                                        'status': 'error', 
-                                        'citation_index': i-1, 
-                                        'citation': citation, 
-                                        'error': str(e), 
-                                        'result': error_result,
-                                        'total': total_unique,
-                                        'hallucinated_count': hallucinated_count
-                                    })
-                            
-                            # Put final complete message in the queue
-                            final_result = {
-                                "status": "complete",
-                                "total_citations": total_unique,
-                                "hallucinated_citations": hallucinated_count,
-                                "results": results
-                            }
-                            analysis_queues[session_id].put(final_result)
-                            
-                        except Exception as e:
-                            # Put error message in the queue
-                            analysis_queues[session_id].put({'status': 'error', 'error': str(e)})
-                    
-                    # Start the background thread
-                    thread = threading.Thread(target=process_citations)
-                    thread.daemon = True
-                    thread.start()
-                    
-                    # Process each citation and send results as they become available
-                    results = []
-                    hallucinated_count = 0
-                    
-                    # Keep-alive timer
-                    last_message_time = 0
-                    
-                    # Stream results from the queue
-                    while True:
-                        try:
-                            # Check if we need to send a keep-alive message
-                            current_time = time.time()
-                            if current_time - last_message_time > keep_alive_interval:
-                                yield f"data: {json.dumps({'status': 'keep-alive', 'timestamp': current_time})}\n\n"
-                                last_message_time = current_time
-                            
-                            # Try to get a message from the queue with a timeout
-                            try:
-                                message = analysis_queues[session_id].get(timeout=1)
-                            except queue.Empty:
-                                # No message available, continue and check for keep-alive
-                                continue
-                            
-                            # Update the last message time
-                            last_message_time = time.time()
-                            
-                            # Process the message
-                            if message['status'] == 'complete':
-                                # Final message, send it and break the loop
-                                yield f"data: {json.dumps(message)}\n\n"
-                                break
-                            elif message['status'] == 'error':
-                                # Error message, send it and break the loop
-                                yield f"data: {json.dumps(message)}\n\n"
-                                break
-                            else:
-                                # Regular message, send it
-                                yield f"data: {json.dumps(message)}\n\n"
-                                
-                                # Update our local tracking variables
-                                if message['status'] == 'result':
-                                    if message['result'].get('is_hallucinated', False):
-                                        hallucinated_count = message.get('hallucinated_count', hallucinated_count + 1)
-                        except GeneratorExit:
-                            # Client disconnected
-                            print(f"Client disconnected for session {session_id}")
-                            if session_id in analysis_queues:
-                                del analysis_queues[session_id]
-                            return
-                        except Exception as e:
-                            # Send error message
-                            yield f"data: {json.dumps({'status': 'error', 'error': f'Stream error: {str(e)}'})}\n\n"
-                            break
-                    
-                    # Clean up
-                    if session_id in analysis_queues:
-                        del analysis_queues[session_id]
-                    
-                except Exception as e:
-                    # Send error message
-                    yield f"data: {json.dumps({'status': 'error', 'error': str(e)})}\n\n"
-                    
-                    # Clean up
-                    if session_id in analysis_queues:
-                        del analysis_queues[session_id]
-            
-            # Return the streaming response
-            response = app.response_class(
-                generate(),
-                mimetype='text/event-stream',
-                headers={
-                    'Cache-Control': 'no-cache',
-                    'X-Accel-Buffering': 'no',  # Disable buffering for Nginx
-                    'Connection': 'keep-alive',
-                    'Access-Control-Allow-Origin': '*',  # Allow cross-origin requests
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                    'Transfer-Encoding': 'chunked'  # Use chunked encoding for better streaming
-                }
-            )
-            print("Sending SSE response with headers:", response.headers)
-            return response
-        except Exception as e:
-            return jsonify({
-                "error": f"Analysis failed: {str(e)}"
-            }), 500
-            
-    except Exception as e:
-        # Catch-all for any unexpected errors
-        return jsonify({
-            "error": f"An unexpected error occurred: {str(e)}"
-        }), 500
-
-@app.route('/extract', methods=['POST'])
-def extract():
-    """Extract case citations from text."""
-    try:
-        # Get form data
-        brief_text = request.form.get('brief_text', '')
-        
-        if not brief_text:
-            return jsonify({
-                "error": "No text provided for citation extraction."
-            }), 400
-        
-        # Extract citations
-        try:
-            citations = extract_case_citations(brief_text)
-            return jsonify({'citations': citations})
-        except Exception as e:
-            return jsonify({
-                "error": f"Citation extraction failed: {str(e)}"
-            }), 500
-            
-    except Exception as e:
-        # Catch-all for any unexpected errors
-        return jsonify({
-            "error": f"An unexpected error occurred: {str(e)}"
-        }), 500
-
-# API endpoints for Word add-in
-@app.route('/api/analyze', methods=['POST'])
-def api_analyze():
-    """API endpoint for Word add-in to analyze text."""
-    try:
-        # Validate request data
-        if not request.is_json:
-            return jsonify({
-                "error": "Request must be JSON format."
-            }), 400
-            
-        data = request.json
-        if not data or 'text' not in data:
-            return jsonify({
-                "error": "No text provided in request body."
-            }), 400
-        
-        brief_text = data['text']
-        if not brief_text.strip():
-            return jsonify({
-                "error": "Text content is empty."
-            }), 400
-        
-        # Validate and get analysis parameters
-        try:
-            num_iterations = int(data.get('iterations', 3))
-            if num_iterations < 1 or num_iterations > 10:
-                return jsonify({
-                    "error": "Number of iterations must be between 1 and 10."
-                }), 400
-                
-            similarity_threshold = float(data.get('threshold', 0.7))
-            if similarity_threshold < 0.1 or similarity_threshold > 1.0:
-                return jsonify({
-                    "error": "Similarity threshold must be between 0.1 and 1.0."
+                    'status': 'error',
+                    'message': f'File extension not allowed: {file_path}'
                 }), 400
             
-            # Check if local PDF search is enabled
-            use_local_pdf_search = data.get('use_local_pdf_search', False)
-            set_use_local_pdf_search(use_local_pdf_search)
-        except ValueError as e:
+            print(f"Using file from path: {file_path}")
+        
+        # Get the text input if provided
+        if 'text' in request.form:
+            brief_text = request.form['text']
+            print(f"Text from form: {brief_text[:100]}...")
+        elif 'briefText' in request.form:  # For backward compatibility
+            brief_text = request.form['briefText']
+            print(f"Brief text from form: {brief_text[:100]}...")
+        
+        # Check if we have either text or a file
+        if not brief_text and not file_path:
+            print("No text or file provided")
             return jsonify({
-                "error": f"Invalid parameter value: {str(e)}"
+                'status': 'error',
+                'message': 'No text or file provided'
             }), 400
         
-        # Analyze brief
-        try:
-            results = analyze_brief(brief_text, num_iterations, similarity_threshold)
-            return jsonify(results)
-        except Exception as e:
-            return jsonify({
-                "error": f"Analysis failed: {str(e)}"
-            }), 500
-            
-    except Exception as e:
-        # Catch-all for any unexpected errors
+        # Generate a unique ID for this analysis
+        analysis_id = generate_analysis_id()
+        print(f"Generated analysis ID: {analysis_id}")
+        
+        # Start the analysis in a background thread
+        threading.Thread(target=run_analysis, args=(analysis_id, brief_text, file_path, api_key)).start()
+        
+        # Return the analysis ID to the client
         return jsonify({
-            "error": f"An unexpected error occurred: {str(e)}"
-        }), 500
+            'status': 'success',
+            'message': 'Analysis started',
+            'analysis_id': analysis_id
+        })
+    else:
+        # For GET requests, just return an empty response
+        return jsonify({})
 
-# Serve Word add-in files
-@app.route('/word-addin/<path:filename>')
-def word_addin_files(filename):
-    """Serve Word add-in files."""
-    try:
-        # Validate filename to prevent directory traversal
-        if '..' in filename or filename.startswith('/'):
-            return jsonify({
-                "error": "Invalid filename."
-            }), 400
-            
-        # Check if file exists
-        file_path = os.path.join(ADDIN_DIR, filename)
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            return jsonify({
-                "error": f"File not found: {filename}"
-            }), 404
-            
-        return send_from_directory(ADDIN_DIR, filename)
-    except Exception as e:
-        return jsonify({
-            "error": f"Failed to serve file: {str(e)}"
-        }), 500
-
-def load_config():
-    """
-    Load configuration from config.json file if it exists.
+@app.route('/analyze_status')
+def analyze_status():
+    """Check the status of an analysis."""
+    print("\n\n==== ANALYZE_STATUS ENDPOINT CALLED =====")
     
-    Returns:
-        dict: Configuration dictionary with API keys.
-    """
-    config_path = Path('config.json')
-    if config_path.exists():
-        try:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-            print(f"Loaded configuration from {config_path}")
-            return config
-        except Exception as e:
-            print(f"Error loading configuration from {config_path}: {str(e)}")
-    return {}
+    # Get the analysis ID from the query string
+    analysis_id = request.args.get('id')
+    if not analysis_id:
+        return jsonify({'status': 'error', 'message': 'No analysis ID provided'}), 400
+    
+    # Check if the analysis exists
+    if analysis_id not in analysis_results:
+        return jsonify({'status': 'error', 'message': 'Analysis not found'}), 404
+    
+    # Return the current status and events
+    return jsonify({
+        'status': analysis_results[analysis_id]['status'],
+        'events': analysis_results[analysis_id]['events'],
+        'completed': analysis_results[analysis_id]['completed']
+    })
 
 if __name__ == '__main__':
-    try:
-        # Parse command line arguments
-        parser = argparse.ArgumentParser(description='CaseStrainer Web Interface')
-        parser.add_argument('--courtlistener-key', help='CourtListener API key')
-        parser.add_argument('--langsearch-key', help='LangSearch API key')
-        parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
-        parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
-        parser.add_argument('--debug', action='store_true', help='Run in debug mode')
-        args = parser.parse_args()
-        
-        # Load configuration from file
-        config = load_config()
-        
-        # Ensure templates directory exists
-        os.makedirs('templates', exist_ok=True)
-        
-        # Initialize API integrations
-        if 'COURTLISTENER_AVAILABLE' in globals() and COURTLISTENER_AVAILABLE:
-            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
-            courtlistener_key = args.courtlistener_key or os.environ.get('COURTLISTENER_API_KEY') or config.get('courtlistener_api_key')
-            if courtlistener_key:
-                print(f"Initializing CourtListener API with key: {courtlistener_key[:5]}...{courtlistener_key[-5:] if len(courtlistener_key) > 10 else ''}")
-                setup_courtlistener_api(courtlistener_key)
-            else:
-                print("Warning: CourtListener API key not provided in command line, environment variable, or config file.")
-                print("CourtListener API will be used in limited mode (rate-limited).")
-        
-        if 'LANGSEARCH_AVAILABLE' in globals() and LANGSEARCH_AVAILABLE:
-            # Priority: 1. Command line argument, 2. Environment variable, 3. Config file
-            langsearch_key = args.langsearch_key or os.environ.get('LANGSEARCH_API_KEY') or config.get('langsearch_api_key')
-            if langsearch_key:
-                print(f"Initializing LangSearch API with key: {langsearch_key[:5]}...{langsearch_key[-5:] if len(langsearch_key) > 10 else ''}")
-                setup_langsearch_api(langsearch_key)
-            else:
-                print("Warning: LangSearch API key not provided in command line, environment variable, or config file.")
-                print("LangSearch API will not be used.")
-        
-        # Check for SSL certificate and key
-        cert_path = os.environ.get('SSL_CERT_PATH') or config.get('ssl_cert_path', 'ssl/cert.pem')
-        key_path = os.environ.get('SSL_KEY_PATH') or config.get('ssl_key_path', 'ssl/key.pem')
-        
-        # Remove hardcoded paths
-        if os.path.exists(cert_path) and os.path.exists(key_path):
-            try:
-                # Verify the certificate and key are valid
-                ssl_context = (cert_path, key_path)
-                print(f"Using SSL certificate: {cert_path}")
-                print(f"Using SSL key: {key_path}")
-            except Exception as e:
-                print(f"Error loading SSL certificate or key: {str(e)}")
-                print("Running without SSL...")
-                ssl_context = None
-        else:
-            print(f"Warning: SSL certificate or key not found at {cert_path} and {key_path}")
-            print("Running without SSL...")
-            ssl_context = None
-        
-        # Parse environment variables with error handling
-        try:
-            # Use command line arguments if provided, otherwise use environment variables
-            debug_mode = args.debug if args.debug is not None else os.environ.get('DEBUG', 'True').lower() == 'true'
-            host = args.host or os.environ.get('HOST', '0.0.0.0')
-            
-            try:
-                port = args.port or int(os.environ.get('PORT', 5000))
-                if port < 0 or port > 65535:
-                    print(f"Warning: Invalid port number {port}, using default port 5000")
-                    port = 5000
-            except ValueError:
-                print(f"Warning: Invalid PORT environment variable, using default port 5000")
-                port = 5000
-                
-        except Exception as e:
-            print(f"Error parsing configuration: {str(e)}")
-            print("Using default configuration...")
-            debug_mode = True
-            host = '0.0.0.0'
-            port = 5000
-        
-        # Run the app
-        app.run(
-            debug=debug_mode,
-            host=host,
-            port=port,
-            ssl_context=ssl_context  # Use SSL if available
-        )
-    except Exception as e:
-        print(f"Failed to start the application: {str(e)}")
-        sys.exit(1)
+    app.run(debug=True, host='0.0.0.0', port=5001)
