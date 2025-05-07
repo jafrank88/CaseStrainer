@@ -9,9 +9,17 @@ import io
 import subprocess
 import threading
 import traceback
-from werkzeug.utils import secure_filename
-import docx
 import requests
+import tempfile
+import threading
+import random
+import string
+from datetime import datetime
+from werkzeug.utils import secure_filename
+from concurrent.futures import ThreadPoolExecutor
+
+# Import citation grouping functionality
+from citation_grouping import group_citations
 
 # Import eyecite for better citation extraction
 from eyecite import get_citations
@@ -801,53 +809,53 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             'explanation': "Citation not verified by CourtListener API"
                         })
             
-            # Group parallel citations to the same case
-            grouped_citations = {}
-            
+            # Prepare citations for grouping
+            citations_for_grouping = []
             for result in citation_results:
-                # Use the court_listener_url as the key for grouping
-                case_key = result.get('court_listener_url', None)
-                case_name = result.get('case_name', None)
-                
-                # Only group citations that have BOTH a valid URL AND a proper case name and are not hallucinated
-                if (case_key and case_key.startswith('http') and 
-                    case_name and case_name != 'Unknown case' and 
-                    not result['is_hallucinated']):
-                    # This is a verified citation with both URL and case name - check if we already have this case
-                    if case_key in grouped_citations:
-                        # Add this citation as a parallel citation
-                        grouped_citations[case_key]['parallel_citations'].append(result['citation_text'])
-                    else:
-                        # Create a new group for this case
-                        grouped_citations[case_key] = {
-                            'case_name': case_name,
-                            'court_listener_url': case_key,
-                            'primary_citation': result['citation_text'],
-                            'parallel_citations': [],
-                            'is_hallucinated': False,
-                            'confidence': result['confidence'],
-                            'explanation': result['explanation']
-                        }
-                        # Add any summaries if available
-                        if 'summaries' in result:
-                            grouped_citations[case_key]['summaries'] = result['summaries']
-                else:
-                    # This is either a hallucinated citation or one without a URL
-                    # Use the citation text as the key
-                    citation_key = f"citation_{result['citation_text']}"
-                    grouped_citations[citation_key] = {
-                        'primary_citation': result['citation_text'],
-                        'parallel_citations': [],
-                        'is_hallucinated': result['is_hallucinated'],
+                citation_dict = {
+                    'citation': result['citation_text'],
+                    'case_name': result.get('case_name', 'Unknown Case'),
+                    'url': result.get('court_listener_url', ''),
+                    'source': result.get('method', 'Unknown'),
+                    'is_hallucinated': result['is_hallucinated'],
+                    'details': {
                         'confidence': result['confidence'],
                         'explanation': result['explanation']
                     }
-                    # Add any summaries if available
-                    if 'summaries' in result:
-                        grouped_citations[citation_key]['summaries'] = result['summaries']
+                }
+                
+                # Add summaries if available
+                if 'summaries' in result:
+                    citation_dict['summaries'] = result['summaries']
+                    
+                citations_for_grouping.append(citation_dict)
             
-            # Convert the grouped citations back to a list
-            grouped_citation_results = list(grouped_citations.values())
+            # Group citations using the citation_grouping module
+            grouped_citations_list = group_citations(citations_for_grouping, method='url_then_name')
+            
+            # Convert grouped citations to the format expected by the frontend
+            grouped_citation_results = []
+            for group in grouped_citations_list:
+                result_dict = {
+                    'primary_citation': group['citation'],
+                    'case_name': group['case_name'],
+                    'court_listener_url': group['url'],
+                    'is_hallucinated': group['is_hallucinated'],
+                    'confidence': group['details']['confidence'],
+                    'explanation': group['details']['explanation'],
+                    'parallel_citations': []
+                }
+                
+                # Add alternate citations
+                if 'alternate_citations' in group and group['alternate_citations']:
+                    for alt in group['alternate_citations']:
+                        result_dict['parallel_citations'].append(alt['citation'])
+                
+                # Add summaries if available
+                if 'summaries' in group:
+                    result_dict['summaries'] = group['summaries']
+                    
+                grouped_citation_results.append(result_dict)
             
             # Update with grouped citation results
             analysis_results[analysis_id]['citation_results'] = grouped_citation_results

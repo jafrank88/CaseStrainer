@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CaseStrainer - Detect Hallucinated Legal Citations</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/citation-grouping.css" rel="stylesheet">
     <style>
         body {
             padding-top: 2rem;
@@ -125,6 +127,12 @@
                         <h4>Extracted Citations</h4>
                         <div id="citationsList"></div>
                     </div>
+                    
+                    <div id="groupedCitationsContainer" class="mt-4">
+                        <h4>Grouped Citations</h4>
+                        <p class="text-muted">Citations to the same case are grouped together for easier verification.</p>
+                        <div id="groupedCitationsList"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,6 +143,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/citation-grouping.js"></script>
     <script>
         // Improved EventSource with reconnection logic
         function setupEventSource(url, options = {}) {
@@ -775,47 +784,47 @@
             }
             
             function displayResults(data) {
+                const resultsContainer = document.getElementById('results');
+                const resultsSummary = document.getElementById('resultsSummary');
+                const citationsList = document.getElementById('citationsList');
+                const groupedCitationsList = document.getElementById('groupedCitationsList');
+                
                 // Hide loading indicator
-                loading.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
                 
                 // Show results
-                results.style.display = 'block';
+                resultsContainer.style.display = 'block';
                 
                 // Check for errors in the data
                 if (data.error) {
                     resultsSummary.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> ${data.error}</div>`;
                     citationsList.innerHTML = '';
+                    groupedCitationsList.innerHTML = '';
                     return;
                 }
                 
-                // Display summary
-                let summaryHTML = `
-                    <div class="alert alert-info">
-                        <strong>Total citations found:</strong> ${data.total_citations}<br>
-                        <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
-                    </div>
-                `;
+                // Clear previous results
+                citationsList.innerHTML = '';
+                groupedCitationsList.innerHTML = '';
                 
-                // Add errors section if present
-                if (data.errors && data.errors.length > 0) {
-                    summaryHTML += `
-                        <div class="alert alert-warning">
-                            <strong>Warning:</strong> Some citations could not be fully analyzed:
-                            <ul>
-                                ${data.errors.map(err => `<li>${err.citation}: ${err.error}</li>`).join('')}
-                            </ul>
+                // Get citation results
+                const citationResults = data.results || [];
+                
+                // Count hallucinated citations
+                const hallucinated = citationResults.filter(r => r.is_hallucinated).length;
+                const total = citationResults.length;
+                
+                // Update summary
+                if (total === 0) {
+                    resultsSummary.innerHTML = 'No citations found in the document.';
+                } else {
+                    const percentage = Math.round((hallucinated / total) * 100);
+                    resultsSummary.innerHTML = `
+                        <div class="alert alert-info">
+                            <strong>Total citations found:</strong> ${total}<br>
+                            <strong>Potentially hallucinated citations:</strong> ${hallucinated} (${percentage}%)
                         </div>
                     `;
-                }
-                
-                resultsSummary.innerHTML = summaryHTML;
-                
-                // Display citations
-                citationsList.innerHTML = '';
-                
-                if (!data.results || data.results.length === 0) {
-                    citationsList.innerHTML = '<p>No citations to analyze.</p>';
-                    return;
                 }
                 
                 // Create accordion for citations
@@ -823,114 +832,44 @@
                 accordion.className = 'accordion';
                 accordion.id = 'citationsAccordion';
                 
-                data.results.forEach((result, index) => {
-                    // Handle potential missing properties safely
-                    const isHallucinated = result.is_hallucinated === true;
-                    const citationClass = isHallucinated ? 'citation-hallucinated' : 'citation-real';
-                    
-                    let statusBadge;
-                    if (result.method === 'check_failed' || result.method === 'summary_comparison_failed' || 
-                        result.method === 'summary_generation_failed' || result.method === 'similarity_calculation_failed') {
-                        statusBadge = '<span class="badge bg-warning text-dark">Analysis Failed</span>';
-                    } else {
-                        statusBadge = isHallucinated ? 
-                            '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
-                            '<span class="badge bg-success">Likely Real</span>';
-                    }
-                    
-                    const accordionItem = document.createElement('div');
-                    accordionItem.className = 'accordion-item ' + citationClass;
-                    
-                    const confidencePercent = Math.round((result.confidence || 0) * 100);
-                    const similarityPercent = result.similarity_score !== null && result.similarity_score !== undefined ? 
-                        Math.round(result.similarity_score * 100) : 'N/A';
-                    
-                    // Get method display name
-                    let methodDisplay = 'Unknown';
-                    switch(result.method) {
-                        case 'api':
-                            methodDisplay = 'API Lookup';
-                            break;
-                        case 'summary_comparison':
-                            methodDisplay = 'Summary Comparison';
-                            break;
-                        case 'check_failed':
-                            methodDisplay = 'Analysis Failed';
-                            break;
-                        case 'summary_comparison_failed':
-                            methodDisplay = 'Summary Comparison Failed';
-                            break;
-                        case 'summary_generation_failed':
-                            methodDisplay = 'Summary Generation Failed';
-                            break;
-                        case 'similarity_calculation_failed':
-                            methodDisplay = 'Similarity Calculation Failed';
-                            break;
-                        default:
-                            methodDisplay = result.method || 'Unknown';
-                    }
-                    
-                    // Error message if present
-                    const errorMessage = result.error ? 
-                        `<div class="alert alert-warning mt-2"><strong>Error:</strong> ${result.error}</div>` : '';
-                    
-                    accordionItem.innerHTML = `
-                        <h2 class="accordion-header" id="heading${index}">
-                            <button class="accordion-button ${isHallucinated ? '' : 'collapsed'}" type="button" 
-                                    data-bs-toggle="collapse" data-bs-target="#collapse${index}" 
-                                    aria-expanded="${isHallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
-                                <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <span>${result.citation || 'Unknown Citation'}</span>
-                                    ${statusBadge}
-                                </div>
-                            </button>
-                        </h2>
-                        <div id="collapse${index}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}" 
-                             aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
-                            <div class="accordion-body">
-                                <p><strong>Detection method:</strong> ${methodDisplay}</p>
-                                ${errorMessage}
-                                <p><strong>Confidence:</strong> ${confidencePercent}%</p>
-                                <div class="progress confidence-bar">
-                                    <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
-                                         role="progressbar" style="width: ${confidencePercent}%" 
-                                         aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                ${result.similarity_score !== null && result.similarity_score !== undefined ? `
-                                <p><strong>Similarity score:</strong> ${similarityPercent}%</p>
-                                <div class="progress confidence-bar">
-                                    <div class="progress-bar bg-info" role="progressbar" 
-                                         style="width: ${similarityPercent}%" aria-valuenow="${similarityPercent}" 
-                                         aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                ` : ''}
-                                ${result.summaries && result.summaries.length > 0 ? `
-                                <div class="mt-3">
-                                    <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
-                                            data-bs-toggle="collapse" data-bs-target="#summaries${index}" 
-                                            aria-expanded="false" aria-controls="summaries${index}">
-                                        <strong>Show/Hide Generated Summaries</strong>
-                                    </button>
-                                    <div class="collapse" id="summaries${index}">
-                                        <div class="card card-body">
-                                            ${result.summaries.map((summary, i) => `
-                                                <div class="mb-2">
-                                                    <p><strong>Summary ${i+1}:</strong></p>
-                                                    <div class="summary-box">${summary || 'No summary available'}</div>
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                    </div>
-                                </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                    
+                // Add each citation to the accordion
+                citationResults.forEach((result, index) => {
+                    const accordionItem = createAccordionItem(result, index);
                     accordion.appendChild(accordionItem);
                 });
                 
+                // Add accordion to citations list
                 citationsList.appendChild(accordion);
+                
+                // Group citations by case
+                const groupableCitations = citationResults.map(result => {
+                    return {
+                        citation: result.citation_text || result.citation,
+                        case_name: result.case_name || 'Unknown Case',
+                        url: result.court_listener_url,
+                        source: result.method || 'Unknown',
+                        is_hallucinated: result.is_hallucinated,
+                        details: {
+                            confidence: result.confidence,
+                            explanation: result.explanation
+                        }
+                    };
+                });
+                
+                // Display grouped citations
+                if (typeof groupCitations === 'function') {
+                    // Group citations that refer to the same case
+                    const groupedCitations = groupCitations(groupableCitations);
+                    
+                    // Display grouped citations
+                    displayGroupedCitations(groupedCitations, groupedCitationsList);
+                } else {
+                    // Fallback if groupCitations function is not available
+                    const fallbackMessage = document.createElement('p');
+                    fallbackMessage.className = 'text-muted';
+                    fallbackMessage.textContent = 'Citation grouping is not available.';
+                    groupedCitationsList.appendChild(fallbackMessage);
+                }
             }
 
             // Clear button functionality
