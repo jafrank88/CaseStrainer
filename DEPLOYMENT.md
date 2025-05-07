@@ -143,7 +143,7 @@ For local development:
    python app_final.py
    ```
 
-2. Access the application at http://localhost:5000
+2. Access the application at http://localhost:5001
 
 ## Troubleshooting
 

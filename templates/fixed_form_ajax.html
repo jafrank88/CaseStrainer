@@ -230,15 +230,31 @@
             function createAccordionItem(result, index) {
                 const isHallucinated = result.is_hallucinated;
                 const hallucinationStatus = result.hallucination_status || (isHallucinated ? 'possible_hallucination' : 'not_hallucination');
+                const citationText = result.citation_text || '';
+                const hasWL = citationText.includes('WL');
+                const hasURL = result.court_listener_url && result.court_listener_url !== '';
+                const hasValidCaseName = result.case_name && result.case_name !== 'Unknown case' && result.case_name !== 'None';
                 
                 // Determine card class and badge based on hallucination status
                 let cardClass = 'real';
                 let statusBadge = '<span class="badge bg-success">Verified</span>';
                 
+                // Special handling for Westlaw citations
+                if (hasWL) {
+                    // Westlaw citations should never be shown as verified unless they have a URL and case name
+                    if (!hasURL || !hasValidCaseName) {
+                        cardClass = 'unconfirmed';
+                        statusBadge = '<span class="badge bg-warning text-dark">Unverified Westlaw Citation</span>';
+                        // Force hallucination status to be unconfirmed
+                        hallucinationStatus = 'unconfirmed';
+                    }
+                }
+                
+                // General case handling
                 if (isHallucinated || hallucinationStatus === 'possible_hallucination') {
                     cardClass = 'hallucinated';
                     statusBadge = '<span class="badge bg-danger">Potentially Hallucinated</span>';
-                } else if (hallucinationStatus === 'unconfirmed') {
+                } else if (hallucinationStatus === 'unconfirmed' || !hasURL) {
                     cardClass = 'unconfirmed';
                     statusBadge = '<span class="badge bg-warning text-dark">Unconfirmed Citation</span>';
                 }

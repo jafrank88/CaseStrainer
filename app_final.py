@@ -714,11 +714,16 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             hallucination_status = "possible_hallucination"
                             hallucinated_count += 1
                     elif found:
-                        # Check if we have both a URL AND a proper case name
-                        if court_listener_url and case_name:
+                        # Check if we have both a URL AND a proper case name that is not 'Unknown case'
+                        if court_listener_url and case_name and case_name != 'Unknown case':
                             confidence = 0.9  # High confidence for exact match
                             explanation = f"Citation confirmed: {case_name} - {court_listener_url}"
                             hallucination_status = "not_hallucination"
+                        # If case name is 'Unknown case', mark as potential hallucination even with URL
+                        elif court_listener_url and (not case_name or case_name == 'Unknown case'):
+                            confidence = 0.6
+                            explanation = f"Citation format recognized but case details unknown - potential hallucination"
+                            hallucination_status = "possible_hallucination"
                         # If we have a case name but no URL, also mark as unconfirmed
                         elif (not court_listener_url) and case_name and case_name != 'Unknown case':
                             confidence = 0.7
@@ -734,30 +739,48 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             explanation = f"Citation format recognized but case details unknown - potential hallucination"
                             hallucination_status = "possible_hallucination"
                     
-                    # If not found, check with LangSearch API
-                    if not found:
-                        hallucinated_count += 1
+                    # If not found or no URL, check with LangSearch API
+                    if not found or not court_listener_url:
+                        # Mark as not found if there's no URL - citations without URLs are potential hallucinations
+                        if not court_listener_url and found:
+                            print(f"Citation {citation} has no URL, marking as not found for LangSearch verification")
+                            found = False
+                            
+                        # For Westlaw citations, we don't automatically increment hallucinated_count
+                        # because we want to give LangSearch a chance to verify them
+                        if 'WL' not in citation:
+                            hallucinated_count += 1
                         
                         # Check with LangSearch API
                         print(f"Citation not found in CourtListener database, checking with LangSearch: {citation}")
                         langsearch_result = check_case_with_langsearch(citation)
                         
                         if langsearch_result['is_real']:
-                            # If LangSearch says it's real, reduce the hallucination count
-                            hallucinated_count -= 1
+                            # If LangSearch says it's real, reduce the hallucination count (if it was incremented)
+                            if 'WL' not in citation:
+                                hallucinated_count -= 1
                             found = True
                             confidence = langsearch_result['confidence']
                             explanation = langsearch_result['explanation']
                             
+                            # For Westlaw citations, update the case name if verified by LangSearch
+                            if 'WL' in citation:
+                                result_data['case_name'] = 'Westlaw Citation (Verified by LangSearch)'
+                                result_data['hallucination_status'] = 'verified'
+                            
                             # Add summaries if available
                             if 'summaries' in langsearch_result:
                                 summaries = langsearch_result['summaries']
-                            else:
-                                summaries = []
                         else:
                             # If LangSearch also says it's hallucinated
                             confidence = langsearch_result['confidence']
                             explanation = langsearch_result['explanation']
+                            
+                            # For Westlaw citations that LangSearch couldn't verify, mark as unverified
+                            if 'WL' in citation:
+                                hallucinated_count += 1  # Now we count it as hallucinated
+                                result_data['case_name'] = 'Unverified Westlaw Citation'
+                                result_data['hallucination_status'] = 'unverified'
                             
                             # Add summaries if available
                             if 'summaries' in langsearch_result:
@@ -768,19 +791,61 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         # Citation found in CourtListener
                         summaries = []
                     
-                    # Add result with clearer hallucination marking
-                    result_data = {
-                        'citation_text': citation,
-                        'is_hallucinated': not found and hallucination_status == "possible_hallucination",
-                        'hallucination_status': hallucination_status,
-                        'confidence': confidence,
-                        'explanation': explanation
-                    }
+                    # Create the result data dictionary if it doesn't exist yet
+                    if 'citation_text' not in result_data:
+                        # CRITICAL: Citations without URLs should NEVER be marked as verified
+                        # Force hallucination_status to 'possible_hallucination' if there's no URL
+                        if not court_listener_url and hallucination_status != 'unverified':
+                            hallucination_status = 'possible_hallucination'
+                            explanation = "Citation format recognized but no verification URL found - potential hallucination"
+                            confidence = 0.5  # Medium confidence
+                            found = False  # Mark as not found
+                        
+                        # Add result with clearer hallucination marking
+                        result_data = {
+                            'citation_text': citation,
+                            'is_hallucinated': not found or (not court_listener_url and hallucination_status != 'unverified'),
+                            'hallucination_status': hallucination_status,
+                            'confidence': confidence,
+                            'explanation': explanation
+                        }
+                    
+                    # Special handling for Westlaw (WL) citations that haven't been processed yet
+                    if 'WL' in citation and 'case_name' not in result_data:
+                        # For Westlaw citations, we'll try CourtListener first
+                        # If found in CourtListener with a valid case name AND URL, keep that result
+                        if found and case_name and case_name != 'Unknown case' and court_listener_url:
+                            # This is a verified Westlaw citation found in CourtListener with URL
+                            result_data['is_hallucinated'] = False
+                            result_data['hallucination_status'] = 'verified'
+                            result_data['confidence'] = confidence
+                            result_data['case_name'] = case_name
+                            result_data['explanation'] = f"Westlaw citation verified: {case_name}"
+                        else:
+                            # Not found in CourtListener, has unknown case name, or no URL
+                            # Mark as not found and let LangSearch try to verify
+                            found = False
+                            # Explicitly mark as potential hallucination if no URL
+                            if not court_listener_url:
+                                result_data['is_hallucinated'] = True
+                                result_data['hallucination_status'] = 'possible_hallucination'
+                                result_data['explanation'] = "Westlaw citation format recognized but no verification URL found - potential hallucination"
+                                result_data['confidence'] = 0.5  # Medium confidence
+                            # Don't increment hallucinated_count yet - let LangSearch decide
+                            hallucinated_count -= 1  # Counteract the increment that will happen for !found
                     
                     # Add CourtListener URL if available
                     if court_listener_url:
                         result_data['court_listener_url'] = court_listener_url
-                        result_data['case_name'] = case_name or 'Unknown case'
+                        # Don't overwrite case name for Westlaw citations if we already set it
+                        if 'case_name' not in result_data:
+                            result_data['case_name'] = case_name or 'Unknown case'
+                        # If case_name is 'Unknown case' and not a Westlaw citation, mark as potential hallucination
+                        # (Westlaw citations are already handled above)
+                        if (case_name == 'Unknown case' or result_data['case_name'] == 'Unknown case') and 'WL' not in citation:
+                            result_data['is_hallucinated'] = True
+                            result_data['hallucination_status'] = 'possible_hallucination'
+                            result_data['explanation'] = "Citation format recognized but case details unknown - potential hallucination"
                     
                     # Add summaries if available
                     if summaries:
@@ -858,14 +923,23 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                                 'citation_text': citation,
                                 'is_hallucinated': False,
                                 'confidence': 0.9,
-                                'explanation': f"Citation confirmed: {case_name or 'Unknown case'}{' - ' + court_listener_url if court_listener_url else ''}"
+                                'explanation': f"Citation confirmed: {case_name}{' - ' + court_listener_url if court_listener_url else ''}"
                             }
+                            
+                            # If case_name is 'Unknown case', change the explanation and mark as potential hallucination
+                            if case_name == 'Unknown case':
+                                result_data['explanation'] = f"Citation format recognized but case details unknown - potential hallucination"
+                                result_data['is_hallucinated'] = True
+                                result_data['hallucination_status'] = 'possible_hallucination'
                             
                             # Add CourtListener URL if available
                             if court_listener_url:
                                 result_data['court_listener_url'] = court_listener_url
                                 result_data['case_name'] = case_name or 'Unknown case'
-                                
+                                # If case_name is 'Unknown case', ensure it's marked as a potential hallucination
+                                if case_name == 'Unknown case':
+                                    result_data['is_hallucinated'] = True
+                                    result_data['hallucination_status'] = 'possible_hallucination'
                             citation_results.append(result_data)
                         else:
                             # Check with LangSearch API

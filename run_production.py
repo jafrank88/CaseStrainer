@@ -30,7 +30,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description='Run CaseStrainer in production mode')
     parser.add_argument('--host', default='127.0.0.1', help='Host to bind to (default: 127.0.0.1)')
-    parser.add_argument('--port', type=int, default=5000, help='Port to run the server on')
+    parser.add_argument('--port', type=int, default=5001, help='Port to run the server on (default: 5001)')
     parser.add_argument('--unix-socket', help='Unix socket path (for Nginx, e.g., /tmp/casestrainer.sock)')
     args = parser.parse_args()
     
