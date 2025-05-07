@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, jsonify, Response, send_from_directory
+from flask_cors import CORS
 import os
 import re
 import json
@@ -29,6 +30,9 @@ from eyecite.tokenizers import HyperscanTokenizer, AhocorasickTokenizer
 from pdf_handler import extract_text_from_pdf
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
@@ -964,14 +968,32 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
 def index():
     return render_template('fixed_form_ajax.html')
 
-@app.route('/analyze', methods=['GET', 'POST'])
+@app.route('/analyze', methods=['GET', 'POST', 'OPTIONS'])
 def analyze():
+    # Handle preflight OPTIONS request for CORS
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'success'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+        return response
+        
     if request.method == 'POST':
         print("\n\n==== ANALYZE ENDPOINT CALLED =====")
         print(f"Request method: {request.method}")
         print(f"Request headers: {request.headers}")
+        print(f"Content-Type: {request.content_type}")
         print(f"Request form data: {request.form}")
-        print(f"Request files: {request.files}")
+        print(f"Request files: {list(request.files.keys()) if request.files else 'No files'}")
+        
+        # Debug the raw request data
+        try:
+            raw_data = request.get_data()
+            print(f"Raw request data length: {len(raw_data)} bytes")
+            print(f"Raw request data (first 100 bytes): {raw_data[:100]}")
+        except Exception as e:
+            print(f"Error reading raw request data: {e}")
+            traceback.print_exc()
         
         try:
             # Generate a unique analysis ID
