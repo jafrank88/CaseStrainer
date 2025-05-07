@@ -34,6 +34,32 @@ app = Flask(__name__)
 # Enable CORS for all routes
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Handle URL prefix for Nginx proxy
+class PrefixMiddleware(object):
+    def __init__(self, app, prefix=''):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        # Check if request has our prefix
+        if self.prefix and environ['PATH_INFO'].startswith(self.prefix):
+            # Strip the prefix
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+        
+        # Ensure PATH_INFO starts with a slash
+        if not environ['PATH_INFO']:
+            environ['PATH_INFO'] = '/'
+        elif not environ['PATH_INFO'].startswith('/'):
+            environ['PATH_INFO'] = '/' + environ['PATH_INFO']
+            
+        # Pass the modified environment to the app
+        return self.app(environ, start_response)
+
+# Apply the prefix middleware
+# This allows the application to work both with and without the /casestrainer prefix
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
+
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
@@ -671,22 +697,42 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                                     court_listener_url = f"https://www.courtlistener.com{court_listener_url}"
                             break
                     
-                    if found:
-                        # Only consider it truly found if we have a URL AND a proper case name
-                        if court_listener_url and case_name and case_name != 'Unknown case':
+                    # Determine the hallucination status
+                    hallucination_status = "not_hallucination"
+                    
+                    # If the case name is 'Unknown case', it's not verified regardless of what the API says
+                    if case_name == 'Unknown case' or not case_name:
+                        found = False  # Not verified if case name is unknown
+                        hallucination_status = "unconfirmed"
+                        confidence = 0.7
+                        explanation = f"Citation format recognized but case name unknown - unconfirmed citation"
+                        
+                        # If we have a URL, it's unconfirmed rather than hallucinated
+                        if court_listener_url:
+                            hallucination_status = "unconfirmed"
+                        else:
+                            hallucination_status = "possible_hallucination"
+                            hallucinated_count += 1
+                    elif found:
+                        # Check if we have both a URL AND a proper case name
+                        if court_listener_url and case_name:
                             confidence = 0.9  # High confidence for exact match
                             explanation = f"Citation confirmed: {case_name} - {court_listener_url}"
+                            hallucination_status = "not_hallucination"
+                        # If we have a case name but no URL, also mark as unconfirmed
+                        elif (not court_listener_url) and case_name and case_name != 'Unknown case':
+                            confidence = 0.7
+                            explanation = f"Citation format recognized with case name '{case_name}' but no URL found - unconfirmed citation"
+                            hallucination_status = "unconfirmed"
+                            # Don't count as hallucinated, but don't count as fully verified either
+                            found = True  # Keep as found but with unconfirmed status
                         else:
-                            # If we don't have both a URL and a proper case name, treat as potential hallucination
+                            # If we have neither URL nor case name, treat as potential hallucination
                             found = False
                             hallucinated_count += 1
-                            confidence = 0.7
-                            if court_listener_url:
-                                explanation = f"Citation format recognized but case name unknown - potential hallucination"
-                            elif case_name and case_name != 'Unknown case':
-                                explanation = f"Citation format recognized but no URL found - potential hallucination"
-                            else:
-                                explanation = f"Citation format recognized but case details unknown - potential hallucination"
+                            confidence = 0.5
+                            explanation = f"Citation format recognized but case details unknown - potential hallucination"
+                            hallucination_status = "possible_hallucination"
                     
                     # If not found, check with LangSearch API
                     if not found:
@@ -722,16 +768,17 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         # Citation found in CourtListener
                         summaries = []
                     
-                    # Add result
+                    # Add result with clearer hallucination marking
                     result_data = {
                         'citation_text': citation,
-                        'is_hallucinated': not found,
+                        'is_hallucinated': not found and hallucination_status == "possible_hallucination",
+                        'hallucination_status': hallucination_status,
                         'confidence': confidence,
                         'explanation': explanation
                     }
                     
                     # Add CourtListener URL if available
-                    if found and court_listener_url:
+                    if court_listener_url:
                         result_data['court_listener_url'] = court_listener_url
                         result_data['case_name'] = case_name or 'Unknown case'
                     

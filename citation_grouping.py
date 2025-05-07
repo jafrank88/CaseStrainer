@@ -104,9 +104,12 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
             continue
         
         case_name = citation.get('case_name', '')
-        if not case_name:
-            # If no case name, can't group, so add as is
-            grouped_citations.append(citation.copy())
+        
+        # If no case name or unknown case, can't group, so add as is
+        if not case_name or case_name == 'Unknown case' or case_name.lower() == 'unknown case':
+            citation_copy = citation.copy()
+            citation_copy['alternate_citations'] = []
+            grouped_citations.append(citation_copy)
             processed_indices.add(i)
             continue
         
@@ -121,7 +124,9 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
                 continue
             
             other_case_name = other.get('case_name', '')
-            if not other_case_name:
+            
+            # Skip citations with unknown case names - they should never be grouped
+            if not other_case_name or other_case_name == 'Unknown case' or other_case_name.lower() == 'unknown case':
                 continue
             
             similarity = calculate_similarity(case_name, other_case_name)
@@ -159,6 +164,12 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
     
     for i, citation in enumerate(citations):
         url = citation.get('url', '')
+        case_name = citation.get('case_name', '')
+        
+        # Skip citations with unknown case names - they should never be grouped
+        if not case_name or case_name == 'Unknown case' or case_name.lower() == 'unknown case':
+            continue
+            
         if url:
             if url not in url_groups:
                 url_groups[url] = []
@@ -183,6 +194,11 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
         # Add the rest as alternates
         for idx in indices[1:]:
             other = citations[idx]
+            # Double-check that we're not grouping unknown case names
+            other_case_name = other.get('case_name', '')
+            if not other_case_name or other_case_name == 'Unknown case' or other_case_name.lower() == 'unknown case':
+                continue
+                
             primary['alternate_citations'].append({
                 'citation': other.get('citation', ''),
                 'case_name': other.get('case_name', ''),

@@ -1,0 +1,1974 @@
+FILED 
+Court of Appeals 
+Division Ill 
+State of Washington 
+911712020  4 :39  PM 
+
+No. 99865-5
+
+NO. 37369-0-III 
+
+THE COURT OF APPEALS OF THE STATE OF 
+WASHINGTON, DIVISION THREE 
+
+STATE OF WASHINGTON, 
+
+Respondent, 
+
+v. 
+
+LANCE THOMASON, 
+
+Appellant. 
+
+ON APPEAL FROM THE SUPERIOR COURT OF THE 
+STATE OF WASHINGTON FOR SPOKANE COUNTY 
+
+BRIEF OF APPELLANT 
+
+CHRISTOPHER PETRONI 
+Attorney for Appellant 
+
+WASHINGTON APPELLATE PROJECT 
+1511 Third Avenue, Suite 610 
+Seattle, WA 98101 
+(206) 587-2711
+
+TABLE OF CONTENTS 
+
+TABLE OF CONTENTS ............................................................... i 
+
+TABLE OF AUTHORITIES ....................................................... iii 
+
+A. 
+
+INTRODUCTION ................................................................. 1 
+
+B.  ASSIGNMENTS OF ERROR .............................................. 2 
+
+C. 
+
+ISSUES PERTAINING TO ASSIGNMENTS OF 
+
+ERROR ....................................................................................... 2 
+
+D.  STATEMENT OF THE CASE ............................................. 4 
+
+E.  ARGUMENT ....................................................................... 11 
+
+1.  The trial court abused its discretion by sentencing Mr. 
+
+Thomason in the erroneous belief that it lacked 
+discretion to sentence below the standard range. ........... 11 
+
+a.  That the crime was a “glorified shoplifting”— de 
+minimis food items taken followed by relatively 
+minor force to evade security—was a valid 
+mitigating factor to support an exceptional sentence.  14 
+
+b.  The trial court’s standard-range sentence was an 
+abuse of discretion where the court erroneously 
+believed it could not depart downward. ........................ 19 
+
+2.  Trial counsel rendered ineffective assistance in failing 
+to object to police officers’ pervasive and prejudicial 
+inadmissible testimony. ..................................................... 22 
+
+a.  Counsel rendered deficient performance in choosing 
+to raise no objection to police officers’ propensity 
+evidence, violation of the best evidence rule, 
+improper opinion, and rampant hearsay. ..................... 23 
+
+b.  The unchallenged, inadmissible testimony caused 
+sufficient prejudice to undermine trust in the 
+outcome. ........................................................................... 31 
+
+i 
+
+ 
+ 
+3.  The trial court erred in imposing a crime-related 
+prohibition in excess of the statutory maximum 
+sentence. .............................................................................. 33 
+
+4.  The trial court erred in imposing discretionary legal 
+financial obligations despite finding Mr. Thomason 
+indigent. ............................................................................... 34 
+
+F.  CONCLUSION .................................................................... 36 
+
+ii 
+
+ 
+ 
+ 
+ 
+TABLE OF AUTHORITIES 
+
+Washington Supreme Court 
+
+In re Det. of Pouncy, 168 Wn.2d 382, 229 P.3d 678 
+
+(2010) ....................................................................................... 29 
+
+In re Pers. Restraint of Davis, 152 Wn.2d 647, 101 P.3d 
+
+1 (2004) .................................................................................... 34 
+
+In re Pers. Restraint of Mulholland, 161 Wn.2d 322, 
+
+166 P.3d 677 (2007) ................................................................ 23 
+
+State v. Alexander, 125 Wn.2d 717, 888 P.2d 1169 
+
+(1995) ................................................................................. 15, 19 
+
+State v. Armendariz, 160 Wn.2d 106, 156 P.3d 201 
+
+(2007) ................................................................................. 37, 38 
+
+State v. Grier, 171 Wn.2d 17, 246 P.3d 1260 (2011) .............. 25 
+
+State v. Hendrickson, 129 Wn.2d 61, 917 P.2d 563 
+
+(1996) ................................................................................. 25, 34 
+
+State v. Kirkman, 159 Wn.2d 918, 155 P.3d 125 (2007) .. 33, 37 
+
+State v. McFarland, 189 Wn.2d 47, 399 P.3d 1106 
+
+(2017) ........................................................................... 13, 21, 24 
+
+State v. Nelson, 191 Wn.2d 61, 419 P.3d 410 (2018) .............. 17 
+
+State v. O’Dell, 183 Wn.2d 680, 358 P.3d 359 (2015) ....... 15, 20 
+
+State v. Ramirez, 191 Wn.2d 732, 426 P.3d 714 (2018) ......... 39 
+
+State v. Reichenbach, 153 Wn.2d 126, 101 P.3d 80 
+
+(2004) ........................................................................... 25, 26, 34 
+
+iii 
+
+ 
+ 
+ 
+Washington Court of Appeals 
+
+State v. Bunker, 144 Wn. App. 407, 183 P.3d 1086 
+
+(2008) ................................................................................. 21, 22 
+
+State v. Crow, 8 Wn. App. 2d 480, 438 P.3d 541 (2019) .. 23, 31, 
+
+33 
+
+State v. Dillon, 12 Wn. App. 2d 133, 456 P.3d 1199 
+
+(2020) ................................................................................. 35, 36 
+
+State v. George, 150 Wn. App. 110, 206 P.3d 697 (2009) ....... 28 
+
+State v. Henderson, 100 Wn. App. 794, 998 P.2d 907 
+
+(2000) ....................................................................................... 25 
+
+State v. Johnson, 61 Wn. App. 539, 811 P.2d 687 (1991) ....... 29 
+
+State v. Law, 110 Wn. App. 36, 36 P.3d 374 (2002)................ 11 
+
+State v. Lundstrom, 6 Wn. App. 2d 388, 429 P.3d 1116 
+
+(2018) ....................................................................................... 35 
+
+State v. McGill, 112 Wn. App. 95, 47 P.3d 173 (2002) .... 13, 20, 
+
+21, 22 
+
+State v. Nelson, No. 76354-5-I, 2018 WL 4697269 
+
+(Wash. App. Oct. 1, 2018) (unpub.) ................................. 26, 27 
+
+State v. Sanford, 128 Wn. App. 280, 115 P.3d 368 (2005) ..... 25 
+
+State v. Saunders, 91 Wn. App. 575, 958 P.2d 364 
+
+(1998) ................................................................................. 24, 33 
+
+State v. Starbuck, 189 Wn. App. 740, 355 P.3d 1167 
+
+(2015) ....................................................................................... 28 
+
+Federal Opinions 
+
+Strickland v. Washington, 466 U.S. 668, 104 S. Ct. 
+
+2052, 80 L. Ed. 2d 674 (1984) ................................................ 24 
+
+iv 
+
+ 
+United States v. LaPierre, 998 F.2d 1460 (9th Cir. 
+
+1993)......................................................................................... 31 
+
+United States v. McGaughey, 977 F.2d 1067 (7th Cir. 
+
+1992)......................................................................................... 28 
+
+Statutes 
+
+RCW 10.01.160 ........................................................................... 34 
+
+RCW 9.92.020 ............................................................................. 17 
+
+RCW 9.94A.010 .......................................................................... 11 
+
+RCW 9.94A.030 .......................................................................... 18 
+
+RCW 9.94A.505 .......................................................................... 33 
+
+RCW 9.94A.510 .......................................................................... 18 
+
+RCW 9.94A.515 .................................................................... 11, 18 
+
+RCW 9.94A.525 .................................................................... 11, 18 
+
+RCW 9.94A.530 .......................................................................... 11 
+
+RCW 9.94A.535 ........................................................ 12, 14, 19, 20 
+
+RCW 9.94A.585 .......................................................................... 12 
+
+RCW 9A.36.041 .......................................................................... 17 
+
+RCW 9A.56.050 .......................................................................... 17 
+
+RCW 9A.56.190 .................................................................... 16, 31 
+
+RCW 9A.56.210 .............................................................. 16, 17, 34 
+
+Rules 
+
+ER 1002 ....................................................................................... 25 
+
+v 
+
+ 
+ER 1004 ................................................................................. 25, 26 
+
+Fed. R. Evid. 1004 ...................................................................... 26 
+
+GR 14.1 ........................................................................................ 26 
+
+vi 
+
+ 
+A.  INTRODUCTION 
+
+Lance Thomason, poor enough to be found indigent in 
+
+this case, picked up less than $15 in food items in a grocery 
+
+store and left without paying.  Outside, a security guard 
+
+grabbed him, and he struck the guard and ran away.  The 
+
+State charged Mr. Thomason with first-degree robbery, 
+
+reduced to second-degree robbery at trial, a class B felony. 
+
+The trial court felt a standard-range sentence would be 
+
+harsh.  It observed Mr. Thomason’s conduct fell into a unique 
+
+category of cases where “a chain of events with security 
+
+personnel” turns a petty theft into a robbery.  Clearly, in the 
+
+court’s view, that the theft was minor and that Mr. Thomason 
+
+used force only when a security guard confronted him were 
+
+mitigating circumstances.  When Mr. Thomason requested an 
+
+exceptional sentence, however, the court insisted it lacked 
+
+discretion to depart below the standard range.  As a result, 
+
+Mr. Thomason is currently serving a sentence in excess of five 
+
+years for what the trial court called a “glorified shoplifting.”  
+
+1 
+
+ 
+ 
+B.  ASSIGNMENTS OF ERROR 
+
+1.  The trial court abused its discretion in refusing to 
+
+consider Mr. Thomason’s request for an exceptional sentence. 
+
+2.  Mr. Thomason’s trial counsel rendered ineffective 
+
+assistance in failing to object to pervasive and prejudicial 
+
+improper testimony by law enforcement witnesses. 
+
+3.  The trial court erred in imposing a crime-related 
+
+prohibition with a term longer than the statutory maximum 
+
+sentence for second-degree robbery. 
+
+4.  The trial court erred in including a discretionary 
+
+legal financial obligation in the judgment and sentence 
+
+despite finding Mr. Thomason indigent and waiving 
+
+discretionary fees and costs during the sentencing hearing. 
+
+C.  ISSUES PERTAINING TO ASSIGNMENTS OF ERROR 
+
+1.  A trial court abuses its discretion when it refuses to 
+
+consider a request for a downward exceptional sentence in the 
+
+erroneous belief that it lacks discretion to do so.  Here, the 
+
+court identified a mitigating circumstance during 
+
+sentencing—Mr. Thomason’s conduct fell in a category of 
+
+2 
+
+ 
+“glorified shoplifting” distinct from the crime of robbery in 
+
+general, consisting of de minimis theft inside the store 
+
+followed by relatively minor force to evade security outside 
+
+the store.  Nonetheless, the court insisted it lacked discretion 
+
+to depart below the standard range.  Did the trial court abuse 
+
+its discretion in failing to consider an exceptional sentence? 
+
+2.  Ineffective assistance of counsel requires reversal 
+
+where counsel’s performance was deficient and prejudice 
+
+results.  Here, two police officers’ testimony was rife with 
+
+improper propensity evidence, improper opinion, hearsay, and 
+
+a violation of the best evidence rule.  Nonetheless, trial 
+
+counsel did not interpose a single objection.  This 
+
+unchallenged, improper testimony raised the risk the jury 
+
+would overlook weaknesses in the State’s case and convict 
+
+based solely on the aura of reliability surrounding law 
+
+enforcement witnesses.  Does trial counsel’s ineffective 
+
+assistance require reversal of Mr. Thomason’s conviction of 
+
+second-degree robbery? 
+
+3 
+
+ 
+3.  A trial court may not impose a crime-related 
+
+prohibition with a term in excess of the statutory maximum 
+
+sentence for the offense of conviction.  Second-degree robbery 
+
+is a class B felony, with a maximum sentence of ten years.  
+
+The court, however, imposed a no-contact order with a 
+
+lifetime term.  Did the trial court err in imposing a 
+
+prohibition with a term in excess of the statutory maximum? 
+
+4.  Supervision fees are a discretionary legal financial 
+
+obligation that may not be imposed on an indigent defendant.  
+
+Did the trial court err in including supervision fees in Mr. 
+
+Thomason’s judgment and sentence despite finding him 
+
+indigent and indicating its intent to waive all discretionary 
+
+fees and costs during the sentencing hearing? 
+
+D.  STATEMENT OF THE CASE 
+
+The State alleged Mr. Thomason took $14.98 in 
+
+merchandise from Yoke’s Fresh Market, a grocery store, and 
+
+later punched a security guard who confronted him outside.  
+
+CP 2.  On this basis, the State charged Mr. Thomason with 
+
+4 
+
+ 
+one count of first-degree robbery, reduced to second-degree 
+
+robbery on the first day of trial.  RP 14; CP 1, 46. 
+
+The security guard, Daniel Swartz, testified that he 
+
+saw Mr. Thomason and another man enter the store together.  
+
+RP 124.1  He observed Mr. Thomason walk to the “lunch 
+
+meat” section and remove one package each of hot dogs and 
+
+sliced cheese from a cooler.  RP 124–25.  He then saw Mr. 
+
+Thomason walk to the “meat department” and pick up a 
+
+“package of hamburger.”  RP 125. 
+
+In plain clothes to blend in with customers, Mr. Swartz 
+
+surreptitiously began to follow Mr. Thomason through the 
+
+store.  RP 123, 126.  When Mr. Thomason walked down an 
+
+aisle in the “natural food” section, Mr. Swartz headed down 
+
+an adjacent aisle.  RP 126.  Mr. Swartz did not keep eyes on 
+
+Mr. Thomason throughout, but watched Mr. Thomason’s   
+
+reflection in the doors of a row of coolers.  RP 126–27, 145.  
+
+When Mr. Thomason walked into a gap in a “split aisle,” Mr. 
+
+1 Citations to the verbatim report of proceedings 
+without specifying a date are to the trial, held January 13 and 
+14, 2020. 
+
+5 
+
+ 
+                                                
+Swartz hid behind a display and “peered around the corner” 
+
+and “between the cracks.”  RP 127, 145–46.  At this point, Mr. 
+
+Swartz testified, Mr. Thomason concealed the food items 
+
+“[d]own the front of his pants.”  RP 127.   
+
+Mr. Thomason walked to the store’s exit, and Mr. 
+
+Swartz followed.  RP 127–28.  Outside, Mr. Swartz grabbed 
+
+Mr. Thomason’s arm, showed him a badge, and “asked him to 
+
+come back in the store.”  RP 129–30.  Mr. Thomason tried to 
+
+pull himself free, and Mr. Swartz shouted at him to “stop 
+
+resisting.”  RP 130–31. 
+
+Mr. Thomason swung a fist at Mr. Swartz three times, 
+
+hitting him in the face the third time.  RP 131–32.  At this 
+
+point, Mr. Thomason escaped Mr. Swartz’s grasp by slipping 
+
+out of his sweatshirt, and ran.  RP 131–32.  In light of the low 
+
+value of the items, Mr. Swartz let him go.  RP 133, 157–58. 
+
+Mr. Swartz called 911.  RP 133.  While on the phone 
+
+with dispatch, Mr. Swartz got in his car, drove around the 
+
+neighborhood until he spotted Mr. Thomason running down 
+
+the street, and followed him.  RP 138–39.  Mr. Thomason ran 
+
+6 
+
+ 
+into a house.  RP 139.  Soon afterward, the friend Mr. 
+
+Thomason had entered Yoke’s with pulled up in a car, and 
+
+Mr. Thomason exited the house and got in.  RP 139.  Mr. 
+
+Swartz reported the car’s license plate and returned to Yoke’s.  
+
+RP 139. 
+
+The State played surveillance video recorded at Yoke’s 
+
+for the jury.  RP 141.  The video supported Mr. Swartz’s 
+
+testimony in some respects, in that it showed a man in a grey 
+
+sweatshirt and cap—identified by Mr. Swartz as Mr. 
+
+Thomason—enter Yoke’s, and a man in a black T-shirt and 
+
+jeans—identified by Mr. Swartz as himself—follow the man in 
+
+the gray sweatshirt through the store.  RP 142–43; Ex. P-22 
+
+at IMG_0166.MOV, IMG_0167.MOV, IMG_0168.MOV, 
+
+IMG_0171.MOV.2  But at each point in the video when Mr. 
+
+Thomason is supposed to have taken merchandise or 
+
+concealed it in his clothes, the action took place off camera or 
+
+2 Exhibit P-22, the Yoke’s surveillance video, consists of 
+
+11 video files in .MOV format. 
+
+7 
+
+ 
+                                                
+behind an obstruction.  RP 144–46; Ex. P-22 at 
+
+IMG_0167.MOV, IMG_0168.MOV. 
+
+Mr. Thomason’s mother, Kathy Thomason, was called 
+
+by the State to testify.  RP 111–12.  Kathy3 said police came 
+
+to her house, which is near Yoke’s, to ask whether anyone had 
+
+gone into the house on the day of the incident.  RP 113.  She 
+
+showed the officers footage recorded by surveillance cameras 
+
+installed at the house, which depicted Mr. Thomason walking 
+
+through a “side garden” on Kathy’s property.  RP 114.  The 
+
+officers did not try to collect the surveillance footage.  RP 171. 
+
+Spokane police officers Ron Van Tassel and Darryl 
+
+Groom testified as well.  Officer Van Tassel related his visit to 
+
+Kathy’s house and review of the surveillance footage recorded 
+
+there.  RP 167–68.  The officer recited Kathy’s out-of-court 
+
+statement that Mr. Swartz’s description of the Yoke’s suspect 
+
+sounded like Mr. Thomason.  RP 167–68.  He also described 
+
+the contents of the video, despite admitting he could have 
+
+3 Kathy’s first name is used to distinguish her from Mr. 
+
+Thomason; no disrespect is intended. 
+
+8 
+
+ 
+                                                
+collected the video himself and was unable to explain why he 
+
+did not.  RP 168–69, 171.  He further said that he was able to 
+
+identify Mr. Thomason based on “[p]hotographs that we have 
+
+through our system, our computer system.”  RP 169.  Mr. 
+
+Thomason’s trial counsel raised no objections to any of Officer 
+
+Van Tassel’s testimony.  RP 161–72. 
+
+Officer Groom recalled going to Yoke’s, speaking to Mr. 
+
+Swartz, and reviewing surveillance video.  RP 176–78.  The 
+
+officer recited Mr. Swartz’s out-of-court statements about the 
+
+incident, as well as Kathy’s statements to Officer Van Tassel 
+
+about her son matching Mr. Swartz’s description of the 
+
+suspect.  RP 177–78, 184.  He also identified Mr. Thomason 
+
+as the suspect in court, despite never having seen him before 
+
+trial except in the surveillance video played for the jury.  RP 
+
+184–85.  Trial counsel did not object to any of Officer Groom’s 
+
+testimony either.  RP 174–85. 
+
+The jury found Mr. Thomason guilty.  CP 62.  At 
+
+sentencing, the State recommended a sentence at the low end 
+
+of the standard range: 63 months.  1/23/20 RP 4.  Trial 
+
+9 
+
+ 
+counsel joined the State’s recommendation.  1/23/20 RP 6.  
+
+Mr. Thomason, however, personally requested an “exceptional 
+
+sentence” of 12 months.  1/23/20 RP 9. 
+
+The court expressed frustration with what it called a 
+
+“glorified shoplifting charge,” in which “someone shoplifts and 
+
+it ends up turning into a robbery because of a chain of events 
+
+with security personnel generally, just like what happened 
+
+here.”  1/23/20 RP 10.  Nonetheless, the court insisted the 
+
+“only discretion” it had was to impose a standard-range 
+
+sentence.  1/23/20 RP 10.  It imposed a sentence of 63 months, 
+
+remarking it lacked “discretion to go lower than that.”  
+
+1/23/20 RP 12; CP 103–04.  It also imposed a “lifetime” no-
+
+contact order in favor of Mr. Swartz.  1/23/20 RP 12; CP 108. 
+
+The court found Mr. Thomason indigent, waived the 
+
+$200 filing fee, and declined to impose the $100 DNA 
+
+collection fee.  1/23/20 RP 12; CP 106–07.  It remarked it 
+
+would “prefer to waive” the mandatory $500 victim penalty 
+
+assessment, but of course had no choice but to impose it.  
+
+1/23/20 RP 12; CP 106.  Nonetheless, boilerplate language in 
+
+10 
+
+ 
+the form judgment and sentence required Mr. Thomason to 
+
+“pay supervision fees” as a condition of community custody.  
+
+CP 105.  The court also ordered restitution in the “de 
+
+minimis” amount of $14.98.  1/23/20 RP 12; CP 107. 
+
+E.  ARGUMENT 
+
+1.  The trial court abused its discretion by sentencing Mr. 
+
+Thomason in the erroneous belief that it lacked 
+discretion to sentence below the standard range. 
+
+The Legislature enacted the Sentencing Reform Act of 
+
+1981 (“SRA”) to “insure that sentences are commensurate 
+
+with the punishment imposed on others committing similar 
+
+offenses.”  State v. Law, 110 Wn. App. 36, 43, 36 P.3d 374 
+
+(2002) (citing RCW 9.94A.010(3)).  The SRA “structures” 
+
+sentencing discretion by requiring trial courts to determine 
+
+an “offender score” based on the defendant’s criminal history 
+
+and look up the offense’s “seriousness level.”  RCW 9.94A.010; 
+
+RCW 9.94A.515; RCW 9.94A.525.  With this information, the 
+
+trial court determines a “standard sentence range,” from 
+
+within which the court selects the sentence “it deems 
+
+appropriate.”  RCW 9.94A.530(1). 
+
+11 
+
+ 
+The trial court is not constrained to sentence within the 
+
+standard range in all cases.  If it finds “substantial and 
+
+compelling reasons justifying an exceptional sentence,” it may 
+
+depart downward and impose a sentence below the standard 
+
+range.  RCW 9.94A.535.  The SRA lists mitigating 
+
+circumstances a court may consider, but makes clear the 
+
+listed factors “are illustrative only” and not “exclusive reasons 
+
+for exceptional sentences.”  RCW 9.94A.535(1). 
+
+Generally speaking, a sentence within the standard 
+
+range cannot be appealed.  RCW 9.94A.585(1).  This provision 
+
+does not prevent review, however, “where the court has 
+
+refused to exercise discretion” as to whether to impose an 
+
+exceptional sentence.  State v. McFarland, 189 Wn.2d 47, 56, 
+
+399 P.3d 1106 (2017) (quoting State v. McGill, 112 Wn. App. 
+
+95, 100, 47 P.3d 173 (2002)).  “While no defendant is entitled 
+
+to an exceptional sentence below the standard range, every 
+
+defendant is entitled to ask the trial court to consider such a 
+
+sentence and to have the alternative actually considered.”  
+
+State v. Grayson, 154 Wn.2d 333, 342, 111 P.3d 1183 (2005).  
+
+12 
+
+ 
+One way a court refuses to exercise discretion is by imposing 
+
+a standard range sentence in the erroneous belief it lacks 
+
+discretion to depart downward.  McGill, 112 Wn. App.  at 100. 
+
+Here, counsel for both parties believed that the 
+
+standard range for Mr. Thomason’s single count of second-
+
+degree robbery was 63 to 84 months.  1/23/20 RP 4, 6.  Both 
+
+recommended a low-end sentence of 63 months.  Id. at 4, 7.  
+
+During allocution, however, Mr. Thompson asked the court to 
+
+consider an “exceptional sentence” of 12 months.  Id. at 8–9. 
+
+The trial court expressed unease with the severity of 
+
+the recommended low-end sentence.  1/23/20 RP 10.  
+
+Nevertheless, the court believed it lacked discretion to impose 
+
+a sentence below the standard range of 63 to 84 months.  Id.  
+
+“That’s the only discretion I have.  I wish I had more.”  Id. 
+
+The unique nature of Mr. Thomason’s offense conduct—
+
+a poor person’s theft of a small amount of food inside the store 
+
+followed by a struggle with a security guard outside the 
+
+store—was a mitigating circumstance the court could 
+
+consider.  The court therefore abused its discretion in 
+
+13 
+
+ 
+imposing a standard-range sentence in the erroneous belief 
+
+that it lacked discretion to depart downward.  Because the 
+
+court suggested it might consider an exceptional sentence if it 
+
+knew it was able to, remand is required. 
+
+a.  That the crime was a “glorified shoplifting”— de 
+minimis food items taken followed by relatively 
+minor force to evade security—was a valid 
+mitigating factor to support an exceptional sentence. 
+
+Whether a factor not listed in RCW 9.94A.535(1) may 
+
+support a downward departure from the standard range turns 
+
+on a “two-part test.”  State v. O’Dell, 183 Wn.2d 680, 690, 358 
+
+P.3d 359 (2015) (citing State v. Ha’mim, 132 Wn.2d 834, 840, 
+
+940 P.2d 633 (1997)).  First, the factor cannot be one the 
+
+Legislature “necessarily considered . . . when it established 
+
+the standard sentence range.”  Id.  Second, the “factor must 
+
+be ‘sufficiently substantial and compelling to distinguish the 
+
+crime in question from others in the same category.”  Id. 
+
+(quoting Ha’mim, 132 Wn.2d at 840). 
+
+The manner in which the offense was committed can be 
+
+a mitigating circumstance, if it is categorically less culpable 
+
+than other cases of the same offense in a way the Legislature 
+
+14 
+
+ 
+did not necessarily anticipate.  See State v. Alexander, 125 
+
+Wn.2d 717, 726–27, 888 P.2d 1169 (1995).  In Alexander, the 
+
+Supreme Court considered whether the delivery of only an 
+
+“extraordinarily small amount” of cocaine could support a 
+
+mitigated exceptional sentence for delivery of a controlled 
+
+substance.  Id.  “[T]he Legislature did not necessarily 
+
+consider” this factor, the Court reasoned, because the precise 
+
+amount of drugs delivered is neither an element of the offense 
+
+nor a fact considered in computing the standard range.  Id. at 
+
+726–27.  And the small amount of cocaine—less than one-
+
+tenth of a gram—was distinct enough to separate the 
+
+defendant’s offense from other instances of delivery of a 
+
+controlled substance.  Id. at 727.  The Court found that the 
+
+defendant’s “low level of involvement” in the transaction was 
+
+also a mitigating factor for similar reasons.  Id. at 728–29.  
+
+The “glorified shoplifting” version of second-degree 
+
+robbery Mr. Thomason was convicted of here satisfies both 
+
+parts of the test.  As relevant here, the Legislature defines 
+
+“robbery” as taking property from the presence of another 
+
+15 
+
+ 
+against their will, using or threatening force to “obtain or 
+
+retain possession of the property.”  RCW 9A.56.190; see RCW 
+
+9A.56.210(1) (“A person is guilty of robbery in the second 
+
+degree if he or she commits robbery.”).  In short, robbery 
+
+consists of both “a property crime and a crime against the 
+
+person,” State v. Nelson, 191 Wn.2d 61, 76, 419 P.3d 410 
+
+(2018) (quoting State v. Tvedt, 153 Wn.2d 705, 711, 107 P.3d 
+
+728 (2005)), without specifying any particular relationship in 
+
+time or place between the taking and the use of force. 
+
+As proven to the jury, Mr. Thomason’s “property crime” 
+
+and “crime against the person” occurred at different times 
+
+and in different places—taking $14.98 of merchandise inside 
+
+the store, and later striking the security guard who accosted 
+
+him outside the store.  RP 125–27, 129–32, 1/23/20 RP 12.  In 
+
+fact, as Mr. Swartz was in plain clothes posing as a customer, 
+
+Mr. Thomason likely did not know anyone was watching him 
+
+inside the store and did not expect to use any degree of force 
+
+before Mr. Swartz grabbed him outside.  RP 123, 125. 
+
+16 
+
+ 
+If charged separately, these two acts would amount to 
+
+third-degree theft, see RCW 9A.56.050(1) (theft of items 
+
+worth less than $750), and fourth-degree assault, see RCW 
+
+9A.36.041(1) (assault without any of the criteria for superior 
+
+degrees or custodial assault).  Both offenses are gross 
+
+misdemeanors in the circumstances of this case, RCW 
+
+9A.36.041(2); RCW 9A.56.050(2), and, if sentenced 
+
+concurrently, the highest sentence Mr. Thomason would face 
+
+would be the 12 months he asked for, RCW 9.92.020.   
+
+The Legislature did not necessarily consider the 
+
+possibility that its definition of robbery would transform these 
+
+two otherwise distinct misdemeanors, committed at different 
+
+times, into the class B felony of second-degree robbery.  RCW 
+
+9A.56.210(2); see Alexander, 125 Wn.2d at 724–25 (“not all 
+
+exceptional fact patterns can be anticipated” (quoting State v. 
+
+McAlpin, 108 Wn.2d 458, 465, 740 P.2d 824 (1987))).  Nor 
+
+does any provision of the SRA necessarily account for the 
+
+degree of separation in time and place between the property 
+
+and person aspects of the robbery, the “extraordinarily” low 
+
+17 
+
+ 
+value of food items taken, or the poverty of the taker.  
+
+Alexander, 125 Wn.2d at 726–27; see RCW 9.94A.525(8) (how 
+
+to calculate offender score for a violent offense); RCW 
+
+9.94A.030(55)(xi) (second-degree robbery is a violent offense); 
+
+RCW 9.94A.515 (seriousness level of IV); RCW 9.94A.510 
+
+(sentencing grid).  The first part of the test as therefore met. 
+
+The second part is met for much the same reason—a 
+
+low-value shoplifting and a later struggle with security 
+
+personnel are not “characteristic[s] inherent” in all cases of 
+
+second-degree robbery.  Alexander, 125 Wn.2d at 729.  The 
+
+separation in time and place between the two aspects of the 
+
+robbery, as well as the “extraordinarily” low value of the 
+
+merchandise taken, “therefore distinguish[ Mr. Thomason’s] 
+
+crime from others in the same category.”  Id. at 727.  Mr. 
+
+Thomason’s indigency, and the fact that he was alleged to 
+
+have stolen only food items, are further distinguishing 
+
+characteristics.  RP 125; 1/23/20 RP 12. 
+
+Because the nature of Mr. Thomason’s offense 
+
+conduct—a low-value shoplifting combined with a later 
+
+18 
+
+ 
+struggle with a security guard—satisfies the two-part test, it 
+
+is a valid mitigating circumstance under the SRA.  O’Dell, 
+
+183 Wn.2d at 690.  Accordingly, the trial court had discretion 
+
+to consider whether, in light of the purposes of the SRA, the 
+
+circumstances of the offense warranted an exceptional 
+
+sentence.  RCW 9.94A.535. 
+
+b.  The trial court’s standard-range sentence was an 
+abuse of discretion where the court erroneously 
+believed it could not depart downward. 
+
+A trial court abuses its discretion “when it operates 
+
+under the ‘mistaken belief that it did not have the discretion 
+
+to impose a mitigated exceptional sentence for which [a 
+
+defendant] may have been eligible.”  McFarland, 189 Wn.2d 
+
+at 56–59 (alteration in original) (quoting State v. Garcia-
+
+Martinez, 88 Wn. App. 322, 330, 944 P.2d 1104 (1997)).  This 
+
+is so whether or not trial counsel requested an exceptional 
+
+sentence or pointed out the trial court’s authority to do so.  Id. 
+
+at 57–58.  “[A]n erroneous sentence, imposed without due 
+
+consideration of an authorized mitigated sentence, constitutes 
+
+a ‘fundamental defect’ resulting in a miscarriage of justice.”  
+
+19 
+
+ 
+Id. at 58 (quoting In re Pers. Restraint of Mulholland, 161 
+
+Wn.2d 322, 332, 166 P.3d 677 (2007)). 
+
+Accordingly, remand for resentencing is required when 
+
+a trial court imposes a standard-range sentence despite 
+
+expressing an inclination to depart downward, in the 
+
+erroneous belief that it lacked discretion to do so.  Id. at 58–
+
+59; McGill, 112 Wn. App. at 100–01.  In McGill, the trial court 
+
+had discretion to depart downward from the standard range 
+
+for the defendant’s multiple controlled substance offenses if it 
+
+found that “the multiple offense policy of the SRA” would lead 
+
+to a “clearly excessive” sentence.  112 Wn. App. at 99 & n.4 
+
+(citing RCW 9.94A.535(1)(g)).  The court evidently did not 
+
+know this, however, noting at sentencing that “the legislature 
+
+has decided that judges should not have discretion beyond a 
+
+certain sentencing range” and it had “no option” but to impose 
+
+a standard range sentence of 87 to 116 months.  Id. at 98–99 
+
+(emphasis omitted).  The court also expressed discomfort with 
+
+the length of a standard-range sentence, noting “it doesn’t 
+
+seem to be justified” for mere “drug cases.”  Id. 
+
+20 
+
+ 
+This Court held that the trial court erred in imposing a 
+
+standard-range sentence without considering whether to 
+
+impose an exceptional sentence.  Id. at 100–01.  Because of its 
+
+erroneous belief that it lacked discretion to depart downward, 
+
+the court effectively “refused to exercise its discretion” at all.  
+
+Id. at 100.  And because the court’s comments at sentencing 
+
+suggested “it would have considered an exceptional sentence 
+
+had it known it could,” this Court remanded to give it the 
+
+opportunity to do so.  Id. at 100–01; see also Mulholland, 161 
+
+Wn.2d at 333–34 (remanding where trial court expressed 
+
+sympathy for defendant but believed it lacked discretion); 
+
+State v. Bunker, 144 Wn. App. 407, 411, 421–22, 183 P.3d 
+
+1086 (2008) (remanding where trial court erroneously stated 
+
+it lacked discretion to depart downward, but “would probably 
+
+do it” if it could). 
+
+The trial court here had discretion to depart downward 
+
+because it could consider the unique combination of a theft of 
+
+low-value food items and use of relatively minor force during 
+
+a later confrontation with security as a mitigating factor.  See 
+
+21 
+
+ 
+supra at 14–19.  Nevertheless, the court incorrectly remarked 
+
+that “[t]he only discretion I have is the time period between 
+
+63 and 84 months.  That’s all I’ve got.”  1/23/20 RP 10.  The 
+
+court also expressed discomfort with even a low-end sentence, 
+
+saying “I don’t like” the charge of robbery in a case of 
+
+“glorified shoplifting” and “I wish I had more” discretion than 
+
+to choose within the standard range.  Id. at 10.  As in McGill, 
+
+the court’s failure to exercise its discretion in the mistaken 
+
+belief it did not have it was an abuse of discretion warranting 
+
+remand.  112 Wn. App. at 100–01; accord McFarland, 189 
+
+Wn.2d at 58–59; Bunker, 144 Wn. App. at 421–22. 
+
+2.  Trial counsel rendered ineffective assistance in failing 
+to object to police officers’ pervasive and prejudicial 
+inadmissible testimony. 
+
+The Sixth Amendment and article I, section 22 of the 
+
+Washington State Constitution guarantee not merely the 
+
+assistance of counsel, but the effective assistance of counsel. 
+
+Strickland v. Washington, 466 U.S. 668, 686, 104 S. Ct. 2052, 
+
+80 L. Ed. 2d 674 (1984); State v. Hendrickson, 129 Wn.2d 61, 
+
+77, 917 P.2d 563 (1996). Ineffective assistance requires 
+
+22 
+
+ 
+reversal where (1) “defense counsel’s conduct . . . fell below an 
+
+objective standard of reasonableness,” and (2) “the deficient 
+
+performance resulted in prejudice.” State v. Reichenbach, 153 
+
+Wn.2d 126, 130, 101 P.3d 80 (2004). 
+
+a.  Counsel rendered deficient performance in choosing 
+to raise no objection to police officers’ propensity 
+evidence, violation of the best evidence rule, 
+improper opinion, and rampant hearsay. 
+
+Courts generally presume reasonable performance, and 
+
+will not find deficient performance where counsel’s conduct 
+
+amounted to “legitimate trial strategy or tactics.” State v. 
+
+Grier, 171 Wn.2d 17, 33, 246 P.3d 1260 (2011) (quoting State 
+
+v. Kyllo, 166 Wn.2d 856, 863, 215 P.3d 177 (2009)). The 
+
+presumption is rebutted where “no conceivable legitimate 
+
+tactic” can “explain[] counsel’s performance.” Reichenbach, 
+
+153 Wn.2d at 130 (citing State v. Aho, 137 Wn.2d 736, 745–
+
+46, 975 P.2d 512 (1999)). For example, “counsel performs 
+
+deficiently by failing to object to inadmissible evidence absent 
+
+a valid strategic reason.” State v. Crow, 8 Wn. App. 2d 480, 
+
+508, 438 P.3d 541 (2019) (citing State v. Saunders, 91 Wn. 
+
+App. 575, 578, 958 P.2d 364 (1998)).  
+
+23 
+
+ 
+In Hendrickson, the State introduced evidence of the 
+
+defendant’s prior drug convictions.  129 Wn.2d at 77.  Though 
+
+the prior convictions were irrelevant to the State’s case and 
+
+inadmissible under ER 609, counsel did not object.  Id. at 78.  
+
+The Supreme Court rejected the State’s argument that failure 
+
+to object to this “damaging and prejudicial evidence” was a 
+
+tactical choice—nothing in the defendant’s testimony or 
+
+counsel’s argument suggested any reliance on the prior drug 
+
+convictions.  Id. at 78–79; see also Saunders, 91 Wn. App.  at 
+
+579–80 (failure to object is deficient performance where prior 
+
+conviction was inadmissible under ER 609). 
+
+Here, trial counsel failed to object to multiple instances 
+
+of inadmissible evidence.  In the most egregious example, the 
+
+State asked Officer Van Tassel whether he recognized Mr. 
+
+Thomason in the surveillance video Kathy, Mr. Thomason’s 
+
+mother, showed him.  RP 169.  The officer said he did not 
+
+recognize Mr. Thomason while watching the video, but later 
+
+saw him in “[p]hotographs that we have through our system, 
+
+our computer system.”  RP 169.  In other words, Officer Van 
+
+24 
+
+ 
+Tassel saw multiple mug shots of Mr. Thomason in the 
+
+Spokane Police Department’s database.  RP 169. 
+
+By making clear to the jury the police department had 
+
+Mr. Thomason’s “photograph ‘on hand,’” Officer Van Tassel’s 
+
+testimony implied Mr. Thomason “had previously been 
+
+arrested or convicted on another charge” in violation of ER 
+
+404.  State v. Henderson, 100 Wn. App. 794, 803, 998 P.2d 
+
+907 (2000).  As a result, Van Tassel’s testimony raised a 
+
+“prejudicial inference of criminal propensity.”  State v. 
+
+Sanford, 128 Wn. App. 280, 286–87, 115 P.3d 368 (2005).  Yet 
+
+trial counsel failed to object to this inadmissible and highly 
+
+prejudicial statement.  RP 169. 
+
+Relatedly, Officer Van Tassel’s testimony describing the 
+
+contents of Kathy’s surveillance video violated the best 
+
+evidence rule.  Under this rule, a party may “prove the 
+
+content of a . . . recording” only by way of the recording itself, 
+
+unless the original was “lost” or “destroyed.”  ER 1002, 
+
+1004(a).  “By far the most common means of proving loss or 
+
+destruction” of an original is “a diligent but unsuccessful 
+
+25 
+
+ 
+search.”  United States v. McGaughey, 977 F.2d 1067, 1071 
+
+(7th Cir. 1992) (alteration omitted) (quoting 5 Weinstein’s 
+
+Evidence ¶ 1004(1)[05] at 1004–18 (1983)).4 
+
+In State v. Nelson, No. 76354-5-I, 2018 WL 4697269 
+
+(Wash. App. Oct. 1, 2018) (unpub.), a police officer “assumed” 
+
+he would not be able to obtain a copy of surveillance video, 
+
+but made no effort to do so.  Id. at *3; see GR 14.1(a).  
+
+“Because the State made no showing that the original was 
+
+lost or destroyed,” the officer’s testimony describing the 
+
+“contents of the surveillance video” was inadmissible.  Id. 
+
+As in Nelson, Officer Van Tassel made no attempt to 
+
+retrieve Kathy Thomason’s surveillance footage—in fact, he 
+
+admitted he “probably should have grabbed it.”  RP 171.  
+
+Officer Groom testified the police “were not able to get a copy” 
+
+of the footage, RP 184, but the State’s evidence shows this to 
+
+be false—the Yoke’s footage was obtained by video recording 
+
+4 Courts “may look to federal case law” analyzing 
+federal evidence rules that “mirror” Washington’s.  In re Det. 
+of Pouncy, 168 Wn.2d 382, 392 n.9, 229 P.3d 678 (2010); 
+compare ER 1004 with Fed. R. Evid. 1004. 
+
+26 
+
+ 
+                                                
+it in real time as it played on a computer screen, Ex. P-22, 
+
+and Officer Van Tassel said he could have recorded Kathy’s 
+
+footage with a body camera, RP 171.  His testimony 
+
+describing the contents of the video therefore violated the best 
+
+evidence rule.  RP 168–69; Nelson, 2018 WL 4697269.  Yet, 
+
+again, counsel raised no objection.  RP 168–69.  
+
+Unlike Kathy’s video, the State played surveillance 
+
+footage from Yoke’s during the trial.  RP 141–50; Ex. P-22.  
+
+Officer Groom testified he reviewed the footage when he 
+
+visited the store and spoke with Mr. Swartz.  RP 176, 178.  
+
+This video was Officer Groom’s only opportunity to see what 
+
+Mr. Thomason looks like—like the jury, he saw Mr. 
+
+Thomason in person for the first time at trial.  RP 11, 184.  
+
+Yet the State asked Officer Groom to identify Mr. Thomason 
+
+from the witness stand.  RP 184–85. 
+
+Because Officer Groom was in no better position to 
+
+identify Mr. Thomason from the surveillance video than the 
+
+jury, his in-court identification was an improper opinion on 
+
+guilt.  State v. George, 150 Wn. App. 110, 119, 206 P.3d 697 
+
+27 
+
+ 
+(2009); United States v. LaPierre, 998 F.2d 1460, 1465 (9th 
+
+Cir. 1993).  Counsel did not object to this inadmissible 
+
+testimony either.  RP 184–85. 
+
+Lastly, both police officers’ testimony was rife with 
+
+inadmissible hearsay.  Officer Van Tassel testified Mr. Swartz 
+
+told him he saw Mr. Thomason go into a house, and parroted 
+
+Mr. Swartz’s account of being assaulted at the store.  RP 163–
+
+64, 167.  The officer also related Kathy’s statements that Mr. 
+
+Swartz’s description of the suspect sounded like Mr. 
+
+Thomason, and that he was the man shown in her 
+
+surveillance video.  RP 167–69.  Likewise, Officer Groom 
+
+recalled Mr. Swartz’s narrative of what had happened at 
+
+Yoke’s.  RP 177–78.  Had defense counsel objected to these 
+
+statements, the State would have had to prove either they 
+
+were not hearsay or a hearsay exception applied.  See State v. 
+
+Starbuck, 189 Wn. App. 740, 752, 355 P.3d 1167 (2015) 
+
+(proponent of evidence must prove admissibility). 
+
+Prosecutors often attempt to argue that out-of-court 
+
+statements to a police officer are offered, not for their truth, 
+
+28 
+
+ 
+but to show the officer’s state of mind.  E.g., State v. Johnson, 
+
+61 Wn. App. 539, 545, 811 P.2d 687 (1991).  But out-of-court 
+
+statements are admissible for this purpose only where the 
+
+officer’s “state of mind is relevant to a material issue in the 
+
+case.”  Id.  Here, there was no reason for the officers to relate 
+
+Mr. Swartz’s and Kathy Thomason’s statements except to 
+
+improperly bolster their credibility.  The out-of-court 
+
+statements were therefore inadmissible hearsay.  Id.  And 
+
+counsel raised no objection to any of them.  RP 163–64, 167–
+
+69, 177–78. 
+
+The damage the two officers’ inadmissible testimony 
+
+did to Mr. Thomason’s case was substantial.  Juries tend to 
+
+imbue officers’ statements with “a special aura of reliability.”  
+
+State v. Kirkman, 159 Wn.2d 918, 928–29, 155 P.3d 125 
+
+(2007).  By referring to Mr. Thomason’s multiple mug shots, 
+
+describing the contents of Kathy’s unproduced surveillance 
+
+video, and identifying Mr. Thomason from the witness stand, 
+
+the officers invited the jurors to discard any doubts they 
+
+might have and rely on the officers’ presumed expertise 
+
+29 
+
+ 
+instead.  By reciting Kathy’s and Mr. Swartz’s statements, 
+
+the officers implicitly endorsed their testimony, buttressing 
+
+their credibility. 
+
+Counsel may have had a tactical reason for declining to 
+
+object to one or two of these pieces of inadmissible evidence 
+
+individually—say, to avoid “emphasizing” them.  In re Pers. 
+
+Restraint of Davis, 152 Wn.2d 647, 714, 101 P.3d 1 (2004).  
+
+Where counsel raised no objection to any of the inadmissible 
+
+testimony—or to any part of the State’s presentation of 
+
+evidence, at any time—a strategic purpose becomes all but 
+
+impossible to imagine.  Nor did trial counsel make any use of 
+
+the testimony for his own ends—he reserved opening, and did 
+
+not touch on the officers’ testimony at all during closing.  RP 
+
+110, 210–12; Hendrickson, 129 Wn.2d at 79.  “[N]o 
+
+conceivable legitimate tactic” explains counsel’s choice not to 
+
+raise a single objection to any of this “damaging and 
+
+prejudicial evidence.”  Reichenbach, 153 Wn.2d at 130; 
+
+Hendrickson, 129 Wn.2d at 78–79. 
+
+30 
+
+ 
+b.  The unchallenged, inadmissible testimony caused 
+sufficient prejudice to undermine trust in the 
+outcome. 
+
+Prejudice results where there is a “‘reasonable 
+
+probability’ that, but for counsel’s unprofessional errors, the 
+
+result of the proceeding would have been different.”  Crow, 8 
+
+Wn. App. 2d at 511.  That is the case here. 
+
+The State’s case against Mr. Thomason was far from 
+
+airtight.  To prove him guilty of second-degree robbery, it 
+
+needed to show he took merchandise from the store and used 
+
+force to retain it—in other words, he still had the food when 
+
+Mr. Swartz accosted him outside.  RP 203–04; CP 59; RCW 
+
+9A.56.190.  The State’s only evidence on this score was Mr. 
+
+Swartz’s testimony that he saw Mr. Thomason take food out 
+
+of two display cases and conceal the items in his clothing.  RP 
+
+125–27.  The State presented no direct evidence Mr. 
+
+Thomason left the store with any unpaid-for merchandise in 
+
+his possession—no stolen food was ever recovered, and no food 
+
+items came loose from Mr. Thomason’s clothing during his 
+
+altercation with Mr. Swartz.  RP 149–50, 158; Ex. P-22. 
+
+31 
+
+ 
+The jury had reason to doubt Mr. Swartz’s opportunity 
+
+to observe Mr. Thomason’s conduct, at least at the time Mr. 
+
+Thomason is supposed to have concealed the food.  Rather 
+
+than maintaining direct line-of-sight with Mr. Thomason, Mr. 
+
+Swartz recalled walking down a separate aisle, peering 
+
+toward Mr. Thomason from behind displays or watching his 
+
+reflection in a cooler door.  RP 126–27, 145–46.  The 
+
+surveillance video confirms that an entire grocery aisle lay 
+
+between Mr. Thomason and Mr. Swartz, calling into doubt 
+
+whether Mr. Swartz was able to clearly see Mr. Thomason 
+
+hide the items in his clothes.  Ex. P-22, at IMG_0168.MOV. 
+
+Moreover, at each of the moments Mr. Swartz said Mr. 
+
+Thomason took or concealed merchandise, the action took 
+
+place either out of frame or behind an obstruction.  RP 144–
+
+46; Ex. P-22 at IMG_0167.MOV, IMG_0168.MOV.  Mr. 
+
+Swartz’s inferior opportunity to observe and the unreliability 
+
+of the surveillance footage left room for at least one juror to 
+
+harbor a reasonable doubt as to whether Mr. Thomason still 
+
+32 
+
+ 
+had the food when he walked out of the store, and therefore 
+
+whether he committed robbery. 
+
+ It is impossible to know whether the jury weighed 
+
+these weaknesses in the State’s case and concluded they 
+
+nonetheless did not create a reasonable doubt, or disregarded 
+
+them in favor of the “special aura of reliability” projected by 
+
+the police officers’ unchallenged, improper testimony.  
+
+Kirkman, 159 Wn.2d at 928–29.  Accordingly, there is a 
+
+reasonable probability that, had counsel not failed to object, 
+
+the jury may have returned a different verdict.  Crow, 8 Wn. 
+
+App. 2d at 511; Saunders, 91 Wn. App. at 581.  The conviction 
+
+of second-degree robbery must be reversed. 
+
+3.  The trial court erred in imposing a crime-related 
+prohibition in excess of the statutory maximum 
+sentence. 
+
+A trial court may impose “crime-related prohibitions” as 
+
+part of a sentence.  RCW 9.94A.505(9).  This includes the 
+
+power to impose no-contact orders.  State v. Armendariz, 160 
+
+Wn.2d 106, 118, 156 P.3d 201 (2007).  The effective term of a 
+
+crime-related prohibition, however, may not exceed the 
+
+33 
+
+ 
+statutory maximum sentence for the offense of conviction.  Id. 
+
+at 119–20. 
+
+As a class B felony, second-degree robbery carries a 
+
+statutory maximum sentence of ten years.  RCW 
+
+9A.20.021(1)(b); RCW 9A.56.210(2).  Accordingly, the trial 
+
+court here was not authorized to impose crime-related 
+
+prohibitions with a term greater than ten years.  Armendariz, 
+
+160 Wn.2d at 119–20.  Nonetheless, the court included a 
+
+lifetime no-contact order in the judgment and sentence.  CP 
+
+108.  This Court should remand with instructions to strike 
+
+the no-contact order and hold a new hearing on the term of 
+
+any no-contact order to be imposed. 
+
+4.  The trial court erred in imposing discretionary legal 
+financial obligations despite finding Mr. Thomason 
+indigent. 
+
+Courts may not impose discretionary legal financial 
+
+obligations on defendants who have been found indigent. 
+
+RCW 10.01.160(3); State v. Ramirez, 191 Wn.2d 732, 748, 426 
+
+P.3d 714 (2018).  Supervision fees as a condition of 
+
+community custody are a discretionary legal financial 
+
+34 
+
+ 
+obligation because they “are waivable by the trial court.”  
+
+State v. Dillon, 12 Wn. App. 2d 133, 152, 456 P.3d 1199 
+
+(2020); accord State v. Lundstrom, 6 Wn. App. 2d 388, 396 
+
+n.3, 429 P.3d 1116 (2018).  Imposing supervision fees on an 
+
+indigent defendant is an error requiring remand.  Dillon, 12 
+
+Wn. App. 2d at 152–53.  In addition, where the trial court 
+
+makes clear on the record its intent to waive all discretionary 
+
+fees and costs yet inadvertently fails to strike a boilerplate 
+
+obligation to pay supervision fees, remand is warranted to 
+
+correct the court’s scrivener’s error.  Id. at 152.  
+
+Here, the trial court found Mr. Thomason indigent.  
+
+1/23/20 RP 12.  It waived the discretionary $200 filing fee and 
+
+remarked it would “prefer to waive” the $500 victim penalty 
+
+assessment, indicating its intent to impose only mandatory 
+
+legal financial obligations.  1/23/20 RP 12.  Nonetheless, 
+
+boilerplate language in the judgment and sentence included 
+
+as a condition of community custody that Mr. Thomason “pay 
+
+supervision fees.”  CP 105.  This Court should remand with 
+
+35 
+
+ 
+instructions to strike the obligation to pay supervision fees.  
+
+Dillon, 12 Wn. App. 2d at 152–53. 
+
+F.  CONCLUSION 
+
+This Court should vacate Mr. Thomason’s sentence and 
+
+remand for a new sentencing hearing.  For independent 
+
+reasons, this court should reverse Mr. Thomason’s conviction 
+
+and remand for a new trial.  Alternatively, this Court should 
+
+remand with instructions to strike from the judgment and 
+
+sentence the lifetime no-contact order in favor of Mr. Swartz 
+
+and the obligation to pay supervision fees. 
+
+DATED this 17th day of September, 2020. 
+
+Christopher Petroni, WSBA #46966 
+Washington Appellate Project - 91052 
+Email:  wapofficemail@washapp.org 
+chris@washapp.org 
+
+Attorney for Lance Thomason 
+
+36 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IN THE COURT OF APPEALS OF THE STATE OF WASHINGTON 
+DIVISION THREE 
+____________________________________________________________________________________ 
+
+STATE OF WASHINGTON, 
+
+RESPONDENT, 
+
+v. 
+
+LANCE THOMASON,   
+
+APPELLANT.   
+
+) 
+) 
+) 
+) 
+) 
+) 
+) 
+) 
+) 
+
+NO. 37369-0-III 
+
+____________________________________________________________________________________________ 
+
+DECLARATION OF DOCUMENT FILING AND SERVICE  
+
+I, MARIA ARRANZA RILEY, STATE THAT ON THE 17TH  DAY OF SEPTEMBER, 2020, I CAUSED THE 
+ORIGINAL  OPENING BRIEF OF APPELLANT TO BE FILED IN THE COURT OF APPEALS – 
+DIVISION THREE AND A TRUE COPY OF THE SAME TO BE SERVED ON THE FOLLOWING IN 
+THE MANNER INDICATED BELOW: 
+
+[X]  LARRY STEINMETZ, DPA   
+
+[lsteinmetz@spokanecounty.org] 
+[SCPAappeals@spokanecounty.org]   
+SPOKANE COUNTY PROSECUTOR’S OFFICE 
+1100 W. MALLON AVENUE 
+SPOKANE, WA 99260 
+
+[X]  LANCE THOMASON 
+
+868974 
+COYOTE RIDGE CORRECTIONS CENTER 
+PO BOX 769 
+CONNELL, WA 99326-0769 
+
+(  ) 
+(  ) 
+(X) 
+
+U.S. MAIL 
+HAND DELIVERY 
+E-SERVICE VIA PORTAL 
+
+(X) 
+(  ) 
+(  ) 
+
+U.S. MAIL  
+HAND DELIVERY 
+________________ 
+
+SIGNED IN SEATTLE, WASHINGTON THIS 17TH DAY OF SEPTEMBER, 2020. 
+
+X_________________________________ 
+
+Washington Appellate Project 
+1511 Third Avenue, Suite 610 
+Seattle, Washington 98101 
+Phone (206) 587-2711 
+Fax (206) 587-2710 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+WASHINGTON APPELLATE PROJECT
+
+September 17, 2020 - 4:39 PM
+
+Transmittal Information
+
+Filed with Court:
+Appellate Court Case Number:    37369-0
+Appellate Court Case Title:
+Superior Court Case Number:
+
+Court of Appeals Division III
+
+State of Washington v. Lance Alan Thomason
+19-1-10117-3
+
+The following documents have been uploaded:
+
+• 
+
+• 
+
+373690_Briefs_20200917163912D3234828_7870.pdf 
+    This File Contains: 
+     Briefs - Appellants 
+     The Original File Name was washapp.091720-10.pdf
+373690_Designation_of_Clerks_Papers_20200917163912D3234828_7228.pdf 
+    This File Contains: 
+     Designation of Clerks Papers - Modifier: Supplemental 
+     The Original File Name was washapp.091720-09.pdf
+
+A copy of the uploaded files will be sent to:
+
+• 
+• 
+• 
+• 
+• 
+• 
+
+greg@washapp.org
+lsteinmetz@spokanecounty.org
+maureen@washapp.org
+rcarter@wsgr.com
+scpaappeals@spokanecounty.org
+wapofficemai@washapp.org
+
+Comments:
+
+Sender Name: MARIA RILEY - Email: maria@washapp.org 
+    Filing on Behalf of: Christopher Mark Petroni - Email: chris@washapp.org (Alternate Email:
+wapofficemail@washapp.org)
+
+Address: 
+1511 3RD AVE STE 610 
+SEATTLE, WA, 98101 
+Phone: (206) 587-2711
+
+Note: The Filing Id is 20200917163912D3234828
+
+

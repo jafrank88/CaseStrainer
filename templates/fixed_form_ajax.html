@@ -20,6 +20,9 @@
         .real {
             border-left: 4px solid #198754;
         }
+        .unconfirmed {
+            border-left: 4px solid #ffc107;
+        }
         .progress-container {
             margin-top: 20px;
             margin-bottom: 20px;
@@ -226,10 +229,19 @@
             // Helper function to create accordion item for citation result
             function createAccordionItem(result, index) {
                 const isHallucinated = result.is_hallucinated;
-                const cardClass = isHallucinated ? 'hallucinated' : 'real';
-                const statusBadge = isHallucinated ? 
-                    '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
-                    '<span class="badge bg-success">Verified</span>';
+                const hallucinationStatus = result.hallucination_status || (isHallucinated ? 'possible_hallucination' : 'not_hallucination');
+                
+                // Determine card class and badge based on hallucination status
+                let cardClass = 'real';
+                let statusBadge = '<span class="badge bg-success">Verified</span>';
+                
+                if (isHallucinated || hallucinationStatus === 'possible_hallucination') {
+                    cardClass = 'hallucinated';
+                    statusBadge = '<span class="badge bg-danger">Potentially Hallucinated</span>';
+                } else if (hallucinationStatus === 'unconfirmed') {
+                    cardClass = 'unconfirmed';
+                    statusBadge = '<span class="badge bg-warning text-dark">Unconfirmed Citation</span>';
+                }
                 
                 const accordionItem = document.createElement('div');
                 accordionItem.className = `accordion-item citation-card ${cardClass}`;
@@ -323,10 +335,20 @@
             function pollForResults(analysisId) {
                 logProgress(`Polling for results of analysis: ${analysisId}`);
                 
+                // Get the base URL path from the current location
+                const basePath = window.location.pathname.endsWith('/') ? 
+                    window.location.pathname : 
+                    window.location.pathname + '/';
+                
+                // Construct the status endpoint relative to the current path
+                const statusPath = basePath + 'status';
+                
+                logProgress(`Using status endpoint: ${statusPath}`);
+                
                 // Set up polling interval
                 const pollInterval = setInterval(function() {
                     $.ajax({
-                        url: `/status?id=${analysisId}`,
+                        url: `${statusPath}?id=${analysisId}`,
                         type: 'GET',
                         success: function(response) {
                             // Update progress
@@ -435,8 +457,18 @@
                     }
                     
                     // Send request to server
+                    // Get the base URL path from the current location
+                    const basePath = window.location.pathname.endsWith('/') ? 
+                        window.location.pathname : 
+                        window.location.pathname + '/';
+                    
+                    // Construct the analyze endpoint relative to the current path
+                    const analyzePath = basePath + 'analyze';
+                    
+                    logProgress(`Using API endpoint: ${analyzePath}`);
+                    
                     $.ajax({
-                        url: '/analyze',
+                        url: analyzePath,
                         type: 'POST',
                         data: formData,
                         processData: false,
