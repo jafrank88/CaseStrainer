@@ -1,0 +1,296 @@
+[
+  {
+    "citation": "196 Wash. 2d 725",
+    "found": true,
+    "source": "CourtListener Search API",
+    "case_name": "Associated Press v. Wash. State Legislature",
+    "details": {
+      "court": "Washington Supreme Court",
+      "date_filed": "2019-12-19",
+      "docket_number": "Unknown Docket",
+      "url": "https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/"
+    }
+  },
+  {
+    "citation": "190 Wash. 2d 1",
+    "found": true,
+    "source": "CourtListener Search API",
+    "case_name": "Wash. Pub. Emps. Ass'n v. Wash. State Ctr. for Childhood Deafness & Hearing Loss",
+    "details": {
+      "court": "Washington Supreme Court",
+      "date_filed": "2019-10-24",
+      "docket_number": "Unknown Docket",
+      "url": "https://www.courtlistener.com/opinion/4672555/wash-pub-emps-assn-v-wash-state-ctr-for-childhood-deafness-hearing/"
+    }
+  },
+  {
+    "citation": "183 Wash. 2d 490",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Queen Anne Park Homeowners Ass'n v. State Farm Fire & Casualty Co.",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2015-06-18",
+      "citations": [
+        "183 Wash. 2d 485",
+        "352 P.3d 790"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4909759/queen-anne-park-homeowners-assn-v-state-farm-fire-casualty-co/"
+    }
+  },
+  {
+    "citation": "178 Wash. 2d 561",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Stewart Title Guaranty Co. v. Sterling Savings Bank",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2013-10-03",
+      "citations": [
+        "178 Wash. 2d 561",
+        "311 P.3d 1"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4909415/stewart-title-guaranty-co-v-sterling-savings-bank/"
+    }
+  },
+  {
+    "citation": "173 Wash. 2d 477",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "McCleary v. State",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2012-01-05",
+      "citations": [
+        "269 P.3d 227",
+        "173 Wash. 2d 477"
+      ],
+      "url": "https://www.courtlistener.com/opinion/2351814/mccleary-v-state/"
+    }
+  },
+  {
+    "citation": "165 Wash. 2d 761",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Fisher",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2009-03-12",
+      "citations": [
+        "165 Wash. 2d 727"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4908911/state-v-fisher/"
+    }
+  },
+  {
+    "citation": "159 Wash. 2d 778",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Smith",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2007-03-15",
+      "citations": [
+        "159 Wash. 2d 778"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4908651/state-v-smith/"
+    }
+  },
+  {
+    "citation": "149 Wash. 2d 621",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "City of Redmond v. Arroyo-Murillo",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2003-06-12",
+      "citations": [
+        "149 Wash. 2d 607",
+        "70 P.3d 947",
+        "2003 Wash. LEXIS 448"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4907933/city-of-redmond-v-arroyo-murillo/"
+    }
+  },
+  {
+    "citation": "139 Wash. 2d 581",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Yokley",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1999-12-02",
+      "citations": [
+        "139 Wash. 2d 581"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4907558/state-v-yokley/"
+    }
+  },
+  {
+    "citation": "128 Wash. 2d 254",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Bone-Club",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1995-11-30",
+      "citations": [
+        "128 Wash. 2d 254",
+        "906 P.2d 325",
+        "1995 Wash. LEXIS 246"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4907071/state-v-bone-club/"
+    }
+  },
+  {
+    "citation": "196 Wash. App. 138",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State Of Washington, Resp. v. Christopher Hood, App.",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2016-09-26",
+      "citations": [
+        "196 Wash. App. 127",
+        "382 P.3d 710"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4260021/state-of-washington-resp-v-christopher-hood-app/"
+    }
+  },
+  {
+    "citation": "185 Wash. App. 679",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Johnson",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2015-02-02",
+      "citations": [
+        "185 Wash. App. 655",
+        "342 P.3d 338"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4956242/state-v-johnson/"
+    }
+  },
+  {
+    "citation": "175 Wash. App. 119",
+    "found": true,
+    "source": "CourtListener Search API",
+    "case_name": "Dolphus Mcgill v. James Beardon",
+    "details": {
+      "court": "Court of Appeals of Washington",
+      "date_filed": "2016-04-11",
+      "docket_number": "Unknown Docket",
+      "url": "https://www.courtlistener.com/opinion/3193462/dolphus-mcgill-v-james-beardon/"
+    }
+  },
+  {
+    "citation": "165 Wash. App. 732",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Brotherton v. Kralman Steel Structures, Inc.",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2011-12-29",
+      "citations": [
+        "269 P.3d 307",
+        "165 Wash. App. 727"
+      ],
+      "url": "https://www.courtlistener.com/opinion/2332215/brotherton-v-kralman-steel-structures-inc/"
+    }
+  },
+  {
+    "citation": "155 Wash. App. 83",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Collins v. Clark County Fire District No. 5",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "2010-03-11",
+      "citations": [
+        "155 Wash. App. 48",
+        "231 P.3d 1211"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4948137/collins-v-clark-county-fire-district-no-5/"
+    }
+  },
+  {
+    "citation": "198 Wash. 383",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Dummer v. Wheeler Osgood Sales Corp.",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1939-03-24",
+      "citations": [
+        "88 P.2d 453",
+        "198 Wash. 381"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4218096/dummer-v-wheeler-osgood-sales-corp/"
+    }
+  },
+  {
+    "citation": "185 Wash. 612",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Carmichael v. Kirkpatrick",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1936-04-13",
+      "citations": [
+        "56 P.2d 686",
+        "185 Wash. 609",
+        "1936 Wash. LEXIS 478"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4218043/carmichael-v-kirkpatrick/"
+    }
+  },
+  {
+    "citation": "175 Wash. 547",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "Richards v. Lawing",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1933-12-18",
+      "citations": [
+        "27 P.2d 730",
+        "175 Wash. 544",
+        "1933 Wash. LEXIS 966"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4218468/richards-v-lawing/"
+    }
+  },
+  {
+    "citation": "165 Wash. 326",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State v. Tuerk",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1931-11-24",
+      "citations": [
+        "5 P.2d 308",
+        "165 Wash. 322",
+        "1931 Wash. LEXIS 857"
+      ],
+      "url": "https://www.courtlistener.com/opinion/4219407/state-v-tuerk/"
+    }
+  },
+  {
+    "citation": "155 Wash. 296",
+    "found": true,
+    "source": "CourtListener Citation API",
+    "case_name": "State ex rel. Department of Public Works v. Superior Court",
+    "details": {
+      "court": "Unknown Court",
+      "date_filed": "1930-01-21",
+      "citations": [
+        "155 Wash. 296",
+        "283 P. 1093",
+        "1930 Wash. LEXIS 796"
+      ],
+      "url": "https://www.courtlistener.com/opinion/5106398/state-ex-rel-department-of-public-works-v-superior-court/"
+    }
+  }
+]
