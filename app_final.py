@@ -35,12 +35,23 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuration
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
 COURTLISTENER_API_URL = 'https://www.courtlistener.com/api/rest/v3/citation-lookup/'
 
 # Create upload folder if it doesn't exist
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    print(f"Upload folder created/verified at: {UPLOAD_FOLDER}")
+    # Test write permissions
+    test_file = os.path.join(UPLOAD_FOLDER, 'test_write.txt')
+    with open(test_file, 'w') as f:
+        f.write('Test write')
+    os.remove(test_file)
+    print("Upload folder is writable")
+except Exception as e:
+    print(f"ERROR creating upload folder: {e}")
+    traceback.print_exc()
 
 # Load API keys from config.json if available
 DEFAULT_API_KEY = None
@@ -1019,6 +1030,20 @@ def analyze():
                 if file and file.filename and allowed_file(file.filename):
                     print(f"File uploaded: {file.filename}")
                     filename = secure_filename(file.filename)
+                    
+                    # Ensure upload folder exists
+                    try:
+                        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                        print(f"Ensured upload folder exists: {UPLOAD_FOLDER}")
+                    except Exception as e:
+                        print(f"Error creating upload folder: {e}")
+                        traceback.print_exc()
+                        return jsonify({
+                            'status': 'error',
+                            'message': f'Error creating upload folder: {str(e)}'
+                        }), 500
+                    
+                    # Save file
                     file_path = os.path.join(UPLOAD_FOLDER, filename)
                     print(f"Attempting to save file to: {file_path}")
                     try:
@@ -1035,11 +1060,24 @@ def analyze():
                         except Exception as e:
                             print(f"Error reading file: {e}")
                             traceback.print_exc()
+                            return jsonify({
+                                'status': 'error',
+                                'message': f'Error reading saved file: {str(e)}'
+                            }), 500
                     except Exception as e:
                         print(f"Error saving file: {e}")
                         traceback.print_exc()
+                        return jsonify({
+                            'status': 'error',
+                            'message': f'Error saving file: {str(e)}'
+                        }), 500
                 else:
-                    print(f"File validation failed: filename={file.filename if file else 'None'}, allowed={allowed_file(file.filename) if file and file.filename else False}")
+                    error_msg = f"File validation failed: filename={file.filename if file else 'None'}, allowed={allowed_file(file.filename) if file and file.filename else False}"
+                    print(error_msg)
+                    return jsonify({
+                        'status': 'error',
+                        'message': error_msg
+                    }), 400
             else:
                 print("No file found in request.files")
         
