@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseStrainer - Citation Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .citation-card {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .hallucinated {
+            border-left: 4px solid #dc3545;
+        }
+        .real {
+            border-left: 4px solid #198754;
+        }
+        .progress-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #progressBar {
+            height: 20px;
+            transition: width 0.3s ease;
+        }
+        #progressLogs {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center text-dark text-decoration-none">
+                <span class="fs-4">CaseStrainer</span>
+                <span class="ms-2 badge bg-primary">Citation Analyzer</span>
+            </div>
+        </header>
+        
+        <div class="row g-5">
+            <div class="col-md-12">
+                <ul class="nav nav-tabs" id="inputTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">Enter Text</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">Upload File</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="path-tab" data-bs-toggle="tab" data-bs-target="#path" type="button" role="tab">File Path</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="inputTabsContent">
+                    <!-- Text Input Tab -->
+                    <div class="tab-pane fade show active" id="text" role="tabpanel">
+                        <form id="textForm">
+                            <div class="mb-3">
+                                <label for="briefText" class="form-label">Paste your legal brief text:</label>
+                                <textarea class="form-control" id="briefText" name="text" rows="10" placeholder="Enter the text of your legal brief here..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyText" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyText" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                    
+                    <!-- File Upload Tab -->
+                    <div class="tab-pane fade" id="upload" role="tabpanel">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="fileUpload" class="form-label">Select File (PDF, DOCX, TXT):</label>
+                                <input type="file" class="form-control" id="fileUpload" name="file" accept=".pdf,.docx,.doc,.txt">
+                                <div class="form-text">Upload a legal document to analyze for citations.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyUpload" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyUpload" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                    
+                    <!-- File Path Tab -->
+                    <div class="tab-pane fade" id="path" role="tabpanel">
+                        <form id="pathForm">
+                            <div class="mb-3">
+                                <label for="filePath" class="form-label">File Path:</label>
+                                <input type="text" class="form-control" id="filePath" name="file_path" placeholder="C:\path\to\your\document.pdf">
+                                <div class="form-text">Enter the full path to a legal document on your computer.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyPath" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyPath" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="resultsContainer" style="display: none;" class="mt-4">
+            <h2>Analysis Results</h2>
+            
+            <div class="progress-container">
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="mt-2">Starting analysis...</p>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Summary</div>
+                        <div class="card-body">
+                            <p>Total Citations: <span id="totalCitations">0</span></p>
+                            <p>Verified Citations: <span id="verifiedCitations">0</span></p>
+                            <p>Potentially Hallucinated: <span id="hallucinatedCitations">0</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">Citation Results</div>
+                        <div class="card-body">
+                            <div id="citationResults" class="accordion">
+                                <!-- Citation results will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">Progress Logs</div>
+                <div class="card-body">
+                    <div id="progressLogs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const textForm = document.getElementById('textForm');
+            const uploadForm = document.getElementById('uploadForm');
+            const pathForm = document.getElementById('pathForm');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progressLogs = document.getElementById('progressLogs');
+            const citationResults = document.getElementById('citationResults');
+            const totalCitations = document.getElementById('totalCitations');
+            const verifiedCitations = document.getElementById('verifiedCitations');
+            const hallucinatedCitations = document.getElementById('hallucinatedCitations');
+            
+            // Helper function to log progress
+            function logProgress(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${message}`;
+                progressLogs.appendChild(logEntry);
+                progressLogs.scrollTop = progressLogs.scrollHeight;
+            }
+            
+            // Helper function to update progress bar
+            function updateProgress(current, total) {
+                const percentage = Math.round((current / total) * 100);
+                progressBar.style.width = `${percentage}%`;
+                progressBar.setAttribute('aria-valuenow', percentage);
+            }
+            
+            // Helper function to validate form
+            function validateForm(formData) {
+                // Check if we have either text or a file
+                if (formData.has('text') && formData.get('text').trim()) {
+                    return true;
+                } else if (formData.has('file') && formData.get('file').size > 0) {
+                    return true;
+                } else if (formData.has('file_path') && formData.get('file_path').trim()) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // Helper function to show error
+            function showError(message) {
+                progressText.textContent = message;
+                progressText.className = 'mt-2 text-danger';
+                logProgress(`Error: ${message}`);
+            }
+            
+            // Helper function to create accordion item for citation result
+            function createAccordionItem(result, index) {
+                const isHallucinated = result.is_hallucinated;
+                const cardClass = isHallucinated ? 'hallucinated' : 'real';
+                const statusBadge = isHallucinated ? 
+                    '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
+                    '<span class="badge bg-success">Verified</span>';
+                
+                const accordionItem = document.createElement('div');
+                accordionItem.className = `accordion-item citation-card ${cardClass}`;
+                
+                // Check if we have a CourtListener URL for verified cases
+                let courtListenerHTML = '';
+                if (!result.is_hallucinated && result.court_listener_url) {
+                    courtListenerHTML = `
+                        <div class="mt-3">
+                            <h6>Case Information:</h6>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">${result.case_name || 'Case Details'}</h6>
+                                    <p class="card-text">
+                                        <a href="${result.court_listener_url}" target="_blank" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-link-45deg"></i> View on CourtListener
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Check if we have summaries from LangSearch
+                let summariesHTML = '';
+                if (result.summaries && result.summaries.length > 0) {
+                    summariesHTML = `
+                        <div class="mt-3">
+                            <h6>LangSearch Summaries:</h6>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Summary 1:</h6>
+                                    <p class="card-text">${result.summaries[0]}</p>
+                                </div>
+                            </div>
+                            ${result.summaries.length > 1 ? `
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Summary 2:</h6>
+                                        <p class="card-text">${result.summaries[1]}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+                
+                // Check if this result has parallel citations
+                let parallelCitationsHTML = '';
+                if (result.parallel_citations && result.parallel_citations.length > 0) {
+                    parallelCitationsHTML = `
+                        <div class="mt-3">
+                            <h6>Parallel Citations:</h6>
+                            <ul class="list-group">
+                                ${result.parallel_citations.map(citation => `
+                                    <li class="list-group-item">${citation}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                // Determine the citation to display in the header
+                const displayCitation = result.primary_citation || result.citation_text;
+                
+                accordionItem.innerHTML = `
+                    <h2 class="accordion-header" id="heading${index}">
+                        <button class="accordion-button ${result.is_hallucinated ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="${result.is_hallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <span>${displayCitation}</span>
+                                ${statusBadge}
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse${index}" class="accordion-collapse collapse ${result.is_hallucinated ? 'show' : ''}" aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
+                        <div class="accordion-body">
+                            <p>${result.explanation}</p>
+                            <p><small>Confidence: ${(result.confidence * 100).toFixed(1)}%</small></p>
+                            ${courtListenerHTML}
+                            ${parallelCitationsHTML}
+                            ${summariesHTML}
+                        </div>
+                    </div>
+                `;
+                
+                return accordionItem;
+            }
+            
+            // Function to poll for results
+            function pollForResults(analysisId) {
+                logProgress(`Polling for results of analysis: ${analysisId}`);
+                
+                // Set up polling interval
+                const pollInterval = setInterval(function() {
+                    $.ajax({
+                        url: `/status?id=${analysisId}`,
+                        type: 'GET',
+                        success: function(response) {
+                            // Update progress
+                            if (response.progress !== undefined && response.total_steps !== undefined) {
+                                updateProgress(response.progress, response.total_steps);
+                            }
+                            
+                            // Update status message
+                            if (response.message) {
+                                progressText.textContent = response.message;
+                                logProgress(response.message);
+                            }
+                            
+                            // Update citation results if available
+                            if (response.citation_results && response.citation_results.length > 0) {
+                                // Clear previous results
+                                citationResults.innerHTML = '';
+                                
+                                // Update summary counts
+                                let hallucinated = 0;
+                                let verified = 0;
+                                
+                                // Add each citation result
+                                response.citation_results.forEach((result, index) => {
+                                    if (result.is_hallucinated) {
+                                        hallucinated++;
+                                    } else {
+                                        verified++;
+                                    }
+                                    
+                                    const accordionItem = createAccordionItem(result, index);
+                                    citationResults.appendChild(accordionItem);
+                                });
+                                
+                                // Update summary
+                                totalCitations.textContent = response.citation_results.length;
+                                verifiedCitations.textContent = verified;
+                                hallucinatedCitations.textContent = hallucinated;
+                            }
+                            
+                            // If analysis is complete, stop polling
+                            if (response.completed) {
+                                clearInterval(pollInterval);
+                                logProgress('Analysis completed, stopping polling');
+                                
+                                if (response.status === 'error' && response.error) {
+                                    showError(response.error);
+                                } else if (response.status === 'complete') {
+                                    progressText.className = 'mt-2 text-success';
+                                    progressBar.classList.remove('progress-bar-animated');
+                                    logProgress('Analysis completed successfully');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            logProgress(`Error polling for results: ${error}`);
+                            showError(`Error polling for results: ${error}`);
+                            clearInterval(pollInterval);
+                        }
+                    });
+                }, 1000); // Poll every second
+            }
+            
+            // Handle form submissions
+            function handleFormSubmit(form, formName) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    logProgress(`${formName} form submitted`);
+                    
+                    // Create FormData object
+                    const formData = new FormData(form);
+                    
+                    // Validate form
+                    if (!validateForm(formData)) {
+                        showError('Please provide either text, a file, or a file path');
+                        return;
+                    }
+                    
+                    // Show results container
+                    resultsContainer.style.display = 'block';
+                    
+                    // Reset progress and results
+                    progressBar.style.width = '0%';
+                    progressBar.setAttribute('aria-valuenow', 0);
+                    progressBar.classList.add('progress-bar-animated');
+                    progressText.textContent = 'Starting analysis...';
+                    progressText.className = 'mt-2';
+                    progressLogs.innerHTML = '';
+                    citationResults.innerHTML = '';
+                    totalCitations.textContent = '0';
+                    verifiedCitations.textContent = '0';
+                    hallucinatedCitations.textContent = '0';
+                    
+                    // Log form data
+                    logProgress('Sending request to server...');
+                    for (let [key, value] of formData.entries()) {
+                        if (key === 'text') {
+                            logProgress(`Form data: ${key}=${value.length} characters`);
+                        } else if (key === 'file') {
+                            logProgress(`Form data: ${key}=${value.name} (${value.size} bytes)`);
+                        } else if (key === 'api_key' && value) {
+                            logProgress(`Form data: ${key}=API key provided`);
+                        } else {
+                            logProgress(`Form data: ${key}=${value}`);
+                        }
+                    }
+                    
+                    // Send request to server
+                    $.ajax({
+                        url: '/analyze',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            logProgress(`Server response: ${JSON.stringify(response)}`);
+                            
+                            if (response.status === 'success' && response.analysis_id) {
+                                logProgress(`Analysis started with ID: ${response.analysis_id}`);
+                                pollForResults(response.analysis_id);
+                            } else {
+                                showError(response.message || 'Unknown error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            logProgress(`Error starting analysis: ${error}`);
+                            if (xhr.responseText) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    showError(response.message || error);
+                                } catch (e) {
+                                    showError(error);
+                                }
+                            } else {
+                                showError(error);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Set up form handlers
+            handleFormSubmit(textForm, 'Text');
+            handleFormSubmit(uploadForm, 'Upload');
+            handleFormSubmit(pathForm, 'Path');
+            
+            // Log that the page is ready
+            logProgress('Page loaded and ready');
+        });
+    </script>
+</body>
+</html>
