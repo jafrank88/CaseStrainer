@@ -527,6 +527,9 @@
                 resultsSummary.innerHTML = '<div class="alert alert-info">Analysis started. Results will appear as they become available.</div>';
                 citationsList.innerHTML = '<div id="progress-container" class="alert alert-secondary">Extracting citations...</div>';
                 
+                // Clear previous logs
+                document.getElementById('progressLogs').innerHTML = '';
+                
                 // Create a container for results that will be populated as they come in
                 const resultsContainer = document.createElement('div');
                 resultsContainer.className = 'accordion';
@@ -537,103 +540,220 @@
                 const citationResults = [];
                 let hallucinated = 0;
                 
+                // Add initial log entry
+                const initialLogEntry = document.createElement('div');
+                initialLogEntry.className = 'alert alert-primary mt-2 mb-2';
+                initialLogEntry.textContent = `${new Date().toLocaleTimeString()}: Starting analysis...`;
+                document.getElementById('progressLogs').appendChild(initialLogEntry);
+                
                 // Close any existing EventSource
                 if (activeEventSource) {
                     activeEventSource.close();
                 }
                 
-                // Handle form submission
-                $('#briefForm').submit(function(event) {
-                    event.preventDefault();
-                    console.log('Form submitted!');
-                    
-                    // Validate form
-                    if (!validateForm()) {
-                        return;
-                    }
-                    
-                    // Show loading indicator
-                    loading.style.display = 'block';
-                    
-                    // Initialize results display
-                    results.style.display = 'block';
-                    resultsSummary.innerHTML = '<div class="alert alert-info">Analysis started. Results will appear as they become available.</div>';
-                    citationsList.innerHTML = '<div id="progress-container" class="alert alert-secondary">Extracting citations...</div>';
-                    
-                    // Create a container for results that will be populated as they come in
-                    const resultsContainer = document.createElement('div');
-                    resultsContainer.className = 'accordion';
-                    resultsContainer.id = 'citationsAccordion';
-                    citationsList.appendChild(resultsContainer);
-                    
-                    // Create form data for the request
-                    const formData = new FormData();
-                    
-                    // Add text if provided
-                    if (briefText.value.trim()) {
-                        formData.append('text', briefText.value.trim());
-                        console.log('Text added to form data');
-                    }
-                    
-                    // Add file if provided
-                    if (fileUpload.files && fileUpload.files[0]) {
-                        formData.append('file', fileUpload.files[0]);
-                        console.log('File added to form data:', fileUpload.files[0].name);
-                    }
-                    
-                    // Add file path if provided
-                    const filePath = document.getElementById('filePath').value.trim();
-                    if (filePath) {
-                        formData.append('file_path', filePath);
-                        console.log('File path added to form data:', filePath);
-                    }
-                    
-                    // Add API key if provided
-                    const apiKeyValue = document.getElementById('apiKey').value.trim();
-                    if (apiKeyValue && isValidApiKey(apiKeyValue)) {
-                        formData.append('api_key', apiKeyValue);
-                        console.log('API key added to form data');
-                    }
-                    
-                    // Add other parameters
-                    formData.append('iterations', iterations.value);
-                    formData.append('threshold', threshold.value);
-                    formData.append('use_local_pdf_search', document.getElementById('useLocalPdfSearch').checked);
-                    
-                    console.log('Form data created, sending request...');
-                    
-                    // Send the request
-                    $.ajax({
-                        url: '/analyze',
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            console.log('Analysis started, server response:', response);
+                // Create form data for the request
+                const formData = new FormData(briefForm);
+                
+                // Submit the form via AJAX
+                $.ajax({
+                    url: '/analyze',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('Analysis started:', response);
+                        
+                        if (response.status === 'success') {
+                            // Add a log entry for successful analysis start
+                            const startLogEntry = document.createElement('div');
+                            startLogEntry.className = 'alert alert-primary mt-2 mb-2';
+                            startLogEntry.textContent = `${new Date().toLocaleTimeString()}: Analysis started with ID: ${response.analysis_id}`;
+                            document.getElementById('progressLogs').appendChild(startLogEntry);
                             
-                            if (response && response.status === 'success' && response.analysis_id) {
-                                console.log('Starting polling with ID:', response.analysis_id);
-                                // Start polling for results
-                                pollForResults(response.analysis_id, $('#results-container'), $('#citation-results'));
-                            } else {
-                                // Show error
-                                console.error('Invalid response:', response);
-                                $('#progress-container').removeClass('alert-info').addClass('alert-danger')
-                                    .html('<strong>Error:</strong> ' + (response.message || 'Unknown error'));
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error starting analysis:', error);
-                            console.error('Response status:', status);
-                            console.error('Response text:', xhr.responseText);
-                            $('#progress-container').removeClass('alert-info').addClass('alert-danger')
+                            // Setup event source for streaming updates using our new dedicated SSE endpoint
+                            console.log('Setting up EventSource with URL:', '/stream?id=' + response.analysis_id);
+                            activeEventSource = new EventSource('/stream?id=' + response.analysis_id);
+                            
+                            // Debug logging for connection events
+                            activeEventSource.onopen = function(e) {
+                                console.log('SSE Connection opened:', e);
+                                const connectionLogEntry = document.createElement('div');
+                                connectionLogEntry.className = 'alert alert-info mt-2 mb-2';
+                                connectionLogEntry.textContent = `${new Date().toLocaleTimeString()}: Connected to event stream`;
+                                document.getElementById('progressLogs').appendChild(connectionLogEntry);
+                            };
+                            
+                            activeEventSource.onerror = function(e) {
+                                console.error('SSE Connection error:', e);
+                                const errorLogEntry = document.createElement('div');
+                                errorLogEntry.className = 'alert alert-danger mt-2 mb-2';
+                                errorLogEntry.textContent = `${new Date().toLocaleTimeString()}: Connection error. Falling back to polling.`;
+                                document.getElementById('progressLogs').appendChild(errorLogEntry);
+                                
+                                // Close the connection
+                                activeEventSource.close();
+                                activeEventSource = null;
+                                
+                                // Fall back to polling
+                                pollForResults(response.analysis_id, resultsContainer, citationResults);
+                            };
+                            
+                            // Register event handlers for different event types
+                            activeEventSource.addEventListener('started', function(e) {
+                                console.log('Received started event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing started event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('progress', function(e) {
+                                console.log('Received progress event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing progress event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('result', function(e) {
+                                console.log('Received result event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing result event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('complete', function(e) {
+                                console.log('Received complete event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                    
+                                    // Close the connection after completion
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                } catch (error) {
+                                    console.error('Error parsing complete event:', error);
+                                }
+                            });
+                            
+                            // Default message handler
+                            activeEventSource.onmessage = function(e) {
+                                console.log('Received default message:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    const logEntry = document.createElement('div');
+                                    logEntry.className = 'alert alert-secondary mt-2 mb-2';
+                                    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${data.message || 'Unknown message'}`;
+                                    document.getElementById('progressLogs').appendChild(logEntry);
+                                } catch (error) {
+                                    console.error('Error parsing message:', error);
+                                }
+                            };
+                        } else {
+                            // Show error
+                            showError(response.message || 'Unknown error');
+                            loading.style.display = 'none';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error starting analysis:', error);
+                        showError('Error starting analysis: ' + error);
+                        loading.style.display = 'none';
+                    }
+                });
+                                activeEventSource.close();
+                                activeEventSource = null;
+                                
+                                // Fall back to polling
+                                pollForResults(response.analysis_id, resultsContainer, citationResults);
+                            };
+                            
+                            // Register event handlers for different event types
+                            activeEventSource.addEventListener('started', function(e) {
+                                console.log('Received started event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing started event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('progress', function(e) {
+                                console.log('Received progress event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing progress event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('result', function(e) {
+                                console.log('Received result event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing result event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('complete', function(e) {
+                                console.log('Received complete event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                    
+                                    // Close the connection after completion
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                } catch (error) {
+                                    console.error('Error parsing complete event:', error);
+                                }
+                            });
+                            
+                            // Default message handler
+                            activeEventSource.onmessage = function(e) {
+                                console.log('Received default message:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    const logEntry = document.createElement('div');
+                                    logEntry.className = 'alert alert-secondary mt-2 mb-2';
+                                    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${data.message || 'Unknown message'}`;
+                                    document.getElementById('progressLogs').appendChild(logEntry);
+                                } catch (error) {
+                                    console.error('Error parsing message:', error);
+                                }
+                            };
+                        } else {
+                            // Show error
+                            showError(response.message || 'Unknown error');
+                            loading.style.display = 'none';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error starting analysis:', error);
+                        showError('Error starting analysis: ' + error);
+                        loading.style.display = 'none';
+                    }
+                });            $('#progress-container').removeClass('alert-info').addClass('alert-danger')
                                 .html('<strong>Error:</strong> Failed to start analysis. Please try again.');
                         }
                     });
                 });
                 
-                // Function to poll for results
+                    // Function to poll for results
+                    function pollForResults(id, resultsContainer, citationResults, processedEventCount = 0) {
+                        console.log('Polling for results with ID:', id, 'Processed events:', processedEventCount);
                 function pollForResults(id, resultsContainer, citationResults, processedEventCount = 0) {
                     console.log('Polling for results with ID:', id, 'Processed events:', processedEventCount);
                     

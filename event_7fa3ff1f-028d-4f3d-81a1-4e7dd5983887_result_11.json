@@ -1,0 +1,11 @@
+{
+  "status": "result",
+  "citation_index": 3,
+  "total": 9,
+  "result": {
+    "citation_text": "2019 WL 2516279",
+    "is_hallucinated": true,
+    "confidence": 0.7,
+    "explanation": "Citation not verified by CourtListener API"
+  }
+}

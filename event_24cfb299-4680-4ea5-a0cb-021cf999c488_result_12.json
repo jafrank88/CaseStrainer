@@ -1,0 +1,11 @@
+{
+  "status": "result",
+  "citation_index": 4,
+  "total": 9,
+  "result": {
+    "citation_text": "2017 WL 3461055",
+    "is_hallucinated": true,
+    "confidence": 0.7,
+    "explanation": "Citation not verified by CourtListener API"
+  }
+}
