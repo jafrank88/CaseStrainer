@@ -144,9 +144,20 @@
                     <div class="card mb-4">
                         <div class="card-header">Summary</div>
                         <div class="card-body">
-                            <p>Total Citations: <span id="totalCitations">0</span></p>
-                            <p>Verified Citations: <span id="verifiedCitations">0</span></p>
+                            <h5>Individual Citations</h5>
+                            <p>Total Individual Citations: <span id="totalIndividualCitations">0</span></p>
+                            <p>Verified Individual Citations: <span id="verifiedIndividualCitations">0</span></p>
+                            
+                            <h5 class="mt-3">Unique Cases</h5>
+                            <p>Total Unique Cases: <span id="totalUniqueCases">0</span></p>
+                            <p>Verified Unique Cases: <span id="verifiedUniqueCases">0</span></p>
+                            
+                            <h5 class="mt-3">Hallucinations</h5>
                             <p>Potentially Hallucinated: <span id="hallucinatedCitations">0</span></p>
+                            
+                            <div class="alert alert-info mt-3" style="font-size: 0.9rem;">
+                                <strong>Note:</strong> Multiple citations may refer to the same case and are grouped together.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -399,9 +410,24 @@
                                     citationResults.appendChild(accordionItem);
                                 });
                                 
-                                // Update summary
-                                totalCitations.textContent = response.citation_results.length;
-                                verifiedCitations.textContent = verified;
+                                // Update summary with both individual citations and unique cases
+                                if (response.results) {
+                                    // Individual citations
+                                    document.getElementById('totalIndividualCitations').textContent = response.results.total_individual_citations || 0;
+                                    document.getElementById('verifiedIndividualCitations').textContent = response.results.verified_citations || 0;
+                                    
+                                    // Unique cases
+                                    document.getElementById('totalUniqueCases').textContent = response.results.total_unique_cases || response.citation_results.length;
+                                    document.getElementById('verifiedUniqueCases').textContent = response.results.verified_unique_cases || verified;
+                                } else {
+                                    // Fallback if results object is not available
+                                    document.getElementById('totalIndividualCitations').textContent = '?';
+                                    document.getElementById('verifiedIndividualCitations').textContent = '?';
+                                    document.getElementById('totalUniqueCases').textContent = response.citation_results.length;
+                                    document.getElementById('verifiedUniqueCases').textContent = verified;
+                                }
+                                
+                                // Update hallucinated count
                                 hallucinatedCitations.textContent = hallucinated;
                             }
                             

@@ -1,65 +1,70 @@
 [
   {
-    "citation": "534 F.3d 1290",
+    "citation": "466 U.S. 668",
     "normalized_citations": [
-      "534 F.3d 1290"
+      "466 U.S. 668"
     ],
     "start_index": 0,
-    "end_index": 13,
+    "end_index": 12,
     "status": 200,
     "error_message": "",
     "clusters": [
       {
-        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/171021/",
-        "id": 171021,
-        "absolute_url": "/opinion/171021/united-states-v-caraway/",
-        "panel": [
-          "https://www.courtlistener.com/api/rest/v3/people/1383/",
-          "https://www.courtlistener.com/api/rest/v3/people/1500/",
-          "https://www.courtlistener.com/api/rest/v3/people/2199/"
-        ],
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/111170/",
+        "id": 111170,
+        "absolute_url": "/opinion/111170/strickland-v-washington/",
+        "panel": [],
         "non_participating_judges": [],
-        "docket_id": 1539647,
-        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1539647/",
+        "docket_id": 1413656,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1413656/",
         "sub_opinions": [
-          "https://www.courtlistener.com/api/rest/v3/opinions/171021/"
+          "https://www.courtlistener.com/api/rest/v3/opinions/111170/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429593/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429592/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429594/"
         ],
         "citations": [
           {
-            "volume": 534,
-            "reporter": "F.3d",
-            "page": "1290",
+            "volume": 80,
+            "reporter": "L. Ed. 2d",
+            "page": "674",
             "type": 1
           },
           {
-            "volume": 2008,
-            "reporter": "U.S. App. LEXIS",
-            "page": "15967",
-            "type": 6
+            "volume": 104,
+            "reporter": "S. Ct.",
+            "page": "2052",
+            "type": 1
           },
           {
-            "volume": 2008,
-            "reporter": "WL",
-            "page": "2877475",
-            "type": 7
+            "volume": 466,
+            "reporter": "U.S.",
+            "page": "668",
+            "type": 1
+          },
+          {
+            "volume": 1984,
+            "reporter": "U.S. LEXIS",
+            "page": "79",
+            "type": 6
           }
         ],
-        "date_created": "2015-10-14T00:38:24.039463-07:00",
-        "date_modified": "2024-11-04T19:40:10.230574-08:00",
-        "judges": "Hartz, McWilliams, Holmes",
-        "date_filed": "2008-07-28",
+        "date_created": "2016-01-29T14:56:34.221250-08:00",
+        "date_modified": "2024-11-15T04:06:15.119955-08:00",
+        "judges": "O'Connor, Burger, White, Blackmun, Powell, Rehnquist, Stevens, Brennan, Marshall",
+        "date_filed": "1984-06-25",
         "date_filed_is_approximate": false,
-        "slug": "united-states-v-caraway",
-        "case_name_short": "Caraway",
-        "case_name": "United States v. Caraway",
-        "case_name_full": "UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant",
-        "scdb_id": "",
-        "scdb_decision_direction": null,
-        "scdb_votes_majority": null,
-        "scdb_votes_minority": null,
-        "source": "LCU",
+        "slug": "strickland-v-washington",
+        "case_name_short": "Strickland",
+        "case_name": "Strickland v. Washington",
+        "case_name_full": "STRICKLAND, SUPERINTENDENT, FLORIDA STATE PRISON, Et Al. v. WASHINGTON",
+        "scdb_id": "1983-091",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 8,
+        "scdb_votes_minority": 1,
+        "source": "RU",
         "procedural_history": "",
-        "attorneys": "Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant., James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.",
+        "attorneys": "Carolyn M. Snurkowski, Assistant Attorney General of Florida, argued the cause for petitioners. On the briefs were Jim Smith, Attorney General, and Calvin L. Fox, Assistant Attorney General., Richard E. Shapiro argued the cause for respondent. With him on the brief was Joseph H. Rodriguez *",
         "nature_of_suit": "",
         "posture": "",
         "syllabus": "",
@@ -67,106 +72,260 @@
         "summary": "",
         "disposition": "",
         "history": "",
-        "other_dates": "",
+        "other_dates": "Argued January 10, 1984",
         "cross_reference": "",
         "correction": "",
-        "citation_count": 49,
+        "citation_count": 112893,
         "precedential_status": "Published",
         "date_blocked": null,
         "blocked": false,
-        "filepath_json_harvard": "law.free.cap.f3d.534/1290.4064784.json",
-        "filepath_pdf_harvard": "harvard_pdf/171021.pdf",
+        "filepath_json_harvard": "law.free.cap.us.466/668.6204802.json",
+        "filepath_pdf_harvard": "harvard_pdf/111170.pdf",
         "arguments": "",
-        "headmatter": "<parties id=\"b1308-9\">\n    UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant.\n   </parties><br><docketnumber id=\"b1308-12\">\n    No. 07-3229.\n   </docketnumber><br><court id=\"b1308-13\">\n    United States Court of Appeals, Tenth Circuit.\n   </court><br><decisiondate id=\"b1308-15\">\n    July 28, 2008.\n   </decisiondate><br><attorneys id=\"b1310-3\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"1292\"> \n     *1292\n     </span>\n    Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant.\n   </attorneys><br><attorneys id=\"b1310-4\">\n    James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.\n   </attorneys><br><judges id=\"b1310-5\">\n    Before HARTZ, Circuit Judge, McWILLIAMS, Senior Circuit Judge, and HOLMES, Circuit Judge.\n   </judges>"
+        "headmatter": "<parties id=\"b728-4\">\n    STRICKLAND, SUPERINTENDENT, FLORIDA STATE PRISON, et al.\n    <em>\n     v.\n    </em>\n    WASHINGTON\n   </parties><br><docketnumber id=\"b728-6\">\n    No. 82-1554.\n   </docketnumber><otherdate id=\"ANqB\">\n    Argued January 10, 1984\n   </otherdate><decisiondate id=\"ARhn\">\n    Decided May 14, 1984\n   </decisiondate><br><judges id=\"b730-7\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"670\"> \n     *670\n     </span>\n    O'Connor, J., delivered the opinion of the Court, in which Burger, C. J., and White, Blackmun, Powell, Rehnquist, and Stevens, JJ., joined. Brennan, J., filed an opinion concurring in part and dissenting in part,\n    <em>\n     post,\n    </em>\n    p. 701. Marshall, J., filed a dissenting opinion,\n    <em>\n     post,\n    </em>\n    p. 706.\n   </judges><br><attorneys id=\"b730-8\">\n<em>\n     Carolyn M. Snurkowski,\n    </em>\n    Assistant Attorney General of Florida, argued the cause for petitioners. On the briefs were\n    <em>\n     Jim\n    </em>\n    Smith, Attorney General, and\n    <em>\n     Calvin L. Fox,\n    </em>\n    Assistant Attorney General.\n   </attorneys><br><attorneys id=\"b730-9\">\n<em>\n     Richard E. Shapiro\n    </em>\n    argued the cause for respondent. With him on the brief was\n    <em>\n     Joseph H. Rodriguez\n    </em>\n<a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n<em>\n      *\n     </em>\n</a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b730-10\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging reversal were filed for the United States by\n     <em>\n      Solicitor General Lee, Assistant Attorney General Trott, Deputy Solicitor General Frey,\n     </em>\n     and\n     <em>\n      Edwin S. Kneedler;\n     </em>\n     for the State of Alabama et al. by\n     <em>\n      Mike Greely,\n     </em>\n     Attorney General of Montana, and\n     <em>\n      John H. Maynard,\n     </em>\n     Assistant Attorney General,\n     <em>\n      Charles A. Graddick,\n     </em>\n     Attorney General of Alabama,\n     <em>\n      Robert K. Corbin,\n     </em>\n     Attorney General of Arizona,\n     <em>\n      John Steven Clark,\n     </em>\n     Attorney General of Arkansas,\n     <em>\n      John Van de Karnp,\n     </em>\n     Attorney General of California,\n     <em>\n      Duane Woodard,\n     </em>\n     Attorney General of Colorado,\n     <em>\n      Austin\n     </em>\n<span citation-index=\"1\" class=\"star-pagination\" label=\"671\"> \n      *671\n      </span>\n<em>\n      J, McGuigan,\n     </em>\n     Chief State\u2019s Attorney of Connecticut,\n     <em>\n      Michael J. Bowers,\n     </em>\n     Attorney General of Georgia,\n     <em>\n      Tany S. Hong,\n     </em>\n     Attorney General of Hawaii,\n     <em>\n      Jim Jones,\n     </em>\n     Attorney General of Idaho,\n     <em>\n      Linley E. Pearson,\n     </em>\n     Attorney General of Indiana,\n     <em>\n      Robert T. Stephan,\n     </em>\n     Attorney General of Kansas,\n     <em>\n      Steven L. Beshear,\n     </em>\n     Attorney General of Kentucky,\n     <em>\n      William J. Guste, Jr.,\n     </em>\n     Attorney General of Louisiana,\n     <em>\n      James E. Tierney,\n     </em>\n     Attorney General of Maine,\n     <em>\n      Stephen H. Sachs,\n     </em>\n     Attorney General of Maryland,\n     <em>\n      Francis X. Bellotti,\n     </em>\n     Attorney General of Massachusetts,\n     <em>\n      Frank J. Kelley,\n     </em>\n     Attorney General of Michigan,\n     <em>\n      Hubert H. Humphrey III,\n     </em>\n     Attorney General of Minnesota,\n     <em>\n      William A. Attain,\n     </em>\n     Attorney General of Mississippi,\n     <em>\n      John D. Ashcroft,\n     </em>\n     Attorney General of Missouri,\n     <em>\n      Paul L. Douglas,\n     </em>\n     Attorney General of Nebraska,\n     <em>\n      Brian McKay,\n     </em>\n     Attorney General of Nevada,\n     <em>\n      Irwin I. Kimmel-man,\n     </em>\n     Attorney General of New Jersey,\n     <em>\n      Paul Bardacke,\n     </em>\n     Attorney General of New Mexico,\n     <em>\n      Rufus L. Edmisten,\n     </em>\n     Attorney General of North Carolina,\n     <em>\n      Robert Wefald,\n     </em>\n     Attorney General of North Dakota,\n     <em>\n      Anthony Celebrezze, Jr.,\n     </em>\n     Attorney General of Ohio,\n     <em>\n      Michael Turp\u00e9n,\n     </em>\n     Attorney General of Oklahoma,\n     <em>\n      Dave Frohnmayer,\n     </em>\n     Attorney General of Oregon,\n     <em>\n      LeRoy S. Zimmerman,\n     </em>\n     Attorney General of Pennsylvania,\n     <em>\n      Dennis J. Roberts II,\n     </em>\n     Attorney General of Rhode Island,\n     <em>\n      T. Travis Medlock,\n     </em>\n     Attorney General of South Carolina,\n     <em>\n      Mark V. Meierhenry,\n     </em>\n     Attorney General of South Dakota,\n     <em>\n      William M. Leech, Jr.,\n     </em>\n     Attorney General of Tennessee,\n     <em>\n      David L. Wilkinson,\n     </em>\n     Attorney General of Utah,\n     <em>\n      John J. Easton,\n     </em>\n     Attorney General of Vermont,\n     <em>\n      Gerald L. Battles,\n     </em>\n     Attorney General of Virginia,\n     <em>\n      Kenneth 0. Eikenberry,\n     </em>\n     Attorney General of Washington,\n     <em>\n      Chauncey H. Browning,\n     </em>\n     Attorney General of West Virginia, and\n     <em>\n      Archie G. McClintock,\n     </em>\n     Attorney General of Wyoming; and for the Washington Legal Foundation by\n     <em>\n      Daniel J. Popeo, Paul D. Kamenar,\n     </em>\n     and\n     <em>\n      Nicholas E. Cali\u00f3.\n     </em>\n</p>\n<p id=\"A9qk\">\n<em>\n      Richard J. Wilson, Charles S. Sims,\n     </em>\n     and\n     <em>\n      Burt Neubome\n     </em>\n     filed a brief for the National Legal Aid and Defender Association et al. as\n     <em>\n      amici curiae\n     </em>\n     urging affirmance.\n    </p>\n</div></div>"
       }
     ]
   },
   {
-    "citation": "2006 WL 3801910",
+    "citation": "104 S. Ct. 2052",
     "normalized_citations": [
-      "2006 WL 3801910"
+      "104 S. Ct. 2052"
     ],
-    "start_index": 14,
-    "end_index": 29,
-    "status": 404,
-    "error_message": "Citation not found: '2006 WL 3801910'",
-    "clusters": []
+    "start_index": 13,
+    "end_index": 28,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/111170/",
+        "id": 111170,
+        "absolute_url": "/opinion/111170/strickland-v-washington/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1413656,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1413656/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/111170/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429593/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429592/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9429594/"
+        ],
+        "citations": [
+          {
+            "volume": 80,
+            "reporter": "L. Ed. 2d",
+            "page": "674",
+            "type": 1
+          },
+          {
+            "volume": 104,
+            "reporter": "S. Ct.",
+            "page": "2052",
+            "type": 1
+          },
+          {
+            "volume": 466,
+            "reporter": "U.S.",
+            "page": "668",
+            "type": 1
+          },
+          {
+            "volume": 1984,
+            "reporter": "U.S. LEXIS",
+            "page": "79",
+            "type": 6
+          }
+        ],
+        "date_created": "2016-01-29T14:56:34.221250-08:00",
+        "date_modified": "2024-11-15T04:06:15.119955-08:00",
+        "judges": "O'Connor, Burger, White, Blackmun, Powell, Rehnquist, Stevens, Brennan, Marshall",
+        "date_filed": "1984-06-25",
+        "date_filed_is_approximate": false,
+        "slug": "strickland-v-washington",
+        "case_name_short": "Strickland",
+        "case_name": "Strickland v. Washington",
+        "case_name_full": "STRICKLAND, SUPERINTENDENT, FLORIDA STATE PRISON, Et Al. v. WASHINGTON",
+        "scdb_id": "1983-091",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 8,
+        "scdb_votes_minority": 1,
+        "source": "RU",
+        "procedural_history": "",
+        "attorneys": "Carolyn M. Snurkowski, Assistant Attorney General of Florida, argued the cause for petitioners. On the briefs were Jim Smith, Attorney General, and Calvin L. Fox, Assistant Attorney General., Richard E. Shapiro argued the cause for respondent. With him on the brief was Joseph H. Rodriguez *",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued January 10, 1984",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 112893,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.466/668.6204802.json",
+        "filepath_pdf_harvard": "harvard_pdf/111170.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b728-4\">\n    STRICKLAND, SUPERINTENDENT, FLORIDA STATE PRISON, et al.\n    <em>\n     v.\n    </em>\n    WASHINGTON\n   </parties><br><docketnumber id=\"b728-6\">\n    No. 82-1554.\n   </docketnumber><otherdate id=\"ANqB\">\n    Argued January 10, 1984\n   </otherdate><decisiondate id=\"ARhn\">\n    Decided May 14, 1984\n   </decisiondate><br><judges id=\"b730-7\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"670\"> \n     *670\n     </span>\n    O'Connor, J., delivered the opinion of the Court, in which Burger, C. J., and White, Blackmun, Powell, Rehnquist, and Stevens, JJ., joined. Brennan, J., filed an opinion concurring in part and dissenting in part,\n    <em>\n     post,\n    </em>\n    p. 701. Marshall, J., filed a dissenting opinion,\n    <em>\n     post,\n    </em>\n    p. 706.\n   </judges><br><attorneys id=\"b730-8\">\n<em>\n     Carolyn M. Snurkowski,\n    </em>\n    Assistant Attorney General of Florida, argued the cause for petitioners. On the briefs were\n    <em>\n     Jim\n    </em>\n    Smith, Attorney General, and\n    <em>\n     Calvin L. Fox,\n    </em>\n    Assistant Attorney General.\n   </attorneys><br><attorneys id=\"b730-9\">\n<em>\n     Richard E. Shapiro\n    </em>\n    argued the cause for respondent. With him on the brief was\n    <em>\n     Joseph H. Rodriguez\n    </em>\n<a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n<em>\n      *\n     </em>\n</a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b730-10\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging reversal were filed for the United States by\n     <em>\n      Solicitor General Lee, Assistant Attorney General Trott, Deputy Solicitor General Frey,\n     </em>\n     and\n     <em>\n      Edwin S. Kneedler;\n     </em>\n     for the State of Alabama et al. by\n     <em>\n      Mike Greely,\n     </em>\n     Attorney General of Montana, and\n     <em>\n      John H. Maynard,\n     </em>\n     Assistant Attorney General,\n     <em>\n      Charles A. Graddick,\n     </em>\n     Attorney General of Alabama,\n     <em>\n      Robert K. Corbin,\n     </em>\n     Attorney General of Arizona,\n     <em>\n      John Steven Clark,\n     </em>\n     Attorney General of Arkansas,\n     <em>\n      John Van de Karnp,\n     </em>\n     Attorney General of California,\n     <em>\n      Duane Woodard,\n     </em>\n     Attorney General of Colorado,\n     <em>\n      Austin\n     </em>\n<span citation-index=\"1\" class=\"star-pagination\" label=\"671\"> \n      *671\n      </span>\n<em>\n      J, McGuigan,\n     </em>\n     Chief State\u2019s Attorney of Connecticut,\n     <em>\n      Michael J. Bowers,\n     </em>\n     Attorney General of Georgia,\n     <em>\n      Tany S. Hong,\n     </em>\n     Attorney General of Hawaii,\n     <em>\n      Jim Jones,\n     </em>\n     Attorney General of Idaho,\n     <em>\n      Linley E. Pearson,\n     </em>\n     Attorney General of Indiana,\n     <em>\n      Robert T. Stephan,\n     </em>\n     Attorney General of Kansas,\n     <em>\n      Steven L. Beshear,\n     </em>\n     Attorney General of Kentucky,\n     <em>\n      William J. Guste, Jr.,\n     </em>\n     Attorney General of Louisiana,\n     <em>\n      James E. Tierney,\n     </em>\n     Attorney General of Maine,\n     <em>\n      Stephen H. Sachs,\n     </em>\n     Attorney General of Maryland,\n     <em>\n      Francis X. Bellotti,\n     </em>\n     Attorney General of Massachusetts,\n     <em>\n      Frank J. Kelley,\n     </em>\n     Attorney General of Michigan,\n     <em>\n      Hubert H. Humphrey III,\n     </em>\n     Attorney General of Minnesota,\n     <em>\n      William A. Attain,\n     </em>\n     Attorney General of Mississippi,\n     <em>\n      John D. Ashcroft,\n     </em>\n     Attorney General of Missouri,\n     <em>\n      Paul L. Douglas,\n     </em>\n     Attorney General of Nebraska,\n     <em>\n      Brian McKay,\n     </em>\n     Attorney General of Nevada,\n     <em>\n      Irwin I. Kimmel-man,\n     </em>\n     Attorney General of New Jersey,\n     <em>\n      Paul Bardacke,\n     </em>\n     Attorney General of New Mexico,\n     <em>\n      Rufus L. Edmisten,\n     </em>\n     Attorney General of North Carolina,\n     <em>\n      Robert Wefald,\n     </em>\n     Attorney General of North Dakota,\n     <em>\n      Anthony Celebrezze, Jr.,\n     </em>\n     Attorney General of Ohio,\n     <em>\n      Michael Turp\u00e9n,\n     </em>\n     Attorney General of Oklahoma,\n     <em>\n      Dave Frohnmayer,\n     </em>\n     Attorney General of Oregon,\n     <em>\n      LeRoy S. Zimmerman,\n     </em>\n     Attorney General of Pennsylvania,\n     <em>\n      Dennis J. Roberts II,\n     </em>\n     Attorney General of Rhode Island,\n     <em>\n      T. Travis Medlock,\n     </em>\n     Attorney General of South Carolina,\n     <em>\n      Mark V. Meierhenry,\n     </em>\n     Attorney General of South Dakota,\n     <em>\n      William M. Leech, Jr.,\n     </em>\n     Attorney General of Tennessee,\n     <em>\n      David L. Wilkinson,\n     </em>\n     Attorney General of Utah,\n     <em>\n      John J. Easton,\n     </em>\n     Attorney General of Vermont,\n     <em>\n      Gerald L. Battles,\n     </em>\n     Attorney General of Virginia,\n     <em>\n      Kenneth 0. Eikenberry,\n     </em>\n     Attorney General of Washington,\n     <em>\n      Chauncey H. Browning,\n     </em>\n     Attorney General of West Virginia, and\n     <em>\n      Archie G. McClintock,\n     </em>\n     Attorney General of Wyoming; and for the Washington Legal Foundation by\n     <em>\n      Daniel J. Popeo, Paul D. Kamenar,\n     </em>\n     and\n     <em>\n      Nicholas E. Cali\u00f3.\n     </em>\n</p>\n<p id=\"A9qk\">\n<em>\n      Richard J. Wilson, Charles S. Sims,\n     </em>\n     and\n     <em>\n      Burt Neubome\n     </em>\n     filed a brief for the National Legal Aid and Defender Association et al. as\n     <em>\n      amici curiae\n     </em>\n     urging affirmance.\n    </p>\n</div></div>"
+      }
+    ]
   },
   {
-    "citation": "2018 WL 2446162",
+    "citation": "998 F.2d 1460",
     "normalized_citations": [
-      "2018 WL 2446162"
+      "998 F.2d 1460"
     ],
-    "start_index": 30,
-    "end_index": 45,
-    "status": 404,
-    "error_message": "Citation not found: '2018 WL 2446162'",
-    "clusters": []
+    "start_index": 29,
+    "end_index": 42,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/611594/",
+        "id": 611594,
+        "absolute_url": "/opinion/611594/united-states-v-anthony-lapierre/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 107346,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/107346/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/611594/"
+        ],
+        "citations": [
+          {
+            "volume": 998,
+            "reporter": "F.2d",
+            "page": "1460",
+            "type": 1
+          },
+          {
+            "volume": 1993,
+            "reporter": "WL",
+            "page": "248739",
+            "type": 7
+          }
+        ],
+        "date_created": "2016-01-22T10:14:31.233177-08:00",
+        "date_modified": "2024-11-04T12:51:39.585719-08:00",
+        "judges": "William, Norris, Hall, Fernandez",
+        "date_filed": "1993-08-19",
+        "date_filed_is_approximate": false,
+        "slug": "united-states-v-anthony-lapierre",
+        "case_name_short": "",
+        "case_name": "United States v. Anthony Lapierre",
+        "case_name_full": "UNITED STATES of America, Plaintiff-Appellee, v. Anthony LaPIERRE, Defendant-Appellant",
+        "scdb_id": "",
+        "scdb_decision_direction": null,
+        "scdb_votes_majority": null,
+        "scdb_votes_minority": null,
+        "source": "RU",
+        "procedural_history": "",
+        "attorneys": "Richard Ney, Federal Public Defender, Honolulu, HI, for defendant-appellant., Edward H. Kubo, Jr. and Marshall Silver-berg, Asst. U.S. Attys., Honolulu, HI, for plaintiff-appellee.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued and Submitted March 8, 1993., As Amended Aug. 19, 1993.",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 98,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.f2d.998/1460.10517944.json",
+        "filepath_pdf_harvard": "harvard_pdf/611594.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b1536-8\">\n    UNITED STATES of America, Plaintiff-Appellee, v. Anthony LaPIERRE, Defendant-Appellant.\n   </parties><br><docketnumber id=\"b1536-11\">\n    No. 92-10321.\n   </docketnumber><br><court id=\"b1536-12\">\n    United States Court of Appeals, Ninth Circuit.\n   </court><br><otherdate id=\"b1536-14\">\n    Argued and Submitted March 8, 1993.\n   </otherdate><br><decisiondate id=\"b1536-15\">\n    Decided July 12, 1993.\n   </decisiondate><br><otherdate id=\"b1536-16\">\n    As Amended Aug. 19, 1993.\n   </otherdate><br><attorneys id=\"b1538-21\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"1462\"> \n     *1462\n     </span>\n    Richard Ney, Federal Public Defender, Honolulu, HI, for defendant-appellant.\n   </attorneys><br><attorneys id=\"b1538-22\">\n    Edward H. Kubo, Jr. and Marshall Silver-berg, Asst. U.S. Attys., Honolulu, HI, for plaintiff-appellee.\n   </attorneys><br><judges id=\"b1538-24\">\n    Before NORRIS, HALL, and FERNANDEZ, Circuit Judges.\n   </judges>"
+      }
+    ]
   },
   {
-    "citation": "2019 WL 2516279",
+    "citation": "977 F.2d 1067",
     "normalized_citations": [
-      "2019 WL 2516279"
+      "977 F.2d 1067"
     ],
-    "start_index": 46,
-    "end_index": 61,
-    "status": 404,
-    "error_message": "Citation not found: '2019 WL 2516279'",
-    "clusters": []
+    "start_index": 43,
+    "end_index": 56,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/593219/",
+        "id": 593219,
+        "absolute_url": "/opinion/593219/united-states-v-guy-e-mcgaughey-jr/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 839786,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/839786/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/593219/"
+        ],
+        "citations": [
+          {
+            "volume": 977,
+            "reporter": "F.2d",
+            "page": "1067",
+            "type": 1
+          },
+          {
+            "volume": 1992,
+            "reporter": "WL",
+            "page": "278806",
+            "type": 7
+          }
+        ],
+        "date_created": "2014-12-22T03:56:09.064333-08:00",
+        "date_modified": "2024-11-04T12:24:10.127945-08:00",
+        "judges": "Cudahy, Manion, Gibson",
+        "date_filed": "1993-01-25",
+        "date_filed_is_approximate": false,
+        "slug": "united-states-v-guy-e-mcgaughey-jr",
+        "case_name_short": "",
+        "case_name": "United States v. Guy E. McGaughey Jr.",
+        "case_name_full": "UNITED STATES of America, Plaintiff-Appellee, v. Guy E. McGAUGHEY, Jr., Defendant-Appellant",
+        "scdb_id": "",
+        "scdb_decision_direction": null,
+        "scdb_votes_majority": null,
+        "scdb_votes_minority": null,
+        "source": "RU",
+        "procedural_history": "",
+        "attorneys": "Robert L. Simpkins, Asst. U.S. Atty., Crim. Div., Fairview Heights, Ill., Gary R. Allen, Murray S. Horwitz (argued), Jonathan S. Cohen, Peter Sklarew, Charles M. Greene, Dept, of Justice, Tax Div., Appellate Section, Washington, D.C., for plaintiff-appellee., Richard A. Green, Feirich, Schoen, Mag-er & Green, Carbondale, Ill., William J. Harte (argued), Chicago, Ill., for defendant-appellant.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued May 18, 1992., Rehearing and Rehearing En Banc Denied Jan. 25, 1993.",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 27,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.f2d.977/1067.10517691.json",
+        "filepath_pdf_harvard": "harvard_pdf/593219.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b1143-8\">\n    UNITED STATES of America, Plaintiff-Appellee, v. Guy E. McGAUGHEY, Jr., Defendant-Appellant.\n   </parties><br><docketnumber id=\"b1143-10\">\n    No. 91-2864.\n   </docketnumber><br><court id=\"b1143-11\">\n    United States Court of Appeals, Seventh Circuit.\n   </court><br><otherdate id=\"b1143-12\">\n    Argued May 18, 1992.\n   </otherdate><br><decisiondate id=\"b1143-13\">\n    Decided Oct. 13, 1992.\n   </decisiondate><br><otherdate id=\"b1143-14\">\n    Rehearing and Rehearing En Banc Denied Jan. 25, 1993.\n   </otherdate><br><attorneys id=\"b1145-9\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"1069\"> \n     *1069\n     </span>\n    Robert L. Simpkins, Asst. U.S. Atty., Crim. Div., Fairview Heights, Ill., Gary R. Allen, Murray S. Horwitz (argued), Jonathan S. Cohen, Peter Sklarew, Charles M. Greene, Dept, of Justice, Tax Div., Appellate Section, Washington, D.C., for plaintiff-appellee.\n   </attorneys><br><attorneys id=\"b1145-12\">\n    Richard A. Green, Feirich, Schoen, Mag-er &amp; Green, Carbondale, Ill., William J. Harte (argued), Chicago, Ill., for defendant-appellant.\n   </attorneys><br><judges id=\"b1145-13\">\n    Before CUDAHY and MANION, Circuit Judges, and GIBSON, Senior Circuit Judge.\n    <a class=\"footnote\" href=\"#fn1\" id=\"fn1_ref\">\n     1\n    </a>\n</judges><div class=\"footnotes\"><div class=\"footnote\" id=\"fn1\" label=\"1\">\n<a class=\"footnote\" href=\"#fn1_ref\">\n     1\n    </a>\n<p id=\"b1145-10\">\n     . The Honorable Floyd R. Gibson, Senior Circuit Judge for the United States Court of Appeals for the Eighth Circuit, is sitting by designation.\n    </p>\n</div></div>"
+      }
+    ]
   },
   {
-    "citation": "2017 WL 3461055",
+    "citation": "2018 WL 4697269",
     "normalized_citations": [
-      "2017 WL 3461055"
+      "2018 WL 4697269"
     ],
-    "start_index": 62,
-    "end_index": 77,
+    "start_index": 57,
+    "end_index": 72,
     "status": 404,
-    "error_message": "Citation not found: '2017 WL 3461055'",
-    "clusters": []
-  },
-  {
-    "citation": "2010 WL 4683851",
-    "normalized_citations": [
-      "2010 WL 4683851"
-    ],
-    "start_index": 78,
-    "end_index": 93,
-    "status": 404,
-    "error_message": "Citation not found: '2010 WL 4683851'",
-    "clusters": []
-  },
-  {
-    "citation": "2011 WL 2160468",
-    "normalized_citations": [
-      "2011 WL 2160468"
-    ],
-    "start_index": 94,
-    "end_index": 109,
-    "status": 404,
-    "error_message": "Citation not found: '2011 WL 2160468'",
-    "clusters": []
-  },
-  {
-    "citation": "2016 WL 165971",
-    "normalized_citations": [
-      "2016 WL 165971"
-    ],
-    "start_index": 110,
-    "end_index": 124,
-    "status": 404,
-    "error_message": "Citation not found: '2016 WL 165971'",
-    "clusters": []
-  },
-  {
-    "citation": "2018 WL 3037217",
-    "normalized_citations": [
-      "2018 WL 3037217"
-    ],
-    "start_index": 125,
-    "end_index": 140,
-    "status": 404,
-    "error_message": "Citation not found: '2018 WL 3037217'",
+    "error_message": "Citation not found: '2018 WL 4697269'",
     "clusters": []
   }
 ]

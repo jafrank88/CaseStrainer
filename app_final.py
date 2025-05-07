@@ -1037,13 +1037,18 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
             
             # Complete the analysis
             analysis_results[analysis_id]['status'] = 'complete'
-            analysis_results[analysis_id]['message'] = f"Analysis complete. Found {len(citations)} citations, {hallucinated_count} potentially hallucinated."
+            unique_cases_count = len(grouped_citation_results)
+            verified_unique_cases = len([c for c in grouped_citation_results if not c['is_hallucinated']])
+            
+            # Create a more informative message that explains the difference between citations and cases
+            analysis_results[analysis_id]['message'] = f"Analysis complete. Found {len(citations)} total citations grouped into {unique_cases_count} unique cases, {hallucinated_count} potentially hallucinated."
             analysis_results[analysis_id]['completed'] = True
             analysis_results[analysis_id]['results'] = {
-                'total_citations': len(citations),
+                'total_individual_citations': len(citations),
+                'total_unique_cases': unique_cases_count,
                 'hallucinated_citations': hallucinated_count,
                 'verified_citations': len(citations) - hallucinated_count,
-                'unique_cases': len([c for c in grouped_citation_results if not c['is_hallucinated']])
+                'verified_unique_cases': verified_unique_cases
             }
         else:
             # No API key provided, mark all citations as unverified
