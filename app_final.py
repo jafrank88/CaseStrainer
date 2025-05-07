@@ -610,11 +610,21 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             break
                     
                     if found:
-                        confidence = 0.9  # High confidence for exact match
-                        if court_listener_url:
-                            explanation = f"Citation confirmed: {case_name or 'Unknown case'} - {court_listener_url}"
+                        # Only consider it truly found if we have a URL AND a proper case name
+                        if court_listener_url and case_name and case_name != 'Unknown case':
+                            confidence = 0.9  # High confidence for exact match
+                            explanation = f"Citation confirmed: {case_name} - {court_listener_url}"
                         else:
-                            explanation = f"Citation found in CourtListener database: {case_name or 'Unknown case'}"
+                            # If we don't have both a URL and a proper case name, treat as potential hallucination
+                            found = False
+                            hallucinated_count += 1
+                            confidence = 0.7
+                            if court_listener_url:
+                                explanation = f"Citation format recognized but case name unknown - potential hallucination"
+                            elif case_name and case_name != 'Unknown case':
+                                explanation = f"Citation format recognized but no URL found - potential hallucination"
+                            else:
+                                explanation = f"Citation format recognized but case details unknown - potential hallucination"
                     
                     # If not found, check with LangSearch API
                     if not found:
@@ -684,6 +694,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         for api_item in api_response:
                             # Look for the citation in normalized_citations if available
                             if isinstance(api_item, dict) and 'normalized_citations' in api_item:
+                                # First check exact match in normalized_citations
                                 for norm_citation in api_item['normalized_citations']:
                                     if citation.lower() == norm_citation.lower():
                                         found = True
@@ -695,6 +706,40 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                                                 court_listener_url = f"https://www.courtlistener.com{court_listener_url}"
                                             case_name = cluster.get('case_name', 'Unknown case')
                                         break
+                                
+                                # If not found, check if this is an alternative citation format
+                                if not found and 'clusters' in api_item and api_item['clusters']:
+                                    cluster = api_item['clusters'][0]
+                                    if 'citations' in cluster:
+                                        # Check all alternative citations for this case
+                                        for alt_citation in cluster['citations']:
+                                            # Construct the citation string in various formats
+                                            volume = str(alt_citation.get('volume', ''))
+                                            reporter = alt_citation.get('reporter', '')
+                                            page = alt_citation.get('page', '')
+                                            
+                                            # Format 1: "550 U.S. 544"
+                                            alt_format1 = f"{volume} {reporter} {page}"
+                                            # Format 2: "550 U. S. 544"
+                                            alt_format2 = alt_format1.replace('.', '. ')
+                                            # Format 3: "550U.S.544"
+                                            alt_format3 = f"{volume}{reporter}{page}"
+                                            
+                                            # Compare with our citation
+                                            citation_clean = citation.replace(' ', '').replace('.', '')
+                                            alt_format1_clean = alt_format1.replace(' ', '').replace('.', '')
+                                            alt_format2_clean = alt_format2.replace(' ', '').replace('.', '')
+                                            alt_format3_clean = alt_format3.replace(' ', '').replace('.', '')
+                                            
+                                            if (citation_clean == alt_format1_clean or 
+                                                citation_clean == alt_format2_clean or 
+                                                citation_clean == alt_format3_clean):
+                                                found = True
+                                                court_listener_url = cluster.get('absolute_url', None)
+                                                if court_listener_url and not court_listener_url.startswith('http'):
+                                                    court_listener_url = f"https://www.courtlistener.com{court_listener_url}"
+                                                case_name = cluster.get('case_name', 'Unknown case')
+                                                break
                             if found:
                                 break
                                 
@@ -756,8 +801,56 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             'explanation': "Citation not verified by CourtListener API"
                         })
             
-            # Update with citation results
-            analysis_results[analysis_id]['citation_results'] = citation_results
+            # Group parallel citations to the same case
+            grouped_citations = {}
+            
+            for result in citation_results:
+                # Use the court_listener_url as the key for grouping
+                case_key = result.get('court_listener_url', None)
+                case_name = result.get('case_name', None)
+                
+                # Only group citations that have BOTH a valid URL AND a proper case name and are not hallucinated
+                if (case_key and case_key.startswith('http') and 
+                    case_name and case_name != 'Unknown case' and 
+                    not result['is_hallucinated']):
+                    # This is a verified citation with both URL and case name - check if we already have this case
+                    if case_key in grouped_citations:
+                        # Add this citation as a parallel citation
+                        grouped_citations[case_key]['parallel_citations'].append(result['citation_text'])
+                    else:
+                        # Create a new group for this case
+                        grouped_citations[case_key] = {
+                            'case_name': case_name,
+                            'court_listener_url': case_key,
+                            'primary_citation': result['citation_text'],
+                            'parallel_citations': [],
+                            'is_hallucinated': False,
+                            'confidence': result['confidence'],
+                            'explanation': result['explanation']
+                        }
+                        # Add any summaries if available
+                        if 'summaries' in result:
+                            grouped_citations[case_key]['summaries'] = result['summaries']
+                else:
+                    # This is either a hallucinated citation or one without a URL
+                    # Use the citation text as the key
+                    citation_key = f"citation_{result['citation_text']}"
+                    grouped_citations[citation_key] = {
+                        'primary_citation': result['citation_text'],
+                        'parallel_citations': [],
+                        'is_hallucinated': result['is_hallucinated'],
+                        'confidence': result['confidence'],
+                        'explanation': result['explanation']
+                    }
+                    # Add any summaries if available
+                    if 'summaries' in result:
+                        grouped_citations[citation_key]['summaries'] = result['summaries']
+            
+            # Convert the grouped citations back to a list
+            grouped_citation_results = list(grouped_citations.values())
+            
+            # Update with grouped citation results
+            analysis_results[analysis_id]['citation_results'] = grouped_citation_results
             
             # Complete the analysis
             analysis_results[analysis_id]['status'] = 'complete'
@@ -766,7 +859,8 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
             analysis_results[analysis_id]['results'] = {
                 'total_citations': len(citations),
                 'hallucinated_citations': hallucinated_count,
-                'verified_citations': len(citations) - hallucinated_count
+                'verified_citations': len(citations) - hallucinated_count,
+                'unique_cases': len([c for c in grouped_citation_results if not c['is_hallucinated']])
             }
         else:
             # No API key provided, mark all citations as unverified

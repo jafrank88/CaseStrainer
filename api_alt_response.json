@@ -1,0 +1,112 @@
+[
+  {
+    "citation": "127 S.Ct. 1955",
+    "normalized_citations": [
+      "127 S. Ct. 1955"
+    ],
+    "start_index": 0,
+    "end_index": 14,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/145730/",
+        "id": 145730,
+        "absolute_url": "/opinion/145730/bell-atlantic-corp-v-twombly/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 441245,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/441245/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/145730/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9435068/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9435069/"
+        ],
+        "citations": [
+          {
+            "volume": 167,
+            "reporter": "L. Ed. 2d",
+            "page": "929",
+            "type": 1
+          },
+          {
+            "volume": 127,
+            "reporter": "S. Ct.",
+            "page": "1955",
+            "type": 1
+          },
+          {
+            "volume": 550,
+            "reporter": "U.S.",
+            "page": "544",
+            "type": 1
+          },
+          {
+            "volume": 2007,
+            "reporter": "U.S. LEXIS",
+            "page": "5901",
+            "type": 6
+          },
+          {
+            "volume": 41,
+            "reporter": "Communications Reg. (P&F)",
+            "page": "567",
+            "type": 4
+          },
+          {
+            "volume": 20,
+            "reporter": "Fla. L. Weekly Fed. S",
+            "page": "267",
+            "type": 1
+          },
+          {
+            "volume": 68,
+            "reporter": "Fed. R. Serv. 3d",
+            "page": "661",
+            "type": 4
+          },
+          {
+            "volume": 75,
+            "reporter": "U.S.L.W.",
+            "page": "4337",
+            "type": 4
+          }
+        ],
+        "date_created": "2016-01-29T17:12:50.306218-08:00",
+        "date_modified": "2024-11-15T12:25:16.470922-08:00",
+        "judges": "Souter, Roberts, Scalia, Kennedy, Thomas, Breyer, Auto, Stevens, Ginsburg",
+        "date_filed": "2007-05-21",
+        "date_filed_is_approximate": false,
+        "slug": "bell-atlantic-corp-v-twombly",
+        "case_name_short": "Twombly",
+        "case_name": "Bell Atlantic Corp. v. Twombly",
+        "case_name_full": "BELL ATLANTIC CORP. Et Al. v. TWOMBLY Et Al.",
+        "scdb_id": "2006-045",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 7,
+        "scdb_votes_minority": 2,
+        "source": "LCU",
+        "procedural_history": "",
+        "attorneys": "Michael K. Kellogg argued the cause for petitioners. With him on the briefs were Mark C. Hansen, Aaron M. Panner, Richard G. Taranto, Stephen M. Shapiro, Kenneth S. Getter, Richard J. Favretto, Timothy Beyer, J. Henry Walker, Marc W. F Galonsky, John Thorne, Paul J. Larkin, Jr., David E. Wheeler, Dan K. Webb, Cynthia P. Delaney, Javier Aguilar, and William M. Schur., Assistant Attorney General Barnett argued the cause for the United States as amicus curiae urging reversal. With him on the brief were Solicitor General Clement, Deputy Solicitor General Hungar, Deanne E. Maynard, Catherine G. O\u2019Sullivan, James J. O\u2019Connell, Jr., and Hill B. Wellford., J. Douglas Richards argued the cause for respondents. With him on the brief was Michael M. Buchman.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued November 27, 2006",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 26357,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.550/544.3556136.json",
+        "filepath_pdf_harvard": "harvard_pdf/145730.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b594-4\">\n    BELL ATLANTIC CORP. et al.\n    <em>\n     v.\n    </em>\n    TWOMBLY et al.\n   </parties><br><docketnumber id=\"b594-6\">\n    No. 05-1126.\n   </docketnumber><otherdate id=\"AteP\">\n    Argued November 27, 2006\n   </otherdate><decisiondate id=\"AvN\">\n    Decided May 21, 2007\n   </decisiondate><br><judges id=\"b597-6\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"547\"> \n     *547\n     </span>\n    Souter, J., delivered the opinion of the Court, in which Roberts, C. J., and Scalia, Kennedy, Thomas, Breyer, and Auto, JJ., joined. Stevens, J., filed a dissenting opinion, in which Ginsburg, J., joined, except as to Part IV,\n    <em>\n     post,\n    </em>\n    p. 570.\n   </judges><br><attorneys id=\"b597-7\">\n<em>\n     Michael K. Kellogg\n    </em>\n    argued the cause for petitioners. With him on the briefs were\n    <em>\n     Mark C. Hansen, Aaron M. Panner, Richard G. Taranto, Stephen M. Shapiro, Kenneth S. Getter, Richard J. Favretto, Timothy Beyer, J. Henry Walker, Marc W. F Galonsky, John Thorne, Paul J. Larkin, Jr., David E. Wheeler, Dan K. Webb, Cynthia P. Delaney, Javier Aguilar,\n    </em>\n    and\n    <em>\n     William M. Schur.\n    </em>\n</attorneys><br><attorneys id=\"b597-8\">\n<em>\n     Assistant Attorney General Barnett\n    </em>\n    argued the cause for the United States as\n    <em>\n     amicus curiae\n    </em>\n    urging reversal. With\n    <span citation-index=\"1\" class=\"star-pagination\" label=\"548\"> \n     *548\n     </span>\n    him on the brief were\n    <em>\n     Solicitor General Clement, Deputy Solicitor General Hungar, Deanne E. Maynard, Catherine G. O\u2019Sullivan, James J. O\u2019Connell, Jr.,\n    </em>\n    and\n    <em>\n     Hill B. Wellford.\n    </em>\n</attorneys><br><attorneys id=\"b598-5\">\n<em>\n     J. Douglas Richards\n    </em>\n    argued the cause for respondents. With him on the brief was\n    <em>\n     Michael M. Buchman.\n    </em>\n<a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n<em>\n      *\n     </em>\n</a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b598-8\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging reversal were filed for the Commonwealth of Virginia by\n     <em>\n      Robert F. McDonnell,\n     </em>\n     Attorney General of Virginia,\n     <em>\n      William E. Thro,\n     </em>\n     State Solicitor General,\n     <em>\n      Stephen R. McCullough,\n     </em>\n     Deputy State Solicitor General,\n     <em>\n      William C. Mims,\n     </em>\n     Chief Deputy Attorney General, and\n     <em>\n      Sarah Oxenham Allen,\n     </em>\n     Assistant Attorney General, by\n     <em>\n      Orville B. Fitch II,\n     </em>\n     Deputy Attorney General of New Hampshire, and by the Attorneys General for their respective States as follows:\n     <em>\n      Troy King\n     </em>\n     of Alabama,\n     <em>\n      John Suthers of\n     </em>\n     Colorado,\n     <em>\n      Lawrence G. Wasden\n     </em>\n     of Idaho,\n     <em>\n      Steve Carter of\n     </em>\n     Indiana,\n     <em>\n      Phill Kline\n     </em>\n     of Kansas,\n     <em>\n      Michael A. Cox\n     </em>\n     of Michigan,\n     <em>\n      Jon Pruning of\n     </em>\n     Nebraska,\n     <em>\n      Wayne Stenehjem of\n     </em>\n     North Dakota,\n     <em>\n      W.\n     </em>\n     A\n     <em>\n      Drew Edmondson\n     </em>\n     of Oklahoma,\n     <em>\n      Thomas W. Corbett, Jr.,\n     </em>\n     of Pennsylvania,\n     <em>\n      Patrick C. Lynch of\n     </em>\n     Rhode Island,\n     <em>\n      Larry Long of\n     </em>\n     South Dakota,\n     <em>\n      Paul G. Summers\n     </em>\n     of Tennessee, and\n     <em>\n      Mark L. Shurtleff\n     </em>\n     of Utah; for the American Petroleum Institute by\n     <em>\n      Robert\n     </em>\n     A\n     <em>\n      Long, Theodore P. Metzler, Harry M. Ng,\n     </em>\n     and\n     <em>\n      Douglas W. Morris;\n     </em>\n     for the Chamber of Commerce of the United States of America et al. by\n     <em>\n      Roy T. Englert, Jr., Donald J. Russell, Matthew R. Segal, John T. Whatley, Robin S. Conrad, Amar D. Sarwal, Michael Field Altschul, Jan S. Amundson, Quentin Riegel, Peter B. Kenney, Jr., Mark S. Popofsky, Guy Stephenson, Kathryn Fewell,\n     </em>\n     and\n     <em>\n      Saul P. Morgenstem;\n     </em>\n     for Legal Scholars by\n     <em>\n      Max Huffman;\n     </em>\n     and for MasterCard International Inc. et al. by\n     <em>\n      Timothy J. Muris, Jonathan D. Hacker,\n     </em>\n     and\n     <em>\n      Rebecca H. Farrington.\n     </em>\n</p>\n<p id=\"b598-9\">\n<em>\n      Parker C. Folse III\n     </em>\n     filed a brief for the American Antitrust Institute as\n     <em>\n      amicus curiae\n     </em>\n     urging affirmance.\n    </p>\n<p id=\"b598-10\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     were filed for the American Bar Association by\n     <em>\n      Karen J. Mathis, Joseph Angland,\n     </em>\n     and\n     <em>\n      Roxann E. Henry;\n     </em>\n     for Economists by\n     <em>\n      R. Hewitt Pate;\n     </em>\n     and for Debra Lyn Bassett et al. by\n     <em>\n      Erie Alan Isaac-son\n     </em>\n     and\n     <em>\n      Christopher M. Burke.\n     </em>\n</p>\n</div></div>"
+      }
+    ]
+  }
+]
