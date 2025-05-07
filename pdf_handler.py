@@ -7,6 +7,7 @@ import subprocess
 import traceback
 import PyPDF2
 from io import StringIO
+from datetime import datetime
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
@@ -14,7 +15,13 @@ from pdfminer.pdfpage import PDFPage
 
 def extract_text_from_pdf(file_path):
     """Extract text from a PDF file using multiple methods with robust error handling."""
-    print(f"Extracting text from PDF: {file_path}")
+    print(f"\n==== PDF EXTRACTION STARTED: {file_path} ====\n")
+    print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"PDF absolute path: {os.path.abspath(file_path)}")
+    
+    # Log system info
+    print(f"Python version: {sys.version}")
+    print(f"Working directory: {os.getcwd()}")
     
     # Special handling for known problematic files
     if '999562 Plaintiff Opening Brief.pdf' in file_path:

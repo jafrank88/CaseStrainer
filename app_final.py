@@ -446,10 +446,35 @@ def generate_analysis_id():
 
 # Function to run the analysis with CourtListener API
 def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
-    print(f"Starting analysis for ID: {analysis_id}")
+    print(f"\n==== STARTING ANALYSIS FOR ID: {analysis_id} ====\n")
     print(f"API key: {api_key[:5]}..." if api_key else "No API key provided")
     print(f"File path: {file_path}" if file_path else "No file path provided")
     print(f"Brief text length: {len(brief_text)}" if brief_text else "No brief text provided")
+    print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Log system info
+    print(f"Python version: {sys.version}")
+    print(f"Working directory: {os.getcwd()}")
+    print(f"UPLOAD_FOLDER path: {os.path.abspath(UPLOAD_FOLDER)}")
+    
+    # Check if upload folder exists and is writable
+    if not os.path.exists(UPLOAD_FOLDER):
+        print(f"WARNING: Upload folder does not exist: {UPLOAD_FOLDER}")
+        try:
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            print(f"Created upload folder: {UPLOAD_FOLDER}")
+        except Exception as e:
+            print(f"ERROR: Could not create upload folder: {e}")
+    else:
+        print(f"Upload folder exists: {UPLOAD_FOLDER}")
+        try:
+            test_file = os.path.join(UPLOAD_FOLDER, f"test_{analysis_id}.txt")
+            with open(test_file, 'w') as f:
+                f.write(f"Test write at {datetime.now()}")
+            os.remove(test_file)
+            print(f"Upload folder is writable")
+        except Exception as e:
+            print(f"WARNING: Upload folder may not be writable: {e}")
     
     try:
         # Initialize the results for this analysis
@@ -467,20 +492,34 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
         
         # Get text from file if provided
         if file_path and not brief_text:
-            print(f"Extracting text from file: {file_path}")
+            print(f"\n==== EXTRACTING TEXT FROM FILE: {file_path} ====\n")
+            print(f"Current time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             
             # Verify file exists and is readable
             if not os.path.isfile(file_path):
                 error_msg = f"File not found: {file_path}"
-                print(error_msg)
+                print(f"ERROR: {error_msg}")
                 analysis_results[analysis_id]['status'] = 'error'
                 analysis_results[analysis_id]['error'] = error_msg
                 analysis_results[analysis_id]['completed'] = True
                 return
+                
+            print(f"File exists and is readable: {file_path}")
+            print(f"File absolute path: {os.path.abspath(file_path)}")
+            print(f"File extension: {os.path.splitext(file_path)[1]}")
+            print(f"File size: {os.path.getsize(file_path)} bytes")
+            print(f"File last modified: {datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"Attempting to extract text...")
             
+            # Check file permissions
             try:
+                with open(file_path, 'rb') as test_file:
+                    first_bytes = test_file.read(10)
+                    print(f"Successfully read first bytes of file: {first_bytes}")
+                
+                # Get file size
                 file_size = os.path.getsize(file_path)
-                print(f"File size: {file_size} bytes")
+                print(f"Confirmed file size: {file_size} bytes")
                 
                 # Check if file is empty
                 if file_size == 0:
@@ -954,25 +993,36 @@ def analyze():
             # Check if a file was uploaded
             if 'file' in request.files:
                 file = request.files['file']
+                print(f"File object: {file}, filename: {file.filename if file else 'None'}")
                 if file and file.filename and allowed_file(file.filename):
                     print(f"File uploaded: {file.filename}")
                     filename = secure_filename(file.filename)
                     file_path = os.path.join(UPLOAD_FOLDER, filename)
-                    file.save(file_path)
-                    print(f"File saved to: {file_path}")
-                    
-                    # Debug: Print file size and first few bytes
+                    print(f"Attempting to save file to: {file_path}")
                     try:
-                        file_size = os.path.getsize(file_path)
-                        print(f"File size: {file_size} bytes")
-                        with open(file_path, 'rb') as f:
-                            first_bytes = f.read(100)
-                            print(f"First few bytes: {first_bytes}")
+                        file.save(file_path)
+                        print(f"File successfully saved to: {file_path}")
+                        
+                        # Debug: Print file size and first few bytes
+                        try:
+                            file_size = os.path.getsize(file_path)
+                            print(f"File size: {file_size} bytes")
+                            with open(file_path, 'rb') as f:
+                                first_bytes = f.read(100)
+                                print(f"First few bytes: {first_bytes}")
+                        except Exception as e:
+                            print(f"Error reading file: {e}")
+                            traceback.print_exc()
                     except Exception as e:
-                        print(f"Error reading file: {e}")
+                        print(f"Error saving file: {e}")
+                        traceback.print_exc()
+                else:
+                    print(f"File validation failed: filename={file.filename if file else 'None'}, allowed={allowed_file(file.filename) if file and file.filename else False}")
+            else:
+                print("No file found in request.files")
         
             # Check if a file path was provided
-            elif 'file_path' in request.form:
+            if 'file_path' in request.form:
                 file_path = request.form['file_path'].strip()
                 print(f"File path provided: {file_path}")
                 
@@ -1008,10 +1058,10 @@ def analyze():
                 except Exception as e:
                     print(f"Error reading file: {e}")
         
-            # Get the text input if provided
-            if 'text' in request.form:
-                brief_text = request.form['text']
-                print(f"Text from form: {brief_text[:100]}...")
+            # Get brief text from form if provided
+            if 'brief_text' in request.form and request.form['brief_text'].strip():
+                brief_text = request.form['brief_text'].strip()
+                print(f"Brief text provided: {brief_text[:100]}...")
             elif 'briefText' in request.form:  # For backward compatibility
                 brief_text = request.form['briefText']
                 print(f"Brief text from form: {brief_text[:100]}...")
@@ -1024,10 +1074,19 @@ def analyze():
                     'message': 'No text or file provided'
                 }), 400
             
-            # Start the analysis in a background thread
-            threading.Thread(target=run_analysis, args=(analysis_id, brief_text, file_path, api_key)).start()
+            # Log before starting analysis
+            print(f"About to start analysis with ID: {analysis_id}")
+            print(f"Brief text: {'Present' if brief_text else 'None'}")
+            print(f"File path: {file_path}")
+            print(f"API key: {'Present' if api_key else 'None'}")
             
-            # Return the analysis ID to the client
+            # Start the analysis in a background thread
+            analysis_thread = threading.Thread(target=run_analysis, args=(analysis_id, brief_text, file_path, api_key))
+            analysis_thread.daemon = True  # Make thread a daemon so it doesn't block application shutdown
+            analysis_thread.start()
+            print(f"Analysis thread started with ID: {analysis_id}")
+            
+            # Return the analysis ID
             return jsonify({
                 'status': 'success',
                 'message': 'Analysis started',
