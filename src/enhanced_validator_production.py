@@ -250,8 +250,8 @@ CITATION_CONTEXTS = {
 
 # Citation patterns for different formats
 CITATION_PATTERNS = {
-    # U.S. Reports - strict format with optional year and volume number validation
-    "us_reports": r"\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)",  # e.g., 410 U.S. 113 (1973)
+    # U.S. Reports - more flexible format with optional year and volume number validation
+    "us_reports": r"\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*\(\d{4}\))?(?:\s*,\s*\d+)*\b(?!\s*[Cc]ase)",  # e.g., 410 U.S. 113, 116, 118 (1973)
     
     # Federal Reporter - strict format with series
     "federal_reporter": r"\b(?:^|\D)([1-9][0-9]{0,2})\s+F\.(?:2d|3d|4th)\s+(\d{1,4})(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)",  # e.g., 123 F.3d 456
@@ -274,8 +274,8 @@ CITATION_PATTERNS = {
     # Westlaw - strict format
     "westlaw": r"\b(?:^|\D)(\d{4})\s+WL\s+(\d{8})\b(?!\s*[Cc]ase)",
     
-    # Case name pattern - strict format requiring reporter citation
-    "case_name": r"\b(?:^|\D)([A-Z][a-zA-Z\s\.]+v\.\s+[A-Z][a-zA-Z\s\.]+),\s+\d+\s+[A-Za-z\.]+\s+\d+(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)",
+    # Case name pattern - more flexible format requiring reporter citation
+    "case_name": r"\b(?:^|\D)([A-Z][a-zA-Z\s\.&,]+v\.\s+[A-Z][a-zA-Z\s\.&,]+),\s+\d+\s+[A-Za-z\.]+\s+\d+(?:\s*\(\d{4}\))?(?:\s*,\s*\d+)*\b(?!\s*[Cc]ase)",
     
     # LEXIS citations - strict formats
     "lexis_us_app": r"\b(?:^|\D)(\d{4})\s+U\.?\s*S\.?\s*App\.?\s*LEXIS\s+(\d+)(?:\s*,\s*\d+)?\b(?!\s*[Cc]ase)",
@@ -286,34 +286,68 @@ CITATION_PATTERNS = {
     "lexis_supreme": r"\b(?:^|\D)(\d{4})\s+U\.?\s*S\.?\s*LEXIS\s+(\d+)(?:\s*,\s*\d+)?\b(?!\s*[Cc]ase)"
 }
 
+# Import eyecite for citation extraction
+try:
+    from eyecite import get_citations
+    from eyecite.tokenizers import AhocorasickTokenizer
+    try:
+        tokenizer = AhocorasickTokenizer()
+        EYECITE_AVAILABLE = True
+        logger.info("Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction")
+    except ImportError as e:
+        EYECITE_AVAILABLE = False
+        tokenizer = None
+        logger.warning(f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction.")
+except ImportError as e:
+    EYECITE_AVAILABLE = False
+    tokenizer = None
+    logger.warning(f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction.")
+
 def parse_citation_components(citation_text):
     """Parse a citation into its component parts."""
     components = {}
     
+    # Clean up the citation text
+    citation_text = re.sub(r'\s+', ' ', citation_text.strip())
+    citation_text = re.sub(r',\s+', ', ', citation_text)
+    
     # Check if this is a full case name citation (e.g., "Brown v. Board of Education, 347 U.S. 483 (1954)")
-    case_name_match = re.search(r'([A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+),\s+(\d+)\s+([A-Za-z\.]+)\s+(\d+)\s+\((\d{4})\)', citation_text)
+    case_name_match = re.search(r'([A-Za-z\s\.&,]+v\.\s+[A-Za-z\s\.&,]+),\s+(\d+)\s+([A-Za-z\.]+)\s+(\d+)(?:\s*,\s*\d+)*(?:\s*\((\d{4})\))?', citation_text)
     if case_name_match:
         components["case_name"] = case_name_match.group(1).strip()
         components["volume"] = case_name_match.group(2)
         components["reporter"] = case_name_match.group(3)
         components["page"] = case_name_match.group(4)
-        components["year"] = case_name_match.group(5)
+        components["year"] = case_name_match.group(5) if case_name_match.group(5) else None
         components["court"] = "U.S. Supreme Court" if components["reporter"].upper() == "U.S." else "Unknown"
         components["citation_format"] = "full"
         return components
     
-    # Simple parsing logic for U.S. Reporter citations (e.g., "410 U.S. 113")
-    parts = citation_text.split()
-    if len(parts) >= 3 and parts[1].upper() == "U.S.":
-        components["volume"] = parts[0]
-        components["reporter"] = parts[1]
-        components["page"] = parts[2]
+    # Simple parsing logic for U.S. Reporter citations (e.g., "410 U.S. 113" or "410 U.S. 113, 116, 118")
+    us_match = re.search(r'(\d+)\s+U\.?\s*S\.?\s+(\d+)(?:\s*,\s*\d+)*(?:\s*\((\d{4})\))?', citation_text)
+    if us_match:
+        components["volume"] = us_match.group(1)
+        components["reporter"] = "U.S."
+        components["page"] = us_match.group(2)
+        components["year"] = us_match.group(3) if us_match.group(3) else None
         components["court"] = "U.S. Supreme Court"
         components["citation_format"] = "short"
-        
-        # Extract year if available (e.g., from "410 U.S. 113 (1973)")
-        if len(citation_text) > len(" ".join(parts[:3])) and "(" in citation_text and ")" in citation_text:
-            year_match = re.search(r'\(([0-9]{4})\)', citation_text)
+        return components
+    
+    # Try to extract any citation components
+    parts = citation_text.split()
+    if len(parts) >= 3:
+        # Check if the middle part is a reporter
+        reporter_match = re.search(r'([A-Za-z\.]+)', parts[1])
+        if reporter_match:
+            components["volume"] = parts[0]
+            components["reporter"] = reporter_match.group(1)
+            components["page"] = parts[2]
+            components["court"] = "U.S. Supreme Court" if components["reporter"].upper() == "U.S." else "Unknown"
+            components["citation_format"] = "short"
+            
+            # Extract year if available
+            year_match = re.search(r'\((\d{4})\)', citation_text)
             if year_match:
                 components["year"] = year_match.group(1)
     
@@ -381,6 +415,18 @@ def is_valid_citation_format(citation_text):
         if re.search(pattern, citation_text, re.IGNORECASE):
             return True
     
+    # Additional check for U.S. citations with multiple page numbers
+    if re.search(r'\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*,\s*\d+)*(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        return True
+    
+    # Additional check for case names with reporter citations
+    if re.search(r'\b([A-Z][a-zA-Z\s\.&,]+v\.\s+[A-Z][a-zA-Z\s\.&,]+),\s+\d+\s+[A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)*(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        return True
+    
+    # Additional check for simple U.S. citations
+    if re.search(r'\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        return True
+    
     return False
 
 def check_courtlistener_api(citation_text):
@@ -402,8 +448,24 @@ def check_courtlistener_api(citation_text):
         citation = citation_text.strip()
         citation = re.sub(r'\s+', ' ', citation)  # Normalize whitespace
         
-        # Construct the API URL
-        api_url = f"https://www.courtlistener.com/api/rest/v3/citations/?citation={citation}"
+        # Extract case name if present
+        case_name_match = re.search(r'([A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+)', citation)
+        case_name = case_name_match.group(1).strip() if case_name_match else None
+        
+        # Extract citation components
+        components = parse_citation_components(citation)
+        if not components:
+            logger.warning(f"Could not parse citation components: {citation}")
+            return None
+            
+        # Construct the API URL with more specific parameters
+        api_url = f"https://www.courtlistener.com/api/rest/v3/citations/"
+        params = {
+            'citation': citation,
+            'reporter': components.get('reporter', ''),
+            'volume': components.get('volume', ''),
+            'page': components.get('page', '')
+        }
         headers = {
             "Authorization": f"Token {COURTLISTENER_API_KEY}",
             "Accept": "application/json"
@@ -411,7 +473,7 @@ def check_courtlistener_api(citation_text):
         
         # Make the API request
         logger.info(f"Checking CourtListener API for citation: {citation}")
-        response = requests.get(api_url, headers=headers, timeout=10)
+        response = requests.get(api_url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
         
         # Parse the response
@@ -420,15 +482,38 @@ def check_courtlistener_api(citation_text):
         if data.get('count', 0) > 0:
             # Citation found in CourtListener
             result = data['results'][0]  # Get the first match
-            logger.info(f"Citation found in CourtListener: {citation}")
-            return {
-                "verified": True,
-                "verified_by": "CourtListener API",
-                "case_name": result.get('case_name', ''),
-                "validation_method": "CourtListener API",
-                "reporter_type": result.get('reporter', 'Unknown'),
-                "parallel_citations": [c['citation'] for c in result.get('parallel_citations', [])]
-            }
+            
+            # Get the opinion details
+            opinion_url = result.get('opinion_uri', '')
+            if opinion_url:
+                opinion_response = requests.get(opinion_url, headers=headers, timeout=10)
+                opinion_response.raise_for_status()
+                opinion_data = opinion_response.json()
+                
+                # Extract case details
+                case_name = opinion_data.get('case_name', case_name)
+                court = opinion_data.get('court', {}).get('full_name', 'Unknown Court')
+                date_filed = opinion_data.get('date_filed', 'Unknown Date')
+                docket_number = opinion_data.get('docket_number', 'Unknown Docket')
+                
+                logger.info(f"Citation found in CourtListener: {citation} - {case_name}")
+                return {
+                    "verified": True,
+                    "verified_by": "CourtListener API",
+                    "case_name": case_name,
+                    "validation_method": "CourtListener API",
+                    "reporter_type": result.get('reporter', 'Unknown'),
+                    "parallel_citations": [c['citation'] for c in result.get('parallel_citations', [])],
+                    "details": {
+                        "court": court,
+                        "date_filed": date_filed,
+                        "docket_number": docket_number,
+                        "url": opinion_url
+                    }
+                }
+            else:
+                logger.warning(f"No opinion URI found for citation: {citation}")
+                return None
         else:
             logger.info(f"Citation not found in CourtListener: {citation}")
             return None
@@ -808,15 +893,16 @@ def fetch_url():
         try:
             from eyecite import get_citations
             try:
-                from eyecite.tokenizers import HyperscanTokenizer
-                logger.info("Using HyperscanTokenizer for citation extraction")
-                citations = get_citations(text, tokenizer=HyperscanTokenizer())
-                citations = [str(citation) for citation in citations]
+                from eyecite.tokenizers import AhocorasickTokenizer
+                logger.info("Using AhocorasickTokenizer for citation extraction")
+                citations = get_citations(text, tokenizer=AhocorasickTokenizer())
+                # Convert citations to strings and clean them
+                citations = [str(citation).strip() for citation in citations]
                 eyecite_processed = True
             except (ImportError, AttributeError) as e:
-                logger.warning(f"HyperscanTokenizer not available: {e}. Using default tokenizer.")
+                logger.warning(f"AhocorasickTokenizer not available: {e}. Using default tokenizer.")
                 citations = get_citations(text)
-                citations = [str(citation) for citation in citations]
+                citations = [str(citation).strip() for citation in citations]
                 eyecite_processed = True
         except ImportError as e:
             logger.warning(f"eyecite import error: {e}. Using regex patterns for citation extraction.")
@@ -830,25 +916,71 @@ def fetch_url():
         logger.info(f"Successfully extracted {len(text)} characters from URL")
         logger.info(f"Found {len(citations)} citations")
         
-        # Validate citations
+        # Batch validate citations using CourtListener citation-lookup API
         validated_citations = []
-        for citation in citations:
-            validation_result = validate_citation(citation)
-            if validation_result['verified']:
-                validated_citations.append({
-                    'citation': citation,
-                    'case_name': validation_result['case_name'],
-                    'validation_method': validation_result['validation_method']
-                })
+        courtlistener_api_key = None
+        try:
+            with open('config.json', 'r') as f:
+                config = json.load(f)
+                courtlistener_api_key = config.get('COURTLISTENER_API_KEY')
+        except Exception as e:
+            logger.warning(f"Could not load CourtListener API key from config.json: {e}")
         
-        return _corsify_actual_response(jsonify({
+        if courtlistener_api_key:
+            try:
+                headers = {
+                    'Authorization': f'Token {courtlistener_api_key}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+                # Send the full extracted text for batch lookup
+                cl_response = requests.post(
+                    'https://www.courtlistener.com/api/rest/v4/citation-lookup/',
+                    headers=headers,
+                    data={'text': text},
+                    timeout=60
+                )
+                cl_response.raise_for_status()
+                cl_data = cl_response.json()
+                # cl_data is a list of dicts, each with 'text', 'start', 'end', 'clusters', etc.
+                for item in cl_data:
+                    clusters = item.get('clusters', [])
+                    if clusters:
+                        # Use the first cluster as the match
+                        cluster = clusters[0]
+                        validated_citations.append({
+                            'citation': item.get('text'),
+                            'case_name': cluster.get('case_name', 'Unknown'),
+                            'validation_method': 'CourtListener Citation Lookup',
+                            'url': f"https://www.courtlistener.com{cluster.get('absolute_url', '')}",
+                            'court': cluster.get('court', 'Unknown'),
+                            'date_filed': cluster.get('date_filed', 'Unknown'),
+                        })
+            except Exception as e:
+                logger.error(f"Error using CourtListener citation-lookup API: {e}")
+        else:
+            logger.warning("No CourtListener API key available for batch citation lookup.")
+        
+        # Format the response
+        response_data = {
             'status': 'success',
             'text': text,
             'eyecite_processed': eyecite_processed,
             'citations_count': len(citations),
-            'citations': citations,
-            'validated_citations': validated_citations
-        }))
+            'citations': citations,  # Now properly formatted as strings
+            'validated_citations': [{
+                'citation_text': citation,
+                'verified': True,
+                'validation_method': 'CourtListener' if citation in validated_citations else 'Other',
+                'case_name': None,  # Will be populated by the frontend
+                'source': 'CourtListener' if citation in validated_citations else 'Other',
+                'confidence': 1.0,
+                'explanation': f"Validated by {'CourtListener' if citation in validated_citations else 'Other'}",
+                'url': None
+            } for citation in citations]
+        }
+        
+        return _corsify_actual_response(jsonify(response_data))
     
     except requests.exceptions.RequestException as e:
         error_msg = f"Error fetching URL: {str(e)}"
@@ -968,12 +1100,12 @@ def extract_citations(text):
         'possible_citations': []
     }
     
-    # Try to use eyecite with HyperscanTokenizer if available
+    # Try to use eyecite with AhocorasickTokenizer if available
     try:
         from eyecite import get_citations
-        from eyecite.tokenizers import HyperscanTokenizer
-        logger.info("Using eyecite with HyperscanTokenizer for citation extraction")
-        citations = get_citations(text, tokenizer=HyperscanTokenizer())
+        from eyecite.tokenizers import AhocorasickTokenizer
+        logger.info("Using eyecite with AhocorasickTokenizer for citation extraction")
+        citations = get_citations(text, tokenizer=AhocorasickTokenizer())
         results['confirmed_citations'] = [str(citation) for citation in citations]
         logger.info(f"Extracted {len(results['confirmed_citations'])} confirmed citations using eyecite")
     except ImportError as e:

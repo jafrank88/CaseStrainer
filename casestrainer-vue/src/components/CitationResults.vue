@@ -19,7 +19,8 @@
           type="button" 
           role="tab"
         >
-          Found in CL
+          <i class="fas fa-check-circle me-2"></i>
+          CourtListener Verified
           <span class="badge bg-primary ms-2">{{ courtListenerCount }}</span>
         </button>
       </li>
@@ -32,7 +33,8 @@
           type="button" 
           role="tab"
         >
-          Found Elsewhere
+          <i class="fas fa-check me-2"></i>
+          Other Verified
           <span class="badge bg-success ms-2">{{ elsewhereCount }}</span>
         </button>
       </li>
@@ -45,7 +47,8 @@
           type="button" 
           role="tab"
         >
-          Not Found
+          <i class="fas fa-question-circle me-2"></i>
+          Unverified
           <span class="badge bg-danger ms-2">{{ notFoundCount }}</span>
         </button>
       </li>
@@ -63,6 +66,7 @@
                 <th>Case Name</th>
                 <th>Court</th>
                 <th>Year</th>
+                <th>Source</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -72,6 +76,11 @@
                 <td>{{ citation.case_name || 'N/A' }}</td>
                 <td>{{ citation.court || 'N/A' }}</td>
                 <td>{{ citation.year || 'N/A' }}</td>
+                <td>
+                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
+                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
+                  </span>
+                </td>
                 <td>
                   <a 
                     v-if="citation.url" 
@@ -98,6 +107,7 @@
                 <th>Case Name</th>
                 <th>Source</th>
                 <th>Validation Method</th>
+                <th>Extraction Method</th>
                 <th>Details</th>
               </tr>
             </thead>
@@ -109,6 +119,11 @@
                 <td>
                   <span class="badge" :class="getBadgeClass(citation.validation_method)">
                     {{ citation.validation_method }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
+                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
                   </span>
                 </td>
                 <td>
@@ -134,6 +149,7 @@
                 <th>Citation</th>
                 <th>Possible Case Name</th>
                 <th>Confidence</th>
+                <th>Extraction Method</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -154,6 +170,11 @@
                       {{ Math.round(citation.confidence * 100) }}%
                     </div>
                   </div>
+                </td>
+                <td>
+                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
+                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
+                  </span>
                 </td>
                 <td>
                   <button 
