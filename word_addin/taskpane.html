@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BriefCheck Add-in</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            padding: 15px;
+        }
+        #content-main {
+            margin-top: 20px;
+        }
+        .citation-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .citation-real {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+        }
+        .citation-hallucinated {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+        }
+        .confidence-bar {
+            height: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .summary-box {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">BriefCheck</h2>
+                <p>Detect hallucinated legal case citations in your brief.</p>
+                
+                <div class="mb-3">
+                    <label for="iterations" class="form-label">Number of summary iterations:</label>
+                    <input type="number" class="form-control" id="iterations" min="2" max="5" value="3">
+                    <div class="form-text">More iterations increase accuracy but take longer.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="threshold" class="form-label">Similarity threshold:</label>
+                    <input type="range" class="form-range" id="threshold" min="0.5" max="0.9" step="0.05" value="0.7">
+                    <div class="d-flex justify-content-between">
+                        <span>0.5 (Lenient)</span>
+                        <span id="thresholdValue">0.7</span>
+                        <span>0.9 (Strict)</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="useLocalPdfSearch">
+                    <label class="form-check-label" for="useLocalPdfSearch">Search local PDF folders instead of using API</label>
+                    <div class="form-text">
+                        This will search for citations in local PDF folders.
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button id="analyze-button" class="btn btn-primary">Analyze Document</button>
+                    <button id="clear-button" class="btn btn-secondary">Clear</button>
+                </div>
+                
+                <div id="loading" class="loading mt-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing citations... This may take a moment.</p>
+                </div>
+                
+                <div id="results" class="mt-4" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    <div class="alert alert-info" id="resultsSummary"></div>
+                    
+                    <div id="citationsContainer">
+                        <h4>Extracted Citations</h4>
+                        <div id="citationsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // The initialize function must be run each time a new page is loaded
+        Office.initialize = function (reason) {
+            $(document).ready(function () {
+                // Set up event handlers and other initialization logic
+                const analyzeButton = document.getElementById('analyze-button');
+                const iterations = document.getElementById('iterations');
+                const threshold = document.getElementById('threshold');
+                const thresholdValue = document.getElementById('thresholdValue');
+                const loading = document.getElementById('loading');
+                const results = document.getElementById('results');
+                const resultsSummary = document.getElementById('resultsSummary');
+                const citationsList = document.getElementById('citationsList');
+                
+                // Update threshold value display
+                threshold.addEventListener('input', function() {
+                    thresholdValue.textContent = this.value;
+                });
+                
+                // Handle clear button click
+                const clearButton = document.getElementById('clear-button');
+                clearButton.addEventListener('click', function() {
+                    // Hide results
+                    results.style.display = 'none';
+                    
+                    // Reset form to default values
+                    iterations.value = '3';
+                    threshold.value = '0.7';
+                    thresholdValue.textContent = '0.7';
+                    document.getElementById('useLocalPdfSearch').checked = false;
+                });
+                
+                // Handle analyze button click
+                analyzeButton.addEventListener('click', function() {
+                    // Show loading indicator
+                    loading.style.display = 'block';
+                    results.style.display = 'none';
+                    
+                    // Get the document text
+                    Office.context.document.getSelectedDataAsync(Office.CoercionType.Text, function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            let documentText = result.value;
+                            
+                            // If no text is selected, get the entire document
+                            if (!documentText || documentText.trim() === '') {
+                                Office.context.document.getFileAsync(Office.FileType.Text, function(result) {
+                                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                        const file = result.value;
+                                        file.getSliceAsync(0, file.size, function(result) {
+                                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                                documentText = result.value.data;
+                                                analyzeText(documentText);
+                                            } else {
+                                                showError("Error getting document text: " + result.error.message);
+                                            }
+                                            file.closeAsync();
+                                        });
+                                    } else {
+                                        showError("Error getting document: " + result.error.message);
+                                    }
+                                });
+                            } else {
+                                analyzeText(documentText);
+                            }
+                        } else {
+                            showError("Error getting selected text: " + result.error.message);
+                        }
+                    });
+                });
+                
+                function analyzeText(text) {
+                    // Set timeout for fetch - longer timeout for local PDF search
+                    const controller = new AbortController();
+                    const timeoutDuration = document.getElementById('useLocalPdfSearch').checked ? 120000 : 60000; // 120 seconds for local search, 60 seconds for API
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+                    
+                    // Send the text to the server for analysis
+                    fetch('https://wolf.law.uw.edu:5000/api/analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            iterations: parseInt(iterations.value),
+                            threshold: parseFloat(threshold.value),
+                            use_local_pdf_search: document.getElementById('useLocalPdfSearch').checked
+                        }),
+                        signal: controller.signal
+                    })
+                    .then(response => {
+                        // Clear the timeout since we got a response
+                        clearTimeout(timeoutId);
+                        
+                        // Check if the response is valid JSON before parsing
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`Server returned ${response.status}: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        displayResults(data);
+                    })
+                    .catch(error => {
+                        // Clear the timeout if there was an error
+                        clearTimeout(timeoutId);
+                        
+                        console.error('Error:', error);
+                        
+                        if (error.name === 'AbortError') {
+                            showError('Request timed out. This may happen when using local PDF search on large folders.');
+                        } else {
+                            showError(error.message);
+                        }
+                    });
+                }
+                
+                function showError(message) {
+                    loading.style.display = 'none';
+                    results.style.display = 'block';
+                    resultsSummary.innerHTML = `<strong>Error:</strong> ${message}`;
+                    citationsList.innerHTML = '';
+                }
+                
+                function displayResults(data) {
+                    // Hide loading indicator
+                    loading.style.display = 'none';
+                    
+                    // Show results
+                    results.style.display = 'block';
+                    
+                    // Display summary
+                    resultsSummary.innerHTML = `
+                        <strong>Total citations found:</strong> ${data.total_citations}<br>
+                        <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                    `;
+                    
+                    // Display citations
+                    citationsList.innerHTML = '';
+                    
+                    if (data.results.length === 0) {
+                        citationsList.innerHTML = '<p>No citations to analyze.</p>';
+                        return;
+                    }
+                    
+                    // Create accordion for citations
+                    const accordion = document.createElement('div');
+                    accordion.className = 'accordion';
+                    accordion.id = 'citationsAccordion';
+                    
+                    data.results.forEach((result, index) => {
+                        const isHallucinated = result.is_hallucinated;
+                        const citationClass = isHallucinated ? 'citation-hallucinated' : 'citation-real';
+                        const statusBadge = isHallucinated ? 
+                            '<span class="badge bg-danger">Potentially Hallucinated</span>' : 
+                            '<span class="badge bg-success">Likely Real</span>';
+                        
+                        const accordionItem = document.createElement('div');
+                        accordionItem.className = 'accordion-item ' + citationClass;
+                        
+                        const confidencePercent = Math.round(result.confidence * 100);
+                        const similarityPercent = result.similarity_score !== null ? 
+                            Math.round(result.similarity_score * 100) : 'N/A';
+                        
+                        accordionItem.innerHTML = `
+                            <h2 class="accordion-header" id="heading${index}">
+                                <button class="accordion-button ${isHallucinated ? '' : 'collapsed'}" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse${index}" 
+                                        aria-expanded="${isHallucinated ? 'true' : 'false'}" aria-controls="collapse${index}">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <span>${result.citation}</span>
+                                        ${statusBadge}
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse${index}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}" 
+                                 aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>Detection method:</strong> ${result.method === 'api' ? 'API Lookup' : 'Summary Comparison'}</p>
+                                    
+                                    <!-- Raw API Result -->
+                                    <div class="mt-2 mb-3">
+                                        <p><strong>Raw API Result:</strong> (${result.exists ? 'true' : 'false'}, ${result.case_data ? 'case data found' : 'None'})</p>
+                                        <p><strong>Verification Result:</strong> <span class="badge ${isHallucinated ? 'bg-danger' : 'bg-success'}">${isHallucinated ? 'Citation does NOT exist' : 'Citation exists'}</span></p>
+                                    </div>
+                                    
+                                    <p><strong>Confidence:</strong> ${confidencePercent}%</p>
+                                    <div class="progress confidence-bar">
+                                        <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
+                                             role="progressbar" style="width: ${confidencePercent}%" 
+                                             aria-valuenow="${confidencePercent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    ${result.similarity_score !== null ? `
+                                    <p><strong>Similarity score:</strong> ${similarityPercent}%</p>
+                                    <div class="progress confidence-bar">
+                                        <div class="progress-bar bg-info" role="progressbar" 
+                                             style="width: ${similarityPercent}%" aria-valuenow="${similarityPercent}" 
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    ` : ''}
+                                    <!-- Case Summary Section -->
+                                    ${result.case_summary ? `
+                                    <div class="mt-3">
+                                        <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#caseSummary${index}" 
+                                                aria-expanded="false" aria-controls="caseSummary${index}">
+                                            <strong>Show/Hide Case Summary</strong>
+                                        </button>
+                                        <div class="collapse" id="caseSummary${index}">
+                                            <div class="card card-body">
+                                                <div class="summary-box">${result.case_summary}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    ${result.summaries && result.summaries.length > 0 ? `
+                                    <div class="mt-3">
+                                        <button class="btn btn-sm btn-outline-secondary w-100 mb-2" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#summaries${index}" 
+                                                aria-expanded="false" aria-controls="summaries${index}">
+                                            <strong>Show/Hide Generated Summaries</strong>
+                                        </button>
+                                        <div class="collapse" id="summaries${index}">
+                                            <div class="card card-body">
+                                                ${result.summaries.map((summary, i) => `
+                                                    <div class="mb-2">
+                                                        <p><strong>Summary ${i+1}:</strong></p>
+                                                        <div class="summary-box">${summary}</div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                        
+                        accordion.appendChild(accordionItem);
+                    });
+                    
+                    citationsList.appendChild(accordion);
+                    
+                    // Highlight hallucinated citations in the document
+                    if (data.hallucinated_citations > 0) {
+                        highlightHallucinatedCitations(data.results);
+                    }
+                }
+                
+                function highlightHallucinatedCitations(results) {
+                    // Get hallucinated citations
+                    const hallucinatedCitations = results
+                        .filter(result => result.is_hallucinated)
+                        .map(result => result.citation);
+                    
+                    // Highlight each citation in the document
+                    hallucinatedCitations.forEach(citation => {
+                        Office.context.document.searchAsync(
+                            citation,
+                            { matchCase: false, matchWholeWord: false },
+                            function(result) {
+                                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                    // Apply highlighting to each match
+                                    const searchResults = result.value;
+                                    searchResults.items.forEach(function(item) {
+                                        item.getSelectedDataAsync(
+                                            Office.CoercionType.Text,
+                                            function(result) {
+                                                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                                    // Apply highlighting
+                                                    Office.context.document.setSelectedDataAsync(
+                                                        result.value,
+                                                        { coercionType: Office.CoercionType.Text },
+                                                        function(result) {
+                                                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                                                console.log("Highlighted: " + citation);
+                                                            }
+                                                        }
+                                                    );
+                                                }
+                                            }
+                                        );
+                                    });
+                                }
+                            }
+                        );
+                    });
+                }
+            });
+        };
+    </script>
+</body>
+</html>

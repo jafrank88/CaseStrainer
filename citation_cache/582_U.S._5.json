@@ -1,0 +1,38 @@
+{
+  "citation": "582 U.S. \n \n5",
+  "normalized_citation": "582 U.S. 5",
+  "components": {
+    "volume": "582",
+    "reporter": "U.S.",
+    "page": "5",
+    "court": "United States Supreme Court",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:44:58.225042",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": true,
+      "source": "Database",
+      "match_type": "component",
+      "citation_id": 511
+    }
+  },
+  "verified_by": "Database"
+}

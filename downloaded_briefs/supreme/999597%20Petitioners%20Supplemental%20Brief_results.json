@@ -1,0 +1,94 @@
+{
+  "citation_results": [
+    {
+      "case_name": "Davis v. Alaska",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/108974/davis-v-alaska/",
+      "explanation": "Citation confirmed: Davis v. Alaska - https://www.courtlistener.com/opinion/108974/davis-v-alaska/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "415 U.S. 308"
+    },
+    {
+      "case_name": "Garrity v. New Jersey",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "explanation": "Citation confirmed: Garrity v. New Jersey - https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "385 U.S. 493"
+    },
+    {
+      "case_name": "McCleskey v. Kemp",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/111869/mccleskey-v-kemp/",
+      "explanation": "Citation confirmed: McCleskey v. Kemp - https://www.courtlistener.com/opinion/111869/mccleskey-v-kemp/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "481 U.S. 279"
+    },
+    {
+      "case_name": "Rosales-Lopez v. United States",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/110463/rosales-lopez-v-united-states/",
+      "explanation": "Citation confirmed: Rosales-Lopez v. United States - https://www.courtlistener.com/opinion/110463/rosales-lopez-v-united-states/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "451 U.S. 182"
+    },
+    {
+      "case_name": "Rose v. Mitchell",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/110143/rose-v-mitchell/",
+      "explanation": "Citation confirmed: Rose v. Mitchell - https://www.courtlistener.com/opinion/110143/rose-v-mitchell/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "443 U.S. 545"
+    },
+    {
+      "case_name": "Pena-Rodriguez v. Colorado",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/4374572/pena-rodriguez-v-colorado/",
+      "explanation": "Citation confirmed: Pena-Rodriguez v. Colorado - https://www.courtlistener.com/opinion/4374572/pena-rodriguez-v-colorado/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "137 S.Ct. 855"
+    },
+    {
+      "case_name": "Unknown Case",
+      "confidence": 0.9,
+      "court_listener_url": "",
+      "explanation": "Citation confirmed: None",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "2021 WL 3910557"
+    }
+  ],
+  "completed": true,
+  "error": null,
+  "extracted_citations": [
+    "415 U.S. 308",
+    "385 U.S. 493",
+    "481 U.S. 279",
+    "451 U.S. 182",
+    "443 U.S. 545",
+    "94 S.Ct. 1105",
+    "87 S.Ct. 616",
+    "107 S.Ct. 1756",
+    "137 S.Ct. 855",
+    "101 S.Ct. 1629",
+    "99 S.Ct. 2993",
+    "2021 WL 3910557"
+  ],
+  "message": "Analysis complete. Found 12 total citations grouped into 7 unique cases, 0 potentially hallucinated.",
+  "progress": 3,
+  "results": {
+    "hallucinated_citations": 0,
+    "total_individual_citations": 12,
+    "total_unique_cases": 7,
+    "verified_citations": 12,
+    "verified_unique_cases": 7
+  },
+  "status": "complete",
+  "total_steps": 3
+}

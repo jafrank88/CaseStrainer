@@ -1,0 +1,185 @@
+=== CITATION ANALYSIS REPORT ===
+Generated: 2025-05-07 16:36:56
+Total Citations Analyzed: 170
+
+=== OVERALL STATISTICS ===
+Valid Formats: 149 (87.6%)
+Valid Volumes: 128 (75.3%)
+
+=== CITATION TYPES ===
+
+--- FEDERAL_SUPPLEMENT ---
+Count: 26 (15.3%)
+Valid Formats: 26 (100.0%)
+Valid Volumes: 22 (84.6%)
+Average Likelihood: 0.53
+Jurisdictions:
+  - Federal - District Court: 26
+Common Problems:
+  - Invalid volume number
+Examples:
+  - 57 F.Supp.2d 460
+  - 334 F.Supp.3d 335
+  - 367 F.Supp.3d 797
+
+--- FEDERAL_REPORTER ---
+Count: 22 (12.9%)
+Valid Formats: 22 (100.0%)
+Valid Volumes: 22 (100.0%)
+Average Likelihood: 0.54
+Jurisdictions:
+  - Federal - Circuit Court: 22
+Examples:
+  - 175 F.3d 257
+  - 928 F.2d 739
+  - 605 F.3d 144
+
+--- UNKNOWN ---
+Count: 21 (12.4%)
+Valid Formats: 0 (0.0%)
+Valid Volumes: 0 (0.0%)
+Average Likelihood: 0.15
+Jurisdictions:
+  - Unknown: 14
+  - State - Washington: 7
+Common Problems:
+  - Invalid format
+Examples:
+  - 963 F.4th 578
+  - 662 F.4th 699
+  - 972 Wash. 402
+
+--- WASHINGTON_APP_REPORTS ---
+Count: 16 (9.4%)
+Valid Formats: 16 (100.0%)
+Valid Volumes: 16 (100.0%)
+Average Likelihood: 0.54
+Jurisdictions:
+  - State - Washington: 16
+Examples:
+  - 235 Wash. App. 712
+  - 940 Wn. App. 683
+  - 754 Wash. App. 344
+
+--- SUPREME_COURT_REPORTER ---
+Count: 16 (9.4%)
+Valid Formats: 16 (100.0%)
+Valid Volumes: 5 (31.2%)
+Average Likelihood: 0.37
+Jurisdictions:
+  - Unknown: 16
+Common Problems:
+  - Invalid volume number
+Examples:
+  - 308 S. Ct. 820
+  - 392 S. Ct. 122
+  - 270 S. Ct. 205
+
+--- WASHINGTON_REPORTS ---
+Count: 13 (7.6%)
+Valid Formats: 13 (100.0%)
+Valid Volumes: 13 (100.0%)
+Average Likelihood: 0.57
+Jurisdictions:
+  - State - Washington: 13
+Examples:
+  - 825 Wn.2d 734
+  - 302 Wn.2d 110
+  - 499 Wn.2d 668
+
+--- US_REPORTS ---
+Count: 13 (7.6%)
+Valid Formats: 13 (100.0%)
+Valid Volumes: 7 (53.8%)
+Average Likelihood: 0.40
+Jurisdictions:
+  - Federal - Supreme Court: 13
+Common Problems:
+  - Invalid volume number
+Examples:
+  - 671 U.S. 630
+  - 572 U.S. 696
+  - 454 U.S. 430
+
+--- WESTLAW ---
+Count: 13 (7.6%)
+Valid Formats: 13 (100.0%)
+Valid Volumes: 13 (100.0%)
+Average Likelihood: 0.49
+Jurisdictions:
+  - Unknown: 13
+Examples:
+  - 1991 WL 8764802
+  - 1990 WL 5716870
+  - 2019 WL 6686274
+
+--- LAWYERS_EDITION ---
+Count: 11 (6.5%)
+Valid Formats: 11 (100.0%)
+Valid Volumes: 11 (100.0%)
+Average Likelihood: 0.51
+Jurisdictions:
+  - Unknown: 11
+Examples:
+  - 775 L. Ed. 2d 24
+  - 829 L. Ed. 2d 556
+  - 988 L. Ed. 2d 383
+
+--- CALIFORNIA_REPORTS ---
+Count: 6 (3.5%)
+Valid Formats: 6 (100.0%)
+Valid Volumes: 6 (100.0%)
+Average Likelihood: 0.52
+Jurisdictions:
+  - State - California: 6
+Examples:
+  - 65 Cal.4th 750
+  - 2 Cal.4th 111
+  - 27 Cal.4th 257
+
+--- NEW_YORK_REPORTS ---
+Count: 4 (2.4%)
+Valid Formats: 4 (100.0%)
+Valid Volumes: 4 (100.0%)
+Average Likelihood: 0.55
+Jurisdictions:
+  - State - New York: 4
+Examples:
+  - 33 N.Y.2d 778
+  - 55 N.Y.2d 254
+  - 57 N.Y.2d 225
+
+--- NORTH_EASTERN_REPORTER ---
+Count: 4 (2.4%)
+Valid Formats: 4 (100.0%)
+Valid Volumes: 4 (100.0%)
+Average Likelihood: 0.55
+Jurisdictions:
+  - Unknown: 4
+Examples:
+  - 75 N.E.3d 302
+  - 29 N.E.3d 419
+  - 181 N.E.3d 159
+
+--- PACIFIC_REPORTER ---
+Count: 3 (1.8%)
+Valid Formats: 3 (100.0%)
+Valid Volumes: 3 (100.0%)
+Average Likelihood: 0.60
+Jurisdictions:
+  - Unknown: 3
+Examples:
+  - 123 P.3d 129
+  - 148 P.3d 142
+  - 467 P.3d 229
+
+--- ATLANTIC_REPORTER ---
+Count: 2 (1.2%)
+Valid Formats: 2 (100.0%)
+Valid Volumes: 2 (100.0%)
+Average Likelihood: 0.60
+Jurisdictions:
+  - Unknown: 2
+Examples:
+  - 102 A.3d 781
+  - 193 A.3d 9

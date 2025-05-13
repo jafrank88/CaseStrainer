@@ -1,0 +1,62 @@
+{
+  "citation_results": [
+    {
+      "case_name": "Garrity v. New Jersey",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "explanation": "Citation confirmed: Garrity v. New Jersey - https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "385 U.S. 493"
+    },
+    {
+      "case_name": "Strickland v. Washington",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/111170/strickland-v-washington/",
+      "explanation": "Citation confirmed: Strickland v. Washington - https://www.courtlistener.com/opinion/111170/strickland-v-washington/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "466 U.S. 668"
+    },
+    {
+      "case_name": "Terry v. Ohio",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/107729/terry-v-ohio/",
+      "explanation": "Citation confirmed: Terry v. Ohio - https://www.courtlistener.com/opinion/107729/terry-v-ohio/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "392 U.S. 1"
+    },
+    {
+      "case_name": "Hollowell v. Johnson",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/9168275/hollowell-v-johnson/",
+      "explanation": "Citation confirmed: Hollowell v. Johnson - https://www.courtlistener.com/opinion/9168275/hollowell-v-johnson/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "523 U.S. 1008"
+    }
+  ],
+  "completed": true,
+  "error": null,
+  "extracted_citations": [
+    "523 U.S. 1008",
+    "385 U.S. 493",
+    "466 U.S. 668",
+    "392 U.S. 1",
+    "87 S. Ct. 616",
+    "104 S. Ct. 2052",
+    "88 S. Ct. 1868"
+  ],
+  "message": "Analysis complete. Found 7 total citations grouped into 4 unique cases, 0 potentially hallucinated.",
+  "progress": 3,
+  "results": {
+    "hallucinated_citations": 0,
+    "total_individual_citations": 7,
+    "total_unique_cases": 4,
+    "verified_citations": 7,
+    "verified_unique_cases": 4
+  },
+  "status": "complete",
+  "total_steps": 3
+}

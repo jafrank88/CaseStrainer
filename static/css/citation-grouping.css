@@ -1,0 +1,132 @@
+/**
+ * Citation Grouping CSS for CaseStrainer
+ */
+
+/* Citation Group Styles */
+.citation-group {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.citation-group-header {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.2s;
+}
+
+.citation-group-header:hover {
+    background-color: #e9ecef;
+}
+
+.citation-group-header.active {
+    background-color: #e9ecef;
+}
+
+.citation-group-content {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+}
+
+.citation-group-content.show {
+    padding: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.case-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.citation-text {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Citation Item Styles */
+.citation-item {
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+}
+
+.primary-citation {
+    background-color: rgba(13, 110, 253, 0.05);
+    border-left: 3px solid #0d6efd;
+}
+
+.alternate-citation {
+    background-color: rgba(108, 117, 125, 0.05);
+    border-left: 3px solid #6c757d;
+    margin-left: 15px;
+}
+
+.alternate-citations-header {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+/* Dropdown Styles */
+.dropdown-group-header {
+    padding: 8px 16px;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    color: #495057;
+    border-bottom: 1px solid #ddd;
+}
+
+.dropdown-item.primary-citation {
+    background-color: rgba(13, 110, 253, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dropdown-item.alternate-citation {
+    padding-left: 25px;
+    background-color: rgba(108, 117, 125, 0.05);
+    color: #6c757d;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.citation-link {
+    margin-left: 10px;
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.citation-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .citation-group-content.show {
+        max-height: 300px;
+    }
+    
+    .citation-item {
+        padding: 5px;
+    }
+    
+    .dropdown-item.primary-citation,
+    .dropdown-item.alternate-citation {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .citation-link {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}

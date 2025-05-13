@@ -1,0 +1,2907 @@
+ 
+ No. 23-825 
+In the Supreme Court of the United States  
+ 
+SALVATORE DELLIGATTI , PETITIONER  
+v. 
+UNITED STATES OF AMERICA  
+ 
+ON WRIT OF CERTIORARI  
+TO THE UNITED STATES COURT OF APPEALS  
+FOR THE SECOND  CIRCUIT  
+ 
+BRIEF FOR THE UNITED STATES  
+ 
+  ELIZABETH  B. PRELOGAR  
+Solicitor  General  
+Counsel  of Record  
+NICOLE M. ARGENTIERI  
+Principal Deputy Assistant 
+Attorney General  
+ERIC J. FEIGIN  
+Deputy Solicitor General  
+AIMEE  W. BROWN  
+Assistant to the Solicitor 
+General  
+SONJA M. RALSTON  
+Attorney  
+Department  of Justice  
+Washington, D.C. 20530 -0001  
+SupremeCtBriefs @usdoj.gov  
+(202) 514 -2217  
+
+(I) QUESTION  PRESENTED  
+Whether attempted murder, in violation of the Violent 
+Crimes in Aid of Racketeering statute, 18 U.S.C. 1959(a)(5),  
+is a crime of violence under 18  U.S.C. 924(c)(3) . 
+
+(III) TABLE OF CONTENTS  
+Page  
+Opinions below  ................................ ................................ ..............  1 
+Jurisdiction  ................................ ................................ ....................  1 
+Statutory provisions involved  ................................ ......................  2 
+Statement  ................................ ................................ ......................  3 
+Summary of argument  ................................ ................................ . 9 
+Argument:  
+Petitioner’s attempted murder offense is a crime of 
+violence under 18 U.S.C. 924(c)(3)  ................................ ....... 13 
+A. Intentionally causing bodily injury or death 
+requires the attempted use of physical force against 
+the person of another  ................................ ......................  14 
+1. Intentionally causing death requires “physical 
+force”  ................................ ................................ ..........  14 
+2. Intentionally causing death requires the “use” 
+of physical force “against the person or 
+property of another”  ................................ .................  17 
+a. The deliberate employment of deadly force 
+to kill a victim is the “use” of force “against 
+the person or property of another”  ..................  18 
+b.  The law of murder and other crimes has 
+traditionally viewed “omissions” as “acts”  ...... 23 
+B. Excluding “omissions” would defeat the design of 
+Section 924(c)(3)( A) and similar elements clauses by 
+cutting out paradigmatically violent crimes  .................  29 
+C. Petitioner’s reading of Section 924(c) is textually 
+and practically unsound  ................................ ..................  33 
+1. Physical force does not require external 
+physical contact  ................................ .........................  33 
+2. Petitioner’s narrow interpretation of “use * * * 
+against the person or property of another” is 
+insupportable  ................................ .............................  36 
+3. Petitioner’s view of Section 924(c)’s structure, 
+purpose, and history is incorrect and self -
+contradictory  ................................ .............................  40 
+
+IV 
+ Table of Contents —Continued:                                                Page  
+D. The rule of lenity does not apply  ................................ ... 47 
+Conclusion   ................................ ................................ ...................  48 
+Appendix A  — Statutory provisions  ................................ ...... 1a 
+Appendix B  — Offenses in effect at the time the  
+ elements  clause was incorporated into  
+ 18 U.S.C. 924(c) that would be at risk  
+ of exclusion  ................................ ...................  11a 
+TABLE OF AUTHORITIES  
+Cases:   
+Allen v. United States , No. 21 -5782,  
+2023 WL 4145321 (6th Cir. June 23, 2023),  
+petition for cert . pending, No. 23 -918  
+(filed Feb. 22, 2024)  ................................ ............................  42 
+Association for Molecular Pathology  v.  
+Myriad Genetics, Inc. , 569 U.S. 576 (2013)  .....................  22 
+Astor  v. Merritt , 111 U.S. 202 (1884)  ................................ ... 19 
+Bailey v. United States , 516 U.S. 137 (1995)  ..........  19, 38, 39  
+Barber  v. Thomas , 560 U.S. 474 (2010)  ...............................  47 
+Begay v. United States , 553 U.S. 137 (2008)  .................  42, 43  
+Borden  v. United States ,  
+593 U.S. 420 (2021) .................  6, 10, 19, 20, 32, 35, 37, 38, 46  
+Caraco Pharm. Labs., Ltd.  v. Novo Nordisk A/S , 
+566 U.S. 399 (2012) ................................ ..............................  45 
+Chambers v. United States , 555 U.S. 122 (2009)  ................  43 
+Commonwealth v. Hall , 78 N.E.2d 644  
+(Mass. 1948)  ................................ ................................ .........  28 
+Davis  v. Commonwealth , 335 S.E.2d 375  
+(Va. 1985)  ................................ ................................ .............  28 
+Faunteroy  v. United States , 413 A.2d 1294  
+(D.C. 1980)  ................................ ................................ ...........  28 
+George v. McDonough , 596 U.S. 740 (2022)  ........................  28 
+
+V 
+ Cases —Continued:  Page  
+James v. United States , 550 U.S. 192 (2007)  ......................  46 
+Johnson v. United States ,  
+559 U.S. 133 (2010) ...........................  10, 13, 14, 16, 17, 34, 36  
+Leocal v. Ashcroft , 543 U.S. 1 (2004)  .......................  19, 37, 38  
+Mathis v. United States , 579 U.S. 500 (2016)  .......................  6 
+Miles v. Apex Marine Corp. , 498 U.S. 19 (1990)  ................  28 
+People v. Beardsley , 113 N.W. 1128 (Mich. 1907)  ..............  25 
+People v. Best , 609 N.Y.S.2d 478  
+(N.Y. App. Div. 1994)  ................................ ..........................  43 
+People v. Steinberg , 595 N.E.2d 845 (N.Y. 1992)  ...............  43 
+Quarles  v. United States , 587 U.S. 645 (2019)  ....................  29 
+Regina v. Marriott , (1838) 173 Eng. Rep. 559  ...................  24 
+Regina v. Conde , (1867) 10 Cox C.C. 547  ............................  24 
+Rex v. Friend , (1802) 168 Eng. Rep. 662 .............................  24 
+Rex v. Saunders , (1836) 173 Eng. Rep. 122  ........................  24 
+Samantar v. Yousuf , 560 U.S. 305 (2010)  ...........................  29 
+Shular  v. United States , 589 U.S. 154 (2020) ......................  47 
+Smith  v. United States , 508 U.S. 223 (1993)  ...........  10, 18, 19  
+State  v. Barnes , 212 S.W. 100 (Tenn. 1919)  ........................  28 
+State  v. Evangelista , 353 S.E.2d 375 (N.C. 1987)  ...............  28 
+State v. Miranda , 878 A.2d 1118 (Conn. 2005)  ...................  28 
+State  v. Smith , 65 Me. 257 (1876)  ................................ ... 25, 28  
+State v. Spates , 405 A.2d 656 (Conn. 1978)  .........................  28 
+State  v. Staples , 148 N.W. 283 (Minn. 1914)  .......................  28 
+State v. Valley , 571 A.2d 579 (Vt. 1989)  ...............................  28 
+State  v. Williquette , 385 N.W.2d 145 (Wis. 1986)  ...............  28 
+Stokeling  v. United States ,  
+586 U.S. 73 (2019)  ................................ .............  32, 34, 3 5, 46 
+Sykes  v. United States , 564 U.S. 1 (2011)  ...........................  46 
+Territory v. Manton , 19 P. 387 (Mont. 1888)  ................  24, 25  
+ 
+
+VI 
+ Cases —Continued:  Page  
+United States v. Báez -Martínez ,  
+950 F.3d 119 (1st Cir. 2020),  
+cert. denied, 141 S. Ct. 2805 (2021)  ................................ ... 17 
+United States v. Bowers , No. 18 -cr-292,  
+2022 WL 17718686, (W.D. Pa. Dec. 15, 2022)  .............  41, 42  
+United States  v. Castleman ,  
+572 U.S. 157 (2014) ...................  9-13, 15 -17, 19, 21, 32 -36, 47  
+United States v. Christie , 717 F.3d 1156  
+(10th Cir. 2013)  ................................ ................................ .... 31 
+United States v. Davis , 588 U.S. 445 (2019)  ...................  6, 30  
+United States v. Keene , 955 F.3d 391 (4th Cir. 2020)  ..........  7 
+United States v. Mayo , 90 F.3d 218 (3d Cir. 2018)  ............  41 
+United States v. Ortiz -Orellana , 901 F.4th 689  
+(4th Cir. 2024),  petition for cert. pending,  
+No. 24 -5040 (filed July 8, 2024)  ................................ ..........  42 
+United States  v. Rodriguez -Moreno ,  
+526 U.S. 275 (1999) ................................ ................................  6 
+United States v. Scott , 990 F.3d 94 (2d Cir.),  
+cert. denied, 142 S. Ct. 397 (2021)  ................  9, 20, 21, 28, 47 
+United States  v. Taylor , 596 U.S. 845 (2022)  ..............  6, 8, 39  
+Voisine  v. United States ,  
+579 U.S. 686 (2016) ................................ ..................  19, 32, 37  
+Zessman  v. State , 573 P.2d 1174 (Nev. 1978)  .....................  28 
+Statutes and guideline : 
+Armed Career Criminal Act of 1984,  
+18 U.S.C. 924(e)  ................................ ................................ ... 29 
+18 U.S.C. 924(e)(2)(B)  ................................ ...............  14, 6a 
+18 U.S.C. 924(e)(2)(B)(i)  ...............................  19, 30, 35 , 6a 
+Firearms Owners’ Protection Act,  
+Pub. L. No. 99 -308, § 104(a)(2)(F), 100 Stat. 457  ...............  5 
+Immigration and Nationality Act,  
+8 U.S.C. 1101(a)(43)(F)  ................................ .................  29, 1a  
+
+VII 
+ Statutes and guideline —Continued:  Page  
+Racketeer Influenced and Corrupt Organizations 
+Act, 18 U.S.C. 1962(d)  ................................ ......................  3, 5 
+18 U.S.C. 2  ................................ ................................ ............  3, 5 
+18 U.S.C. 249(a)(1)  ................................ ................................ . 41 
+18 U.S.C. 921(a)(33)(A) (2012)  ................................ ..............  32 
+18 U.S.C. 921(a)(33)(A)(ii) (2012)  ................................ .........  15 
+18 U.S.C. 922(g) (2012)  ................................ ..........................  32 
+18 U.S.C. 922(g)(9) (2012)  ................................ .....................  32 
+18 U.S.C. 922(g)(9)  ................................ .... 12, 14, 15, 29, 32, 2a  
+18 U.S.C 924(c)  .............  5-8, 12, 13, 18, 27 -30, 33, 40 -42, 44 -47 
+18 U.S.C. 924(c)(1) (1994)  ................................ ......................  38 
+18 U.S.C. 924(c)(1)(A)  ................................ ....................  2, 5, 3a  
+18 U.S.C. 924(c)(1)(A)(i)  ................................ ................  3, 5, 3a  
+18 U.S.C 924(c)(3)  ....................  2, 5, 9 -11, 13, 14, 20, 37, 41, 5a 
+18 U.S.C. 924(c)(3)(A)  ...........  6, 8-10, 13, 17 -19, 23, 29, 31, 39,  
+                                                                                           44, 5a  
+18 U.S.C. 924(c)(3)(B)  ................................ ............  6, 31, 46, 5a  
+18 U.S.C. 924(  j) ................................ ................................ ...... 42 
+18 U.S.C. 1111  ................................ ................................ ........  31 
+18 U.S.C. 1112(a)  ................................ ................................ ... 31 
+18 U.S.C. 1513(b)  ................................ ................................ ... 31 
+18 U.S.C. 1955  ................................ ................................ ...... 3, 5 
+18 U.S.C. 1958  ................................ ................................ ...... 3, 5 
+18 U.S.C. 1959(a)(5)  ................................ ....................  3, 5-7, 7a 
+18 U.S. C. 3142(g)  ................................ .............................  29, 8a 
+Ala. Code § 13A -2-1(3) (1982)  ................................ ...............  27 
+Alaska Stat. (1983):  
+§ 11.81.900(b)(5)  ................................ ...............................  27 
+§ 11.81.900(b)(36)  ................................ .............................  27 
+Ariz. Rev. Stat. Ann. § 13 -105(4) (Supp. 1982)  ....................  27 
+Ark. Code Ann. § 41 -201 (1977)  ................................ ............  27 
+
+VIII  
+ Statutes and guideline —Continued:  Page  
+Cal. Penal Code § 15 (1872)  ................................ ..................  27 
+Colo. Rev. Stat. § 18 -1-501(7) (1978)  ................................ .... 27 
+Del. Code Ann. tit. 11 § 233(b) ( 1979 & Supp. 1984 ) ..........  27 
+Ga. Code Ann. § 16-2-1 (1984)  ................................ ..............  27 
+Haw. Rev. Stat. Ann. § 702 -203 (1976)  ................................  27 
+Idaho Code Ann. § 18 -109 (1979)  ................................ .........  27 
+Ill. Rev. Stat. ch. 38, tit. II, § 4 -1 (1983)  ..............................  27 
+Ind. Code § 35 -41-2-1(a) (Supp. 1984)  ................................ .. 27 
+Iowa Code § 702.2 (1982)  ................................ ......................  27 
+Kan. Stat. Ann. § 21 -3105 (Supp. 1984)  ...............................  27 
+Ky. Rev. Stat. Ann. § 501.030(1) (198 0) ...............................  27 
+La. Stat. Ann. § 14:8 (1974)  ................................ ...................  27 
+Mich. Comp. Laws Ann. §750.5 (1968)  ................................  27 
+Mo. Rev. Stat. § 562.011 (1978)  ................................ ............  27 
+Mont. Code Ann. (1983):  
+§ 45-2-101................................ ................................ ..........  27 
+§ 45-2-202................................ ................................ ..........  27 
+Neb. Rev. Stat. Ann. (1979):  
+§ 28-109(5)  ................................ ................................ ........  27 
+§ 28-109(13)  ................................ ................................ ...... 27 
+N.H. Rev. Stat. Ann. § 626.1 (Supp. 1971)  ..........................  27 
+N.J. Stat. Ann. § 2C:2 -1(b) (1982)  ................................ ........  27 
+N.M. Stat. Ann. § 30 -1-4 (19 73) ................................ ............  27 
+N.Y. Penal Law:  
+§ 15.00(3) (McKinney 1975)  ................................ ............  27 
+§ 15.00(3) (McKinney 2009)  ................................ ..............  9 
+§ 15.00(5) (McKinney 1975)  ................................ ............  27 
+§ 15.10 (McKinney 2009)  ................................ ...................  9 
+§ 20.00 (McKinney 2009)  ................................ .............  7, 9a 
+§ 110.00 (McKinney 20 09) ................................ ...........  7, 9a 
+§ 125.25(1) (McKinney 20 09) ................................ ...... 7, 9a 
+
+IX 
+ Statutes and guideline —Continued:  Page  
+N.D. Cent. Code § 12.1 -02-01(2) (Supp. 1975)  ....................  27 
+Ohio Rev. Code Ann. § 2901.21 (1982)  ................................ . 27 
+Okla. Stat. tit. 21, § 3 (1958)  ................................ ..................  27 
+Or. Rev. Stat. (Supp. 1983):  
+§ 161.085(3)  ................................ ................................ ....... 27 
+§ 161.085(4)  ................................ ................................ ....... 27 
+18 Pa. Cons. Stat. Ann. (1983):  
+§ 301(a)  ................................ ................................ .............  27 
+§ 301(b)  ................................ ................................ .............  27 
+R.I. Gen. Laws § 11 -1-1 (1981)  ................................ .............  28 
+Tex. Penal Code Ann. (1984):  
+§ 6.01(a)  ................................ ................................ ............  28 
+§ 6.01(c)  ................................ ................................ .............  28 
+Utah Code Ann. (1978):  
+§ 76-1-601(2)  ................................ ................................ ..... 28 
+§ 76-1-601(4)  ................................ ................................ ..... 28 
+Wash. Rev. Code ( 1983 ): 
+§ 9A.04.110(1)  ................................ ................................ ... 28 
+§ 9A.04.110(2)  ................................ ................................ ... 28 
+§ 9A.04.110(14)  ................................ ................................ . 28 
+P.R. Laws Ann. tit. 33 , § 3041 (1984)  ................................ ... 28 
+V.I. Code Ann. tit. 14 , § 1 (19 64) ................................ ..........  28 
+United States Sentencing Guidelines § 4B1.2(a)(1)  ..... 29, 7a  
+Miscellaneous:  
+Armed Career Criminal Legislation:  Hearing on 
+H.R. 4639 and H.R. 4768 Before the Subcomm.  
+on Crime of the House Comm. on the Judiciary , 
+99th Cong., 2d Sess. (1986)  ................................ ................  30 
+ 
+ 
+
+X 
+ Miscellaneous —Continued:  Page  
+Roopam Bassi & Saurabh Sharma, S tarvation — 
+By “Ill” or by “Will ,” 2 Current Trends in Diagno-
+sis & Treatment (2018) , https://www.ctdt.co.in/
+doi/pdf/10.5005/ jp-journals -10055 -0034  .....................  16, 20  
+2 Joel Prentiss Bishop, Commentaries on the  
+Criminal Law (4th ed. 1868)  ................................ ....... 25, 26  
+Black’s Law Dictionary  (5th ed. 1 979) ...............................  18 
+4 William Blackstone, Commentaries on the Laws of 
+England  (1769)  ................................ ................................ .... 24 
+Kenneth Chang, NASA Delays Artemis Astronaut 
+Moon Missions , N.Y. Times, Jan. 10, 2024  .....................  22 
+Angela Chen,  The Real Season for Bad Colds,  
+Wall St. J., Aug. 27, 2013  ................................ ....................  22 
+Criminal Code Reform Act of 1981, S. 1630,  
+97th Cong., 1st Sess. (1981)  ................................ ...............  44 
+John Gramlich, Pew Research Ctr., What  
+the Data Says About Gun Deaths in the U.S.   
+(Apr. 26, 2023) , https://www.pewresearch.org/  
+short -reads/2023/04/26/what -the-data -says - 
+about -gun-deaths -in-the-u-s/ ................................ .............  40 
+H.R. Rep. No. 849, 99th Cong., 2d Sess. (1986)  ..................  30 
+Jerome Hall, General Principles of Criminal Law  
+(2d ed. 1960)  ................................ ................................ ... 26, 27  
+Bruce W. Halstead & Curtis D. Klaassen,  
+Poison , Encyclopedia Britannica  (Sept. 4, 2024) ,  
+https://www.britannica.com/science/  
+poison -biochemistry  ................................ ...........................  16 
+1 William Hawkins, A Treatise of the Pleas of the 
+Crown  (1716)  ................................ ................................ ....... 24 
+Otto Kirchheimer, Criminal Omissions ,  
+55 Harv. L. Rev. 615 (1942)  ................................ ...............  23 
+2 Wayne LaFave, Substantive Criminal Law   
+(3d ed. 20 18) ................................ ................................ .........  31 
+
+XI 
+ Miscellaneous —Continued:  Page  
+Hurubie Meko, Prospect Park Zoo Remains Closed 
+After Severe Flood Damage , N.Y. Times,  
+Oct. 14, 2023, https://www.nytimes.com/  
+2023 /10/14/nyregion/prospect -park -zoo- 
+closed -flooding. html  ................................ ...........................  22 
+Model Penal Code § 1.13(7) (1985)  ................................ ....... 27 
+William Neuman & Natalie Keyssar, Despite Tighter 
+Security, J’Ouvert Revelers Feel the Rhythm ,  
+N.Y. Times, Sept. 4, 2018  ................................ ...................  22 
+The Oxford English Dictionary  (1978):  
+Vol. 3  ................................ ................................ ...........  16, 20  
+Vol. 11  ................................ ................................ ...............  18 
+Amrith Ramkumar & Patrick Thomas , Funds Dry 
+Up for High -Tech Farm Startups, Wall St. J.,  
+May 26, 2023  ................................ ................................ ........  22 
+The Random House College Dictionary   
+(rev. ed. 1980)  ................................ ................................ ...... 18 
+Campbell Robertson et al., Rampage Kills 11 at a 
+Synagogue in Pittsburgh , N.Y. Times,  
+Oct. 2 8, 2018  ................................ ................................ .........  41 
+S. Rep. No. 307, 97th Cong., 1st Sess. (1981)  ......................  44 
+S. Rep. No. 225, 98th Cong., 1st Sess. (1983)  ......................  30 
+Neil Ulman, Surviving White Water , Wall St. J., 
+June 7, 1996  ................................ ................................ .........  22 
+Webster’s Ninth New Collegiate Dictionary  (1985)  ..........  18 
+Webster’s Third New International Dictionary of 
+the English Language  (1986)  ................................ ............  18 
+Francis Wharton, A Treatise on the Law of  
+Homicide in the United States  (2d ed. 1875)  ...................  26 
+ 
+
+(1) In the Supreme Court of the United States  
+ 
+No. 23-825  
+SALVATORE  DELLIGATTI , PETITIONER  
+v. 
+UNITED STATES OF AMERICA  
+ 
+ON WRIT OF CERTIORARI  
+TO THE UNITED STATES COURT OF APPEALS  
+FOR THE SECOND CIRCUIT  
+ 
+BRIEF FOR THE UNITED STATES  
+ 
+OPINIONS BELOW  
+The opinion of the court of appeals (Pet. App. 1a -15a) 
+is reported at 83 F.4th 113.  The withdrawn opinion of 
+the court of appeals is reported at 36 F.4th 423.  The 
+summary order of the court of appeals (Pet. App. 16a -
+33a) is not published in the Federal R eporter but is 
+available at 2022 WL 2068434.  The decision and order 
+of the district court (Pet. App. 34a -41a) is not published 
+in the Federal Supplement but is available at 2018 WL 
+95939130.  A subsequent opinion and order of the dis-
+trict court is not pub lished in the Federal Supplement 
+but is available at 2018 WL 1033242.  
+JURISDICTION  
+The amended judgment of the court of appeals was 
+entered on October 2, 2023.  A petition for rehearing 
+was denied on December 14, 2023 (Pet. App. 42a).  The 
+petition for a writ of certiorari was filed on January 29, 
+
+2 
+ 2024 , and was granted on June 3, 2024.  The jurisdiction 
+of this Court rests on 28 U.S.C. 1254(1).   
+STATUTORY PROVISIONS INVOLVED  
+18 U.S.C. 924(c)( 1)(A) and (3)  provide:  
+ (c)(1)(A)   Except to the extent that a greater min-
+imum sentence is otherwise provided by this subsec-
+tion or by any other provision of law, any person who, 
+during and in relation to any crime of violence or 
+drug trafficking crime (including a crime of violence 
+or drug trafficking crime that provides for an en-
+hanced puni shment if committed by the use of a 
+deadly or dangerous weapon  or device ) for which the 
+person may be prosecuted in a court of the United 
+States, uses or carries a firearm, or who, in further-
+ance of any such crime, possesses a firearm, shall, in 
+addition to the punishment provided for such crime 
+of violence or drug trafficking crime — 
+ (i)   be sentenced to a term of imprisonment 
+of not less than 5 years;  
+ (ii)  if the firearm is brandished, be sen-
+tenced to a term of imprisonment of not less than 
+7 years; and  
+ (iii) if the firearm is discharged, be sen-
+tenced to a term of imprisonment of not less than 
+10 years.   
+*  *  *  *  *  
+ (3)  For purposes of this subsection the term 
+“crime of violence” means an offense that is a felony 
+and— 
+ (A) has as an element the use, attempted 
+use, or threatened use of physical force against 
+the person or property of another, or  
+
+3 
+  (B) that by its nature, involves a substantial 
+risk that physical force against the person or 
+property of another may be used in the course of 
+committing the offense.  
+ Other pertinent  statutory provisions are reproduced 
+in an appendix to this brief.  App., infra , 1a-10a.   
+STATEMENT  
+Following a jury trial in the United States District 
+Court for the Southern District of New York, petitioner 
+was convicted on one count of conspiring to commit rack-
+eteering  under the Racketeer Influenced and Corrupt 
+Organizations (RICO)  Act, in violation of 18 U.S.C. 
+1962(d);  one count of operating an illegal gambling busi-
+ness, in violation of 18 U.S.C. 1955  and 2 ; one count of con-
+spiring to commit murder for hire, in violation of 18 U.S.C. 
+1958; one count of conspiring to commit murder, in viola-
+tion of the Violent Crimes in Aid of Racketeering (VICAR)  
+statute, 18 U.S.C. 1959(a)( 5); one count of VICAR at-
+tempted murder , in violation of 18 U.S.C. 1959(a)(5);  and 
+one count of using or carrying a firearm during and in 
+relation to a crime of violence, in violation of 18 U.S.C. 
+924(c)(1)(A)(i)  and 2 .  Judgment 1 -2.  The court sen-
+tenced him to 300 months of imprisonment , to be fol-
+lowed by three  years of supervised release .  Judgment 
+3-4.  The court of appeals affirmed.  Pet. App. 1a-15a, 
+16a-33a.   
+1. Petitioner was an associate in the Genovese Crime 
+Family, part of “the larger criminal network known as 
+‘La Cosa Nostra ’ in New York. ”  Pet. App. 5a.  Petitioner  
+worked for Robert DeBello , a “ made ” member of the 
+Family , and “participat ed in a variety of criminal activ-
+ities, ” including helping to run an illegal sports -gambling 
+operation in Queens .  Ibid .; Presentence Investigation 
+Repor t (PSR) ¶ 17.   
+
+4 
+ In 2014, a local “bully, ” Joseph Bonelli, began  caus-
+ing problems for the owner of a  gas station  that peti-
+tioner and the Family frequented.  Pet. App.  6a; see id. 
+at 5a-6a.  The Family also suspected Bonelli of “cooper-
+ating against ‘known bookies in the neighborhood, ’ which 
+made him a potential threat ” to the Family ’s gambling 
+business.  Id. at 6a (citation omitted) ; see PSR ¶  24.  The 
+gas-station  owner paid petitioner to “organize[] a plot to 
+murder Bonelli .”  Pet. App. 6a.  P etitioner shared the 
+payment with DeBello , received permission to kill 
+Bonelli , and then paid an accomplice $5000 “to coordinate 
+the murder  with several members of the ‘Crips ’ gang. ”  
+Ibid.  
+Once  a “murder crew” was assembled, petitioner 
+gave the  crew  a brown paper bag containing a .38 re-
+volver , provided the  crew  with a car, and sent the  crew  
+to murder Bonelli.  Pet. App. 6a; PSR ¶ ¶ 26, 27.  The 
+crew drove to Bonelli ’s home and waited in a parking lot 
+around the corner  in order  to ambush Bonelli when he 
+returned .  Pet. App. 6a ; PSR ¶ 26 .  When Bonelli arrived 
+home with another person , however, the potential for 
+witnesses led the crew to abort the murder plan .  Pet. 
+App. 6a.  Upon learning that the crew had not killed 
+Bonelli, petitioner tried to get the  crew  “to return at 
+once ” and kill both Bonelli and his companion.  Ibid.   
+The crew refused , but agreed to return the next day.  
+Id. at 6a -7a.   
+The next day, the crew reassembled and again drove 
+to Bonelli ’s home.  Pet. App. 7a.  The  crew  brought the 
+gun that petitioner had provided  the day before, a 
+change of clothes, and a spray bottle “believed to con-
+tain a bleach solution. ”  PSR ¶  27.  While en route, the 
+driver coordinated with petitioner.  Ibid .  But l aw- 
+enforcement officers had learned of the plot , and they 
+
+5 
+ intercepted and arrested the crew  near Bonelli’s home .  
+Pet. App. 7a ; PSR ¶ 27 .   
+Shortly after the crew ’s arrest, petitioner “met with 
+several of his co -conspirators and others in the Family to 
+discuss the botched murder attempt.”  Pet. App. 7a.  And 
+when the accomplice petitioner had paid to coordinate  the 
+murder was released on bail, p etitioner met with him and 
+told him that they should stay in contact so that “maybe 
+[they] could plan to get rid of [Bonelli] for good.”  Ibid.  
+(quoting C.A. App. 154)  (brackets in original) .   
+2. A grand jury in the Southern District of New York 
+charged petitioner  with one count of conspiring to  com-
+mit racketeering under the RICO  Act, in violation of 18 
+U.S.C. 1962(d); one count of operating an illegal gam-
+bling business, in violation of 18 U.S.C. 1955  and 2 ; one 
+count of conspiring to commit murder for hire, in viola-
+tion of 18 U.S.C. 1958; one count of conspiring to commit 
+murder, in violation of the VICAR  statute, 18 U.S.C. 
+1959(a)( 5); one count of VICAR attempted murder, in 
+violation of 18 U.S.C. 1959(a)(5); and one count of using 
+or carrying a firearm during and in relation to a crime 
+of violence , in violation of 18 U.S.C. 924(c)(1)(A)(i).   Sec-
+ond Superseding Indictment 2-20.   
+a. Section 924(c) , the relevant form of which was en-
+acted i n 1986 , specifies a mandatory consecutive sen-
+tence for using or carrying a firearm during and in relation 
+to a “crime of violence,” or possessing a firearm in further-
+ance of  a “crime of violence.”  18 U.S.C. 924(c)(1)(A) ; see 
+Firearms Owners’ Protection Act, Pub. L. No. 99 -308, 
+§ 104(a)(2)(F), 100 Stat. 457 .  Section 924(c)(3) defines a 
+crime of violence  in two ways.  First, the “elements  
+clause ” encompasses  any federal felony that “has as an 
+element the use, attempted use, or threatened use of 
+physical force against the person or property of an-
+
+6 
+ other. ”  18 U.S.C. 924(c)(3)(A).  Second, the “residual 
+clause ” includes any federal  felony that “by its nature, 
+involves a substantial risk that physical force against 
+the person or property of another may be used in the 
+course of committing the offense. ”  18 U.S.C. 924(c)(3)(B).   
+In United States v. Davis , 588 U.S. 445  (2019 ), this 
+Court held that the residual clause is unconstitutionally 
+vague .  Id. at 470.   
+This Court employs a “categorical approach” to de-
+termine whether an offense is a crime of violence under 
+Section 924(c)(3)(A) .  United States v. Taylor , 596 U. S. 
+845, 850  (2022) .  Under that approach, a court “focus[es] 
+solely” on “the elements of the crime of conviction,” not 
+“the particular facts of the case.”   Mathis v. United 
+States , 579 U.S. 500, 504 (2016).  The categorical ap-
+proach assesses  whether the  “least culpable” conduct 
+that could satisfy the  offense elements  in a hypothetical 
+case would  “necessarily involve[  ]” the “‘use, attempted 
+use, or threatened use of physical force against the per-
+son or property of another .’”  Borden  v. United States , 
+593 U.S. 420, 424  (2021) (plurality opinion)  (quoting 18 
+U.S.C. 924(c)(3)(A) ).   
+b. Although the underlying crime of violence for a 
+Section 924(c) offense need not itself be charged as a sep-
+arate count,  see United States  v. Rodriguez -Moreno , 526 
+U.S. 275, 280 (1999),  the Section 924(c)  charge in peti-
+tioner’s indictment listed several of the other charges 
+as potential predicates .  See Second Superseding In-
+dictment 19 -20.  One of those predicates was the charge 
+of attempted  murder under the VICAR  statute, 
+18 U.S.C. 1959(a)(5) .  See Second Superseding Indict-
+ment 20. 
+Section 1959(a)(5) prohibits , inter alia , “attempting  
+* * *  to commit murder ” of any person, “in violation of 
+
+7 
+ the laws of any State or the United States,”  “for the pur-
+pose of   * * *  maintaining or increasing position in an 
+enterprise engaged in racketeering activity. ”  18 U.S.C. 
+1959(a) (5).  Because the VICAR statute requires an un-
+derlying state or federal crime that constitutes  at-
+tempted “murder,” proving a VICAR violation  requires 
+showing that a defendant’s conduct both qualifies as a 
+violation of a state or federal attempted -murder statute 
+and satisfies a generic federal definition of attempted 
+“murder.”  See United States  v. Keene , 955 F.3d 391, 
+398-399 (4th Cir. 2020) .  As a practical matter, i f the rel-
+evant state or federal murder prohibition is substan-
+tially similar to or narrower than the generic definition, 
+the jury may be instructed only as to the specific state 
+or federal offense.  
+The charge of attempted murder underlying peti-
+tioner’s Section 924(c) count was premised on petitioner’s 
+commission of  New York attempted second -degree mur-
+der, in violation of New York Penal Law  § 20.00 (McK in-
+ney 2009); id. § 110.00 (McKinney 20 09); id. § 125.25(1)  
+(McKinney 20 09).  Second Superseding Indictment 16 -
+17.  The applicable  New York  definition of second - 
+degree murder covers conduct in which a defendant has 
+“intent to cause the death of another person [and] 
+causes the death of such person or of a third person. ”  
+N.Y. Penal L aw § 125.25(1)  (McKinney 20 09).  Attempt 
+under New York law, in turn, requires specific intent to 
+commit the underlying crime and “conduct which tends 
+to effect the commission of such  crime. ”  Id. § 110.00  
+(McKinney 20 09); see  id. § 20.00 (McKinney 2009) (aid-
+ing and abetting liability).    
+c. Before trial, p etitioner moved to dismiss the Sec-
+tion 924(c) count , arguing  that Section 924(c) ’s residual 
+clause was unconstitutionally vague  and that none of the 
+
+8 
+ charged predicates qualified as a crime of violence.   
+D. Ct. Doc. 450 , at 14-20 (Nov. 22, 2017).  The district 
+court denied the motion.  Pet. App. 40a-41a.   
+The jury found petitioner guilty on all counts , with a 
+special verdict form specifying that the verdict on the 
+Section 924(c) charge was supported by  each of the  four 
+charged predicates (the three conspiracies and the 
+VICAR attempted murder).  D. Ct. Doc. 568 (Mar. 29, 
+2018) .  The court sentenced petitioner  to 300 months  of 
+imprisonment , consisting of a term of 240 month s on the 
+non-Section 924(c) counts and a consecutive 60 -month 
+sentence for the Section 924(c) offense , to be followed 
+by three years of supervised release .  Judgment 3-4. 
+3. The court of appeals affirmed.  Pet. App. 1a -15a.1   
+In light of Davis , which was  decided while petitioner’s 
+appeal was pending, the government acknowledged that 
+the only viable predicate for the Section 924(c) charge 
+was VICAR attempted murder.  Oral Argument at 14:36 -
+15:10  (2d Cir.  Nov. 18, 2019); see Pet. App. 10a.  
+On appeal, p etitioner assert ed that VICAR at-
+tempted murder based on New York second -degree 
+murder did not satisfy Section 924(c)’s elements clause  
+because it can, in theory, be committed by “omission .”  
+Pet. C.A. Br. 48 -49.  Under New York law, criminal lia-
+bility as a general matter can be premised either on “a 
+ 
+1  On June 8, 2022, th e court of appeals issued both a published opin-
+ion rejecting petitioner’s challenge to his Section 924(c) c onviction , 36 
+F.4th 423, and a summary order disposing of petitioner’s and his co -
+defendant’s other claims, Pet. App. 1 6a-33a.  A few weeks later, when 
+this Court decided United States  v. Taylor , which held that at-
+tempted Hobbs Act robbery is not a crime of violence under Section 
+924(c)(3)(A),  see 596 U.S. at 860,  petitioner successfully moved for 
+panel rehearing , Pet. App.  4a.  The court of appeals withdrew the 
+earlier published opinion and issued an amended opinion that ad-
+dress ed petitioner’s arguments “in light of Taylor .”  Id. at 5a. 
+
+9 
+ voluntary act or the omission to perform an act which 
+[the defendant] is physically capable of performing,” 
+N.Y. Penal Law § 15.10  (McKinney 2009) , with the term 
+“omission” defined as the “failure to perform an act as 
+to which a duty of performance is imposed by law ,” id. 
+§ 15.00(3)  (McKinney 2009) .   
+The court of appeals rejected petitioner’s  argument.  
+See Pet. App. 10a -15a.  The court found  “no question 
+that intentionally causing the death of another person 
+involves the use of force. ”  Id. at 11a-12a (citing United 
+States  v. Castleman , 572 U.S. 157, 169 (2014)).  The 
+court further explained that , as applicable here,  New 
+York ’s attempt law  “ ‘categorically requires that a per-
+son take a substantial step toward the use of physical 
+force, ’ ” and thus “there can be no doubt that attempt to 
+commit second -degree murder under New York law is 
+itself categorically a crime of violence ,” id. at 12a-13a 
+(citation omitted) .  And, r elying on the recent en banc 
+opinion in United States v. Scott , 990 F.3d 94  (2d Cir.) , 
+cert. denied , 142 S. Ct. 397 (2021), the court emphasized 
+that “whether a defendant acts by commission or omis-
+sion, in every instance, it is his intentional use of physical  
+force against the person of another that causes death. ”  
+Pet. App. 14a (quoting Scott , 990 F.3d at 123).   
+SUMMARY OF ARGUMENT  
+Petitioner’s attempted murder offense —which is 
+equivalent for present purposes to a completed murder 
+offense —is a “crime of violence” under 18 U.S.C. 
+924(c)(3).  Murder is a paradigmatically violent crime 
+that has “as an element the use, attempted use, or 
+threatened use of physical force against the person or 
+property of another .”  18 U.S.C. 924(c) (3)(A).  Intention-
+ally causing someone’s body to cease functioning, whether 
+by the “affirmative act” of  shooting a gun or the “omis-
+
+10 
+ sion” of torturously starving a child, inherently involves 
+making physical force the instrument of the victim’s 
+death.   Text, precedent, context, and history all show 
+that homicide and bodily -injury crimes lie at the  core of 
+the elements clause.  Excluding such crimes  would hol-
+low out not only Section 924(c) (3), but elements clauses 
+in other statutes, such as the prohibition against fire-
+arm possession by domestic abusers.   
+A.  Section 924(c)(3)(A)’s text squarely  encompasses 
+offenses involving the intentional causation of bodily in-
+jury or death.  As a threshold matter , such offenses nec-
+essarily involve “physical force,” which this Court has 
+defined as “force exerted by and through concrete bod-
+ies” that is “capable of causing physical pain or injury 
+to another person.”  Johnson  v. United States , 559 U.S. 
+133, 138, 140 (2010).  Indeed, in a related context, this 
+Court has expressly rejected the proposition that “one 
+can cause b odily injury without the use of physical 
+force.”  United States  v. Castleman , 572 U.S. 157, 170 
+(2014)  (citation and internal quotation marks omitted) .  
+Poisoning, for example, involves  “physical force ” be-
+cause it involves “forceful physical properties”  inside 
+someone’s body.  Id. at 171  (citation s omitted) .  A “dis-
+ease,” id. at 170  (citation omitted) , or the starvation of 
+a child , operate similarly.   
+Offenses involving the intentional causation of injury 
+or death also necessarily involve the “use” of that force  
+as the instrument of injury or death  “against” the vic-
+tim.  The ordinary meaning of “use” includes “avail [ing]  
+oneself of,” or “carry [ing]  out a purpose or action by 
+means of.”  Smith  v. United States , 508 U.S. 223, 229 
+(1993 ) (citation s omitted) .  And the “against” clause 
+simply requires that the victim be “the conscious object 
+(not the mere recipient) of the force .”  Borden  v. United 
+
+11 
+ States , 593 U.S. 420, 43 0 (2021) (plurality opinion); id. 
+at 446 (Thomas, J., concurring in the judgment).  Inten-
+tional murder meets those requirements regardless of 
+how it is accomplished.   
+A murderer “carr ies out his purpose” to kill his victim 
+through a physical process whether he stabs the victim 
+with a knife  or withhold s lifesaving medication that he is 
+required to administer.  As the Court has recognized, a 
+poisoner uses force  “not [by] the act of ‘sprinkl[ing]’  the 
+poison ,” but by “ the act of employing poison knowingly 
+as a device to cause physical harm .”  Castleman , 572 
+U.S. at 171 (second set of brackets in original) .  The 
+proper focus is thus on the physical harm that  the de-
+fendant intentionally causes, not any “affirmative act ” 
+he may take.   A defendant “employs” poison whether he 
+places it in the cup or withholds an antidote that the law 
+would require him to provide.    
+Common parlance , in which one can “use” preexist-
+ing forces like river currents, recognizes the equiva-
+lence.  So do es legal tradition, which has for centuries 
+treated  “affirmative acts” and “omissions”  of required 
+conduct  as equivalent.  As commentators recognized, a  
+distinction between the two simply invites  a meaning-
+less word game:  did the parent “omit” to provide food, 
+or affirmatively “withhold” it?  By the time Congress 
+enacted Section 924(c) (3), most  States had rejected such  
+a distinction, and nothing  in the elements clause indi-
+cates  that Congress was adopting one.    
+B. Engrafting such a distinction onto  the elements 
+clause would not only be atextual, but also ahistorical —
+with calamitous consequences that Congress could not 
+have intended .  The history of Section 924(c)(3) and  el-
+ements clauses in  other statutes confirms that Congress 
+included  offenses like murder .  Had Congress  only in-
+
+12 
+ cluded “affirmative act”  crim es, it would have risked ex-
+cluding murder offenses in nearly every jurisdiction, 
+along with numerous state assault and robbery offenses  
+and a variety of federal offenses .  In addition, p eti-
+tioner’s position here would , among other things, undo 
+the Court’s efforts to preserve numerous  offenses as 
+“crime [s] of domestic violence” under 18 U.S.C. 922(g)(9).   
+C. Petitioner  provides no sound support for that po-
+sition .  His assertions  that physical force must be exter-
+nal, and that “using” force requires taking an affirma-
+tive step , have no basis in the statut ory text  and cannot 
+be squared with  this Court’s precedent .  Nor does any-
+thing about the context, history, or purpose of Section 
+924(c) —an offense  directed at using firearms in violent 
+crimes —suggest an elements clause that would treat 
+murder  and similar crimes  as non -forcible offense s 
+based on a handful of “omission” scenarios that would 
+not involve a firearm.  And contrary to petitioner’s  claim,  
+the elements clause —not the residual clause —is the 
+natural home for a quintessentially violent crime  like 
+murder, which involves actual harm, not just the “risk” 
+of it.    
+D. The traditional tools of statutory construction  
+leave no “grievous ambiguity ,” Castleman , 572 U.S. at 
+173 (citation omitted) , that would allow for application 
+of the rule of lenity .  To the contrary, t he Court’s prec-
+edents make particularly clear  that a defendant neces-
+sarily uses physical force in committing a crime involv-
+ing the intentional causation of physical injury —like the 
+shooting that petitioner tried to arrange .   
+
+13 
+ ARGUMENT  
+PETITIONER’S ATTEMPTED MURDER OFFENSE IS A 
+CRIME OF VIOLENCE UNDER 18 U.S.C.  924(C)(3)  
+At least for purposes of the question presented here, 
+petitioner does not dispute  that attempted  murder is a 
+crime of violence under 18 U.S.C. 924(c)(3) so long as 
+murder is .  See  18 U.S.C. 924(c)(3)(A) (covering both 
+“use” and “attempted use” of force) ; see, e.g., Pet. Br. 
+18 (referring to “predicate offense of second -degree 
+murder ”).  And m urder  is a quintessential crime of vio-
+lence  under Section 924(c)(3)(A).  When a defendant in-
+tentionally causes the physical demise of another per-
+son, he has “us e[d]  * * *  physical force against the per-
+son  * * *  of another.”   18 U.S.C. 924(c)(3)(A).  Accord-
+ingly, b ecause New York second -degree murder re-
+quires intentionally caus ing the death of another, peti-
+tioner committed  a crime of violence  under Section 
+924(c) .   
+The text, context, and history of Section 924(c) make 
+clear that a crime like murder is a crime of violence irre-
+spective  of whether it can be committed by withholding 
+required cond uct, as when a parent torturously starves  
+a child.  As this Court’s precedents show, deadly force  
+involved in murder  (i) may be purely internal (as with 
+poison or a disease) , see United States v. Castleman , 
+572 U.S. 157 , 170 (2014) ; (ii) necessarily  qualifies as 
+“force capable of causing physical pain or injury to an-
+other person”  when it actually causes death , Johnson v. 
+United States , 559 U.S. 133, 1 40 (2010) ; and (iii) is “em-
+ploy[ed] ” by the defendant  “as a device to cause physi-
+cal harm ” when it functions as the murder weapon,  Cas-
+tleman , 572 U.S. at 171.  Contrary to petitioner’s argu-
+ment , Section 924(c) does not require an “affirmative ” 
+act or impose other conditions that would eliminate  not 
+
+14 
+ only murder  crimes , but also many assault and robbery 
+offenses, as “crime[s] of violence,” 18 U.S.C. 924(c)(3), 
+“violent felon [ies],” 18 U.S.C. 924(e)(2) (B), and “crime[s] 
+of domestic violence ,” 18 U.S.C. 922(g)(9),  under stat-
+utes specifically designed to cover those offenses .  
+A. Intentional ly Cau sing  Bodily Injury Or Death Requires 
+The Attempt ed Use Of Physical Force  Against The Per-
+son Of Another  
+The language of the elements clause readily encom-
+passes offenses in which a defendant intentionally 
+cause s, or attempt s to cause , bodily injury or death to 
+another, regardless of how the injury manifests.  Whether 
+the injury arises from intentionally firing a bullet or in-
+tentionally starving a child , the crime involves the “use ” 
+or “attempted use  * * * of physical force against the 
+person *  * * of another .”  18 U.S.C. 924(c)(3).  The po-
+tential for crime s to be committed by withholding re-
+quired conduct —a feature of  many canonically violent 
+crimes like murder —is no basis for excluding those of-
+fenses from the elements clause.   
+1. Intentionally causing death requires “physical force ” 
+The term “  ‘physical force’  *  * *  refers to force ex-
+erted by and through concrete bodies —distinguishing 
+physical force from, for example, intellectual force or 
+emotional force.”  Johnson , 559 U.S. at 138 (citation 
+omitted) .  And when used in the context of a statutory 
+definition of a crime of violence, “the phrase ‘physical 
+force’ means violent force —that is, force capable of 
+causing physical pain or injury to another person.”  Id. 
+at 140.  As this Court’s precedent illustrates,  caus ing a 
+person’s body to cease functioning satisfies both re-
+quirements.  
+
+15 
+ a. In United States v. Castleman , the Court ad-
+dressed the scope of a “misdemeanor crime of domestic 
+violence” for purposes of  18 U.S.C. 922(g)(9)’s prohibi-
+tion against firearm possession by domestic abusers .  
+That term is defined, in part, through an elements 
+clause, which requires that the crime “has, as an ele-
+ment, the use or attempted use of physical force.”   18 
+U.S.C. 921(a)(33)(A) (ii) (2012) .  In holding that the def-
+inition  encom passes the crime of “intentionally or know-
+ingly caus[ing]  bodily injury” t o a domestic partner , the 
+Court recognized that “a ‘bodily injury’  must  result 
+from ‘physical force. ’ ”  Castleman , 572 U.S. at 169-170 
+(emphasis added; citation omitted) .  The same logic ap-
+plies here . 
+As Castleman explain ed, the relevant “physical 
+force” is not the act of the defendant, but the basis for 
+the injury.  “That the harm occurs indirectly, rather 
+than directly (as with a kick or punch) , does not matter.”   
+Castleman , 572 U.S. at 171.  The Court squarely re-
+jected the proposition that “one can cause bodily injury 
+without the use of physical force —for example, by de-
+ceiving [the victim]  into drinking a poisoned beverage, 
+without making contact of any kind.”  Id. at 170 (citation 
+and internal quotat ion marks omitted; brackets in orig-
+inal) .  Although the perpetrator  may use only intellec-
+tual “force ” to trick the victim in to drink ing the bever-
+age, the offense nonetheless categorically involves the 
+“physical force”  of the poison “caus [ing]  physical harm”  
+to the victim’s body.   Id. at 171.   The “physical force”  in 
+that scenario is the poison’s “forceful physical proper-
+ties as a matter of organic chemistry.”  Ibid.  (citations 
+and internal quotation marks omitted).  
+What is true for poison is likewise true for other 
+sources of harm,  like starvation or disease .  Whether by 
+
+16 
+ poison, starvation, or lack of medicine, what causes 
+harm or death is the physical impediment of a bodily 
+process  through the presence of a substance harmful  to 
+the body’s physical functioning (e.g., poison  or disease ) 
+or the absence of a substance necessary to the body’s 
+physical survival (e.g., food or medication ).  Poisoning in-
+volves “a toxic level” of a chemical that “accumulate[s] in 
+the cells of the target or tissue,” which “injur[es]” the cells 
+and “disrupts their normal structure or function .”  Bruce 
+W. Halstead & Curti s D. Klaassen , Poison , Encyclopedia 
+Britannica  (Sept.  4, 2024) , https://www. britannica.com/
+science/ poison -biochemistry .  Similarly, s tarvation involves 
+the “body break [ing]  down its own muscles and other tis-
+sues .”  Roopam Bassi & Saurabh Sharma, Starvation —By 
+“Ill” or by “Will ,” 2 Current Trends in Diagnosis & Treat-
+ment 32 (2018), https://www.ctdt.co.in/ doi/pdf/10.5005/
+jp-journals -10055 -0034  (Starvation ); see id. at 34 -35.  
+And bodily disease is a “condition  of the body, or of 
+some part or organ of the body, in which its functions 
+are disturbed or deranged.”  3 The Oxford English Dic-
+tionary  441 (1978)  (OED).   
+b. Because Castleman involved “physical force” in 
+the context of a misdemeanor,  its reasoning looked to  
+the meaning of  “applying force in the common -law 
+sense .”  572 U.S. at 170 .  The Court  did not address the 
+further requirement, applicable to felony -level force, 
+that it be “violent force —that is, force capable of caus-
+ing physical pain or injury to another person ,” Johnson , 
+559 U.S. at 140 ; see Castleman , 572 U.S. at 163 -166.  But 
+as Justice Scalia’s concurrence in Castleman recog-
+nized,  force that causes bodily harm —or death —satisfies  
+that requirement as well.   See 572 U.S. at 174.   
+As Justice Scalia explained, it “is impossible to cause 
+bodily injury without using force ‘capable of  ’ producing 
+
+17 
+ that result.”  Castleman , 572 U.S.  at 174 (Scalia, J., con-
+curring in part and concurring in the judgment).  Force 
+that causes bodily injury is therefore “violent force ,” 
+Johnson , 559 U.S. at 140 (emphasis omitted) —which is, 
+“after all,  * * *  simply physical force distinguished by 
+the degree of harm sought to be caused.”   United States 
+v. Báez -Martínez , 950 F.3d 1 19, 132 (1st Cir. 2020) , cert. 
+denied, 141 S. Ct. 2805 (2021) .   
+The distinction in the potential harmfulness of the 
+force  does not suggest a difference in what the relevant 
+force is.  The focus  of the inquiry  remains the same as 
+in Castleman :  on the “ ‘forceful physical properties ’ ” of 
+poison, not the gentle “sprinkling” of it; the “bullet   * * *  
+that actually  strikes the victim,” not the “pulling [of] the 
+trigge r”; or the car crash, not the  “ ‘intangible ’  * * *  la-
+ser beam” that blinds the driver .  572 U.S. at 17 0-171 
+(brackets and citations omitted).    
+Nothing suggests that such injurious or deadly  
+harm s would involve “physical force” for misdemeanor 
+purposes, but  not felony purposes.  Were it otherwise, 
+murder would be disqualified as a crime of violence 
+simply because it can be committed by poisoning (or 
+pulling a trigger) —a result that even petitioner disa-
+vows.  Br. 7, 13, 31 -32. 
+2. Intentionally causing death requires the “use” of 
+physical force  “against the person or property of an-
+other ” 
+Ordinary meaning , precedent, and the relevant  legal 
+backdrop likewise show that i ntentionally causing 
+someone’s death satisfies Section 924(c)(3)(A)’s require-
+ment that the force be “use[d]  *  * *  against the person 
+or property of another .”  18 U.S.C. 924(c)(3)(A).   Whether 
+through “act” or “omission,” the harm -causing force is  
+the means through which the defendant kills his victim.   
+
+18 
+ a. The deliberate employment of deadly force to kill a 
+victim is the “use” of force “against the person or 
+property of another”  
+i. As this Court observed  in Smith  v. United States , 
+508 U.S. 223 (1993) , the “ordinary,” “natural,” “every-
+day meaning” of the word “use” requires only that a 
+person “  ‘make use of  ’ ” something , “ ‘convert [ it] to one’s 
+service, ’ ” “ ‘employ [it], ’ ” “ ‘avail oneself of [it], ’ ” “ ‘carry 
+out a purpose or action by means of  [it],’ ” or “ ‘derive 
+service from [it] .’ ”  Id. at 22 8-229 (citations omitted) .  
+Dictionaries at the time that Section 924(c)(3)(A) was 
+enacted include similarly expansive definitions.  See, 
+e.g., 11 OED  471 (“[t]o make use of (some immaterial 
+thing) as a means or instrument; to employ for a certain 
+end or purpose ”; “[t]o employ or make use of (an article, 
+etc.,) esp. for a profitable end or purpose; to utilize, turn 
+to account”) ; Black’s Law Dictionary 1381 -1382 (5th ed. 
+1979) (“[t]o make use of, to convert to one’s service, to 
+avail one’s self of, to employ”; “to employ for or apply to 
+a given purpose”; “to carry out a purpose or action by 
+means of  ”).2  Accordingly, in Smith , the Court inter-
+preted  “use” in another (then -current) provision  of Sec-
+tion 924(c) as “sweep[ing] broadly ” and cautioned 
+against limiting the term to “the example of ‘use’ that 
+most immediately comes to mind” when doing so would 
+ 
+2  See also, e.g., Webster’s Third New International Dictionary of 
+the English Language 2523 -2524 (1986) (“to put into action or ser-
+vice: have recourse to or enjoyment of  ”; “to carry out a purpose or 
+action by means of : make instrumental to an end or process : apply 
+to advantage”);  Webster’s Ninth New Collegiate Dictionary  1299  
+(1985) (“to put into action or service : avail oneself of : employ”; “to 
+carry out a purpose or action by means of  ”) (capitalization omitted) ; 
+The Random House College Dictionary  1448  (rev. ed. 1980) (“to em-
+ploy for some purpose; put into service; make use of  ”; “to avail one-
+self of; apply to one’s own purposes”).  
+
+19 
+ “exclude[] any other use” that is consistent with “dic-
+tionary definitions and experience.”  508 U.S. at 229 -230 
+(emphasis omitted).     
+This Court’s subsequent decisions  illustrate  that a 
+similarly broad definition applies here .  In interpreting  
+the term “use” in the  definition  of a misdemeanor crime 
+of domestic violence, the Court  in Voisine  v. United 
+States , 579 U.S. 68 6 (2016) , looked to verb forms of th e 
+word and embraced prior decisions —including Smith —
+explaining that it means “ ‘to convert  to one’s service, ’ 
+‘to employ ’ or ‘to avail oneself of ,’ ” and “to employ or to 
+derive service from.”  Id. at 692 n.3 (2016)  (brackets and 
+citations omitted) (quoting Bailey  v. United States , 516 
+U.S. 137, 145 (1995); Smith , 508 U.S. at 229 ; Astor  v. 
+Merritt , 111 U.S. 202, 213 (1884) ).   
+And as the plurality in Borden v. United States , 593 
+U.S. 420 (2021), recognized, the meaning  of “use”  in the 
+misdemeanor crime of domestic violence provision at is-
+sue in Voisine is no different  from the meaning of “use”  
+in an elements clause like Section 924(c)(3)(A) ’s.  Con-
+struing the nearly identical elements clause in the 
+Armed Career Criminal Act  of 1984  (ACCA), 18 U.S.C. 
+924(e)(2)(B)(i) , the Borden plurality made clear that 
+“the word ‘use’  * * *  is indeed  the same” there as it was 
+in Voisine .  593 U.S.  at 442 ; see  Castleman , 572 U.S. at 
+170-171 (relying on Leocal  v. Ashcroft , 543 U.S. 1 (2004), 
+in interpreting  the word “use” in the definition of a mis-
+demeanor crime of domestic violence).  
+The “textual difference ,” Borden , 593 U.S. at 442 
+(plurality opinion),  between an elements clause like the 
+ACCA’s or Section 924(c)(3)(A) ’s and the one in Voisine 
+is that Section 924(c)(3)(A) ’s requires the “use” (or at-
+tempted or threatened use) of force “against the person 
+or property of another ,” 18 U.S.C. 924(c)(3)(A).   But th e 
+
+20 
+ additional phrase simply requires that the victim be 
+“the conscious object (not the mere recipient) of the 
+force ,” necessitating a mens rea greater than reckless-
+ness .  Borden , 593 U.S. at 430 (plurality opinion) ; see id. 
+at 433 (plurality opinion) (suggesting that the additional 
+language would otherwise be “surplusage”); id. at 446 
+(Thomas, J., concurring in the judgment) .  That phrase 
+does not alter the broad meaning of “use,” see id. at 442 
+(plurality opinion), let alone suggest that intentional 
+murder is not a “crime of violence” under Section 
+924(c)(3) when physical force is deliberately employed 
+to kill a victim.  
+ii. The statutory text therefore plainly encompasses 
+intentional murder .  And it does so irrespective of whether  
+the criminal’s  conduct can be characterized as an “omis-
+sion.”  A defendant who intends to cause death by with-
+hold ing a duty owed to another can “ employ,” “utilize,” 
+“avail himself of,” or “carry out [his] purpos e” by means 
+of existing physical force  even if he does not  directly  in-
+itiate that force .   
+For example, a  lifeguard who sees his enemy drown-
+ing in the water can make use of the force of the water 
+and the lack of oxygen in the victim’s lungs to end that 
+enemy’s life.   A parent who starves his child to death 
+avails himself of the  physical processes of the  child’s 
+body to fulfill his own purposes.  See Starvation 34-35.  
+And a  caretaker intent on ridding himself of a patient 
+can carry out that intent  by withholding life -saving 
+medicine, thereby using an existing disease to cause the 
+patient’s death.  See 3 OED 441.  In each case, the per-
+petrator “causes death by breaching a legal duty to 
+check or redress violent force because  he intends 
+thereby for that force to cause serious physical injury ” 
+to his victim.  United States v. Scott , 990 F.3d 94, 101 
+
+21 
+ (2d Cir.) (en banc) , cert. denied, 142 S. Ct. 397 (2021) .  
+In doing so, he “ is making that force his own injurious 
+instrument”  against his target.   Ibid.  
+The poisoning example from Castleman is directly 
+on point.  The Court recognized  that “the word ‘use’ con-
+veys the idea that the thing used (here, ‘physical force’) 
+has been made the user’s instrument .”  572 U.S. at 170 -
+171 (citation omitted) .  And the Court explained that the 
+“use of force”  in poisoning  “is not the act of ‘sprinkl [ing]’  
+the poison; it is the act of employing poison knowingly 
+as a device to cause physical harm.”   Id. at 171 ( brackets  
+in original ).  Thus, the “use” of force in murder —
+whether it be committed by poison, gun, starvation,  
+suffocation, or preexisting disease , see id. at 170 -171—
+necessarily involves “employing” lethal force to effect  
+the death , id. at 171 .  That can be accomplished by ab-
+staining from a legal duty , so as to allow a physical force 
+to kill the victim,  just as much as it can by any other 
+deliberate employment  of force .   
+iii. Notwithstanding the consistent teachings of dic-
+tionaries and this Court’s precedents  construing the 
+relevant terms, petitioner asserts  (Br. 12 -13) that in 
+common parlance, to “use” force requires an affirmative 
+action to “convert[] force to [the actor’s] service”  and 
+that Section 924(c)(3)(A) should incorporate such a lim-
+itation.  That  assertion  is unsound .   
+A car owner , for example,  can “use” the force of the 
+rain to wash off grime  simply by leaving the car parked 
+on the street .  A farmer can “use” the force of wind or a 
+rushing stream to power a pump simply by allowing a 
+windmill or water wheel to continue functioning.  And a 
+rancher can “use” the force of a natural brush fire to 
+clear unwanted scrub by not taking affirmative step s to 
+put the fire out.   
+
+22 
+ This  Court  has itself referred to the “use” of forces 
+that the actor did not “unleash [],” Pet. Br. 13.   In Asso-
+ciation for Molecular Pathology v. Myriad Genetics, 
+Inc., 569 U.S. 576 (2013),  this Court explained how the 
+process of synthetically creating DNA “us es the natural 
+bonding properties of nucleotides to create a new, syn-
+thetic DNA molecule.”  Id. at 582.  Those natural prop-
+erties long predate  the scientists.  The Court’s applica-
+tion of “use” reflects unexceptional English terminol-
+ogy.  
+Newspaper articles report that, f or example, t he 
+Orion capsule “us [ed] lunar gravity to sling itself back 
+to Earth for a Pacific Ocean splashdown .”  Kenneth 
+Chang, NASA Delays Artemis Astronaut Moon Mis-
+sions , N.Y. Times, Jan. 10, 2024 , at A11 .  Gangs “us [ed] 
+the darkness and crowds as cover to settle scores .”  Wil-
+liam Ne uman & Natalie Keyssar, Despite Tighter Secu-
+rity, J’Ouvert Revelers Feel the Rhythm , N.Y. Times, 
+Sept. 4, 2018 , at A15 .  A sea lion at the Central Park Zoo 
+“used the flooding to escape brief ly from her enclo-
+sure .”  Hurubie Meko, Prospect Park Zoo Remains 
+Closed After Severe Flood Damage , N.Y. Times, Oct. 14, 
+2023 , https://www.nytimes.com/2023/ 10/14/nyregion/pro-
+spect -park -zoo-closed -flooding. html .  Modern green-
+house s “use energy from the sun to grow plants hori-
+zontally .”  Amrith Ramkumar & Patrick Thomas, 
+Funds Dry Up for High -Tech Farm Startups , Wall St. 
+J., May 26, 2023 , at B1 .  The human body “use [s] all its 
+metabolic resources to fight off disease .”  Angela Chen,  
+The Real Season for Bad Colds , Wall St. J., Aug. 27, 
+2013 , at D1 . 
+It is similarly unremarkable to say that river rafters 
+“use the current to paddle from one side of the river to 
+the other.”   Neil Ulman, Surviving White Water , Wall 
+
+23 
+ St. J., June 7, 1996 , at A10 .  And a s the government ob-
+served  in briefing at the certiorari stage (Br. 1 4), raft-
+ers would likewise be “us[ing]  * * *  the river’s natural 
+current” if they were not paddling at all, but simply tak-
+ing advantage of the current  to carry them onward.  Pe-
+titioner asserts  (Br. 32) that the river -rafting example 
+does not count because even if the rafter sits idly on the 
+raft, allowing the current to carry him forward, he must 
+take some action to position himself and the raft in the 
+first instance.  But “use” of the current does not depend 
+on some preceding action.  A rafter involuntarily thrown 
+off a boat onto the raft could likewise “use” the current 
+to travel downriver.   
+b.  The law of murder and other crimes has tradition-
+ally viewed  “omissions” as “acts”  
+Petitioner’s effort to introduce an affirmative act re-
+quirement into Section 924(c)(3)(A)’s  elements clause is 
+not only atextual, but also conflicts with the longstand-
+ing legal equivalence between “acts” and “omissions.”   
+The criminal law generally does not play word games 
+about whether denying medicine should be described as 
+“failing to provide ” it or affirmatively “withholding ” it.   
+Either  would typically lead to criminal liability, and le-
+gal authorities would describe both as the “use ” of force.  
+Congress presumably understood that and meant for 
+Section 924(c)(3)(A) to work the same way. 
+i. Recognition of the  equivalence of affirmative acts 
+and acts of omission for purposes of criminal liability 
+dates back at least to Roman times.  Roman law  “penal-
+ized homicide  brought about by means of wilful starva-
+tion, or by failure to complete a surgical operation.”  
+Otto Kirchheimer, Criminal Omissions , 55 Harv. L. Rev. 
+615, 615 ( 1942).    
+
+24 
+ English law likewise rejected a distinction between 
+affirmative acts and omission s.  Blackstone, for exam-
+ple, described a “crime” as “an act committed , or omit-
+ted, in violation of a public law, either forbidding or 
+commanding it.”   4 William Blackstone, Commentaries 
+on the Laws of England  5 (1769) (capitalization omit-
+ted).  And in addressing  murder, Hawkins explained 
+that “ he who wilfully neglects to prevent a Mischief, 
+which he may , and ought to provide against, is, as some 
+have said, in Judgment of the Law, the actual Cause of 
+the Damage which ensues.”   1 William Hawkins, A 
+Treatise of th e Pleas of the Crown 79 (1716) .   
+In accord with those authorities,  English defendants 
+could be, and were,  charged with and convicted of hom-
+icide or manslaughter for abstaining from a required 
+duty, such as the duty to feed a child .  See Regina  v. 
+Conde , (1867) 10 Cox C.C. 547 (willful murde r charge 
+against  parents , mother convicted of manslaughter ); 
+see also, e.g., Regina v. Marriott , (1838) 173 Eng. Rep. 
+559 (defendant convicted of manslaughter for confining 
+an elderly woman  without food ); Rex v. Saunders , 
+(1836) 173 Eng. Rep. 122 , 123  (noting that if a woman’s 
+“husband supplied her with food for [an illegitimate] 
+child, and she wilfully neglected to give it to the ch ild, 
+and thereby caused its death, it might be murder in 
+her”); Rex v. Friend , (1802) 168 Eng. Rep. 662 (defend-
+ant indicted for failure to provide sufficient food and 
+bedding to an apprentice) .  While some defendants were 
+acquitted for lack of sufficient evidence of a duty, see, 
+e.g., Saunders , 173 Eng. Rep. at 123, “omission” of a re-
+quired act was an accepted basis for homicide liability.   
+ii. American law followed the same course .  In Ter-
+ritory v. Manton , 19 P. 387 (Mont. 1888), for example, 
+the Supreme Court of the Territory of Montana upheld 
+
+25 
+ a husband’s manslaughter conviction for leaving his in-
+toxicated wife lying in the snow, causing her to die from 
+exposure. See id. at 393 -394.  The court explained that 
+“wherever there is a legal duty, and death comes by rea-
+son of any omission to discharge it, the party omitting 
+it is guilty of a felonious homicide.”   Id. at 392  (quoting 
+2 Joel Prentiss Bishop, Commentaries on the Criminal 
+Law § 68 9, at 375 (4th ed. 18 68) (Bishop) ).  The court  
+held that  “[t]he very volition of the defendant which led 
+him to refuse aid to his wife, when the law imposed the 
+duty upon him to protect her, is transferred to the vio-
+lence of the elements, and he is made to use their forces , 
+and hence is responsible for the death they immediately 
+caused.”  Ibid . (emphasis added).   
+The court  in Manton  thus both rejected a distinction 
+between affirmative acts and “ ‘omission [s],’ ” and ex-
+pressly described  the husband’s conduct as a “use [of] 
+force []” to cause death.  19 P. at 392.  Other American 
+jurisdictions similarly based criminal conviction s on 
+such “omission s.”  See, e.g., People v. Beardsley , 113 
+N.W. 1128, 1128 (Mich. 1907) (“The law recognizes that 
+under some circumstances the omission of a duty owed 
+by one individual to another, where such omission re-
+sults in the death of the one to whom the duty is owing, 
+will make the other chargeable with manslaughter.”);  
+State v. Smith , 65 Me. 257, 267 (1876) (“It is settled be-
+yond a question that the naked negligent omission of a 
+known duty, when it causes or hastens the death of a 
+human being, constitutes manslaughter.”) .   
+As an early treatise cited in Manton explained —in a 
+section on “[t]he kinds of force by which life is tak en”—
+“whenever the volition, of whatever kind, put forth by 
+one man, results in the death of another  man , the for-
+mer is to be charged with having committed the homi-
+
+26 
+ cide.”  Bishop  § 682, at 371 .  The treatise emphasized  
+that “it is immaterial whether the action be of the mind 
+or the body; whether it operated solely , or concurrently 
+with other things;   * * *  whether it was a blow, or a 
+drug,  *  * *  or a leaving of a dependent person in a place 
+of exposure, or any omission of a duty which the law en-
+joins.”  Ibid . (footnotes omitted).    
+iii. The longstanding refusal to draw a rigid distinc-
+tion between affirmative “acts” and “omissions”  has sound 
+conceptual grounding .  As commentators have recog-
+nized, “[t]here is no such thing, in fact, as an omission 
+that can be treated as an absolute blank.   A man who is 
+apparently inactive is actually doing something, even 
+though that something is the cancelling of something 
+else that he ought to have done.”  Francis Wharton, A 
+Treatise on the Law of Homicide in the United States  
+§ 72, at 50 ( 2d ed. 1875).  Put another way, “the relevant 
+‘act’ consists not of the forbearance, but of overtly doing 
+something other than what the defendant was legally 
+obliged to do.”   Jerome Hall, Gene ral Principles of 
+Criminal Law  198 ( 2d ed. 1960)  (Hall) .  Nero did not 
+merely  “omit” to rescue Rome; he fiddled while it 
+burned.   
+There is no reason to differentiate between  a care-
+giver who affirmatively removes life -giving medication 
+from a bedridden patient’s reach and a caregiver who 
+otherwise withholds the medication in violation of  his 
+duty to provide it.  The former case might  be classified 
+as an affirmative act in which  “the defendant initiates 
+the subjection of his victim to certain physical forces or 
+* * *  initiates the aggravation of already operative 
+forces .”  Hall 197.  And the latter might be character-
+ized as an “omission, ” in which the defendant “does not 
+initiate the occurrence of the harm, but he permits cur-
+
+27 
+ rent forces to take a toll which he could prevent.”  Ibid .  
+But “there is no essential difference in conduct or cau-
+sation .”  Ibid.   In both cases, “there is use of , there is 
+‘cooperation with,’ those external forces .”  Ibid .  (em-
+phasis added).  
+iv. Consistent with that view, by the time Congress 
+enacted Section 924(c) and the “crime of violence” defi-
+nition, the Model Penal Code had long taken the posi-
+tion that an omission when there is a duty to act should 
+be treated as a criminally culpable act ion.  See Model 
+Penal Code § 1.13(7) (19 85) (as adopted at the 1962 An-
+nual Meeting of the American Law Institute, May 24, 
+1962) .  And by the time the elements clause was first 
+incorporated into Section 924(c) , New York and at least 
+34 other jurisdictions had likewise enacted statutes 
+adopting that view.  See N.Y. Penal Law § 15.00(3) and 
+(5) (1975) (“ ‘Omission’ means a failure to perform an act 
+as to which a duty of performance is imposed by law” 
+and “ ‘[t]o act’ ” includes “omit[s] to perform an act.”) .3   
+ 
+3  See Ala. Code § 13A -2-1(3) ( 1982); Alaska Stat. § 11.81.900(b)(5) 
+and (36) (1983); Ariz. Rev. Stat. Ann. § 13 -105(4) (Supp. 1982 ); Ark. 
+Code Ann. § 41-201 (1977); Cal. Penal Code § 15 ( 1872 ); Colo. Rev. 
+Stat. § 18 -1-501(7) ( 1978 ); Del. Code Ann. tit. 11 § 233(b)  (1979 & 
+Supp. 1984 ); Ga. Code Ann. § 16-2-1 (198 4); Haw. Rev. Stat. Ann.  
+§ 702 -203 (197 6); Idaho Code Ann. § 18 -109 (197 9); Ill. Rev. Stat. ch. 
+38, tit. II, § 4 -1 (1983) ; Ind. Code § 35-41-2-1(a) (Supp. 1984 ); Iowa 
+Code § 702.2 (1982) ; Kan. Stat. Ann. § 21-3105 ( Supp. 1984 ); Ky. Rev. 
+Stat. Ann. § 501.030(1) (19 80); La. Rev. Stat. Ann. § 14:8 (1974); 
+Mich. Comp. Laws Ann. §  750.5 (1968); Mo. Rev. Stat. § 562.011 
+(1978) ; Mont. Code Ann. § § 45-2-101, 45-2-202 (19 83); Neb. Rev. 
+Stat. Ann. § 28 -109(5)  and (13) (1979); N.H. Rev. Stat. Ann.  
+§ 626 :1(I) (Supp. 1971); N.J. Stat. Ann. § 2C:2 -1(b) ( 1982 ); N.M. Stat. 
+Ann. § 30 -1-4 (19 78); N.D. Cent. Code § 12.1 -02-01(2) ( Supp. 1975 ); 
+Ohio Rev. Code Ann. § 2901.21 (1982); Okla. Stat. tit. 21, § 3 (1958); 
+Or. Rev. Stat § 161.085( 3) and (4) ( Supp. 1983 ); 18 Pa. Cons. Stat. 
+ 
+
+28 
+ In seven  additional  jurisdictions , courts had en-
+dorsed “omissions ” liability in cases of murder or man-
+slaughter.4  And o ther jurisdictions have since recog-
+nized such liability —in cases that presumably describe 
+what the law has always been , see George  v. McDonough , 
+596 U.S. 740, 751 (2022) ( acknowledging “general prin-
+ciple[]” that “a judicial decision states what [a] statute 
+‘always meant ’ ”) (citation omitted).5  Indeed, the gov-
+ernment is not aware of any jurisdiction that has ex-
+pressly rejected omissions  liability.6   
+When Congress enacted Section 924(c), it presuma-
+bly “ was aware of the [] background principles recogniz-
+ing that the elements of a crime —including the causation 
+elements of crimes such as murder and manslaughter —
+can be satisfied by acts of omission as well as acts of 
+commission.”  Scott , 990 F.3d at 115 ; see, e.g., Miles  v. 
+ 
+Ann. § 301(a)  and (b) (19 83); R.I. Gen. Laws § 11-1-1 (19 81); Tex. 
+Penal Code Ann. § 6.01(a)  and (c) (19 84); Utah Code Ann. §  76-1-
+601(2)  and (4) (1978); Wash. Rev. Code § 9A.04.110(1) , (2), and (14) 
+(1983 ); P.R. Laws Ann. tit. 33 , § 3041 (1984); V.I. Code Ann. tit. 14 , 
+§ 1 (19 64). 
+4  See State v. Spates , 405 A.2d 656 (Conn. 1978);  State  v. Smith , 
+65 Me. 257 (1876) ; Commonwealth v. Hall , 78 N.E.2d 644 (Mass. 
+1948); State  v. Staples , 148 N.W. 283 (Minn. 1914); Zessman  v. State , 
+573 P.2d 1174 (Nev. 1978); State  v. Barnes , 212 S.W. 100 (Tenn. 
+1919); Faunteroy  v. United States , 413 A.2d 1294 (D.C. 1980).   
+5  See State  v. Evangelista , 353 S.E.2d 375 (N.C. 1987);  State v. 
+Valley , 571 A.2d 579 (Vt. 1989);  Davis  v. Commonwealth , 335 S.E.2d 
+375 (Va. 1985) ; State  v. Williquette , 385 N.W. 2d 145 (Wis. 1986) .    
+6  In State v. Miranda , 878 A.2d 1118  (2005)  (per curiam) , the Su-
+preme Court of Connecticut reversed a n assault conviction prem-
+ised on “failing to protect the victim from physical abuse ,” id. at 
+1120 , without reaching a consensus about the general issue of “omis-
+sion” liability.  See id. at 1123 ; see id. at 1140 -1154  (Vertefeuille, J., 
+concurring) ; id. at 1130  (Borden, J., concurring) ; id. at 766 -790 
+(Katz, J., dissenting) .   
+
+29 
+ Apex Marine Corp. , 498 U.S. 19, 32 (1990) (“We assume 
+that Congress is aware of existing law when it passes 
+legislation.”).  There is every reason to believe that Con-
+gress intended the elements clause to encompass those 
+principles.  See Samantar v. Yousuf , 560 U.S. 305, 320 
+n.13 (2010) (“Congress ‘is understood to legislate 
+against a background of common law  .  . .  principles.’  ”) 
+(citation omitted).   
+B. Excluding “Omissions ” Would Defeat The Design Of 
+Section 924(c)(3)(A) And Similar Elements Clauses By 
+Cutting Out  Paradigmatically Violent Crimes  
+The genesis of the elements clause in Section 924(c) , 
+and similarly worded elements clauses , underscores 
+that Congress designed the clause to encompass quin-
+tessentially violent offenses like murder , assault , and 
+robbery —many of which would be at risk of exclusion 
+under petitioner’s reading.  The Court should not adopt 
+an interpretation that would effectively render Section 
+924(c) —as well as other elements -clause statutes like 
+the domestic -abuser proscription in Section 922(g)(9 )—
+“self -defeating .”  Quarles  v. United States , 587 U.S. 645, 
+654 (2019).    
+1. As petitioner recognizes  (Pet. 27 -28), adopting his in-
+terpretation of the elements clause in Section 924(c)(3) (A) 
+would  have broad ramifications for materially identical 
+language in numerous statutes.  Analogous  clauses ap-
+pear in , or are cross -referenced by,  the ACCA,  see 18 
+U.S.C. 924(e) ; the pretrial detention statute, see 18 
+U.S.C. 3142(g) ; the Immigration and Nationality Act, 
+see 8 U.S.C. 1101(a)(43)(F) ; the Sentencing Guidelines, 
+see Sentencing Guidelines  § 4B1.2(a)(1) ; and the prohi-
+bition on firear m possession by misdemeanant domestic 
+abusers, see 18 U.S.C. 922(g)(9).   
+
+30 
+ Contrary to petitioner’s contention s (Br. 25 -27), the 
+history of the most similar clause —the ACCA’s  defini-
+tion of a potentially sentence -enhancing “violent fel-
+ony,”  see 18 U.S.C. 924(e)(2)(B)(i) —cuts against him.   
+The current version of the ACCA was an effort to retain  
+its “original predicate offenses ” of robbery and bur-
+glary, while also giving the statute “greater sweep” by 
+amending it “to apply to career criminals whose prior 
+offenses may be murder” or “rape.”  Armed Career 
+Criminal Legislation: Hearing on H.R. 4639 and H.R. 
+4768 Before the Subcomm. on Crime of the House 
+Comm. on the Judiciary , 99th Cong., 2d S ess. 44, 46 -47 
+(1986) (statement of Senator Specter)  (ACCA Hearing ).  
+And  the House Report for the relevant 198 6 amendment 
+specifically identified “murder, rape, assault [and] rob-
+bery” as among the crimes “involving physical force 
+against a person ”—i.e., elements -clause crimes .  H.R. 
+Rep. No. 849, 99th Cong., 2d Sess. 3 (1986) ; see ACCA 
+Hearing  2 (Rep. Hughes urging amendment of the 
+ACCA to reach “murder, rape, assault, robbery,  
+et cetera ,” which he viewed as “felonies involving phys-
+ical force against a person”).    
+The specific definition of “crime of violence” in Sec-
+tion 924(c) has a similar pedigree.  In adopting that def-
+inition in several  places in the code, see United States 
+v. Davis , 588 U.S. 445, 460 (2019) , the Senate Judiciary 
+Committee explained that the elements clause “would 
+include a threatened or attempted simple assault or bat-
+tery on another person ,” S. Rep. No. 225, 98th Cong., 
+1st Sess. 307 (1983)  (footnotes omitted) .  In contrast, 
+“offenses such as burglary  *  * *  would be included in 
+the latter ” residual  clause , “inasmuch as such an offense 
+would involve the substantial risk of physical force 
+against another person or against the property.”  Ibid.    
+
+31 
+ That explanation indicates that Congress viewed the 
+elements clause as encompassing crimes , like certain 
+forms of battery , in which physical injury necessarily 
+results , or was threatened or attempted, and thus the 
+“use, attempted use, or threatened use of physical 
+force” is always present.  18 U.S.C. 924(c)(3)(A); s ee  
+2 Wayne R. LaFave, Substantive Criminal Law § 
+16.2(a), at 750 (3d ed. 201 8) (describing one form of bat-
+tery as requiring a “bodily injury” ).  The residual 
+clause, in contrast, was focused on crimes with  merely a 
+“risk” that physical force “ may be used in the course of 
+committing the offense,” 18 U.S.C. 924(c)(3)(B) (empha-
+ses added), and thus bodily injury was not guaranteed.   
+2. Construing the elements clause to exclude crimes 
+that may be completed by withholding required conduct 
+would eviscerate  Section 924(c) (3)(A)  and similarly 
+worded elements clauses .  Had Congress intended to 
+exclude such crimes at the time it enacted Section 
+924(c)(3)(A),  it would have risked excluding federal of-
+fenses such as murder in violation of 18 U.S.C. 1111; vol-
+untary manslaughter in violation of 18 U.S.C. 1112(a); 
+and retaliating against a witness and causing bodily in-
+jury in violation of 18 U.S.C.  1513(b).  See App., infra , 
+25a-27a; see United States  v. Christie , 717 F.3d 1156, 
+1160 -1161 (10th Cir. 2013) (federal conviction for second -
+degree murder based on failure to feed a child).  And for 
+purposes of offenses incorporated into federal law by 
+the VICAR statute  and other statutes —and, even more 
+significantly, for purposes of the ACCA’s elements 
+clause —such an approach would have risked excluding  
+murder offenses in 4 8 jurisdictions, assault or battery 
+offenses in 27 jurisdictions , and robbery offens es in  
+9 jurisdictions , that involve caus ing or threat ening  bod-
+ily injury or death .  See App., infra , 11a-24a.  
+
+32 
+ This Court has “repeatedly declined to construe ” el-
+ements clauses “ in a way that would render [them]  in-
+applicable ” to crimes in numerous States.   Stokeling   v. 
+United States , 586 U.S. 73, 81 (2019)  (declining to con-
+strue “physical force” in ACCA’s elements clause in a 
+way that would exclude at least 31 States’ robbery stat-
+utes);  see Voisine , 579 U.S . at 695  (declining to construe 
+18 U.S.C. 921(a)(33)(A)  (2012)  in a way that would “jeop-
+ardize” 18 U.S.C. 922(g)’s efficacy  in 34 States plus the 
+District of Columbia); Castleman , 572 U.S. at 167 -168 
+(declining to construe definition of “misdemeanor crime 
+of domestic violence”  in a way that would render Section 
+922(g) (9) “ineffectual in at least 10 States”) .  The Court 
+should take the same approach here.   
+Indeed, excluding “omissions ” would largely undo 
+this Court’s work  in Castleman and Voisine to preserve 
+the domestic -violence  crimes that are predicates under  
+Section 922(g) (9).  Because the term “use” is the same 
+there as here, see Borden , 593 U.S. at 430 (plurality 
+opinion), petitioner’ s reading of “use” wou ld appear to 
+exclude many of the very same assault laws  that Cas-
+tleman and Voisine preserved .  The vast majority of 
+those crimes  involve causation of injury  that might  be 
+accomplished  by withholding required conduct.  See 
+U.S. Br. App. at 10a-29a, Castleman , supra  (No. 12 -
+1371)  (gathering state laws) ; U.S. Br. App. at 7a-24a, 
+Voisine , supra  (No. 14 -10154)  (same) .   
+That result cannot be squared with  Congress’s en-
+actment of Section 922(g)(9) “to bar those domestic 
+abusers convicted of garden -variety assault ” misde-
+meanors, which are frequently based on the “infliction 
+of bodily harm ,” Voisine , 579 U.S. at 695 —or the 
+Court’s approach in Castleman and Voisine .     
+
+33 
+ C. Petitioner’s Reading Of Section 924(c) Is Textually And 
+Practically Unsound  
+Petitioner provides no sound reason to excise  mur-
+der and numerous other offenses from elements clause s.  
+Lacking grounding in the text, structure, purpose , or 
+history of Section 924(c) for the extraordinary conclu-
+sion that murder is not a  crime of violence , petitioner 
+attempts to impose extratextual limitations on the stat-
+ute, engages in self-contradictory reasoning, and incor-
+rectly assumes that the least -culpable version of the 
+crime is the only  one Congress would have considered 
+relevant.   
+1. Physical force does not require external physical 
+contact  
+Petitioner ’s assertion that “ ‘physical force ’ ” must 
+originate “from contact with the external world ” cannot 
+be squared with either this Court’s precedent  or com-
+mon understanding .  Br. 17 -18 (citation omitted) .  As 
+previously noted, see p. 17, supra , petitioner himself re-
+peatedly acknowledges that poisoning —which can be 
+accomplished through a nonviolent “sprinkling,” Cas-
+tleman , 572 U.S. at 171  (brackets omitted) —would in-
+volve “physical force.”  And a s previously explained , see 
+p. 21, supra , Castleman identifies the “physical force” 
+in cases involving poison, disease, and the like as the in-
+ternal force within the body that cause s physical injury 
+or death .  572 U.S. at 170 -171 (citations omitted) .     
+Despite accepting the poisoning example, petitioner  
+nonetheless insists  (Br. 37 -38) that Castleman  is irrele-
+vant because it  addressed misdemeanor -level  common -
+law force  rather than felony -level violent force .  But as 
+already explained, pp. 16-17, supra , the only relevant 
+difference between common -law force and violent force  
+is the potential harmfulness of the force .  The additional 
+
+34 
+ require ment  for force to be violent —“force capable of 
+causing physical pain or injury to another person,” 
+Johnson , 559 U.S. at 140—plainly exists  when the force 
+actually causes physical pain , injur y, or death.   See Cas-
+tleman , 572 U.S. at 174 (Scalia, J., concurring in part 
+and concurring in the judgment) .7   
+Petitioner finds no  support for his position in Stokel-
+ing v. United States .  There, the Court held that “force 
+sufficient to overcome a [robbery] victim’s resistance” 
+qualifies as violent force, but that “ [m]ere ‘snatching of 
+property from another ,’ ” without resistance from the 
+victim, does not.  586 U.S. at 75, 85-86 (citation omitted) .  
+But petitioner errs in asserting that “[i] f the amount of 
+force involved in the snatching of property from another 
+falls short of satisfying the elements clause,  then a for-
+tiori so does the amount of force required for a crime 
+that can be  committed by failing to provide nutrition or 
+medical assistance. ”  Br. 21 -22 (citation omitted).  If the 
+only  force involved is the snatching, then it is not cate-
+gorically capable of causing pain or injury.  But the op-
+ 
+7  Petitioner notes ( Br. 38 n.8) that Justice Scalia’s concurrence in 
+Castleman criticized an amicus’s broad reading of the “misde-
+meanor crime of domestic violence” definition to include, inter alia , 
+“acts of omission,” 572 U.S. 181 (citation omitted).  But that refer-
+ence to “acts of omission” —which was listed alongside acts that “hu-
+miliate, isolate, [and] frighten ” a victim, but may not result in phys-
+ical harm , ibid. (citation omitted) —did not preclude Justice Scalia 
+from recognizing that “it is impossible to cause bodily injury without 
+using force ‘capable of  ’ producing that result ,” id. at 174.  As dis-
+cussed above, see p p. 23 -26, supra , “omission” liability for causation 
+of bodily injury is a longstanding and commonplace feature of the 
+law.  Indeed, it was Justice Scalia who authored the Court’s prece-
+dent on the meaning of “violent” force, which endorsed a definition 
+including “murder” and “assault and battery with a dangerous 
+weapon,” Johnson , 559 U.S. at 1 40-141 (citation omitted) —the very 
+crimes that petitioner would cut out.  
+
+35 
+ posite is true where the force is a physical process that 
+injures or kills the victim.     
+Petitioner similarly errs  in relying  (Br. 23)  on the 
+dissent in Borden .  In the passage that petitioner cites, 
+the dissent expressed the view that the word “against” 
+in the ACCA’s elements clause should not be construed 
+to require  that the victim be the defendant’s target  (as 
+the plurality concluded) , but should instead be con-
+strued to mean “making contact with .”  Borden , 593 
+U.S. at  465 (Kavanaugh, J., dissenting) ( brackets  and 
+citation  omitted ).  But that view does not suggest that 
+the elements clause nec essitates  external  contact .    
+Under the plain language of the clause, it is the 
+“physical force” —not the offender —that makes contact 
+with the victim.  18 U.S.C. 924(e)(2)(B)(i).  And in every 
+case involving bodily injury or death, contact between 
+the force and the victim is what causes the injury or 
+death.  See p p. 15-16, supra .  In a poisoning, for exam-
+ple, the relevant contact is simply the internal  bodily 
+process whereby the poison kills the victim.  See Cas-
+tleman , 572 U.S. at 171.    
+Finally, petitioner ’s invocation  (Br. 34)  of the “egg-
+shell skull” victim , who may be seriously injured even 
+by minimal physical force , does nothing to undermine 
+the commonsense proposition  that force is necessarily 
+capable of causing injury when injury actually results .  
+The Court rejected a similar argument  in Stokeling .  
+There, the Court recognized  that “the force necessary 
+to overcome a [robbery] victim’s physical resistance is 
+inherently ‘violent ,’ ” “even” when it involves  “a feeble 
+or weak -willed victim”  who may not supply much re-
+sistance .  586 U.S. at 83.    
+The same logic applies here .  Murder is not excluded 
+from the elements clause  simply because a defendant 
+
+36 
+ might  kill a victim teetering over the edge of a cliff with 
+a gentle touch , or a deathly allergic  victim with peanut 
+oil.  Both examples involve “physical force” that is cate-
+gorically “capable of causing physical pain or injury to 
+another person,” Johnson , 559 U.S. at 140 —the victim 
+who dies.  
+2. Petitioner ’s narrow interpretation of “use  * * * 
+against the person or property of another ” is insup-
+portable  
+Petitioner  errs in insisting that to “ ‘use’ ” force 
+“ ‘against the person or property of another ’ ” entails  
+“directly administer [ing]  force, or tak [ing] a step that 
+causes force to be administered .”  Br. 12 .  As already 
+explained, pp. 17-23, supra , neither dictionaries nor this 
+Court’s precedents support such a constricted view.  
+And petitioner is wrong to contend  otherwise .   
+a. To the extent that petitioner view s a phrase like 
+“he used  the victim’s disease against her ” as incorrect 
+or unnatural, that view cannot be squared with Cas-
+tleman .  Castleman  focus ed on the “physical force ” as 
+the action of the  disease rather than any conduct of the 
+defendant himself  and recognized that when the defend-
+ant “employ [s] poison” or “ ‘disease ’ ” “knowingly as a 
+device to cause physical harm,” the defendant “us[ es]” 
+that internal force.   572 U.S. at 170 -171 (citations omit-
+ted).   
+Petitioner assert s (Br. 36 -37 & n.7) that Castleman ’s 
+holding applies only if the defendant causes bodily in-
+jury “in a real ( i.e., non -legal) sense.”  But petitioner 
+provides no basis for imposing that restriction, which 
+appears nowhere in Castleman ’s reasoning.  Elements 
+clauses , and the categorical approach that they have 
+been interpreted to require, are  creatures of law.  And 
+as such, they are  informed by background legal princi-
+
+37 
+ ples treating “omissions” as the equivalent of affirma-
+tive acts for purposes of forcible crimes like murder.   
+See pp. 23-29, supra .   
+Petitioner recognizes (Br. 33) the historical legal 
+view  of “omissions ,” but disputes its relevance to the 
+meaning of Section 924(c)(3) .  In his view ( ibid. ), that 
+long -held legal understanding  has no bearing on 
+whether  the phrase “use of physical force against the 
+person or property of another”  encompasses omissions.   
+But authoriti es expressly drew the connection between  
+an “omission ” and the “use of force .”  See pp. 25-26, su-
+pra.  And that is how the elements clause is written.  It 
+is not written in any s pecial way  that would incorporate 
+petitioner’s asserted “affirmative conduct” require-
+ment.    
+b. Petitioner invokes (Br. 12, 15, 22 -23) various state-
+ments  in this Court’s opinions defining the “use of phys-
+ical force against the person or property of another” to 
+require  “ ‘volitional’ or ‘active’ employment of force.”  
+Borden , 593 U.S. at 430 (plurality opinion) (citation 
+omitted); see Voisine , 579 U.S. at 692-693 (“  use” re-
+quires “active employment”); Leocal , 543 U.S. at 9 
+(same).  But petitioner errs in asserting (Br. 12 -14, 22-
+24) that by referring to “active employment” that “di-
+rect[s] force” against another , the Court excluded acts 
+of “omission. ”   
+In each of the  relevant  cases, the Court was focused 
+on the “  ‘degree of intent’  ” that the statute required to 
+connect the defendant’s conduct with the causation of 
+the victim’s injury.  Borden , 593 U.S. at 434 (plurality 
+opinion) (quoting Leocal , 543 U.S. at 9).  In that context, 
+the Court included  the modifier “active” to contrast 
+with “accidental,” “involuntary,” or “reckless” employ-
+ment of force.  See id. at 430-431; Voisine , 579 U.S. at 
+
+38 
+ 692-693; Leocal , 543 U.S. at 9.  The Court did not in-
+clude the modifier to contrast with the employment  of 
+force  through “omission,” which was not at issue in any 
+of those cases.  
+c. Petitioner also errs in his reliance ( Br. 30 -31) on  
+this Court’s analysis in Bailey v. United States of when 
+a defendant “uses  *  * *  a firearm” “during and in rela-
+tion to a ny crime of violence or drug trafficking crime .”  
+18 U.S.C. 924(c)(1)  (1994) .  Bailey ’s conclusion that  
+“use” in that context “requires evidence sufficient to 
+show an active employment of the firearm by the de-
+fendant, a use that makes the firearm an operative fac-
+tor in relation to the predicate offense ,” 516 U.S. at 143  
+(emphasis omitted), does not support his argument 
+here .     
+The Court in Bailey  explained  that “  ‘[u]se’ draws 
+meaning from its context” and found that in the partic-
+ular context of t he provision at issue , “ ‘use’ must con-
+note more than mere possession of a firearm by a per-
+son who commits a drug offense.”  516 U.S. at  143.  
+Based on definitions such as “  ‘to carry out a purpose or 
+action by means of ,’ ” the Court observed  that “various 
+definitions” of “use” imply “action and implementation .”  
+Id. at 145 (citation omitted).  And t he Court  reasoned 
+that unlike  in other firearm statutes , Congress had not 
+used the word “ ‘possess,’  ” id. at 143 ; that construing the 
+existing language to include possession could render 
+the statute ’s reference to “carr[ying]” a firearm super-
+fluous, id. at 145 -146; and that such an interpretation 
+would create an “impossible line -drawing problem ,” id. 
+at 149.   
+None of that  context exists  here.   And Bailey ’s “ac-
+tive employment” requirement would be satisfied in this 
+context  because force is always an “operative factor,” 
+
+39 
+ 516 U.S. at 143, in a crime in which the victim is injured 
+or killed.  It is not possible for force to “play[] no detect-
+able role in the crime’s commission .”  Id. at 147.  The 
+defendant in such a crime does not simply “possess” the 
+force; instead,  the defendant has “carr [ied]  out a pur-
+pose or action  by means of  ” the force , id. at 145  (citation 
+omitted) —specifically, injuring or killing the victim .   
+d. Finally, petitioner’s effort  (Br. 16 -17) to import an 
+affirmative act requirement from Section 924(c)(3)(A)’s 
+application to crimes involving “attempted use” and 
+“threatened use”  of force is misguided.  As an initial 
+matter, petitioner is incorrect that an attempt requires 
+affirmative conduct .  This very case arises only because 
+New York attempted murder —like attempted murder 
+in an overwhelming majority of other jurisdictions —can 
+be committed by “omission.”   For example,  a defendant 
+may take a “substantial step” toward murder  by with-
+holding food from a child, only to be thwarted when the 
+child acquires food some other way.  And while it is true 
+that threatening to use force requires affirmative com-
+munication  of a threat , that requirement is a result of 
+the meaning of “threat,” not the meaning of “ use.”  See 
+United States  v. Taylor , 596 U.S. 845, 856 (2022).  
+In any event, there is no sound reason why the un-
+modified meaning of “use” should import a meaning 
+from separate instances  of the same word that have  ad-
+jectival modifiers.  A reference to “lawyers, former law-
+yers, and aspiring lawyers” does not suggest a ny limi-
+tation  on “lawyers” —it instead expands the phrase to 
+include related, but distinct, categories.  The same is 
+true of “use” in Section 924(c)(3)(A)’s elements clause .  
+
+40 
+ 3. Petitioner’s view of Section 924(c)’s structure, pur-
+pose, and history is incorrect and self-contradictory  
+Petitioner  claims  (Br. 23 -29) that the structure , pur-
+pose , and his tory of Section 924(c) are inconsistent with 
+interpreting the statute to reach crimes like murder , 
+which  may be comm itted by withholding required con-
+duct.  Yet at the same time, petitioner also claims (Br. 
+39-42) that Congress did include such crimes, but only 
+in the uncons titutional residual clause.  Those claims 
+cannot both be correct.  And, i n fact,  neither is.   
+a. With respect to the structure of Section 924(c), 
+petitioner contends (Br. 23 -25) that other requirements 
+of the Section 924(c) offense, and several of its potential 
+sentence enhancements , “plainly contemplate espe-
+cially dangerous criminals who commit crimes of vio-
+lence with deadly weapons.”  And he argues  (Br. 23-24) 
+that a definition of “crime of violence” that includes 
+“omission” -based conduct would be an “awkward fit  for 
+this framework. ”  That argument makes little  sense .   
+As petitioner acknowledges (Br. 24 n.6), Section 
+924(c)’s requirement  of using, carrying, or possessing a 
+firearm is “not subject to the categorical approach and 
+instead must be satisfied by the defendant’s own con-
+duct.”   When such firearm -based conduct is proved, there  
+is little risk that the underlying “crime of violence” is in 
+fact something like an “omission” -based withholding of 
+medicine .  And w ith statistics from 2021 showing that 
+more than 80 % of murders in the United States  that 
+year  involv ed a fire arm,8 it is fanciful  to suggest that the 
+ 
+8  See John Gramlich, Pew Research C tr., What the Data Says 
+About Gun Deaths in the U.S.  (Apr. 26, 2023) https://www.
+pewresearch.org/ short -reads/2023/04/26/what -the-data -says -about - 
+gun-deaths -in-the-u-s/ (noting that 20,958 out of 26,031 —81%—of 
+U.S. murders in 2021 involved a firearm).   
+
+41 
+ requirement of firearm involvement indicates that Sec-
+tion 924(c)  does not reach murder .   
+b. The same  blinkered view of murder and similar 
+crimes  likewise  pervades  petitioner’s argument  (Br. 25-
+27) that a crime committ able  by “omission” does not im-
+plicate Section 924(c)’s purposes.  When a firearm is 
+used, carried, or possessed in connection with a murder, 
+that murder is obviously violent .  Envision ing an “omis-
+sion” -based murder that involves  a firearm  in one of 
+those ways  is difficult, if not impossible.  
+It is implausible that Congress would have wanted to 
+exclude murder from Section 924(c)(3) in light of such 
+an unrealistic hypothetical .  Petitioner ignores that his 
+arguments in this case would remove from Section 924(c)  
+not just  murder  committed by withholding required 
+conduct , but (under the prevailing categorical ap-
+proach) all murder —including th e firearm -involved 
+murders that would be  Section 924(c)’s  focus .  The con-
+sequences of that position are extreme , as recent expe-
+rience illustrates .    
+The Third Circuit is the only court of appeals to have 
+adopted petitioner’s argument .  See United States v. 
+Mayo , 901 F.3d 218 (2018) .  Based on that decision , a 
+district court rejected one federal predicate for the Sec-
+tion 924(c) charge s against Robert Bowers , who opened 
+fire in the Tree of Life Synagogue in Pittsburgh , killing 
+11 people and wounding six, see United States v. Bow-
+ers, No. 18 -cr-292, 2022 WL 17718686 , at *6  (W.D. P a. 
+Dec. 15, 2022 ); see  Campbell Robertson  et al., Rampage 
+Kills 11 at a Synago gue in Pittsburgh , N.Y. Times, Oct. 
+28, 2018 , at A1 .  The district court reasoned that the 
+predicate crime under 18 U.S.C. 249(a)(1), which pro-
+hibits “willfully caus[ing] bodily injury to any person  
+* * *  because of the actual or perceived race, color, re-
+
+42 
+ ligion, or national origin of any person,” may be accom-
+plished through “omissions ” and therefore “cannot be a 
+crime of violence.”  Bowers , 2022 WL 17718686, at  *6.  
+Endorsing petitioner’s view would also affect other Sec-
+tion 924(c) prosecutions; for example, the  government 
+would be required to drop capital murder charges under 
+Section 924(c)  and (j)  against Payton Gendron, who shot 
+13 people and killed 10 in a race -motivated shooting in 
+a Buffalo grocery store.  See D. Ct. Doc. 180 , at 24 -25, 
+United States v. Gendron , No. 22-cr-109 (W.D.N.Y.  
+June 10, 20 24) (defendant’s motion to dismiss preserv-
+ing the argument that petitioner makes here).   
+Petitioner’s argument would likewise extend to nu-
+merous cases like his own, in which gang members 
+planned to , or did, kill someone with a gun —here, a gun 
+that petitioner himself supplied .  See p. 4, supra ;  see, 
+e.g., United States v. Ortiz -Orellana , 90 F.4th 689, 696 
+(4th Cir. 2024) ( murder of a rival gang member  shot 
+three times in the head), petition for cert. pending, No. 
+24-5040  (filed July 8, 2024) ; Allen v. United States , No. 
+21-5782, 2023 WL 4145321, at *1 (6th Cir. June 23, 2023) 
+(gang shooting with five victims), petition for cert. 
+pending, No. 23 -918 (filed Feb. 22, 2024) .  Petitioner  
+cannot plausibly claim that excluding those offenses 
+would be consistent with the statutory purposes  of Sec-
+tion 924(c) , or with any sensible meaning of the term 
+“crime of violence .”   
+c. Petitioner’s reliance ( Br. 26) on the asserted pur-
+poses of the ACCA’s  similarly worded  elements clause  
+is likewise misplaced.  To the extent that the ACCA’s 
+elements clause attempts to describe recidivists who 
+are “the kind of person who might deliberately point the 
+gun and pull the trigger ,” Begay v. United States , 553 
+U.S. 137, 146 (2008) , a person who commits or attempts 
+
+43 
+ to commit murder is precisely  that sort of person .  In-
+deed, as noted above, about 80% of murders are carried 
+out with a gun.   See p. 40 & n.8, supra .   
+Furthermore, even considering the small subset of 
+cases involving the withholding of required conduct, pe-
+titioner is wrong to suggest ( Br. 26) that such offenses 
+necessarily do not involve “violent, aggressive, and pur-
+poseful ‘armed career criminal’ behavior.”  Begay , 553 
+U.S. at 14 8; see id. at 147-148.  Both cases that peti-
+tioner cites (Br. 18) as examples of commission of mur-
+der by “omission”  involved undeniably violent and ag-
+gressive defendants .  In each case, a father brutally 
+beat a child and then denied the child medical attention.  
+See People v. Steinberg , 7595 N.E.2d 845, 846 (N.Y.  
+1992) ; People v. Best , 609 N.Y.S.2d 478 , 479 -480 (N.Y. 
+App. Div. 1994) .  Even assuming that the juries in those 
+cases premised their guilty verdicts on the denial of 
+medical care, there is no reason to suppose that those 
+defendants have not exhibited the type of conduct cov-
+ered by the ACCA .  Indeed, many murders committed 
+by “omission” —such as deliberately starving a child —
+are among the most heinous homicides imaginable, re-
+quiring an extended course of premeditated conduct in 
+which the victim is literally tortured to death.   
+The issue in this case  is far afield from  the issue in  
+Chambers v. United States , 555 U.S. 122 (2009), where  
+this Court opined that the crime of failing to report to 
+prison was a “crime [that] amounts to a form of inac-
+tion” in the ordinary case and did not fall within the pur-
+poses of the ACCA or the text of its residual clause.  Id. 
+at 128.  Instead, a dopting petitioner’s position here 
+would completely untether the meaning of a “violent fel-
+ony” or “crime of violence”  from reality, leading to be-
+
+44 
+ wildering and arbitrary sentencing disparities based on 
+hypertechnical distinctions and hypothetical crimes.   
+d. The legislative history on which petitioner relies  
+provides no meaningful support for the bizarre  and un-
+just result he seeks .  Rather than focusing on the his-
+tory of Section 924(c)(3)(A) or other elements clauses, 
+he principally discusses (Br. 27 -29) the history of a  dif-
+ferent crime i n an unenacted provision of an unenacted 
+bill. 
+In that bill, which predate d Section 924(c), a differ-
+ent Congress considered adopting an offense of “Ter-
+rorizing,” which would have prohibited the communica-
+tion of “a threat to commit, or to continue to commit, a 
+federal, State , or local crime of violence or unlawful con-
+duct dangerous to human life.”  Criminal Code Reform 
+Act of 1981, S. 1630, § 1615(a)(1), 97th Cong. , 1st Sess. 
+(1981) .  The definition of a “crime of violence”  would 
+have been  the same as the one later included in Section 
+924(c), and the Senate Report indicated that the draft-
+ers believed that  the additional phrase “unlawful con-
+duct dangerous to human life  * * * may have a broader 
+application.”  S. Rep. No. 307, 97th Cong., 1st Sess. 591 
+(1981)  (emphasis added) .  As an example of that possi-
+bility, the report hypothesized  that if a dam operator 
+“threaten[ed] to refuse to open the floodgates during a 
+flood” and placed residents “in jeopardy of their lives,” 
+that would qualify as  a threat to engage in unlawful con-
+duct, but would not be a crime of violence because the 
+dam operator  “did not use or threaten to use physical 
+force.”   Ibid .   
+Petitioner’s speculation that Congress had the same 
+understanding years later , in enacting a wholly differ-
+ent provision , is unfounded.  This Court has repeatedly 
+warned of the “perils  of relying on the fate of prior bills 
+
+45 
+ to divine the meaning of enacted legislation.”  Caraco 
+Pharm. Labs. , Ltd. v. Novo Nordisk A/S , 566 U.S. 399, 
+422 (2012).  The dangers of misconstruction are multi-
+plied where, as here, the cited legislative history accom-
+panied a prior bill that  never became law.   The Congress 
+that passed the relevant  law is unlikely to have had in 
+mind the Senate Report accompanying a proposed of-
+fense that was never enacted.  And even if it did, the 
+enacting Congress may have disagreed with the re-
+port’s suggestion that the r eference to “unlawful con-
+duct” was necessary given the breadth of the definition 
+of a crime of violence.   
+In any event, petitioner’s own reasoning is incon-
+sistent with his reliance on t he Senate Report.  Peti-
+tioner acknowledges (Br. 40) that committing a murder 
+through the withholding of required conduct  would at 
+least fall within Section 924(c)’s residual clause.  As a 
+result , even on his view, the hypothetical dam operator 
+would have been covered by the  proposed terrorism of-
+fense’s  crime -of-violence definition, even absent a pro-
+vision reaching unlawful conduct dangerous to human 
+life.  Because the S enate Report’s reasoning is flawed 
+under both  part ies’ interpretation s, it should  have no  
+weight in the proper interpretation of Section 924(c) .   
+e. Petitioner’s claim (Br. 40) that Congress intended 
+to include  crimes committable by “omission”  only  under 
+Section 924(c)’s residual clause is irreconcilable with his 
+arguments that the structure, purpose, and history of 
+Section 924(c)  indicate that Congress did not intend to 
+include such offenses at all .  The claim is also incorrect.  
+The residual clause  was not the  natural home for a 
+crime , like murder, that inherently involve s causation of 
+bodily injury or death .  The residual clause asks 
+whether an offense “by its nature, involves a substantial 
+
+46 
+ risk that physical force against the person or property 
+of another may  be used in the course of committing the 
+offense.”  18 U.S.C. 924(c)(3) (B) (emphas es added) .  
+That is not a natural way to describe murder and bodily -
+injury crimes that always include physical harm or 
+death.  
+The residual clause is referred to as “residual” for a 
+reason.   Congress designed t he elements  clause to in-
+clude the most common violent offenses, like murd er 
+and robbery.  S ee pp. 29-31, supra .  The residual clause 
+was added to ensure coverage  of crimes in which the use 
+of force was not inherent, but nonetheless substantially 
+risked, like attempted burglary, see James v. United 
+States , 550 U.S. 192 (2007), or vehicular flight from a 
+law enforcement officer, see Sykes  v. United States , 564 
+U.S. 1 (2011).   
+Petitioner therefore cannot blame the unconstitu-
+tionality of the residual clause for the unjustifiable re-
+sults of his interpretation of Section 924(c).  Murder —
+like most , if not all , crimes that satisfy the elements 
+clause —would likely also have satisfied the residual 
+clause.9  But the Court has never viewed that as a reason 
+to deny the elements clause its proper scope.   See, e.g., 
+Stokeling , 586 U.S. at 81 (“declin[ing] to construe” the 
+ACCA’s elements clause “in a way that would render it 
+inapplicable  [to robbery]  in many State s,” without con-
+sidering the residual clause).    
+ 
+9 The decision below could therefore alternatively be affirmed on 
+the ground that murder would be encompassed by a constitutionally 
+valid application of the residual clause .  See Borden , 593 U.S. at 445 -
+449 (Thomas, J., concurring in the judgment).   
+
+47 
+ D. The Rule Of Lenity Does Not Apply  
+Petitioner’s argument of last resort is that the rule 
+of lenity requires interpreting Section 924(c)’s elements 
+clause to exclude his New York attempted -murder con-
+viction .  See Br. 42 -43.  “But ‘the rule of lenity only ap-
+plies if, after considering text, structure, history, and 
+purpose, there remains a grievous ambiguity or uncer-
+tainty in the statute, such that the Court must simply 
+guess as to what Congress intended.’  ”  Castleman , 572 
+U.S. at 172 (quoting Barber  v. Thomas , 560 U.S. 474, 
+488 (2010)); see Shular  v. United States , 589 U.S. 154, 
+168 (2020) (Kavanaugh, J., concurring).   Petitioner’s ar-
+gument is accordingly misplaced.   
+For the reasons explained above, n o “grievous ambi-
+guity ” exists here.  Even beyond the text and context , 
+Castleman  supplies a “clear pronouncement that a de-
+fendant ‘necessarily ’ uses physical force in committing 
+a crime involving the intentional causation of physical 
+injury. ”  Scott , 990 F.3d at 121 .  The Court has rejected 
+similar requests for lenity in other “use of physical 
+force” cases, including in Castleman .  See 572 U.S. at 
+172-173.  It should do so again here, where Castleman  
+and the statutory text eliminate any possible need to 
+“simply guess ” as to  whether Congress intended mur-
+der to qua lify as a “crime of violence.”   Id. at 173 (cita-
+tion omitted).   
+  
+
+48 
+ CONCLUSION  
+The judgment of the court of appeals should be af-
+firmed.   
+Respectfully submitted.  
+  ELIZABETH B. PRELOGAR  
+Solicitor General  
+NICOLE M. ARGENTIERI  
+Principal Deputy Assistant 
+Attorney General  
+ERIC J. FEIGIN  
+Deputy Solicitor General  
+AIMEE W. BROWN  
+Assistant to the Solicitor 
+General  
+SONJA M. RALSTON  
+Attorney  
+SEPTEMBER  2024  
+ 
+
+ 
+(I) APPENDIX  
+ 
+TABLE OF CONTENTS  
+Page  
+Appendix  A  —  Statutory  provision s: 
+8 U.S.C. 1101(a)(43)(F)  ...........................  1a 
+18 U.S.C. 16  ................................ ..............  1a 
+18 U.S.C. 921(a)(33)(A)   
+ (Supp. IV 2022)  ................................ ... 2a 
+18 U.S.C. 922(g)(1) and (9)  .....................  2a 
+18 U.S.C. 924(c) and (e)(1)  ......................  3a 
+18 U.S.C. 1959(a)(5)  ................................  7a 
+18 U.S.C. 3142(g)(1)  ................................  8a 
+Sentencing Guidelines 4B1.2(a)(1)  ........  8a 
+New York State Penal Law 20.00  
+ (McKinney 2009)  ................................  9a 
+New York State Penal Law 110.00  
+ (McKinney 20 09) ................................  9a 
+New York State Penal Law 125.25(1) 
+ (McKinney 20 09) ................................  9a 
+Appendix B  —  Offenses in effect at the time the ele-
+ments clause was incorporated into 18 
+U.S.C.  924(c) that would be at risk of 
+exclusion  ................................ ..................  11a 
+  
+ 
+ 
+ 
+
+ 
+(1a) APPENDIX  A 
+ 
+1. 8 U.S.C. 1101(a)(43)(F)  provides:  
+Definitions  
+(a) As used in this chapter — 
+(43) The term “aggravated felony ” means — 
+ (F) a crime of violence (as defined in  section 16 
+of title 18, but not including a purely political offense) 
+for which the term of imprisonment at51 least one 
+year;  
+ 
+2. 18 U.S.C. 16  provides:  
+Crime of violence defined  
+The term “crime of violence ” means — 
+ (a) an offense that has as an element the use, at-
+tempted use, or threatened use of physical force 
+against the person or property of another, or  
+ (b) any other offense that is a felony and that, by 
+its nature, involves a substantial risk that physical 
+force against the person or property of another may 
+be used in the course of committing the offense.  
+ 
+  
+ 
+5  So in original.  Probably should be preceded by “is”.  
+
+2a 
+ 3. 18 U.S.C. 921(a)(33)(A)  (Supp. IV 2022)  provides:  
+Definitions  
+(a) As used in this chapter — 
+(33)(A)  Except as provided in subparagraphs (B) 
+and (C), the term “misdemeanor crime of domestic vio-
+lence ” means an offense that — 
+ (i) is a misdemeanor under Federal, State, 
+Tribal, or local law; and  
+ (ii) has, as an element, the use or attempted use 
+of physical force, or the threatened use of a deadly 
+weapon, committed by a current or former spouse, 
+parent, or guardian of the victim, by a person with 
+whom the victim shares a child in common, by a per-
+son who  is cohabiting with or has cohabited with the 
+victim as a spouse, parent, or guardian, by a person 
+similarly situated to a spouse, parent, or guardian of 
+the victim, or by a person who has a current or recent 
+former dating relationship with the victi m. 
+ 
+4. 18 U.S.C. 922(g)  provides in pertinent part:  
+Unlawful acts  
+(g) It shall be unlawful for any person — 
+ (1) who has been convicted in any court of, a 
+crime punishable by imprisonment for a term exceed-
+ing one year;  
+*  *  *  *  * 
+ (9) who has been convicted in any court of a mis-
+demeanor crime of domestic violence,  
+
+3a 
+ to ship or transport in interstate or foreign commerce, 
+or possess in or affecting commerce, any firearm or am-
+munition; or to receive any firearm or ammunition which 
+has been shipped or transported in interstate or foreign 
+commerce.   
+ 
+5. 18 U.S.C. 924  provides in pertinent part:  
+Penalties  
+*  *  *  *  * 
+(c)(1)(A)  Except to the extent that a greater mini-
+mum sentence is otherwise provided by this subsection 
+or by any other provision of law, any person who, during 
+and in relation to any crime of violence or drug traffick-
+ing crime (including a crime of violence or drug traffick-
+ing crime that provides for an enhanced punishment if 
+committed by the use of a deadly or dange rous weapon 
+or device) for which the person may be prosecuted in a 
+court of the United States, uses or carries a firearm, or 
+who, in furtherance of any such crime, possesses a fire-
+arm, shall, in addition to the punishment provided for 
+such crime of violenc e or drug trafficking crime — 
+ (i) be sentenced to a term of imprisonment of 
+not less than 5 years;  
+ (ii) if the firearm is brandished, be sentenced to 
+a term of imprisonment of not less than 7 years; and  
+ (iii) if the firearm is discharged, be sentenced to 
+a term of imprisonment of not less than 10 years.  
+(B) If the firearm possessed by a person convicted 
+of a violation of this subsection — 
+
+4a 
+  (i) is a short -barreled rifle, short -barreled shot-
+gun, or semiautomatic assault weapon, the person 
+shall be sentenced to a term of imprisonment of not 
+less than 10 years; or  
+ (ii) is a machinegun or a destructive device, or is 
+equipped with a firearm silencer or firearm muffler, 
+the person shall be sentenced to a term of imprison-
+ment of not less than 30 years.  
+(C) In the case of a violation of this subsection that 
+occurs after a prior conviction under this subsection has 
+become final, the person shall — 
+ (i) be sentenced to a term of imprisonment of 
+not less than 25 years; and  
+ (ii) if the firearm involved is a machinegun or a 
+destructive device, or is equipped with a firearm si-
+lencer or firearm muffler, be sentenced to imprison-
+ment for life.  
+(D) Notwithstanding any other provision of law — 
+ (i) a court shall not place on probation any per-
+son convicted of a violation of this subsection; and  
+ (ii) no term of imprisonment imposed on a per-
+son under this subsection shall run concurrently with 
+any other term of imprisonment imposed on the per-
+son, including any term of imprisonment imposed for 
+the crime of violence or drug trafficking crime during 
+which the firearm was used, carried, or possessed.  
+(2) For purposes of this subsection, the term “drug 
+trafficking crime ” means any felony punishable under 
+the Controlled Substances Act (21 U.S.C. 801 et seq.), 
+the Controlled Substances Import and Export Act (21 
+U.S.C. 951 et seq.), or  chapter 705 of title 46.  
+
+5a 
+ (3) For purposes of this subsection the term 
+“crime of violence ” means an offense that is a felony 
+and— 
+ (A) has as an element the use, attempted use, or 
+threatened use of physical force against the person 
+or property of another, or  
+ (B) that by its nature, involves a substantial risk 
+that physical force against the person or property of 
+another may be used in the course of committing the 
+offense.  
+(4) For purposes of this subsection, the term “bran-
+dish ” means, with respect to a firearm, to display all or 
+part of the firearm, or otherwise make the presence of 
+the firearm known to another person, in order to intim-
+idate that person, regardless of whether the firearm is 
+directly visible to that person.  
+(5) Except to the extent that a greater minimum 
+sentence is otherwise provided under this subsection, or 
+by any other provision of law, any person who, during 
+and in relation to any crime of violence or drug traffick-
+ing crime (including a crime of violence or drug traffick-
+ing crime that provides for an enhanced punishment if 
+committed by the use of a deadly or dangerous weapon 
+or device) for which the person may be prosecuted in a 
+court of the United States, uses or carries armor pierc-
+ing ammunition, or who , in furtherance of any such 
+crime, possesses armor piercing ammunition, shall, in 
+addition to the punishment provided for such crime of 
+violence or drug trafficking crime or conviction under 
+this section — 
+ (A) be sentenced to a term of imprisonment of 
+not less than 15 years; and  
+
+6a 
+  (B) if death results from the use of such  
+ammunition — 
+ (i) if the killing is murder (as defined in sec-
+tion 1111), be punished by death or sentenced to a 
+term of imprisonment for any term of years or for 
+life; and  
+ (ii) if the killing is manslaughter (as defined in 
+section 1112), be punished as provided in section 
+1112.  
+*  *  *  *  * 
+(e)(1)  In the case of a person who violates  section 
+922(g) of this title  and has three previous convictions by 
+any court referred to in  section 922(g)(1) of this ti-
+tle for a violent felony or a serious drug offense, or both, 
+committed on occasions different from one another, such 
+person shall be fined under this title and imprisoned not 
+less than fifteen years, and, notwithstanding any other 
+provision of law, the court s hall not suspend the sen-
+tence of, or grant a probationary sentence to, such per-
+son with respect to the  conviction under section 922(g).  
+(2)  As used in this subsection — 
+*  *  *  *  *  
+ (B)  the term “violent felony” means any crime 
+punishable by imprisonment for a term exceeding 
+one year, or any act of juvenile delinquency involving 
+the use or carrying of a firearm, knife, or destructive 
+device that would be punishable by imprisonment for 
+such term if committed by an adult, that — 
+ (i)  has as an element the use, attempted use, 
+or threatened use of physical force against the 
+person of another; or  
+
+7a 
+  (ii)  is burglary, arson, or extortion, involves 
+use of explosives, or otherwise involves conduct 
+that presents a serious potential risk of physical 
+injury to another; and  
+ (C) the term “conviction” includes a finding that 
+a person has committed an act of juvenile delin-
+quency involving a violent felony.  
+*  *  *  *  * 
+ 
+6. 18 U.S.C. 1959(a)(5)  provides:  
+Violent crimes in aid of racketeering activity  
+(a) Whoever, as consideration for the receipt of, or 
+as consideration for a promise or agreement to pay, an-
+ything of pecuniary value from an enterprise engaged in 
+racketeering activity, or for the purpose of gaining en-
+trance to or maintaining or increasing position in an en-
+terprise engaged in racketeering activity, murders, kid-
+naps, maims, assaults with a dangerous weapon, com-
+mits assault resulting in serious bodily injury upon, or 
+threatens to commit a crime of violence against any in-
+dividual in violation of the laws of any State or the 
+United States, or attempts or conspires so to do, shall 
+be punished — 
+*  *  *  *  *  
+ (5) for attempting or conspiring to commit mur-
+der or kidnapping, by imprisonment for not more 
+than ten years or a fine under this title, or both; and  
+  
+
+8a 
+ 7. 18 U.S.C. 3142(g)(1)  provides:  
+Release or detention of a defendant pending trial  
+(g) FACTORS TO BE CONSIDERED .—The judicial of-
+ficer shall, in determining whether there are conditions 
+of release that will reasonably assure the appearance of 
+the person as required and the safety of any other per-
+son and the community, take into account the available 
+information concer ning — 
+ (1) the nature and circumstances of the offense 
+charged, including whether the offense is a crime of 
+violence, a violation of section 1591, a Federal crime 
+of terrorism, or involves a minor victim or a con-
+trolled substance, firearm, explosive, or destructive 
+device;  
+ 
+8. Sentencing Guidelines 4B1.2(a)(1)  provides:  
+Definitions of Terms Used in Section 4B1.1  
+(a) CRIME OF VIOLENCE .—The term “crime of vio-
+lence” means any offense un -der federal or state 
+law, punishable by imprisonment for a term ex-
+ceeding one year, that —  
+(1) has as an element the use, attempted use, or 
+threatened use of physical force against the 
+person of another; or  
+  
+
+9a 
+ 9. New York State Penal Law 20.00 (McKinney 2009)  
+provides:  
+Criminal liability for conduct of another  
+When one person engages in conduct which consti-
+tutes an offense, another person is criminally liable for 
+such conduct when, acting with the mental culpability 
+required for the commission thereof, he solicits, re-
+quests, commands, importunes, or intentionall y aids 
+such person to engage in such conduct.  
+ 
+10. New York State Penal Law 110.00 (McKinney 20 09) 
+provides:  
+Attempt to commit a crime.  
+ A person is guilty of an attempt to commit a crime 
+when, with intent  to commit a crime, he engages in con-
+duct which tends to effect the  commission of such crime.  
+ 
+11. New York State Penal Law 125.25(1) (McKinney 
+2009) provides:  
+Murder in the second degree.  
+A person is guilty of murder in the second degree when:  
+ 1. With intent to cause the death of another person, 
+he causes the  death of such person or of a third person; 
+except that in any  prosecution under this subdivision, it 
+is an affirmative defense that:  
+ (a) The defendant acted under the influence of ex-
+treme emotional  disturbance for which there was a rea-
+sonable explanation or excuse, the  reasonableness of 
+which is to be determined from the viewpoint of a  person 
+
+10a 
+ in the defendant ’s situation under the circumstances as 
+the defendant believed them to be.  Nothing contained 
+in this paragraph shall  constitute a defense to a prose-
+cution for, or preclude a conviction of,  manslaughter in 
+the first degree or any other crime; or  
+ (b) The defendant ’s conduct consisted of causing or 
+aiding, without  the use of duress or deception, another 
+person to commit suicide.   Nothing contained in this 
+paragraph shall constitute a defense to a  prosecution 
+for, or preclude a conviction of, manslaughter in the sec-
+ond degree or any other crime; or  
+ 
+
+11a 
+ APPENDIX  B 
+Offenses In Effect At the Time the Elements Clause 
+Was Incorporated Into 18 U.S.C. 924(c) That Would Be 
+At Risk Of Exclusion1  
+ 
+Murder offenses at risk of exclusion  
+ Alabama:   Ala. Code § 13A -6-2(a)(1) (1982) (defin-
+ing murder as when a person “[w]ith intent to cause the 
+death of another person  *  * *  causes the death of 
+that person or of another person”); Northington v. 
+State , 413 So. 2d 1169, 1172 (Ala. Crim. App. 1981) (hold-
+ing that a “person who withholds food or medical atten-
+tion from another to whom a legal duty is owed may be 
+found guilty of murder” if it is shown that “the conduct 
+of the accused was willful or done with  malicious in-
+tent”).   
+ Alaska:   Alaska Stat. § 11.41.100(a)(1) (1983) (de-
+fining first -degree murder as when a person “with intent 
+to cause the death of another person  *  * *  causes 
+the death of any person”).   
+ American Samoa:   Am. Samoa Code Ann. § 46.3502 
+(1981) (a person commits first -degree murder when, “in-
+tending or knowing that his conduct will cause death or 
+ 
+1  As this Court explained in United States v. Davis , 588 U.S. 445, 
+460 (2019), Congress first “employed the term ‘crime of violence ’ ” in 
+Section 924(c) in 1984.  “At that time, Congress didn’t provide a 
+separate definition of ‘crime of violence’ in § 924(c) but relied on [18 
+U.S.C.] § 16’s general definition.”  Ibid .  Section 16’s elements 
+clause is materially identical.  This appendix thus uses the 1984 en-
+actment as the relevant date.  Although the re is variation in the  
+dates of the available published codebooks  for the various jurisdic-
+tions , the statutory language cited herein was in effect in 1984.   
+
+12a 
+ serious bodily injury, he causes the death of another 
+person with deliberation”).   
+ Arizona:   Ariz. Rev. Stat. § 13 -1105(A)(1) (19 89) (a 
+person commits  first -degree murder when,  “[i]ntending 
+or knowing that his conduct will cause death, such per-
+son causes the death of another with premeditation ”).  
+ Arkansas:   Ark. Code §  41-1502 (1)(b)  (1977 & 
+Supp. 1981 ) (a person  commits first -degree murder 
+when,  “with the premeditated and deliberated purpose 
+of causing the death of another person, he causes the 
+death of any person”) ; Bowman v. State , 588 S.W.3d 129 , 
+134-35 (Ark. App. 2019) (affirming first -degree murder 
+conviction for failure to feed infant).   
+ California:   Cal. Penal Code § 189 (198 5) (defining 
+first -degree murder as “[a]ll murder which is perpe-
+trated by means of  *  * *  poison  *  * *  or by any 
+other kind of willful, deliberate, and premeditated kill-
+ing” and second -degree murder as “all other kinds of 
+murders”).    
+ Colorado:   Colo. Rev. Stat. §  18-3-102 (1986) (a 
+person commits first -degree murder when, “[a]fter  de-
+liberation and with the intent to cause the death of a per-
+son other than himself, he causes the death of that per-
+son or of another person”).     
+ Connecticut:   Conn. Gen. Stat. § 53a -54a (1983) ( a 
+person commits murder when, “with intent to cause the 
+death of another person, he causes the death of such per-
+son or of a third person or causes a suicide by force, du-
+ress, or deception”).   
+ Delaware:   Del. Code  Ann.  tit. 11, § 636(a)(1) (1979) 
+(defining first -degree murder as when a person “inten-
+tionally causes the death of another person”).   
+
+13a 
+  District of Columbia:   D.C. Code § 22 -2401 (1981) 
+(defining first -degree murder as when a person “kills 
+another purposely, either of deliberate and premedi-
+tated malice or by means of poison”).   
+ Florida:   Fla. Stat. § 782.04(1)(a)(1) (Supp. 1984) 
+(defining first -degree murder as “[t]he unlawful killing 
+of a human being  *  * *  [w]hen perpetrated from a 
+premeditated design to effect the death of the person 
+killed or any human being”).   
+ Georgia:   Ga. Crim. Code § 16-5-1 (198 4) (defining 
+murder as when a person “unlawfully and with malice 
+aforethought, either express or implied, causes the 
+death of another human being”); see Sanders v. State , 
+715 S.E.2d 124, 131  (Ga. 2011) (affirming convictions of 
+parents who starved infant to death), overruled on other 
+grounds by  Pounds  v. State , 846 S.E.2d 48  (Ga. 2020).   
+ Guam:   Guam Code Ann.  tit. 9,  § 16.40  (198 7) (de-
+fining murder as criminal homicide that is “committed 
+intentionally or knowingly”).   
+ Hawaii:   Haw. Rev. Stat. § 707 -701(1) ( 1976 & 
+Supp. 1984) (defining murder as when a person “inten-
+tionally or knowingly causes the death of another per-
+son”).   
+ Idaho:   Idaho Code § 18 -4003(a) (1979) (defining 
+first -degree murder as “ [a]ll murder which is perpe-
+trated by  *  * *  any kind of wilful, deliberate and 
+premeditated killing”).   
+ Indiana:   Ind. Code. § 35 -42-1-1(1) (19 82 & Supp. 
+1984 ) (defining murder as when a person “knowingly or 
+intentionally kills another human being”).   
+
+14a 
+  Kentucky:   Ky. Rev. Stat. Ann. § 507.020(1)(a)  
+(1985)  (a person commits murder when, “[w]ith intent to 
+cause the death of another person, he causes the death 
+of such person or of a third person”).   
+ Louisiana:   La. Stat. Ann. § 14:30(4) ( Supp. 1984) 
+(defining first -degree murder as “the killing of a human 
+being” in circumstances “[w]hen the offender has spe-
+cific intent to kill or inflict great bodily harm and has 
+offered, has been offered, has given, or has received an-
+ything of value for the killing”).   
+ Maine:  Me. Rev. Stat.  Ann.  tit. 17 -A, § 201 (1)(A) 
+(1983) (defining murder as when a person “intentionally 
+or knowingly causes the death of another human be-
+ing”).   
+ Maryland:   Md. Code Art. 27 § 407 (1982) (defining 
+first -degree murder as “[a]ll murder which shall be per-
+petrated by  *  * *  any kind of wilful, deliberate and 
+premeditated killing”).   
+ Massachusetts:   Mass. Gen. L aws ch. 265, § 1 
+(1984) (defining first -degree murder as “[m]urder com-
+mitted with deliberately premeditated malice afore-
+thought ”).  
+ Michigan:   Mich. Comp. Laws Ann. § 750.316 
+(Supp. 1985) (defining first -degree murder as “[m]urder 
+which is perpetrated by means of poison, lying in wait, 
+or other wilful, deliberate , and premeditated killing”).   
+ Minnesota:   Minn. Stat. § 609.185(1) (1984) (defin-
+ing first -degree murder as “caus[ing] the death of a hu-
+man being with premeditation and with intent to effect 
+the death of the person or of another”); see State v. 
+Thomas , 590 N.W.2d 755 , 758 -59 (Minn. 1999) (affirming 
+
+15a 
+ first -degree murder conviction for defendant who left 
+infant to die by starvation).   
+ Mississippi:   Miss. Code Ann. § 97 -3-19(1) (a) 
+(Supp. 1983) (defining murder as “[t]he killing of a hu-
+man being  *  * *  [w]hen done with deliberate design 
+to effect the death of the person killed, or of any human 
+being”).   
+ Missouri:   Mo. Rev. Stat. § 565.020 (1) (Supp. 1983) 
+(defining first -degree murder as when a person  “know-
+ingly causes the death of another person after delibera-
+tion upon the matter”).   
+ Montana :  Mont. Code Ann. § 45 -5-102(1)(a)  (1983) 
+(defining deliberate homicide as criminal homicide that 
+is “committed purposely or knowingly”) ; id. § 45 -5-
+101(1) (defining criminal homicide as when a person 
+“purposely, knowingly, or negligently causes the death 
+of another human being”) .   
+ New Hampshire:   N.H. Rev. Stat. Ann. § 630:1 -
+a(I)(a) (1974) (defining first -degree murder as when a 
+person “[p]urposely causes the death of another”).  
+ New Jersey:   N.J. Stat. Ann. § 2C:11 -3(a)(1) -(2) 
+(198 2) (defining murder as when a person “purposely 
+causes death or serious bodily injury resulting in death” 
+or when a person “knowingly causes death or serious 
+bodily injury resulting in death”).   
+ New Mexico:   N.M. Stat. Ann. § 30 -2-1(A)(1)  (1984) 
+(defining first -degree murder as “the killing of one hu-
+man being by another  *  * *  by any kind of willful, 
+deliberate and premeditated killing”).   
+ New York:   N.Y. Penal Law § 125.25 (1) (McKinney 
+1987) (a person commits murder in the second degree 
+
+16a 
+ when, “[w]ith  intent to cause the death of another per-
+son, he causes the death of such person or of a third per-
+son”).   
+ North Dakota:   N.D. Cent. Code § 12.1 -16-01(1) 
+(Supp. 1979) (defining murder as when a person 
+“[i]ntentionally or knowingly causes the death of an-
+other human being ”).   
+ Northern Mariana Islands:   6 N. Mar. I. Code   
+§ 1101(a)(1)  (1984)  (defining first -degree murder as 
+murder that is “[w]illful, premeditated, and deliber-
+ated”).   
+ Ohio:   Ohio Rev. Code Ann. § 2903.02(A) (1982) 
+(“No person shall purposely cause the death of an-
+other.”).   
+ Oklahoma:   Okla. Stat. tit. 21, § 701.7(A) ( Supp. 
+1982) (defining first -degree murder as when a person 
+“unlawfully and with malice aforethought causes the 
+death of another human being”).   
+ Pennsylvania:   18 Pa. Cons. Stat. Ann. § 2502(a) 
+(1983) (defining first -degree murder as “intentional kill-
+ing”).   
+ Puerto Rico:   P.R. Laws  Ann. tit. 33 § 4002 (198 4) 
+(defining first -degree murder as “[a]ll  murder which is 
+perpetrated by means of poison, lying in wait or torture 
+or any wilful, deliberate, and premeditated killing”).   
+ Rhode Island:   R.I. Gen. Laws § 11 -23-1 (19 81) (de-
+fining first -degree murder as “[e]very murder perpe-
+trated by poison, lying in wait, or any other kind of wil-
+ful, deliberate, malicious and premeditated killing”) .   
+
+17a 
+  South Carolina:   S.C. Code Ann. § 16 -3-10 (1985)  
+(defining murder as “the killing of any person with mal-
+ice aforethought, either express or implied”).   
+ South Dakota:   S.D. Codified Laws § 22 -16-4 
+(Supp. 1980) (defining first -degree murder as murder 
+“perpetrated without authority of law and with a pre-
+meditated design to effect the death of the person killed 
+or of any other human being”).   
+ Tennessee:   Tenn. Code Ann. § 39 -2-202(a) (1982) 
+(defining first -degree murder as “murder perpetrated 
+by means of poison, lying in wait, or by other kind of 
+willful, deliberate, malicious, and premeditated killing”).   
+ U.S. Virgin Islands:  V.I. Code Ann. tit. 14,  
+§ 922(a)(1) (19 64) (defining first -degree murder as mur-
+der that is “perpetrated by means of poison, lying in 
+wait, torture or by any other kind of willful, deliberate 
+and premeditated killing”).  
+ Utah:  Utah Code Ann. § 76 -5-202(1)(f)  (1984) (de-
+fining first -degree murder as when a person “intention-
+ally or knowingly causes the death of another” under 
+various circumstances including if “ [t]he homicide was 
+committed for pecuniary or other personal gain”).   
+ Vermont:   Vt. Stat. Ann. tit. 13, § 2301 (19 98) (de-
+fining first -degree murder as “[ m]urder committed by 
+means of poison, or by lying in wait, or by wilful, delib-
+erate and premeditated killing”).  
+ Virginia:   Va. Code Ann. § 18.2 -32 (1982) (defining 
+first -degree murder as murder “by poison, lying in wait, 
+imprisonment, starving, or by any willful, deliberate, 
+and premeditated killing”).   
+
+18a 
+  Washington:   Wash Rev. Code Ann. § 9A.32.030 (1)(a)  
+(1985) (a person commits first -degree murder when, 
+“[w]ith  a premeditated intent to cause the death of an-
+other person, he causes the death of such person or of a 
+third person”).   
+ West Virginia:   W. Va. Code Ann. § 61 -2-1 (1984)  
+(defining first -degree murder as “[m]urder by poison, 
+lying in wait, imprisonment, starving , or by any willful , 
+deliberate and premeditated killing”).   
+ Wisconsin:   Wis. Stat. Ann. § 940.01 (1) (198 4) (de-
+fining  first -degree  murder as when a person “causes the 
+death of another human being with intent to kill that 
+person or another”).   
+ Wyoming:   Wyo. Stat. Ann. § 6 -2-101(a) ( Supp. 
+1983) (defining first -degree murder as when a person 
+“purposely and with premeditated malice,  *  * *  
+kills any human being”).   
+ 
+Assault or battery offenses at risk of exclusion  
+ Alabama:  Ala. Code § 13A -6-20(a)(2)  (1982) ( a per-
+son commits first -degree assault when, “[w]ith intent to 
+disfigure another person seriously and permanently, or 
+to destroy, amputate or disable permanently a member 
+or organ of his body , he causes such an injury to any 
+person”).   
+ Alaska:   Alaska Stat. § 11.41.200(a)(2)  (1983) (a 
+person commits first -degree assault when, “with intent 
+to cause serious physical injury to another, the person 
+causes serious physical injury to any person”).   
+ American Samoa:  Am. Samoa Code Ann. § 46.3520  
+(1981)  (defining first -degree assault as when a person 
+
+19a 
+ “purposely or knowingly causes serious physical injury 
+to another person” or “attempts to kill or to cause seri-
+ous physical injury to another person”).    
+ Colorado:   Colo. Revised Stat. Ann. § 18 -3-202(b) 
+(1978) (a person commits first -degree assault when, 
+“[w]ith intent to disfigure another person seriously and 
+permanently, or to destroy, amputate, or disable perma-
+nently a member or organ of his body, he causes such an 
+injury to any person” ).  
+ Connecticut:   Conn. Stat. § 53a -59(a)(2) (19 83) (de-
+fining first -degree assault as when a person “with intent 
+to disfigure another person seriously and permanently, 
+or to destroy, amputate or disable permanently a mem-
+ber or organ of his body, he causes such injury to such 
+person or to a third person”).    
+ Delaware:   Del. Code  Ann. tit. 11,  § 613(2)  (Supp. 
+1984)  (defining first -degree assault as when a person 
+“intentionally disfigures another person seriously and 
+permanently, or intentionally destroys, amputates or 
+disables permanently a member or organ of another 
+person’s body ”).  
+ Florida:   Fla. Stat. § 784.021(1) (19 83) (defining ag-
+gravated assault as an assault “ [w]ith an intent to com-
+mit a felony” ); id. § 784.011 (defining “assault” as an “in-
+tentional, unlawful threat by word or act to do violence 
+to the person of another, coupled with an apparent abil-
+ity to do so, and doing some act which creates a well -
+founded fear in such other person that such viole nce is 
+imminent”).   
+ Georgia:   Ga. Crim. Code § 16-5-21 (198 4) (defining 
+aggravated assault as when a person assaults “[w]ith in-
+tent to murder, to rape, or to rob”); id. § 16 -5-20 (defin-
+
+20a 
+ ing assault as when a person “[a]ttempts to commit a vi-
+olent injury to the person of another” or “[c]o mmits  an 
+act which places another in reasonable apprehension of 
+immediately receiving a violent injury”).   
+ Hawaii:   Hawaii Rev. Stat. § 707 -710 (1976)  (defin-
+ing first -degree assault as when a person “intentionally 
+or knowingly causes serious bodily injury to another”).   
+ Idaho:   Idaho Code § 18 -4015 (1979) (punishing as-
+sault with intent to commit murder); id. § 18 -901 (defin-
+ing assault as “[a]n unlawful attempt , coupled  with a  
+present  ability, to commit a violent injury on the person 
+of another”).   
+ Iowa:   Iowa Code § 708.4 (19 83) (defining willful in-
+jury as when a person “does an act which is not justified 
+and which is intended to cause and does cause serious 
+injury to another”).   
+ Kansas:   Kan. Stat.  Ann.  § 21 -3410 (b)-(c) (1981) 
+(defining aggravated assault as “[c]omitting assault by 
+threatening or menacing another while disguised in any 
+manner designed to conceal identity” or “willfully and 
+intentionally assaulting another with intent to commit 
+any felony”); id. § 21-3408 (defining assault as “an inten-
+tional threat or attempt to do bodily harm to another 
+coupled with apparent ability and resulting in immedi-
+ate apprehension of bodily harm”).   
+ Louisiana:   La. Stat. Ann. § 14:34.1 ( Supp. 1984) 
+(defining second -degree battery as “a battery commit-
+ted without the consent of the victim when the offender 
+intentionally inflicts serious bodily injury”).   
+ Michigan:   Mich. Comp. Laws § 750.84  (1979) (de-
+fining as a felony “assault [of] another with intent to do 
+great bodily harm, less than the crime of murder”).  
+
+21a 
+  Minnesota:  Minn. Stat. § 609.221 (1984) (defining 
+as first -degree assault when a person “assaults another 
+and inflicts great bodily harm”); id. § 609.02 (defining 
+assault as “an act done with intent to cause fear in an-
+other of immediate bodily harm or death” or “ [t]he in-
+tentional infliction of or attempt to inflict bodily harm 
+upon another”).   
+ Missouri:  Mo. Rev. Stat. § 565.050(1) ( Supp. 1983) 
+(defining first -degree assault as when a person “ at-
+tempts to kill or knowingly causes or attempts to cause 
+serious physical injury to another person”).  
+ Montana:  Mont. Code Ann. § 45 -5-202(1) (a) (1983) 
+(defining aggravated assault as when a person “pur-
+posely or knowingly causes  *  * *  serious bodily in-
+jury to another”).   
+ Nebraska:  Neb. Rev. Stat. § 28 -308(1) (1985) (de-
+fining first -degree assault as “intentionally or know-
+ingly caus[ing] serious bodily injury to another per-
+son”).   
+ New Hampshire:  N.H. Rev. Stat. Ann. § 631:1 (I) 
+(Supp. 1983)  (defining first -degree assault as when a 
+person “[p]urposely causes serious bodily injury to an-
+other”).  
+ New York:   N.Y. Penal Law § 120.10(2) ( McKinney 
+1975) (a person commits first -degree assault when, 
+“[w]ith  the intent to disfigure another person seriously 
+and permanently, or to destroy, amputate or disable 
+permanently a member or organ of his body, he causes 
+such injury to such person or a third person”).   
+ Oregon:   Or. Rev. Stat. § 163.175 (1)(A)  (1985)  (de-
+fining second -degree assault as when a person “[i]nten-
+
+22a 
+ tionally or knowingly causes serious physical injury to 
+another”).   
+ South Dakota:   S.D. Codified Laws § 22 -18-1.1(4) 
+(Supp. 1981) (defining aggravated assault as when a per-
+son “[a]ssaults another with intent to commit bodily in-
+jury which results in serious bodily injury”).   
+ Tennessee:   Tenn. Code Ann. § 39 -2-101(b)(4) 
+(Supp. 1984 ) (defining aggravated assault to include 
+when a person, “[b]eing  the parent or custodian of a 
+child or the custodian of an adult, willfully or knowingly 
+fails or refuses to protect such child or adult from an ag-
+gravated assault”).   
+ U.S. Virgin Islands:  V.I. Code Ann. tit. 14,  § 298(4)  
+(1964)  (defining aggravated assault and battery as when 
+a person commits assault and battery “being a person of 
+robust health, upon one who is aged or decrepit”); see 
+V.I. Code Ann. tit. 14,  § 292 (defining assault and bat-
+tery as “us[ing] any unlawful violence upon the person 
+of another with intent to injure him, whatever be the 
+means or the degree of violence used”).   
+ Virginia:  Va. Code Ann. § 18.2 -51 (1982) (defining 
+assault offense  as when a person “maliciously shoot [s], 
+stab [s], cut [s] or wound [s] any person or by any means 
+cause [s] him bodily injury  with the intent to maim, dis-
+figure, disable , or kill”).   
+ West Virginia:  W. Va. Code Ann. § 61 -2-9(a) (1984) 
+(defining malicious or unlawful assault as when a person 
+“maliciously shoot [s], stab [s], cut [s] or wound [s] any 
+person, or by any means cause [s] him bodily injury with 
+intent to maim, disfigure, disable or kill”).   
+ Wisconsin:  Wis. Stat. Ann. § 940.19 (1m)  (198 4) 
+(defining aggravated battery as when a person “causes 
+
+23a 
+ great bodily harm to another by an act done with intent 
+to cause bodily harm to that person or another without 
+the consent of that person so harmed”).  
+ 
+Robbery  offenses at risk of exclusion   
+ Guam:  Guam Code Ann. § 40.10 (a)(1), (2)  (1982)  
+(defining first -degree robbery as when a person, “in the 
+course of committing a theft,” “attempts to kill another” 
+or “intentionally inflicts or attempts to inflict serious 
+bodily injury upon another”).   
+ Hawaii:  Hawaii Rev. Stat. § 708 -840 (Supp. 1984)  
+(defining first -degree robbery as when a person, in the 
+course of committing theft , “attempts to kill another, or 
+intentionally inflicts or attempts to inflict serious bodily 
+injury upon another”).   
+ Maine:  17-a Me. Stat. § 651(1)(D) (1983) (defining 
+robbery as when a person “commits or attempts to com-
+mit theft and at the time of his actions  *  * *  [h]e in-
+tentionally inflicts or attempts to inflict bodily injury on 
+another”).   
+ Mississippi:  Miss. Code § 97 -3-73 (1973 ) (defining 
+robbery as when a person “feloniously take[s] the per-
+sonal property of another, in his presence or from his 
+person and against his will, by violence to his person or 
+by putting such person in fear of some immediate injury 
+to his person”) ; see Crocker v. State , 272 So. 2d 664, 665 
+(Miss. 1973) (holding that the “three essential elements 
+of robbery are as follows: (1) felonious intent, (2) force 
+or putting in fear as a means of effectuating the intent, 
+and (3) by that means taking and carrying away the 
+property of another fr om his person or in his presence”) .  
+
+24a 
+  Montana:  Mont. Code Ann. § 45 -5-401(1)(b) (19 83) 
+(defining robbery as when, “in the course of committing 
+a theft, ” a person “threatens to inflict bodily injury upon 
+any person or purposely or knowingly puts any person 
+in fear of immediate bodily injury”).   
+ New Jersey:  N.J. Stat. Ann. § 2C:15 -1(a)(2) (1982) 
+(defining robbery as when a person, in the course of 
+committing a theft, “[t]hreatens another with or pur-
+posely puts him in fear of immediate bodily injury”).   
+ Pennsylvania:  18 Pa. Cons. Stat. § 3701(a)(1)(ii) 
+(198 3) (defining robbery as when a person “in the course 
+of committing a theft  *  * *  threatens another with 
+or intentionally puts him in fear of immediate serious 
+bodily injury”).   
+ Texas:  Tex. Penal Code § 29.02(a) (19 84) (defining 
+robbery by threat as when a person, “in the course of 
+committing theft  *  * *  and with intent to obtain or 
+maintain control of the property, he  *  * *  intention-
+ally or knowingly threatens or places another in fear of 
+imminent bodily injury or death”).   
+ Vermont:  Vt. Stat. Ann. tit. 13, § 608(a) (19 98) (de-
+fining assault and robbery as when a person “assaults 
+another and robs, steals, or takes from his person or in 
+his presence money or other property which  may be the 
+subject of larceny”); see State v. Powell , 608 A.2d 45, 46 
+(Vt. 1992) (requiring proof that the “defendant inten-
+tionally put the victim in fear of imminent, serious bodily 
+injury and intentionally deprived him of money, intend-
+ing to do so permanently”).   
+  
+
+25a 
+  
+Federal offenses at risk of exclusion  
+1. 18 U.S.C. 875(b)  and (c) (19 82):  
+(b) Whoever, with intent to extort from any person, 
+firm, association, or corporation, any money or other 
+thing of value, transmits in interstate commerce any 
+communication containing any threat to kidnap any per-
+son or any threat to injure the person of another, shall 
+be fined not more than $5,000 or imprisoned not more 
+than twenty years, or both.  
+(c) Whoever transmits in interstate commerce any 
+communication containing any threat to kidnap any per-
+son or any threat to injure the person of another, shall 
+be fined not more than $1,000 or imprisoned not more 
+than five years, or both.  
+ 
+2. 18 U.S.C. 1111(a) (198 2 & Supp. II 1984 ): 
+(a) Murder is the unlawful killing of a human being 
+with malice aforethought.  Every murder perpetrated 
+by poison, lying in wait, or any other kind of willful, de-
+liberate, malicious, and premeditated killing; or commit-
+ted in the perpetration of, or attempt to perpetrate , any 
+arson, escape, murder, kidnaping, treason, espionage, 
+sabotage, rape, burglary, or robbery; or perpetrated 
+from a premeditated design unlawfully and maliciously 
+to effect the death of any human being other than him 
+who is killed, is murder in the firs t degree.  
+ Any other murder is murder in the second degree.   
+  
+
+26a 
+ 3. 18 U.S.C. 1112 (19 82):  
+(a) Manslaughter is the unlawful killing of a human 
+being without malice.  It is of two kinds:   
+ Voluntary —Upon a sudden quarrel or heat of pas-
+sion.   
+*  *  *  *  *  
+ Whoever is guilty of voluntary manslaughter, shall 
+be imprisoned not more than ten years[.]  
+ 
+4. 18 U.S.C. 1114 ( 1982 & Supp. II 1984) :  
+ Whoever kills or attempts to kill [various officers 
+and employees of the United States]  *  * *  engaged 
+in or on account of the performance of his official duties  
+* * *  shall be punished  *  * *  . 
+ 
+5. 18 U.S.C. 1116(a) (1982) :  
+ (a) Whoever kills or attempts to kill a foreign offi-
+cial, official guest, or internationally protected person 
+shall be punished as provided under sections 1111, 1112, 
+and 1113 of this title  *  * *  .”   
+ 
+6. 18 U.S.C. 1513(a) (1982) :  
+ (a) Whoever knowingly engages in any conduct 
+and thereby causes bodily injury to another person or 
+damages the tangible property of another person, or 
+threatens to do so, with intent to retaliate against any 
+person for — 
+
+27a 
+  (1) the attendance of a witness or party at an 
+official proceeding, or any testimony given or any 
+record, document, or other object produced by a 
+witness in an official proceeding; or  
+ (2) any information relating to the commission 
+or possible commission of a Federal offense or a vi-
+olation of conditions of probation, parole, or release 
+pending judicial proceedings given by a person to a 
+law enforcement officer;  
+or attempts to do so, shall be fined not more than 
+$250,000 or imprisoned not more than ten years, or both.   
+ 
+7. 18 U.S.C. 2111 (19 82):  
+ Whoever, within the special maritime and territorial 
+jurisdiction of the United States, by force and violence, 
+or by intimidation, takes from the person or presence of 
+another anything of value, shall be imprisoned not more 
+than fifteen years.  
+

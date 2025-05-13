@@ -1,0 +1,502 @@
+[
+  {
+    "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 254,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 270,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 304,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Marbury v. Madison, 5 U.S. 137 (1803)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 312,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 318,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Plessy v. Ferguson, 163 U.S. 537 (1896)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Lochner v. New York, 198 U.S. 45 (1905)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Korematsu v. United States, 323 U.S. 214 (1944)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 72,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Citizens United v. FEC, 558 U.S. 310 (2010)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 68,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Obergefell v. Hodges, 576 U.S. 644 (2015)",
+    "type": "Landmark",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "United States v. Windsor, 570 U.S. 744 (2013)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 70,
+    "ml_confidence": 0.39649917656008843,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "District of Columbia v. Heller, 554 U.S. 570 (2008)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 76,
+    "ml_confidence": 0.4615412593960734,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "New York Times Co. v. Sullivan, 376 U.S. 254 (1964)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 76,
+    "ml_confidence": 0.5043655504647474,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Shelby County v. Holder, 570 U.S. 529 (2013)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 69,
+    "ml_confidence": 0.5850565960375498,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Kelo v. City of New London, 545 U.S. 469 (2005)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 72,
+    "ml_confidence": 0.3297350473067122,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Grutter v. Bollinger, 539 U.S. 306 (2003)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.32578091962368433,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Lawrence v. Texas, 539 U.S. 558 (2003)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 63,
+    "ml_confidence": 0.37531500668746864,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Bush v. Gore, 531 U.S. 98 (2000)",
+    "type": "CourtListener",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 226,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Planned Parenthood v. Casey, 505 U.S. 833 (1992)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 73,
+    "ml_confidence": 0.5656999010672685,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Texas v. Johnson, 491 U.S. 397 (1989)",
+    "type": "CourtListener",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 62,
+    "ml_confidence": 0.32521505122772565,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Mapp v. Ohio, 367 U.S. 643 (1961)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 58,
+    "ml_confidence": 0.35830247069871257,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Griswold v. Connecticut, 381 U.S. 479 (1965)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 69,
+    "ml_confidence": 0.44875120325814344,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Loving v. Virginia, 388 U.S. 1 (1967)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 62,
+    "ml_confidence": 0.5002701779489649,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Tinker v. Des Moines, 393 U.S. 503 (1969)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.4385171647389013,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Wisconsin v. Yoder, 406 U.S. 205 (1972)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.5632178307680176,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "United States v. Nixon, 418 U.S. 683 (1974)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 68,
+    "ml_confidence": 0.31914598179704057,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Regents of the University of California v. Bakke, 438 U.S. 265 (1978)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 94,
+    "ml_confidence": 0.3033641376905435,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "New Jersey v. T.L.O., 469 U.S. 325 (1985)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.44883950200173295,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Batson v. Kentucky, 476 U.S. 79 (1986)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 63,
+    "ml_confidence": 0.5121667932823186,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Romer v. Evans, 517 U.S. 620 (1996)",
+    "type": "Multitool",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 60,
+    "ml_confidence": 0.4327402736793757,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 254,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 270,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 304,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Marbury v. Madison, 5 U.S. 137 (1803)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 312,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Gideon v. Wainwright, 372 U.S. 335 (1963)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 318,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Plessy v. Ferguson, 163 U.S. 537 (1896)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Lochner v. New York, 198 U.S. 45 (1905)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Korematsu v. United States, 323 U.S. 214 (1944)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 72,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Citizens United v. FEC, 558 U.S. 310 (2010)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 68,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Obergefell v. Hodges, 576 U.S. 644 (2015)",
+    "type": "EnhancedValidator",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Smith v. Jones, 123 U.S. 456 (2022)",
+    "type": "Unconfirmed",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 60,
+    "ml_confidence": 0.5222525857305282,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Doe v. United States, 555 U.S. 123 (2019)",
+    "type": "Unconfirmed",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 66,
+    "ml_confidence": 0.39393616339833715,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Johnson v. California, 999 U.S. 888 (2021)",
+    "type": "Unconfirmed",
+    "validation": false,
+    "validation_by": null,
+    "context_available": false,
+    "context_length": 67,
+    "ml_confidence": 0.5546093124382305,
+    "suggestion_count": 10
+  },
+  {
+    "citation": "Brown v. Board of Educaton, 347 U.S. 483 (1954)",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 72,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Roe v. Wade, 410 U.S. 114 (1973)",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 57,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Miranda v. Arizona, 384 U.S. 436 (1965)",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 64,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Marbury v. Madison, 5 U.S. 138 (1803)",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 62,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Gideon v. Wainright, 372 U.S. 335 (1963)",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 65,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "Plessy v. Ferguson, 163 U.S. 537",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": false,
+    "context_length": 57,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  },
+  {
+    "citation": "410 U.S. 113",
+    "type": "Unconfirmed",
+    "validation": true,
+    "validation_by": "Enhanced Validator",
+    "context_available": true,
+    "context_length": 157,
+    "ml_confidence": 0.95,
+    "suggestion_count": 0
+  }
+]

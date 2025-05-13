@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>About CaseStrainer</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header">Overview</div>
+        <div class="card-body">
+            <p>CaseStrainer is an advanced citation verification system designed to analyze legal briefs and identify potentially hallucinated or incorrect citations. The system uses a multi-layered approach to verify citations, combining traditional legal databases with web searches and AI-based verification.</p>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">Key Features</div>
+        <div class="card-body">
+            <h5>Triple-Layered Verification Process</h5>
+            <ul>
+                <li><strong>CourtListener API:</strong> Primary verification through a comprehensive legal database</li>
+                <li><strong>Multi-Source Web Search:</strong> Secondary verification across multiple legal websites including Leagle.com, Justia, FindLaw, and Google Scholar</li>
+                <li><strong>AI-Based Verification:</strong> Tertiary verification using LangSearch to generate and compare case summaries</li>
+            </ul>
+            
+            <h5>Advanced Case Name Extraction</h5>
+            <ul>
+                <li>Sophisticated algorithms to identify case names using various patterns</li>
+                <li>Normalization techniques to match case names across different formats</li>
+                <li>Identification of significant words in case names for better matching</li>
+            </ul>
+            
+            <h5>Performance Optimization</h5>
+            <ul>
+                <li>File-based persistent cache for citation verification results</li>
+                <li>In-memory caching using LRU (Least Recently Used) strategy</li>
+                <li>Automatic cache expiration to ensure up-to-date results</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">How It Works</div>
+        <div class="card-body">
+            <ol>
+                <li><strong>Citation Extraction:</strong> The system extracts legal citations from the provided text using the eyecite library.</li>
+                <li><strong>Primary Verification:</strong> Each citation is checked against the CourtListener database.</li>
+                <li><strong>Secondary Verification:</strong> For unconfirmed citations, the system searches multiple legal websites.</li>
+                <li><strong>Tertiary Verification:</strong> For citations still unconfirmed, the system uses LangSearch to generate and compare two different summaries of the case.</li>
+                <li><strong>Result Compilation:</strong> All verification results are compiled, with confidence scores and explanations for each citation.</li>
+            </ol>
+            
+            <div class="alert alert-info">
+                <strong>Note:</strong> The system groups multiple citations that refer to the same case, providing a more organized view of your document's citations.
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">Understanding Results</div>
+        <div class="card-body">
+            <h5>Citation Status</h5>
+            <ul>
+                <li><span class="badge bg-success">Verified</span> - Citation was found in at least one verification source</li>
+                <li><span class="badge bg-warning">Unconfirmed</span> - Citation could not be verified but might still be valid</li>
+                <li><span class="badge bg-danger">Potentially Hallucinated</span> - Citation could not be verified by any method</li>
+            </ul>
+            
+            <h5>Confidence Scores</h5>
+            <p>Each verification comes with a confidence score (0.0-1.0) indicating how certain the system is about the result:</p>
+            <ul>
+                <li><strong>0.9-1.0:</strong> High confidence (verified by multiple sources)</li>
+                <li><strong>0.7-0.9:</strong> Good confidence (verified by at least one reliable source)</li>
+                <li><strong>0.5-0.7:</strong> Moderate confidence (some evidence found but not conclusive)</li>
+                <li><strong>0.0-0.5:</strong> Low confidence (little or no evidence found)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">Tips for Best Results</div>
+        <div class="card-body">
+            <ul>
+                <li>Ensure citations in your document follow standard legal citation formats</li>
+                <li>For better performance with large documents, consider breaking them into smaller sections</li>
+                <li>Check the "Progress Logs" section for detailed information about the verification process</li>
+                <li>Review the summaries provided for unconfirmed citations to manually verify their accuracy</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">Technologies Used</div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Backend:</strong> Python, Flask, eyecite (for citation extraction)</li>
+                <li><strong>APIs:</strong> CourtListener API, LangSearch API</li>
+                <li><strong>Frontend:</strong> HTML, CSS, JavaScript, Bootstrap</li>
+                <li><strong>Data Processing:</strong> Regular expressions, BeautifulSoup (for web scraping)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock content %}

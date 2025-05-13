@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>Washington State Courts - Error</title>
+	<meta http-equiv="expires" content="0">
+	<meta HTTP-EQUIV="Pragma" CONTENT="no-cache"> 
+
+	<SCRIPT language="JavaScript">
+	var reqUrl = window.location;
+	var redirectUrl = window.location='/index.cfm?fa=home.checkUrl&reqPage='+reqUrl;
+    document.write(redirectUrl);
+    </SCRIPT>
+	<link href="http://www.courts.wa.gov/includes/stylesheetie.css" type=text/css rel=stylesheet>
+</head>
+<body bgcolor="White" text="Black" link="0000FF" vlink="333366" alink="333366" topmargin="0" leftmargin="0" rightmargin="0">
+<table cellspacing="0" cellpadding="0" border="0" width="100%">
+	<tr class="Primary1bg">
+		<td><img src="http://www.courts.wa.gov/images/spacer.gif" border="0" alt="Skip Page Links" width="1" height="1" /><br /></td>
+		<td><a href="/"><img src="http://www.courts.wa.gov/images/wacourts-head.jpg" alt="Washington State Courts"  border="0" /></a></td>		
+		<td align="right"><img src="http://www.courts.wa.gov/images/courtsb.jpg" alt="Courts Home Page Logo" border="0" /></td>
+	</tr>
+</table>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+	<tr class="Secondary1bg">
+		<td>
+			<img src="http://www.courts.wa.gov/images/spacer.gif" width="1" height="18" alt="" border="0" />
+		</td>
+		<td>&nbsp;<a href="http://www.courts.wa.gov" class="breadcrumb">Washington Courts Home</a>
+		<td align="right">		
+			<a href="/search/index.cfm?fa=search.home" class="staticcrumb">Search</a>
+			<span class="tiny">&nbsp;| &nbsp;</span><a href="/index.cfm?fa=home.sitemap" class="staticcrumb">Site Map</a>
+			<span class="tiny">&nbsp;|&nbsp;</span><img src="/images/help.gif"><a href="https://aoc.custhelp.com/" class="staticcrumb">eService Center</a><span class="tiny"> 
+		</td>
+	</tr>
+</table>
+<div style="margin-left:5pt;margin-right:5pt">
+<h2>Washington State Courts</h2>
+<span class="error"><strong>You have encountered an Error.</strong></span><p>
+There was either a problem on the website, or you  have requested a page that does not exist or is no longer available on our web site. 
+<p>
+If you are searching for a page which used to be available, or if you have discovered a link that is broken, <a href="https://aoc.custhelp.com/">please let us know</a>. 
+<p>
+You may be able to find an alternate page by <a href="http://www.courts.wa.gov/search/index.cfm?fa=search.search_advanced">Searching the Site</a>, or by reviewing the <a href="http://www.courts.wa.gov/index.cfm?fa=home.sitemap">Site Map</a>.
+</div>
+<p></p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" summary="This table holds the primary navigation">
+	<tr class="Secondary1bg">
+		<td>
+			<img src="http://www.courts.wa.gov/images/spacer.gif" width="1" height="18" alt="" border="0" />
+		</td>
+		<td align=center>		
+			&nbsp;<a href="http://www.courts.wa.gov/appellate_trial_courts/" class="staticcrumb">Courts</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/programs_orgs/" class="staticcrumb">Organizations</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/newsinfo/" class="staticcrumb">News</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/opinions/" class="staticcrumb">Opinions</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/court_rules/" class="staticcrumb">Rules</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/forms/" class="staticcrumb">Forms</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/court_dir/" class="staticcrumb">Directory</a>&nbsp;|&nbsp;<a href="http://www.courts.wa.gov/library/" class="staticcrumb">Library</a>&nbsp;
+		</td>
+	</tr>
+</body>
+</html>

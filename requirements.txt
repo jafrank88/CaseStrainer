@@ -1,0 +1,51 @@
+# CaseStrainer dependencies
+
+# Web framework
+flask>=2.0.0
+flask-cors==4.0.0
+flask-restful==0.3.10  # For RESTful API endpoints
+flask-session>=0.4.0
+
+# Scientific computing
+numpy==1.24.3
+scikit-learn==1.3.0
+
+# Natural language processing
+nltk==3.8.1
+
+# For API requests
+requests>=2.31.0
+typing-extensions==4.8.0
+urllib3>=1.26.0
+
+# For parsing HTML
+beautifulsoup4>=4.9.0
+
+# For handling PDF files
+PyPDF2>=3.0.0
+pdfminer.six==20221105  # For advanced PDF text extraction
+
+# For legal citation extraction
+eyecite>=2.0.0
+# aho-corasick==0.4.1  # For AhocorasickTokenizer
+hyperscan==0.6.0  # For HyperscanTokenizer (optional, may require C++ compiler)
+
+# For Word document processing
+python-docx>=0.8.11
+
+# For OpenAI API integration
+openai==1.3.0
+
+# For SSL/HTTPS support
+pyopenssl==23.2.0
+
+# For production deployment
+cheroot==10.0.0  # Primary WSGI server with SSL support
+waitress==3.0.2  # Alternative WSGI server
+
+# For Vue.js integration
+importlib-metadata==6.8.0  # For dynamic module loading
+python-dotenv==1.0.0  # For environment variable management
+
+# Type hints
+typing==3.7.4.3

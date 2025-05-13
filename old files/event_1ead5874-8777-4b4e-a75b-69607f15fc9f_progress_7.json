@@ -1,0 +1,85 @@
+{
+  "status": "progress",
+  "current": 9,
+  "total": 9,
+  "message": "Received response from CourtListener API",
+  "api_response": [
+    {
+      "citation": "2006 WL 3801910",
+      "normalized_citations": [
+        "2006 WL 3801910"
+      ],
+      "start_index": 3934,
+      "end_index": 3949,
+      "status": 404,
+      "error_message": "Citation not found: '2006 WL 3801910'",
+      "clusters": []
+    },
+    {
+      "citation": "2018 WL 2446162",
+      "normalized_citations": [
+        "2018 WL 2446162"
+      ],
+      "start_index": 4076,
+      "end_index": 4091,
+      "status": 404,
+      "error_message": "Citation not found: '2018 WL 2446162'",
+      "clusters": []
+    },
+    {
+      "citation": "2017 WL 3461055",
+      "normalized_citations": [
+        "2017 WL 3461055"
+      ],
+      "start_index": 6854,
+      "end_index": 6869,
+      "status": 404,
+      "error_message": "Citation not found: '2017 WL 3461055'",
+      "clusters": []
+    },
+    {
+      "citation": "2010 WL 4683851",
+      "normalized_citations": [
+        "2010 WL 4683851"
+      ],
+      "start_index": 8034,
+      "end_index": 8049,
+      "status": 404,
+      "error_message": "Citation not found: '2010 WL 4683851'",
+      "clusters": []
+    },
+    {
+      "citation": "2011 WL 2160468",
+      "normalized_citations": [
+        "2011 WL 2160468"
+      ],
+      "start_index": 9654,
+      "end_index": 9669,
+      "status": 404,
+      "error_message": "Citation not found: '2011 WL 2160468'",
+      "clusters": []
+    },
+    {
+      "citation": "2019 WL 2516279",
+      "normalized_citations": [
+        "2019 WL 2516279"
+      ],
+      "start_index": 14227,
+      "end_index": 14242,
+      "status": 404,
+      "error_message": "Citation not found: '2019 WL 2516279'",
+      "clusters": []
+    },
+    {
+      "citation": "2018 WL 3037217",
+      "normalized_citations": [
+        "2018 WL 3037217"
+      ],
+      "start_index": 16029,
+      "end_index": 16044,
+      "status": 404,
+      "error_message": "Citation not found: '2018 WL 3037217'",
+      "clusters": []
+    }
+  ]
+}

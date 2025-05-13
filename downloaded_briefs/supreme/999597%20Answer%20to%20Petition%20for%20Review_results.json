@@ -1,0 +1,71 @@
+{
+  "citation_results": [
+    {
+      "case_name": "Garrity v. New Jersey",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "explanation": "Citation confirmed: Garrity v. New Jersey - https://www.courtlistener.com/opinion/107336/garrity-v-new-jersey/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "385 U.S. 493"
+    },
+    {
+      "case_name": "Terry v. Ohio",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/107729/terry-v-ohio/",
+      "explanation": "Citation confirmed: Terry v. Ohio - https://www.courtlistener.com/opinion/107729/terry-v-ohio/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "392 U.S. 1"
+    },
+    {
+      "case_name": "Wright v. Beto",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/8988983/wright-v-beto/",
+      "explanation": "Citation confirmed: Wright v. Beto - https://www.courtlistener.com/opinion/8988983/wright-v-beto/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "408 U.S. 934"
+    },
+    {
+      "case_name": "Scoleri v. Pennsylvania",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/8988982/scoleri-v-pennsylvania/",
+      "explanation": "Citation confirmed: Scoleri v. Pennsylvania - https://www.courtlistener.com/opinion/8988982/scoleri-v-pennsylvania/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "92 S. Ct. 2852"
+    },
+    {
+      "case_name": "Daniel J. Bowles v. United States",
+      "confidence": 0.9,
+      "court_listener_url": "https://www.courtlistener.com/opinion/295302/daniel-j-bowles-v-united-states/",
+      "explanation": "Citation confirmed: Daniel J. Bowles v. United States - https://www.courtlistener.com/opinion/295302/daniel-j-bowles-v-united-states/",
+      "is_hallucinated": false,
+      "parallel_citations": [],
+      "primary_citation": "439 F.2d 536"
+    }
+  ],
+  "completed": true,
+  "error": null,
+  "extracted_citations": [
+    "408 U.S. 934",
+    "385 U.S. 493",
+    "392 U.S. 1",
+    "92 S. Ct. 2852",
+    "87 S. Ct. 616",
+    "88 S. Ct. 1868",
+    "439 F.2d 536"
+  ],
+  "message": "Analysis complete. Found 7 total citations grouped into 5 unique cases, 0 potentially hallucinated.",
+  "progress": 3,
+  "results": {
+    "hallucinated_citations": 0,
+    "total_individual_citations": 7,
+    "total_unique_cases": 5,
+    "verified_citations": 7,
+    "verified_unique_cases": 5
+  },
+  "status": "complete",
+  "total_steps": 3
+}

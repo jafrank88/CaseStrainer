@@ -1,0 +1,291 @@
+// Global state to track processing status
+window.citationProcessing = {
+    isProcessing: false,
+    analysisId: null,
+    startTime: null,
+    totalCitations: 0,
+    processedCitations: 0,
+    progressInterval: null
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Always use the /casestrainer/ prefix for API calls to work with Nginx proxy
+    const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
+    const analyzeForm = document.getElementById('analyzeForm');
+    
+    // Handle input method selection
+    const fileMethodRadio = document.getElementById('file-method');
+    const textMethodRadio = document.getElementById('text-method');
+    const urlMethodRadio = document.getElementById('url-method');
+    
+    const fileInput = document.getElementById('file-input');
+    const textInput = document.getElementById('text-input');
+    const urlInput = document.getElementById('url-input');
+    
+    // Function to switch between input methods
+    function switchInputMethod(method) {
+        // Hide all input methods
+        fileInput.classList.remove('active');
+        textInput.classList.remove('active');
+        urlInput.classList.remove('active');
+        
+        // Show the selected input method
+        if (method === 'file') {
+            fileInput.classList.add('active');
+        } else if (method === 'text') {
+            textInput.classList.add('active');
+        } else if (method === 'url') {
+            urlInput.classList.add('active');
+        }
+    }
+    
+    // Add event listeners to radio buttons
+    fileMethodRadio.addEventListener('change', function() {
+        if (this.checked) {
+            switchInputMethod('file');
+        }
+    });
+    
+    textMethodRadio.addEventListener('change', function() {
+        if (this.checked) {
+            switchInputMethod('text');
+        }
+    });
+    
+    urlMethodRadio.addEventListener('change', function() {
+        if (this.checked) {
+            switchInputMethod('url');
+        }
+    });
+    
+    // Function to create and update progress bar
+    function setupProgressTracking(form) {
+        // Create progress UI
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'progress mt-3';
+        progressContainer.style.height = '20px';
+        
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
+        progressBar.role = 'progressbar';
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressBar.setAttribute('aria-valuemin', '0');
+        progressBar.setAttribute('aria-valuemax', '100');
+        progressBar.textContent = 'Starting...';
+        
+        progressContainer.appendChild(progressBar);
+        form.appendChild(progressContainer);
+        
+        // Initialize progress tracking
+        window.citationProcessing = {
+            isProcessing: true,
+            startTime: new Date(),
+            totalCitations: 100, // Default estimate
+            processedCitations: 0,
+            progressInterval: null
+        };
+        
+        // Start progress polling
+        window.citationProcessing.progressInterval = setInterval(() => {
+            fetch(`${basePath}/api/processing_progress?total=${window.citationProcessing.totalCitations}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.citationProcessing.processedCitations = data.processed_citations;
+                    
+                    // Calculate progress percentage
+                    const progress = data.total_citations > 0 ? 
+                        Math.min(Math.round((data.processed_citations / data.total_citations) * 100), 100) : 0;
+                    
+                    // Update progress bar
+                    progressBar.style.width = `${progress}%`;
+                    progressBar.setAttribute('aria-valuenow', progress);
+                    progressBar.textContent = `${progress}% (${data.processed_citations}/${data.total_citations})`;
+                    
+                    // Check if processing is complete
+                    if (data.is_complete) {
+                        clearInterval(window.citationProcessing.progressInterval);
+                        window.citationProcessing.isProcessing = false;
+                        progressBar.textContent = 'Complete!';
+                        progressBar.className = 'progress-bar bg-success';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking progress:', error);
+                clearInterval(window.citationProcessing.progressInterval);
+                progressBar.textContent = 'Error tracking progress';
+                progressBar.className = 'progress-bar bg-danger';
+            });
+        }, 1000);
+        
+        return progressContainer;
+    }
+    
+    // Handle combined form submission
+    if (analyzeForm) {
+        analyzeForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent traditional form submission
+            
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+            submitButton.disabled = true;
+            
+            // Determine which input method is active
+            const formData = new FormData(this);
+            
+            // If URL method is selected, fetch the URL content first
+            if (urlMethodRadio.checked) {
+                const url = document.getElementById('urlInput').value;
+                if (!url) {
+                    alert('Please enter a valid URL');
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    return;
+                }
+                
+                // Setup progress tracking
+                const progressContainer = setupProgressTracking(this);
+                
+                // Fetch URL content through the backend
+                fetch(`${basePath}/api/fetch_url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success' && data.text) {
+                        // Now analyze the fetched text
+                        const textFormData = new FormData();
+                        textFormData.append('text', data.text);
+                        
+                        return fetch(`${basePath}/api/analyze`, {
+                            method: 'POST',
+                            body: textFormData
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to fetch URL content');
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Analysis results:', data);
+                    
+                    // Store the analysis results
+                    window.analysisResults = data;
+                    
+                    // Update citation count for progress tracking
+                    if (data.citations_count) {
+                        window.citationProcessing.totalCitations = data.citations_count;
+                    }
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error analyzing URL:', error);
+                    alert('Error analyzing URL: ' + error.message);
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    // Remove progress bar on error
+                    if (progressContainer) {
+                        progressContainer.remove();
+                    }
+                    
+                    // Clear progress interval
+                    if (window.citationProcessing.progressInterval) {
+                        clearInterval(window.citationProcessing.progressInterval);
+                        window.citationProcessing.isProcessing = false;
+                    }
+                });
+            } else {
+                // For file upload or text paste, use the standard approach
+                // Setup progress tracking
+                const progressContainer = setupProgressTracking(this);
+                
+                fetch(`${basePath}/api/analyze`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Analysis results:', data);
+                    
+                    // Store the analysis results
+                    window.analysisResults = data;
+                    
+                    // Update citation count for progress tracking
+                    if (data.citations_count) {
+                        window.citationProcessing.totalCitations = data.citations_count;
+                    }
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error analyzing document:', error);
+                    alert('Error analyzing document: ' + error.message);
+                    
+                    // Reset button
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                    
+                    // Remove progress bar on error
+                    if (progressContainer) {
+                        progressContainer.remove();
+                    }
+                    
+                    // Clear progress interval
+                    if (window.citationProcessing.progressInterval) {
+                        clearInterval(window.citationProcessing.progressInterval);
+                        window.citationProcessing.isProcessing = false;
+                    }
+                });
+            }
+        });
+    }
+    
+    // Load data for tabs when they're clicked
+    const tabButtons = document.querySelectorAll('.nav-link[data-bs-toggle="tab"]');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-bs-target');
+            
+            // Load data based on which tab was clicked
+            if (tabId === '#multitool' && document.querySelector('#multitool-tab.active')) {
+                // This will be handled by the multitool-citations.js file
+            } else if (tabId === '#unconfirmed' && document.querySelector('#unconfirmed-tab.active')) {
+                // This will be handled by the unconfirmed-citations.js file
+            } else if (tabId === '#cl-gaps' && document.querySelector('#cl-gaps-tab.active')) {
+                // This will be handled by the courtlistener-gaps.js file
+            }
+        });
+    });
+});

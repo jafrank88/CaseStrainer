@@ -1,0 +1,193 @@
+.gitignore
+# Archive directory
+archive/
+
+# Log files
+*.log
+logs/
+casestrainer_test.log
+direct_url_app.log
+comprehensive_url_test.log
+url_analyzer_test.log
+url_test.log
+url_test_app.log
+app_final_vue.log
+
+# Test data files
+test_*.txt
+*_test.txt
+comprehensive_test.txt
+comprehensive_test_citations.txt
+test_citations_fixed.txt
+specific_gaps_test.txt
+courtlistener_gaps_test.txt
+extracted_pdf_text.txt
+extracted_text.txt
+avianca_extracted_text.txt
+
+# Cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+*.pyd
+.cache/
+citation_cache/
+
+# Database files
+*.db
+citations.db
+
+# Backup files
+*.bak
+app_final_vue.py.bak
+
+# Environment and IDE files
+.env
+.venv/
+env/
+venv/
+ENV/
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Build and deployment files
+*.bat
+build_*.bat
+deploy_*.bat
+start_*.bat
+update_*.bat
+
+# Results directory
+results/
+
+# Uploads directory
+uploads/
+wa_briefs/
+downloaded_briefs/
+sample_briefs/
+
+# JSON files that might contain sensitive data
+*.json
+citations.json
+truly_unverified_citations.json
+verification_results.json
+unverified_citations.json
+verified_citations.json
+
+# Nginx configuration files (unless they're part of the deployment)
+*.conf
+nginx_*.conf
+wolf_*.conf
+
+# Docker files (unless they're part of the deployment)
+Dockerfile
+docker-compose.yml
+docker_*.conf
+
+# Debug files
+debug_*.py
+debug_*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Test files
+tests/
+test_*.py
+*_test.py
+*_test.txt
+
+# Large files and directories
+cmake.msi
+python-hyperscan/
+hyperscan/
+vcpkg/
+
+# Configuration (except templates)
+config/*.conf
+!config/template_*.conf
+
+# Docker (except templates)
+docker/Dockerfile*
+docker/docker-compose*.yml
+!docker/template_*
+
+# Reports
+reports/
+*.png
+*.csv
+*.txt
+!requirements.txt
+!README.txt
+
+# Uploads
+uploads/
+wa_briefs/
+downloaded_briefs/
+sample_briefs/
+
+# Nginx
+nginx-*/
+ssl/
+conf/
+
+# Word Add-in
+word_addin/
+
+# Deprecated
+deprecated_scripts/
+old files/
+
+# Large data files
+data/citations/verified_citations.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!config.json
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,50 @@
+{
+  "citation": "192 Wn. App. 503",
+  "normalized_citation": "192 Wn. App. 503",
+  "components": {
+    "volume": "192",
+    "reporter": "Wn. App.",
+    "page": "503",
+    "court": "Washington Court of Appeals",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:59:11.347880",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": false,
+      "source": "Database",
+      "error": "Citation not found in database"
+    },
+    "landmark_cases": {
+      "verified": false,
+      "source": "Landmark Cases",
+      "error": "Landmark cases database not found"
+    },
+    "fuzzy_matching": {
+      "verified": true,
+      "source": "Fuzzy Matching",
+      "match_type": "pattern",
+      "pattern": "(\\d+)\\s+Wn\\.\\s*(?:App\\.)?\\s*(\\d+)",
+      "volume": "192",
+      "page": "503"
+    }
+  },
+  "verified_by": "Fuzzy Matching"
+}

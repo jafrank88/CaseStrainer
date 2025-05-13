@@ -1,0 +1,50 @@
+{
+  "citation": "143 U.S. 649",
+  "normalized_citation": "143 U.S. 649",
+  "components": {
+    "volume": "143",
+    "reporter": "U.S.",
+    "page": "649",
+    "court": "United States Supreme Court",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:52:07.785045",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": false,
+      "source": "Database",
+      "error": "Citation not found in database"
+    },
+    "landmark_cases": {
+      "verified": false,
+      "source": "Landmark Cases",
+      "error": "Landmark cases database not found"
+    },
+    "fuzzy_matching": {
+      "verified": true,
+      "source": "Fuzzy Matching",
+      "match_type": "pattern",
+      "pattern": "(\\d+)\\s+U\\.S\\.\\s*(\\d+)",
+      "volume": "143",
+      "page": "649"
+    }
+  },
+  "verified_by": "Fuzzy Matching"
+}

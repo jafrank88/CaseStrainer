@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Confirmed with Multitool</h1>
+    <p class="lead">Citations that were confirmed with the multi-source tool but not with CourtListener.</p>
+    
+    <div class="alert alert-info">
+        <strong>Info:</strong> This tab shows {{ citations|length }} citations that were verified using alternative sources beyond CourtListener.
+    </div>
+    
+    {% if citations %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Citation</th>
+                <th>Brief URL</th>
+                <th>Context</th>
+                <th>Verification Source</th>
+                <th>Confidence</th>
+                <th>Explanation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for citation in citations %}
+            <tr>
+                <td>{{ citation.citation_text }}</td>
+                <td>
+                    {% if citation.brief_url %}
+                    <a href="{{ citation.brief_url }}" target="_blank">{{ citation.brief_url }}</a>
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>{{ citation.context }}</td>
+                <td>{{ citation.verification_source }}</td>
+                <td>{{ citation.verification_confidence }}</td>
+                <td>{{ citation.verification_explanation }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning">
+        No citations found that were confirmed only by the multi-source tool.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

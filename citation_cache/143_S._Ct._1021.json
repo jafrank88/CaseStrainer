@@ -1,0 +1,50 @@
+{
+  "citation": "143 S. Ct. 1021",
+  "normalized_citation": "143 S. Ct. 1021",
+  "components": {
+    "volume": "143",
+    "reporter": "S. Ct.",
+    "page": "1021",
+    "court": "",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:08:53.133415",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": false,
+      "source": "Database",
+      "error": "Citation not found in database"
+    },
+    "landmark_cases": {
+      "verified": false,
+      "source": "Landmark Cases",
+      "error": "Landmark cases database not found"
+    },
+    "fuzzy_matching": {
+      "verified": true,
+      "source": "Fuzzy Matching",
+      "match_type": "pattern",
+      "pattern": "(\\d+)\\s+S\\.\\s*Ct\\.\\s*(\\d+)",
+      "volume": "143",
+      "page": "1021"
+    }
+  },
+  "verified_by": "Fuzzy Matching"
+}

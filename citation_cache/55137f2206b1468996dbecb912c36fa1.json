@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-05-07T16:28:03.189861",
+  "citation": "347 U.S. 483",
+  "result": {
+    "found": true,
+    "url": "https://supreme.justia.com/cases/federal/us/347/483/",
+    "found_case_name": "Brown v. Board of Education",
+    "name_match": true,
+    "confidence": 0.95,
+    "explanation": "Verified landmark case: Brown v. Board of Education (1954) - Declared racial segregation in public schools unconstitutional",
+    "source": "Landmark Cases Database"
+  }
+}

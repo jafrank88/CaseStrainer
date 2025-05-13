@@ -1,0 +1,38 @@
+{
+  "citation": "225 F. 2",
+  "normalized_citation": "225 F. 2",
+  "components": {
+    "volume": "225",
+    "reporter": "F.",
+    "page": "2",
+    "court": "United States Court of Appeals",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:46:06.998449",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": true,
+      "source": "Database",
+      "match_type": "component",
+      "citation_id": 4521
+    }
+  },
+  "verified_by": "Database"
+}

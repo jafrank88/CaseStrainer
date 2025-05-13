@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  casestrainer:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./templates:/app/templates
+      - ./static:/app/static
+    environment:
+      - FLASK_APP=src/app_final_vue.py
+      - FLASK_ENV=production
+    restart: unless-stopped 

@@ -1,0 +1,956 @@
+2025-05-09 09:20:51,875 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:20:51,886 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:51,887 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:20:51,894 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 09:20:51,894 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:20:51,902 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:52,403 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:20:52,411 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:52,411 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:20:52,418 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 09:20:52,419 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:20:52,425 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:52,926 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:20:52,933 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:52,933 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:20:52,939 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 09:20:52,939 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:20:52,945 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:53,447 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:20:53,453 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:53,454 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:20:53,461 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 09:20:53,462 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:20:53,468 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:53,969 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:20:53,975 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:53,976 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:20:53,982 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 09:20:53,982 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:20:53,989 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:54,491 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:20:54,500 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:54,500 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:20:54,511 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:20:54,511 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:20:54,524 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:55,025 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:20:55,032 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:55,032 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:20:55,037 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:20:55,037 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:20:55,042 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:55,543 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:20:55,549 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:55,550 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:20:55,555 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:20:55,556 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:20:55,561 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:56,062 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:20:56,070 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:56,071 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:20:56,076 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:20:56,077 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:20:56,083 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:56,585 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:20:56,591 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:20:56,591 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:20:56,596 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:20:56,597 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:20:56,602 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:20:57,104 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:20:57,110 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:57,110 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:20:57,115 - comprehensive_validator_test - INFO - Context retrieved: 70 characters
+2025-05-09 09:20:57,116 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:20:57,121 - comprehensive_validator_test - INFO - Classification confidence: 0.39649917656008843
+2025-05-09 09:20:57,121 - comprehensive_validator_test - INFO - Testing suggestions for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:20:57,127 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:20:57,629 - comprehensive_validator_test - INFO - Testing validation for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:20:57,635 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:57,635 - comprehensive_validator_test - INFO - Testing context retrieval for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:20:57,640 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 09:20:57,640 - comprehensive_validator_test - INFO - Testing classification for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:20:57,645 - comprehensive_validator_test - INFO - Classification confidence: 0.4615412593960734
+2025-05-09 09:20:57,646 - comprehensive_validator_test - INFO - Testing suggestions for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:20:57,651 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:20:58,152 - comprehensive_validator_test - INFO - Testing validation for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:20:58,158 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:58,159 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:20:58,164 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 09:20:58,164 - comprehensive_validator_test - INFO - Testing classification for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:20:58,170 - comprehensive_validator_test - INFO - Classification confidence: 0.5043655504647474
+2025-05-09 09:20:58,171 - comprehensive_validator_test - INFO - Testing suggestions for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:20:58,176 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:20:58,677 - comprehensive_validator_test - INFO - Testing validation for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:20:58,683 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:58,684 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:20:58,689 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 09:20:58,689 - comprehensive_validator_test - INFO - Testing classification for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:20:58,697 - comprehensive_validator_test - INFO - Classification confidence: 0.5850565960375498
+2025-05-09 09:20:58,697 - comprehensive_validator_test - INFO - Testing suggestions for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:20:58,703 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:20:59,204 - comprehensive_validator_test - INFO - Testing validation for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:20:59,213 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:59,214 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:20:59,220 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:20:59,220 - comprehensive_validator_test - INFO - Testing classification for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:20:59,226 - comprehensive_validator_test - INFO - Classification confidence: 0.3297350473067122
+2025-05-09 09:20:59,227 - comprehensive_validator_test - INFO - Testing suggestions for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:20:59,233 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:20:59,736 - comprehensive_validator_test - INFO - Testing validation for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:20:59,742 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:20:59,743 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:20:59,749 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:20:59,752 - comprehensive_validator_test - INFO - Testing classification for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:20:59,758 - comprehensive_validator_test - INFO - Classification confidence: 0.32578091962368433
+2025-05-09 09:20:59,759 - comprehensive_validator_test - INFO - Testing suggestions for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:20:59,766 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:00,268 - comprehensive_validator_test - INFO - Testing validation for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:21:00,274 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:00,275 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:21:00,279 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 09:21:00,280 - comprehensive_validator_test - INFO - Testing classification for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:21:00,285 - comprehensive_validator_test - INFO - Classification confidence: 0.37531500668746864
+2025-05-09 09:21:00,285 - comprehensive_validator_test - INFO - Testing suggestions for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:21:00,291 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:00,793 - comprehensive_validator_test - INFO - Testing validation for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:21:00,799 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:00,800 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:21:00,805 - comprehensive_validator_test - INFO - Context retrieved: 226 characters
+2025-05-09 09:21:00,806 - comprehensive_validator_test - INFO - Testing classification for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:21:00,812 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:01,313 - comprehensive_validator_test - INFO - Testing validation for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:21:01,320 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:01,320 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:21:01,326 - comprehensive_validator_test - INFO - Context retrieved: 73 characters
+2025-05-09 09:21:01,326 - comprehensive_validator_test - INFO - Testing classification for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:21:01,332 - comprehensive_validator_test - INFO - Classification confidence: 0.5656999010672685
+2025-05-09 09:21:01,333 - comprehensive_validator_test - INFO - Testing suggestions for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:21:01,338 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:21:01,840 - comprehensive_validator_test - INFO - Testing validation for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:21:01,846 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:01,846 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:21:01,852 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:21:01,852 - comprehensive_validator_test - INFO - Testing classification for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:21:01,858 - comprehensive_validator_test - INFO - Classification confidence: 0.32521505122772565
+2025-05-09 09:21:01,858 - comprehensive_validator_test - INFO - Testing suggestions for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:21:01,864 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:02,367 - comprehensive_validator_test - INFO - Testing validation for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:21:02,373 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:02,374 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:21:02,379 - comprehensive_validator_test - INFO - Context retrieved: 58 characters
+2025-05-09 09:21:02,380 - comprehensive_validator_test - INFO - Testing classification for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:21:02,385 - comprehensive_validator_test - INFO - Classification confidence: 0.35830247069871257
+2025-05-09 09:21:02,386 - comprehensive_validator_test - INFO - Testing suggestions for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:21:02,392 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:02,894 - comprehensive_validator_test - INFO - Testing validation for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:21:02,900 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:02,900 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:21:02,905 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 09:21:02,906 - comprehensive_validator_test - INFO - Testing classification for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:21:02,912 - comprehensive_validator_test - INFO - Classification confidence: 0.44875120325814344
+2025-05-09 09:21:02,912 - comprehensive_validator_test - INFO - Testing suggestions for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:21:02,917 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:03,419 - comprehensive_validator_test - INFO - Testing validation for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:21:03,426 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:03,427 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:21:03,432 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:21:03,433 - comprehensive_validator_test - INFO - Testing classification for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:21:03,438 - comprehensive_validator_test - INFO - Classification confidence: 0.5002701779489649
+2025-05-09 09:21:03,439 - comprehensive_validator_test - INFO - Testing suggestions for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:21:03,444 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:03,946 - comprehensive_validator_test - INFO - Testing validation for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:21:03,953 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:03,954 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:21:03,960 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:21:03,961 - comprehensive_validator_test - INFO - Testing classification for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:21:03,967 - comprehensive_validator_test - INFO - Classification confidence: 0.4385171647389013
+2025-05-09 09:21:03,968 - comprehensive_validator_test - INFO - Testing suggestions for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:21:03,980 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:04,482 - comprehensive_validator_test - INFO - Testing validation for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:21:04,490 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:04,491 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:21:04,499 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:21:04,500 - comprehensive_validator_test - INFO - Testing classification for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:21:04,510 - comprehensive_validator_test - INFO - Classification confidence: 0.5632178307680176
+2025-05-09 09:21:04,511 - comprehensive_validator_test - INFO - Testing suggestions for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:21:04,518 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:05,021 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:21:05,027 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:05,027 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:21:05,033 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:21:05,033 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:21:05,040 - comprehensive_validator_test - INFO - Classification confidence: 0.31914598179704057
+2025-05-09 09:21:05,041 - comprehensive_validator_test - INFO - Testing suggestions for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:21:05,046 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:21:05,548 - comprehensive_validator_test - INFO - Testing validation for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:21:05,554 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:05,554 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:21:05,560 - comprehensive_validator_test - INFO - Context retrieved: 94 characters
+2025-05-09 09:21:05,560 - comprehensive_validator_test - INFO - Testing classification for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:21:05,566 - comprehensive_validator_test - INFO - Classification confidence: 0.3033641376905435
+2025-05-09 09:21:05,566 - comprehensive_validator_test - INFO - Testing suggestions for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:21:05,571 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:21:06,072 - comprehensive_validator_test - INFO - Testing validation for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:21:06,080 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:06,080 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:21:06,087 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:21:06,088 - comprehensive_validator_test - INFO - Testing classification for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:21:06,093 - comprehensive_validator_test - INFO - Classification confidence: 0.44883950200173295
+2025-05-09 09:21:06,094 - comprehensive_validator_test - INFO - Testing suggestions for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:21:06,100 - comprehensive_validator_test - INFO - Suggestions received: 0
+2025-05-09 09:21:06,601 - comprehensive_validator_test - INFO - Testing validation for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:21:06,607 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:06,607 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:21:06,613 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 09:21:06,613 - comprehensive_validator_test - INFO - Testing classification for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:21:06,618 - comprehensive_validator_test - INFO - Classification confidence: 0.5121667932823186
+2025-05-09 09:21:06,618 - comprehensive_validator_test - INFO - Testing suggestions for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:21:06,623 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:07,125 - comprehensive_validator_test - INFO - Testing validation for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:21:07,132 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:07,132 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:21:07,139 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 09:21:07,139 - comprehensive_validator_test - INFO - Testing classification for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:21:07,147 - comprehensive_validator_test - INFO - Classification confidence: 0.4327402736793757
+2025-05-09 09:21:07,148 - comprehensive_validator_test - INFO - Testing suggestions for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:21:07,154 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:07,656 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:21:07,664 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:07,664 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:21:07,672 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 09:21:07,673 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:21:07,680 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:08,182 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:21:08,188 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:08,188 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:21:08,193 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 09:21:08,194 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:21:08,199 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:08,700 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:21:08,706 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:08,707 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:21:08,712 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 09:21:08,712 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:21:08,717 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:09,218 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:21:09,224 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:09,225 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:21:09,230 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 09:21:09,230 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:21:09,236 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:09,738 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:21:09,743 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:09,744 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:21:09,749 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 09:21:09,749 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:21:09,754 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:10,256 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:21:10,263 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:10,264 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:21:10,270 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:21:10,270 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:21:10,277 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:10,779 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:21:10,786 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:10,787 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:21:10,792 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:21:10,793 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:21:10,798 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:11,299 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:21:11,306 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:11,306 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:21:11,312 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:21:11,312 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:21:11,318 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:11,819 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:21:11,826 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:11,827 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:21:11,833 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:21:11,833 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:21:11,839 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:12,341 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:21:12,346 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:12,347 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:21:12,352 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:21:12,353 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:21:12,359 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:12,860 - comprehensive_validator_test - INFO - Testing validation for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:21:12,868 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:12,868 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:21:12,875 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 09:21:12,876 - comprehensive_validator_test - INFO - Testing classification for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:21:12,884 - comprehensive_validator_test - INFO - Classification confidence: 0.5222525857305282
+2025-05-09 09:21:12,884 - comprehensive_validator_test - INFO - Testing suggestions for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:21:12,890 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:13,392 - comprehensive_validator_test - INFO - Testing validation for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:21:13,397 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:13,398 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:21:13,403 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:21:13,404 - comprehensive_validator_test - INFO - Testing classification for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:21:13,409 - comprehensive_validator_test - INFO - Classification confidence: 0.39393616339833715
+2025-05-09 09:21:13,410 - comprehensive_validator_test - INFO - Testing suggestions for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:21:13,415 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:13,917 - comprehensive_validator_test - INFO - Testing validation for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:21:13,925 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:21:13,926 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:21:13,933 - comprehensive_validator_test - INFO - Context retrieved: 67 characters
+2025-05-09 09:21:13,934 - comprehensive_validator_test - INFO - Testing classification for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:21:13,941 - comprehensive_validator_test - INFO - Classification confidence: 0.5546093124382305
+2025-05-09 09:21:13,942 - comprehensive_validator_test - INFO - Testing suggestions for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:21:13,955 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:21:14,458 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:21:14,464 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:14,465 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:21:14,471 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:21:14,472 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:21:14,478 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:14,979 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:21:14,991 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:14,992 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:21:14,999 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 09:21:14,999 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:21:15,007 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:15,508 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:21:15,514 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:15,514 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:21:15,520 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:21:15,520 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:21:15,525 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:16,027 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:21:16,035 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:16,035 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:21:16,041 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:21:16,041 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:21:16,047 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:16,549 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:21:16,555 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:16,555 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:21:16,560 - comprehensive_validator_test - INFO - Context retrieved: 65 characters
+2025-05-09 09:21:16,561 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:21:16,567 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:17,068 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:21:17,074 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:17,075 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:21:17,081 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 09:21:17,082 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:21:17,088 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:21:17,590 - comprehensive_validator_test - INFO - Testing validation for citation: 410 U.S. 113
+2025-05-09 09:21:17,597 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:21:17,597 - comprehensive_validator_test - INFO - Testing context retrieval for citation: 410 U.S. 113
+2025-05-09 09:21:17,602 - comprehensive_validator_test - INFO - Context retrieved: 157 characters
+2025-05-09 09:21:17,603 - comprehensive_validator_test - INFO - Testing classification for citation: 410 U.S. 113
+2025-05-09 09:21:17,609 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:54,111 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:30:54,127 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:54,127 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:30:54,136 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 09:30:54,137 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:30:54,145 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:54,647 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:30:54,657 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:54,658 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:30:54,666 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 09:30:54,667 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:30:54,681 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:55,183 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:30:55,193 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:55,194 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:30:55,205 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 09:30:55,206 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:30:55,215 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:55,717 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:30:55,727 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:55,728 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:30:55,735 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 09:30:55,736 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:30:55,746 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:56,248 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:30:56,259 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:56,259 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:30:56,267 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 09:30:56,268 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:30:56,277 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:56,779 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:30:56,789 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:56,790 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:30:56,797 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:30:56,798 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:30:56,808 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:57,309 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:30:57,319 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:57,320 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:30:57,327 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:30:57,328 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:30:57,336 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:57,838 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:30:57,847 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:57,848 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:30:57,856 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:30:57,856 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:30:57,866 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:58,367 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:30:58,378 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:58,378 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:30:58,386 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:30:58,386 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:30:58,395 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:58,897 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:30:58,907 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:58,907 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:30:58,916 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:30:58,916 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:30:58,925 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:59,427 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:30:59,436 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:59,437 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:30:59,445 - comprehensive_validator_test - INFO - Context retrieved: 70 characters
+2025-05-09 09:30:59,445 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 09:30:59,454 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:30:59,956 - comprehensive_validator_test - INFO - Testing validation for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:30:59,965 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:30:59,966 - comprehensive_validator_test - INFO - Testing context retrieval for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:30:59,975 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 09:30:59,976 - comprehensive_validator_test - INFO - Testing classification for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 09:30:59,985 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:00,486 - comprehensive_validator_test - INFO - Testing validation for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:31:00,495 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:00,496 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:31:00,506 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 09:31:00,506 - comprehensive_validator_test - INFO - Testing classification for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 09:31:00,514 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:01,015 - comprehensive_validator_test - INFO - Testing validation for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:31:01,026 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:01,027 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:31:01,034 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 09:31:01,034 - comprehensive_validator_test - INFO - Testing classification for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 09:31:01,044 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:01,545 - comprehensive_validator_test - INFO - Testing validation for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:31:01,556 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:01,556 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:31:01,564 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:31:01,565 - comprehensive_validator_test - INFO - Testing classification for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 09:31:01,574 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:02,076 - comprehensive_validator_test - INFO - Testing validation for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:31:02,086 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:02,086 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:31:02,095 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:31:02,095 - comprehensive_validator_test - INFO - Testing classification for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 09:31:02,105 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:02,607 - comprehensive_validator_test - INFO - Testing validation for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:31:02,616 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:02,616 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:31:02,625 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 09:31:02,625 - comprehensive_validator_test - INFO - Testing classification for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 09:31:02,634 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:03,136 - comprehensive_validator_test - INFO - Testing validation for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:31:03,145 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:03,146 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:31:03,154 - comprehensive_validator_test - INFO - Context retrieved: 226 characters
+2025-05-09 09:31:03,154 - comprehensive_validator_test - INFO - Testing classification for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 09:31:03,163 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:03,664 - comprehensive_validator_test - INFO - Testing validation for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:31:03,673 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:03,674 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:31:03,682 - comprehensive_validator_test - INFO - Context retrieved: 73 characters
+2025-05-09 09:31:03,682 - comprehensive_validator_test - INFO - Testing classification for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 09:31:03,691 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:04,192 - comprehensive_validator_test - INFO - Testing validation for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:31:04,202 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:04,202 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:31:04,210 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:31:04,210 - comprehensive_validator_test - INFO - Testing classification for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 09:31:04,220 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:04,722 - comprehensive_validator_test - INFO - Testing validation for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:31:04,731 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:04,732 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:31:04,741 - comprehensive_validator_test - INFO - Context retrieved: 58 characters
+2025-05-09 09:31:04,741 - comprehensive_validator_test - INFO - Testing classification for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 09:31:04,750 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:05,251 - comprehensive_validator_test - INFO - Testing validation for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:31:05,261 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:05,262 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:31:05,269 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 09:31:05,270 - comprehensive_validator_test - INFO - Testing classification for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 09:31:05,278 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:05,779 - comprehensive_validator_test - INFO - Testing validation for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:31:05,789 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:05,790 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:31:05,798 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:31:05,798 - comprehensive_validator_test - INFO - Testing classification for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 09:31:05,807 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:06,308 - comprehensive_validator_test - INFO - Testing validation for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:31:06,318 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:06,319 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:31:06,326 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:31:06,327 - comprehensive_validator_test - INFO - Testing classification for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 09:31:06,336 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:06,838 - comprehensive_validator_test - INFO - Testing validation for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:31:06,848 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:06,848 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:31:06,856 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:31:06,856 - comprehensive_validator_test - INFO - Testing classification for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 09:31:06,866 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:07,368 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:31:07,377 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:07,378 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:31:07,386 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:31:07,386 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 09:31:07,396 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:07,897 - comprehensive_validator_test - INFO - Testing validation for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:31:07,907 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:07,908 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:31:07,916 - comprehensive_validator_test - INFO - Context retrieved: 94 characters
+2025-05-09 09:31:07,917 - comprehensive_validator_test - INFO - Testing classification for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 09:31:07,926 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:08,428 - comprehensive_validator_test - INFO - Testing validation for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:31:08,438 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:08,439 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:31:08,446 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:31:08,447 - comprehensive_validator_test - INFO - Testing classification for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 09:31:08,456 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:08,958 - comprehensive_validator_test - INFO - Testing validation for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:31:08,968 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:08,968 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:31:08,976 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 09:31:08,976 - comprehensive_validator_test - INFO - Testing classification for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 09:31:08,985 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:09,487 - comprehensive_validator_test - INFO - Testing validation for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:31:09,496 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:09,497 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:31:09,506 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 09:31:09,506 - comprehensive_validator_test - INFO - Testing classification for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 09:31:09,515 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:10,016 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:31:10,025 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:10,026 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:31:10,034 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 09:31:10,034 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 09:31:10,043 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:10,545 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:31:10,555 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:10,556 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:31:10,563 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 09:31:10,564 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 09:31:10,573 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:11,075 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:31:11,085 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:11,086 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:31:11,095 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 09:31:11,095 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 09:31:11,104 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:11,606 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:31:11,616 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:11,616 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:31:11,623 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 09:31:11,624 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 09:31:11,634 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:12,135 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:31:12,145 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:12,146 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:31:12,153 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 09:31:12,154 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 09:31:12,162 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:12,664 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:31:12,674 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:12,674 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:31:12,681 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:31:12,682 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 09:31:12,690 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:13,191 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:31:13,201 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:13,201 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:31:13,208 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:31:13,209 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 09:31:13,217 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:13,719 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:31:13,728 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:13,729 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:31:13,737 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:31:13,737 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 09:31:13,746 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:14,248 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:31:14,258 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:14,258 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:31:14,266 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 09:31:14,267 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 09:31:14,275 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:14,777 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:31:14,786 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:14,787 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:31:14,794 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:31:14,795 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 09:31:14,806 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:15,307 - comprehensive_validator_test - INFO - Testing validation for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:31:15,318 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:31:15,319 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:31:15,326 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 09:31:15,326 - comprehensive_validator_test - INFO - Testing classification for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:31:15,335 - comprehensive_validator_test - INFO - Classification confidence: 0.3308341453084872
+2025-05-09 09:31:15,335 - comprehensive_validator_test - INFO - Testing suggestions for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 09:31:15,342 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:31:15,844 - comprehensive_validator_test - INFO - Testing validation for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:31:15,854 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:31:15,855 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:31:15,863 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 09:31:15,863 - comprehensive_validator_test - INFO - Testing classification for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:31:15,872 - comprehensive_validator_test - INFO - Classification confidence: 0.3197908981583774
+2025-05-09 09:31:15,873 - comprehensive_validator_test - INFO - Testing suggestions for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 09:31:15,882 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:31:16,384 - comprehensive_validator_test - INFO - Testing validation for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:31:16,393 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 09:31:16,394 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:31:16,402 - comprehensive_validator_test - INFO - Context retrieved: 67 characters
+2025-05-09 09:31:16,403 - comprehensive_validator_test - INFO - Testing classification for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:31:16,411 - comprehensive_validator_test - INFO - Classification confidence: 0.5237883327460278
+2025-05-09 09:31:16,412 - comprehensive_validator_test - INFO - Testing suggestions for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 09:31:16,419 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 09:31:16,920 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:31:16,931 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:16,931 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:31:16,939 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 09:31:16,939 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 09:31:16,949 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:17,450 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:31:17,460 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:17,461 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:31:17,468 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 09:31:17,469 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 09:31:17,477 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:17,979 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:31:17,988 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:17,989 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:31:17,997 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 09:31:17,997 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 09:31:18,006 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:18,507 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:31:18,518 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:18,518 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:31:18,525 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 09:31:18,526 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 09:31:18,534 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:19,036 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:31:19,048 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:19,048 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:31:19,057 - comprehensive_validator_test - INFO - Context retrieved: 65 characters
+2025-05-09 09:31:19,058 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 09:31:19,066 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:19,568 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:31:19,580 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:19,580 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:31:19,589 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 09:31:19,589 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 09:31:19,597 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 09:31:20,099 - comprehensive_validator_test - INFO - Testing validation for citation: 410 U.S. 113
+2025-05-09 09:31:20,108 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 09:31:20,109 - comprehensive_validator_test - INFO - Testing context retrieval for citation: 410 U.S. 113
+2025-05-09 09:31:20,117 - comprehensive_validator_test - INFO - Context retrieved: 157 characters
+2025-05-09 09:31:20,117 - comprehensive_validator_test - INFO - Testing classification for citation: 410 U.S. 113
+2025-05-09 09:31:20,126 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:35,316 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:35,334 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:35,334 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:35,343 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 19:08:35,344 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:35,356 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:35,858 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:35,866 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:35,867 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:35,874 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 19:08:35,875 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:35,882 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:36,384 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:36,394 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:36,394 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:36,402 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 19:08:36,402 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:36,414 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:36,916 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:36,927 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:36,927 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:36,936 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 19:08:36,936 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:36,944 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:37,446 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:37,456 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:37,456 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:37,465 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 19:08:37,466 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:37,474 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:37,976 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:37,986 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:37,987 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:37,995 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:37,996 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:38,004 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:38,506 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:38,516 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:38,517 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:38,526 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:38,526 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:38,534 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:39,036 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:39,045 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:39,045 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:39,052 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 19:08:39,053 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:39,060 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:39,562 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:39,581 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:39,581 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:39,589 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 19:08:39,590 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:39,597 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:40,099 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:40,110 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:40,111 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:40,119 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:40,120 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:40,130 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:40,632 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 19:08:40,643 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:40,644 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 19:08:40,654 - comprehensive_validator_test - INFO - Context retrieved: 70 characters
+2025-05-09 19:08:40,655 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Windsor, 570 U.S. 744 (2013)
+2025-05-09 19:08:40,667 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:41,170 - comprehensive_validator_test - INFO - Testing validation for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 19:08:41,179 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:41,179 - comprehensive_validator_test - INFO - Testing context retrieval for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 19:08:41,186 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 19:08:41,187 - comprehensive_validator_test - INFO - Testing classification for citation: District of Columbia v. Heller, 554 U.S. 570 (2008)
+2025-05-09 19:08:41,194 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:41,696 - comprehensive_validator_test - INFO - Testing validation for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 19:08:41,708 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:41,709 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 19:08:41,716 - comprehensive_validator_test - INFO - Context retrieved: 76 characters
+2025-05-09 19:08:41,717 - comprehensive_validator_test - INFO - Testing classification for citation: New York Times Co. v. Sullivan, 376 U.S. 254 (1964)
+2025-05-09 19:08:41,726 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:42,228 - comprehensive_validator_test - INFO - Testing validation for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 19:08:42,237 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:42,237 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 19:08:42,244 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 19:08:42,245 - comprehensive_validator_test - INFO - Testing classification for citation: Shelby County v. Holder, 570 U.S. 529 (2013)
+2025-05-09 19:08:42,252 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:42,753 - comprehensive_validator_test - INFO - Testing validation for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 19:08:42,763 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:42,764 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 19:08:42,777 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 19:08:42,777 - comprehensive_validator_test - INFO - Testing classification for citation: Kelo v. City of New London, 545 U.S. 469 (2005)
+2025-05-09 19:08:42,785 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:43,286 - comprehensive_validator_test - INFO - Testing validation for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 19:08:43,295 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:43,296 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 19:08:43,302 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:43,303 - comprehensive_validator_test - INFO - Testing classification for citation: Grutter v. Bollinger, 539 U.S. 306 (2003)
+2025-05-09 19:08:43,310 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:43,812 - comprehensive_validator_test - INFO - Testing validation for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 19:08:43,820 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:43,821 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 19:08:43,830 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 19:08:43,831 - comprehensive_validator_test - INFO - Testing classification for citation: Lawrence v. Texas, 539 U.S. 558 (2003)
+2025-05-09 19:08:43,841 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:44,343 - comprehensive_validator_test - INFO - Testing validation for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 19:08:44,352 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:44,353 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 19:08:44,360 - comprehensive_validator_test - INFO - Context retrieved: 226 characters
+2025-05-09 19:08:44,361 - comprehensive_validator_test - INFO - Testing classification for citation: Bush v. Gore, 531 U.S. 98 (2000)
+2025-05-09 19:08:44,368 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:44,870 - comprehensive_validator_test - INFO - Testing validation for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 19:08:44,879 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:44,880 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 19:08:44,887 - comprehensive_validator_test - INFO - Context retrieved: 73 characters
+2025-05-09 19:08:44,887 - comprehensive_validator_test - INFO - Testing classification for citation: Planned Parenthood v. Casey, 505 U.S. 833 (1992)
+2025-05-09 19:08:44,895 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:45,397 - comprehensive_validator_test - INFO - Testing validation for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 19:08:45,406 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:45,407 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 19:08:45,414 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 19:08:45,414 - comprehensive_validator_test - INFO - Testing classification for citation: Texas v. Johnson, 491 U.S. 397 (1989)
+2025-05-09 19:08:45,422 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:45,924 - comprehensive_validator_test - INFO - Testing validation for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 19:08:45,932 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:45,933 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 19:08:45,940 - comprehensive_validator_test - INFO - Context retrieved: 58 characters
+2025-05-09 19:08:45,940 - comprehensive_validator_test - INFO - Testing classification for citation: Mapp v. Ohio, 367 U.S. 643 (1961)
+2025-05-09 19:08:45,947 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:46,449 - comprehensive_validator_test - INFO - Testing validation for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 19:08:46,458 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:46,458 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 19:08:46,465 - comprehensive_validator_test - INFO - Context retrieved: 69 characters
+2025-05-09 19:08:46,466 - comprehensive_validator_test - INFO - Testing classification for citation: Griswold v. Connecticut, 381 U.S. 479 (1965)
+2025-05-09 19:08:46,473 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:46,975 - comprehensive_validator_test - INFO - Testing validation for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 19:08:46,983 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:46,984 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 19:08:46,990 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 19:08:46,991 - comprehensive_validator_test - INFO - Testing classification for citation: Loving v. Virginia, 388 U.S. 1 (1967)
+2025-05-09 19:08:46,997 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:47,500 - comprehensive_validator_test - INFO - Testing validation for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 19:08:47,509 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:47,509 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 19:08:47,516 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:47,516 - comprehensive_validator_test - INFO - Testing classification for citation: Tinker v. Des Moines, 393 U.S. 503 (1969)
+2025-05-09 19:08:47,523 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:48,024 - comprehensive_validator_test - INFO - Testing validation for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 19:08:48,033 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:48,033 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 19:08:48,040 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:48,041 - comprehensive_validator_test - INFO - Testing classification for citation: Wisconsin v. Yoder, 406 U.S. 205 (1972)
+2025-05-09 19:08:48,048 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:48,551 - comprehensive_validator_test - INFO - Testing validation for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 19:08:48,560 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:48,560 - comprehensive_validator_test - INFO - Testing context retrieval for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 19:08:48,567 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 19:08:48,568 - comprehensive_validator_test - INFO - Testing classification for citation: United States v. Nixon, 418 U.S. 683 (1974)
+2025-05-09 19:08:48,575 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:49,077 - comprehensive_validator_test - INFO - Testing validation for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 19:08:49,087 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:49,087 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 19:08:49,095 - comprehensive_validator_test - INFO - Context retrieved: 94 characters
+2025-05-09 19:08:49,095 - comprehensive_validator_test - INFO - Testing classification for citation: Regents of the University of California v. Bakke, 438 U.S. 265 (1978)
+2025-05-09 19:08:49,103 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:49,605 - comprehensive_validator_test - INFO - Testing validation for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 19:08:49,615 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:49,616 - comprehensive_validator_test - INFO - Testing context retrieval for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 19:08:49,622 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:49,623 - comprehensive_validator_test - INFO - Testing classification for citation: New Jersey v. T.L.O., 469 U.S. 325 (1985)
+2025-05-09 19:08:49,630 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:50,132 - comprehensive_validator_test - INFO - Testing validation for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 19:08:50,141 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:50,142 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 19:08:50,150 - comprehensive_validator_test - INFO - Context retrieved: 63 characters
+2025-05-09 19:08:50,151 - comprehensive_validator_test - INFO - Testing classification for citation: Batson v. Kentucky, 476 U.S. 79 (1986)
+2025-05-09 19:08:50,170 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:50,672 - comprehensive_validator_test - INFO - Testing validation for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 19:08:50,680 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:50,681 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 19:08:50,688 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 19:08:50,688 - comprehensive_validator_test - INFO - Testing classification for citation: Romer v. Evans, 517 U.S. 620 (1996)
+2025-05-09 19:08:50,695 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:51,197 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:51,206 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:51,207 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:51,215 - comprehensive_validator_test - INFO - Context retrieved: 254 characters
+2025-05-09 19:08:51,215 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-09 19:08:51,222 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:51,724 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:51,732 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:51,733 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:51,740 - comprehensive_validator_test - INFO - Context retrieved: 270 characters
+2025-05-09 19:08:51,740 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-09 19:08:51,747 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:52,248 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:52,257 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:52,258 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:52,265 - comprehensive_validator_test - INFO - Context retrieved: 304 characters
+2025-05-09 19:08:52,265 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1966)
+2025-05-09 19:08:52,273 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:52,774 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:52,782 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:52,783 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:52,790 - comprehensive_validator_test - INFO - Context retrieved: 312 characters
+2025-05-09 19:08:52,790 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-09 19:08:52,798 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:53,299 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:53,308 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:53,309 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:53,317 - comprehensive_validator_test - INFO - Context retrieved: 318 characters
+2025-05-09 19:08:53,317 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainwright, 372 U.S. 335 (1963)
+2025-05-09 19:08:53,324 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:53,826 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:53,834 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:53,834 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:53,842 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:53,842 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537 (1896)
+2025-05-09 19:08:53,849 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:54,351 - comprehensive_validator_test - INFO - Testing validation for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:54,359 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:54,360 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:54,366 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:54,367 - comprehensive_validator_test - INFO - Testing classification for citation: Lochner v. New York, 198 U.S. 45 (1905)
+2025-05-09 19:08:54,374 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:54,876 - comprehensive_validator_test - INFO - Testing validation for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:54,884 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:54,884 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:54,891 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 19:08:54,891 - comprehensive_validator_test - INFO - Testing classification for citation: Korematsu v. United States, 323 U.S. 214 (1944)
+2025-05-09 19:08:54,899 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:55,401 - comprehensive_validator_test - INFO - Testing validation for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:55,410 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:55,410 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:55,418 - comprehensive_validator_test - INFO - Context retrieved: 68 characters
+2025-05-09 19:08:55,418 - comprehensive_validator_test - INFO - Testing classification for citation: Citizens United v. FEC, 558 U.S. 310 (2010)
+2025-05-09 19:08:55,425 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:55,926 - comprehensive_validator_test - INFO - Testing validation for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:55,935 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:55,935 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:55,942 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:55,942 - comprehensive_validator_test - INFO - Testing classification for citation: Obergefell v. Hodges, 576 U.S. 644 (2015)
+2025-05-09 19:08:55,949 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:56,451 - comprehensive_validator_test - INFO - Testing validation for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 19:08:56,459 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 19:08:56,460 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 19:08:56,467 - comprehensive_validator_test - INFO - Context retrieved: 60 characters
+2025-05-09 19:08:56,467 - comprehensive_validator_test - INFO - Testing classification for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 19:08:56,475 - comprehensive_validator_test - INFO - Classification confidence: 0.5232608929873145
+2025-05-09 19:08:56,475 - comprehensive_validator_test - INFO - Testing suggestions for citation: Smith v. Jones, 123 U.S. 456 (2022)
+2025-05-09 19:08:56,486 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 19:08:56,988 - comprehensive_validator_test - INFO - Testing validation for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 19:08:56,997 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 19:08:56,997 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 19:08:57,004 - comprehensive_validator_test - INFO - Context retrieved: 66 characters
+2025-05-09 19:08:57,004 - comprehensive_validator_test - INFO - Testing classification for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 19:08:57,012 - comprehensive_validator_test - INFO - Classification confidence: 0.5215574225065619
+2025-05-09 19:08:57,012 - comprehensive_validator_test - INFO - Testing suggestions for citation: Doe v. United States, 555 U.S. 123 (2019)
+2025-05-09 19:08:57,022 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 19:08:57,525 - comprehensive_validator_test - INFO - Testing validation for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 19:08:57,533 - comprehensive_validator_test - INFO - Validation result: False
+2025-05-09 19:08:57,534 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 19:08:57,541 - comprehensive_validator_test - INFO - Context retrieved: 67 characters
+2025-05-09 19:08:57,541 - comprehensive_validator_test - INFO - Testing classification for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 19:08:57,548 - comprehensive_validator_test - INFO - Classification confidence: 0.4191041539436765
+2025-05-09 19:08:57,549 - comprehensive_validator_test - INFO - Testing suggestions for citation: Johnson v. California, 999 U.S. 888 (2021)
+2025-05-09 19:08:57,558 - comprehensive_validator_test - INFO - Suggestions received: 10
+2025-05-09 19:08:58,061 - comprehensive_validator_test - INFO - Testing validation for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 19:08:58,069 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:58,070 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 19:08:58,076 - comprehensive_validator_test - INFO - Context retrieved: 72 characters
+2025-05-09 19:08:58,077 - comprehensive_validator_test - INFO - Testing classification for citation: Brown v. Board of Educaton, 347 U.S. 483 (1954)
+2025-05-09 19:08:58,083 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:58,585 - comprehensive_validator_test - INFO - Testing validation for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 19:08:58,594 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:58,594 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 19:08:58,601 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 19:08:58,602 - comprehensive_validator_test - INFO - Testing classification for citation: Roe v. Wade, 410 U.S. 114 (1973)
+2025-05-09 19:08:58,609 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:59,112 - comprehensive_validator_test - INFO - Testing validation for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 19:08:59,121 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:59,123 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 19:08:59,130 - comprehensive_validator_test - INFO - Context retrieved: 64 characters
+2025-05-09 19:08:59,131 - comprehensive_validator_test - INFO - Testing classification for citation: Miranda v. Arizona, 384 U.S. 436 (1965)
+2025-05-09 19:08:59,140 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:08:59,641 - comprehensive_validator_test - INFO - Testing validation for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 19:08:59,649 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:08:59,650 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 19:08:59,656 - comprehensive_validator_test - INFO - Context retrieved: 62 characters
+2025-05-09 19:08:59,657 - comprehensive_validator_test - INFO - Testing classification for citation: Marbury v. Madison, 5 U.S. 138 (1803)
+2025-05-09 19:08:59,665 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:09:00,166 - comprehensive_validator_test - INFO - Testing validation for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 19:09:00,176 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:09:00,176 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 19:09:00,184 - comprehensive_validator_test - INFO - Context retrieved: 65 characters
+2025-05-09 19:09:00,185 - comprehensive_validator_test - INFO - Testing classification for citation: Gideon v. Wainright, 372 U.S. 335 (1963)
+2025-05-09 19:09:00,192 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:09:00,695 - comprehensive_validator_test - INFO - Testing validation for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 19:09:00,704 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:09:00,704 - comprehensive_validator_test - INFO - Testing context retrieval for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 19:09:00,711 - comprehensive_validator_test - INFO - Context retrieved: 57 characters
+2025-05-09 19:09:00,712 - comprehensive_validator_test - INFO - Testing classification for citation: Plessy v. Ferguson, 163 U.S. 537
+2025-05-09 19:09:00,719 - comprehensive_validator_test - INFO - Classification confidence: 0.95
+2025-05-09 19:09:01,221 - comprehensive_validator_test - INFO - Testing validation for citation: 410 U.S. 113
+2025-05-09 19:09:01,230 - comprehensive_validator_test - INFO - Validation result: True
+2025-05-09 19:09:01,230 - comprehensive_validator_test - INFO - Testing context retrieval for citation: 410 U.S. 113
+2025-05-09 19:09:01,238 - comprehensive_validator_test - INFO - Context retrieved: 157 characters
+2025-05-09 19:09:01,239 - comprehensive_validator_test - INFO - Testing classification for citation: 410 U.S. 113
+2025-05-09 19:09:01,245 - comprehensive_validator_test - INFO - Classification confidence: 0.95

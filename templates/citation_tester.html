@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseStrainer - Citation Verification Tester</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .citation-card {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .hallucinated {
+            border-left: 4px solid #dc3545;
+        }
+        .real {
+            border-left: 4px solid #198754;
+        }
+        .unconfirmed {
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h1>Citation Verification Tester</h1>
+    <p class="lead">Test the citation verification system with random assortments of citations</p>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        <strong>Error:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Test Configuration</h5>
+        </div>
+        <div class="card-body">
+            <form id="test-form" method="post" action="{{ url_for('citation_tester') }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="citation-count">Number of Citations to Test:</label>
+                            <input type="number" class="form-control" id="citation-count" name="citation_count" value="5" min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label>Citation Types to Include:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="include-confirmed" name="include_confirmed" checked>
+                                <label class="form-check-label" for="include-confirmed">
+                                    Include Confirmed Citations (Landmark Cases)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="include-unconfirmed" name="include_unconfirmed" checked>
+                                <label class="form-check-label" for="include-unconfirmed">
+                                    Include Unconfirmed Citations (Fictional Cases)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Run Test</button>
+            </form>
+        </div>
+    </div>
+
+    {% if test_results %}
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Test Results</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <strong>Summary:</strong> {{ test_results.summary.total_processed }} citations processed, 
+                {{ test_results.summary.correctly_verified }} correctly verified 
+                ({{ test_results.summary.accuracy }}% accuracy)
+            </div>
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Citation</th>
+                        <th>Case Name</th>
+                        <th>Expected</th>
+                        <th>Result</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in test_results.details %}
+                    <tr class="{{ 'table-success' if result.status == 'correct' else 'table-danger' }}">
+                        <td>{{ result.citation }}</td>
+                        <td>{{ result.case_name if result.case_name else "N/A" }}</td>
+                        <td>{{ result.expected_result }}</td>
+                        <td>{{ result.actual_result }}</td>
+                        <td>{{ result.confidence }}%</td>
+                        <td>
+                            {% if result.status == 'correct' %}
+                            <span class="badge bg-success">Correct</span>
+                            {% else %}
+                            <span class="badge bg-danger">Incorrect</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">About This Tool</h5>
+        </div>
+        <div class="card-body">
+            <p>This tool helps test the CaseStrainer citation verification system by processing a random assortment of citations, including both confirmed landmark cases and fictional/unconfirmed citations.</p>
+            <p>Use this tool to:</p>
+            <ul>
+                <li>Verify that landmark cases are being correctly identified</li>
+                <li>Ensure that fictional citations are properly flagged as unconfirmed</li>
+                <li>Test edge cases and unusual citation formats</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure at least one checkbox is checked
+        const confirmedCheckbox = document.getElementById('include-confirmed');
+        const unconfirmedCheckbox = document.getElementById('include-unconfirmed');
+        
+        function updateCheckboxes() {
+            if (!confirmedCheckbox.checked && !unconfirmedCheckbox.checked) {
+                // If both are unchecked, force at least one to be checked
+                this.checked = true;
+            }
+        }
+        
+        confirmedCheckbox.addEventListener('change', updateCheckboxes);
+        unconfirmedCheckbox.addEventListener('change', updateCheckboxes);
+    });
+</script>
+    </div>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <a href="/" class="btn btn-primary">Back to Main Application</a>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer mt-5 py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">CaseStrainer &copy; 2025 - University of Washington School of Law</span>
+        </div>
+    </footer>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure at least one checkbox is checked
+            const confirmedCheckbox = document.getElementById('include-confirmed');
+            const unconfirmedCheckbox = document.getElementById('include-unconfirmed');
+            
+            function updateCheckboxes() {
+                if (!confirmedCheckbox.checked && !unconfirmedCheckbox.checked) {
+                    // If both are unchecked, force at least one to be checked
+                    this.checked = true;
+                }
+            }
+            
+            confirmedCheckbox.addEventListener('change', updateCheckboxes);
+            unconfirmedCheckbox.addEventListener('change', updateCheckboxes);
+        });
+    </script>
+</body>
+</html>

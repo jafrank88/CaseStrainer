@@ -1,0 +1,11 @@
+{
+  "status": "result",
+  "citation_index": 6,
+  "total": 9,
+  "result": {
+    "citation_text": "2011 WL 2160468",
+    "is_hallucinated": true,
+    "confidence": 0.7,
+    "explanation": "Citation not verified by CourtListener API"
+  }
+}

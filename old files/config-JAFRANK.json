@@ -1,0 +1,10 @@
+{
+    "server": {
+        "host": "localhost",
+        "port": 5000,
+        "use_ssl": false
+    },
+    "courtlistener_api_key": "***REDACTED_COURTLISTENER_KEY***",
+    "openai_api_key": "",
+    "langsearch_api_key": "sk-b9b2dc3f779f48509fe60b1e46180246"
+}

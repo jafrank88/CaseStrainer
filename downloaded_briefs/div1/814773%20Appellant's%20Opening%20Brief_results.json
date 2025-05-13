@@ -1,0 +1,11 @@
+{
+  "citation_results": [],
+  "completed": true,
+  "error": "Failed to extract text from file: C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\uploads\\81477320Appellants20Opening20Brief.pdf",
+  "extracted_citations": [],
+  "message": "Extracting text from file: 81477320Appellants20Opening20Brief.pdf",
+  "progress": 1,
+  "results": null,
+  "status": "error",
+  "total_steps": 3
+}

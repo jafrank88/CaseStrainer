@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseStrainer - Citation Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .citation-card {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        .hallucinated {
+            border-left: 4px solid #dc3545;
+        }
+        .real {
+            border-left: 4px solid #198754;
+        }
+        .unconfirmed {
+            border-left: 4px solid #ffc107;
+        }
+        .progress-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #progressBar {
+            height: 20px;
+            transition: width 0.3s ease;
+        }
+        #progressLogs {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center text-dark text-decoration-none">
+                    <span class="fs-4">CaseStrainer</span>
+                    <span class="ms-2 badge bg-primary">Citation Analyzer</span>
+                </div>
+                <div>
+                    <a href="/citation_tester" class="btn btn-outline-primary">Citation Tester Tool</a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="row g-5">
+            <div class="col-md-12">
+                <ul class="nav nav-tabs" id="inputTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">Enter Text</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">Upload File</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="path-tab" data-bs-toggle="tab" data-bs-target="#path" type="button" role="tab">File Path</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="unconfirmed-tab" data-bs-toggle="tab" data-bs-target="#unconfirmed" type="button" role="tab">Unconfirmed Citations</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link position-relative" id="multitool-confirmed-tab" data-bs-toggle="tab" data-bs-target="#multitool-confirmed" type="button" role="tab" style="background-color: #e8f4f8; font-weight: bold;">
+                            Confirmed with Multitool
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.6rem;">New</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="network-tab" data-bs-toggle="tab" data-bs-target="#network" type="button" role="tab">Citation Network</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="ml-classifier-tab" data-bs-toggle="tab" data-bs-target="#ml-classifier" type="button" role="tab">ML Classifier</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="citation-tester-tab" data-bs-toggle="tab" data-bs-target="#citation-tester" type="button" role="tab">Citation Tester</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">About</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="inputTabsContent">
+                    <!-- Text Input Tab -->
+                    <div class="tab-pane fade show active" id="text" role="tabpanel">
+                        <form id="textForm">
+                            <div class="mb-3">
+                                <label for="briefText" class="form-label">Paste your legal brief text:</label>
+                                <textarea class="form-control" id="briefText" name="text" rows="10" placeholder="Enter the text of your legal brief here..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyText" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyText" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                    
+                    <!-- File Upload Tab -->
+                    <div class="tab-pane fade" id="upload" role="tabpanel">
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="fileUpload" class="form-label">Select File (PDF, DOCX, TXT):</label>
+                                <input type="file" class="form-control" id="fileUpload" name="file" accept=".pdf,.docx,.doc,.txt">
+                                <div class="form-text">Upload a legal document to analyze for citations.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyUpload" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyUpload" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                    
+                    <!-- File Path Tab -->
+                    <div class="tab-pane fade" id="path" role="tabpanel">
+                        <form id="pathForm">
+                            <div class="mb-3">
+                                <label for="filePath" class="form-label">File Path:</label>
+                                <input type="text" class="form-control" id="filePath" name="file_path" placeholder="C:\path\to\your\document.pdf">
+                                <div class="form-text">Enter the full path to a legal document on your computer.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apiKeyPath" class="form-label">CourtListener API Key (Optional):</label>
+                                <input type="text" class="form-control" id="apiKeyPath" name="api_key" placeholder="Enter your CourtListener API key">
+                                <div class="form-text">If you have a CourtListener API key, enter it here for better citation verification.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                        </form>
+                    </div>
+                    
+                    <!-- Citation Network Visualization Tab -->
+                    <div class="tab-pane fade" id="network" role="tabpanel">
+                        <div class="container">
+                            <h2>Citation Network Visualization</h2>
+                            <p class="lead">This interactive visualization shows relationships between citations and their sources.</p>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-header">Visualization Controls</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="networkType" class="form-label">Visualization Type:</label>
+                                                <select class="form-select" id="networkType">
+                                                    <option value="force">Force-Directed Network</option>
+                                                    <option value="tree">Hierarchical Tree</option>
+                                                    <option value="cluster">Cluster View</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="networkFilter" class="form-label">Filter By:</label>
+                                                <select class="form-select" id="networkFilter">
+                                                    <option value="all">All Citations</option>
+                                                    <option value="unconfirmed">Unconfirmed Citations Only</option>
+                                                    <option value="confirmed">Confirmed Citations Only</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="networkDepth" class="form-label">Connection Depth:</label>
+                                                <select class="form-select" id="networkDepth">
+                                                    <option value="1">Direct Connections</option>
+                                                    <option value="2">Secondary Connections</option>
+                                                    <option value="3">Tertiary Connections</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-primary" id="generateNetwork">Generate Network</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card">
+                                        <div class="card-header">Network Legend</div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <div class="me-2" style="width: 20px; height: 20px; background-color: #28a745; border-radius: 50%;"></div>
+                                                        <span>Confirmed Citation</span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <div class="me-2" style="width: 20px; height: 20px; background-color: #dc3545; border-radius: 50%;"></div>
+                                                        <span>Unconfirmed Citation</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <div class="me-2" style="width: 20px; height: 20px; background-color: #007bff; border-radius: 50%;"></div>
+                                                        <span>Source Document</span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <div class="me-2" style="width: 20px; height: 20px; background-color: #6c757d; border-radius: 50%;"></div>
+                                                        <span>Connected Document</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <hr class="me-2" style="width: 20px; border: 2px solid #000;">
+                                                        <span>Direct Citation</span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <hr class="me-2" style="width: 20px; border: 1px dashed #000;">
+                                                        <span>Indirect Connection</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">Citation Network</div>
+                                <div class="card-body">
+                                    <div id="networkVisualization" style="width: 100%; height: 600px; border: 1px solid #ddd;">
+                                        <div class="d-flex justify-content-center align-items-center h-100">
+                                            <div class="text-center">
+                                                <p>Select visualization options and click "Generate Network" to create the visualization.</p>
+                                                <button class="btn btn-primary" id="generateNetworkBtn">Generate Network</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Unconfirmed Citations Tab -->
+                    <div class="tab-pane fade" id="unconfirmed" role="tabpanel">
+                        <div class="container">
+                            <h2>Unconfirmed Citations Database</h2>
+                            <p class="lead">This database contains 100+ unconfirmed citations collected from Washington Courts briefs. These citations could not be verified through standard legal databases.</p>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-header">Filter Citations</div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="searchCitation" class="form-label">Search Citations:</label>
+                                                <input type="text" class="form-control" id="searchCitation" placeholder="Enter search term...">
+                                                <div class="form-text">Search in citation text, case name, and explanation</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Search Fields:</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="searchCitationText" checked>
+                                                    <label class="form-check-label" for="searchCitationText">Citation Text</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="searchCaseName" checked>
+                                                    <label class="form-check-label" for="searchCaseName">Case Name</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="searchExplanation" checked>
+                                                    <label class="form-check-label" for="searchExplanation">Explanation</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="confidenceFilter" class="form-label">Confidence Level:</label>
+                                                <select class="form-select" id="confidenceFilter">
+                                                    <option value="all">All Levels</option>
+                                                    <option value="high">High (0.7+)</option>
+                                                    <option value="medium">Medium (0.5-0.6)</option>
+                                                    <option value="low">Low (0.3-0.4)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="sourceFilter" class="form-label">Source Court:</label>
+                                                <select class="form-select" id="sourceFilter">
+                                                    <option value="all">All Courts</option>
+                                                    <option value="Supreme">Supreme Court</option>
+                                                    <option value="Division1">Division 1</option>
+                                                    <option value="Division2">Division 2</option>
+                                                    <option value="Division3">Division 3</option>
+                                                    <option value="confirmed_case">Confirmed Cases</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="sortOrder" class="form-label">Sort By:</label>
+                                                <select class="form-select" id="sortOrder">
+                                                    <option value="confidence_desc">Confidence (High to Low)</option>
+                                                    <option value="confidence_asc">Confidence (Low to High)</option>
+                                                    <option value="citation_asc">Citation (A to Z)</option>
+                                                    <option value="citation_desc">Citation (Z to A)</option>
+                                                    <option value="case_name_asc">Case Name (A to Z)</option>
+                                                    <option value="case_name_desc">Case Name (Z to A)</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                                            <button class="btn btn-secondary" id="resetFilters">Reset</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <span>Citation Statistics</span>
+                                            <div>
+                                                <div class="dropdown d-inline-block me-2">
+                                                    <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Export Citations
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                                        <li><a class="dropdown-item" href="#" id="exportTextBtn">Plain Text</a></li>
+                                                        <li><a class="dropdown-item" href="#" id="exportBibtexBtn">BibTeX</a></li>
+                                                        <li><a class="dropdown-item" href="#" id="exportEndnoteBtn">EndNote</a></li>
+                                                        <li><a class="dropdown-item" href="#" id="exportJsonBtn">JSON</a></li>
+                                                    </ul>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-secondary" id="refreshCitations">Refresh Data</button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="alert alert-info">
+                                                        <h5>Total Citations: <span id="totalCitationsCount">0</span></h5>
+                                                        <p>Displaying: <span id="displayedCitationsCount">0</span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="alert alert-warning">
+                                                        <h5>Confidence Levels:</h5>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span>High: <span id="highConfidenceCount">0</span></span>
+                                                            <span>Medium: <span id="mediumConfidenceCount">0</span></span>
+                                                            <span>Low: <span id="lowConfidenceCount">0</span></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">Unconfirmed Citations</div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover" id="citationsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Citation</th>
+                                                    <th>Case Name</th>
+                                                    <th>Confidence</th>
+                                                    <th>Source</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="citationsTableBody">
+                                                <!-- Citations will be loaded here -->
+                                                <tr>
+                                                    <td colspan="5" class="text-center">Loading citations...</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination justify-content-center" id="citationPagination">
+                                            <!-- Pagination will be added here -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Citation Details Modal -->
+                        <div class="modal fade" id="citationDetailsModal" tabindex="-1" aria-labelledby="citationDetailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="citationDetailsModalLabel">Citation Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" id="citationDetailsContent">
+                                        <!-- Citation details will be loaded here -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirmed with Multitool Tab -->
+                    <div class="tab-pane fade" id="multitool-confirmed" role="tabpanel">
+                        <div class="container">
+                            <h2>Confirmed with Multitool</h2>
+                            <p class="lead">Citations that were confirmed with the multi-source tool but not with CourtListener.</p>
+                            
+                            <div class="alert alert-info">
+                                <strong>Info:</strong> This tab shows citations that were verified using alternative sources beyond CourtListener.
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>Multitool Confirmed Citations</span>
+                                    <button class="btn btn-primary btn-sm" id="refreshMultitoolCitations">Refresh</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Citation</th>
+                                                    <th>Brief URL</th>
+                                                    <th>Verification Source</th>
+                                                    <th>Confidence</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="multitoolCitationsTable">
+                                                <!-- Citations will be loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="multitoolPagination" class="d-flex justify-content-center mt-3">
+                                        <!-- Pagination controls will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Multitool Citation Details Modal -->
+                        <div class="modal fade" id="multitoolCitationDetailsModal" tabindex="-1" aria-labelledby="multitoolCitationDetailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="multitoolCitationDetailsModalLabel">Citation Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" id="multitoolCitationDetailsContent">
+                                        <!-- Citation details will be loaded here -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Citation Tester Tab -->
+                    <div class="tab-pane fade" id="citation-tester" role="tabpanel">
+                        <div class="container">
+                            <h2>Citation Verification Tester</h2>
+                            <p class="lead">Test the citation verification system with random assortments of citations</p>
+                            
+                            {% if error %}
+                            <div class="alert alert-danger">
+                                <strong>Error:</strong> {{ error }}
+                            </div>
+                            {% endif %}
+                        
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Test Configuration</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="test-form" method="post" action="{{ url_for('citation_tester') }}">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="citation-count">Number of Citations to Test:</label>
+                                                    <input type="number" class="form-control" id="citation-count" name="citation_count" value="5" min="1" max="10">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label>Citation Types to Include:</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="include-confirmed" name="include_confirmed" checked>
+                                                        <label class="form-check-label" for="include-confirmed">
+                                                            Include Confirmed Citations (Landmark Cases)
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="include-unconfirmed" name="include_unconfirmed" checked>
+                                                        <label class="form-check-label" for="include-unconfirmed">
+                                                            Include Unconfirmed Citations (Fictional Cases)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-3">Run Test</button>
+                                    </form>
+                                </div>
+                            </div>
+                        
+                            {% if test_results %}
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0">Test Results</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <strong>Summary:</strong> {{ test_results.summary.total_processed }} citations processed, 
+                                        {{ test_results.summary.correctly_verified }} correctly verified 
+                                        ({{ test_results.summary.accuracy }}% accuracy)
+                                    </div>
+                                    
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Citation</th>
+                                                <th>Case Name</th>
+                                                <th>Expected</th>
+                                                <th>Result</th>
+                                                <th>Confidence</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for result in test_results.details %}
+                                            <tr class="{{ 'table-success' if result.status == 'correct' else 'table-danger' }}">
+                                                <td>{{ result.citation }}</td>
+                                                <td>{{ result.case_name if result.case_name else "N/A" }}</td>
+                                                <td>{{ result.expected_result }}</td>
+                                                <td>{{ result.actual_result }}</td>
+                                                <td>{{ result.confidence }}%</td>
+                                                <td>
+                                                    {% if result.status == 'correct' %}
+                                                    <span class="badge bg-success">Correct</span>
+                                                    {% else %}
+                                                    <span class="badge bg-danger">Incorrect</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">About the Citation Tester</div>
+                                <div class="card-body">
+                                    <p>The Citation Tester helps evaluate the performance of CaseStrainer's verification system by testing it against a mix of known valid and invalid citations.</p>
+                                    <p>This tool is particularly useful for:</p>
+                                    <ul>
+                                        <li>Testing the accuracy of the verification algorithms</li>
+                                        <li>Identifying edge cases where the system might fail</li>
+                                        <li>Evaluating the confidence scoring mechanism</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Ensure at least one checkbox is checked
+                                const confirmedCheckbox = document.getElementById('include-confirmed');
+                                const unconfirmedCheckbox = document.getElementById('include-unconfirmed');
+                                
+                                function updateCheckboxes() {
+                                    if (!confirmedCheckbox.checked && !unconfirmedCheckbox.checked) {
+                                        // If both are unchecked, force at least one to be checked
+                                        confirmedCheckbox.checked = true;
+                                    }
+                                }
+                                
+                                confirmedCheckbox.addEventListener('change', updateCheckboxes);
+                                unconfirmedCheckbox.addEventListener('change', updateCheckboxes);
+                            });
+                        </script>
+                    </div>
+                    
+                    <!-- About Tab -->
+                    <div class="tab-pane fade" id="about" role="tabpanel">
+                        <div class="container">
+                            <h2>About CaseStrainer</h2>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">Overview</div>
+                                <div class="card-body">
+                                    <p>CaseStrainer is an advanced citation verification system designed to analyze legal briefs and identify potentially hallucinated or incorrect citations. The system uses a multi-layered approach to verify citations, combining traditional legal databases with web searches and AI-based verification.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">Key Features</div>
+                                <div class="card-body">
+                                    <h5>Triple-Layered Verification Process</h5>
+                                    <ul>
+                                        <li><strong>CourtListener API:</strong> Primary verification through a comprehensive legal database</li>
+                                        <li><strong>Multi-Source Web Search:</strong> Secondary verification across multiple legal websites including Leagle.com, Justia, FindLaw, and Google Scholar</li>
+                                        <li><strong>AI-Based Verification:</strong> Tertiary verification using LangSearch to generate and compare case summaries</li>
+                                    </ul>
+                                    
+                                    <h5>Advanced Case Name Extraction</h5>
+                                    <ul>
+                                        <li>Sophisticated algorithms to identify case names using various patterns</li>
+                                        <li>Normalization techniques to match case names across different formats</li>
+                                        <li>Identification of significant words in case names for better matching</li>
+                                    </ul>
+                                    
+                                    <h5>Performance Optimization</h5>
+                                    <ul>
+                                        <li>File-based persistent cache for citation verification results</li>
+                                        <li>In-memory caching using LRU (Least Recently Used) strategy</li>
+                                        <li>Automatic cache expiration to ensure up-to-date results</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">How It Works</div>
+                                <div class="card-body">
+                                    <ol>
+                                        <li><strong>Citation Extraction:</strong> The system extracts legal citations from the provided text using the eyecite library.</li>
+                                        <li><strong>Primary Verification:</strong> Each citation is checked against the CourtListener database.</li>
+                                        <li><strong>Secondary Verification:</strong> For unconfirmed citations, the system searches multiple legal websites.</li>
+                                        <li><strong>Tertiary Verification:</strong> For citations still unconfirmed, the system uses LangSearch to generate and compare two different summaries of the case.</li>
+                                        <li><strong>Result Compilation:</strong> All verification results are compiled, with confidence scores and explanations for each citation.</li>
+                                    </ol>
+                                    
+                                    <div class="alert alert-info">
+                                        <strong>Note:</strong> The system groups multiple citations that refer to the same case, providing a more organized view of your document's citations.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">Understanding Results</div>
+                                <div class="card-body">
+                                    <h5>Citation Status</h5>
+                                    <ul>
+                                        <li><span class="badge bg-success">Verified</span> - Citation was found in at least one verification source</li>
+                                        <li><span class="badge bg-warning">Unconfirmed</span> - Citation could not be verified but might still be valid</li>
+                                        <li><span class="badge bg-danger">Potentially Hallucinated</span> - Citation could not be verified by any method</li>
+                                    </ul>
+                                    
+                                    <h5>Confidence Scores</h5>
+                                    <p>Each verification comes with a confidence score (0.0-1.0) indicating how certain the system is about the result:</p>
+                                    <ul>
+                                        <li><strong>0.9-1.0:</strong> High confidence (verified by multiple sources)</li>
+                                        <li><strong>0.7-0.9:</strong> Good confidence (verified by at least one reliable source)</li>
+                                        <li><strong>0.5-0.7:</strong> Moderate confidence (some evidence found but not conclusive)</li>
+                                        <li><strong>0.0-0.5:</strong> Low confidence (little or no evidence found)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">Tips for Best Results</div>
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Ensure citations in your document follow standard legal citation formats</li>
+                                        <li>For better performance with large documents, consider breaking them into smaller sections</li>
+                                        <li>Check the "Progress Logs" section for detailed information about the verification process</li>
+                                        <li>Review the summaries provided for unconfirmed citations to manually verify their accuracy</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">Technologies Used</div>
+                                <div class="card-body">
+                                    <ul>
+                                        <li><strong>Backend:</strong> Python, Flask, eyecite (for citation extraction)</li>
+                                        <li><strong>APIs:</strong> CourtListener API, LangSearch API</li>
+                                        <li><strong>Frontend:</strong> HTML, CSS, JavaScript, Bootstrap</li>
+                                        <li><strong>Data Processing:</strong> Regular expressions, BeautifulSoup (for web scraping)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="resultsContainer" style="display: none;" class="mt-4">
+            <h2>Analysis Results</h2>
+            
+            <div class="progress-container">
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                <p id="progressText" class="mt-2">Starting analysis...</p>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">Summary</div>
+                        <div class="card-body">
+                            <h5>Individual Citations</h5>
+                            <p>Total Individual Citations: <span id="totalIndividualCitations">0</span></p>
+                            <p>Verified Individual Citations: <span id="verifiedIndividualCitations">0</span></p>
+                            
+                            <h5 class="mt-3">Unique Cases</h5>
+                            <p>Total Unique Cases: <span id="totalUniqueCases">0</span></p>
+                            <p>Verified Unique Cases: <span id="verifiedUniqueCases">0</span></p>
+                            
+                            <h5 class="mt-3">Hallucinations</h5>
+                            <p>Potentially Hallucinated: <span id="hallucinatedCitations">0</span></p>
+                            
+                            <div class="alert alert-info mt-3" style="font-size: 0.9rem;">
+                                <strong>Note:</strong> Multiple citations may refer to the same case and are grouped together.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">Citation Results</div>
+                        <div class="card-body">
+                            <div id="citationResults" class="accordion">
+                                <!-- Citation results will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">Progress Logs</div>
+                <div class="card-body">
+                    <div id="progressLogs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="{{ url_for('static', filename='js/multitool_confirmed.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const textForm = document.getElementById('textForm');
+            const uploadForm = document.getElementById('uploadForm');
+            const pathForm = document.getElementById('pathForm');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const progressLogs = document.getElementById('progressLogs');
+            const citationResults = document.getElementById('citationResults');
+            const totalCitations = document.getElementById('totalCitations');
+            const verifiedCitations = document.getElementById('verifiedCitations');
+            const hallucinatedCitations = document.getElementById('hallucinatedCitations');
+            
+            // Helper function to log progress
+            function logProgress(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${message}`;
+                progressLogs.appendChild(logEntry);
+                progressLogs.scrollTop = progressLogs.scrollHeight;
+            }
+            
+            // Helper function to update progress bar
+            function updateProgress(current, total) {
+                const percentage = Math.round((current / total) * 100);
+                progressBar.style.width = `${percentage}%`;
+                progressBar.setAttribute('aria-valuenow', percentage);
+            }
+            
+            // Helper function to validate form
+            function validateForm(formData) {
+                // Check if we have either text or a file
+                if (formData.has('text') && formData.get('text').trim()) {
+                    return true;
+                } else if (formData.has('file') && formData.get('file').size > 0) {
+                    return true;
+                } else if (formData.has('file_path') && formData.get('file_path').trim()) {
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // Helper function to show error
+            function showError(message) {
+                progressText.textContent = message;
+                progressText.className = 'mt-2 text-danger';
+                logProgress(`Error: ${message}`);
+            }
+            
+            // Helper function to create accordion item for citation result
+            function createAccordionItem(result, index) {
+                // Create a unique ID for this citation
+                const citationId = `citation-${index}`;
+                
+                // Extract citation information
+                const citationText = result.citation_text || '';
+                const caseName = result.case_name || '';
+                
+                // Determine card class and badge based on verification status
+                let cardClass = '';
+                let statusBadge = '';
+                let manualVerificationButton = '';
+                
+                if (result.found === true) {
+                    cardClass = 'real';
+                    statusBadge = '<span class="badge bg-success">Verified</span>';
+                } else if (result.found === false) {
+                    if (result.confidence < 0.3) {
+                        cardClass = 'hallucinated';
+                        statusBadge = '<span class="badge bg-danger">Likely Hallucinated</span>';
+                    } else {
+                        cardClass = 'unconfirmed';
+                        statusBadge = '<span class="badge bg-warning text-dark">Unconfirmed</span>';
+                    }
+                    
+                    // Add manual verification button if suggested
+                    if (result.manual_verification_suggested && result.manual_verification_url) {
+                        manualVerificationButton = `<a href="${result.manual_verification_url}" target="_blank" class="btn btn-sm btn-info ms-2">Verify with ${result.manual_verification_source || 'Descrybe.ai'}</a>`;
+                    }
+                } else {
+                    cardClass = 'unconfirmed';
+                    statusBadge = '<span class="badge bg-warning text-dark">Unconfirmed</span>';
+                }
+                
+                // Check if we have a CourtListener URL for verified cases
+                let courtListenerHTML = '';
+                if (!result.is_hallucinated && result.court_listener_url) {
+                    courtListenerHTML = `
+                        <div class="mt-3">
+                            <h6>Case Information:</h6>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">${result.case_name || 'Case Details'}</h6>
+                                    <p class="card-text">
+                                        <a href="${result.court_listener_url}" target="_blank" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-link-45deg"></i> View on CourtListener
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Check if we have summaries from LangSearch
+                let summariesHTML = '';
+                if (result.summaries && result.summaries.length > 0) {
+                    summariesHTML = `
+                        <div class="mt-3">
+                            <h6>LangSearch Summaries:</h6>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Summary 1:</h6>
+                                    <p class="card-text">${result.summaries[0]}</p>
+                                </div>
+                            </div>
+                            ${result.summaries.length > 1 ? `
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">Summary 2:</h6>
+                                        <p class="card-text">${result.summaries[1]}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+                
+                // Check if this result has parallel citations
+                let parallelCitationsHTML = '';
+                if (result.parallel_citations && result.parallel_citations.length > 0) {
+                    parallelCitationsHTML = `
+                        <div class="mt-3">
+                            <h6>Parallel Citations:</h6>
+                            <ul class="list-group">
+                                ${result.parallel_citations.map(citation => `
+                                    <li class="list-group-item">${citation}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                // Determine the citation to display in the header
+                const displayCitation = result.primary_citation || result.citation_text;
+                
+                // Create the accordion item element
+                const accordionItem = document.createElement('div');
+                accordionItem.className = `accordion-item citation-card ${cardClass}`;
+                accordionItem.id = citationId;
+                
+                // Create the header content with status badge and verification button
+                const headerContent = `
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div>
+                            <strong>${citationText}</strong>
+                            ${caseName ? `<br><small>${caseName}</small>` : ''}
+                        </div>
+                        <div>
+                            ${statusBadge}
+                            ${manualVerificationButton}
+                        </div>
+                    </div>
+                `;
+                
+                accordionItem.innerHTML = `
+                    <h2 class="accordion-header" id="heading${index}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="false" aria-controls="collapse${index}">
+                            ${headerContent}
+                        </button>
+                    </h2>
+                    <div id="collapse${index}" class="accordion-collapse collapse" aria-labelledby="heading${index}" data-bs-parent="#citationsAccordion">
+                        <div class="accordion-body">
+                            <p>${result.explanation}</p>
+                            <p><small>Confidence: ${(result.confidence * 100).toFixed(1)}%</small></p>
+                            ${courtListenerHTML}
+                            ${parallelCitationsHTML}
+                            ${summariesHTML}
+                        </div>
+                    </div>
+                `;
+                
+                return accordionItem;
+            }
+            
+            // Function to poll for results
+            function pollForResults(analysisId) {
+                logProgress(`Polling for results of analysis: ${analysisId}`);
+                
+                // Get the base URL path from the current location
+                const basePath = window.location.pathname.endsWith('/') ? 
+                    window.location.pathname : 
+                    window.location.pathname + '/';
+                
+                // Construct the status endpoint relative to the current path
+                const statusPath = basePath + 'status';
+                
+                logProgress(`Using status endpoint: ${statusPath}`);
+                
+                // Set up polling interval
+                const pollInterval = setInterval(function() {
+                    $.ajax({
+                        url: `${statusPath}?id=${analysisId}`,
+                        type: 'GET',
+                        success: function(response) {
+                            // Update progress
+                            if (response.progress !== undefined && response.total_steps !== undefined) {
+                                updateProgress(response.progress, response.total_steps);
+                            }
+                            
+                            // Update status message
+                            if (response.message) {
+                                progressText.textContent = response.message;
+                                logProgress(response.message);
+                            }
+                            
+                            // Update citation results if available
+                            if (response.citation_results && response.citation_results.length > 0) {
+                                // Clear previous results
+                                citationResults.innerHTML = '';
+                                
+                                // Update summary counts
+                                let hallucinated = 0;
+                                let verified = 0;
+                                
+                                // Add each citation result
+                                response.citation_results.forEach((result, index) => {
+                                    if (result.is_hallucinated) {
+                                        hallucinated++;
+                                    } else {
+                                        verified++;
+                                    }
+                                    
+                                    const accordionItem = createAccordionItem(result, index);
+                                    citationResults.appendChild(accordionItem);
+                                });
+                                
+                                // Update summary with both individual citations and unique cases
+                                if (response.results) {
+                                    // Individual citations
+                                    document.getElementById('totalIndividualCitations').textContent = response.results.total_individual_citations || 0;
+                                    document.getElementById('verifiedIndividualCitations').textContent = response.results.verified_citations || 0;
+                                    
+                                    // Unique cases
+                                    document.getElementById('totalUniqueCases').textContent = response.results.total_unique_cases || response.citation_results.length;
+                                    document.getElementById('verifiedUniqueCases').textContent = response.results.verified_unique_cases || verified;
+                                } else {
+                                    // Fallback if results object is not available
+                                    document.getElementById('totalIndividualCitations').textContent = '?';
+                                    document.getElementById('verifiedIndividualCitations').textContent = '?';
+                                    document.getElementById('totalUniqueCases').textContent = response.citation_results.length;
+                                    document.getElementById('verifiedUniqueCases').textContent = verified;
+                                }
+                                
+                                // Update hallucinated count
+                                hallucinatedCitations.textContent = hallucinated;
+                            }
+                            
+                            // If analysis is complete, stop polling
+                            if (response.completed) {
+                                clearInterval(pollInterval);
+                                logProgress('Analysis completed, stopping polling');
+                                
+                                if (response.status === 'error' && response.error) {
+                                    showError(response.error);
+                                } else if (response.status === 'complete') {
+                                    progressText.className = 'mt-2 text-success';
+                                    progressBar.classList.remove('progress-bar-animated');
+                                    logProgress('Analysis completed successfully');
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            logProgress(`Error polling for results: ${error}`);
+                            showError(`Error polling for results: ${error}`);
+                            clearInterval(pollInterval);
+                        }
+                    });
+                }, 1000); // Poll every second
+            }
+            
+            // Handle form submissions
+            function handleFormSubmit(form, formName) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    logProgress(`${formName} form submitted`);
+                    
+                    // Create FormData object
+                    const formData = new FormData(form);
+                    
+                    // Validate form
+                    if (!validateForm(formData)) {
+                        showError('Please provide either text, a file, or a file path');
+                        return;
+                    }
+                    
+                    // Show results container
+                    resultsContainer.style.display = 'block';
+                    
+                    // Reset progress and results
+                    progressBar.style.width = '0%';
+                    progressBar.setAttribute('aria-valuenow', 0);
+                    progressBar.classList.add('progress-bar-animated');
+                    progressText.textContent = 'Starting analysis...';
+                    progressText.className = 'mt-2';
+                    progressLogs.innerHTML = '';
+                    citationResults.innerHTML = '';
+                    totalCitations.textContent = '0';
+                    verifiedCitations.textContent = '0';
+                    hallucinatedCitations.textContent = '0';
+                    
+                    // Log form data
+                    logProgress('Sending request to server...');
+                    for (let [key, value] of formData.entries()) {
+                        if (key === 'text') {
+                            logProgress(`Form data: ${key}=${value.length} characters`);
+                        } else if (key === 'file') {
+                            logProgress(`Form data: ${key}=${value.name} (${value.size} bytes)`);
+                        } else if (key === 'api_key' && value) {
+                            logProgress(`Form data: ${key}=API key provided`);
+                        } else {
+                            logProgress(`Form data: ${key}=${value}`);
+                        }
+                    }
+                    
+                    // Send request to server
+                    // Get the base URL path from the current location
+                    const basePath = window.location.pathname.endsWith('/') ? 
+                        window.location.pathname : 
+                        window.location.pathname + '/';
+                    
+                    // Construct the analyze endpoint relative to the current path
+                    const analyzePath = basePath + 'analyze';
+                    
+                    logProgress(`Using API endpoint: ${analyzePath}`);
+                    
+                    $.ajax({
+                        url: analyzePath,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            logProgress(`Server response: ${JSON.stringify(response)}`);
+                            
+                            if (response.status === 'success' && response.analysis_id) {
+                                logProgress(`Analysis started with ID: ${response.analysis_id}`);
+                                pollForResults(response.analysis_id);
+                            } else {
+                                showError(response.message || 'Unknown error');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            logProgress(`Error starting analysis: ${error}`);
+                            if (xhr.responseText) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    showError(response.message || error);
+                                } catch (e) {
+                                    showError(error);
+                                }
+                            } else {
+                                showError(error);
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Set up form handlers
+            handleFormSubmit(textForm, 'Text');
+            handleFormSubmit(uploadForm, 'Upload');
+            handleFormSubmit(pathForm, 'Path');
+            
+            // Log that the page is ready
+            logProgress('Page loaded and ready');
+        });
+        
+        // Citation Network Visualization JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize network when the network tab is shown
+            document.getElementById('network-tab').addEventListener('click', function() {
+                initNetworkVisualization();
+            });
+            
+            // Export citations buttons
+            document.getElementById('exportTextBtn').addEventListener('click', function() {
+                exportCitations('text');
+            });
+            
+            document.getElementById('exportBibtexBtn').addEventListener('click', function() {
+                exportCitations('bibtex');
+            });
+            
+            document.getElementById('exportEndnoteBtn').addEventListener('click', function() {
+                exportCitations('endnote');
+            });
+            
+            document.getElementById('exportJsonBtn').addEventListener('click', function() {
+                exportCitations('json');
+            });
+            
+            // Add event listener for the Generate Network button
+            document.getElementById('generateNetwork').addEventListener('click', generateCitationNetwork);
+            
+            // Add event listeners for ML Classifier tab
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check if ML Classifier tab exists
+                if (document.getElementById('ml-classifier-tab')) {
+                    // Check model status when tab is shown
+                    document.getElementById('ml-classifier-tab').addEventListener('shown.bs.tab', function() {
+                        checkModelStatus();
+                    });
+                    
+                    // Add event listener for Train Model button
+                    document.getElementById('trainModel').addEventListener('click', trainModel);
+                    
+                    // Add event listener for Classify Citation button
+                    document.getElementById('classifyCitation').addEventListener('click', classifyCitation);
+                    
+                    // Initialize model status check
+                    checkModelStatus();
+                }
+            });
+            
+            document.getElementById('generateNetworkBtn').addEventListener('click', function() {
+                generateNetworkVisualization();
+            });
+        });
+        
+        // Network visualization functions
+        function initNetworkVisualization() {
+            // Check if D3.js is loaded
+            if (typeof d3 === 'undefined') {
+                console.error('D3.js library is not loaded');
+                return;
+            }
+            
+            console.log('Network visualization initialized');
+        }
+        
+        function generateNetworkVisualization() {
+            const networkType = document.getElementById('networkType').value;
+            const networkFilter = document.getElementById('networkFilter').value;
+            const networkDepth = document.getElementById('networkDepth').value;
+            
+            console.log(`Generating network visualization: type=${networkType}, filter=${networkFilter}, depth=${networkDepth}`);
+            
+            // Clear previous visualization
+            const container = document.getElementById('networkVisualization');
+            container.innerHTML = '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            // Fetch citation data
+            fetch('/casestrainer/downloaded_briefs/unconfirmed_citations_flat.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(citations => {
+                    // Process the data for visualization
+                    const graphData = processDataForVisualization(citations, networkFilter, networkDepth);
+                    
+                    // Create the visualization based on the selected type
+                    switch(networkType) {
+                        case 'force':
+                            createForceDirectedGraph(graphData, container);
+                            break;
+                        case 'tree':
+                            createHierarchicalTree(graphData, container);
+                            break;
+                        case 'cluster':
+                            createClusterView(graphData, container);
+                            break;
+                        default:
+                            createForceDirectedGraph(graphData, container);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading citation data:', error);
+                    container.innerHTML = `<div class="alert alert-danger">Error loading citation data: ${error.message}</div>`;
+                });
+        }
+        
+        function processDataForVisualization(citations, filter, depth) {
+            // Group citations by source document
+            const sourceGroups = {};
+            const nodes = [];
+            const links = [];
+            
+            // Create a map of all unique sources
+            const sources = new Set();
+            citations.forEach(citation => {
+                if (citation.source_file) {
+                    sources.add(citation.source_file);
+                }
+            });
+            
+            // Create nodes for each source
+            sources.forEach(source => {
+                nodes.push({
+                    id: `source-${source}`,
+                    name: source,
+                    type: 'source',
+                    group: 1
+                });
+            });
+            
+            // Filter citations if needed
+            let filteredCitations = citations;
+            if (filter === 'unconfirmed') {
+                filteredCitations = citations.filter(c => c.confidence < 0.7);
+            } else if (filter === 'confirmed') {
+                filteredCitations = citations.filter(c => c.confidence >= 0.7);
+            }
+            
+            // Create nodes for each citation
+            filteredCitations.forEach(citation => {
+                const nodeId = `citation-${citation.citation_text}`;
+                
+                // Check if node already exists
+                const existingNode = nodes.find(n => n.id === nodeId);
+                if (!existingNode) {
+                    nodes.push({
+                        id: nodeId,
+                        name: citation.citation_text,
+                        caseName: citation.case_name,
+                        confidence: citation.confidence,
+                        type: 'citation',
+                        group: citation.confidence >= 0.7 ? 2 : 3
+                    });
+                }
+                
+                // Create link from source to citation
+                if (citation.source_file) {
+                    links.push({
+                        source: `source-${citation.source_file}`,
+                        target: nodeId,
+                        value: 1
+                    });
+                }
+            });
+            
+            return { nodes, links };
+        }
+        
+        function createForceDirectedGraph(data, container) {
+            // Clear container
+            container.innerHTML = '';
+            
+            const width = container.clientWidth;
+            const height = container.clientHeight || 600;
+            
+            // Create SVG container
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Create the force simulation
+            const simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(data.links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2));
+            
+            // Create the links
+            const link = svg.append('g')
+                .attr('stroke', '#999')
+                .attr('stroke-opacity', 0.6)
+                .selectAll('line')
+                .data(data.links)
+                .join('line')
+                .attr('stroke-width', d => Math.sqrt(d.value));
+            
+            // Create the nodes
+            const node = svg.append('g')
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 1.5)
+                .selectAll('circle')
+                .data(data.nodes)
+                .join('circle')
+                .attr('r', d => d.type === 'source' ? 10 : 7)
+                .attr('fill', d => {
+                    if (d.type === 'source') return '#007bff';
+                    return d.group === 2 ? '#28a745' : '#dc3545';
+                })
+                .call(drag(simulation));
+            
+            // Add tooltips
+            node.append('title')
+                .text(d => {
+                    if (d.type === 'citation') {
+                        return `${d.caseName}\n${d.name}\nConfidence: ${d.confidence}`;
+                    }
+                    return d.name;
+                });
+            
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+            });
+            
+            // Drag functionality
+            function drag(simulation) {
+                function dragstarted(event) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    event.subject.fx = event.subject.x;
+                    event.subject.fy = event.subject.y;
+                }
+                
+                function dragged(event) {
+                    event.subject.fx = event.x;
+                    event.subject.fy = event.y;
+                }
+                
+                function dragended(event) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
+                
+                return d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended);
+            }
+        }
+        
+        function createHierarchicalTree(data, container) {
+            // Placeholder for hierarchical tree visualization
+            container.innerHTML = '<div class="alert alert-info">Hierarchical Tree visualization is in development.</div>';
+        }
+        
+        function createClusterView(data, container) {
+            // Placeholder for cluster view visualization
+            container.innerHTML = '<div class="alert alert-info">Cluster View visualization is in development.</div>';
+        }
+        
+        // Unconfirmed Citations Tab JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only load citations when the unconfirmed tab is shown
+            document.getElementById('unconfirmed-tab').addEventListener('click', function() {
+                loadUnconfirmedCitations();
+            });
+            
+            // Function to export citations using the API
+        function exportCitations(format) {
+            // Show loading indicator
+            showToast('Preparing export...', 'info');
+            
+            // Get current filter criteria
+            const searchTerm = document.getElementById('searchCitation').value;
+            const confidenceLevel = document.getElementById('confidenceLevel').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            
+            // Build API URL with filters
+            let apiUrl = `/casestrainer/api/export_citations?format=${format}`;
+            
+            if (searchTerm) {
+                if (document.getElementById('searchCaseName').checked) {
+                    apiUrl += `&case_name=${encodeURIComponent(searchTerm)}`;
+                }
+                if (document.getElementById('searchCitation').checked) {
+                    apiUrl += `&citation_text=${encodeURIComponent(searchTerm)}`;
+                }
+                if (document.getElementById('searchExplanation').checked) {
+                    apiUrl += `&explanation=${encodeURIComponent(searchTerm)}`;
+                }
+                if (!document.getElementById('searchCaseName').checked && 
+                    !document.getElementById('searchCitation').checked && 
+                    !document.getElementById('searchExplanation').checked) {
+                    // If no specific fields are checked, search in all fields
+                    apiUrl += `&search=${encodeURIComponent(searchTerm)}`;
+                }
+            }
+            
+            if (confidenceLevel && confidenceLevel !== 'all') {
+                apiUrl += `&confidence=${confidenceLevel}`;
+            }
+            
+            if (sourceFilter && sourceFilter !== 'all') {
+                apiUrl += `&source=${encodeURIComponent(sourceFilter)}`;
+            }
+            
+            // Make API request
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Create a download link
+                        const a = document.createElement('a');
+                        a.href = data.download_url;
+                        a.download = data.file;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        showToast(`Successfully exported ${data.message}`, 'success');
+                    } else {
+                        showToast(`Export failed: ${data.error}`, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error exporting citations:', error);
+                    showToast(`Export failed: ${error.message}`, 'danger');
+                });
+        }
+        
+        // Function to show a toast notification
+        function showToast(message, type = 'info') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create toast element
+            const toastId = 'toast-' + Date.now();
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.id = toastId;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            // Create toast content
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            // Add toast to container
+            toastContainer.appendChild(toast);
+            
+            // Initialize and show the toast
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', function () {
+                toastContainer.removeChild(toast);
+            });
+        }        
+            
+            // Function to export citations to a text file
+            function exportCitationsToText() {
+                // Get the filtered citations
+                const filteredCitations = filterCitations(allCitations);
+                
+                // Create the text content
+                let textContent = "# Unconfirmed Citations Export\n";
+                textContent += `# Generated: ${new Date().toLocaleString()}\n`;
+                textContent += `# Total Citations: ${filteredCitations.length}\n\n`;
+                
+                // Add each citation in the format: Case Name - Citation
+                filteredCitations.forEach((citation, index) => {
+                    textContent += `${index + 1}. ${citation.case_name} - ${citation.citation_text}\n`;
+                    textContent += `   Confidence: ${citation.confidence}\n`;
+                    textContent += `   Source: ${citation.source_file}\n\n`;
+                });
+                
+                // Create a Blob with the text content
+                const blob = new Blob([textContent], { type: 'text/plain' });
+                
+                // Create a download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `unconfirmed_citations_${new Date().toISOString().slice(0, 10)}.txt`;
+                
+                // Trigger the download
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+            
+            // Function to export citations in a simple format for use in other tools
+            function exportCitationsSimpleFormat() {
+                // Get the filtered citations
+                const filteredCitations = filterCitations(allCitations);
+                
+                // Create the text content with just case name and citation
+                let textContent = "";
+                
+                // Add each citation in the format: Case Name - Citation
+                filteredCitations.forEach((citation) => {
+                    textContent += `${citation.case_name} - ${citation.citation_text}\n`;
+                });
+                
+                // Create a Blob with the text content
+                const blob = new Blob([textContent], { type: 'text/plain' });
+                
+                // Create a download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `unconfirmed_citations_simple_${new Date().toISOString().slice(0, 10)}.txt`;
+                
+                // Trigger the download
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+            
+            // Event listeners
+            document.getElementById('refreshCitations').addEventListener('click', loadUnconfirmedCitations);
+            document.getElementById('exportCitations').addEventListener('click', exportCitationsSimpleFormat);
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const filteredCitations = filterCitations(allCitations);
+                currentPage = 1;
+                displayCitations(filteredCitations, currentPage);
+                updatePagination(filteredCitations.length, currentPage);
+                updateCitationStatistics(allCitations, filteredCitations);
+            });
+            
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('searchCitation').value = '';
+                document.getElementById('filterYear').value = 'all';
+                document.getElementById('filterReporter').value = 'all';
+                document.getElementById('filterConfidence').value = 'all';
+                
+                displayCitations(allCitations, 1);
+                updatePagination(allCitations.length, 1);
+                updateCitationStatistics(allCitations, allCitations);
+            });
+        });
+        
+        // Global variables for citation data and pagination
+        let allCitations = [];
+        let currentPage = 1;
+        const citationsPerPage = 10;
+        
+        // Function to load unconfirmed citations from the JSON file
+        function loadUnconfirmedCitations() {
+            // Show loading message
+            document.getElementById('citationsTableBody').innerHTML = '<tr><td colspan="5" class="text-center">Loading citations...</td></tr>';
+            
+            // Determine the correct URL based on the current host and path
+            let baseUrl = '';
+            if (window.location.hostname === 'wolf.law.uw.edu' || window.location.pathname.includes('/casestrainer')) {
+                baseUrl = '/casestrainer';
+            }
+            
+            // First try the API endpoint, then fall back to the JSON file
+            fetch(`${baseUrl}/unconfirmed_citations/data`)
+                .then(response => {
+                    if (!response.ok) {
+                        // If API endpoint fails, try the JSON file
+                        return fetch(`${baseUrl}/downloaded_briefs/unconfirmed_citations_flat.json`);
+                    }
+                    return response;
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Store all citations
+                    allCitations = data;
+                    
+                    // Apply filters
+                    const filteredCitations = filterCitations(allCitations);
+                    
+                    // Update statistics
+                    updateCitationStatistics(allCitations, filteredCitations);
+                    
+                    // Display citations with pagination
+                    displayCitations(filteredCitations, currentPage);
+                })
+                .catch(error => {
+                    console.error('Error loading citations:', error);
+                    document.getElementById('citationsTableBody').innerHTML = 
+                        `<tr><td colspan="5" class="text-center text-danger">Error loading citations: ${error.message}</td></tr>`;
+                });
+        }
+        
+        // Function to filter citations based on user selections
+        function filterCitations(citations) {
+            const searchTerm = document.getElementById('searchCitation').value.toLowerCase();
+            const confidenceLevel = document.getElementById('confidenceFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+            
+            // Get search field checkboxes
+            const searchCitationText = document.getElementById('searchCitationText').checked;
+            const searchCaseName = document.getElementById('searchCaseName').checked;
+            const searchExplanation = document.getElementById('searchExplanation').checked;
+            
+            // Filter the citations
+            let filteredCitations = citations.filter(citation => {
+                // Search term filter - only search in selected fields
+                let matchesSearch = searchTerm === '';
+                
+                if (!matchesSearch) {
+                    if (searchCitationText && citation.citation_text && citation.citation_text.toLowerCase().includes(searchTerm)) {
+                        matchesSearch = true;
+                    } else if (searchCaseName && citation.case_name && citation.case_name.toLowerCase().includes(searchTerm)) {
+                        matchesSearch = true;
+                    } else if (searchExplanation && citation.explanation && citation.explanation.toLowerCase().includes(searchTerm)) {
+                        matchesSearch = true;
+                    }
+                }
+                
+                // Confidence level filter
+                let matchesConfidence = true;
+                if (confidenceLevel !== 'all') {
+                    if (confidenceLevel === 'high') {
+                        matchesConfidence = citation.confidence >= 0.7;
+                    } else if (confidenceLevel === 'medium') {
+                        matchesConfidence = citation.confidence >= 0.5 && citation.confidence <= 0.6;
+                    } else if (confidenceLevel === 'low') {
+                        matchesConfidence = citation.confidence <= 0.4;
+                    }
+                }
+                
+                // Source filter
+                let matchesSource = true;
+                if (sourceFilter !== 'all') {
+                    if (sourceFilter === 'confirmed_case') {
+                        // Special case for confirmed cases
+                        matchesSource = citation.source_file && citation.source_file.includes('confirmed_case');
+                    } else {
+                        matchesSource = citation.source_file && citation.source_file.includes(sourceFilter);
+                    }
+                }
+                
+                return matchesSearch && matchesConfidence && matchesSource;
+            });
+            
+            // Sort the filtered citations
+            filteredCitations.sort((a, b) => {
+                switch (sortOrder) {
+                    case 'confidence_desc':
+                        return b.confidence - a.confidence;
+                    case 'confidence_asc':
+                        return a.confidence - b.confidence;
+                    case 'citation_asc':
+                        return (a.citation_text || '').localeCompare(b.citation_text || '');
+                    case 'citation_desc':
+                        return (b.citation_text || '').localeCompare(a.citation_text || '');
+                    case 'case_name_asc':
+                        return (a.case_name || '').localeCompare(b.case_name || '');
+                    case 'case_name_desc':
+                        return (b.case_name || '').localeCompare(a.case_name || '');
+                    default:
+                        return b.confidence - a.confidence; // Default to confidence_desc
+                }
+            });
+            
+            return filteredCitations;
+        }
+        
+        // Function to update citation statistics
+        function updateCitationStatistics(allCitations, filteredCitations) {
+            // Update total counts
+            document.getElementById('totalCitationsCount').textContent = allCitations.length;
+            document.getElementById('displayedCitationsCount').textContent = filteredCitations.length;
+            
+            // Update confidence level counts
+            const highConfidence = filteredCitations.filter(c => c.confidence >= 0.7).length;
+            const mediumConfidence = filteredCitations.filter(c => c.confidence >= 0.5 && c.confidence <= 0.6).length;
+            const lowConfidence = filteredCitations.filter(c => c.confidence <= 0.4).length;
+            
+            document.getElementById('highConfidenceCount').textContent = highConfidence;
+            document.getElementById('mediumConfidenceCount').textContent = mediumConfidence;
+            document.getElementById('lowConfidenceCount').textContent = lowConfidence;
+        }
+        
+        // Function to display citations with pagination
+        function displayCitations(citations, page) {
+            const tableBody = document.getElementById('citationsTableBody');
+            tableBody.innerHTML = '';
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(citations.length / citationsPerPage);
+            const startIndex = (page - 1) * citationsPerPage;
+            const endIndex = Math.min(startIndex + citationsPerPage, citations.length);
+            
+            // Display message if no citations match filters
+            if (citations.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No citations match the selected filters</td></tr>';
+                document.getElementById('citationPagination').innerHTML = '';
+                return;
+            }
+            
+            // Add citations to the table
+            for (let i = startIndex; i < endIndex; i++) {
+                const citation = citations[i];
+                const row = document.createElement('tr');
+                
+                // Create confidence badge with appropriate color
+                let confidenceBadgeClass = 'bg-danger';
+                if (citation.confidence >= 0.7) {
+                    confidenceBadgeClass = 'bg-warning';
+                } else if (citation.confidence >= 0.5) {
+                    confidenceBadgeClass = 'bg-warning text-dark';
+                }
+                
+                row.innerHTML = `
+                    <td>${citation.citation_text}</td>
+                    <td>${citation.case_name}</td>
+                    <td><span class="badge ${confidenceBadgeClass}">${citation.confidence}</span></td>
+                    <td>${citation.source_file}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="showCitationDetails(${i})">Details</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+            
+            // Update pagination controls
+            updatePagination(citations.length, page);
+        }
+        
+        // Function to update pagination controls
+        function updatePagination(totalItems, currentPage) {
+            const totalPages = Math.ceil(totalItems / citationsPerPage);
+            const paginationElement = document.getElementById('citationPagination');
+            paginationElement.innerHTML = '';
+            
+            // Don't show pagination if only one page
+            if (totalPages <= 1) {
+                return;
+            }
+            
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">Previous</a>`;
+            paginationElement.appendChild(prevLi);
+            
+            // Page numbers
+            const maxPages = 5; // Maximum number of page links to show
+            let startPage = Math.max(1, currentPage - Math.floor(maxPages / 2));
+            let endPage = Math.min(totalPages, startPage + maxPages - 1);
+            
+            // Adjust if we're near the end
+            if (endPage - startPage + 1 < maxPages && startPage > 1) {
+                startPage = Math.max(1, endPage - maxPages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>`;
+                paginationElement.appendChild(pageLi);
+            }
+            
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">Next</a>`;
+            paginationElement.appendChild(nextLi);
+        }
+        
+        // Function to change the current page
+        function changePage(page) {
+            // Validate page number
+            const totalPages = Math.ceil(filterCitations(allCitations).length / citationsPerPage);
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            
+            currentPage = page;
+            displayCitations(filterCitations(allCitations), currentPage);
+            
+            // Scroll to the top of the citations table
+            document.getElementById('citationsTable').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Function to show citation details in a modal
+        // Function to fetch citation correction suggestions
+        function fetchCorrectionSuggestions(citation) {
+            // Show loading indicator
+            document.getElementById('loadingSuggestions').style.display = 'block';
+            document.getElementById('suggestionsList').innerHTML = '';
+            document.getElementById('noSuggestions').style.display = 'none';
+            
+            // Create API endpoint URL
+            const apiUrl = `/casestrainer/api/correction_suggestions?citation=${encodeURIComponent(citation.citation_text)}`;
+            
+            // Fetch suggestions
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading indicator
+                    document.getElementById('loadingSuggestions').style.display = 'none';
+                    
+                    // Process suggestions
+                    if (data && data.suggestions && data.suggestions.length > 0) {
+                        displayCorrectionSuggestions(data.suggestions);
+                    } else {
+                        document.getElementById('noSuggestions').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching correction suggestions:', error);
+                    document.getElementById('loadingSuggestions').style.display = 'none';
+                    document.getElementById('noSuggestions').style.display = 'block';
+                    document.getElementById('noSuggestions').innerHTML = `<p class="text-danger">Error loading suggestions: ${error.message}</p>`;
+                });
+        }
+        
+        // Function to display correction suggestions
+        function displayCorrectionSuggestions(suggestions) {
+            const container = document.getElementById('suggestionsList');
+            container.innerHTML = '';
+            
+            // Create a card for each suggestion
+            suggestions.forEach(suggestion => {
+                const suggestionCard = document.createElement('div');
+                suggestionCard.className = 'card mb-2';
+                
+                // Calculate similarity percentage
+                const similarityPercent = Math.round(suggestion.similarity);
+                
+                // Create card content
+                suggestionCard.innerHTML = `
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${suggestion.citation}</h6>
+                                <p class="mb-1 small">${suggestion.case_name}</p>
+                                <p class="mb-0 small text-muted">Source: ${suggestion.source}</p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info">${similarityPercent}% Match</span>
+                                ${suggestion.url ? `<a href="${suggestion.url}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">View</a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(suggestionCard);
+            });
+        }
+        
+        function showCitationDetails(index) {
+            const citation = filterCitations(allCitations)[index];
+            const modal = new bootstrap.Modal(document.getElementById('citationDetailsModal'));
+            
+            // Format the citation details
+            let detailsHTML = `
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">Citation Information</div>
+                    <div class="card-body">
+                        <h5>${citation.citation_text}</h5>
+                        <h6>${citation.case_name}</h6>
+                        <p><strong>Source:</strong> ${citation.source_file}</p>
+                        <p><strong>Confidence:</strong> ${citation.confidence}</p>
+                        ${citation.source_path ? `<p><strong>Original Document:</strong> <a href="/casestrainer/downloaded_briefs/${citation.source_file}" target="_blank">View Original Document</a></p>` : ''}
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header bg-info text-white">Verification Status</div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <p><strong>Status:</strong> ${citation.hallucination_status || 'Unverified'}</p>
+                            <p><strong>Explanation:</strong> ${citation.explanation}</p>
+                        </div>
+                        
+                        ${citation.source_case_name ? `
+                        <div class="alert alert-info">
+                            <h5>Source Case Information</h5>
+                            <p><strong>Found in:</strong> ${citation.source_case_name}</p>
+                            <p><strong>Case ID:</strong> ${citation.source_case_id}</p>
+                            <p><a href="${citation.source_case_url}" target="_blank" class="btn btn-sm btn-primary">View Source Case on CourtListener</a></p>
+                        </div>
+                        ` : ''}
+                        
+                        <div id="correctionSuggestions" class="mt-3">
+                            <h5>Did You Mean?</h5>
+                            <div class="text-center mb-2" id="loadingSuggestions">
+                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span class="visually-hidden">Loading suggestions...</span>
+                                </div>
+                                <span class="ms-2">Loading correction suggestions...</span>
+                            </div>
+                            <div id="suggestionsList"></div>
+                            <div class="text-center mt-2" id="noSuggestions" style="display: none;">
+                                <p class="text-muted">No correction suggestions found for this citation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add summaries if available
+            if (citation.summaries && citation.summaries.length > 0) {
+                detailsHTML += `
+                    <div class="card">
+                        <div class="card-header bg-success text-white">AI Summaries</div>
+                        <div class="card-body">
+                            <div class="row">
+                `;
+                
+                citation.summaries.forEach((summary, i) => {
+                    detailsHTML += `
+                        <div class="col-md-6">
+                            <div class="card mb-2">
+                                <div class="card-header">Summary ${i + 1}</div>
+                                <div class="card-body">
+                                    <p>${summary}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                detailsHTML += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update the modal content and show it
+            document.getElementById('citationDetailsModalLabel').textContent = `Citation Details: ${citation.citation_text}`;
+            document.getElementById('citationDetailsContent').innerHTML = detailsHTML;
+            modal.show();
+            
+            // Fetch correction suggestions if confidence is low
+            if (citation.confidence < 0.7) {
+                fetchCorrectionSuggestions(citation);
+            } else {
+                // Hide the correction suggestions section for high-confidence citations
+                const correctionSection = document.getElementById('correctionSuggestions');
+                if (correctionSection) {
+                    correctionSection.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

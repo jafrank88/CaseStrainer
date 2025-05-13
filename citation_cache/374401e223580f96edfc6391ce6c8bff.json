@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-05-07T16:23:55.054969",
+  "citation": "93 S.Ct. 705",
+  "result": {
+    "found": true,
+    "url": null,
+    "found_case_name": "Roe v. Wade",
+    "name_match": false,
+    "confidence": 0.95,
+    "explanation": "Verified landmark case: Roe v. Wade (1973) - Established a woman's legal right to abortion",
+    "source": "Landmark Cases Database"
+  }
+}

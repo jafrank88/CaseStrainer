@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseStrainer - Detect Hallucinated Legal Citations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .citation-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .citation-real {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+        }
+        .citation-hallucinated {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+        }
+        .confidence-bar {
+            height: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .summary-box {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="pb-3 mb-4 border-bottom">
+            <div class="d-flex align-items-center text-dark text-decoration-none">
+                <span class="fs-4">CaseStrainer</span>
+                <span class="ms-2 badge bg-primary">Beta</span>
+            </div>
+            <p class="lead">Detect hallucinated legal case citations in briefs</p>
+        </header>
+
+        <div class="row g-5">
+            <div class="col-md-12">
+                <form id="briefForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="briefText" class="form-label">Paste your legal brief text:</label>
+                        <textarea class="form-control" id="briefText" rows="10" placeholder="Enter the text of your legal brief here. Do not enter file:/// URLs, use the file upload option below instead."></textarea>
+                        <div class="form-text text-danger">Do not enter file:/// URLs here. Use the file upload option below instead.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fileUpload" class="form-label">Or upload a document:</label>
+                        <input class="form-control" type="file" id="fileUpload" name="file" accept=".docx,.txt,.pdf">
+                        <div class="form-text">Supported formats: Word (.docx), PDF (.pdf), Text (.txt)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="filePath" class="form-label">Or enter a file path:</label>
+                        <input type="text" class="form-control" id="filePath" name="file_path" placeholder="e.g., C:/Users/username/Documents/brief.pdf">
+                        <div class="form-text">Enter the full path to a local file on your computer</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="apiKey" class="form-label">CourtListener API Key (optional):</label>
+                        <input type="text" class="form-control" id="apiKey" name="api_key" placeholder="Enter your CourtListener API key">
+                        <div class="form-text">Get your API key at <a href="https://www.courtlistener.com/help/api/" target="_blank">CourtListener API</a> or leave blank to use the key from config.json</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="iterations" class="form-label">Number of summary iterations:</label>
+                            <input type="number" class="form-control" id="iterations" min="2" max="5" value="3">
+                            <div class="form-text">More iterations increase accuracy but take longer.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="threshold" class="form-label">Similarity threshold:</label>
+                            <input type="range" class="form-range" id="threshold" min="0.5" max="0.9" step="0.05" value="0.7">
+                            <div class="d-flex justify-content-between">
+                                <span>0.5 (Lenient)</span>
+                                <span id="thresholdValue">0.7</span>
+                                <span>0.9 (Strict)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="useLocalPdfSearch">
+                        <label class="form-check-label" for="useLocalPdfSearch">Search local PDF folders instead of using API</label>
+                        <div class="form-text">
+                            This will search for citations in the following folders:
+                            <ul class="small">
+                                <li>D:\WOLF Processing Folder\Wash 2d\Wash2d full vol pdfs</li>
+                                <li>D:\WOLF Processing Folder\Wash\Wash Full Vol pdfs</li>
+                                <li>D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Analyze Brief</button>
+                        <button type="button" id="clearButton" class="btn btn-secondary">Clear</button>
+                    </div>
+                </form>
+
+                <div id="loading" class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing citations... This may take a moment.</p>
+                </div>
+
+                <div id="results" class="mt-4" style="display: none;">
+                    <h3>Analysis Results</h3>
+                    <div id="resultsSummary"></div>
+                    <div id="progressLogs" class="mt-3 mb-3" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;"></div>
+                    <div id="citationsContainer">
+                        <h4>Extracted Citations</h4>
+                        <div id="citationsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="pt-5 my-5 text-muted border-top">
+            CaseStrainer &copy; 2025 &middot; A tool for detecting hallucinated legal case citations
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add our SSE fix script -->
+    <script>
+        // Override the EventSource to use the correct path
+        const originalEventSource = EventSource;
+        window.EventSource = function(url, options) {
+            console.log('Original URL:', url);
+            
+            // Fix the URL path
+            let fixedUrl = url;
+            if (url.startsWith('/casestrainer/')) {
+                fixedUrl = url.replace('/casestrainer/', '/');
+                console.log('Fixed URL:', fixedUrl);
+            }
+            
+            return new originalEventSource(fixedUrl, options);
+        };
+        
+        console.log('EventSource override applied');
+        
+        // Add debug logging for EventSource
+        const originalAddEventListener = EventSource.prototype.addEventListener;
+        EventSource.prototype.addEventListener = function(type, listener, options) {
+            console.log(`Adding event listener for ${type}`);
+            return originalAddEventListener.call(this, type, function(event) {
+                console.log(`Event received: ${type}`, event);
+                listener(event);
+            }, options);
+        };
+        
+        // Add debug logging for EventSource events
+        const originalOnMessage = Object.getOwnPropertyDescriptor(EventSource.prototype, 'onmessage');
+        Object.defineProperty(EventSource.prototype, 'onmessage', {
+            set: function(fn) {
+                originalOnMessage.set.call(this, function(event) {
+                    console.log('onmessage event received:', event);
+                    fn(event);
+                });
+            }
+        });
+        
+        const originalOnError = Object.getOwnPropertyDescriptor(EventSource.prototype, 'onerror');
+        Object.defineProperty(EventSource.prototype, 'onerror', {
+            set: function(fn) {
+                originalOnError.set.call(this, function(event) {
+                    console.log('onerror event received:', event);
+                    fn(event);
+                });
+            }
+        });
+        
+        const originalOnOpen = Object.getOwnPropertyDescriptor(EventSource.prototype, 'onopen');
+        Object.defineProperty(EventSource.prototype, 'onopen', {
+            set: function(fn) {
+                originalOnOpen.set.call(this, function(event) {
+                    console.log('onopen event received:', event);
+                    fn(event);
+                });
+            }
+        });
+        
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form elements
+            const briefForm = document.getElementById('briefForm');
+            const briefText = document.getElementById('briefText');
+            const fileUpload = document.getElementById('fileUpload');
+            const iterations = document.getElementById('iterations');
+            const threshold = document.getElementById('threshold');
+            const thresholdValue = document.getElementById('thresholdValue');
+            const clearButton = document.getElementById('clearButton');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const resultsSummary = document.getElementById('resultsSummary');
+            const citationsList = document.getElementById('citationsList');
+            
+            // Update threshold value display
+            threshold.addEventListener('input', function() {
+                thresholdValue.textContent = this.value;
+            });
+            
+            // Clear form
+            clearButton.addEventListener('click', function() {
+                briefText.value = '';
+                fileUpload.value = '';
+                iterations.value = '3';
+                threshold.value = '0.7';
+                thresholdValue.textContent = '0.7';
+                document.getElementById('useLocalPdfSearch').checked = false;
+                results.style.display = 'none';
+            });
+            
+            // Track active EventSource
+            let activeEventSource = null;
+            
+            // Form validation
+            function validateForm() {
+                const filePath = document.getElementById('filePath');
+                if (!briefText.value.trim() && (!fileUpload.files || !fileUpload.files[0]) && !filePath.value.trim()) {
+                    alert('Please enter brief text, upload a file, or provide a file path');
+                    return false;
+                }
+                return true;
+            }
+            
+            // Check if API key is valid (basic format check)
+            function isValidApiKey(key) {
+                return key && key.trim().length > 10; // Simple length check
+            }
+            
+            // Show error message
+            function showError(message) {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+                resultsSummary.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+            }
+            
+            // Create accordion item for citation result
+            function createAccordionItem(result, index) {
+                const itemId = `citation-${index}`;
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item';
+                
+                const isHallucinated = result.is_hallucinated;
+                const confidenceClass = isHallucinated ? 'text-danger' : 'text-success';
+                const confidenceText = isHallucinated ? 'Potentially Hallucinated' : 'Likely Real';
+                
+                accordionItem.innerHTML = `
+                    <h2 class="accordion-header">
+                        <button class="accordion-button ${isHallucinated ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${itemId}">
+                            <div class="d-flex justify-content-between w-100 me-2">
+                                <span>${result.citation_text}</span>
+                                <span class="${confidenceClass} ms-2">${confidenceText}</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="${itemId}" class="accordion-collapse collapse ${isHallucinated ? 'show' : ''}">
+                        <div class="accordion-body">
+                            <div class="mb-3">
+                                <strong>Confidence:</strong>
+                                <div class="progress">
+                                    <div class="progress-bar ${isHallucinated ? 'bg-danger' : 'bg-success'}" 
+                                         role="progressbar" 
+                                         style="width: ${result.confidence * 100}%" 
+                                         aria-valuenow="${result.confidence * 100}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        ${(result.confidence * 100).toFixed(1)}%
+                                    </div>
+                                </div>
+                            </div>
+                            ${result.context ? `<div class="mb-3"><strong>Context:</strong><div class="summary-box">${result.context}</div></div>` : ''}
+                            ${result.explanation ? `<div class="mb-3"><strong>Explanation:</strong><div class="summary-box">${result.explanation}</div></div>` : ''}
+                            ${result.error ? `<div class="alert alert-warning"><strong>Error:</strong> ${result.error}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                return accordionItem;
+            }
+            
+            // Handle streaming events from the server
+            function handleStreamEvent(data, resultsContainer, citationResults) {
+                // Hide loading indicator
+                loading.style.display = 'none';
+                
+                console.log('Received event data:', data);
+                
+                // Process different event types
+                switch(data.status) {
+                    case 'started':
+                        // Update progress container with total citations
+                        const progressContainer = document.getElementById('progress-container');
+                        if (progressContainer) {
+                            progressContainer.innerHTML = `<strong>Found ${data.total_citations} citations.</strong> Analyzing...`;
+                        }
+                        
+                        // Update summary
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total_citations}<br>
+                                <strong>Analysis in progress...</strong>
+                            </div>
+                        `;
+                        
+                        // Clear previous logs
+                        document.getElementById('progressLogs').innerHTML = '';
+                        
+                        // Add a log entry for this start event
+                        const startLogEntry = document.createElement('div');
+                        startLogEntry.className = 'alert alert-primary mt-2 mb-2';
+                        startLogEntry.textContent = `${new Date().toLocaleTimeString()}: Analysis started. Found ${data.total_citations} citations to verify.`;
+                        document.getElementById('progressLogs').appendChild(startLogEntry);
+                        break;
+                        
+                    case 'progress':
+                        // Update progress container
+                        const progressCont = document.getElementById('progress-container');
+                        if (progressCont) {
+                            progressCont.innerHTML = `<strong>Progress:</strong> Checking citation ${data.current}/${data.total}: ${data.message}`;
+                        }
+                        
+                        // Add a log entry for this progress event
+                        const logEntry = document.createElement('div');
+                        logEntry.className = 'alert alert-info mt-2 mb-2';
+                        
+                        // Create the basic log message
+                        let logMessage = `${new Date().toLocaleTimeString()}: ${data.message || `Processing citation ${data.current} of ${data.total}`}`;
+                        
+                        // Check if this event has extracted citations data
+                        if (data.extracted_citations) {
+                            // Create a collapsible section for the extracted citations
+                            const citationsId = `citations-${Date.now()}`;
+                            logEntry.innerHTML = `
+                                <div>${logMessage}</div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#${citationsId}">
+                                    Show/Hide Extracted Citations
+                                </button>
+                                <div class="collapse mt-2 show" id="${citationsId}">
+                                    <div class="card card-body">
+                                        <ol class="mb-0">
+                                            ${data.extracted_citations.map(citation => `<li>${citation}</li>`).join('')}
+                                        </ol>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        // Check if this event has API response data
+                        else if (data.api_response) {
+                            // Create a collapsible section for the API response
+                            const responseId = `api-response-${Date.now()}`;
+                            logEntry.innerHTML = `
+                                <div>${logMessage}</div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#${responseId}">
+                                    Show/Hide API Response
+                                </button>
+                                <div class="collapse mt-2" id="${responseId}">
+                                    <div class="card card-body">
+                                        <pre class="mb-0" style="max-height: 200px; overflow-y: auto;">${JSON.stringify(data.api_response, null, 2)}</pre>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            logEntry.textContent = logMessage;
+                        }
+                        
+                        document.getElementById('progressLogs').appendChild(logEntry);
+                        
+                        // Scroll to the bottom of the logs
+                        const logsContainer = document.getElementById('progressLogs');
+                        logsContainer.scrollTop = logsContainer.scrollHeight;
+                        break;
+                        
+                    case 'result':
+                        // Process individual citation result
+                        const result = data.result;
+                        citationResults[data.citation_index] = result;
+                        
+                        // Update hallucinated count
+                        if (result.is_hallucinated) {
+                            hallucinated++;
+                        }
+                        
+                        // Add a log entry for this result event
+                        const resultLogEntry = document.createElement('div');
+                        resultLogEntry.className = result.is_hallucinated ? 'alert alert-danger mt-2 mb-2' : 'alert alert-success mt-2 mb-2';
+                        resultLogEntry.textContent = `${new Date().toLocaleTimeString()}: Citation "${result.citation_text}" is ${result.is_hallucinated ? 'potentially hallucinated' : 'likely real'} (${(result.confidence * 100).toFixed(1)}% confidence)`;
+                        document.getElementById('progressLogs').appendChild(resultLogEntry);
+                        
+                        // Scroll to the bottom of the logs
+                        const resultLogsContainer = document.getElementById('progressLogs');
+                        resultLogsContainer.scrollTop = resultLogsContainer.scrollHeight;
+                        
+                        // Create accordion item for this result
+                        const accordionItem = createAccordionItem(result, data.citation_index);
+                        
+                        // Add to results container
+                        resultsContainer.appendChild(accordionItem);
+                        
+                        // Update summary
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total}<br>
+                                <strong>Analyzed so far:</strong> ${citationResults.length}<br>
+                                <strong>Potentially hallucinated:</strong> ${hallucinated}
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'error':
+                        // Handle error for a specific citation
+                        console.error('Error processing citation:', data.error);
+                        
+                        // Create error accordion item
+                        const errorResult = data.result;
+                        const errorItem = createAccordionItem(errorResult, data.citation_index);
+                        
+                        // Add to results container
+                        resultsContainer.appendChild(errorItem);
+                        break;
+                        
+                    case 'complete':
+                        // Final update with complete results
+                        const progressContFinal = document.getElementById('progress-container');
+                        if (progressContFinal) {
+                            progressContFinal.innerHTML = `<strong>Analysis complete!</strong> Processed ${data.total_citations} citations.`;
+                            progressContFinal.className = 'alert alert-success';
+                        }
+                        
+                        // Update summary with final counts
+                        resultsSummary.innerHTML = `
+                            <div class="alert alert-info">
+                                <strong>Total citations found:</strong> ${data.total_citations}<br>
+                                <strong>Potentially hallucinated citations:</strong> ${data.hallucinated_citations}
+                            </div>
+                        `;
+                        
+                        // Add a log entry for completion
+                        const completeLogEntry = document.createElement('div');
+                        completeLogEntry.className = 'alert alert-success mt-2 mb-2';
+                        completeLogEntry.innerHTML = `<strong>${new Date().toLocaleTimeString()}: Analysis complete!</strong> Processed ${data.total_citations} citations. Found ${data.hallucinated_citations} potentially hallucinated citations.`;
+                        document.getElementById('progressLogs').appendChild(completeLogEntry);
+                        break;
+                }
+            }
+            
+            // Setup EventSource with reconnection logic
+            function setupEventSource(url, options = {}) {
+                console.log('Setting up EventSource with URL:', url);
+                
+                const eventSource = new EventSource(url);
+                
+                eventSource.onopen = function() {
+                    console.log('Connection established');
+                    if (options.onOpen) options.onOpen();
+                };
+                
+                eventSource.onerror = function(event) {
+                    console.error('EventSource error:', event);
+                    if (options.onError) options.onError(event);
+                    
+                    // Close the connection on error
+                    eventSource.close();
+                    
+                    // Attempt to reconnect after a delay
+                    setTimeout(() => {
+                        console.log('Attempting to reconnect...');
+                        setupEventSource(url, options);
+                    }, options.reconnectDelay || 3000);
+                };
+                
+                eventSource.onmessage = function(event) {
+                    console.log('Received message:', event.data);
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (options.onMessage) options.onMessage(data);
+                    } catch (error) {
+                        console.error('Error parsing event data:', error);
+                    }
+                };
+                
+                return eventSource;
+            }
+            
+            // Form submission
+            briefForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate form
+                if (!validateForm()) {
+                    return;
+                }
+                
+                // Show loading indicator
+                loading.style.display = 'block';
+                
+                // Initialize results display
+                results.style.display = 'block';
+                resultsSummary.innerHTML = '<div class="alert alert-info">Analysis started. Results will appear as they become available.</div>';
+                citationsList.innerHTML = '<div id="progress-container" class="alert alert-secondary">Extracting citations...</div>';
+                
+                // Clear previous logs
+                document.getElementById('progressLogs').innerHTML = '';
+                
+                // Create a container for results that will be populated as they come in
+                const resultsContainer = document.createElement('div');
+                resultsContainer.className = 'accordion';
+                resultsContainer.id = 'citationsAccordion';
+                citationsList.appendChild(resultsContainer);
+                
+                // Track citation results
+                const citationResults = [];
+                let hallucinated = 0;
+                
+                // Add initial log entry
+                const initialLogEntry = document.createElement('div');
+                initialLogEntry.className = 'alert alert-primary mt-2 mb-2';
+                initialLogEntry.textContent = `${new Date().toLocaleTimeString()}: Starting analysis...`;
+                document.getElementById('progressLogs').appendChild(initialLogEntry);
+                
+                // Close any existing EventSource
+                if (activeEventSource) {
+                    activeEventSource.close();
+                }
+                
+                // Create form data for the request
+                const formData = new FormData(briefForm);
+                
+                // Submit the form via AJAX
+                $.ajax({
+                    url: '/analyze',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        console.log('Analysis started:', response);
+                        
+                        if (response.status === 'success') {
+                            // Add a log entry for successful analysis start
+                            const startLogEntry = document.createElement('div');
+                            startLogEntry.className = 'alert alert-primary mt-2 mb-2';
+                            startLogEntry.textContent = `${new Date().toLocaleTimeString()}: Analysis started with ID: ${response.analysis_id}`;
+                            document.getElementById('progressLogs').appendChild(startLogEntry);
+                            
+                            // Setup event source for streaming updates using our new dedicated SSE endpoint
+                            console.log('Setting up EventSource with URL:', '/stream?id=' + response.analysis_id);
+                            activeEventSource = new EventSource('/stream?id=' + response.analysis_id);
+                            
+                            // Debug logging for connection events
+                            activeEventSource.onopen = function(e) {
+                                console.log('SSE Connection opened:', e);
+                                const connectionLogEntry = document.createElement('div');
+                                connectionLogEntry.className = 'alert alert-info mt-2 mb-2';
+                                connectionLogEntry.textContent = `${new Date().toLocaleTimeString()}: Connected to event stream`;
+                                document.getElementById('progressLogs').appendChild(connectionLogEntry);
+                            };
+                            
+                            activeEventSource.onerror = function(e) {
+                                console.error('SSE Connection error:', e);
+                                const errorLogEntry = document.createElement('div');
+                                errorLogEntry.className = 'alert alert-danger mt-2 mb-2';
+                                errorLogEntry.textContent = `${new Date().toLocaleTimeString()}: Connection error. Falling back to polling.`;
+                                document.getElementById('progressLogs').appendChild(errorLogEntry);
+                                
+                                // Close the connection
+                                activeEventSource.close();
+                                activeEventSource = null;
+                                
+                                // Fall back to polling
+                                pollForResults(response.analysis_id, resultsContainer, citationResults);
+                            };
+                            
+                            // Register event handlers for different event types
+                            activeEventSource.addEventListener('started', function(e) {
+                                console.log('Received started event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing started event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('progress', function(e) {
+                                console.log('Received progress event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing progress event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('result', function(e) {
+                                console.log('Received result event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing result event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('complete', function(e) {
+                                console.log('Received complete event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                    
+                                    // Close the connection after completion
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                } catch (error) {
+                                    console.error('Error parsing complete event:', error);
+                                }
+                            });
+                            
+                            // Default message handler
+                            activeEventSource.onmessage = function(e) {
+                                console.log('Received default message:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    const logEntry = document.createElement('div');
+                                    logEntry.className = 'alert alert-secondary mt-2 mb-2';
+                                    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${data.message || 'Unknown message'}`;
+                                    document.getElementById('progressLogs').appendChild(logEntry);
+                                } catch (error) {
+                                    console.error('Error parsing message:', error);
+                                }
+                            };
+                        } else {
+                            // Show error
+                            showError(response.message || 'Unknown error');
+                            loading.style.display = 'none';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error starting analysis:', error);
+                        showError('Error starting analysis: ' + error);
+                        loading.style.display = 'none';
+                    }
+                });
+                                activeEventSource.close();
+                                activeEventSource = null;
+                                
+                                // Fall back to polling
+                                pollForResults(response.analysis_id, resultsContainer, citationResults);
+                            };
+                            
+                            // Register event handlers for different event types
+                            activeEventSource.addEventListener('started', function(e) {
+                                console.log('Received started event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing started event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('progress', function(e) {
+                                console.log('Received progress event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing progress event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('result', function(e) {
+                                console.log('Received result event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                } catch (error) {
+                                    console.error('Error parsing result event:', error);
+                                }
+                            });
+                            
+                            activeEventSource.addEventListener('complete', function(e) {
+                                console.log('Received complete event:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    handleStreamEvent(data, resultsContainer, citationResults);
+                                    
+                                    // Close the connection after completion
+                                    activeEventSource.close();
+                                    activeEventSource = null;
+                                } catch (error) {
+                                    console.error('Error parsing complete event:', error);
+                                }
+                            });
+                            
+                            // Default message handler
+                            activeEventSource.onmessage = function(e) {
+                                console.log('Received default message:', e.data);
+                                try {
+                                    const data = JSON.parse(e.data);
+                                    const logEntry = document.createElement('div');
+                                    logEntry.className = 'alert alert-secondary mt-2 mb-2';
+                                    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${data.message || 'Unknown message'}`;
+                                    document.getElementById('progressLogs').appendChild(logEntry);
+                                } catch (error) {
+                                    console.error('Error parsing message:', error);
+                                }
+                            };
+                        } else {
+                            // Show error
+                            showError(response.message || 'Unknown error');
+                            loading.style.display = 'none';
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error starting analysis:', error);
+                        showError('Error starting analysis: ' + error);
+                        loading.style.display = 'none';
+                    }
+                });            $('#progress-container').removeClass('alert-info').addClass('alert-danger')
+                                .html('<strong>Error:</strong> Failed to start analysis. Please try again.');
+                        }
+                    });
+                });
+                
+                    // Function to poll for results
+                    function pollForResults(id, resultsContainer, citationResults, processedEventCount = 0) {
+                        console.log('Polling for results with ID:', id, 'Processed events:', processedEventCount);
+                function pollForResults(id, resultsContainer, citationResults, processedEventCount = 0) {
+                    console.log('Polling for results with ID:', id, 'Processed events:', processedEventCount);
+                    
+                    // Make sure we have a valid ID
+                    if (!id) {
+                        console.error('Invalid analysis ID');
+                        showError('Invalid analysis ID. Please try again.');
+                        return;
+                    }
+                    
+                    // Add debug logging
+                    const url = `/analyze_status?id=${id}`;
+                    console.log('Polling URL:', url);
+                    
+                    fetch(url)
+                    .then(response => {
+                        console.log('Poll response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Poll response data:', data);
+                        
+                        // Process only new events
+                        if (data.events && data.events.length > 0) {
+                            // Calculate how many new events we have
+                            const newEvents = data.events.slice(processedEventCount);
+                            console.log(`Found ${newEvents.length} new events`);
+                            
+                            // Process only new events
+                            newEvents.forEach(event => {
+                                console.log('Processing new event:', event);
+                                handleStreamEvent(event, resultsContainer, citationResults);
+                            });
+                            
+                            // Update the processed event count
+                            processedEventCount = data.events.length;
+                        }
+                        
+                        // Continue polling if analysis is not complete
+                        if (data.status !== 'complete') {
+                            console.log('Analysis not complete, continuing polling...');
+                            setTimeout(() => pollForResults(id, resultsContainer, citationResults, processedEventCount), 1000);
+                        } else {
+                            console.log('Analysis complete!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error polling for results:', error);
+                        const progressContainer = document.getElementById('progress-container');
+                        if (progressContainer) {
+                            progressContainer.innerHTML = '<strong>Warning:</strong> Connection issue detected. Retrying...';
+                            progressContainer.className = 'alert alert-warning';
+                        }
+                        
+                        // Retry after a delay - keep the same processedEventCount
+                        setTimeout(() => pollForResults(id, resultsContainer, citationResults, processedEventCount), 3000);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

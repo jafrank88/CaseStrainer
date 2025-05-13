@@ -1,0 +1,38 @@
+{
+  "citation": "60 F. Supp. 2d",
+  "normalized_citation": "60 F. Supp. 2d",
+  "components": {
+    "volume": "60",
+    "reporter": "F. Supp.",
+    "page": "2",
+    "court": "United States District Court",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:34:50.359892",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": true,
+      "source": "Database",
+      "match_type": "component",
+      "citation_id": 3818
+    }
+  },
+  "verified_by": "Database"
+}

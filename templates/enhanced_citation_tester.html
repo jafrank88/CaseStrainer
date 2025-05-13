@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Citation Tester - CaseStrainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .citation-card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .citation-card.confirmed {
+            border-left: 5px solid #28a745;
+        }
+        .citation-card.unconfirmed {
+            border-left: 5px solid #dc3545;
+        }
+        .citation-details {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .confidence-meter {
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            background-color: #e9ecef;
+        }
+        .confidence-value {
+            height: 100%;
+            border-radius: 5px;
+            background-color: #007bff;
+        }
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .format-badge {
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+        .jurisdiction-badge {
+            font-size: 0.8rem;
+            background-color: #6c757d;
+            color: white;
+        }
+        .topic-badge {
+            font-size: 0.8rem;
+            background-color: #17a2b8;
+            color: white;
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .progress-bar-container {
+            height: 30px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">CaseStrainer</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/citation_tester">Citation Tester</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/enhanced_citation_tester">Enhanced Citation Tester <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Enhanced Citation Tester</h1>
+        <p class="lead">Test the citation verification system with enhanced unconfirmed citations. This tool helps identify which citation formats are most likely to be verified correctly.</p>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="filter-section">
+                    <h4>Filters</h4>
+                    <form id="filter-form">
+                        <div class="form-group">
+                            <label for="format-filter">Citation Format</label>
+                            <select class="form-control" id="format-filter">
+                                <option value="all">All Formats</option>
+                                <option value="us_reports">U.S. Reports</option>
+                                <option value="federal_reporter">Federal Reporter</option>
+                                <option value="federal_supplement">Federal Supplement</option>
+                                <option value="supreme_court_reporter">Supreme Court Reporter</option>
+                                <option value="washington_reports">Washington Reports</option>
+                                <option value="washington_app_reports">Washington App Reports</option>
+                                <option value="lawyers_edition">Lawyers Edition</option>
+                                <option value="pacific_reporter">Pacific Reporter</option>
+                                <option value="atlantic_reporter">Atlantic Reporter</option>
+                                <option value="north_eastern_reporter">North Eastern Reporter</option>
+                                <option value="new_york_reports">New York Reports</option>
+                                <option value="california_reports">California Reports</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jurisdiction-filter">Jurisdiction</label>
+                            <select class="form-control" id="jurisdiction-filter">
+                                <option value="all">All Jurisdictions</option>
+                                <option value="federal">Federal</option>
+                                <option value="state">State</option>
+                                <option value="washington">Washington</option>
+                                <option value="california">California</option>
+                                <option value="new_york">New York</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="likelihood-filter">Minimum Likelihood</label>
+                            <input type="range" class="form-control-range" id="likelihood-filter" min="0" max="1" step="0.1" value="0">
+                            <small id="likelihood-value">0.0</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="test-count">Number of Citations to Test</label>
+                            <input type="number" class="form-control" id="test-count" min="1" max="50" value="10">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+                    </form>
+                </div>
+                
+                <div class="test-results">
+                    <h4>Test Results</h4>
+                    <div id="results-summary">
+                        <p>No tests run yet.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Test Citations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="test-progress" style="display: none;">
+                            <h5>Testing Citations...</h5>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="test-actions">
+                            <button id="run-test-btn" class="btn btn-success">Run Verification Test</button>
+                            <button id="reset-btn" class="btn btn-secondary ml-2">Reset</button>
+                        </div>
+                        
+                        <div id="citations-container" class="mt-4">
+                            <!-- Citations will be loaded here -->
+                            <div class="text-center py-5" id="loading-spinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading citations...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            // Update likelihood value display
+            $('#likelihood-filter').on('input', function() {
+                $('#likelihood-value').text($(this).val());
+            });
+            
+            // Load citations on page load
+            loadCitations();
+            
+            // Filter form submission
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+                loadCitations();
+            });
+            
+            // Run test button
+            $('#run-test-btn').on('click', function() {
+                runVerificationTest();
+            });
+            
+            // Reset button
+            $('#reset-btn').on('click', function() {
+                resetTest();
+            });
+        });
+        
+        function loadCitations() {
+            $('#loading-spinner').show();
+            
+            // Get filter values
+            const formatFilter = $('#format-filter').val();
+            const jurisdictionFilter = $('#jurisdiction-filter').val();
+            const likelihoodFilter = parseFloat($('#likelihood-filter').val());
+            const testCount = parseInt($('#test-count').val());
+            
+            // Make AJAX request to get filtered citations
+            $.ajax({
+                url: '/api/get_enhanced_citations',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    format: formatFilter,
+                    jurisdiction: jurisdictionFilter,
+                    min_likelihood: likelihoodFilter,
+                    count: testCount
+                }),
+                success: function(response) {
+                    displayCitations(response.citations);
+                },
+                error: function(error) {
+                    console.error('Error loading citations:', error);
+                    $('#citations-container').html('<div class="alert alert-danger">Error loading citations. Please try again.</div>');
+                },
+                complete: function() {
+                    $('#loading-spinner').hide();
+                }
+            });
+        }
+        
+        function displayCitations(citations) {
+            if (!citations || citations.length === 0) {
+                $('#citations-container').html('<div class="alert alert-info">No citations found matching the current filters.</div>');
+                return;
+            }
+            
+            let html = '';
+            
+            citations.forEach(function(citation, index) {
+                const formatBadge = `<span class="badge badge-secondary format-badge">${citation.format_type || 'unknown'}</span>`;
+                const jurisdictionBadge = `<span class="badge jurisdiction-badge">${citation.jurisdiction || 'Unknown'}</span>`;
+                const topicBadge = citation.legal_topic ? `<span class="badge topic-badge">${citation.legal_topic}</span>` : '';
+                
+                html += `
+                    <div class="card citation-card" data-index="${index}" data-citation-id="${citation.id || index}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title">${citation.case_name}</h5>
+                                <div>
+                                    ${formatBadge}
+                                </div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">${citation.citation_text}</h6>
+                            <div class="mt-2">
+                                ${jurisdictionBadge} ${topicBadge}
+                            </div>
+                            <div class="citation-details mt-2">
+                                <div>Likelihood of being real: ${citation.likelihood_of_being_real || 'Unknown'}</div>
+                                <div class="confidence-meter">
+                                    <div class="confidence-value" style="width: ${(citation.likelihood_of_being_real || 0) * 100}%"></div>
+                                </div>
+                            </div>
+                            <div class="verification-result mt-3" style="display: none;">
+                                <!-- Verification results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            $('#citations-container').html(html);
+        }
+        
+        function runVerificationTest() {
+            // Get all citation cards
+            const citationCards = $('.citation-card');
+            if (citationCards.length === 0) {
+                return;
+            }
+            
+            // Show progress bar
+            $('#test-progress').show();
+            $('#test-actions').hide();
+            
+            // Prepare citations for testing
+            const citations = [];
+            citationCards.each(function() {
+                const index = $(this).data('index');
+                const citation = {
+                    citation_text: $(this).find('.card-subtitle').text(),
+                    case_name: $(this).find('.card-title').text(),
+                    document_name: "Enhanced Test Document",
+                    document_url: "https://example.com/test.pdf",
+                    page_number: index + 1
+                };
+                citations.push(citation);
+            });
+            
+            // Make API request to verify citations
+            $.ajax({
+                url: '/api/reprocess_citations',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ citations: citations }),
+                success: function(response) {
+                    displayVerificationResults(response);
+                },
+                error: function(error) {
+                    console.error('Error verifying citations:', error);
+                    $('#test-progress').hide();
+                    $('#test-actions').show();
+                    alert('Error verifying citations. Please try again.');
+                }
+            });
+        }
+        
+        function displayVerificationResults(response) {
+            // Hide progress bar
+            $('#test-progress').hide();
+            $('#test-actions').show();
+            
+            // Display summary
+            const totalProcessed = response.total_processed;
+            const newlyConfirmed = response.newly_confirmed;
+            const stillUnconfirmed = response.still_unconfirmed;
+            
+            const summaryHtml = `
+                <div class="text-center">
+                    <h5>Test Summary</h5>
+                    <div class="progress-bar-container">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: ${(newlyConfirmed / totalProcessed) * 100}%" 
+                                aria-valuenow="${newlyConfirmed}" aria-valuemin="0" aria-valuemax="${totalProcessed}">
+                                ${newlyConfirmed} Confirmed
+                            </div>
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: ${(stillUnconfirmed / totalProcessed) * 100}%" 
+                                aria-valuenow="${stillUnconfirmed}" aria-valuemin="0" aria-valuemax="${totalProcessed}">
+                                ${stillUnconfirmed} Unconfirmed
+                            </div>
+                        </div>
+                    </div>
+                    <p>Total Processed: ${totalProcessed}</p>
+                    <p>Newly Confirmed: ${newlyConfirmed}</p>
+                    <p>Still Unconfirmed: ${stillUnconfirmed}</p>
+                </div>
+            `;
+            
+            $('#results-summary').html(summaryHtml);
+            
+            // Display individual results
+            response.details.forEach(function(detail, index) {
+                const card = $(`.citation-card[data-index="${index}"]`);
+                if (card.length === 0) return;
+                
+                // Update card styling based on confirmation status
+                if (detail.confirmed) {
+                    card.removeClass('unconfirmed').addClass('confirmed');
+                } else {
+                    card.removeClass('confirmed').addClass('unconfirmed');
+                }
+                
+                // Display verification result
+                const resultHtml = `
+                    <div class="alert ${detail.confirmed ? 'alert-success' : 'alert-danger'}">
+                        <strong>${detail.confirmed ? 'Confirmed' : 'Unconfirmed'}</strong>
+                        <p>${detail.explanation}</p>
+                        ${detail.source ? `<p>Source: ${detail.source}</p>` : ''}
+                        <p>Confidence: ${detail.confidence}</p>
+                    </div>
+                `;
+                
+                card.find('.verification-result').html(resultHtml).show();
+            });
+        }
+        
+        function resetTest() {
+            // Hide all verification results
+            $('.verification-result').hide();
+            
+            // Remove confirmed/unconfirmed classes
+            $('.citation-card').removeClass('confirmed unconfirmed');
+            
+            // Reset summary
+            $('#results-summary').html('<p>No tests run yet.</p>');
+        }
+    </script>
+</body>
+</html>

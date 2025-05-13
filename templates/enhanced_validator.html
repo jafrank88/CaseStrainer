@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Citation Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .enhanced-validator {
+            padding: 20px;
+        }
+        .validation-methods {
+            margin-top: 20px;
+        }
+        .validation-results {
+            margin-top: 20px;
+        }
+        .citation-results {
+            margin-top: 2rem;
+        }
+        .nav-tabs .badge {
+            font-size: 0.8em;
+        }
+        .progress {
+            height: 1.5rem;
+        }
+        .progress-bar {
+            line-height: 1.5rem;
+            font-size: 0.8rem;
+        }
+        .table th {
+            white-space: nowrap;
+        }
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Enhanced Citation Validator</h2>
+        <p class="lead">
+            This advanced tool validates legal citations using multiple sources and provides detailed citation information, context, and correction suggestions.
+        </p>
+        
+        <!-- Nav tabs for different validation methods -->
+        <ul class="nav nav-tabs" id="validationTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" 
+                    type="button" role="tab" aria-controls="single" aria-selected="true">
+                    Single Citation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="document-tab" data-bs-toggle="tab" data-bs-target="#document" 
+                    type="button" role="tab" aria-controls="document" aria-selected="false">
+                    Upload Document
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" 
+                    type="button" role="tab" aria-controls="text" aria-selected="false">
+                    Paste Text
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" 
+                    type="button" role="tab" aria-controls="url" aria-selected="false">
+                    URL Analysis
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Tab content -->
+        <div class="tab-content" id="validationTabsContent">
+            <!-- Single Citation Tab -->
+            <div class="tab-pane fade show active" id="single" role="tabpanel" aria-labelledby="single-tab">
+                <div class="card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Validate Citation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="citation-input">Enter Citation:</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="citation-input"
+                                    class="form-control"
+                                    placeholder="e.g., 410 U.S. 113"
+                                />
+                                <div class="input-group-append">
+                                    <button
+                                        class="btn btn-primary"
+                                        id="validate-btn"
+                                    >
+                                        <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                        Validate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Validation Methods -->
+                        <div class="validation-methods mt-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="use-enhanced" checked>
+                                <label class="form-check-label" for="use-enhanced">Enhanced Validation</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="use-ml" checked>
+                                <label class="form-check-label" for="use-ml">ML Classifier</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="use-correction" checked>
+                                <label class="form-check-label" for="use-correction">Suggest Corrections</label>
+                            </div>
+                        </div>
+
+                        <!-- Validation Results -->
+                        <div id="validation-results" class="mt-4" style="display: none;">
+                            <!-- Results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Document Upload Tab -->
+            <div class="tab-pane fade" id="document" role="tabpanel" aria-labelledby="document-tab">
+                <div class="card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Upload Document</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="document-upload">Upload a legal document:</label>
+                            <div class="input-group mb-3">
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    id="document-upload"
+                                    accept=".txt,.pdf,.doc,.docx,.rtf,.odt,.html,.htm"
+                                />
+                                <div class="input-group-append">
+                                    <button 
+                                        class="btn btn-primary" 
+                                        id="analyze-document-btn"
+                                    >
+                                        <span id="document-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                        Analyze
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Supported formats: TXT, PDF, DOC, DOCX, RTF, ODT, HTML, HTM</small>
+                        </div>
+                        
+                        <!-- Document Analysis Results -->
+                        <div id="document-results" class="mt-4" style="display: none;">
+                            <!-- Results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Text Paste Tab -->
+            <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
+                <div class="card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Paste Text</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="text-input">Paste legal text:</label>
+                            <textarea
+                                id="text-input"
+                                class="form-control"
+                                rows="10"
+                                placeholder="Paste your legal document text here..."
+                            ></textarea>
+                        </div>
+                        <button 
+                            class="btn btn-primary mt-3" 
+                            id="analyze-text-btn"
+                        >
+                            <span id="text-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                            Analyze Text
+                        </button>
+                        
+                        <!-- Text Analysis Results -->
+                        <div id="text-results" class="mt-4" style="display: none;">
+                            <!-- Results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URL Analysis Tab -->
+            <div class="tab-pane fade" id="url" role="tabpanel" aria-labelledby="url-tab">
+                <div class="card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">URL Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="url-input">Enter URL:</label>
+                            <div class="input-group mb-3">
+                                <input 
+                                    type="url" 
+                                    class="form-control" 
+                                    id="url-input"
+                                    placeholder="https://example.com/document.pdf"
+                                />
+                                <div class="input-group-append">
+                                    <button 
+                                        class="btn btn-primary" 
+                                        id="analyze-url-btn"
+                                    >
+                                        <span id="url-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                        Analyze Citations
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Enter a URL to a legal document (PDF, HTML, etc.)</small>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div id="url-progress" class="progress mt-3" style="display: none;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        
+                        <!-- URL Analysis Results -->
+                        <div id="url-results" class="mt-4" style="display: none;">
+                            <!-- Results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="mt-4" style="display: none;">
+            <h2>Analysis Results</h2>
+            
+            <!-- Summary Bar -->
+            <div class="alert alert-info mb-4">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Found <span id="totalCitations">0</span> Citations
+                </h5>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs mb-4" id="citationTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link active" 
+                        id="courtlistener-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#courtlistener" 
+                        type="button" 
+                        role="tab"
+                    >
+                        Found in CL
+                        <span class="badge bg-primary ms-2" id="courtListenerCount">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link" 
+                        id="elsewhere-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#elsewhere" 
+                        type="button" 
+                        role="tab"
+                    >
+                        Found Elsewhere
+                        <span class="badge bg-success ms-2" id="elsewhereCount">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link" 
+                        id="notfound-tab" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#notfound" 
+                        type="button" 
+                        role="tab"
+                    >
+                        Not Found
+                        <span class="badge bg-danger ms-2" id="notFoundCount">0</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="citationTabsContent">
+                <!-- CourtListener Tab -->
+                <div class="tab-pane fade show active" id="courtlistener" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Citation</th>
+                                    <th>Case Name</th>
+                                    <th>Court</th>
+                                    <th>Year</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courtListenerTableBody">
+                                <!-- CourtListener citations will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Found Elsewhere Tab -->
+                <div class="tab-pane fade" id="elsewhere" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Citation</th>
+                                    <th>Case Name</th>
+                                    <th>Source</th>
+                                    <th>Validation Method</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="elsewhereTableBody">
+                                <!-- Elsewhere citations will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Not Found Tab -->
+                <div class="tab-pane fade" id="notfound" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Citation</th>
+                                    <th>Possible Case Name</th>
+                                    <th>Confidence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notFoundTableBody">
+                                <!-- Not found citations will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation Details Modal -->
+        <div class="modal fade" id="citationDetailsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Citation Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="citationDetailsContent">
+                        <!-- Citation details will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citation Suggestions Modal -->
+        <div class="modal fade" id="citationSuggestionsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Citation Suggestions</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="citationSuggestionsContent">
+                        <!-- Citation suggestions will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Single citation validation
+            const citationInput = document.getElementById('citation-input');
+            const validateBtn = document.getElementById('validate-btn');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const validationResults = document.getElementById('validation-results');
+            const useEnhanced = document.getElementById('use-enhanced');
+            const useML = document.getElementById('use-ml');
+            const useCorrection = document.getElementById('use-correction');
+
+            // Document upload
+            const documentUpload = document.getElementById('document-upload');
+            const analyzeDocumentBtn = document.getElementById('analyze-document-btn');
+            const documentSpinner = document.getElementById('document-spinner');
+            const documentResults = document.getElementById('document-results');
+
+            // Text paste
+            const textInput = document.getElementById('text-input');
+            const analyzeTextBtn = document.getElementById('analyze-text-btn');
+            const textSpinner = document.getElementById('text-spinner');
+            const textResults = document.getElementById('text-results');
+
+            // URL analysis
+            const urlInput = document.getElementById('url-input');
+            const analyzeUrlBtn = document.getElementById('analyze-url-btn');
+            const urlSpinner = document.getElementById('url-spinner');
+            const urlResults = document.getElementById('url-results');
+            const urlProgress = document.getElementById('url-progress');
+            const progressBar = urlProgress.querySelector('.progress-bar');
+
+            // Determine base path for API calls
+            const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer/api' : '/api';
+
+            // Single citation validation
+            validateBtn.addEventListener('click', async function() {
+                if (!citationInput.value.trim()) {
+                    alert('Please enter a citation to validate');
+                    return;
+                }
+
+                loadingSpinner.style.display = 'inline-block';
+                validateBtn.disabled = true;
+                validationResults.style.display = 'none';
+
+                try {
+                    const response = await axios.post(`${basePath}/enhanced-validate-citation`, {
+                        citation: citationInput.value.trim()
+                    });
+
+                    // Display results
+                    validationResults.innerHTML = formatValidationResults(response.data);
+                    validationResults.style.display = 'block';
+                } catch (error) {
+                    console.error('Error validating citation:', error);
+                    alert('Error validating citation: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                    validateBtn.disabled = false;
+                }
+            });
+
+            // Document upload
+            analyzeDocumentBtn.addEventListener('click', async function() {
+                if (!documentUpload.files || documentUpload.files.length === 0) {
+                    alert('Please select a file to upload');
+                    return;
+                }
+
+                documentSpinner.style.display = 'inline-block';
+                analyzeDocumentBtn.disabled = true;
+                documentResults.style.display = 'none';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', documentUpload.files[0]);
+
+                    const response = await axios.post(`${basePath}/enhanced-analyze`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    // Display results
+                    documentResults.innerHTML = formatDocumentResults(response.data);
+                    documentResults.style.display = 'block';
+                } catch (error) {
+                    console.error('Error analyzing document:', error);
+                    alert('Error analyzing document: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    documentSpinner.style.display = 'none';
+                    analyzeDocumentBtn.disabled = false;
+                }
+            });
+
+            // Text paste
+            analyzeTextBtn.addEventListener('click', async function() {
+                if (!textInput.value.trim()) {
+                    alert('Please paste some text to analyze');
+                    return;
+                }
+
+                textSpinner.style.display = 'inline-block';
+                analyzeTextBtn.disabled = true;
+                textResults.style.display = 'none';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('text', textInput.value.trim());
+
+                    const response = await axios.post(`${basePath}/enhanced-analyze`, formData);
+
+                    // Display results
+                    textResults.innerHTML = formatTextResults(response.data);
+                    textResults.style.display = 'block';
+                } catch (error) {
+                    console.error('Error analyzing text:', error);
+                    alert('Error analyzing text: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    textSpinner.style.display = 'none';
+                    analyzeTextBtn.disabled = false;
+                }
+            });
+
+            // URL analysis
+            analyzeUrlBtn.addEventListener('click', async function() {
+                const url = urlInput.value.trim();
+                if (!url) {
+                    alert('Please enter a URL');
+                    return;
+                }
+
+                // Show loading state
+                urlSpinner.style.display = 'inline-block';
+                analyzeUrlBtn.disabled = true;
+                urlProgress.style.display = 'flex';
+                progressBar.style.width = '0%';
+
+                try {
+                    // Start progress animation
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress = Math.min(progress + 5, 90);
+                        progressBar.style.width = `${progress}%`;
+                    }, 500);
+
+                    // Fetch and analyze URL
+                    const response = await axios.post(`${basePath}/fetch_url`, { url });
+                    
+                    // Complete progress
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+
+                    if (response.data.status === 'success') {
+                        // Display results
+                        urlResults.style.display = 'block';
+                        urlResults.innerHTML = `
+                            <div class="alert alert-success">
+                                <h5>Analysis Complete</h5>
+                                <p>Successfully analyzed ${response.data.citations_count || 0} citations from the document.</p>
+                            </div>
+                            ${response.data.citations && response.data.citations.length > 0 ? `
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Citation</th>
+                                                <th>Status</th>
+                                                <th>Validation Method</th>
+                                                <th>Case Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${response.data.citations.map(citation => {
+                                                const validation = response.data.validated_citations.find(v => v.citation === citation);
+                                                return `
+                                                    <tr>
+                                                        <td>${citation}</td>
+                                                        <td>
+                                                            <span class="badge ${validation ? 'bg-success' : 'bg-warning'}">
+                                                                ${validation ? 'Verified' : 'Not Verified'}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            ${validation ? 
+                                                                `<span class="badge bg-primary">${validation.validation_method}</span>` : 
+                                                                '-'}
+                                                        </td>
+                                                        <td>${validation ? validation.case_name : '-'}</td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ` : '<div class="alert alert-warning mt-3">No citations found in the document.</div>'}
+                        `;
+                    } else {
+                        throw new Error(response.data.message || 'Analysis failed');
+                    }
+                } catch (error) {
+                    urlResults.style.display = 'block';
+                    urlResults.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h5>Error</h5>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                } finally {
+                    // Reset loading state
+                    urlSpinner.style.display = 'none';
+                    analyzeUrlBtn.disabled = false;
+                    setTimeout(() => {
+                        urlProgress.style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 1000);
+                }
+            });
+
+            // Helper functions to format results
+            function formatValidationResults(data) {
+                return `
+                    <div class="alert ${data.verified ? 'alert-success' : 'alert-danger'}">
+                        <h5 class="alert-heading">
+                            <i class="fas ${data.verified ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                            ${data.verified ? 'Citation Verified' : 'Citation Not Verified'}
+                        </h5>
+                        <p class="mb-0"><strong>Citation:</strong> ${data.citation}</p>
+                        ${data.case_name ? `<p class="mb-0"><strong>Case Name:</strong> ${data.case_name}</p>` : ''}
+                        ${data.verified_by ? `<p class="mb-0"><strong>Verified By:</strong> ${data.verified_by}</p>` : ''}
+                        ${data.validation_method ? `<p class="mb-0"><strong>Validation Method:</strong> <span class="badge bg-primary">${data.validation_method}</span></p>` : ''}
+                        ${data.error ? `<p class="mb-0"><strong>Error:</strong> ${data.error}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            function formatDocumentResults(data) {
+                return `
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Analysis Results</h5>
+                        <p><strong>Document:</strong> ${data.file_name || 'Uploaded document'}</p>
+                        <p><strong>Citations Found:</strong> ${data.citations_count}</p>
+                    </div>
+                    ${formatCitationsTable(data.validation_results)}
+                `;
+            }
+
+            function formatTextResults(data) {
+                return `
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading">Analysis Results</h5>
+                        <p><strong>Text Length:</strong> ${data.document_length} characters</p>
+                        <p><strong>Citations Found:</strong> ${data.citations_count}</p>
+                    </div>
+                    ${formatCitationsTable(data.validation_results)}
+                `;
+            }
+
+            function formatCitationsTable(results) {
+                if (!results || results.length === 0) {
+                    return '<div class="alert alert-warning">No citations found</div>';
+                }
+
+                return `
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Citation</th>
+                                    <th>Status</th>
+                                    <th>Validation Method</th>
+                                    <th>Case Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${results.map(result => `
+                                    <tr>
+                                        <td>${result.citation}</td>
+                                        <td>
+                                            <span class="badge ${result.verified ? 'bg-success' : 'bg-danger'}">
+                                                ${result.verified ? 'Verified' : 'Not Verified'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            ${result.validation_method ? 
+                                                `<span class="badge bg-primary">${result.validation_method}</span>` : 
+                                                '-'}
+                                        </td>
+                                        <td>${result.case_name || '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function displayResults(data) {
+                // Show results container
+                document.getElementById('results').style.display = 'block';
+                
+                // Update total citations count
+                const totalCitations = data.citations_count || 0;
+                document.getElementById('totalCitations').textContent = totalCitations;
+                
+                // Categorize citations
+                const courtListenerCitations = [];
+                const elsewhereCitations = [];
+                const notFoundCitations = [];
+                
+                data.validation_results.forEach(citation => {
+                    if (citation.verified && citation.validation_method === 'CourtListener') {
+                        courtListenerCitations.push(citation);
+                    } else if (citation.verified) {
+                        elsewhereCitations.push(citation);
+                    } else {
+                        notFoundCitations.push(citation);
+                    }
+                });
+                
+                // Update counts
+                document.getElementById('courtListenerCount').textContent = courtListenerCitations.length;
+                document.getElementById('elsewhereCount').textContent = elsewhereCitations.length;
+                document.getElementById('notFoundCount').textContent = notFoundCitations.length;
+                
+                // Display citations in each tab
+                displayCourtListenerCitations(courtListenerCitations);
+                displayElsewhereCitations(elsewhereCitations);
+                displayNotFoundCitations(notFoundCitations);
+            }
+
+            function displayCourtListenerCitations(citations) {
+                const tbody = document.getElementById('courtListenerTableBody');
+                tbody.innerHTML = '';
+                
+                citations.forEach(citation => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${citation.citation}</td>
+                        <td>${citation.case_name || 'N/A'}</td>
+                        <td>${citation.court || 'N/A'}</td>
+                        <td>${citation.year || 'N/A'}</td>
+                        <td>
+                            ${citation.url ? `
+                                <a href="${citation.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-external-link-alt"></i> View
+                                </a>
+                            ` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function displayElsewhereCitations(citations) {
+                const tbody = document.getElementById('elsewhereTableBody');
+                tbody.innerHTML = '';
+                
+                citations.forEach(citation => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${citation.citation}</td>
+                        <td>${citation.case_name || 'N/A'}</td>
+                        <td>${citation.source}</td>
+                        <td>
+                            <span class="badge ${getBadgeClass(citation.validation_method)}">
+                                ${citation.validation_method}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="showCitationDetails(${JSON.stringify(citation).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function displayNotFoundCitations(citations) {
+                const tbody = document.getElementById('notFoundTableBody');
+                tbody.innerHTML = '';
+                
+                citations.forEach(citation => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${citation.citation}</td>
+                        <td>${citation.case_name || 'Unknown'}</td>
+                        <td>
+                            <div class="progress">
+                                <div 
+                                    class="progress-bar bg-danger" 
+                                    role="progressbar" 
+                                    style="width: ${(citation.confidence * 100) + '%'}"
+                                    aria-valuenow="${citation.confidence * 100}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    ${Math.round(citation.confidence * 100)}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning" onclick="showCitationSuggestions(${JSON.stringify(citation).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-lightbulb"></i> Suggestions
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function getBadgeClass(method) {
+                const classes = {
+                    'Landmark': 'bg-success',
+                    'Multitool': 'bg-info',
+                    'Other': 'bg-secondary',
+                    'LEXIS': 'bg-primary'
+                };
+                return classes[method] || 'bg-primary';
+            }
+
+            function showCitationDetails(citation) {
+                const content = document.getElementById('citationDetailsContent');
+                content.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Citation Information</h6>
+                            <p><strong>Citation:</strong> ${citation.citation}</p>
+                            <p><strong>Case Name:</strong> ${citation.case_name || 'N/A'}</p>
+                            <p><strong>Source:</strong> ${citation.source}</p>
+                            <p><strong>Validation Method:</strong> ${citation.validation_method}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Additional Details</h6>
+                            ${citation.volume ? `<p><strong>Volume:</strong> ${citation.volume}</p>` : ''}
+                            ${citation.reporter ? `<p><strong>Reporter:</strong> ${citation.reporter}</p>` : ''}
+                            ${citation.page ? `<p><strong>Page:</strong> ${citation.page}</p>` : ''}
+                            ${citation.court ? `<p><strong>Court:</strong> ${citation.court}</p>` : ''}
+                            ${citation.year ? `<p><strong>Year:</strong> ${citation.year}</p>` : ''}
+                        </div>
+                    </div>
+                    ${citation.parallel_citations && citation.parallel_citations.length > 0 ? `
+                        <div class="mt-3">
+                            <h6>Parallel Citations</h6>
+                            <ul class="list-group">
+                                ${citation.parallel_citations.map(c => `<li class="list-group-item">${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('citationDetailsModal'));
+                modal.show();
+            }
+
+            function showCitationSuggestions(citation) {
+                const content = document.getElementById('citationSuggestionsContent');
+                content.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This citation could not be verified. Here are some suggestions:
+                    </div>
+                    ${citation.suggestions && citation.suggestions.length > 0 ? `
+                        ${citation.suggestions.map((suggestion, index) => `
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Suggestion ${index + 1}</h6>
+                                    <p class="card-text">${suggestion.explanation}</p>
+                                    ${suggestion.citation ? `
+                                        <div class="mt-2">
+                                            <strong>Suggested Citation:</strong> ${suggestion.citation}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    ` : `
+                        <div class="alert alert-info">
+                            No specific suggestions available for this citation.
+                        </div>
+                    `}
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('citationSuggestionsModal'));
+                modal.show();
+            }
+        });
+    </script>
+</body>
+</html>

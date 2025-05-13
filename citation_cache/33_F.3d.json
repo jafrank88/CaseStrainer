@@ -1,0 +1,50 @@
+{
+  "citation": "33 F.4th",
+  "normalized_citation": "33 F.3d",
+  "components": {
+    "volume": "",
+    "reporter": "",
+    "page": "",
+    "court": "United States Court of Appeals",
+    "year": ""
+  },
+  "verified": true,
+  "verification_date": "2025-05-08T15:05:26.023703",
+  "sources": {
+    "original_verifier": {
+      "verified": false,
+      "source": "Original Verifier",
+      "original_result": {
+        "found": false,
+        "confirmed": false,
+        "confidence": 0.1,
+        "explanation": "Invalid citation format: Citation format does not match any known pattern",
+        "source": null,
+        "case_name": null,
+        "format_analysis": {
+          "is_valid_format": false,
+          "error": "Citation format does not match any known pattern"
+        }
+      }
+    },
+    "database": {
+      "verified": false,
+      "source": "Database",
+      "error": "Citation not found in database"
+    },
+    "landmark_cases": {
+      "verified": false,
+      "source": "Landmark Cases",
+      "error": "Landmark cases database not found"
+    },
+    "fuzzy_matching": {
+      "verified": true,
+      "source": "Fuzzy Matching",
+      "match_type": "pattern",
+      "pattern": "(\\d+)\\s+F\\.\\s*(\\d+)",
+      "volume": "33",
+      "page": "4"
+    }
+  },
+  "verified_by": "Fuzzy Matching"
+}

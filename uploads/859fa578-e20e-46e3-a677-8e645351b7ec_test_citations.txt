@@ -1,0 +1,5 @@
+This is a test file with some citations:
+Brown v. Board of Education, 347 U.S. 483 (1954)
+Roe v. Wade, 410 U.S. 113 (1973)
+Marbury v. Madison, 5 U.S. 137 (1803)
+Some unverified citation: Smith v. Jones, 123 F.3d 456 (9th Cir. 1999)
