@@ -41,7 +41,7 @@ This checklist ensures that all necessary steps are followed when starting the C
 2. **Start the CaseStrainer Application**:
    ```powershell
    cd "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-   python run_production.py --host 0.0.0.0 --port 5000
+   python src/app_final_vue.py --host 0.0.0.0 --port 5000
    ```
 
 3. **Verify Docker Nginx is Running**:
