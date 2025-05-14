@@ -7,6 +7,10 @@ import logging
 import sys
 import json
 from pdfminer.high_level import extract_text as pdfminer_extract_text
+from pdfminer.layout import LAParams
+from pdfminer.converter import TextConverter
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
 
 # Set up logging to output to console at INFO level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(levelname)s:%(message)s')
@@ -59,6 +63,17 @@ class SCOTUSPDFCitationExtractor:
             r'\b(\d+)\s+U\.?\s*S\.?\s+C\.?\s+(\d+)\b',  # U.S. Court of Appeals
             r'\b(\d+)\s+F\.?\s*(?:2d|3d|4th)?\s+(\d+)\b',  # Federal Reporter
             r'\b(\d+)\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+(\d+)\b',  # Federal Supplement
+            # Add more flexible patterns
+            r'\b(\d+)\s*U\.?\s*S\.?\s*C\.?\s*(\d+)\b',  # More flexible U.S.C.
+            r'\b(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*App\.?\s*(\d+)\b',  # Federal Appendix
+            r'\b(\d+)\s*F\.?\s*R\.?\s*D\.?\s*(\d+)\b',  # Federal Rules Decisions
+            r'\b(\d+)\s*F\.?\s*Supp\.?\s*(?:2d|3d)?\s*(\d+)\b',  # More flexible F.Supp.
+            r'\b(\d+)\s*S\.?\s*E\.?\s*(?:2d)?\s*(\d+)\b',  # South Eastern Reporter
+            r'\b(\d+)\s*N\.?\s*E\.?\s*(?:2d|3d)?\s*(\d+)\b',  # North Eastern Reporter
+            r'\b(\d+)\s*N\.?\s*W\.?\s*(?:2d)?\s*(\d+)\b',  # North Western Reporter
+            r'\b(\d+)\s*S\.?\s*W\.?\s*(?:2d|3d)?\s*(\d+)\b',  # South Western Reporter
+            r'\b(\d+)\s*P\.?\s*(?:2d|3d)?\s*(\d+)\b',  # Pacific Reporter
+            r'\b(\d+)\s*A\.?\s*(?:2d|3d)?\s*(\d+)\b',  # Atlantic Reporter
         ]
     
     def download_pdf(self, url: str) -> Optional[bytes]:
@@ -73,51 +88,118 @@ class SCOTUSPDFCitationExtractor:
             return None
     
     def extract_text_from_pdf(self, pdf_content: bytes) -> Optional[str]:
-        """Extract text from PDF content, using PyPDF2 first, then pdfminer.six as backup."""
+        """Extract text from PDF content using multiple methods for better accuracy."""
         try:
             pdf_file = io.BytesIO(pdf_content)
+            
+            # First try with enhanced pdfminer settings
+            try:
+                # Configure pdfminer for better text extraction
+                laparams = LAParams(
+                    line_margin=0.5,  # Reduce line margin to better handle line breaks
+                    word_margin=0.1,  # Reduce word margin to better handle word breaks
+                    char_margin=2.0,  # Increase char margin to better handle character spacing
+                    boxes_flow=0.5,   # Adjust flow of text boxes
+                    detect_vertical=True  # Enable vertical text detection
+                )
+                
+                resource_manager = PDFResourceManager()
+                text_output = io.StringIO()
+                converter = TextConverter(resource_manager, text_output, laparams=laparams)
+                interpreter = PDFPageInterpreter(resource_manager, converter)
+                
+                # Process each page
+                for page in PDFPage.get_pages(pdf_file):
+                    interpreter.process_page(page)
+                
+                text = text_output.getvalue()
+                converter.close()
+                text_output.close()
+                
+                if text and len(text.strip()) > 0:
+                    logger.info("Successfully extracted text using enhanced pdfminer settings")
+                    return self.clean_extracted_text(text)
+            except Exception as e:
+                logger.error(f"Enhanced pdfminer extraction failed: {str(e)}")
+            
+            # Reset file pointer
+            pdf_file.seek(0)
+            
+            # Try PyPDF2 as backup
             reader = PyPDF2.PdfReader(pdf_file)
             all_text = ""
             for i, page in enumerate(reader.pages):
                 page_text = page.extract_text()
                 if page_text is None or not page_text.strip():
-                    logger.info(f"Page {i+1} blank with PyPDF2, trying pdfminer.six...")
-                    # Reset file pointer before using pdfminer
+                    # Reset file pointer before using basic pdfminer
                     pdf_file.seek(0)
                     try:
-                        # pdfminer works with file-like objects and page numbers are 1-based
                         page_text = pdfminer_extract_text(pdf_file, page_numbers=[i])
-                        logger.info(f"pdfminer.six extracted {len(page_text)} characters from page {i+1}")
+                        logger.info(f"Basic pdfminer extracted {len(page_text)} characters from page {i+1}")
                     except Exception as e:
-                        logger.error(f"pdfminer.six failed on page {i+1}: {e}")
+                        logger.error(f"Basic pdfminer failed on page {i+1}: {e}")
                         page_text = ''
                 else:
                     logger.info(f"PyPDF2 extracted {len(page_text)} characters from page {i+1}")
+                
                 if page_text:
                     all_text += page_text + "\n"
-            return all_text
+            
+            return self.clean_extracted_text(all_text)
+            
         except Exception as e:
             logger.error(f"Error extracting text from PDF: {str(e)}")
             print(f"Error extracting text from PDF: {str(e)}")
             return None
     
-    def preprocess_text(self, text: str) -> str:
-        """Preprocess text to improve citation detection."""
-        # Normalize whitespace
-        text = re.sub(r'\s+', ' ', text)
+    def clean_extracted_text(self, text: str) -> str:
+        """Clean and normalize extracted text to improve citation detection."""
+        # Remove non-printable characters but preserve citation patterns
+        text = ''.join(char for char in text if char.isprintable() or char in '.,;:()[]{}')
         
-        # Fix spacing in citations
-        text = re.sub(r'(\d+)\s+U\.?\s*S\.?\s+(\d+)', r'\1 U.S. \2', text)
-        text = re.sub(r'(\d+)\s+S\.?\s*Ct\.?\s+(\d+)', r'\1 S.Ct. \2', text)
-        text = re.sub(r'(\d+)\s+L\.?\s*Ed\.?\s+(\d+)', r'\1 L.Ed. \2', text)
-        text = re.sub(r'(\d+)\s+F\.?\s*(?:2d|3d|4th)?\s+(\d+)', r'\1 F. \2', text)
-        text = re.sub(r'(\d+)\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+(\d+)', r'\1 F.Supp. \2', text)
+        # Fix common OCR errors in citations
+        text = re.sub(r'(\d+)\s*[Uu]\.?\s*[Ss]\.?\s*(\d+)', r'\1 U.S. \2', text)  # Fix U.S. spacing
+        text = re.sub(r'(\d+)\s*[Ss]\.?\s*[Cc][Tt]\.?\s*(\d+)', r'\1 S.Ct. \2', text)  # Fix S.Ct. spacing
+        text = re.sub(r'(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)', r'\1 L.Ed. \2', text)  # Fix L.Ed. spacing
+        text = re.sub(r'(\d+)\s*[Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)', r'\1 F. \2', text)  # Fix F. spacing
+        
+        # Fix line breaks within citations
+        text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)', r'\1 U.S. \2', text)
+        text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)', r'\1 S.Ct. \2', text)
+        text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)', r'\1 L.Ed. \2', text)
+        text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)', r'\1 F. \2', text)
+        
+        # Fix page breaks within citations
+        text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)', r'\1 U.S. \2', text)  # Fix page break markers
+        text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)', r'\1 S.Ct. \2', text)
+        text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)', r'\1 L.Ed. \2', text)
+        text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)', r'\1 F. \2', text)
+        
+        # Normalize whitespace while preserving citation patterns
+        text = re.sub(r'\s+', ' ', text)
         
         # Fix spacing in abbreviations
         text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1.\2', text)
         
-        # Remove non-printable characters
-        text = ''.join(char for char in text if char.isprintable())
+        return text
+    
+    def preprocess_text(self, text: str) -> str:
+        """Preprocess text to improve citation detection."""
+        # First clean the text
+        text = self.clean_extracted_text(text)
+        
+        # Additional preprocessing specific to citation detection
+        # Fix common OCR errors in reporter names
+        text = re.sub(r'([Uu]\.?\s*[Ss]\.?)', 'U.S.', text)
+        text = re.sub(r'([Ss]\.?\s*[Cc][Tt]\.?)', 'S.Ct.', text)
+        text = re.sub(r'([Ll]\.?\s*[Ee][Dd]\.?)', 'L.Ed.', text)
+        text = re.sub(r'([Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?)', 'F.', text)
+        
+        # Fix spacing around citations
+        text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*(\d+)', r'\1 U.S. \2', text)
+        text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*(\d+)', r'\1 S.Ct. \2', text)
+        text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*(\d+)', r'\1 L.Ed. \2', text)
+        text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*(\d+)', r'\1 F. \2', text)
         
         return text
     
@@ -165,21 +247,32 @@ class SCOTUSPDFCitationExtractor:
                 logger.info("Falling back to AhocorasickTokenizer...")
                 tokenizer = AhocorasickTokenizer()
             
-            # Try passing smaller chunks of text to eyecite
-            chunk_size = 10000  # Adjust as needed
+            # Process text in larger chunks with overlap to avoid missing citations at boundaries
+            chunk_size = 50000  # Increased chunk size
+            overlap = 1000  # Overlap between chunks to catch citations at boundaries
             all_citations = []
-            for i in range(0, len(text), chunk_size):
+            
+            for i in range(0, len(text), chunk_size - overlap):
                 chunk = text[i:i+chunk_size]
-                logger.info(f"Processing chunk {i//chunk_size + 1} of length {len(chunk)}")
+                logger.info(f"Processing chunk {i//(chunk_size-overlap) + 1} of length {len(chunk)}")
                 try:
                     citations = get_citations(chunk, tokenizer=tokenizer)
                     all_citations.extend(citations)
                 except Exception as e:
-                    logger.error(f"Error processing chunk {i//chunk_size + 1}: {e}")
+                    logger.error(f"Error processing chunk {i//(chunk_size-overlap) + 1}: {e}")
+            
+            # Remove duplicate citations while preserving order
+            seen = set()
+            unique_citations = []
+            for citation in all_citations:
+                citation_text = citation.matched_text()
+                if citation_text not in seen:
+                    seen.add(citation_text)
+                    unique_citations.append(citation)
             
             # Format citations with metadata
             formatted_citations = []
-            for citation in all_citations:
+            for citation in unique_citations:
                 citation_info = {
                     'citation_text': citation.matched_text(),
                     'corrected_citation': citation.corrected_citation() if hasattr(citation, 'corrected_citation') else None,

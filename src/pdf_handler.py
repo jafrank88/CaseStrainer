@@ -13,124 +13,137 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.high_level import extract_text as pdfminer_extract_text
+from PIL import ImageEnhance
+import re
 
 def extract_text_from_pdf(file_path):
     """Extract text from a PDF file using multiple methods with robust error handling."""
-    print(f"\n=== EXTRACTING TEXT FROM PDF ===\nFile: {file_path}")
-    
-    # Method 1: Try pdfminer.six first (often better at handling complex PDFs)
     try:
-        print("Trying to extract text with pdfminer.six...")
-        text = pdfminer_extract_text(file_path)
-        if text and text.strip():
-            print(f"Successfully extracted {len(text)} characters with pdfminer.six")
-            return text
-        else:
-            print("pdfminer.six extraction returned empty text, trying alternative method")
-    except Exception as e:
-        print(f"Error with pdfminer.six extraction: {e}")
-    
-    # Method 2: Try PyPDF2
-    try:
-        print("Trying to extract text with PyPDF2...")
-        with open(file_path, 'rb') as file:
-            try:
-                reader = PyPDF2.PdfReader(file)
-                print(f"PDF has {len(reader.pages)} pages")
-                text = ''
-                
-                # Process each page with error handling
-                for i, page in enumerate(reader.pages):
-                    try:
-                        print(f"Extracting text from page {i+1}/{len(reader.pages)}...")
-                        page_text = page.extract_text()
-                        if page_text:
-                            text += page_text + '\n'
-                            print(f"Extracted {len(page_text)} characters from page {i+1}")
-                        else:
-                            print(f"Warning: No text extracted from page {i+1}")
-                    except Exception as page_error:
-                        print(f"Error extracting text from page {i+1}: {page_error}")
-                
-                if text and text.strip():
-                    print(f"Successfully extracted {len(text)} characters with PyPDF2")
-                    return text
-                else:
-                    print("PyPDF2 extraction returned empty text, trying alternative method")
-            except Exception as e:
-                print(f"Error reading PDF with PyPDF2: {e}")
-    except Exception as e:
-        print(f"Error with PyPDF2 extraction: {e}")
-    
-    # Method 3: Try using subprocess with external tools if available
-    try:
-        print("Trying to extract text with external tools...")
-        import subprocess
-        import tempfile
-        
-        # Create a temporary file for output
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.txt') as temp_file:
-            temp_path = temp_file.name
-        
+        # First try with enhanced pdfminer settings
         try:
-            # Try pdftotext from poppler if available
-            print(f"Running pdftotext on {file_path}")
-            subprocess.run(['pdftotext', file_path, temp_path], 
-                           check=True, capture_output=True, text=True, timeout=60)
+            # Configure pdfminer for better text extraction
+            laparams = LAParams(
+                line_margin=0.3,  # Reduced line margin for better line break handling
+                word_margin=0.1,  # Reduced word margin for better word spacing
+                char_margin=1.5,  # Adjusted char margin for better character spacing
+                boxes_flow=0.5,   # Adjusted flow of text boxes
+                detect_vertical=True,  # Enable vertical text detection
+                all_texts=True,   # Extract all text elements
+                detect_rotated=True  # Enable rotated text detection
+            )
             
-            # Read the extracted text
-            with open(temp_path, 'r', encoding='utf-8', errors='ignore') as f:
-                text = f.read()
+            resource_manager = PDFResourceManager()
+            text_output = io.StringIO()
+            converter = TextConverter(resource_manager, text_output, laparams=laparams)
+            interpreter = PDFPageInterpreter(resource_manager, converter)
             
-            # Clean up
-            os.unlink(temp_path)
+            with open(file_path, 'rb') as file:
+                for page in PDFPage.get_pages(file):
+                    interpreter.process_page(page)
             
-            if text and text.strip():
-                print(f"Successfully extracted {len(text)} characters with pdftotext")
-                return text
-            else:
-                print("pdftotext extraction returned empty text")
-        except FileNotFoundError:
-            print("pdftotext not available on system")
-            os.unlink(temp_path)
-        except subprocess.TimeoutExpired:
-            print("pdftotext process timed out")
-            os.unlink(temp_path)
+            text = text_output.getvalue()
+            converter.close()
+            text_output.close()
+            
+            if text and len(text.strip()) > 0:
+                print("Successfully extracted text using enhanced pdfminer settings")
+                return clean_extracted_text(text)
         except Exception as e:
-            print(f"Error with pdftotext: {e}")
-            os.unlink(temp_path)
-    except Exception as e:
-        print(f"Error with external tool extraction: {e}")
-    
-    # If all methods failed, try OCR as a last resort
-    try:
-        print("All text extraction methods failed. Trying OCR with Tesseract...")
-        import pytesseract
-        from pdf2image import convert_from_path
-        from PIL import Image
+            print(f"Enhanced pdfminer extraction failed: {e}")
         
-        # Convert PDF pages to images
-        images = convert_from_path(file_path)
-        ocr_text = ''
-        for i, image in enumerate(images):
-            print(f"Running OCR on page {i+1}/{len(images)}...")
-            page_text = pytesseract.image_to_string(image)
-            ocr_text += page_text + '\n'
-        if ocr_text.strip():
-            print(f"Successfully extracted {len(ocr_text)} characters with OCR.")
-            return ocr_text
-        else:
-            print("OCR extraction returned empty text.")
+        # Try PyPDF2 as backup
+        try:
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                all_text = ""
+                for page in reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        all_text += page_text + "\n"
+                
+                if all_text.strip():
+                    print("Successfully extracted text using PyPDF2")
+                    return clean_extracted_text(all_text)
+        except Exception as e:
+            print(f"PyPDF2 extraction failed: {e}")
+        
+        # If all methods failed, try OCR as a last resort
+        try:
+            print("All text extraction methods failed. Trying OCR with Tesseract...")
+            import pytesseract
+            from pdf2image import convert_from_path
+            from PIL import Image
+            
+            # Convert PDF pages to images with higher DPI for better OCR
+            images = convert_from_path(file_path, dpi=300)
+            ocr_text = ''
+            
+            for i, image in enumerate(images):
+                print(f"Running OCR on page {i+1}/{len(images)}...")
+                # Preprocess image for better OCR
+                image = image.convert('L')  # Convert to grayscale
+                image = ImageEnhance.Contrast(image).enhance(2.0)  # Enhance contrast
+                
+                # Configure Tesseract for better accuracy
+                custom_config = r'--oem 3 --psm 6 -c preserve_interword_spaces=1'
+                page_text = pytesseract.image_to_string(image, config=custom_config)
+                ocr_text += page_text + '\n'
+            
+            if ocr_text.strip():
+                print(f"Successfully extracted {len(ocr_text)} characters with OCR")
+                return clean_extracted_text(ocr_text)
+            else:
+                print("OCR extraction returned empty text")
+        except Exception as e:
+            print(f"Error with OCR extraction: {e}")
+        
+        return "Could not extract text from PDF. The file may be scanned, protected, or corrupted."
     except Exception as e:
-        print(f"Error with OCR extraction: {e}")
+        print(f"Error in extract_text_from_pdf: {e}")
+        return None
 
-    # If all methods failed, return an error (or a dummy text for testing)
-    error_msg = "Could not extract text from PDF. The file may be scanned, protected, or corrupted."
-    print(error_msg)
-    # (For testing, return a dummy text so that eyecite can \"find\" a citation.)
-    dummy_text = "United States v. Moore, 95 U. S. 760, 763"
-    print("Returning dummy text (for testing) so that eyecite can \"find\" a citation.")
-    return dummy_text
+def clean_extracted_text(text):
+    """Clean and normalize extracted text to improve citation detection."""
+    if not text:
+        return ""
+    
+    # Remove non-printable characters but preserve citation patterns
+    text = ''.join(char for char in text if char.isprintable() or char in '.,;:()[]{}')
+    
+    # Fix common OCR errors in citations
+    text = re.sub(r'(\d+)\s*[Uu]\.?\s*[Ss]\.?\s*(\d+)', r'\1 U.S. \2', text)  # Fix U.S. spacing
+    text = re.sub(r'(\d+)\s*[Ss]\.?\s*[Cc][Tt]\.?\s*(\d+)', r'\1 S.Ct. \2', text)  # Fix S.Ct. spacing
+    text = re.sub(r'(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)', r'\1 L.Ed. \2', text)  # Fix L.Ed. spacing
+    text = re.sub(r'(\d+)\s*[Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)', r'\1 F. \2', text)  # Fix F. spacing
+    
+    # Fix line breaks within citations
+    text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)', r'\1 U.S. \2', text)
+    text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)', r'\1 S.Ct. \2', text)
+    text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)', r'\1 L.Ed. \2', text)
+    text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)', r'\1 F. \2', text)
+    
+    # Fix page breaks within citations
+    text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)', r'\1 U.S. \2', text)  # Fix page break markers
+    text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)', r'\1 S.Ct. \2', text)
+    text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)', r'\1 L.Ed. \2', text)
+    text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)', r'\1 F. \2', text)
+    
+    # Fix common OCR errors in numbers
+    text = re.sub(r'[Oo](\d)', r'0\1', text)  # Fix O/0 confusion
+    text = re.sub(r'(\d)[Oo]', r'\10', text)  # Fix O/0 confusion at end of numbers
+    text = re.sub(r'[lI](\d)', r'1\1', text)  # Fix l/I/1 confusion
+    text = re.sub(r'(\d)[lI]', r'\11', text)  # Fix l/I/1 confusion at end of numbers
+    
+    # Fix spacing in abbreviations
+    text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1.\2', text)
+    
+    # Normalize whitespace while preserving citation patterns
+    text = re.sub(r'\s+', ' ', text)
+    
+    # Remove any remaining page numbers or headers/footers
+    text = re.sub(r'^\s*\d+\s*$', '', text, flags=re.MULTILINE)
+    
+    return text.strip()
 
 def handle_problematic_pdf(file_path):
     """Special handling for known problematic PDF files."""
