@@ -159,8 +159,8 @@ sample_briefs/
 
 # Nginx
 nginx-*/
-ssl/
-conf/
+# ssl/
+# conf/
 
 # Word Add-in
 word_addin/

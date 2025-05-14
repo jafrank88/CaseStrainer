@@ -21,12 +21,12 @@ http {
         server_name wolf.law.uw.edu;
 
         # Error logging
-        error_log logs/casestrainer_error.log debug;
-        access_log logs/casestrainer_access.log combined;
+        error_log /var/log/nginx/casestrainer_error.log debug;
+        access_log /var/log/nginx/casestrainer_access.log combined;
 
         # SSL configuration
-        ssl_certificate ssl/cert.pem;
-        ssl_certificate_key ssl/key.pem;
+        ssl_certificate /etc/nginx/ssl/WolfCertBundle.crt;
+        ssl_certificate_key /etc/nginx/ssl/wolf.law.uw.edu.key;
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
         ssl_prefer_server_ciphers off;
@@ -48,11 +48,11 @@ http {
         add_header Permissions-Policy "geolocation=(), microphone=(), camera=()";
 
         # Root directory for static files
-        root /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/vue;
+        root /etc/nginx/static/vue;
 
         # Proxy settings
         location /casestrainer/ {
-            proxy_pass http://127.0.0.1:5000;
+            proxy_pass http://casestrainer-casestrainer-1:5000;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
@@ -83,32 +83,32 @@ http {
 
         # Serve static files directly
         location /casestrainer/static/ {
-            alias /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/;
+            alias /etc/nginx/static/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
         }
 
         # Serve Vue.js static files
         location /casestrainer/js/ {
-            alias /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/vue/js/;
+            alias /etc/nginx/static/vue/js/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
         }
 
         location /casestrainer/css/ {
-            alias /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/vue/css/;
+            alias /etc/nginx/static/vue/css/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
         }
 
         location /casestrainer/img/ {
-            alias /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/vue/img/;
+            alias /etc/nginx/static/vue/img/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
         }
 
         location /casestrainer/fonts/ {
-            alias /c/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static/vue/fonts/;
+            alias /etc/nginx/static/vue/fonts/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
         }
