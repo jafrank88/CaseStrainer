@@ -33,8 +33,7 @@ openai==1.3.0
 pyopenssl==23.2.0
 
 # For production deployment with multiple users (Windows compatible)
-waitress==3.0.2
-cheroot==10.0.0  # For SSL support with Waitress
+waitress==2.1.2  # Production WSGI server
 
 # For regular expressions
 re==2.2.1  # For citation pattern matching

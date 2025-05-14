@@ -61,7 +61,7 @@ Ensure the application is configured to run on port 5000 and listen on all inter
 ```bash
 set HOST=0.0.0.0
 set PORT=5000
-set USE_CHEROOT=True
+set USE_WAITRESS=True
 ```
 
 ### 4. Start the Application
@@ -76,7 +76,7 @@ This script will:
 - Check for and stop any conflicting processes (including Windows Nginx)
 - Ensure Docker and the Nginx container are running
 - Start the application on port 5000 with host 0.0.0.0
-- Configure the application to use the Cheroot WSGI server for production deployment
+- Configure the application to use the Waitress WSGI server for production deployment
 
 Alternatively, you can use the updated start script:
 

@@ -23,36 +23,21 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-# Configure enhanced logging
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-log_file = 'logs/casestrainer.log'
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Create logs directory if it doesn't exist
-log_dir = os.path.dirname(log_file)
+log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
 # Configure the logger
-logger = logging.getLogger('enhanced_validator')
-logger.setLevel(logging.DEBUG)
-
-# Create file handler
-file_handler = logging.FileHandler(log_file)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(logging.Formatter(log_format))
-
-# Create console handler
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(logging.Formatter(log_format))
-
-# Add handlers to logger
-logger.addHandler(file_handler)
-logger.addHandler(console_handler)
+logger.addHandler(logging.FileHandler(os.path.join(log_dir, 'casestrainer.log')))
 
 # Create a Blueprint for the Enhanced Validator
 enhanced_validator_bp = Blueprint('enhanced_validator', __name__, 
-    template_folder=os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')))
+    template_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates'))
 
 # Citation databases for different validation methods
 
@@ -104,7 +89,8 @@ LANDMARK_CASES = {
 
 # Load API keys from config.json
 try:
-    with open('config.json', 'r') as f:
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+    with open(config_path, 'r') as f:
         config = json.load(f)
         COURTLISTENER_API_KEY = config.get('COURTLISTENER_API_KEY')
         if COURTLISTENER_API_KEY:
@@ -459,7 +445,7 @@ def check_courtlistener_api(citation_text):
             return None
             
         # Construct the API URL with more specific parameters
-        api_url = f"https://www.courtlistener.com/api/rest/v3/citations/"
+        api_url = f"https://www.courtlistener.com/api/rest/v4/citations/"
         params = {
             'citation': citation,
             'reporter': components.get('reporter', ''),
@@ -1011,7 +997,7 @@ def _corsify_actual_response(response):
     return response
 
 # File upload configuration
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'html', 'htm'}
 
 # Create upload folder if it doesn't exist
@@ -1354,7 +1340,7 @@ def enhanced_analyze():
 
 # Function to register the blueprint with the Flask app
 def register_enhanced_validator(app):
-    """Register the Enhanced Validator blueprint with the Flask app."""
-    app.register_blueprint(enhanced_validator_bp)
+    """Register the enhanced validator blueprint with the Flask app."""
+    app.register_blueprint(enhanced_validator_bp, name='enhanced_validator_production_v3')
     logger.info("Enhanced Validator blueprint registered with the Flask app")
     return app

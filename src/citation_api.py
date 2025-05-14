@@ -5,7 +5,7 @@ This module provides API endpoints for accessing citation data
 from the JSON files in the CaseStrainer application.
 """
 
-from flask import Blueprint, jsonify, current_app, request, make_response
+from flask import Blueprint, jsonify, request, make_response, current_app
 import os
 import json
 import logging
@@ -24,6 +24,7 @@ except ImportError:
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Create a Blueprint for the citation API
 citation_api = Blueprint('citation_api', __name__)
@@ -58,7 +59,7 @@ def load_citation_verification_data():
                 return json.load(f)
         return {"newly_confirmed": [], "still_unconfirmed": []}
     except Exception as e:
-        current_app.logger.error(f"Error loading citation verification data: {str(e)}")
+        logger.error(f"Error loading citation verification data: {str(e)}")
         return {"newly_confirmed": [], "still_unconfirmed": []}
 
 def load_database_verification_data():
@@ -69,14 +70,14 @@ def load_database_verification_data():
                 return json.load(f)
         return []
     except Exception as e:
-        current_app.logger.error(f"Error loading database verification data: {str(e)}")
+        logger.error(f"Error loading database verification data: {str(e)}")
         return []
 
 @citation_api.route('/confirmed-with-multitool-data', methods=['GET'])
 @citation_api.route('/confirmed_with_multitool_data', methods=['GET'])
 def confirmed_with_multitool_data():
     """API endpoint to provide data for the Confirmed with Multitool tab."""
-    current_app.logger.info("Confirmed with Multitool API endpoint called")
+    logger.info("Confirmed with Multitool API endpoint called")
     """
     API endpoint to provide data for the Confirmed with Multitool tab.
     Returns citations that were confirmed with the multi-source tool but not with CourtListener.
@@ -148,7 +149,7 @@ def confirmed_with_multitool_data():
         'count': len(multitool_citations)
     }
     
-    current_app.logger.info(f"Returning {len(multitool_citations)} confirmed citations")
+    logger.info(f"Returning {len(multitool_citations)} confirmed citations")
     
     # Create a response with CORS headers
     response = make_response(jsonify(response_data))
@@ -162,7 +163,7 @@ def confirmed_with_multitool_data():
 @citation_api.route('/unconfirmed_citations_data', methods=['POST', 'GET'])
 def unconfirmed_citations_data():
     """API endpoint to provide data for the Unconfirmed Citations tab."""
-    current_app.logger.info("Unconfirmed Citations API endpoint called")
+    logger.info("Unconfirmed Citations API endpoint called")
     """
     API endpoint to provide data for the Unconfirmed Citations tab.
     Returns citations that could not be verified in any source.
@@ -220,7 +221,7 @@ def unconfirmed_citations_data():
         'count': len(unconfirmed_citations)
     }
     
-    current_app.logger.info(f"Returning {len(unconfirmed_citations)} unconfirmed citations")
+    logger.info(f"Returning {len(unconfirmed_citations)} unconfirmed citations")
     
     # Create a response with CORS headers
     response = make_response(jsonify(response_data))
@@ -242,11 +243,11 @@ def analyze():
         return response
         
     # Log request details for debugging
-    current_app.logger.info("Citation analysis request received")
-    current_app.logger.info(f"Request method: {request.method}")
-    current_app.logger.info(f"Request content type: {request.content_type}")
-    current_app.logger.info(f"Request files: {list(request.files.keys()) if request.files else 'No files'}")
-    current_app.logger.info(f"Request form: {list(request.form.keys()) if request.form else 'No form data'}")
+    logger.info("Citation analysis request received")
+    logger.info(f"Request method: {request.method}")
+    logger.info(f"Request content type: {request.content_type}")
+    logger.info(f"Request files: {list(request.files.keys()) if request.files else 'No files'}")
+    logger.info(f"Request form: {list(request.form.keys()) if request.form else 'No form data'}")
     
     # Add CORS headers for this specific endpoint
     response_headers = {
@@ -258,14 +259,14 @@ def analyze():
     try:
         # Generate a unique analysis ID
         analysis_id = generate_analysis_id()
-        current_app.logger.info(f"Generated analysis ID: {analysis_id}")
+        logger.info(f"Generated analysis ID: {analysis_id}")
         
         # Use session storage instead of global variables
         from flask import session
         
         # Clear the previous citations to ensure we're not mixing old and new data
         session['user_citations'] = []
-        current_app.logger.info("Cleared previous citation data in user session")
+        logger.info("Cleared previous citation data in user session")
         
         # Initialize variables
         document_text = None
@@ -274,7 +275,7 @@ def analyze():
         # Check if a file was uploaded
         if 'file' in request.files:
             file = request.files['file']
-            current_app.logger.info(f"File uploaded: {file.filename if file else 'None'}")
+            logger.info(f"File uploaded: {file.filename if file else 'None'}")
             
             if file and file.filename and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -282,14 +283,14 @@ def analyze():
                 
                 # Save file
                 file.save(file_path)
-                current_app.logger.info(f"File saved to: {file_path}")
+                logger.info(f"File saved to: {file_path}")
                 
                 # Extract text from file
                 document_text = extract_text_from_file(file_path)
-                current_app.logger.info(f"Extracted {len(document_text)} characters from file")
+                logger.info(f"Extracted {len(document_text)} characters from file")
             else:
                 error_msg = f"Invalid file: {file.filename if file else 'None'}"
-                current_app.logger.error(error_msg)
+                logger.error(error_msg)
                 return jsonify({
                     'status': 'error',
                     'message': error_msg
@@ -302,12 +303,12 @@ def analyze():
                 document_text = request.form['text'].strip()
             else:
                 document_text = request.form['brief_text'].strip()
-            current_app.logger.info(f"Text provided: {len(document_text)} characters")
+            logger.info(f"Text provided: {len(document_text)} characters")
         
         # Return error if no file or text provided
         else:
             error_msg = "No file or text provided"
-            current_app.logger.error(error_msg)
+            logger.error(error_msg)
             return jsonify({
                 'status': 'error',
                 'message': error_msg
@@ -317,7 +318,7 @@ def analyze():
         citations = []
         if document_text:
             extracted_citations = extract_citations(document_text)
-            current_app.logger.info(f"Extracted {len(extracted_citations)} citations from text")
+            logger.info(f"Extracted {len(extracted_citations)} citations from text")
             
             # Validate each citation
             for citation_text in extracted_citations:
@@ -335,12 +336,12 @@ def analyze():
                     'source': validation_result['validation_method'] if validation_result['verified'] else None
                 })
             
-            current_app.logger.info(f"Validated {len(citations)} citations")
+            logger.info(f"Validated {len(citations)} citations")
             
             # Store the validated citations in the user's session instead of a global variable
             from flask import session
             session['user_citations'] = citations
-            current_app.logger.info(f"Stored {len(citations)} citations in user session")
+            logger.info(f"Stored {len(citations)} citations in user session")
         
         # Return results in the format expected by the EnhancedFileUpload component
         validation_results = []
@@ -360,12 +361,12 @@ def analyze():
             'citations_count': len(citations)
         }
         
-        current_app.logger.info(f"Analysis completed for ID: {analysis_id}")
+        logger.info(f"Analysis completed for ID: {analysis_id}")
         return jsonify(response_data)
     
     except Exception as e:
         error_msg = f"Error analyzing document: {str(e)}"
-        current_app.logger.error(error_msg)
+        logger.error(error_msg)
         traceback.print_exc()
         return jsonify({
             'status': 'error',

@@ -9758,3 +9758,1186 @@ their product is safe and cannot cause injury or malfunction. In Woods v. BNSF R
 2025-05-12 17:00:48,898 - enhanced_validator - DEBUG - Found possible citation using federal_reporter pattern: 78 F.4th 827
 2025-05-12 17:00:48,899 - enhanced_validator - DEBUG - Found possible citation using federal_reporter pattern: 95 F.4th 935
 2025-05-12 17:00:48,906 - enhanced_validator - DEBUG - Found possible citation using federal_reporter pattern: 78 F.4th 827
+2025-05-13 11:00:42,937 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:00:43,612 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:01:21,203 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:03:32,823 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 11:03:32,825 - enhanced_validator - INFO - Processing URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:03:32,826 - enhanced_validator - INFO - Making request to URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:03:33,051 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 11:03:33,054 - enhanced_validator - INFO - PDF downloaded successfully, size: 224757 bytes
+2025-05-13 11:03:33,055 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_3a7838d2-10b2-47c8-bbd0-e85109663284.pdf
+2025-05-13 11:03:33,056 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 11:03:33,057 - enhanced_validator - INFO - Extracting text from file: uploads\temp_3a7838d2-10b2-47c8-bbd0-e85109663284.pdf
+2025-05-13 11:03:36,323 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 11:03:36,324 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 11:03:36,325 - enhanced_validator - INFO - Using HyperscanTokenizer for citation extraction
+2025-05-13 11:03:36,327 - enhanced_validator - WARNING - HyperscanTokenizer not available: No module named 'hyperscan'. Using default tokenizer.
+2025-05-13 11:03:37,131 - enhanced_validator - INFO - Successfully extracted 79450 characters from URL
+2025-05-13 11:03:37,132 - enhanced_validator - INFO - Found 209 citations
+2025-05-13 11:04:17,400 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:04:17,946 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:05:00,289 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:05:00,830 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:09:05,046 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:09:24,210 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:09:24,779 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:12:25,563 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:12:26,221 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:14:57,520 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:14:58,118 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:18:32,195 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:19:16,468 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:19:17,021 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:22:28,198 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:22:28,753 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:25:09,551 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:15,804 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:16,005 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:36,309 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:36,314 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:36,725 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:36,727 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:25:48,451 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:25:49,050 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:26:18,288 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:26:20,418 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 11:26:20,420 - enhanced_validator - INFO - Validating citation: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:26:20,430 - enhanced_validator - INFO - Validation completed in 0.01 seconds
+2025-05-13 11:26:20,431 - enhanced_validator - INFO - Validation method: Invalid Format
+2025-05-13 11:26:20,432 - enhanced_validator - DEBUG - Validation result: {'citation': 'https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf', 'verified': False, 'verified_by': None, 'validation_method': 'Invalid Format', 'case_name': None, 'components': None, 'error': 'Citation not found in any validation database'}
+2025-05-13 11:26:26,160 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 11:26:26,162 - enhanced_validator - INFO - Processing URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:26:26,164 - enhanced_validator - INFO - Making request to URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:26:26,296 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 11:26:26,298 - enhanced_validator - INFO - PDF downloaded successfully, size: 224757 bytes
+2025-05-13 11:26:26,299 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_ec9b7094-6eba-4ae3-9fdd-839b8ba25c99.pdf
+2025-05-13 11:26:26,301 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 11:26:26,302 - enhanced_validator - INFO - Extracting text from file: uploads\temp_ec9b7094-6eba-4ae3-9fdd-839b8ba25c99.pdf
+2025-05-13 11:26:29,241 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 11:26:29,242 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 11:26:29,243 - enhanced_validator - INFO - Using HyperscanTokenizer for citation extraction
+2025-05-13 11:26:54,937 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 11:26:54,939 - enhanced_validator - INFO - Extracting citations from text
+2025-05-13 11:26:54,940 - enhanced_validator - INFO - Using eyecite with HyperscanTokenizer for citation extraction
+2025-05-13 11:27:20,546 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 11:27:41,981 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:27:42,535 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:29:40,791 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:29:41,412 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:30:03,857 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 11:30:03,859 - enhanced_validator - INFO - Processing URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:30:03,859 - enhanced_validator - INFO - Making request to URL: https://www.supremecourt.gov/opinions/24pdf/23-861_7lh8.pdf
+2025-05-13 11:30:04,039 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 11:30:04,041 - enhanced_validator - INFO - PDF downloaded successfully, size: 224757 bytes
+2025-05-13 11:30:04,041 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_1eb2687f-cf50-4e28-9651-c3fcd026c5a6.pdf
+2025-05-13 11:30:04,042 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 11:30:04,043 - enhanced_validator - INFO - Extracting text from file: uploads\temp_1eb2687f-cf50-4e28-9651-c3fcd026c5a6.pdf
+2025-05-13 11:30:07,009 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 11:30:07,009 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 11:30:07,010 - enhanced_validator - INFO - Using HyperscanTokenizer for citation extraction
+2025-05-13 11:30:31,882 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 11:30:31,883 - enhanced_validator - INFO - Extracting citations from text
+2025-05-13 11:30:31,884 - enhanced_validator - INFO - Using eyecite with HyperscanTokenizer for citation extraction
+2025-05-13 11:30:55,132 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 11:31:48,397 - enhanced_validator - INFO - Extracted 0 possible citations using regex patterns
+2025-05-13 11:31:48,398 - enhanced_validator - INFO - Final results: 0 confirmed and 0 possible citations
+2025-05-13 11:31:48,406 - enhanced_validator - INFO - Successfully extracted 79450 characters from URL
+2025-05-13 11:31:48,407 - enhanced_validator - INFO - Found 0 citations
+2025-05-13 11:32:12,931 - enhanced_validator - INFO - Enhanced Validator document analysis requested
+2025-05-13 11:32:12,933 - enhanced_validator - INFO - Generated analysis ID: 686056d6-649e-4ac6-8f4e-d1e86ea0efcb
+2025-05-13 11:32:12,936 - enhanced_validator - INFO - Starting citation extraction
+2025-05-13 11:32:12,937 - enhanced_validator - INFO - Extracting citations from text
+2025-05-13 11:32:12,938 - enhanced_validator - INFO - Using eyecite with HyperscanTokenizer for citation extraction
+2025-05-13 11:32:38,139 - enhanced_validator - INFO - Extracted 1 confirmed citations using eyecite
+2025-05-13 11:32:38,141 - enhanced_validator - INFO - Extracted 0 possible citations using regex patterns
+2025-05-13 11:32:38,142 - enhanced_validator - INFO - Final results: 1 confirmed and 0 possible citations
+2025-05-13 11:32:38,143 - enhanced_validator - INFO - Extracted 1 confirmed and 0 possible citations
+2025-05-13 11:32:38,143 - enhanced_validator - INFO - Processing 1 total citations
+2025-05-13 11:32:38,144 - enhanced_validator - INFO - Checking CourtListener API for citation: FullLawCitation('10 U. S. C. §12302', groups={'title': '10', 'reporter': 'U. S. C.', 'section': '12302'}, metadata=FullLawCitation.Metadata(parenthetical=None, pin_cite=None, pin_cite_span_start=None, pin_cite_span_end=None, year=None, publisher=None, day=None, month=None))
+2025-05-13 11:32:38,223 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=FullLawCitation('10%20U.%20S.%20C.%20%C2%A712302',%20groups=%7B'title':%20'10',%20'reporter':%20'U.%20S.%20C.',%20'section':%20'12302'%7D,%20metadata=FullLawCitation.Metadata(parenthetical=None,%20pin_cite=None,%20pin_cite_span_start=None,%20pin_cite_span_end=None,%20year=None,%20publisher=None,%20day=None,%20month=None))
+2025-05-13 11:32:38,226 - enhanced_validator - INFO - Validated 1 citations
+2025-05-13 11:32:38,227 - enhanced_validator - INFO - API-validated citations: 0
+2025-05-13 11:32:38,228 - enhanced_validator - INFO - CourtListener API Citations: 0
+2025-05-13 11:32:38,229 - enhanced_validator - INFO - Landmark Citations: 0
+2025-05-13 11:32:38,229 - enhanced_validator - INFO - CourtListener Citations: 0
+2025-05-13 11:32:38,230 - enhanced_validator - INFO - Multitool Citations: 0
+2025-05-13 11:32:38,231 - enhanced_validator - INFO - Other Citations: 0
+2025-05-13 11:32:38,231 - enhanced_validator - INFO - Unverified Citations: 1
+2025-05-13 11:32:38,232 - enhanced_validator - INFO - Possible Citations: 0
+2025-05-13 11:32:38,233 - enhanced_validator - INFO - Analysis completed for ID: 686056d6-649e-4ac6-8f4e-d1e86ea0efcb
+2025-05-13 11:34:08,951 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:34:09,529 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:35:17,318 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:35:17,935 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:36:35,686 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:36:36,297 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:38:04,710 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:38:05,275 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:47:13,536 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:47:27,694 - enhanced_validator - INFO - Enhanced Validator document analysis requested
+2025-05-13 11:47:27,695 - enhanced_validator - INFO - Generated analysis ID: b347225c-535e-4da7-8f3e-68dbead069e9
+2025-05-13 11:47:27,697 - enhanced_validator - INFO - Starting citation extraction
+2025-05-13 11:47:27,699 - enhanced_validator - INFO - Extracting citations from text
+2025-05-13 11:47:27,701 - enhanced_validator - INFO - Using eyecite with HyperscanTokenizer for citation extraction
+2025-05-13 11:47:51,856 - enhanced_validator - INFO - Extracted 1 confirmed citations using eyecite
+2025-05-13 11:47:51,868 - enhanced_validator - INFO - Extracted 0 possible citations using regex patterns
+2025-05-13 11:47:51,869 - enhanced_validator - INFO - Final results: 1 confirmed and 0 possible citations
+2025-05-13 11:47:51,870 - enhanced_validator - INFO - Extracted 1 confirmed and 0 possible citations
+2025-05-13 11:47:51,870 - enhanced_validator - INFO - Processing 1 total citations
+2025-05-13 11:47:51,871 - enhanced_validator - INFO - Checking CourtListener API for citation: FullLawCitation('10 U. S. C. §12302', groups={'title': '10', 'reporter': 'U. S. C.', 'section': '12302'}, metadata=FullLawCitation.Metadata(parenthetical=None, pin_cite=None, pin_cite_span_start=None, pin_cite_span_end=None, year=None, publisher=None, day=None, month=None))
+2025-05-13 11:47:51,938 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=FullLawCitation('10%20U.%20S.%20C.%20%C2%A712302',%20groups=%7B'title':%20'10',%20'reporter':%20'U.%20S.%20C.',%20'section':%20'12302'%7D,%20metadata=FullLawCitation.Metadata(parenthetical=None,%20pin_cite=None,%20pin_cite_span_start=None,%20pin_cite_span_end=None,%20year=None,%20publisher=None,%20day=None,%20month=None))
+2025-05-13 11:47:51,942 - enhanced_validator - INFO - Validated 1 citations
+2025-05-13 11:47:51,943 - enhanced_validator - INFO - API-validated citations: 0
+2025-05-13 11:47:51,945 - enhanced_validator - INFO - CourtListener API Citations: 0
+2025-05-13 11:47:51,946 - enhanced_validator - INFO - Landmark Citations: 0
+2025-05-13 11:47:51,947 - enhanced_validator - INFO - CourtListener Citations: 0
+2025-05-13 11:47:51,948 - enhanced_validator - INFO - Multitool Citations: 0
+2025-05-13 11:47:51,949 - enhanced_validator - INFO - Other Citations: 0
+2025-05-13 11:47:51,950 - enhanced_validator - INFO - Unverified Citations: 1
+2025-05-13 11:47:51,951 - enhanced_validator - INFO - Possible Citations: 0
+2025-05-13 11:47:51,951 - enhanced_validator - INFO - Analysis completed for ID: b347225c-535e-4da7-8f3e-68dbead069e9
+2025-05-13 11:48:20,395 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:49:38,398 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:49:38,928 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:51:50,647 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:51:51,180 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:55:42,277 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:55:42,944 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:57:38,879 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:57:39,421 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:59:03,080 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 11:59:03,627 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 11:59:26,086 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 11:59:52,869 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:00:04,432 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 12:00:04,433 - enhanced_validator - INFO - Processing URL: https://www.supremecourt.gov/opinions/24pdf/23-715_5426.pdf
+2025-05-13 12:00:04,434 - enhanced_validator - INFO - Making request to URL: https://www.supremecourt.gov/opinions/24pdf/23-715_5426.pdf
+2025-05-13 12:00:04,548 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 12:00:04,551 - enhanced_validator - INFO - PDF downloaded successfully, size: 213854 bytes
+2025-05-13 12:00:04,551 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_b7c61f72-1e9b-4ca4-82a7-13f1bb253acd.pdf
+2025-05-13 12:00:04,552 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 12:00:04,553 - enhanced_validator - INFO - Extracting text from file: uploads\temp_b7c61f72-1e9b-4ca4-82a7-13f1bb253acd.pdf
+2025-05-13 12:00:07,533 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 12:00:07,533 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 12:00:07,534 - enhanced_validator - INFO - Using HyperscanTokenizer for citation extraction
+2025-05-13 12:00:31,147 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 12:00:31,149 - enhanced_validator - INFO - Extracting citations from text
+2025-05-13 12:00:31,150 - enhanced_validator - INFO - Using eyecite with HyperscanTokenizer for citation extraction
+2025-05-13 12:00:55,594 - enhanced_validator - WARNING - Error using eyecite: object of type 'NoneType' has no len(). Falling back to regex patterns.
+2025-05-13 12:00:56,027 - enhanced_validator - INFO - Extracted 0 possible citations using regex patterns
+2025-05-13 12:00:56,029 - enhanced_validator - INFO - Final results: 0 confirmed and 0 possible citations
+2025-05-13 12:00:56,034 - enhanced_validator - INFO - Successfully extracted 85284 characters from URL
+2025-05-13 12:00:56,035 - enhanced_validator - INFO - Found 0 citations
+2025-05-13 12:04:08,339 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:04:49,808 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:04:49,952 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:06:25,825 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:06:35,323 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:06:35,454 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:07:48,723 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:07:48,890 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:09:12,083 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:09:12,266 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:09:38,859 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:11:02,294 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:17:11,230 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 12:25:36,741 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:25:37,291 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 12:25:37,535 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:25:42,367 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:25:42,865 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 12:25:43,051 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:25:58,417 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:25:58,942 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 12:25:59,177 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:35:01,778 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 12:35:02,301 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 12:35:02,475 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 12:35:02,650 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 13:27:49,549 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:27:49,551 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:27:50,007 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:27:50,043 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:27:50,092 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:27:50,126 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:27:50,158 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:27:50,202 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:27:50,233 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:27:50,278 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:27:50,314 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:27:50,347 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:27:50,385 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:27:50,418 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:27:50,451 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:27:50,485 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:27:50,517 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:27:50,548 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:27:50,581 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:27:50,611 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:27:50,624 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:27:50,652 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:27:50,681 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:27:50,710 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:27:50,738 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:27:50,775 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:27:50,800 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:27:50,837 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:27:50,874 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:27:50,905 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:27:50,939 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:27:50,979 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:27:51,018 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:27:51,058 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:27:51,096 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:27:51,129 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:27:51,160 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:27:51,189 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:27:51,242 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:27:51,287 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:27:51,321 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:27:51,368 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:27:51,405 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:27:51,440 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:27:51,472 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:27:51,503 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:27:51,534 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:27:51,565 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:27:51,603 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:27:51,644 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:27:51,680 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:27:51,712 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:27:51,746 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:27:51,783 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:27:51,796 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:27:51,842 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:27:51,843 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:27:51,980 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:27:51,981 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:28:16,697 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:28:16,714 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:28:16,752 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:28:16,867 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:28:16,912 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:28:17,122 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:28:17,166 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:28:17,182 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:28:17,201 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:28:17,300 - __main__ - ERROR - HTTP error validating citations: 403 Client Error: Forbidden for url: https://www.courtlistener.com/api/rest/v3/opinions/
+2025-05-13 13:28:19,258 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:28:19,259 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:28:19,489 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:28:19,523 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:28:19,568 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:28:19,604 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:28:19,640 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:28:19,696 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:28:19,731 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:28:19,776 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:28:19,817 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:28:19,863 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:28:19,903 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:28:19,934 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:28:19,973 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:28:20,007 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:28:20,040 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:28:20,076 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:28:20,115 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:28:20,153 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:28:20,166 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:28:20,196 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:28:20,228 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:28:20,262 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:28:20,295 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:28:20,334 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:28:20,360 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:28:20,404 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:28:20,446 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:28:20,477 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:28:20,511 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:28:20,551 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:28:20,600 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:28:20,637 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:28:20,676 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:28:20,711 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:28:20,747 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:28:20,779 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:28:20,839 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:28:20,887 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:28:20,934 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:28:20,981 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:28:21,016 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:28:21,052 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:28:21,085 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:28:21,118 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:28:21,151 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:28:21,185 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:28:21,219 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:28:21,253 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:28:21,289 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:28:21,324 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:28:21,362 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:28:21,404 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:28:21,419 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:28:21,463 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:28:21,464 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:28:21,601 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:28:21,603 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:28:46,219 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:28:46,238 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:28:46,276 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:28:46,391 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:28:46,433 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:28:46,643 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:28:46,691 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:28:46,708 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:28:46,728 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:29:20,111 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:29:20,112 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:29:20,358 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:29:20,396 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:29:20,437 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:29:20,477 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:29:20,510 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:29:20,555 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:29:20,597 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:29:20,640 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:29:20,676 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:29:20,711 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:29:20,751 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:29:20,786 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:29:20,819 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:29:20,856 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:29:20,893 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:29:20,923 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:29:20,959 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:29:20,986 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:29:20,998 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:29:21,024 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:29:21,052 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:29:21,081 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:29:21,109 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:29:21,148 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:29:21,174 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:29:21,211 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:29:21,249 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:29:21,278 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:29:21,310 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:29:21,350 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:29:21,390 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:29:21,426 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:29:21,464 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:29:21,502 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:29:21,534 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:29:21,569 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:29:21,625 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:29:21,670 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:29:21,705 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:29:21,760 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:29:21,796 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:29:21,836 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:29:21,870 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:29:21,908 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:29:21,941 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:29:21,979 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:29:22,015 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:29:22,052 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:29:22,089 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:29:22,123 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:29:22,162 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:29:22,202 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:29:22,218 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:29:22,305 - __main__ - ERROR - Error validating citations with CourtListener citation-lookup: 400 Client Error: Bad Request for url: https://www.courtlistener.com/api/rest/v4/citation-lookup/
+2025-05-13 13:30:15,076 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:30:15,077 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:30:15,297 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:30:15,331 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:30:15,374 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:30:15,409 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:30:15,444 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:30:15,494 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:30:15,529 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:30:15,571 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:30:15,608 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:30:15,641 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:30:15,678 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:30:15,710 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:30:15,742 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:30:15,776 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:30:15,810 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:30:15,839 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:30:15,870 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:30:15,898 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:30:15,910 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:30:15,945 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:30:15,981 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:30:16,013 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:30:16,042 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:30:16,084 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:30:16,118 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:30:16,155 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:30:16,191 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:30:16,224 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:30:16,256 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:30:16,296 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:30:16,335 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:30:16,371 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:30:16,407 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:30:16,440 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:30:16,470 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:30:16,501 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:30:16,557 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:30:16,601 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:30:16,635 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:30:16,681 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:30:16,716 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:30:16,750 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:30:16,782 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:30:16,812 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:30:16,846 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:30:16,876 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:30:16,908 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:30:16,941 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:30:16,977 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:30:17,015 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:30:17,056 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:30:17,100 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:30:17,117 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:30:17,172 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:30:17,172 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:30:17,308 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:30:17,310 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:30:41,478 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:30:41,497 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:30:41,534 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:30:41,646 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:30:41,686 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:30:41,888 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:30:41,934 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:30:41,951 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:30:41,970 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:30:43,057 - __main__ - INFO - Successfully validated citations with CourtListener citation-lookup API
+2025-05-13 13:30:48,535 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:30:48,536 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:30:48,794 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:30:48,830 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:30:48,870 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:30:48,904 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:30:48,939 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:30:48,985 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:30:49,016 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:30:49,058 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:30:49,095 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:30:49,130 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:30:49,171 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:30:49,203 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:30:49,235 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:30:49,270 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:30:49,308 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:30:49,337 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:30:49,369 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:30:49,400 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:30:49,414 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:30:49,443 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:30:49,472 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:30:49,503 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:30:49,533 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:30:49,574 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:30:49,605 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:30:49,648 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:30:49,690 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:30:49,723 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:30:49,758 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:30:49,801 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:30:49,844 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:30:49,883 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:30:49,923 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:30:49,961 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:30:49,993 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:30:50,024 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:30:50,081 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:30:50,133 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:30:50,170 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:30:50,222 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:30:50,259 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:30:50,298 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:30:50,334 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:30:50,370 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:30:50,409 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:30:50,443 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:30:50,477 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:30:50,514 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:30:50,554 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:30:50,592 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:30:50,632 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:30:50,676 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:30:50,692 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:30:50,750 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:30:50,751 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:30:50,881 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:30:50,882 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:31:15,719 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:31:15,743 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:31:15,795 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:31:15,930 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:31:15,975 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:31:16,195 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:31:16,242 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:31:16,259 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:31:16,279 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:31:16,965 - __main__ - INFO - Successfully validated citations with CourtListener citation-lookup API
+2025-05-13 13:32:54,065 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:32:54,067 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:32:54,327 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:32:54,374 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:32:54,423 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:32:54,457 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:32:54,490 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:32:54,534 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:32:54,564 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:32:54,607 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:32:54,648 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:32:54,683 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:32:54,724 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:32:54,754 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:32:54,788 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:32:54,824 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:32:54,856 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:32:54,888 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:32:54,923 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:32:54,958 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:32:54,971 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:32:54,999 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:32:55,027 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:32:55,058 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:32:55,089 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:32:55,129 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:32:55,155 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:32:55,193 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:32:55,232 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:32:55,265 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:32:55,300 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:32:55,348 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:32:55,391 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:32:55,428 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:32:55,466 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:32:55,500 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:32:55,530 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:32:55,562 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:32:55,616 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:32:55,659 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:32:55,696 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:32:55,744 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:32:55,781 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:32:55,817 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:32:55,851 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:32:55,882 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:32:55,915 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:32:55,948 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:32:55,983 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:32:56,020 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:32:56,055 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:32:56,090 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:32:56,129 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:32:56,174 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:32:56,192 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:32:56,252 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:32:56,254 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:32:56,402 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:32:56,403 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:33:21,922 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:33:21,940 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:33:21,977 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:33:22,093 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:33:22,134 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:33:22,348 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:33:22,395 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:33:22,417 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:33:22,434 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:33:23,084 - __main__ - INFO - Successfully validated citations with CourtListener citation-lookup API
+2025-05-13 13:41:19,957 - __main__ - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 13:41:19,962 - __main__ - INFO - Processing PDF from https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 13:41:20,208 - __main__ - INFO - PyPDF2 extracted 895 characters from page 1
+2025-05-13 13:41:20,245 - __main__ - INFO - PyPDF2 extracted 1658 characters from page 2
+2025-05-13 13:41:20,286 - __main__ - INFO - PyPDF2 extracted 1909 characters from page 3
+2025-05-13 13:41:20,320 - __main__ - INFO - PyPDF2 extracted 1650 characters from page 4
+2025-05-13 13:41:20,356 - __main__ - INFO - PyPDF2 extracted 1570 characters from page 5
+2025-05-13 13:41:20,402 - __main__ - INFO - PyPDF2 extracted 2078 characters from page 6
+2025-05-13 13:41:20,432 - __main__ - INFO - PyPDF2 extracted 1499 characters from page 7
+2025-05-13 13:41:20,475 - __main__ - INFO - PyPDF2 extracted 1998 characters from page 8
+2025-05-13 13:41:20,516 - __main__ - INFO - PyPDF2 extracted 1698 characters from page 9
+2025-05-13 13:41:20,548 - __main__ - INFO - PyPDF2 extracted 1682 characters from page 10
+2025-05-13 13:41:20,586 - __main__ - INFO - PyPDF2 extracted 1958 characters from page 11
+2025-05-13 13:41:20,620 - __main__ - INFO - PyPDF2 extracted 1621 characters from page 12
+2025-05-13 13:41:20,656 - __main__ - INFO - PyPDF2 extracted 1584 characters from page 13
+2025-05-13 13:41:20,692 - __main__ - INFO - PyPDF2 extracted 1648 characters from page 14
+2025-05-13 13:41:20,736 - __main__ - INFO - PyPDF2 extracted 1614 characters from page 15
+2025-05-13 13:41:20,769 - __main__ - INFO - PyPDF2 extracted 1491 characters from page 16
+2025-05-13 13:41:20,801 - __main__ - INFO - PyPDF2 extracted 1622 characters from page 17
+2025-05-13 13:41:20,831 - __main__ - INFO - PyPDF2 extracted 1464 characters from page 18
+2025-05-13 13:41:20,843 - __main__ - INFO - PyPDF2 extracted 304 characters from page 19
+2025-05-13 13:41:20,873 - __main__ - INFO - PyPDF2 extracted 1386 characters from page 20
+2025-05-13 13:41:20,903 - __main__ - INFO - PyPDF2 extracted 1632 characters from page 21
+2025-05-13 13:41:20,937 - __main__ - INFO - PyPDF2 extracted 1793 characters from page 22
+2025-05-13 13:41:20,966 - __main__ - INFO - PyPDF2 extracted 1554 characters from page 23
+2025-05-13 13:41:21,025 - __main__ - INFO - PyPDF2 extracted 3048 characters from page 24
+2025-05-13 13:41:21,051 - __main__ - INFO - PyPDF2 extracted 1470 characters from page 25
+2025-05-13 13:41:21,089 - __main__ - INFO - PyPDF2 extracted 1471 characters from page 26
+2025-05-13 13:41:21,133 - __main__ - INFO - PyPDF2 extracted 1515 characters from page 27
+2025-05-13 13:41:21,166 - __main__ - INFO - PyPDF2 extracted 1355 characters from page 28
+2025-05-13 13:41:21,202 - __main__ - INFO - PyPDF2 extracted 2052 characters from page 29
+2025-05-13 13:41:21,245 - __main__ - INFO - PyPDF2 extracted 1885 characters from page 30
+2025-05-13 13:41:21,286 - __main__ - INFO - PyPDF2 extracted 1568 characters from page 31
+2025-05-13 13:41:21,322 - __main__ - INFO - PyPDF2 extracted 1944 characters from page 32
+2025-05-13 13:41:21,364 - __main__ - INFO - PyPDF2 extracted 1576 characters from page 33
+2025-05-13 13:41:21,398 - __main__ - INFO - PyPDF2 extracted 1902 characters from page 34
+2025-05-13 13:41:21,435 - __main__ - INFO - PyPDF2 extracted 1450 characters from page 35
+2025-05-13 13:41:21,473 - __main__ - INFO - PyPDF2 extracted 2041 characters from page 36
+2025-05-13 13:41:21,535 - __main__ - INFO - PyPDF2 extracted 1839 characters from page 37
+2025-05-13 13:41:21,584 - __main__ - INFO - PyPDF2 extracted 1517 characters from page 38
+2025-05-13 13:41:21,620 - __main__ - INFO - PyPDF2 extracted 1472 characters from page 39
+2025-05-13 13:41:21,671 - __main__ - INFO - PyPDF2 extracted 2264 characters from page 40
+2025-05-13 13:41:21,706 - __main__ - INFO - PyPDF2 extracted 1550 characters from page 41
+2025-05-13 13:41:21,744 - __main__ - INFO - PyPDF2 extracted 1616 characters from page 42
+2025-05-13 13:41:21,782 - __main__ - INFO - PyPDF2 extracted 1607 characters from page 43
+2025-05-13 13:41:21,814 - __main__ - INFO - PyPDF2 extracted 1942 characters from page 44
+2025-05-13 13:41:21,851 - __main__ - INFO - PyPDF2 extracted 1441 characters from page 45
+2025-05-13 13:41:21,887 - __main__ - INFO - PyPDF2 extracted 1551 characters from page 46
+2025-05-13 13:41:21,922 - __main__ - INFO - PyPDF2 extracted 1523 characters from page 47
+2025-05-13 13:41:21,958 - __main__ - INFO - PyPDF2 extracted 1604 characters from page 48
+2025-05-13 13:41:21,995 - __main__ - INFO - PyPDF2 extracted 1624 characters from page 49
+2025-05-13 13:41:22,029 - __main__ - INFO - PyPDF2 extracted 1549 characters from page 50
+2025-05-13 13:41:22,067 - __main__ - INFO - PyPDF2 extracted 1662 characters from page 51
+2025-05-13 13:41:22,118 - __main__ - INFO - PyPDF2 extracted 1466 characters from page 52
+2025-05-13 13:41:22,134 - __main__ - INFO - PyPDF2 extracted 379 characters from page 53
+2025-05-13 13:41:22,185 - __main__ - INFO - Text length: 83250, type: <class 'str'>
+2025-05-13 13:41:22,186 - __main__ - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 13:41:22,328 - __main__ - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 13:41:22,330 - __main__ - INFO - Processing chunk 1 of length 10000
+2025-05-13 13:41:47,768 - __main__ - INFO - Processing chunk 2 of length 10000
+2025-05-13 13:41:47,790 - __main__ - INFO - Processing chunk 3 of length 10000
+2025-05-13 13:41:47,840 - __main__ - INFO - Processing chunk 4 of length 10000
+2025-05-13 13:41:47,975 - __main__ - INFO - Processing chunk 5 of length 10000
+2025-05-13 13:41:48,020 - __main__ - INFO - Processing chunk 6 of length 10000
+2025-05-13 13:41:48,224 - __main__ - INFO - Processing chunk 7 of length 10000
+2025-05-13 13:41:48,279 - __main__ - INFO - Processing chunk 8 of length 10000
+2025-05-13 13:41:48,295 - __main__ - INFO - Processing chunk 9 of length 3250
+2025-05-13 13:41:48,315 - __main__ - ERROR - Error using eyecite: 'UnknownCitation' object has no attribute 'type'
+2025-05-13 13:41:49,144 - __main__ - INFO - Successfully validated citations with CourtListener citation-lookup API
+2025-05-13 13:48:56,980 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:48:56,980 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:48:57,660 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:48:57,660 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:48:57,805 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:48:57,805 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:48:57,975 - werkzeug - INFO -  * Restarting with stat
+2025-05-13 13:48:59,257 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:48:59,257 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:48:59,811 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:48:59,811 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:48:59,904 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:48:59,904 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:49:02,682 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2025-05-13 13:49:02,684 - werkzeug - INFO -  * Running on http://10.158.120.151:5000/ (Press CTRL+C to quit)
+2025-05-13 13:49:10,225 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 13:49:10,225 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 13:49:10,251 - werkzeug - INFO - 172.18.0.1 - - [13/May/2025 13:49:10] "GET / HTTP/1.1" 200 -
+2025-05-13 13:51:37,830 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:51:37,830 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:51:38,406 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:51:38,406 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:51:38,506 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:51:38,506 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:51:38,630 - werkzeug - INFO -  * Restarting with stat
+2025-05-13 13:51:39,928 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:51:39,928 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:51:40,499 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:51:40,499 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:51:40,596 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:51:40,596 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:51:42,822 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2025-05-13 13:51:42,824 - werkzeug - INFO -  * Running on http://10.158.120.151:5000/ (Press CTRL+C to quit)
+2025-05-13 13:53:34,289 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:53:34,289 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:53:34,798 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:53:34,798 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:53:34,898 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:53:34,898 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:54:49,824 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:54:49,824 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:54:50,432 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:54:50,432 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:54:50,528 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:54:50,528 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:58:48,131 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:58:48,131 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:58:48,723 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:58:48,723 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:58:48,843 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:58:48,843 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:59:26,862 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:59:26,862 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 13:59:27,413 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:59:27,413 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 13:59:27,509 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 13:59:27,509 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:00:24,473 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:00:24,473 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:00:25,006 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:00:25,006 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:00:25,098 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:00:25,098 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:02:33,244 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:02:33,244 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:02:34,739 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:02:34,739 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:04:23,561 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:04:23,561 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:04:24,130 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:04:24,130 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:04:24,227 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:04:24,227 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:06:45,565 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:06:45,565 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:06:46,147 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:06:46,147 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:06:46,269 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:06:46,269 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:07:20,831 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:07:20,831 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:08:07,218 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:08:07,218 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:08:07,220 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:08:07,220 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:08:07,221 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:08:07,221 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:08:07,967 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:08:07,967 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:08:07,970 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:08:07,970 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:08:07,972 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_4d209d63-e657-4a29-8000-8a1caa4939d2.pdf
+2025-05-13 14:08:07,972 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_4d209d63-e657-4a29-8000-8a1caa4939d2.pdf
+2025-05-13 14:08:07,974 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:08:07,974 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:08:07,975 - enhanced_validator - INFO - Extracting text from file: uploads\temp_4d209d63-e657-4a29-8000-8a1caa4939d2.pdf
+2025-05-13 14:08:07,975 - enhanced_validator - INFO - Extracting text from file: uploads\temp_4d209d63-e657-4a29-8000-8a1caa4939d2.pdf
+2025-05-13 14:08:12,928 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:08:12,928 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:08:12,929 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:08:12,929 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:08:12,930 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:08:12,930 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:08:15,112 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:08:15,112 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:08:15,113 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:08:15,113 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:10:05,365 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:10:05,365 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:11:08,347 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:11:08,347 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:11:08,986 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:11:08,986 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:11:09,094 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:11:09,094 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:14:07,861 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:14:07,861 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:14:08,618 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:14:08,618 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:17:08,028 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:17:08,028 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:20:09,232 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:09,232 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:09,235 - enhanced_validator - INFO - Validating citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,235 - enhanced_validator - INFO - Validating citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,247 - enhanced_validator - INFO - Checking CourtListener API for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,247 - enhanced_validator - INFO - Checking CourtListener API for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,848 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Brown%20v.%20Board%20of%20Education,%20347%20U.S.%20483%20(1954)
+2025-05-13 14:20:09,848 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Brown%20v.%20Board%20of%20Education,%20347%20U.S.%20483%20(1954)
+2025-05-13 14:20:09,853 - enhanced_validator - DEBUG - Landmark direct match found for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,853 - enhanced_validator - DEBUG - Landmark direct match found for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:09,854 - enhanced_validator - INFO - Validation completed in 0.62 seconds
+2025-05-13 14:20:09,854 - enhanced_validator - INFO - Validation completed in 0.62 seconds
+2025-05-13 14:20:09,854 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:09,854 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:09,855 - enhanced_validator - DEBUG - Validation result: {'citation': 'Brown v. Board of Education, 347 U.S. 483 (1954)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Brown v. Board of Education', 'components': {'case_name': 'Brown v. Board of Education', 'volume': '347', 'reporter': 'U.S.', 'page': '483', 'year': '1954', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:09,855 - enhanced_validator - DEBUG - Validation result: {'citation': 'Brown v. Board of Education, 347 U.S. 483 (1954)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Brown v. Board of Education', 'components': {'case_name': 'Brown v. Board of Education', 'volume': '347', 'reporter': 'U.S.', 'page': '483', 'year': '1954', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:24,355 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:24,355 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:24,356 - enhanced_validator - INFO - Validating citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,356 - enhanced_validator - INFO - Validating citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,356 - enhanced_validator - INFO - Checking CourtListener API for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,356 - enhanced_validator - INFO - Checking CourtListener API for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,925 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Brown%20v.%20Board%20of%20Education,%20347%20U.S.%20483%20(1954)
+2025-05-13 14:20:24,925 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Brown%20v.%20Board%20of%20Education,%20347%20U.S.%20483%20(1954)
+2025-05-13 14:20:24,928 - enhanced_validator - DEBUG - Landmark direct match found for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,928 - enhanced_validator - DEBUG - Landmark direct match found for citation: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-13 14:20:24,929 - enhanced_validator - INFO - Validation completed in 0.57 seconds
+2025-05-13 14:20:24,929 - enhanced_validator - INFO - Validation completed in 0.57 seconds
+2025-05-13 14:20:24,929 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:24,929 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:24,931 - enhanced_validator - DEBUG - Validation result: {'citation': 'Brown v. Board of Education, 347 U.S. 483 (1954)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Brown v. Board of Education', 'components': {'case_name': 'Brown v. Board of Education', 'volume': '347', 'reporter': 'U.S.', 'page': '483', 'year': '1954', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:24,931 - enhanced_validator - DEBUG - Validation result: {'citation': 'Brown v. Board of Education, 347 U.S. 483 (1954)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Brown v. Board of Education', 'components': {'case_name': 'Brown v. Board of Education', 'volume': '347', 'reporter': 'U.S.', 'page': '483', 'year': '1954', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:26,957 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:26,957 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:26,958 - enhanced_validator - INFO - Validating citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:26,958 - enhanced_validator - INFO - Validating citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:26,959 - enhanced_validator - INFO - Checking CourtListener API for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:26,959 - enhanced_validator - INFO - Checking CourtListener API for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:27,533 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Roe%20v.%20Wade,%20410%20U.S.%20113%20(1973)
+2025-05-13 14:20:27,533 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Roe%20v.%20Wade,%20410%20U.S.%20113%20(1973)
+2025-05-13 14:20:27,536 - enhanced_validator - DEBUG - Landmark direct match found for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:27,536 - enhanced_validator - DEBUG - Landmark direct match found for citation: Roe v. Wade, 410 U.S. 113 (1973)
+2025-05-13 14:20:27,537 - enhanced_validator - INFO - Validation completed in 0.58 seconds
+2025-05-13 14:20:27,537 - enhanced_validator - INFO - Validation completed in 0.58 seconds
+2025-05-13 14:20:27,538 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:27,538 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:27,539 - enhanced_validator - DEBUG - Validation result: {'citation': 'Roe v. Wade, 410 U.S. 113 (1973)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Roe v. Wade', 'components': {'case_name': 'Roe v. Wade', 'volume': '410', 'reporter': 'U.S.', 'page': '113', 'year': '1973', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:27,539 - enhanced_validator - DEBUG - Validation result: {'citation': 'Roe v. Wade, 410 U.S. 113 (1973)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Roe v. Wade', 'components': {'case_name': 'Roe v. Wade', 'volume': '410', 'reporter': 'U.S.', 'page': '113', 'year': '1973', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:29,560 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:29,560 - enhanced_validator - INFO - Enhanced Validator citation validation requested
+2025-05-13 14:20:29,561 - enhanced_validator - INFO - Validating citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:29,561 - enhanced_validator - INFO - Validating citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:29,562 - enhanced_validator - INFO - Checking CourtListener API for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:29,562 - enhanced_validator - INFO - Checking CourtListener API for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:30,152 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Marbury%20v.%20Madison,%205%20U.S.%20137%20(1803)
+2025-05-13 14:20:30,152 - enhanced_validator - ERROR - Error checking CourtListener API: 404 Client Error: Not Found for url: https://www.courtlistener.com/api/rest/v3/citations/?citation=Marbury%20v.%20Madison,%205%20U.S.%20137%20(1803)
+2025-05-13 14:20:30,156 - enhanced_validator - DEBUG - Landmark direct match found for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:30,156 - enhanced_validator - DEBUG - Landmark direct match found for citation: Marbury v. Madison, 5 U.S. 137 (1803)
+2025-05-13 14:20:30,157 - enhanced_validator - INFO - Validation completed in 0.60 seconds
+2025-05-13 14:20:30,157 - enhanced_validator - INFO - Validation completed in 0.60 seconds
+2025-05-13 14:20:30,158 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:30,158 - enhanced_validator - INFO - Validation method: Landmark
+2025-05-13 14:20:30,159 - enhanced_validator - DEBUG - Validation result: {'citation': 'Marbury v. Madison, 5 U.S. 137 (1803)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Marbury v. Madison', 'components': {'case_name': 'Marbury v. Madison', 'volume': '5', 'reporter': 'U.S.', 'page': '137', 'year': '1803', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:30,159 - enhanced_validator - DEBUG - Validation result: {'citation': 'Marbury v. Madison, 5 U.S. 137 (1803)', 'verified': True, 'verified_by': 'Enhanced Validator', 'validation_method': 'Landmark', 'case_name': 'Marbury v. Madison', 'components': {'case_name': 'Marbury v. Madison', 'volume': '5', 'reporter': 'U.S.', 'page': '137', 'year': '1803', 'court': 'U.S. Supreme Court', 'citation_format': 'full'}, 'error': None}
+2025-05-13 14:20:48,105 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:20:48,105 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:20:55,121 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:20:55,121 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:20:55,122 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:20:55,122 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:20:55,122 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:20:55,122 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:20:55,804 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:20:55,804 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:20:55,806 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:20:55,806 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:20:55,807 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_1b005990-0c13-4e2c-8e46-491c4540773c.pdf
+2025-05-13 14:20:55,807 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_1b005990-0c13-4e2c-8e46-491c4540773c.pdf
+2025-05-13 14:20:55,807 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:20:55,807 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:20:55,808 - enhanced_validator - INFO - Extracting text from file: uploads\temp_1b005990-0c13-4e2c-8e46-491c4540773c.pdf
+2025-05-13 14:20:55,808 - enhanced_validator - INFO - Extracting text from file: uploads\temp_1b005990-0c13-4e2c-8e46-491c4540773c.pdf
+2025-05-13 14:21:00,408 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:21:00,408 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:21:00,409 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:21:00,409 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:21:00,410 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:21:00,410 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:21:02,503 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:21:02,503 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:21:02,504 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:21:02,504 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:22:01,282 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:22:01,282 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 14:22:32,248 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:22:32,248 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:22:32,845 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:22:32,845 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:22:32,943 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:22:32,943 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:22:34,960 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:22:34,960 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:22:34,961 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:22:34,961 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:22:34,962 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:22:34,962 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:22:35,531 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:22:35,531 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:22:35,534 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:22:35,534 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:22:35,535 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_57be22fe-b329-40f5-a47c-bfd3db556012.pdf
+2025-05-13 14:22:35,535 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_57be22fe-b329-40f5-a47c-bfd3db556012.pdf
+2025-05-13 14:22:35,536 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:22:35,536 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:22:35,536 - enhanced_validator - INFO - Extracting text from file: uploads\temp_57be22fe-b329-40f5-a47c-bfd3db556012.pdf
+2025-05-13 14:22:35,536 - enhanced_validator - INFO - Extracting text from file: uploads\temp_57be22fe-b329-40f5-a47c-bfd3db556012.pdf
+2025-05-13 14:22:39,759 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:22:39,759 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:22:39,759 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:22:39,759 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:22:39,760 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:22:39,760 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:22:41,783 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:22:41,783 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:22:41,783 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:22:41,783 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:23:16,358 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:23:16,358 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:23:16,359 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:23:16,359 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:23:16,360 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:23:16,360 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:23:16,955 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:23:16,955 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:23:16,958 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:23:16,958 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:23:16,959 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_22c2be35-d77e-470a-8121-0200419a59d3.pdf
+2025-05-13 14:23:16,959 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_22c2be35-d77e-470a-8121-0200419a59d3.pdf
+2025-05-13 14:23:16,959 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:23:16,959 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:23:16,960 - enhanced_validator - INFO - Extracting text from file: uploads\temp_22c2be35-d77e-470a-8121-0200419a59d3.pdf
+2025-05-13 14:23:16,960 - enhanced_validator - INFO - Extracting text from file: uploads\temp_22c2be35-d77e-470a-8121-0200419a59d3.pdf
+2025-05-13 14:23:21,328 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:23:21,328 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:23:21,329 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:23:21,329 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:23:21,331 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:23:21,331 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:23:23,214 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:23:23,214 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:23:23,215 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:23:23,215 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:24:35,775 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:24:35,775 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:24:35,777 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:24:35,777 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:24:35,778 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:24:35,778 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:24:36,369 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:24:36,369 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:24:36,371 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:24:36,371 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:24:36,372 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_39025097-f477-4ce6-bd23-742740b444f1.pdf
+2025-05-13 14:24:36,372 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_39025097-f477-4ce6-bd23-742740b444f1.pdf
+2025-05-13 14:24:36,373 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:24:36,373 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:24:36,374 - enhanced_validator - INFO - Extracting text from file: uploads\temp_39025097-f477-4ce6-bd23-742740b444f1.pdf
+2025-05-13 14:24:36,374 - enhanced_validator - INFO - Extracting text from file: uploads\temp_39025097-f477-4ce6-bd23-742740b444f1.pdf
+2025-05-13 14:24:40,602 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:24:40,602 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:24:40,603 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:24:40,603 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:24:40,604 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:24:40,604 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:24:42,423 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:24:42,423 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:24:42,424 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:24:42,424 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:36:34,743 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:36:34,743 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:36:34,746 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:34,746 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:34,748 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:34,748 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:35,347 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:36:35,347 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:36:35,349 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:36:35,349 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:36:35,351 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_ecf35981-a286-4ce7-888d-b0ce2e07a691.pdf
+2025-05-13 14:36:35,351 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_ecf35981-a286-4ce7-888d-b0ce2e07a691.pdf
+2025-05-13 14:36:35,352 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:36:35,352 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:36:35,353 - enhanced_validator - INFO - Extracting text from file: uploads\temp_ecf35981-a286-4ce7-888d-b0ce2e07a691.pdf
+2025-05-13 14:36:35,353 - enhanced_validator - INFO - Extracting text from file: uploads\temp_ecf35981-a286-4ce7-888d-b0ce2e07a691.pdf
+2025-05-13 14:36:39,469 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:36:39,469 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:36:39,471 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:36:39,471 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:36:39,473 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:36:39,473 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:36:41,196 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:36:41,196 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:36:41,198 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:36:41,198 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:36:44,843 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:36:44,843 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:36:44,844 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:44,844 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:44,845 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:44,845 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:36:45,436 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:36:45,436 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:36:45,439 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:36:45,439 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:36:45,439 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_9f7f5e48-1da7-4666-9ec5-ccdc334a6b86.pdf
+2025-05-13 14:36:45,439 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_9f7f5e48-1da7-4666-9ec5-ccdc334a6b86.pdf
+2025-05-13 14:36:45,440 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:36:45,440 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:36:45,441 - enhanced_validator - INFO - Extracting text from file: uploads\temp_9f7f5e48-1da7-4666-9ec5-ccdc334a6b86.pdf
+2025-05-13 14:36:45,441 - enhanced_validator - INFO - Extracting text from file: uploads\temp_9f7f5e48-1da7-4666-9ec5-ccdc334a6b86.pdf
+2025-05-13 14:36:49,475 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:36:49,475 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:36:49,476 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:36:49,476 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:36:49,477 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:36:49,477 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:36:51,177 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:36:51,177 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:36:51,178 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:36:51,178 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:38:20,618 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:38:20,618 - enhanced_validator - INFO - URL fetch requested
+2025-05-13 14:38:20,619 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:38:20,619 - enhanced_validator - INFO - Processing URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:38:20,621 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:38:20,621 - enhanced_validator - INFO - Making request to URL: https://www.courts.wa.gov/opinions/pdf/1029403.pdf
+2025-05-13 14:38:21,210 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:38:21,210 - enhanced_validator - INFO - Processing PDF URL
+2025-05-13 14:38:21,213 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:38:21,213 - enhanced_validator - INFO - PDF downloaded successfully, size: 681308 bytes
+2025-05-13 14:38:21,214 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_cc40c849-62bc-4c84-8d9b-5e261b767e6d.pdf
+2025-05-13 14:38:21,214 - enhanced_validator - INFO - Saving PDF to temporary file: uploads\temp_cc40c849-62bc-4c84-8d9b-5e261b767e6d.pdf
+2025-05-13 14:38:21,215 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:38:21,215 - enhanced_validator - INFO - Attempting to extract text from PDF
+2025-05-13 14:38:21,216 - enhanced_validator - INFO - Extracting text from file: uploads\temp_cc40c849-62bc-4c84-8d9b-5e261b767e6d.pdf
+2025-05-13 14:38:21,216 - enhanced_validator - INFO - Extracting text from file: uploads\temp_cc40c849-62bc-4c84-8d9b-5e261b767e6d.pdf
+2025-05-13 14:38:25,563 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:38:25,563 - enhanced_validator - INFO - Temporary PDF file removed
+2025-05-13 14:38:25,564 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:38:25,564 - enhanced_validator - INFO - Processing text with Eyecite
+2025-05-13 14:38:25,565 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:38:25,565 - enhanced_validator - INFO - Using AhocorasickTokenizer for citation extraction
+2025-05-13 14:38:27,326 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:38:27,326 - enhanced_validator - INFO - Successfully extracted 86440 characters from URL
+2025-05-13 14:38:27,327 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:38:27,327 - enhanced_validator - INFO - Found 198 citations
+2025-05-13 14:46:48,089 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:46:48,706 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 14:46:48,729 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:46:48,847 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:46:48,847 - enhanced_validator - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 14:59:19,008 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 14:59:19,611 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:00:52,456 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:00:52,977 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:01:59,942 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:02:00,498 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:02:52,346 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:02:52,857 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:03:51,739 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:03:52,309 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:04:36,944 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:04:37,486 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:05:22,224 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:05:22,785 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:07:06,192 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:07:06,710 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:08:15,812 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:08:16,365 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:09:19,391 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:09:19,906 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:16:51,344 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:16:51,847 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:17:15,616 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:17:16,152 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:21:48,185 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:21:48,785 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:22:07,057 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:22:11,401 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:25:48,800 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:25:49,306 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:26:13,557 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:26:14,087 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:26:20,136 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:26:35,455 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:27:14,915 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:28:56,539 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:28:57,048 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:31:41,400 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:31:41,898 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:32:15,395 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:34:19,029 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:34:19,544 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:37:15,325 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:37:52,424 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:37:52,946 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:37:57,529 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:39:10,628 - enhanced_validator - INFO - Loaded CourtListener API key from config.json
+2025-05-13 15:39:11,164 - enhanced_validator - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 15:39:15,471 - enhanced_validator - INFO - Enhanced Validator page requested
+2025-05-13 15:39:17,059 - enhanced_validator - INFO - Enhanced Validator page requested
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app

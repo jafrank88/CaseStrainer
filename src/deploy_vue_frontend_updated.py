@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 print("Vue.js frontend with tabbed interface deployed successfully to static/vue directory!")
 print("The application will be accessible at:")
-print("  - Local: http://127.0.0.1:5000")
+print("  - Local: http://0.0.0.0:5000")
 print("  - External: https://wolf.law.uw.edu/casestrainer/")
 print("\nTo start the application, run:")
 print("  D:\\Python\\python.exe app_final_vue.py --host=0.0.0.0 --port=5000")

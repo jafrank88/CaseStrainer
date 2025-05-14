@@ -130,7 +130,7 @@ def analyze_brief(file_path):
             return None
         
         # CaseStrainer API endpoint
-        api_url = "http://127.0.0.1:5001/analyze"
+        api_url = "http://0.0.0.0:5001/analyze"
         
         # Prepare the file for upload
         with open(file_path, 'rb') as f:
@@ -160,7 +160,7 @@ def analyze_brief(file_path):
             print(f"Analysis started with ID: {analysis_id}")
         
         # Poll for analysis results
-        status_url = f"http://127.0.0.1:5001/status?id={analysis_id}"
+        status_url = f"http://0.0.0.0:5001/status?id={analysis_id}"
         max_attempts = 60
         attempts = 0
         

@@ -25,10 +25,10 @@ import traceback
 # These imports will be handled by moving the files later
 
 # API endpoints
-COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v3/citation-lookup/'
-COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v3/search/'
-COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v3/opinions/'
-COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v3/clusters/'
+COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v4/citation-lookup/'
+COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v4/search/'
+COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v4/opinions/'
+COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v4/clusters/'
 GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar'
 
 # Flags to track API availability

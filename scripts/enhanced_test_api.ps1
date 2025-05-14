@@ -1,1 +1,1 @@
-$headers = @{ 'Content-Type' = 'application/json' }; $body = Get-Content -Raw -Path 'enhanced_test_api_request.json'; $result = Invoke-RestMethod -Uri http://127.0.0.1:5000/api/reprocess_citations -Method Post -Headers $headers -Body $body; $result | ConvertTo-Json -Depth 5
+$headers = @{ 'Content-Type' = 'application/json' }; $body = Get-Content -Raw -Path 'enhanced_test_api_request.json'; $result = Invoke-RestMethod -Uri http://0.0.0.0:5000/api/reprocess_citations -Method Post -Headers $headers -Body $body; $result | ConvertTo-Json -Depth 5

@@ -1102,7 +1102,7 @@ if __name__ == '__main__':
                         os.unlink(unix_socket)
             else:
                 # Use TCP socket
-                host = os.environ.get('HOST', '127.0.0.1')
+                host = os.environ.get('HOST', '0.0.0.0')
                 port = int(os.environ.get('PORT', 8000))
                 
                 server = WSGIServer((host, port), app)
@@ -1121,7 +1121,7 @@ if __name__ == '__main__':
             except Exception as e:
                 print(f"Failed to install Cheroot: {e}")
                 print("Falling back to Flask development server")
-                app.run(debug=True, host='127.0.0.1', port=8000)
+                app.run(debug=True, host='0.0.0.0', port=8000)
     else:
         print("Starting with Flask development server (debug mode)")
-        app.run(debug=True, host='127.0.0.1', port=8000)
+        app.run(debug=True, host='0.0.0.0', port=8000)

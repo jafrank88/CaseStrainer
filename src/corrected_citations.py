@@ -174,7 +174,7 @@ def create_test_api_request():
         # Also create a PowerShell command to test the API
         ps_command = "$headers = @{ 'Content-Type' = 'application/json' }; "
         ps_command += "$body = Get-Content -Raw -Path 'test_api_request.json'; "
-        ps_command += "$result = Invoke-RestMethod -Uri http://127.0.0.1:5000/api/reprocess_citations -Method Post -Headers $headers -Body $body; "
+        ps_command += "$result = Invoke-RestMethod -Uri http://0.0.0.0:5000/api/reprocess_citations -Method Post -Headers $headers -Body $body; "
         ps_command += "$result | ConvertTo-Json -Depth 5"
         
         with open('test_api.ps1', 'w') as f:

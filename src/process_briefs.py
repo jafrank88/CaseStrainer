@@ -88,7 +88,7 @@ def process_brief(file_path):
     """Process a brief through the CaseStrainer tool to identify unconfirmed citations."""
     try:
         # CaseStrainer API endpoint
-        api_url = "http://127.0.0.1:5001/analyze"
+        api_url = "http://0.0.0.0:5001/analyze"
         
         print(f"Processing file: {file_path}")
         # Check if file exists and is readable
@@ -131,7 +131,7 @@ def process_brief(file_path):
             print(f"Analysis started for {os.path.basename(file_path)} with ID: {analysis_id}")
         
         # Poll for analysis results
-        status_url = f"http://127.0.0.1:5001/status?id={analysis_id}"
+        status_url = f"http://0.0.0.0:5001/status?id={analysis_id}"
         max_attempts = 60  # Increased timeout
         attempts = 0
         
@@ -207,7 +207,7 @@ def main():
     # Test if the CaseStrainer server is running
     if args.test_server:
         try:
-            response = requests.get("http://127.0.0.1:5001/")
+            response = requests.get("http://0.0.0.0:5001/")
             print(f"CaseStrainer server is running. Status code: {response.status_code}")
             return
         except requests.RequestException as e:

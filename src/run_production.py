@@ -127,22 +127,22 @@ def main():
         if args.url_prefix:
             logger.info(f"Applying URL prefix middleware: {args.url_prefix}")
             
-            # Create a simple WSGI app for handling 404 responses
-            def not_found(environ, start_response):
-                start_response('404 Not Found', [('Content-Type', 'text/plain')])
-                return [b'Not Found']
+            # Create a simple default app for the root path
+            from flask import Flask as RootFlask
+            default_app = RootFlask(__name__)
             
-            # Create dispatcher middleware with proper URL prefix handling
-            application = DispatcherMiddleware(
-                not_found,  # Default app for non-matching paths
-                {
-                    args.url_prefix.rstrip('/'): app  # Remove trailing slash to avoid double slashes
-                }
-            )
+            @default_app.route('/')
+            def default_route():
+                return f'Please visit <a href="{args.url_prefix}">{args.url_prefix}</a>'
+            
+            # Create dispatcher middleware
+            application = DispatcherMiddleware(default_app, {
+                args.url_prefix: app
+            })
             
             logger.info("Dispatcher middleware created successfully")
             
-            # Serve the wrapped application
+            # Serve the wrapped application, not the Flask app
             logger.info(f"Starting Waitress server with DispatcherMiddleware on http://{args.host}:{args.port}{args.url_prefix}")
             serve(application, host=args.host, port=args.port, threads=args.threads)
         else:
