@@ -76,6 +76,9 @@ def create_app():
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
     app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'html', 'htm'}
+    
+    # Set application root from environment variable
+    app.config['APPLICATION_ROOT'] = os.environ.get('APPLICATION_ROOT', '/casestrainer')
 
     # Create upload folder if it doesn't exist
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -94,7 +97,7 @@ def create_app():
     })
 
     # Configure for reverse proxy
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
 
     # Initialize Flask-Session
     Session(app)
@@ -122,7 +125,7 @@ def create_app():
         tokenizer = None
         logger.warning(f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction.")
 
-    # Register the citation API blueprint
+    # Register the citation API blueprint with proper prefix
     app.register_blueprint(citation_api, url_prefix='/api')
     logger.info("Citation API registered with prefix /api")
 
@@ -219,48 +222,39 @@ def create_app():
     def confirmed_with_multitool_data():
         """API endpoint for citations confirmed with multi-tool verification."""
         try:
-            # Initialize session data if empty
-            initialize_session_data()
-            
-            # Use the user's session data
-            from flask import session
-            user_citations = session.get('user_citations', [])
-            logger.info(f"Confirmed with multitool data request received. Citations available: {len(user_citations)}")
-            
-            # Filter for citations that were found but not from CourtListener
-            multitool_citations = [{
-                'citation_text': c['citation'],
-                'case_name': c.get('found_case_name', 'Unknown'),
-                'confidence': c.get('confidence', 0.8),
-                'source': c.get('source', 'Multi-source Verification'),
-                'url': c.get('url', ''),
-                'explanation': c.get('explanation', f"Verified by {c.get('source', 'Multi-source Verification')}"),
-                'document': ''
-            } for c in user_citations if c.get('found', False) and c.get('source') != 'CourtListener']
-            
-            logger.info(f"Found {len(multitool_citations)} multitool citations")
-            
-            # Return the multitool citations (even if empty)
+            # Get citations from database
+            conn = sqlite3.connect(DATABASE_FILE)
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM citations WHERE verified = 1')
+            citations = cursor.fetchall()
+            conn.close()
+
+            # Format citations for response
+            formatted_citations = []
+            for citation in citations:
+                formatted_citations.append({
+                    'citation': citation[1],
+                    'found': True,
+                    'found_case_name': citation[2],
+                    'confidence': citation[3],
+                    'source': citation[4],
+                    'url': citation[5],
+                    'explanation': citation[6]
+                })
+
             return jsonify({
-                'status': 'success',
-                'citations': multitool_citations
+                'citations': formatted_citations,
+                'total': len(formatted_citations)
             })
         except Exception as e:
-            logger.error(f"Error in confirmed_with_multitool_data: {e}")
-            return jsonify({
-                'status': 'error',
-                'message': str(e)
-            }), 500
+            logger.error(f"Error in confirmed_with_multitool_data: {str(e)}")
+            logger.error(f"Error details: {traceback.format_exc()}")
+            return jsonify({'error': str(e)}), 500
 
     @app.route('/api/processing_progress', methods=['GET'])
     def processing_progress():
-        """Get the current progress of citation processing."""
-        return jsonify({
-            'status': 'success',
-            'total_citations': processing_state['total_citations'],
-            'processed_citations': processing_state['processed_citations'],
-            'is_complete': processing_state['is_complete']
-        })
+        """Get the current processing progress."""
+        return jsonify(processing_state)
 
     @app.route('/api/validate_citations', methods=['POST'])
     def validate_citations():

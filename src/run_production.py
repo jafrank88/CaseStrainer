@@ -80,13 +80,13 @@ def main():
     parser.add_argument('--debug', action='store_true', help='Run in debug mode')
     parser.add_argument('--threads', type=int, default=10, help='Number of threads for the server')
     parser.add_argument('--env', choices=['development', 'production'], default='production', help='Environment to run in')
-    parser.add_argument('--url-prefix', help='URL prefix for the application')
+    parser.add_argument('--url-prefix', default='/casestrainer', help='URL prefix for the application')
     args = parser.parse_args()
 
     # Set environment variables
     os.environ['FLASK_ENV'] = args.env
-    if args.url_prefix:
-        os.environ['APPLICATION_ROOT'] = args.url_prefix
+    os.environ['APPLICATION_ROOT'] = args.url_prefix
+    os.environ['USE_WAITRESS'] = 'True'
 
     try:
         # Create the Flask app
@@ -96,9 +96,8 @@ def main():
         # Configure for reverse proxy
         app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
         
-        # Set the application root if URL prefix is specified
-        if args.url_prefix:
-            app.config['APPLICATION_ROOT'] = args.url_prefix
+        # Set the application root
+        app.config['APPLICATION_ROOT'] = args.url_prefix
         
         # Verify it's a Flask app
         from flask import Flask
@@ -119,36 +118,27 @@ def main():
         logger.info(f"Port: {args.port}")
         logger.info(f"Threads: {args.threads}")
         logger.info(f"Environment: {args.env}")
-        if args.url_prefix:
-            logger.info(f"URL Prefix: {args.url_prefix}")
+        logger.info(f"URL Prefix: {args.url_prefix}")
         logger.info("=" * 50)
 
-        # Apply URL prefix middleware if specified
-        if args.url_prefix:
-            logger.info(f"Applying URL prefix middleware: {args.url_prefix}")
-            
-            # Create a simple default app for the root path
-            from flask import Flask as RootFlask
-            default_app = RootFlask(__name__)
-            
-            @default_app.route('/')
-            def default_route():
-                return f'Please visit <a href="{args.url_prefix}">{args.url_prefix}</a>'
-            
-            # Create dispatcher middleware
-            application = DispatcherMiddleware(default_app, {
-                args.url_prefix: app
-            })
-            
-            logger.info("Dispatcher middleware created successfully")
-            
-            # Serve the wrapped application, not the Flask app
-            logger.info(f"Starting Waitress server with DispatcherMiddleware on http://{args.host}:{args.port}{args.url_prefix}")
-            serve(application, host=args.host, port=args.port, threads=args.threads)
-        else:
-            # Serve Flask app directly without middleware
-            logger.info(f"Starting Waitress server on http://{args.host}:{args.port}")
-            serve(app, host=args.host, port=args.port, threads=args.threads)
+        # Create a simple default app for the root path
+        from flask import Flask as RootFlask
+        default_app = RootFlask(__name__)
+        
+        @default_app.route('/')
+        def default_route():
+            return f'Please visit <a href="{args.url_prefix}">{args.url_prefix}</a>'
+        
+        # Create dispatcher middleware
+        application = DispatcherMiddleware(default_app, {
+            args.url_prefix: app
+        })
+        
+        logger.info("Dispatcher middleware created successfully")
+        
+        # Serve the wrapped application
+        logger.info(f"Starting Waitress server with DispatcherMiddleware on http://{args.host}:{args.port}{args.url_prefix}")
+        serve(application, host=args.host, port=args.port, threads=args.threads)
 
     except Exception as e:
         logger.error(f"Error starting server: {e}")
