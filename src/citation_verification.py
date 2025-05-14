@@ -20,6 +20,7 @@ import requests
 import urllib.parse
 from typing import Optional, Dict, Any, List, Tuple, Union
 import traceback
+import logging
 
 # Import existing modules (copy them from old files if needed)
 # These imports will be handled by moving the files later
@@ -51,6 +52,7 @@ class CitationVerifier:
             'Authorization': f'Token {self.api_key}' if self.api_key else '',
             'Content-Type': 'application/json'
         }
+        logger.info(f"Initialized CitationVerifier with API key: {self.api_key[:6]}... (length: {len(self.api_key) if self.api_key else 0})")
     
     def verify_citation(self, citation: str) -> Dict[str, Any]:
         """
@@ -67,6 +69,8 @@ class CitationVerifier:
             - details: Additional details about the case
             - url: Direct link to the case (if available)
         """
+        print(f"DEBUG: Starting verification for citation: {citation}")
+        logging.info(f"[DEBUG] Starting verification for citation: {citation}")
         result = {
             'citation': citation,
             'found': False,
@@ -75,45 +79,65 @@ class CitationVerifier:
             'url': None,
             'details': {}
         }
-        
-        # Try all methods in sequence until one succeeds
         try:
-            # Method 1: CourtListener Citation Lookup API
+            logging.info("[DEBUG] Trying CourtListener Citation Lookup API...")
+            print("DEBUG: Trying CourtListener Citation Lookup API...")
             cl_result = self.verify_with_courtlistener_citation_api(citation)
+            logging.info(f"[DEBUG] CourtListener Citation Lookup API result: {cl_result}")
+            print(f"DEBUG: CourtListener Citation Lookup API result: {cl_result}")
             if cl_result.get('found'):
                 result.update(cl_result)
+                logging.info("[DEBUG] Citation verified by CourtListener Citation Lookup API.")
+                print("DEBUG: Citation verified by CourtListener Citation Lookup API.")
                 return result
-                
-            # Method 2: CourtListener Opinion Search API
+            logging.info("[DEBUG] Trying CourtListener Search API...")
+            print("DEBUG: Trying CourtListener Search API...")
             search_result = self.verify_with_courtlistener_search_api(citation)
+            logging.info(f"[DEBUG] CourtListener Search API result: {search_result}")
+            print(f"DEBUG: CourtListener Search API result: {search_result}")
             if search_result.get('found'):
                 result.update(search_result)
+                logging.info("[DEBUG] Citation verified by CourtListener Search API.")
+                print("DEBUG: Citation verified by CourtListener Search API.")
                 return result
-                
-            # Method 3: CourtListener Cluster/Docket APIs
+            logging.info("[DEBUG] Trying CourtListener Cluster/Docket APIs...")
+            print("DEBUG: Trying CourtListener Cluster/Docket APIs...")
             cluster_result = self.verify_with_courtlistener_cluster_api(citation)
+            logging.info(f"[DEBUG] CourtListener Cluster/Docket APIs result: {cluster_result}")
+            print(f"DEBUG: CourtListener Cluster/Docket APIs result: {cluster_result}")
             if cluster_result.get('found'):
                 result.update(cluster_result)
+                logging.info("[DEBUG] Citation verified by CourtListener Cluster/Docket APIs.")
+                print("DEBUG: Citation verified by CourtListener Cluster/Docket APIs.")
                 return result
-                
-            # Method 4: LangSearch API (backup)
             if LANGSEARCH_AVAILABLE and self.langsearch_api_key:
+                logging.info("[DEBUG] Trying LangSearch API...")
+                print("DEBUG: Trying LangSearch API...")
                 lang_result = self.verify_with_langsearch_api(citation)
+                logging.info(f"[DEBUG] LangSearch API result: {lang_result}")
+                print(f"DEBUG: LangSearch API result: {lang_result}")
                 if lang_result.get('found'):
                     result.update(lang_result)
+                    logging.info("[DEBUG] Citation verified by LangSearch API.")
+                    print("DEBUG: Citation verified by LangSearch API.")
                     return result
-                    
-            # Method 5: Google Scholar (backup)
             if GOOGLE_SCHOLAR_AVAILABLE:
+                logging.info("[DEBUG] Trying Google Scholar...")
+                print("DEBUG: Trying Google Scholar...")
                 scholar_result = self.verify_with_google_scholar(citation)
+                logging.info(f"[DEBUG] Google Scholar result: {scholar_result}")
+                print(f"DEBUG: Google Scholar result: {scholar_result}")
                 if scholar_result.get('found'):
                     result.update(scholar_result)
+                    logging.info("[DEBUG] Citation verified by Google Scholar.")
+                    print("DEBUG: Citation verified by Google Scholar.")
                     return result
-        
         except Exception as e:
-            print(f"Error verifying citation {citation}: {e}")
+            logging.error(f"[ERROR] Exception in verify_citation: {e}")
+            print(f"DEBUG: Exception in verify_citation: {e}")
             traceback.print_exc()
-        
+        logging.info(f"[DEBUG] Citation not verified by any method: {citation}")
+        print(f"DEBUG: Citation not verified by any method: {citation}")
         return result
     
     def verify_with_courtlistener_citation_api(self, citation: str) -> Dict[str, Any]:
@@ -129,88 +153,121 @@ class CitationVerifier:
         result = {
             'citation': citation,
             'found': False,
-            'source': 'CourtListener Citation API',
+            'source': 'CourtListener Citation Lookup API',
             'case_name': None,
             'details': {}
         }
         
         if not COURTLISTENER_AVAILABLE or not self.api_key:
+            print("CourtListener API not available or no API key provided")
+            print(f"API key available: {bool(self.api_key)}")
             return result
         
         try:
-            # Format citation for Washington state if needed
+            # Format citation for CourtListener
             formatted_citation = self._format_citation_for_courtlistener(citation)
-            
-            # Prepare the request
+            logging.info(f"[CourtListener] Formatted citation: {formatted_citation}")
+            # Use POST request with text field for all citations
             data = {'text': formatted_citation}
+            logging.info(f"[CourtListener] POST data: {data}")
+            logging.info(f"[CourtListener] API URL: {COURTLISTENER_CITATION_API}")
+            logging.info(f"[CourtListener] Headers: {self.headers}")
+            logging.info(f"[CourtListener] API key being used: {self.api_key[:5]}... (truncated)")
+            # First try the citation lookup API
+            response = requests.post(
+                COURTLISTENER_CITATION_API, 
+                headers=self.headers, 
+                json=data,
+                timeout=TIMEOUT_SECONDS
+            )
+            logging.info(f"[CourtListener] POST response status: {response.status_code}")
+            logging.info(f"[CourtListener] POST response headers: {response.headers}")
+            logging.info(f"[CourtListener] POST response text: {response.text}")
             
-            # Make the request with retries
-            for attempt in range(MAX_RETRIES):
-                try:
-                    print(f"Sending request to {COURTLISTENER_CITATION_API}")
-                    response = requests.post(
-                        COURTLISTENER_CITATION_API, 
-                        headers=self.headers, 
-                        json=data,
-                        timeout=TIMEOUT_SECONDS
-                    )
+            if response.status_code == 200:
+                api_result = response.json()
+                print(f"POST request response JSON: {api_result}")
+                
+                if isinstance(api_result, list) and len(api_result) > 0:
+                    item = api_result[0]
+                    print(f"First item in response: {item}")
+                    clusters = item.get('clusters', [])
+                    print(f"Clusters found: {clusters}")
+                    if clusters:
+                        cluster = clusters[0]
+                        print(f"First cluster: {cluster}")
+                        result['found'] = True
+                        result['case_name'] = cluster.get('case_name', 'Unknown Case')
+                        result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
+                        result['details'] = {
+                            'court': cluster.get('court', 'Unknown Court'),
+                            'date_filed': cluster.get('date_filed', 'Unknown Date'),
+                            'citations': [
+                                f"{cite.get('volume')} {cite.get('reporter')} {cite.get('page')}"
+                                for cite in cluster.get('citations', [])
+                            ]
+                        }
+                        print(f"Found case in POST request: {result['case_name']}")
+                        return result
+                else:
+                    print("No results found in citation lookup API response")
+                
+                # If no results found, try the search API as fallback
+                search_url = f"{COURTLISTENER_SEARCH_API}?type=o&q={urllib.parse.quote(formatted_citation)}"
+                print(f"Trying search API: {search_url}")
+                
+                response = requests.get(search_url, headers=self.headers, timeout=TIMEOUT_SECONDS)
+                print(f"Search API response status: {response.status_code}")
+                print(f"Search API response headers: {response.headers}")
+                print(f"Search API response text: {response.text}")
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    print(f"Search API response JSON: {data}")
                     
-                    if response.status_code == 200:
-                        api_result = response.json()
+                    if data.get('count', 0) > 0:
+                        # Look for exact match in results
+                        exact_match = None
+                        for item in data['results']:
+                            citations = item.get('citation', [])
+                            print(f"Checking citations: {citations}")
+                            if any(formatted_citation in cite for cite in citations):
+                                exact_match = item
+                                break
                         
-                        # Check if the response is a list (newer API format)
-                        if isinstance(api_result, list) and len(api_result) > 0:
-                            item = api_result[0]
-                            clusters = item.get('clusters', [])
+                        if exact_match:
+                            result_item = exact_match
+                        else:
+                            # If no exact match, use the first result
+                            result_item = data['results'][0]
                             
-                            if clusters:
-                                cluster = clusters[0]
-                                result['found'] = True
-                                result['case_name'] = cluster.get('case_name', 'Unknown Case')
-                                result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
-                                result['details'] = {
-                                    'court': cluster.get('court', 'Unknown Court'),
-                                    'date_filed': cluster.get('date_filed', 'Unknown Date'),
-                                    'citations': [
-                                        f"{cite.get('volume')} {cite.get('reporter')} {cite.get('page')}"
-                                        for cite in cluster.get('citations', [])
-                                    ]
-                                }
-                                return result
-                        
-                        # Check if the response has citations (older API format)
-                        elif 'citations' in api_result:
-                            for citation_result in api_result['citations']:
-                                if citation_result.get('found', False):
-                                    result['found'] = True
-                                    result['case_name'] = citation_result.get('case_name', 'Unknown Case')
-                                    result['url'] = citation_result.get('url', '')
-                                    result['details'] = {
-                                        'court': citation_result.get('court', 'Unknown Court'),
-                                        'year': citation_result.get('year', 'Unknown Year'),
-                                        'citation': citation_result.get('citation', citation)
-                                    }
-                                    return result
-                    
-                    # If we get here, the citation wasn't found
-                    break
-                    
-                except requests.RequestException as e:
-                    print(f"Request error (attempt {attempt+1}/{MAX_RETRIES}): {e}")
-                    if attempt < MAX_RETRIES - 1:
-                        time.sleep(2 ** attempt)  # Exponential backoff
+                        result['found'] = True
+                        result['case_name'] = result_item.get('caseName', result_item.get('case_name', 'Unknown Case'))
+                        result['url'] = f"https://www.courtlistener.com{result_item.get('absolute_url', '')}"
+                        result['details'] = {
+                            'court': result_item.get('court', 'Unknown Court'),
+                            'date_filed': result_item.get('dateFiled', result_item.get('date_filed', 'Unknown Date')),
+                            'docket_number': result_item.get('docketNumber', result_item.get('docket_number', 'Unknown Docket')),
+                            'citations': result_item.get('citation', [])
+                        }
+                        print(f"Found case in search API: {result['case_name']}")
+                        return result
                     else:
-                        raise
+                        print("No results found in search API response")
+            else:
+                print(f"Error response from citation lookup API: {response.status_code}")
+                print(f"Error response text: {response.text}")
         
         except Exception as e:
             print(f"Error in verify_with_courtlistener_citation_api: {e}")
             traceback.print_exc()
         
+        print("Citation not found in any API endpoint")
         return result
     
     def _format_citation_for_courtlistener(self, citation: str) -> str:
         """
-        Format a citation for the CourtListener API, particularly for Washington state citations.
+        Format a citation for the CourtListener API.
         
         Args:
             citation: The original citation
@@ -218,17 +275,24 @@ class CitationVerifier:
         Returns:
             Properly formatted citation
         """
-        # Convert "Wash. 2d" format to "Wash. 2d" if needed
-        wash_2d_pattern = r'(\d+)\s+Wash\.?\s*2d\s+(\d+)'
-        wash_pattern = r'(\d+)\s+Wash\.?\s+(\d+)'
-        wash_app_pattern = r'(\d+)\s+Wash\.?\s*App\.?\s+(\d+)'
-        
-        if re.search(wash_2d_pattern, citation, re.IGNORECASE):
-            return re.sub(wash_2d_pattern, r'\1 Wash. 2d \2', citation, flags=re.IGNORECASE)
-        elif re.search(wash_pattern, citation, re.IGNORECASE):
-            return re.sub(wash_pattern, r'\1 Wash. \2', citation, flags=re.IGNORECASE)
-        elif re.search(wash_app_pattern, citation, re.IGNORECASE):
-            return re.sub(wash_app_pattern, r'\1 Wash. App. \2', citation, flags=re.IGNORECASE)
+        # For U.S. Supreme Court citations, ensure proper spacing and format
+        if 'U.S.' in citation:
+            # Split the citation into parts
+            parts = citation.split()
+            if len(parts) >= 3:
+                # Ensure proper spacing between volume, reporter, and page
+                # Also ensure the reporter is properly formatted
+                volume = parts[0]
+                reporter = parts[1]
+                page = parts[2]
+                
+                # Format the reporter if needed
+                if reporter == 'U.S.':
+                    reporter = 'U.S.'
+                elif reporter == 'U.S':
+                    reporter = 'U.S.'
+                
+                return f"{volume} {reporter} {page}"
         
         return citation
     
@@ -258,20 +322,16 @@ class CitationVerifier:
             # Format citation for search
             formatted_citation = self._format_citation_for_courtlistener(citation)
             
-            # Extract components for better search
-            citation_parts = self._extract_citation_parts(formatted_citation)
-            
             # Build search query
             search_params = {
                 'q': formatted_citation,
                 'type': 'o',  # opinions only
                 'order_by': 'score desc',
-                'format': 'json'
+                'format': 'json',
+                'cite': formatted_citation,  # Add exact citation match
+                'highlight': 'false',  # Disable highlighting for better performance
+                'page_size': 1  # We only need the top result
             }
-            
-            # Add court filter for Washington state citations
-            if citation_parts.get('reporter') in ['Wash.', 'Wash. 2d', 'Wash. App.']:
-                search_params['court'] = 'wash washctapp washag washterr'
             
             # Make the request with retries
             for attempt in range(MAX_RETRIES):
@@ -283,6 +343,13 @@ class CitationVerifier:
                         params=search_params,
                         timeout=TIMEOUT_SECONDS
                     )
+                    
+                    # Handle rate limiting
+                    if response.status_code == 429:
+                        retry_after = int(response.headers.get('Retry-After', 60))
+                        print(f"Rate limited. Waiting {retry_after} seconds...")
+                        time.sleep(retry_after)
+                        continue
                     
                     if response.status_code == 200:
                         search_results = response.json()
@@ -434,7 +501,6 @@ class CitationVerifier:
             # For this method, we need to search for the cluster ID first
             # We'll use the search API but with different parameters
             formatted_citation = self._format_citation_for_courtlistener(citation)
-            citation_parts = self._extract_citation_parts(formatted_citation)
             
             # Build more specific search query
             search_params = {
@@ -443,14 +509,6 @@ class CitationVerifier:
                 'order_by': 'score desc',
                 'format': 'json'
             }
-            
-            # Add court filter for Washington state citations
-            if citation_parts.get('reporter') in ['Wash.', 'Wash. 2d', 'Wash. App.']:
-                search_params['court'] = 'wash washctapp washag washterr'
-            
-            # Add reporter filter if available
-            if citation_parts.get('reporter'):
-                search_params['reporter'] = citation_parts.get('reporter')
             
             # Make the request
             response = requests.get(
@@ -487,15 +545,6 @@ class CitationVerifier:
                                 'docket_number': cluster_data.get('docket_id', 'Unknown Docket'),
                                 'precedential_status': cluster_data.get('precedential_status', 'Unknown')
                             }
-                            
-                            # Add citations if available
-                            citations = cluster_data.get('citations', [])
-                            if citations:
-                                result['details']['citations'] = [
-                                    f"{cite.get('volume')} {cite.get('reporter')} {cite.get('page')}"
-                                    for cite in citations
-                                ]
-                            
                             return result
         
         except Exception as e:

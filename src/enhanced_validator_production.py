@@ -23,6 +23,15 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
+# Try to import striprtf at module level
+try:
+    import striprtf.striprtf
+    STRIPRTF_AVAILABLE = True
+    logger.info("striprtf library loaded successfully")
+except ImportError:
+    STRIPRTF_AVAILABLE = False
+    logger.warning("striprtf not installed. RTF file processing will not be available.")
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -198,21 +207,8 @@ OTHER_CASES = {
     "Trump v. Hawaii, 585 U.S. ___ (2018)": "Trump v. Hawaii",
     "Masterpiece Cakeshop v. Colorado Civil Rights Commission, 584 U.S. ___ (2018)": "Masterpiece Cakeshop v. Colorado Civil Rights Commission",
     "Carpenter v. United States, 585 U.S. ___ (2018)": "Carpenter v. United States",
-    "Janus v. AFSCME, 585 U.S. ___ (2018)": "Janus v. AFSCME",
-    "South Dakota v. Wayfair, Inc., 585 U.S. ___ (2018)": "South Dakota v. Wayfair, Inc.",
-    "Trinity Lutheran Church v. Comer, 582 U.S. ___ (2017)": "Trinity Lutheran Church v. Comer",
-    "Whole Woman's Health v. Hellerstedt, 579 U.S. ___ (2016)": "Whole Woman's Health v. Hellerstedt",
-    "Fisher v. University of Texas, 579 U.S. ___ (2016)": "Fisher v. University of Texas",
-    "Obergefell v. Hodges, 576 U.S. 644 (2015)": "Obergefell v. Hodges",
-    "King v. Burwell, 576 U.S. 473 (2015)": "King v. Burwell",
-    "Glossip v. Gross, 576 U.S. 863 (2015)": "Glossip v. Gross",
-    "Michigan v. Environmental Protection Agency, 576 U.S. 743 (2015)": "Michigan v. Environmental Protection Agency",
-    "Arizona State Legislature v. Arizona Independent Redistricting Commission, 576 U.S. 787 (2015)": "Arizona State Legislature v. Arizona Independent Redistricting Commission",
-    "Texas Department of Housing and Community Affairs v. Inclusive Communities Project, Inc., 576 U.S. 519 (2015)": "Texas Department of Housing and Community Affairs v. Inclusive Communities Project, Inc.",
-    "Michigan v. Bay Mills Indian Community, 572 U.S. 782 (2014)": "Michigan v. Bay Mills Indian Community",
-    "Burwell v. Hobby Lobby Stores, Inc., 573 U.S. 682 (2014)": "Burwell v. Hobby Lobby Stores, Inc.",
-    "Riley v. California, 573 U.S. 373 (2014)": "Riley v. California",
-    "National Labor Relations Board v. Noel Canning, 573 U.S. 513 (2014)": "National Labor Relations Board v. Noel Canning"
+    "339 U.S. 629": "United States v. Rabinowitz",
+    "United States v. Rabinowitz, 339 U.S. 629 (1950)": "United States v. Rabinowitz"
 }
 
 # Sample citation contexts
@@ -341,28 +337,22 @@ def parse_citation_components(citation_text):
 
 def normalize_us_citation(citation_text):
     """Normalize U.S. citation format, handling extra spaces and ensuring U.S. format."""
-    # Skip if the first number is too small to be a volume number (likely a page number)
-    # U.S. Reports volumes typically start from 1 and go up to 600+
-    # If the first number is less than 10, it's likely a page number
-    first_num_match = re.match(r'(\d+)', citation_text)
-    if first_num_match:
-        first_num = int(first_num_match.group(1))
-        if first_num < 10:  # Skip if first number is too small to be a volume
-            return citation_text
+    logger.info(f"Normalizing citation: {citation_text}")
     
-    # Pre-process: Add spaces around U.S. if none exist
-    # This handles cases like "410U.S.113" -> "410 U.S. 113"
-    citation_text = re.sub(r'(\d+)(U\.?S\.?)(\d+)', r'\1 \2 \3', citation_text)
+    # Clean up the citation text
+    citation_text = re.sub(r'\s+', ' ', citation_text.strip())
     
     # Handle U.S. Reports citations with extra spaces, ensuring U.S. format
-    us_match = re.match(r'(\d+)\s+U\.?\s*\.?\s*S\.?\s*\.?\s*(\d+)', citation_text)
+    us_match = re.search(r'(\d+)\s+U\.?\s*\.?\s*S\.?\s*\.?\s*(\d+)', citation_text)
     if us_match:
         volume, page = us_match.groups()
-        # Skip if the volume number is too small (likely a page number)
-        if int(volume) < 10:
-            return citation_text
         # Always use U.S. format
-        return f"{volume} U.S. {page}"
+        normalized = f"{volume} U.S. {page}"
+        logger.info(f"Normalized U.S. citation: {normalized}")
+        return normalized
+    
+    # If no U.S. pattern found, return original
+    logger.info(f"No U.S. pattern found, returning original: {citation_text}")
     return citation_text
 
 def is_valid_citation_format(citation_text):
@@ -376,145 +366,273 @@ def is_valid_citation_format(citation_text):
     Returns:
         bool: True if the text matches a valid citation format, False otherwise
     """
+    logger.info(f"[DEBUG] Checking citation format for: {citation_text}")
+    print(f"DEBUG: Checking citation format for: {citation_text}")
+    
     # Skip empty or very short strings
     if not citation_text or len(citation_text.strip()) < 5:
+        logger.warning(f"[DEBUG] Citation too short: {citation_text}")
         return False
     
     # Skip strings that look like case numbers
     if re.search(r'\b(?:^|\D)\d+[:\-]\d+[:\-]cv[:\-]\d+\b', citation_text, re.IGNORECASE):
+        logger.warning(f"[DEBUG] Citation looks like a case number: {citation_text}")
         return False
     
     # Skip strings that are just numbers with "Case" (like "8 Case 2")
     if re.search(r'\b\d+\s+[Cc]ase\s+\d+\b', citation_text):
+        logger.warning(f"[DEBUG] Citation looks like 'Case' format: {citation_text}")
         return False
     
     # Skip strings that are just numbers with "Page" (like "25 Page 2")
     if re.search(r'\b\d+\s+[Pp]age\s+\d+\b', citation_text):
+        logger.warning(f"[DEBUG] Citation looks like 'Page' format: {citation_text}")
         return False
     
     # Skip simple case names without reporter citation
     if re.match(r'^[A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+$', citation_text.strip()):
+        logger.warning(f"[DEBUG] Citation is just a case name: {citation_text}")
         return False
     
     # Check against all citation patterns
     for pattern_name, pattern in CITATION_PATTERNS.items():
         if re.search(pattern, citation_text, re.IGNORECASE):
+            logger.info(f"[DEBUG] Citation matched pattern {pattern_name}: {citation_text}")
             return True
     
     # Additional check for U.S. citations with multiple page numbers
     if re.search(r'\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*,\s*\d+)*(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        logger.info(f"[DEBUG] Citation matched U.S. pattern: {citation_text}")
         return True
     
     # Additional check for case names with reporter citations
     if re.search(r'\b([A-Z][a-zA-Z\s\.&,]+v\.\s+[A-Z][a-zA-Z\s\.&,]+),\s+\d+\s+[A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)*(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        logger.info(f"[DEBUG] Citation matched case name pattern: {citation_text}")
         return True
     
     # Additional check for simple U.S. citations
     if re.search(r'\b(?:^|\D)([1-9][0-9]{0,2})\s+U\.?\s*S\.?\s+(\d{1,4})(?:\s*\(\d{4}\))?\b(?!\s*[Cc]ase)', citation_text, re.IGNORECASE):
+        logger.info(f"[DEBUG] Citation matched simple U.S. pattern: {citation_text}")
         return True
     
+    logger.warning(f"[DEBUG] Citation did not match any valid patterns: {citation_text}")
     return False
 
 def check_courtlistener_api(citation_text):
     """
-    Check if a citation exists in CourtListener's database using their API.
-    
-    Args:
-        citation_text (str): The citation to check
-        
-    Returns:
-        dict: A dictionary containing the validation result
+    Enhanced function to verify citations using CourtListener API v4.
+    Includes multiple retries, better error handling, and support for various citation formats.
     """
+    logger.info("TEST: check_courtlistener_api is being called")
+    logger.info(f"[DEBUG] check_courtlistener_api called with: {citation_text}")
+    print(f"DEBUG: check_courtlistener_api called with: {citation_text}")
+    
+    # Verify API key is available and valid
     if not COURTLISTENER_API_KEY:
-        logger.warning("No CourtListener API key available")
+        logger.error("[ERROR] No CourtListener API key available. Check config.json file.")
+        print("[ERROR] No CourtListener API key available. Check config.json file.")
+        return None
+    
+    if len(COURTLISTENER_API_KEY) < 10:  # Simple validation for key format
+        logger.error(f"[ERROR] CourtListener API key appears invalid: {COURTLISTENER_API_KEY[:5]}...")
+        print(f"[ERROR] CourtListener API key appears invalid: {COURTLISTENER_API_KEY[:5]}...")
         return None
         
-    try:
-        # Clean and normalize the citation for the API
-        citation = citation_text.strip()
-        citation = re.sub(r'\s+', ' ', citation)  # Normalize whitespace
+    # Create a list of citation formats to try
+    citation_formats_to_try = []
+    
+    # 1. Original citation as provided
+    original_citation = citation_text.strip()
+    citation_formats_to_try.append(original_citation)
+    
+    # 2. Clean and normalize the citation
+    normalized_citation = re.sub(r'\s+', ' ', original_citation)  # Normalize whitespace
+    normalized_citation = re.sub(r',\s+', ', ', normalized_citation)  # Normalize commas
+    if normalized_citation != original_citation:
+        citation_formats_to_try.append(normalized_citation)
+    
+    # 3. Try to extract components and create a standard format
+    components = parse_citation_components(normalized_citation)
+    if components and 'volume' in components and 'reporter' in components and 'page' in components:
+        # Standard reporter format (e.g., "410 U.S. 113")
+        standard_citation = f"{components['volume']} {components['reporter']} {components['page']}"
+        if standard_citation not in citation_formats_to_try:
+            citation_formats_to_try.append(standard_citation)
+    
+    # Extract case name if present (for result enrichment)
+    case_name_match = re.search(r'([A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+)', normalized_citation)
+    case_name = case_name_match.group(1).strip() if case_name_match else None
+    
+    # Log the citation formats we'll try
+    logger.info(f"[DEBUG] Will try these citation formats: {citation_formats_to_try}")
+    print(f"DEBUG: Will try these citation formats: {citation_formats_to_try}")
+    
+    # API configuration
+    api_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    headers = {
+        "Authorization": f"Token {COURTLISTENER_API_KEY}",
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    
+    # Try each citation format
+    for citation_format in citation_formats_to_try:
+        logger.info(f"[DEBUG] Trying citation format: {citation_format}")
+        print(f"DEBUG: Trying citation format: {citation_format}")
         
-        # Extract case name if present
-        case_name_match = re.search(r'([A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+)', citation)
-        case_name = case_name_match.group(1).strip() if case_name_match else None
+        # Prepare the request data
+        data = {'text': citation_format}
         
-        # Extract citation components
-        components = parse_citation_components(citation)
-        if not components:
-            logger.warning(f"Could not parse citation components: {citation}")
-            return None
-            
-        # Construct the API URL with more specific parameters
-        api_url = f"https://www.courtlistener.com/api/rest/v4/citations/"
-        params = {
-            'citation': citation,
-            'reporter': components.get('reporter', ''),
-            'volume': components.get('volume', ''),
-            'page': components.get('page', '')
-        }
-        headers = {
-            "Authorization": f"Token {COURTLISTENER_API_KEY}",
-            "Accept": "application/json"
-        }
-        
-        # Make the API request
-        logger.info(f"Checking CourtListener API for citation: {citation}")
-        response = requests.get(api_url, params=params, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        # Parse the response
-        data = response.json()
-        
-        if data.get('count', 0) > 0:
-            # Citation found in CourtListener
-            result = data['results'][0]  # Get the first match
-            
-            # Get the opinion details
-            opinion_url = result.get('opinion_uri', '')
-            if opinion_url:
-                opinion_response = requests.get(opinion_url, headers=headers, timeout=10)
-                opinion_response.raise_for_status()
-                opinion_data = opinion_response.json()
+        # Make the API request with retry logic
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"[DEBUG] Posting to CourtListener API (attempt {attempt+1}/{max_retries}): {api_url}")
+                print(f"DEBUG: Posting to CourtListener API (attempt {attempt+1}/{max_retries}): {api_url}")
                 
-                # Extract case details
-                case_name = opinion_data.get('case_name', case_name)
-                court = opinion_data.get('court', {}).get('full_name', 'Unknown Court')
-                date_filed = opinion_data.get('date_filed', 'Unknown Date')
-                docket_number = opinion_data.get('docket_number', 'Unknown Docket')
+                # Log the exact request being made
+                logger.info(f"[DEBUG] Request headers: {headers}")
+                logger.info(f"[DEBUG] Request data: {data}")
                 
-                logger.info(f"Citation found in CourtListener: {citation} - {case_name}")
-                return {
-                    "verified": True,
-                    "verified_by": "CourtListener API",
-                    "case_name": case_name,
-                    "validation_method": "CourtListener API",
-                    "reporter_type": result.get('reporter', 'Unknown'),
-                    "parallel_citations": [c['citation'] for c in result.get('parallel_citations', [])],
-                    "details": {
-                        "court": court,
-                        "date_filed": date_filed,
-                        "docket_number": docket_number,
-                        "url": opinion_url
-                    }
-                }
-            else:
-                logger.warning(f"No opinion URI found for citation: {citation}")
-                return None
-        else:
-            logger.info(f"Citation not found in CourtListener: {citation}")
-            return None
-            
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error checking CourtListener API: {str(e)}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error checking CourtListener API: {str(e)}")
-        return None
+                # Make the request
+                response = requests.post(api_url, json=data, headers=headers, timeout=15)
+                
+                # Log the response details
+                logger.info(f"[DEBUG] Response status: {response.status_code}")
+                logger.info(f"[DEBUG] Response headers: {dict(response.headers)}")
+                logger.info(f"[DEBUG] Response text: {response.text[:500]}...")  # Truncate long responses
+                print(f"DEBUG: Response status: {response.status_code}")
+                
+                # Check for rate limiting
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get('Retry-After', 60))
+                    logger.warning(f"[DEBUG] Rate limited. Waiting {retry_after} seconds...")
+                    print(f"DEBUG: Rate limited. Waiting {retry_after} seconds...")
+                    time.sleep(min(retry_after, 10))  # Cap wait time at 10 seconds
+                    continue
+                
+                # Check for authentication issues
+                if response.status_code == 401 or response.status_code == 403:
+                    logger.error(f"[ERROR] Authentication failed. Check your API key: {response.text}")
+                    print(f"ERROR: Authentication failed. Check your API key: {response.text}")
+                    return None  # No point retrying with same key
+                
+                # For other errors, try to parse response and continue
+                if response.status_code >= 400:
+                    logger.warning(f"[DEBUG] API error: {response.status_code} - {response.text}")
+                    print(f"DEBUG: API error: {response.status_code} - {response.text}")
+                    break  # Try next citation format
+                
+                # Parse the successful response
+                try:
+                    data = response.json()
+                    logger.info(f"[DEBUG] Parsed JSON response (type: {type(data)})")
+                    
+                    # Process the response data
+                    if isinstance(data, list) and len(data) > 0:
+                        # Citation found in CourtListener
+                        result = data[0]  # Get the first match
+                        clusters = result.get('clusters', [])
+                        logger.info(f"[DEBUG] Found {len(clusters)} clusters")
+                        
+                        if clusters:
+                            cluster = clusters[0]  # Get the first cluster
+                            
+                            # Extract case details
+                            result_case_name = cluster.get('case_name', case_name)
+                            court = cluster.get('court', 'Unknown Court')
+                            date_filed = cluster.get('date_filed', 'Unknown Date')
+                            docket_number = cluster.get('docket_id', cluster.get('docket_number', 'Unknown Docket'))
+                            url = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}" 
+                            
+                            logger.info(f"[DEBUG] Citation found in CourtListener: {citation_format} - {result_case_name}")
+                            print(f"DEBUG: Citation found in CourtListener: {citation_format} - {result_case_name}")
+                            
+                            # Return the successful result
+                            return {
+                                "verified": True,
+                                "verified_by": "CourtListener API",
+                                "case_name": result_case_name,
+                                "validation_method": "CourtListener API",
+                                "reporter_type": components.get('reporter', "Unknown") if components else "Unknown",
+                                "parallel_citations": [
+                                    f"{cite.get('volume')} {cite.get('reporter')} {cite.get('page')}"
+                                    for cite in cluster.get('citations', [])
+                                ],
+                                "details": {
+                                    "court": court,
+                                    "date_filed": date_filed,
+                                    "docket_number": docket_number,
+                                    "url": url
+                                }
+                            }
+                        else:
+                            logger.warning(f"[DEBUG] No clusters found for citation: {citation_format}")
+                            print(f"DEBUG: No clusters found for citation: {citation_format}")
+                            # Continue to next format instead of returning None
+                    else:
+                        logger.info(f"[DEBUG] Citation not found in CourtListener: {citation_format}")
+                        print(f"DEBUG: Citation not found in CourtListener: {citation_format}")
+                        # Continue to next format
+                    
+                except ValueError as json_err:
+                    logger.error(f"[ERROR] Failed to parse JSON response: {json_err}")
+                    print(f"ERROR: Failed to parse JSON response: {json_err}")
+                    # Continue to next attempt
+                
+                break  # Break retry loop if we got here (no need to retry)
+                
+            except requests.exceptions.RequestException as e:
+                logger.error(f"[ERROR] Request error checking CourtListener API: {str(e)}")
+                print(f"ERROR: Request error checking CourtListener API: {str(e)}")
+                
+                if attempt < max_retries - 1:
+                    # Exponential backoff
+                    wait_time = 2 ** attempt
+                    logger.info(f"[DEBUG] Retrying in {wait_time} seconds...")
+                    print(f"DEBUG: Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
+                else:
+                    # Try next citation format
+                    break
+    
+    # If we get here, all citation formats failed
+    logger.warning(f"[DEBUG] All citation formats failed for: {citation_text}")
+    print(f"DEBUG: All citation formats failed for: {citation_text}")
+    return None
 
 def validate_citation(citation_text):
-    """Validate a citation using multiple methods and track which method was successful."""
+    """
+    Enhanced citation validation function with improved error handling and logging.
+    Tries multiple validation methods in sequence, starting with CourtListener API.
+    """
+    logger.info(f"[DEBUG] validate_citation called with: {citation_text}")
+    print(f"DEBUG: validate_citation called with: {citation_text}")
+    
     # First check if it's a valid citation format
-    if not is_valid_citation_format(citation_text):
+    if not citation_text or not isinstance(citation_text, str):
+        logger.error(f"[ERROR] Invalid citation input: {type(citation_text)}")
+        print(f"ERROR: Invalid citation input: {type(citation_text)}")
+        return {
+            "verified": False,
+            "verified_by": None,
+            "case_name": None,
+            "validation_method": "Invalid Input",
+            "reporter_type": None,
+            "parallel_citations": [],
+            "error": "Citation must be a non-empty string"
+        }
+    
+    # Clean up the citation text before validation
+    clean_citation = re.sub(r'\s+', ' ', citation_text.strip())
+    clean_citation = re.sub(r',\s+', ', ', clean_citation)
+    logger.info(f"[DEBUG] Cleaned citation for validation: {clean_citation}")
+    print(f"DEBUG: Cleaned citation for validation: {clean_citation}")
+    
+    # Check if it's a valid citation format
+    if not is_valid_citation_format(clean_citation):
+        logger.warning(f"[DEBUG] Invalid citation format: {clean_citation}")
+        print(f"DEBUG: Invalid citation format: {clean_citation}")
         return {
             "verified": False,
             "verified_by": None,
@@ -525,6 +643,7 @@ def validate_citation(citation_text):
             "error": "Text does not match a valid legal citation format"
         }
     
+    # Initialize the validation result
     validation_result = {
         "verified": False,
         "verified_by": None,
@@ -534,126 +653,87 @@ def validate_citation(citation_text):
         "parallel_citations": []
     }
     
-    # Clean up the citation text
-    citation_text = re.sub(r'\s+', ' ', citation_text.strip())
-    citation_text = re.sub(r',\s+', ', ', citation_text)
-    
-    # Normalize U.S. citations
-    citation_text = normalize_us_citation(citation_text)
-    
-    # 1. First check CourtListener API
-    courtlistener_result = check_courtlistener_api(citation_text)
-    if courtlistener_result:
-        logger.info(f"Citation validated by CourtListener API: {citation_text}")
-        return courtlistener_result
-    
-    # Parse citation components
-    components = parse_citation_components(citation_text)
+    # Parse citation components for later use
+    components = parse_citation_components(clean_citation)
     if components:
         validation_result["reporter_type"] = components.get("reporter", "Unknown")
+        logger.info(f"[DEBUG] Parsed citation components: {components}")
+        print(f"DEBUG: Parsed citation components: {components}")
     
-    # 2. Check if this is a LEXIS citation
-    if re.search(r'LEXIS', citation_text, re.IGNORECASE):
+    # Validation methods in priority order
+    # 1. First check CourtListener API (most authoritative)
+    logger.info(f"[DEBUG] Attempting CourtListener API validation for: {clean_citation}")
+    courtlistener_result = check_courtlistener_api(clean_citation)
+    
+    if courtlistener_result and courtlistener_result.get("verified"):
+        logger.info(f"[DEBUG] Citation validated by CourtListener API: {clean_citation}")
+        print(f"DEBUG: Citation validated by CourtListener API: {clean_citation}")
+        return courtlistener_result
+    
+    # 2. Check if this is a LEXIS citation (these are always valid)
+    logger.info(f"[DEBUG] Checking if citation is LEXIS format: {clean_citation}")
+    if re.search(r'LEXIS', clean_citation, re.IGNORECASE):
         validation_result["verified"] = True
         validation_result["verified_by"] = "Enhanced Validator"
         validation_result["validation_method"] = "LEXIS"
         validation_result["reporter_type"] = "LEXIS"
-        logger.debug(f"Validated LEXIS citation: {citation_text}")
+        logger.info(f"[DEBUG] Validated LEXIS citation: {clean_citation}")
+        print(f"DEBUG: Validated LEXIS citation: {clean_citation}")
         return validation_result
     
-    # 3. Check Landmark Cases database
-    if citation_text in LANDMARK_CASES:
-        validation_result["verified"] = True
-        validation_result["verified_by"] = "Enhanced Validator"
-        validation_result["case_name"] = LANDMARK_CASES[citation_text]
-        validation_result["validation_method"] = "Landmark"
-        logger.debug(f"Landmark direct match found for citation: {citation_text}")
-        return validation_result
+    # 3. Check static databases in order of reliability
+    for db_name, db in [
+        ("Landmark", LANDMARK_CASES),
+        ("CourtListener", COURTLISTENER_CASES),
+        ("Multitool", MULTITOOL_CASES),
+        ("Other", OTHER_CASES)
+    ]:
+        logger.info(f"[DEBUG] Checking {db_name} database for: {clean_citation}")
+        if clean_citation in db:
+            validation_result["verified"] = True
+            validation_result["verified_by"] = "Enhanced Validator"
+            validation_result["case_name"] = db[clean_citation]
+            validation_result["validation_method"] = db_name
+            logger.info(f"[DEBUG] {db_name} direct match found for citation: {clean_citation}")
+            print(f"DEBUG: {db_name} direct match found for citation: {clean_citation}")
+            return validation_result
     
-    # 4. Check CourtListener database (static)
-    if citation_text in COURTLISTENER_CASES:
-        validation_result["verified"] = True
-        validation_result["verified_by"] = "Enhanced Validator"
-        validation_result["case_name"] = COURTLISTENER_CASES[citation_text]
-        validation_result["validation_method"] = "CourtListener"
-        logger.debug(f"CourtListener direct match found for citation: {citation_text}")
-        return validation_result
-    
-    # 5. Check Multitool database
-    if citation_text in MULTITOOL_CASES:
-        validation_result["verified"] = True
-        validation_result["verified_by"] = "Enhanced Validator"
-        validation_result["case_name"] = MULTITOOL_CASES[citation_text]
-        validation_result["validation_method"] = "Multitool"
-        logger.debug(f"Multitool direct match found for citation: {citation_text}")
-        return validation_result
-    
-    # 6. Check Other Cases database
-    if citation_text in OTHER_CASES:
-        validation_result["verified"] = True
-        validation_result["verified_by"] = "Enhanced Validator"
-        validation_result["case_name"] = OTHER_CASES[citation_text]
-        validation_result["validation_method"] = "Other"
-        logger.debug(f"Other direct match found for citation: {citation_text}")
-        return validation_result
-    
-    # 7. Try to extract the U.S. Reporter citation if it's a full citation
+    # 4. Try to extract the U.S. Reporter citation if it's a full citation
+    # and check against databases using the short format
     if components and 'volume' in components and 'reporter' in components and 'page' in components:
         short_citation = f"{components['volume']} {components['reporter']} {components['page']}"
+        logger.info(f"[DEBUG] Trying short citation format: {short_citation}")
+        print(f"DEBUG: Trying short citation format: {short_citation}")
+        
+        # Try the short citation with CourtListener API
+        if short_citation != clean_citation:  # Only if different from what we already tried
+            logger.info(f"[DEBUG] Trying CourtListener API with short citation: {short_citation}")
+            short_cl_result = check_courtlistener_api(short_citation)
+            if short_cl_result and short_cl_result.get("verified"):
+                logger.info(f"[DEBUG] Short citation validated by CourtListener API: {short_citation}")
+                print(f"DEBUG: Short citation validated by CourtListener API: {short_citation}")
+                return short_cl_result
         
         # Check short citation in all databases
-        for db_name, db in [("Landmark", LANDMARK_CASES), 
-                          ("CourtListener", COURTLISTENER_CASES),
-                          ("Multitool", MULTITOOL_CASES),
-                          ("Other", OTHER_CASES)]:
+        for db_name, db in [
+            ("Landmark", LANDMARK_CASES),
+            ("CourtListener", COURTLISTENER_CASES),
+            ("Multitool", MULTITOOL_CASES),
+            ("Other", OTHER_CASES)
+        ]:
+            logger.info(f"[DEBUG] Checking {db_name} database for short citation: {short_citation}")
             if short_citation in db:
                 validation_result["verified"] = True
                 validation_result["verified_by"] = "Enhanced Validator"
                 validation_result["case_name"] = db[short_citation]
                 validation_result["validation_method"] = db_name
-                logger.debug(f"{db_name} short citation match found: {short_citation} for {citation_text}")
+                logger.info(f"[DEBUG] {db_name} short citation match found: {short_citation} for {clean_citation}")
+                print(f"DEBUG: {db_name} short citation match found: {short_citation} for {clean_citation}")
                 return validation_result
     
-    # 8. Try to match case name pattern
-    case_name_match = re.search(r'([A-Za-z\s\.]+v\.\s+[A-Za-z\s\.]+)', citation_text)
-    if case_name_match:
-        case_name = case_name_match.group(1).strip()
-        
-        # Check case name in all databases
-        for db_name, db in [("Landmark", LANDMARK_CASES), 
-                          ("CourtListener", COURTLISTENER_CASES),
-                          ("Multitool", MULTITOOL_CASES),
-                          ("Other", OTHER_CASES)]:
-            for citation, db_case in db.items():
-                if case_name.lower() in db_case.lower():
-                    validation_result["verified"] = True
-                    validation_result["verified_by"] = "Enhanced Validator"
-                    validation_result["case_name"] = db_case
-                    validation_result["validation_method"] = db_name
-                    logger.debug(f"{db_name} case name match found: {case_name} in {db_case}")
-                    return validation_result
-    
-    # 9. Check for parallel citations
-    if components and 'reporter' in components:
-        reporter = components['reporter'].upper()
-        if reporter in ['U.S.', 'S.CT.', 'L.ED.']:
-            # Try to find parallel citations
-            for db_name, db in [("Landmark", LANDMARK_CASES), 
-                              ("CourtListener", COURTLISTENER_CASES),
-                              ("Multitool", MULTITOOL_CASES),
-                              ("Other", OTHER_CASES)]:
-                for citation, case_name in db.items():
-                    if components.get('volume') in citation and components.get('page') in citation:
-                        validation_result["verified"] = True
-                        validation_result["verified_by"] = "Enhanced Validator"
-                        validation_result["case_name"] = case_name
-                        validation_result["validation_method"] = f"{db_name} (Parallel)"
-                        validation_result["parallel_citations"].append(citation)
-                        logger.debug(f"{db_name} parallel citation match found: {citation} for {citation_text}")
-                        return validation_result
-    
-    # 10. No match found
-    logger.debug(f"No match found for citation: {citation_text}")
+    # If we get here, no validation method succeeded
+    logger.warning(f"[DEBUG] No validation method succeeded for citation: {clean_citation}")
+    print(f"DEBUG: No validation method succeeded for citation: {clean_citation}")
     return validation_result
 
 # Keep the old function for backward compatibility
@@ -669,335 +749,233 @@ def enhanced_validator_page():
     logger.info("Enhanced Validator page requested")
     return render_template('enhanced_validator.html')
 
-@enhanced_validator_bp.route('/api/enhanced-validate-citation', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/enhanced-validate-citation', methods=['POST', 'OPTIONS'])
+@enhanced_validator_bp.route('/api/enhanced-validate-citation', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/enhanced-validate-citation', methods=['POST'])
 def validate_citation_endpoint():
-    """API endpoint to validate a citation with enhanced information."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("Enhanced Validator citation validation requested")
-    data = request.json
-    citation = data.get('citation', '')
-    
-    logger.info(f"Validating citation: {citation}")
-    start_time = time.time()
-    
-    # Use the new comprehensive validation function
-    validation_result = validate_citation(citation)
-    
-    # Parse citation components if validated
-    components = None
-    if validation_result["verified"]:
-        components = parse_citation_components(citation)
-    
-    # Prepare the API response
-    result = {
-        "citation": citation,
-        "verified": validation_result["verified"],
-        "verified_by": validation_result["verified_by"],
-        "validation_method": validation_result["validation_method"],
-        "case_name": validation_result["case_name"],
-        "components": components,
-        "error": None if validation_result["verified"] else "Citation not found in any validation database"
-    }
-    
-    end_time = time.time()
-    logger.info(f"Validation completed in {end_time - start_time:.2f} seconds")
-    logger.info(f"Validation method: {validation_result['validation_method']}")
-    logger.debug(f"Validation result: {result}")
-    response = _corsify_actual_response(jsonify(result))
-    return response
-
-@enhanced_validator_bp.route('/api/citation-context', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/citation-context', methods=['POST', 'OPTIONS'])
-def get_citation_context():
-    """API endpoint to get the context surrounding a citation."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("Citation context requested")
-    data = request.json
-    citation = data.get('citation', '')
-    
-    logger.info(f"Getting context for citation: {citation}")
-    start_time = time.time()
-    
-    context = CITATION_CONTEXTS.get(citation, f"No context available for {citation}")
-    
-    result = {
-        "citation": citation,
-        "context": context,
-        "file_link": f"https://www.courtlistener.com/opinion/search/?q={citation.replace(' ', '+')}"
-    }
-    
-    end_time = time.time()
-    logger.info(f"Context retrieval completed in {end_time - start_time:.2f} seconds")
-    logger.debug(f"Context result: {result}")
-    response = _corsify_actual_response(jsonify(result))
-    return response
-
-@enhanced_validator_bp.route('/api/classify-citation', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/classify-citation', methods=['POST', 'OPTIONS'])
-def classify_citation():
-    """API endpoint to classify a citation using ML techniques."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("Citation classification requested")
-    data = request.json
-    citation = data.get('citation', '')
-    
-    logger.info(f"Classifying citation: {citation}")
-    start_time = time.time()
-    
-    # Simple classification logic
-    is_landmark = is_landmark_case(citation)
-    confidence = 0.95 if is_landmark else 0.3 + random.random() * 0.3
-    
-    explanations = []
-    if is_landmark:
-        explanations.append(f"Citation format is valid: {citation}")
-        explanations.append(f"Citation refers to a landmark case: {LANDMARK_CASES.get(citation, '')}")
-        explanations.append("Citation appears in verified database")
-    else:
-        explanations.append(f"Citation format appears unusual: {citation}")
-        explanations.append("Citation not found in landmark cases database")
-    
-    result = {
-        "citation": citation,
-        "confidence": confidence,
-        "explanation": explanations
-    }
-    
-    end_time = time.time()
-    logger.info(f"Classification completed in {end_time - start_time:.2f} seconds")
-    logger.debug(f"Classification result: {result}")
-    response = _corsify_actual_response(jsonify(result))
-    return response
-
-@enhanced_validator_bp.route('/api/suggest-citation-corrections', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/suggest-citation-corrections', methods=['POST', 'OPTIONS'])
-def suggest_corrections():
-    """API endpoint to suggest corrections for a potentially invalid citation."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("Citation correction suggestions requested")
-    data = request.json
-    citation = data.get('citation', '')
-    
-    logger.info(f"Suggesting corrections for citation: {citation}")
-    start_time = time.time()
-    
-    # Simple correction logic
-    suggestions = []
-    
-    # Check if it's close to a landmark case
-    for landmark in LANDMARK_CASES.keys():
-        # Simple string similarity check
-        if citation.split()[0] == landmark.split()[0] and citation != landmark:
-            suggestions.append({
-                "corrected_citation": landmark,
-                "similarity": 0.8,
-                "explanation": f"Did you mean {landmark} ({LANDMARK_CASES[landmark]})?",
-                "correction_type": "Reporter Correction"
-            })
-        elif citation.split()[1] == landmark.split()[1] and citation != landmark:
-            suggestions.append({
-                "corrected_citation": landmark,
-                "similarity": 0.7,
-                "explanation": f"Did you mean {landmark} ({LANDMARK_CASES[landmark]})?",
-                "correction_type": "Volume Correction"
-            })
-    
-    result = {
-        "citation": citation,
-        "suggestions": suggestions
-    }
-    
-    end_time = time.time()
-    logger.info(f"Correction suggestions completed in {end_time - start_time:.2f} seconds")
-    logger.debug(f"Correction suggestions result: {result}")
-    response = _corsify_actual_response(jsonify(result))
-    return response
-
-@enhanced_validator_bp.route('/api/fetch_url', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/fetch_url', methods=['POST', 'OPTIONS'])
-def fetch_url():
-    """API endpoint to fetch and analyze content from a URL."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("URL fetch requested")
-    data = request.json
-    url = data.get('url', '')
-    
-    if not url:
-        return _corsify_actual_response(jsonify({
-            'status': 'error',
-            'message': 'No URL provided'
-        })), 400
-    
-    logger.info(f"Processing URL: {url}")
-    
     try:
-        # Make request to URL with proper headers
-        logger.info(f"Making request to URL: {url}")
+        data = request.get_json()
+        if not data or 'citation' not in data:
+            return jsonify({'error': 'No citation provided'}), 400
+        
+        citation = data['citation']
+        result = validate_citation(citation)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error in validate_citation_endpoint: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@enhanced_validator_bp.route('/api/citation-context', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/citation-context', methods=['POST'])
+def get_citation_context():
+    try:
+        data = request.get_json()
+        if not data or 'citation' not in data:
+            return jsonify({'error': 'No citation provided'}), 400
+        
+        citation = data['citation']
+        context = CITATION_CONTEXTS.get(citation, f"No context available for {citation}")
+        return jsonify(context)
+    except Exception as e:
+        logger.error(f"Error in get_citation_context: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@enhanced_validator_bp.route('/api/classify-citation', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/classify-citation', methods=['POST'])
+def classify_citation():
+    try:
+        data = request.get_json()
+        if not data or 'citation' not in data:
+            return jsonify({'error': 'No citation provided'}), 400
+        
+        citation = data['citation']
+        is_landmark = is_landmark_case(citation)
+        confidence = 0.95 if is_landmark else 0.3 + random.random() * 0.3
+        
+        explanations = []
+        if is_landmark:
+            explanations.append(f"Citation format is valid: {citation}")
+            explanations.append(f"Citation refers to a landmark case: {LANDMARK_CASES.get(citation, '')}")
+            explanations.append("Citation appears in verified database")
+        else:
+            explanations.append(f"Citation format appears unusual: {citation}")
+            explanations.append("Citation not found in landmark cases database")
+        
+        return jsonify({
+            "citation": citation,
+            "confidence": confidence,
+            "explanation": explanations
+        })
+    except Exception as e:
+        logger.error(f"Error in classify_citation: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@enhanced_validator_bp.route('/api/suggest-citation-corrections', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/suggest-citation-corrections', methods=['POST'])
+def suggest_corrections():
+    try:
+        data = request.get_json()
+        if not data or 'citation' not in data:
+            return jsonify({'error': 'No citation provided'}), 400
+        
+        citation = data['citation']
+        suggestions = []
+        
+        # Check if it's close to a landmark case
+        for landmark in LANDMARK_CASES.keys():
+            # Simple string similarity check
+            if citation.split()[0] == landmark.split()[0] and citation != landmark:
+                suggestions.append({
+                    "corrected_citation": landmark,
+                    "similarity": 0.8,
+                    "explanation": f"Did you mean {landmark} ({LANDMARK_CASES[landmark]})?",
+                    "correction_type": "Reporter Correction"
+                })
+            elif citation.split()[1] == landmark.split()[1] and citation != landmark:
+                suggestions.append({
+                    "corrected_citation": landmark,
+                    "similarity": 0.7,
+                    "explanation": f"Did you mean {landmark} ({LANDMARK_CASES[landmark]})?",
+                    "correction_type": "Volume Correction"
+                })
+        
+        return jsonify({
+            "citation": citation,
+            "suggestions": suggestions
+        })
+    except Exception as e:
+        logger.error(f"Error in suggest_corrections: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+def fetch_url_content(url):
+    """Fetch content from a URL with proper error handling."""
+    logger.info(f"Fetching content from URL: {url}")
+    try:
+        # Validate URL
+        parsed_url = urlparse(url)
+        if not parsed_url.scheme or not parsed_url.netloc:
+            raise ValueError("Invalid URL format")
+        
+        # Make request with timeout and user agent
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'application/pdf,*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Referer': 'https://www.supremecourt.gov/',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        response = requests.get(url, headers=headers, timeout=30)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         
-        # Process based on content type
+        # Check content type
         content_type = response.headers.get('content-type', '').lower()
-        
-        if 'application/pdf' in content_type or url.lower().endswith('.pdf'):
-            logger.info("Processing PDF URL")
-            # Save PDF to temporary file
-            temp_file = os.path.join(UPLOAD_FOLDER, f"temp_{uuid.uuid4()}.pdf")
-            with open(temp_file, 'wb') as f:
-                f.write(response.content)
+        if 'text/html' in content_type:
+            # Parse HTML content
+            soup = BeautifulSoup(response.text, 'html.parser')
             
-            logger.info(f"PDF downloaded successfully, size: {len(response.content)} bytes")
-            logger.info(f"Saving PDF to temporary file: {temp_file}")
+            # Remove script and style elements
+            for script in soup(["script", "style"]):
+                script.decompose()
             
-            # Extract text from PDF using multiple methods
-            logger.info("Attempting to extract text from PDF")
-            text = None
+            # Get text content
+            text = soup.get_text(separator='\n', strip=True)
             
-            # Try PyPDF2 first
-            try:
-                import PyPDF2
-                with open(temp_file, 'rb') as f:
-                    reader = PyPDF2.PdfReader(f)
-                    text = ""
-                    for page in reader.pages:
-                        page_text = page.extract_text()
-                        if page_text:
-                            text += page_text + "\n"
-                logger.info("Successfully extracted text using PyPDF2")
-            except Exception as e:
-                logger.warning(f"PyPDF2 extraction failed: {e}")
+            # Clean up text
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = '\n'.join(chunk for chunk in chunks if chunk)
             
-            # If PyPDF2 fails, try pdfminer.six
-            if not text:
-                try:
-                    from pdfminer.high_level import extract_text as pdfminer_extract_text
-                    text = pdfminer_extract_text(temp_file)
-                    logger.info("Successfully extracted text using pdfminer.six")
-                except Exception as e:
-                    logger.warning(f"pdfminer.six extraction failed: {e}")
-            
-            # If both fail, try OCR as last resort
-            if not text:
-                try:
-                    import pytesseract
-                    from pdf2image import convert_from_path
-                    images = convert_from_path(temp_file)
-                    text = ""
-                    for image in images:
-                        text += pytesseract.image_to_string(image) + "\n"
-                    logger.info("Successfully extracted text using OCR")
-                except Exception as e:
-                    logger.warning(f"OCR extraction failed: {e}")
-            
-            # Remove temporary file
-            os.remove(temp_file)
-            logger.info("Temporary PDF file removed")
-            
-            if not text:
-                raise Exception("Failed to extract text from PDF using any method")
+            return {'text': text, 'content_type': 'text/html'}
         else:
-            # Assume HTML/text
-            text = response.text
+            # Return raw content for non-HTML
+            return {'text': response.text, 'content_type': content_type}
+    
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout while fetching URL: {url}")
+        raise ValueError("Request timed out while fetching URL")
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error while fetching URL: {url} - {str(e)}")
+        raise ValueError(f"HTTP error: {str(e)}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching URL: {url} - {str(e)}")
+        raise ValueError(f"Error fetching URL: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error while fetching URL: {url} - {str(e)}")
+        raise ValueError(f"Unexpected error: {str(e)}")
+
+@enhanced_validator_bp.route('/api/fetch_url', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/fetch_url', methods=['POST'])
+def fetch_url():
+    try:
+        data = request.get_json()
+        if not data or 'url' not in data:
+            return jsonify({'error': 'No URL provided'}), 400
         
-        # Process text with Eyecite
-        logger.info("Processing text with Eyecite")
-        citations = []
-        eyecite_processed = False
+        url = data['url']
+        content = fetch_url_content(url)
+        return jsonify(content)
+    except Exception as e:
+        logger.error(f"Error in fetch_url: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+def analyze_text(text):
+    """Analyze text for legal citations and provide detailed analysis."""
+    logger.info("Analyzing text for legal citations")
+    
+    try:
+        # Extract citations
+        citation_results = extract_citations(text)
         
-        try:
-            from eyecite import get_citations
-            try:
-                from eyecite.tokenizers import AhocorasickTokenizer
-                logger.info("Using AhocorasickTokenizer for citation extraction")
-                citations = get_citations(text, tokenizer=AhocorasickTokenizer())
-                # Convert citations to strings and clean them
-                citations = [str(citation).strip() for citation in citations]
-                eyecite_processed = True
-            except (ImportError, AttributeError) as e:
-                logger.warning(f"AhocorasickTokenizer not available: {e}. Using default tokenizer.")
-                citations = get_citations(text)
-                citations = [str(citation).strip() for citation in citations]
-                eyecite_processed = True
-        except ImportError as e:
-            logger.warning(f"eyecite import error: {e}. Using regex patterns for citation extraction.")
-            # Fall back to regex patterns
-            citations = extract_citations(text)['confirmed_citations']
-        except Exception as e:
-            logger.warning(f"Error using eyecite: {e}. Falling back to regex patterns.")
-            # Fall back to regex patterns
-            citations = extract_citations(text)['confirmed_citations']
-        
-        logger.info(f"Successfully extracted {len(text)} characters from URL")
-        logger.info(f"Found {len(citations)} citations")
-        
-        # Format the response
-        response_data = {
-            'status': 'success',
-            'text': text,
-            'eyecite_processed': eyecite_processed,
-            'citations_count': len(citations),
-            'citations': citations,
-            'validated_citations': [{
-                'citation_text': citation,
-                'verified': True,
-                'validation_method': 'CourtListener',
-                'case_name': None,
-                'source': 'CourtListener',
-                'confidence': 1.0,
-                'explanation': "Validated by CourtListener",
-                'url': None
-            } for citation in citations]
+        # Initialize analysis results
+        analysis = {
+            'citations': citation_results,
+            'statistics': {
+                'total_citations': len(citation_results['confirmed_citations']) + len(citation_results['possible_citations']),
+                'confirmed_citations': len(citation_results['confirmed_citations']),
+                'possible_citations': len(citation_results['possible_citations'])
+            },
+            'landmark_cases': [],
+            'validation_results': []
         }
         
-        return _corsify_actual_response(jsonify(response_data))
-    
-    except requests.exceptions.RequestException as e:
-        error_msg = f"Error fetching URL: {str(e)}"
-        logger.error(error_msg)
-        return _corsify_actual_response(jsonify({
-            'status': 'error',
-            'message': error_msg
-        })), 500
+        # Check for landmark cases
+        for citation in citation_results['confirmed_citations']:
+            if is_landmark_case(citation):
+                analysis['landmark_cases'].append(citation)
+        
+        # Validate citations
+        for citation in citation_results['confirmed_citations']:
+            validation_result = validate_citation(citation)
+            analysis['validation_results'].append({
+                'citation': citation,
+                'validation': validation_result
+            })
+        
+        logger.info(f"Analysis complete: found {analysis['statistics']['total_citations']} citations")
+        return analysis
+        
     except Exception as e:
-        error_msg = f"Error processing URL: {str(e)}"
-        logger.error(error_msg)
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return _corsify_actual_response(jsonify({
-            'status': 'error',
-            'message': error_msg
-        })), 500
+        logger.error(f"Error analyzing text: {str(e)}")
+        raise ValueError(f"Error analyzing text: {str(e)}")
 
-# CORS Helper Functions
-def _build_cors_preflight_response():
-    response = make_response()
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-    return response
-
-def _corsify_actual_response(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+@enhanced_validator_bp.route('/api/enhanced-analyze', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/api/enhanced-analyze', methods=['POST'])
+def enhanced_analyze():
+    try:
+        data = request.get_json()
+        if not data or 'text' not in data:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        text = data['text']
+        if not isinstance(text, str) or not text.strip():
+            return jsonify({'error': 'Invalid text format'}), 400
+            
+        # Limit text size to prevent memory issues
+        if len(text) > 1000000:  # 1MB limit
+            return jsonify({'error': 'Text too large. Maximum size is 1MB.'}), 400
+            
+        analysis = analyze_text(text)
+        return jsonify(analysis)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in enhanced_analyze: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # File upload configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
@@ -1051,14 +1029,46 @@ def extract_text_from_file(file_path):
                 return "Error: python-docx not installed. Cannot extract text from Word documents."
         
         elif file_ext == '.rtf':
-            try:
-                import striprtf.striprtf
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-                    rtf_text = file.read()
-                    return striprtf.striprtf.rtf_to_text(rtf_text)
-            except ImportError:
+            if not STRIPRTF_AVAILABLE:
                 logger.error("striprtf not installed. Cannot extract text from RTF documents.")
                 return "Error: striprtf not installed. Cannot extract text from RTF documents."
+            
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+                    rtf_text = file.read()
+                    
+                    # Basic RTF format validation
+                    if not rtf_text.startswith('{\\rtf'):
+                        logger.warning("File does not appear to be a valid RTF document")
+                        return "Warning: File does not appear to be a valid RTF document"
+                    
+                    try:
+                        text = striprtf.striprtf.rtf_to_text(rtf_text)
+                        if not text.strip():
+                            logger.warning("RTF conversion produced empty text")
+                            return "Warning: RTF conversion produced empty text. The file may be corrupted or empty."
+                        
+                        # Basic validation of extracted text
+                        if len(text) < 10:  # Arbitrary minimum length
+                            logger.warning("RTF conversion produced suspiciously short text")
+                            return "Warning: RTF conversion produced suspiciously short text. The file may be corrupted."
+                        
+                        logger.info(f"Successfully extracted {len(text)} characters from RTF file")
+                        return text
+                        
+                    except striprtf.striprtf.RTFError as rtf_error:
+                        logger.error(f"RTF parsing error: {str(rtf_error)}")
+                        return f"Error: Invalid RTF format - {str(rtf_error)}"
+                    except Exception as rtf_error:
+                        logger.error(f"Unexpected error converting RTF: {str(rtf_error)}")
+                        return f"Error converting RTF: {str(rtf_error)}"
+                        
+            except IOError as io_error:
+                logger.error(f"Error reading RTF file: {str(io_error)}")
+                return f"Error reading RTF file: {str(io_error)}"
+            except Exception as e:
+                logger.error(f"Unexpected error processing RTF file: {str(e)}")
+                return f"Error processing RTF file: {str(e)}"
         
         elif file_ext in ['.html', '.htm']:
             try:
@@ -1095,7 +1105,30 @@ def extract_citations(text):
         from eyecite.tokenizers import AhocorasickTokenizer
         logger.info("Using eyecite with AhocorasickTokenizer for citation extraction")
         citations = get_citations(text, tokenizer=AhocorasickTokenizer())
-        results['confirmed_citations'] = [str(citation) for citation in citations]
+        
+        # Process eyecite citations
+        for citation in citations:
+            # Get the full citation text including case name and pin cite
+            citation_text = citation.matched_text()
+            
+            # Add pin cite if available
+            if hasattr(citation, 'pin_cite') and citation.pin_cite:
+                citation_text = f"{citation_text}, {citation.pin_cite}"
+            
+            # Add case name if available
+            if hasattr(citation, 'metadata') and citation.metadata:
+                if citation.metadata.plaintiff and citation.metadata.defendant:
+                    case_name = f"{citation.metadata.plaintiff} v. {citation.metadata.defendant}"
+                    citation_text = f"{case_name}, {citation_text}"
+            
+            # Clean up the citation
+            citation_text = re.sub(r'\s+', ' ', citation_text)  # Normalize whitespace
+            citation_text = re.sub(r',\s+', ', ', citation_text)  # Fix spacing around commas
+            
+            if citation_text and citation_text not in results['confirmed_citations']:
+                results['confirmed_citations'].append(citation_text)
+                logger.debug(f"Found citation using eyecite: {citation_text}")
+        
         logger.info(f"Extracted {len(results['confirmed_citations'])} confirmed citations using eyecite")
     except ImportError as e:
         logger.warning(f"eyecite import error: {e}. Using regex patterns for citation extraction.")
@@ -1201,145 +1234,6 @@ def extract_text_from_url(url):
     except Exception as e:
         logger.error(f"Error extracting text from URL: {str(e)}")
         raise ValueError(f"Error extracting text from URL: {str(e)}")
-
-# API endpoint to analyze document, URL, or pasted text with Enhanced Validator
-@enhanced_validator_bp.route('/api/enhanced-analyze', methods=['POST', 'OPTIONS'])
-@enhanced_validator_bp.route('/casestrainer/api/enhanced-analyze', methods=['POST', 'OPTIONS'])
-def enhanced_analyze():
-    """API endpoint to analyze a document, URL, or pasted text with the Enhanced Validator."""
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    logger.info("Enhanced Validator document analysis requested")
-    
-    # Generate a unique analysis ID
-    analysis_id = generate_analysis_id()
-    logger.info(f"Generated analysis ID: {analysis_id}")
-    
-    # Initialize variables
-    document_text = None
-    file_path = None
-    extracted_citations = {'confirmed_citations': [], 'possible_citations': []}
-    validation_results = []
-    grouped_results = {
-        'CourtListener API': [],  # New group for API-validated citations
-        'Landmark': [],
-        'CourtListener': [],
-        'Multitool': [],
-        'Other': [],
-        'Unverified': [],
-        'Possible': []
-    }
-    
-    try:
-        # Get text from request
-        if 'file' in request.files:
-            file = request.files['file']
-            if file and file.filename:
-                file_path = os.path.join(UPLOAD_FOLDER, secure_filename(file.filename))
-                file.save(file_path)
-                document_text = extract_text_from_file(file_path)
-        elif 'text' in request.form:
-            document_text = request.form['text']
-        
-        # Extract citations from text
-        if document_text:
-            logger.info("Starting citation extraction")
-            extracted_citations = extract_citations(document_text)
-            logger.info(f"Extracted {len(extracted_citations['confirmed_citations'])} confirmed and {len(extracted_citations['possible_citations'])} possible citations")
-            
-            # Process all citations (both confirmed and possible)
-            all_citations = extracted_citations['confirmed_citations'] + extracted_citations['possible_citations']
-            logger.info(f"Processing {len(all_citations)} total citations")
-            
-            # Track which citations have been validated by the API
-            api_validated_citations = set()
-            
-            for citation in all_citations:
-                # First check CourtListener API
-                courtlistener_result = check_courtlistener_api(citation)
-                if courtlistener_result:
-                    # Add to API-validated results
-                    result = {
-                        'citation': citation,
-                        'verified': True,
-                        'verified_by': 'CourtListener API',
-                        'validation_method': 'CourtListener API',
-                        'case_name': courtlistener_result.get('case_name', ''),
-                        'components': parse_citation_components(citation),
-                        'parallel_citations': courtlistener_result.get('parallel_citations', []),
-                        'error': None
-                    }
-                    validation_results.append(result)
-                    grouped_results['CourtListener API'].append(result)
-                    api_validated_citations.add(citation)
-                    continue
-                
-                # Skip subsequent validation if already validated by API
-                if citation in api_validated_citations:
-                    continue
-                
-                # Validate citation using other methods
-                validation_result = validate_citation(citation)
-                
-                # Create result object
-                result = {
-                    'citation': citation,
-                    'verified': validation_result['verified'],
-                    'verified_by': validation_result['verified_by'],
-                    'validation_method': validation_result['validation_method'],
-                    'case_name': validation_result['case_name'],
-                    'components': parse_citation_components(citation),
-                    'error': None if validation_result['verified'] else "Citation not found in any validation database"
-                }
-                
-                # Add to validation results
-                validation_results.append(result)
-                
-                # Group results by validation method
-                if validation_result['verified']:
-                    method = validation_result['validation_method']
-                    if method in grouped_results:
-                        grouped_results[method].append(result)
-                    else:
-                        grouped_results['Other'].append(result)
-                else:
-                    # Check if it's a possible citation
-                    if citation in extracted_citations['possible_citations']:
-                        grouped_results['Possible'].append(result)
-                    else:
-                        grouped_results['Unverified'].append(result)
-            
-            logger.info(f"Validated {len(validation_results)} citations")
-            logger.info(f"API-validated citations: {len(api_validated_citations)}")
-            
-            # Log grouping statistics
-            for group, citations in grouped_results.items():
-                logger.info(f"{group} Citations: {len(citations)}")
-        
-        # Return results
-        response_data = {
-            'status': 'success',
-            'analysis_id': analysis_id,
-            'document_length': len(document_text) if document_text else 0,
-            'file_name': file.filename if 'file' in request.files and file and file.filename else None,
-            'citations_count': len(validation_results),
-            'validation_results': validation_results,
-            'grouped_results': grouped_results,
-            'api_validated_count': len(api_validated_citations) if 'api_validated_citations' in locals() else 0
-        }
-        
-        logger.info(f"Analysis completed for ID: {analysis_id}")
-        return _corsify_actual_response(jsonify(response_data))
-    
-    except Exception as e:
-        error_msg = f"Error analyzing document: {str(e)}"
-        logger.error(error_msg)
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return _corsify_actual_response(jsonify({
-            'status': 'error',
-            'message': error_msg
-        })), 500
 
 # Function to register the blueprint with the Flask app
 def register_enhanced_validator(app):

@@ -20,8 +20,8 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 from flask_cors import CORS
 from datetime import timedelta
-from enhanced_validator_production import enhanced_validator_bp as enhanced_validator_production_bp, register_enhanced_validator
-from citation_api import citation_api
+from src.enhanced_validator_production import enhanced_validator_bp as enhanced_validator_production_bp, register_enhanced_validator
+from src.citation_api import citation_api
 
 # Helper functions and constants remain at module level
 DATABASE_FILE = 'citations.db'
@@ -29,15 +29,42 @@ UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
 COURTLISTENER_API_URL = 'https://www.courtlistener.com/api/rest/v4/opinions/'
 
-# Load config from config.json
+# Load config from config.json with better error handling
 try:
-    with open('config.json', 'r') as f:
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config.json')
+    with open(config_path, 'r') as f:
         config = json.load(f)
         DEFAULT_API_KEY = config.get('COURTLISTENER_API_KEY', '')
+        if not DEFAULT_API_KEY:
+            DEFAULT_API_KEY = config.get('courtlistener_api_key', '')  # Try alternate key name
         SECRET_KEY = config.get('SECRET_KEY', '')
-except (FileNotFoundError, json.JSONDecodeError):
+        print(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}...")
+        logger = logging.getLogger(__name__)
+        logger.info(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}...")
+except (FileNotFoundError, json.JSONDecodeError) as e:
+    print(f"Error loading config.json: {str(e)}. Using environment variables.")
     DEFAULT_API_KEY = os.environ.get('COURTLISTENER_API_KEY', '')
     SECRET_KEY = os.environ.get('SECRET_KEY', '')
+    
+# Fallback to config.json in current directory if API key is still empty
+if not DEFAULT_API_KEY:
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+            DEFAULT_API_KEY = config.get('COURTLISTENER_API_KEY', '')
+            if not DEFAULT_API_KEY:
+                DEFAULT_API_KEY = config.get('courtlistener_api_key', '')  # Try alternate key name
+            print(f"Loaded CourtListener API key from current directory config.json: {DEFAULT_API_KEY[:5]}...")
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"Error loading config.json from current directory: {str(e)}")
+
+# Verify API key is valid
+if not DEFAULT_API_KEY:
+    print("WARNING: No CourtListener API key found. Citation verification will not work properly.")
+elif len(DEFAULT_API_KEY) < 10:
+    print(f"WARNING: CourtListener API key appears invalid: {DEFAULT_API_KEY}")
+else:
+    print(f"CourtListener API key loaded successfully: {DEFAULT_API_KEY[:5]}...")
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -52,12 +79,26 @@ processing_state = {
 # Dictionary to store analysis results
 analysis_results = {}
 
+# Thread-local storage for API keys
+thread_local = threading.local()
+
 logger = logging.getLogger(__name__)
 
 def create_app():
     app = Flask(__name__, 
                 static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),
                 template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'))
+
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+    logger.info("CORS configured with Flask-CORS")
 
     # Configure logging
     logging.basicConfig(
@@ -70,52 +111,54 @@ def create_app():
     )
     logger.info(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}...")
 
-    # Configure the app
-    app.config['SECRET_KEY'] = SECRET_KEY or 'dev-secret-key-please-change-in-production'
-    logger.info(f"Using SECRET_KEY: {app.config['SECRET_KEY'][:5]}...")
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-    app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
-    app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'html', 'htm'}
+    # Set SECRET_KEY from environment variable first, then try config.json
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    if not app.config['SECRET_KEY']:
+        try:
+            with open('config.json', 'r') as f:
+                config = json.load(f)
+                app.config['SECRET_KEY'] = config.get('SECRET_KEY', '')
+                if not app.config['SECRET_KEY']:
+                    raise ValueError("SECRET_KEY not found in config.json")
+                logger.info(f"Loaded SECRET_KEY from config.json: {app.config['SECRET_KEY'][:5]}...")
+        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+            logger.error(f"Error loading config.json: {e}")
+            app.config['SECRET_KEY'] = 'dev-secret-key-please-change-in-production'
+            logger.info(f"Using default SECRET_KEY: {app.config['SECRET_KEY'][:5]}...")
+    else:
+        logger.info(f"Using SECRET_KEY from environment: {app.config['SECRET_KEY'][:5]}...")
+
+    # Session configuration
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flask_session')
     if not os.path.exists(app.config['SESSION_FILE_DIR']):
         os.makedirs(app.config['SESSION_FILE_DIR'])
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
     
-    # Set application root from environment variable
+    # Initialize Flask-Session BEFORE any routes
+    Session(app)
+    logger.info("Flask-Session initialized with filesystem storage")
+
+    # URL prefix configuration
     app.config['APPLICATION_ROOT'] = os.environ.get('APPLICATION_ROOT', '/casestrainer')
     logger.info(f"Using APPLICATION_ROOT: {app.config['APPLICATION_ROOT']}")
 
-    # Create upload folder if it doesn't exist
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-
-    # Configure CORS
-    CORS(app, resources={
-        r"/*": {
-            "origins": ["*"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "expose_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True,
-            "max_age": 3600
-        }
-    })
-
     # Configure for reverse proxy
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
-
-    # Initialize Flask-Session
-    Session(app)
-    logger.info("Flask-Session initialized")
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_proto=1,
+        x_host=1,
+        x_prefix=1,
+        x_for=1,
+        x_port=1
+    )
+    logger.info("ProxyFix middleware configured")
 
     # Create thread pool for handling concurrent requests
     thread_pool = ThreadPoolExecutor(max_workers=10)
-
-    # Thread-local storage for user-specific data
-    thread_local = threading.local()
 
     # Import eyecite for citation extraction
     try:
@@ -146,6 +189,13 @@ def create_app():
     app.logger.handlers = logger.handlers
     app.logger.setLevel(logger.level)
 
+    @app.before_request
+    def before_request():
+        if 'user_id' not in session:
+            session['user_id'] = str(uuid.uuid4())
+            session.permanent = True
+            logger.info(f"Created new session for user: {session['user_id']}")
+
     # Serve Vue.js static files
     @app.route('/')
     def redirect_to_enhanced_validator():
@@ -154,12 +204,21 @@ def create_app():
     @app.route('/casestrainer/')
     def serve_vue_index():
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-        return send_from_directory(vue_dist_dir, 'index.html')
+        logger.info(f"Serving Vue index from: {vue_dist_dir}")
+        response = send_from_directory(vue_dist_dir, 'index.html')
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     @app.route('/casestrainer/<path:path>')
-    def serve_vue_static(path):
+    def serve_vue_assets(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-        return send_from_directory(vue_dist_dir, path)
+        response = send_from_directory(vue_dist_dir, path)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     @app.route('/js/<path:path>')
     @app.route('/casestrainer/js/<path:path>')
@@ -264,14 +323,18 @@ def create_app():
             if not data or 'text' not in data:
                 return jsonify({'error': 'No text provided'}), 400
 
-            # Extract citations from the text
-            citations = extract_citations_from_text(data['text'])
+            # Extract citations from the text (now returns list of dicts)
+            extracted_citations = extract_citations_from_text(data['text'])
 
-            # Verify each citation
+            # Verify each citation using the citation_text field
             results = []
-            for citation in citations:
-                result = verify_citation(citation)
-                results.append(result)
+            for citation in extracted_citations:
+                verification = verify_citation(citation['citation_text'])
+                # Combine extraction metadata and verification result
+                results.append({
+                    'extraction': citation,
+                    'verification': verification
+                })
 
             return jsonify({
                 'citations': results,
@@ -281,13 +344,6 @@ def create_app():
             logger.error(f"Error in validate_citations: {str(e)}")
             logger.error(f"Error details: {traceback.format_exc()}")
             return jsonify({'error': str(e)}), 500
-
-    @app.before_request
-    def before_request():
-        """Set up session data before each request."""
-        if 'user_id' not in session:
-            session['user_id'] = str(uuid.uuid4())
-            logger.info(f"Created new session for user: {session['user_id']}")
 
     @app.after_request
     def after_request(response):
@@ -311,88 +367,58 @@ def create_app():
 
     return app
 
+# Create the Flask app instance
+app = create_app()
+
 # Helper functions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def verify_citation(citation):
-    """Verify a citation using CourtListener API or direct validation for U.S. Code."""
+    """Verify a citation using the robust CitationVerifier logic with improved error handling."""
     try:
-        # Get API key from thread-local storage or config
+        # Import with better error handling
+        try:
+            from src.citation_verification import CitationVerifier
+            logger.info(f"Successfully imported CitationVerifier from src.citation_verification")
+        except ImportError as import_err:
+            # Try relative import if the first one fails
+            try:
+                from citation_verification import CitationVerifier
+                logger.info(f"Successfully imported CitationVerifier from citation_verification (relative import)")
+            except ImportError:
+                logger.error(f"Failed to import CitationVerifier: {str(import_err)}")
+                raise
+        
+        # Get API key from thread_local or use default
         api_key = getattr(thread_local, 'api_key', DEFAULT_API_KEY)
-        logger.info(f"[verify_citation] Using API key: {api_key[:6]}... (length: {len(api_key)})")
         
-        # Check if this is a U.S. Code citation
-        usc_pattern = r'(\d+)\s+U\.\s*S\.\s*C\.\s*§\s*(\d+)'
-        usc_match = re.match(usc_pattern, citation, re.IGNORECASE)
+        # Log API key information (first 5 chars only for security)
+        if api_key:
+            logger.info(f"Using API key for verification: {api_key[:5]}... (length: {len(api_key)})")
+        else:
+            logger.warning("No API key available for citation verification")
+            print("WARNING: No API key available for citation verification")
         
-        if usc_match:
-            title = usc_match.group(1)
-            section = usc_match.group(2)
-            logger.info(f"Found U.S. Code citation: Title {title}, Section {section}")
-            return {
-                'citation': citation,
-                'verified': True,
-                'source': 'U.S. Code',
-                'case_name': f"U.S. Code Title {title}, Section {section}",
-                'details': {
-                    'title': title,
-                    'section': section,
-                    'url': f"https://www.law.cornell.edu/uscode/text/{title}/{section}"
-                }
-            }
+        # Create verifier and verify citation
+        verifier = CitationVerifier(api_key=api_key)
+        logger.info(f"Verifying citation: {citation}")
+        result = verifier.verify_citation(citation)
+        logger.info(f"Verification result: {result}")
         
-        # For case citations, use CourtListener API
-        from urllib.parse import quote
-        
-        # Encode the citation for the URL
-        encoded_citation = quote(citation)
-        url = f"https://www.courtlistener.com/api/rest/v4/opinions/?cite={encoded_citation}"
-        logger.info(f"[verify_citation] Requesting URL: {url}")
-        
-        headers = {
-            'Authorization': f'Token {api_key}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        
-        logger.info(f"[verify_citation] Headers: {headers}")
-        response = requests.get(url, headers=headers, timeout=10)
-        logger.info(f"[verify_citation] Response status: {response.status_code}")
-        logger.info(f"[verify_citation] Response body: {response.text}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            logger.info(f"CourtListener API response: {data}")
-            
-            if data.get('count', 0) > 0:
-                result = data['results'][0]
-                logger.info(f"Citation verified: {citation}")
-                return {
-                    'citation': citation,
-                    'verified': True,
-                    'source': 'CourtListener',
-                    'case_name': result.get('case_name', 'Unknown Case'),
-                    'details': {
-                        'court': result.get('court', 'Unknown Court'),
-                        'date_filed': result.get('date_filed', 'Unknown Date'),
-                        'docket_number': result.get('docket_number', 'Unknown Docket'),
-                        'url': f"https://www.courtlistener.com{result.get('absolute_url', '')}"
-                    }
-                }
-        
-        # If not found in CourtListener, try other sources
-        logger.info(f"Citation not found in CourtListener: {citation}")
+        # Return formatted result
         return {
             'citation': citation,
-            'verified': False,
-            'source': 'CourtListener',
-            'case_name': None,
-            'details': None,
-            'error': 'Citation not found in CourtListener database'
+            'verified': result.get('found', False),
+            'source': result.get('source'),
+            'case_name': result.get('case_name'),
+            'details': result.get('details'),
+            'url': result.get('url'),
+            'error': result.get('error')
         }
     except Exception as e:
         logger.error(f"Error verifying citation: {e}")
+        traceback.print_exc()  # Print full stack trace for debugging
         return {
             'citation': citation,
             'verified': False,
@@ -403,11 +429,10 @@ def verify_citation(citation):
         }
 
 def extract_citations_from_file(filepath):
-    """Extract citations from a file."""
+    """Extract citations from a file and return full metadata."""
     try:
         # Read file content based on file type
         if filepath.endswith('.pdf'):
-            # Use PyPDF2 for PDF files
             import PyPDF2
             with open(filepath, 'rb') as file:
                 reader = PyPDF2.PdfReader(file)
@@ -415,96 +440,47 @@ def extract_citations_from_file(filepath):
                 for page in reader.pages:
                     text += page.extract_text()
         elif filepath.endswith(('.doc', '.docx')):
-            # Use python-docx for Word files
             import docx
             doc = docx.Document(filepath)
             text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
         else:
-            # Assume text file
             with open(filepath, 'r', encoding='utf-8') as file:
                 text = file.read()
-        
         return extract_citations_from_text(text)
     except Exception as e:
         print(f"Error extracting citations from file: {e}")
         return []
 
 def extract_citations_from_text(text):
-    """Extract citations from text using eyecite."""
+    """Extract citations from text using eyecite and return full metadata."""
     try:
         from eyecite import get_citations
+        from eyecite.tokenizers import AhocorasickTokenizer
         
         # Use AhocorasickTokenizer
-        if EYECITE_AVAILABLE and tokenizer:
-            logger.info("Using AhocorasickTokenizer for citation extraction")
-            try:
-                citations = get_citations(text, tokenizer=tokenizer)
-                if citations is None:
-                    raise ValueError("AhocorasickTokenizer returned None")
-            except Exception as e:
-                logger.warning(f"Error using AhocorasickTokenizer: {e}. Falling back to regex patterns.")
-                citations = None
-        else:
-            logger.info("Using regex patterns for citation extraction")
-            citations = None
+        tokenizer = None
+        try:
+            tokenizer = AhocorasickTokenizer()
+        except Exception:
+            tokenizer = None
         
-        # Clean and normalize citations
-        cleaned_citations = []
+        citations = get_citations(text, tokenizer=tokenizer) if tokenizer else get_citations(text)
         
-        # First try eyecite if available
-        if citations:
-            logger.info(f"Processing {len(citations)} citations from eyecite")
-            for citation in citations:
-                # Get the matched text
-                citation_text = citation.matched_text()
-                
-                # Skip U.S. Code citations
-                if re.search(r'\d+\s+U\.\s*S\.\s*C\.\s*§', citation_text, re.IGNORECASE):
-                    logger.info(f"Skipping U.S. Code citation: {citation_text}")
-                    continue
-                
-                # Clean up the citation
-                citation_text = re.sub(r'\s+', ' ', citation_text)  # Normalize whitespace
-                citation_text = re.sub(r'([0-9])\s+([A-Z])', r'\1 \2', citation_text)  # Fix spacing in citations
-                citation_text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1. \2', citation_text)  # Fix spacing in abbreviations
-                
-                # Add to list if not empty
-                if citation_text.strip():
-                    cleaned_citations.append(citation_text)
-                    logger.info(f"Extracted citation with eyecite: {citation_text}")
-        
-        # If no citations found with eyecite, try regex patterns
-        if not cleaned_citations:
-            logger.info("No citations found with eyecite, trying regex patterns")
-            
-            # Pattern for U.S. Supreme Court citations with complex case names and multiple page numbers
-            scotus_patterns = [
-                # Pattern for full citations with case names and multiple page numbers
-                r'(?:[A-Z][A-Za-z0-9\s\.,&\'\"\(\)]+v\.\s+[A-Z][A-Za-z0-9\s\.,&\'\"\(\)]+,\s+)?(\d+\s+U\.\s*S\.\s*\d+(?:,\s*\d+)*)',
-                
-                # Pattern for citations with multiple page numbers but no case name
-                r'(\d+\s+U\.\s*S\.\s*\d+(?:,\s*\d+)*)',
-                
-                # Pattern for simple citations
-                r'(\d+\s+U\.\s*S\.\s*\d+)'
-            ]
-            
-            # Find all matches
-            for pattern in scotus_patterns:
-                matches = re.finditer(pattern, text, re.IGNORECASE)
-                for match in matches:
-                    citation = match.group().strip()
-                    # Clean up the citation
-                    citation = re.sub(r'\s+', ' ', citation)  # Normalize whitespace
-                    citation = re.sub(r'([0-9])\s+([A-Z])', r'\1 \2', citation)  # Fix spacing
-                    citation = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1. \2', citation)  # Fix abbreviations
-                    
-                    if citation not in cleaned_citations:
-                        cleaned_citations.append(citation)
-                        logger.info(f"Extracted citation with regex: {citation}")
-        
-        logger.info(f"Extracted {len(cleaned_citations)} citations from text")
-        return cleaned_citations
+        citation_dicts = []
+        for citation in citations:
+            citation_dicts.append({
+                'citation_text': citation.matched_text(),
+                'corrected_citation': citation.corrected_citation() if hasattr(citation, 'corrected_citation') else None,
+                'citation_type': type(citation).__name__,
+                'metadata': {
+                    'reporter': getattr(citation, 'reporter', None),
+                    'volume': getattr(citation, 'volume', None),
+                    'page': getattr(citation, 'page', None),
+                    'year': getattr(citation, 'year', None),
+                    'court': getattr(citation, 'court', None)
+                }
+            })
+        return citation_dicts
     except Exception as e:
         logger.error(f"Error extracting citations from text: {e}")
         logger.error(f"Error details: {traceback.format_exc()}")
@@ -587,9 +563,6 @@ if __name__ == '__main__':
     
     logger.info(f"Using Waitress: {use_waitress}")
     
-    # Create the Flask app
-    app = create_app()
-
     if use_waitress:
         try:
             from waitress import serve
