@@ -29,15 +29,13 @@ UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
 COURTLISTENER_API_URL = 'https://www.courtlistener.com/api/rest/v4/opinions/'
 
-# Load config from config.json
+# Load API key from config
 try:
     with open('config.json', 'r') as f:
         config = json.load(f)
         DEFAULT_API_KEY = config.get('COURTLISTENER_API_KEY', '')
-        SECRET_KEY = config.get('SECRET_KEY', '')
 except (FileNotFoundError, json.JSONDecodeError):
     DEFAULT_API_KEY = os.environ.get('COURTLISTENER_API_KEY', '')
-    SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -71,22 +69,16 @@ def create_app():
     logger.info(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}...")
 
     # Configure the app
-    app.config['SECRET_KEY'] = SECRET_KEY or 'dev-secret-key-please-change-in-production'
-    logger.info(f"Using SECRET_KEY: {app.config['SECRET_KEY'][:5]}...")
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
     app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
     app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'doc', 'docx', 'rtf', 'odt', 'html', 'htm'}
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flask_session')
-    if not os.path.exists(app.config['SESSION_FILE_DIR']):
-        os.makedirs(app.config['SESSION_FILE_DIR'])
     
     # Set application root from environment variable
     app.config['APPLICATION_ROOT'] = os.environ.get('APPLICATION_ROOT', '/casestrainer')
-    logger.info(f"Using APPLICATION_ROOT: {app.config['APPLICATION_ROOT']}")
 
     # Create upload folder if it doesn't exist
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -109,7 +101,6 @@ def create_app():
 
     # Initialize Flask-Session
     Session(app)
-    logger.info("Flask-Session initialized")
 
     # Create thread pool for handling concurrent requests
     thread_pool = ThreadPoolExecutor(max_workers=10)
@@ -257,56 +248,100 @@ def create_app():
 
     @app.route('/api/validate_citations', methods=['POST'])
     def validate_citations():
-        """API endpoint for validating citations."""
+        """Validate citations from text or file input."""
         try:
-            # Get the request data
-            data = request.get_json()
-            if not data or 'text' not in data:
-                return jsonify({'error': 'No text provided'}), 400
-
-            # Extract citations from the text
-            citations = extract_citations_from_text(data['text'])
-
-            # Verify each citation
-            results = []
-            for citation in citations:
+            # Reset processing state
+            processing_state['total_citations'] = 0
+            processing_state['processed_citations'] = 0
+            processing_state['is_complete'] = False
+            
+            if request.content_type and 'multipart/form-data' in request.content_type:
+                # Handle file upload
+                if 'file' not in request.files:
+                    return jsonify({'error': 'No file part'}), 400
+                
+                file = request.files['file']
+                if file.filename == '':
+                    return jsonify({'error': 'No selected file'}), 400
+                
+                if file:
+                    filename = secure_filename(file.filename)
+                    upload_folder = os.path.join(app.root_path, 'uploads')
+                    if not os.path.exists(upload_folder):
+                        os.makedirs(upload_folder)
+                    
+                    filepath = os.path.join(upload_folder, filename)
+                    file.save(filepath)
+                    
+                    # Extract citations from file
+                    citations = extract_citations_from_file(filepath)
+            else:
+                # Handle text input
+                data = request.get_json()
+                if not data or 'text' not in data:
+                    return jsonify({'error': 'No text provided'}), 400
+                
+                # Extract citations from text
+                citations = extract_citations_from_text(data['text'])
+            
+            # Set total citations count
+            processing_state['total_citations'] = len(citations)
+            
+            # Process citations
+            verified_citations = []
+            unverified_citations = []
+            
+            for i, citation in enumerate(citations):
+                # Update progress
+                processing_state['processed_citations'] = i + 1
+                
+                # Verify citation
                 result = verify_citation(citation)
-                results.append(result)
-
+                if result['verified']:
+                    verified_citations.append(result)
+                else:
+                    unverified_citations.append(result)
+            
+            # Mark processing as complete
+            processing_state['is_complete'] = True
+            
             return jsonify({
-                'citations': results,
-                'total': len(results)
+                'total_citations': len(citations),
+                'verified_citations': len(verified_citations),
+                'unverified_citations': len(unverified_citations),
+                'citations': {
+                    'verified': verified_citations,
+                    'unverified': unverified_citations
+                }
             })
+            
         except Exception as e:
             logger.error(f"Error in validate_citations: {str(e)}")
             logger.error(f"Error details: {traceback.format_exc()}")
             return jsonify({'error': str(e)}), 500
 
+    # Add middleware to handle user sessions
     @app.before_request
     def before_request():
-        """Set up session data before each request."""
         if 'user_id' not in session:
             session['user_id'] = str(uuid.uuid4())
-            logger.info(f"Created new session for user: {session['user_id']}")
+        thread_local.user_id = session['user_id']
 
+    # Add cleanup middleware
     @app.after_request
     def after_request(response):
-        """Clean up after each request."""
         # Clean up thread-local storage
-        if hasattr(thread_local, 'data'):
-            del thread_local.data
+        if hasattr(thread_local, 'user_id'):
+            del thread_local.user_id
         return response
 
+    # Error handlers
     @app.errorhandler(404)
     def not_found(error):
-        """Handle 404 errors."""
         return jsonify({'error': 'Not found'}), 404
-
+    
     @app.errorhandler(500)
     def server_error(error):
-        """Handle 500 errors."""
-        logger.error(f"Server error: {str(error)}")
-        logger.error(f"Error details: {traceback.format_exc()}")
         return jsonify({'error': 'Internal server error'}), 500
 
     return app

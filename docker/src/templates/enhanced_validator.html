@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Citation Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .citation-result {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.25rem;
+        }
+        .citation-verified {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .citation-unverified {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .citation-possible {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+        }
+        .progress-container {
+            display: none;
+            margin-top: 1rem;
+        }
+        .progress {
+            height: 1.5rem;
+        }
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Enhanced Citation Validator</h1>
+        
+        <!-- Input Tabs -->
+        <ul class="nav nav-tabs mb-4" id="inputTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file" type="button" role="tab">Upload File</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">Paste Text</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab">Enter URL</button>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="inputTabsContent">
+            <!-- File Upload Tab -->
+            <div class="tab-pane fade show active" id="file" role="tabpanel">
+                <form id="fileUploadForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload Document</label>
+                        <input type="file" class="form-control" id="file" name="file" accept=".pdf,.doc,.docx,.txt,.rtf">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                    <div id="fileProgress" class="progress-container">
+                        <div class="progress">
+                            <div id="fileProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <small id="fileProgressText" class="text-muted mt-1">Preparing document...</small>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Text Input Tab -->
+            <div class="tab-pane fade" id="text" role="tabpanel">
+                <form id="textInputForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Paste Text</label>
+                        <textarea class="form-control" id="text" name="text" rows="10" placeholder="Paste your text here..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                    <div id="textProgress" class="progress-container">
+                        <div class="progress">
+                            <div id="textProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <small id="textProgressText" class="text-muted mt-1">Analyzing text...</small>
+                    </div>
+                </form>
+            </div>
+
+            <!-- URL Input Tab -->
+            <div class="tab-pane fade" id="url" role="tabpanel">
+                <form id="urlInputForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="url" class="form-label">Enter URL of a legal document</label>
+                        <input type="url" class="form-control" id="url" name="url" placeholder="https://law.justia.com/cases/...">
+                        <div class="form-text">Enter a URL to a legal document (e.g., from Justia, CourtListener, etc.)</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
+                    <div id="urlProgress" class="progress-container">
+                        <div class="progress">
+                            <div id="urlProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <small id="urlProgressText" class="text-muted mt-1">Fetching URL...</small>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading">
+            <div class="spinner-border loading-spinner text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Analyzing citations...</p>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results" class="mt-4" style="display: none;">
+            <h2>Analysis Results</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="h5 mb-0">Summary</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Total Citations: <span id="totalCitations">0</span></p>
+                            <p>Confirmed Citations: <span id="confirmedCitations">0</span></p>
+                            <p>Possible Citations: <span id="possibleCitations">0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Citation Results -->
+            <div id="citationResults"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileUploadForm = document.getElementById('fileUploadForm');
+            const textInputForm = document.getElementById('textInputForm');
+            const urlInputForm = document.getElementById('urlInputForm');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const citationResults = document.getElementById('citationResults');
+            
+            // Progress tracking state
+            const progressState = {
+                file: { current: 0, total: 0, interval: null },
+                text: { current: 0, total: 0, interval: null },
+                url: { current: 0, total: 0, interval: null }
+            };
+            
+            // Function to show loading state
+            function showLoading() {
+                loading.style.display = 'block';
+                results.style.display = 'none';
+            }
+            
+            // Function to hide loading state
+            function hideLoading() {
+                loading.style.display = 'none';
+                results.style.display = 'block';
+            }
+            
+            // Function to start progress tracking
+            function startProgress(type) {
+                const progressContainer = document.getElementById(`${type}Progress`);
+                const progressBar = document.getElementById(`${type}ProgressBar`);
+                const progressText = document.getElementById(`${type}ProgressText`);
+                
+                progressContainer.style.display = 'block';
+                progressState[type].current = 0;
+                progressState[type].total = 100;
+                
+                // Update progress every 100ms
+                progressState[type].interval = setInterval(() => {
+                    if (progressState[type].current < progressState[type].total) {
+                        progressState[type].current += 1;
+                        const percentage = Math.min(progressState[type].current, 95); // Cap at 95% until complete
+                        progressBar.style.width = `${percentage}%`;
+                        progressBar.textContent = `${percentage}%`;
+                        
+                        // Update progress text based on percentage
+                        if (percentage < 30) {
+                            progressText.textContent = 'Preparing document...';
+                        } else if (percentage < 60) {
+                            progressText.textContent = 'Extracting citations...';
+                        } else {
+                            progressText.textContent = 'Validating citations...';
+                        }
+                    }
+                }, 100);
+            }
+            
+            // Function to stop progress tracking
+            function stopProgress(type) {
+                const progressContainer = document.getElementById(`${type}Progress`);
+                const progressBar = document.getElementById(`${type}ProgressBar`);
+                const progressText = document.getElementById(`${type}ProgressText`);
+                
+                clearInterval(progressState[type].interval);
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                progressText.textContent = 'Analysis complete!';
+                
+                // Hide progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 1000);
+            }
+            
+            // Function to display results
+            function displayResults(data) {
+                // Update summary
+                document.getElementById('totalCitations').textContent = data.citations_count;
+                document.getElementById('confirmedCitations').textContent = data.confirmed_citations.length;
+                document.getElementById('possibleCitations').textContent = data.possible_citations.length;
+                
+                // Clear previous results
+                citationResults.innerHTML = '';
+                
+                // Display grouped results
+                for (const [group, citations] of Object.entries(data.grouped_results)) {
+                    if (citations.length > 0) {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'card mb-4';
+                        groupDiv.innerHTML = `
+                            <div class="card-header">
+                                <h3 class="h5 mb-0">${group} Citations</h3>
+                            </div>
+                            <div class="card-body">
+                                ${citations.map(citation => `
+                                    <div class="citation-result ${citation.verified ? 'citation-verified' : 
+                                        citation.validation_method === 'Possible' ? 'citation-possible' : 'citation-unverified'}">
+                                        <p class="mb-1"><strong>Citation:</strong> ${citation.citation}</p>
+                                        ${citation.case_name ? `<p class="mb-1"><strong>Case:</strong> ${citation.case_name}</p>` : ''}
+                                        ${citation.error ? `<p class="mb-1 text-danger">${citation.error}</p>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        citationResults.appendChild(groupDiv);
+                    }
+                }
+            }
+            
+            // Handle file upload
+            fileUploadForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('file');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select a file');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                showLoading();
+                startProgress('file');
+                
+                try {
+                    const response = await axios.post('/api/enhanced-analyze', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+                    displayResults(response.data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error analyzing file: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    hideLoading();
+                    stopProgress('file');
+                }
+            });
+            
+            // Handle text input
+            textInputForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const textInput = document.getElementById('text');
+                const text = textInput.value.trim();
+                
+                if (!text) {
+                    alert('Please enter some text');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('text', text);
+                
+                showLoading();
+                startProgress('text');
+                
+                try {
+                    const response = await axios.post('/api/enhanced-analyze', formData);
+                    displayResults(response.data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error analyzing text: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    hideLoading();
+                    stopProgress('text');
+                }
+            });
+
+            // Handle URL input
+            urlInputForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const urlInput = document.getElementById('url');
+                const url = urlInput.value.trim();
+                
+                if (!url) {
+                    alert('Please enter a URL');
+                    return;
+                }
+                
+                showLoading();
+                startProgress('url');
+                
+                try {
+                    // First fetch the URL content
+                    const fetchResponse = await axios.post('/api/fetch_url', { url: url });
+                    
+                    if (fetchResponse.data.status === 'success' && fetchResponse.data.text) {
+                        // Now analyze the fetched text
+                        const formData = new FormData();
+                        formData.append('text', fetchResponse.data.text);
+                        
+                        const response = await axios.post('/api/enhanced-analyze', formData);
+                        displayResults(response.data);
+                    } else {
+                        throw new Error(fetchResponse.data.message || 'Failed to fetch URL content');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error analyzing URL: ' + (error.response?.data?.message || error.message));
+                } finally {
+                    hideLoading();
+                    stopProgress('url');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

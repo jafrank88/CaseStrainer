@@ -10956,3 +10956,156 @@ Enhanced Validator blueprint registered with the Flask app
 Loaded CourtListener API key from config.json
 Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
 Enhanced Validator blueprint registered with the Flask app
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
+2025-05-13 19:11:11,399 - src.scotus_pdf_citation_extractor - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 19:11:11,401 - src.scotus_pdf_citation_extractor - INFO - Processing PDF from https://www.supremecourt.gov/opinions/23pdf/22-451_7m58.pdf
+2025-05-13 19:11:12,419 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2389 characters from page 1
+2025-05-13 19:11:12,459 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3110 characters from page 2
+2025-05-13 19:11:12,495 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3118 characters from page 3
+2025-05-13 19:11:12,531 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3009 characters from page 4
+2025-05-13 19:11:12,571 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3134 characters from page 5
+2025-05-13 19:11:12,607 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3164 characters from page 6
+2025-05-13 19:11:12,648 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 3118 characters from page 7
+2025-05-13 19:11:12,675 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1823 characters from page 8
+2025-05-13 19:11:12,703 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1383 characters from page 9
+2025-05-13 19:11:12,723 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2032 characters from page 10
+2025-05-13 19:11:12,742 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2185 characters from page 11
+2025-05-13 19:11:12,760 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1949 characters from page 12
+2025-05-13 19:11:12,780 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2005 characters from page 13
+2025-05-13 19:11:12,802 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2124 characters from page 14
+2025-05-13 19:11:12,822 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2048 characters from page 15
+2025-05-13 19:11:12,844 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2167 characters from page 16
+2025-05-13 19:11:12,865 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2048 characters from page 17
+2025-05-13 19:11:12,887 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2207 characters from page 18
+2025-05-13 19:11:12,908 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2136 characters from page 19
+2025-05-13 19:11:12,930 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2170 characters from page 20
+2025-05-13 19:11:12,965 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2682 characters from page 21
+2025-05-13 19:11:12,985 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2161 characters from page 22
+2025-05-13 19:11:13,013 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2461 characters from page 23
+2025-05-13 19:11:13,032 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2167 characters from page 24
+2025-05-13 19:11:13,063 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2455 characters from page 25
+2025-05-13 19:11:13,083 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1957 characters from page 26
+2025-05-13 19:11:13,104 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2177 characters from page 27
+2025-05-13 19:11:13,126 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2141 characters from page 28
+2025-05-13 19:11:13,147 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1987 characters from page 29
+2025-05-13 19:11:13,170 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2126 characters from page 30
+2025-05-13 19:11:13,189 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2058 characters from page 31
+2025-05-13 19:11:13,211 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2188 characters from page 32
+2025-05-13 19:11:13,232 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2133 characters from page 33
+2025-05-13 19:11:13,252 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2057 characters from page 34
+2025-05-13 19:11:13,279 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2216 characters from page 35
+2025-05-13 19:11:13,310 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2459 characters from page 36
+2025-05-13 19:11:13,334 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2038 characters from page 37
+2025-05-13 19:11:13,357 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2165 characters from page 38
+2025-05-13 19:11:13,379 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2088 characters from page 39
+2025-05-13 19:11:13,410 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2235 characters from page 40
+2025-05-13 19:11:13,435 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2170 characters from page 41
+2025-05-13 19:11:13,459 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2223 characters from page 42
+2025-05-13 19:11:13,479 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1927 characters from page 43
+2025-05-13 19:11:13,503 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1435 characters from page 44
+2025-05-13 19:11:13,529 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2278 characters from page 45
+2025-05-13 19:11:13,557 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2271 characters from page 46
+2025-05-13 19:11:13,578 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2053 characters from page 47
+2025-05-13 19:11:13,604 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1446 characters from page 48
+2025-05-13 19:11:13,623 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1958 characters from page 49
+2025-05-13 19:11:13,645 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2076 characters from page 50
+2025-05-13 19:11:13,670 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2137 characters from page 51
+2025-05-13 19:11:13,692 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2074 characters from page 52
+2025-05-13 19:11:13,717 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2135 characters from page 53
+2025-05-13 19:11:13,737 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2119 characters from page 54
+2025-05-13 19:11:13,764 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2100 characters from page 55
+2025-05-13 19:11:13,791 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2233 characters from page 56
+2025-05-13 19:11:13,816 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2180 characters from page 57
+2025-05-13 19:11:13,837 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2196 characters from page 58
+2025-05-13 19:11:13,859 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1979 characters from page 59
+2025-05-13 19:11:13,887 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2230 characters from page 60
+2025-05-13 19:11:13,918 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2252 characters from page 61
+2025-05-13 19:11:13,944 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2245 characters from page 62
+2025-05-13 19:11:13,968 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2269 characters from page 63
+2025-05-13 19:11:13,988 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2072 characters from page 64
+2025-05-13 19:11:14,010 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2124 characters from page 65
+2025-05-13 19:11:14,031 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2117 characters from page 66
+2025-05-13 19:11:14,065 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2420 characters from page 67
+2025-05-13 19:11:14,093 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2362 characters from page 68
+2025-05-13 19:11:14,119 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2122 characters from page 69
+2025-05-13 19:11:14,140 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2172 characters from page 70
+2025-05-13 19:11:14,159 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2160 characters from page 71
+2025-05-13 19:11:14,187 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2197 characters from page 72
+2025-05-13 19:11:14,207 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2022 characters from page 73
+2025-05-13 19:11:14,230 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2284 characters from page 74
+2025-05-13 19:11:14,252 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2153 characters from page 75
+2025-05-13 19:11:14,282 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2490 characters from page 76
+2025-05-13 19:11:14,306 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2223 characters from page 77
+2025-05-13 19:11:14,328 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2038 characters from page 78
+2025-05-13 19:11:14,359 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2424 characters from page 79
+2025-05-13 19:11:14,383 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2210 characters from page 80
+2025-05-13 19:11:14,393 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 226 characters from page 81
+2025-05-13 19:11:14,429 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1397 characters from page 82
+2025-05-13 19:11:14,448 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2179 characters from page 83
+2025-05-13 19:11:14,472 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2183 characters from page 84
+2025-05-13 19:11:14,496 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2122 characters from page 85
+2025-05-13 19:11:14,529 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2022 characters from page 86
+2025-05-13 19:11:14,559 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1922 characters from page 87
+2025-05-13 19:11:14,583 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2183 characters from page 88
+2025-05-13 19:11:14,620 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2617 characters from page 89
+2025-05-13 19:11:14,645 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2299 characters from page 90
+2025-05-13 19:11:14,669 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2145 characters from page 91
+2025-05-13 19:11:14,693 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2235 characters from page 92
+2025-05-13 19:11:14,717 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2195 characters from page 93
+2025-05-13 19:11:14,740 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2232 characters from page 94
+2025-05-13 19:11:14,762 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2131 characters from page 95
+2025-05-13 19:11:14,784 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2086 characters from page 96
+2025-05-13 19:11:14,810 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2244 characters from page 97
+2025-05-13 19:11:14,843 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2636 characters from page 98
+2025-05-13 19:11:14,866 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2399 characters from page 99
+2025-05-13 19:11:14,890 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2257 characters from page 100
+2025-05-13 19:11:14,917 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2437 characters from page 101
+2025-05-13 19:11:14,946 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2428 characters from page 102
+2025-05-13 19:11:14,980 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2515 characters from page 103
+2025-05-13 19:11:15,002 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2175 characters from page 104
+2025-05-13 19:11:15,026 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2096 characters from page 105
+2025-05-13 19:11:15,051 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2157 characters from page 106
+2025-05-13 19:11:15,077 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2206 characters from page 107
+2025-05-13 19:11:15,109 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2191 characters from page 108
+2025-05-13 19:11:15,135 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2193 characters from page 109
+2025-05-13 19:11:15,157 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2163 characters from page 110
+2025-05-13 19:11:15,180 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2145 characters from page 111
+2025-05-13 19:11:15,202 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 1944 characters from page 112
+2025-05-13 19:11:15,223 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 2187 characters from page 113
+2025-05-13 19:11:15,234 - src.scotus_pdf_citation_extractor - INFO - PyPDF2 extracted 434 characters from page 114
+2025-05-13 19:11:15,374 - src.scotus_pdf_citation_extractor - INFO - Text length: 238835, type: <class 'str'>
+2025-05-13 19:11:15,374 - src.scotus_pdf_citation_extractor - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 19:11:15,476 - src.scotus_pdf_citation_extractor - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 19:11:15,477 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 1 of length 50000
+2025-05-13 19:11:40,250 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 1: object of type 'NoneType' has no len()
+2025-05-13 19:11:40,251 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 2 of length 50000
+2025-05-13 19:11:40,271 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 2: object of type 'NoneType' has no len()
+2025-05-13 19:11:40,272 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 3 of length 50000
+2025-05-13 19:11:40,289 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 3: object of type 'NoneType' has no len()
+2025-05-13 19:11:40,290 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 4 of length 50000
+2025-05-13 19:11:40,309 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 4: object of type 'NoneType' has no len()
+2025-05-13 19:11:40,310 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 5 of length 42835
+2025-05-13 19:11:40,322 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 5: object of type 'NoneType' has no len()
+2025-05-13 19:11:51,629 - src.scotus_pdf_citation_extractor - INFO - Successfully validated citations with CourtListener citation-lookup API
+2025-05-13 19:54:40,512 - src.scotus_pdf_citation_extractor - INFO - Successfully imported eyecite for citation extraction
+2025-05-13 19:54:40,513 - src.scotus_pdf_citation_extractor - INFO - Processing PDF from https://www.supremecourt.gov/opinions/23pdf/22-451_7m58.pdf
+2025-05-13 19:54:49,597 - src.scotus_pdf_citation_extractor - INFO - Successfully extracted text using enhanced pdfminer settings
+2025-05-13 19:54:50,038 - src.scotus_pdf_citation_extractor - INFO - Text length: 239551, type: <class 'str'>
+2025-05-13 19:54:50,039 - src.scotus_pdf_citation_extractor - INFO - Testing eyecite with known string: See United States v. Detroit Timber & Lumber Co., 200 U.S. 321, 337.
+2025-05-13 19:54:50,139 - src.scotus_pdf_citation_extractor - INFO - Test citations: [FullCaseCitation('200 U.S. 321', groups={'volume': '200', 'reporter': 'U.S.', 'page': '321'}, metadata=FullCaseCitation.Metadata(parenthetical=None, pin_cite='337', pin_cite_span_start=None, pin_cite_span_end=67, year=None, court='scotus', plaintiff='United States', defendant='Detroit Timber & Lumber Co.', extra=None, antecedent_guess=None, resolved_case_name_short=None, resolved_case_name=None))]
+2025-05-13 19:54:50,140 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 1 of length 50000
+2025-05-13 19:55:13,723 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 1: object of type 'NoneType' has no len()
+2025-05-13 19:55:13,724 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 2 of length 50000
+2025-05-13 19:55:13,744 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 2: object of type 'NoneType' has no len()
+2025-05-13 19:55:13,745 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 3 of length 50000
+2025-05-13 19:55:13,762 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 3: object of type 'NoneType' has no len()
+2025-05-13 19:55:13,763 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 4 of length 50000
+2025-05-13 19:55:13,778 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 4: object of type 'NoneType' has no len()
+2025-05-13 19:55:13,779 - src.scotus_pdf_citation_extractor - INFO - Processing chunk 5 of length 43551
+2025-05-13 19:55:13,794 - src.scotus_pdf_citation_extractor - ERROR - Error processing chunk 5: object of type 'NoneType' has no len()
+2025-05-13 19:55:19,105 - src.scotus_pdf_citation_extractor - INFO - Successfully validated citations with CourtListener citation-lookup API
+Loaded CourtListener API key from config.json
+Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+Enhanced Validator blueprint registered with the Flask app
