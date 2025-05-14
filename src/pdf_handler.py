@@ -19,7 +19,27 @@ import re
 def extract_text_from_pdf(file_path):
     """Extract text from a PDF file using multiple methods with robust error handling."""
     try:
-        # First try with enhanced pdfminer settings
+        # Try PyPDF2 first with enhanced settings
+        try:
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                all_text = ""
+                for page in reader.pages:
+                    # Extract text with enhanced settings
+                    page_text = page.extract_text()
+                    if page_text:
+                        # Clean up the text
+                        page_text = re.sub(r'\s+', ' ', page_text)  # Normalize whitespace
+                        page_text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1.\2', page_text)  # Fix spacing in abbreviations
+                        all_text += page_text + "\n"
+                
+                if all_text.strip():
+                    print("Successfully extracted text using PyPDF2")
+                    return clean_extracted_text(all_text)
+        except Exception as e:
+            print(f"PyPDF2 extraction failed: {e}")
+        
+        # Try with enhanced pdfminer settings
         try:
             # Configure pdfminer for better text extraction
             laparams = LAParams(
@@ -28,8 +48,7 @@ def extract_text_from_pdf(file_path):
                 char_margin=1.5,  # Adjusted char margin for better character spacing
                 boxes_flow=0.5,   # Adjusted flow of text boxes
                 detect_vertical=True,  # Enable vertical text detection
-                all_texts=True,   # Extract all text elements
-                detect_rotated=True  # Enable rotated text detection
+                all_texts=True   # Extract all text elements
             )
             
             resource_manager = PDFResourceManager()
@@ -51,51 +70,14 @@ def extract_text_from_pdf(file_path):
         except Exception as e:
             print(f"Enhanced pdfminer extraction failed: {e}")
         
-        # Try PyPDF2 as backup
+        # If both methods fail, try using pdfminer's high-level extract_text function
         try:
-            with open(file_path, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                all_text = ""
-                for page in reader.pages:
-                    page_text = page.extract_text()
-                    if page_text:
-                        all_text += page_text + "\n"
-                
-                if all_text.strip():
-                    print("Successfully extracted text using PyPDF2")
-                    return clean_extracted_text(all_text)
+            text = pdfminer_extract_text(file_path)
+            if text and len(text.strip()) > 0:
+                print("Successfully extracted text using pdfminer's high-level function")
+                return clean_extracted_text(text)
         except Exception as e:
-            print(f"PyPDF2 extraction failed: {e}")
-        
-        # If all methods failed, try OCR as a last resort
-        try:
-            print("All text extraction methods failed. Trying OCR with Tesseract...")
-            import pytesseract
-            from pdf2image import convert_from_path
-            from PIL import Image
-            
-            # Convert PDF pages to images with higher DPI for better OCR
-            images = convert_from_path(file_path, dpi=300)
-            ocr_text = ''
-            
-            for i, image in enumerate(images):
-                print(f"Running OCR on page {i+1}/{len(images)}...")
-                # Preprocess image for better OCR
-                image = image.convert('L')  # Convert to grayscale
-                image = ImageEnhance.Contrast(image).enhance(2.0)  # Enhance contrast
-                
-                # Configure Tesseract for better accuracy
-                custom_config = r'--oem 3 --psm 6 -c preserve_interword_spaces=1'
-                page_text = pytesseract.image_to_string(image, config=custom_config)
-                ocr_text += page_text + '\n'
-            
-            if ocr_text.strip():
-                print(f"Successfully extracted {len(ocr_text)} characters with OCR")
-                return clean_extracted_text(ocr_text)
-            else:
-                print("OCR extraction returned empty text")
-        except Exception as e:
-            print(f"Error with OCR extraction: {e}")
+            print(f"pdfminer high-level extraction failed: {e}")
         
         return "Could not extract text from PDF. The file may be scanned, protected, or corrupted."
     except Exception as e:
@@ -107,43 +89,48 @@ def clean_extracted_text(text):
     if not text:
         return ""
     
-    # Remove non-printable characters but preserve citation patterns
-    text = ''.join(char for char in text if char.isprintable() or char in '.,;:()[]{}')
-    
-    # Fix common OCR errors in citations
-    text = re.sub(r'(\d+)\s*[Uu]\.?\s*[Ss]\.?\s*(\d+)', r'\1 U.S. \2', text)  # Fix U.S. spacing
-    text = re.sub(r'(\d+)\s*[Ss]\.?\s*[Cc][Tt]\.?\s*(\d+)', r'\1 S.Ct. \2', text)  # Fix S.Ct. spacing
-    text = re.sub(r'(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)', r'\1 L.Ed. \2', text)  # Fix L.Ed. spacing
-    text = re.sub(r'(\d+)\s*[Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)', r'\1 F. \2', text)  # Fix F. spacing
-    
-    # Fix line breaks within citations
-    text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)', r'\1 U.S. \2', text)
-    text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)', r'\1 S.Ct. \2', text)
-    text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)', r'\1 L.Ed. \2', text)
-    text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)', r'\1 F. \2', text)
-    
-    # Fix page breaks within citations
-    text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)', r'\1 U.S. \2', text)  # Fix page break markers
-    text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)', r'\1 S.Ct. \2', text)
-    text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)', r'\1 L.Ed. \2', text)
-    text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)', r'\1 F. \2', text)
-    
-    # Fix common OCR errors in numbers
-    text = re.sub(r'[Oo](\d)', r'0\1', text)  # Fix O/0 confusion
-    text = re.sub(r'(\d)[Oo]', r'\10', text)  # Fix O/0 confusion at end of numbers
-    text = re.sub(r'[lI](\d)', r'1\1', text)  # Fix l/I/1 confusion
-    text = re.sub(r'(\d)[lI]', r'\11', text)  # Fix l/I/1 confusion at end of numbers
-    
-    # Fix spacing in abbreviations
-    text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1.\2', text)
-    
-    # Normalize whitespace while preserving citation patterns
-    text = re.sub(r'\s+', ' ', text)
-    
-    # Remove any remaining page numbers or headers/footers
-    text = re.sub(r'^\s*\d+\s*$', '', text, flags=re.MULTILINE)
-    
-    return text.strip()
+    try:
+        # Remove non-printable characters but preserve citation patterns
+        text = ''.join(char for char in text if char.isprintable() or char in '.,;:()[]{}')
+        
+        # Fix common OCR errors in citations - using raw strings and simpler patterns
+        text = re.sub(r'(\d+)\s*[Uu]\.?\s*[Ss]\.?\s*(\d+)', r'\1 U.S. \2', text)  # Fix U.S. spacing
+        text = re.sub(r'(\d+)\s*[Ss]\.?\s*[Cc][Tt]\.?\s*(\d+)', r'\1 S.Ct. \2', text)  # Fix S.Ct. spacing
+        text = re.sub(r'(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)', r'\1 L.Ed. \2', text)  # Fix L.Ed. spacing
+        text = re.sub(r'(\d+)\s*[Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)', r'\1 F. \2', text)  # Fix F. spacing
+        
+        # Fix line breaks within citations
+        text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)', r'\1 U.S. \2', text)
+        text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)', r'\1 S.Ct. \2', text)
+        text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)', r'\1 L.Ed. \2', text)
+        text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)', r'\1 F. \2', text)
+        
+        # Fix page breaks within citations
+        text = re.sub(r'(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)', r'\1 U.S. \2', text)  # Fix page break markers
+        text = re.sub(r'(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)', r'\1 S.Ct. \2', text)
+        text = re.sub(r'(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)', r'\1 L.Ed. \2', text)
+        text = re.sub(r'(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)', r'\1 F. \2', text)
+        
+        # Fix common OCR errors in numbers - using simpler patterns
+        text = re.sub(r'[Oo](\d)', r'0\1', text)  # Fix O/0 confusion
+        text = re.sub(r'(\d)[Oo]', r'\10', text)  # Fix O/0 confusion at end of numbers
+        text = re.sub(r'[lI](\d)', r'1\1', text)  # Fix l/I/1 confusion
+        text = re.sub(r'(\d)[lI]', r'\11', text)  # Fix l/I/1 confusion at end of numbers
+        
+        # Fix spacing in abbreviations
+        text = re.sub(r'([A-Z])\.\s+([A-Z])', r'\1.\2', text)
+        
+        # Normalize whitespace while preserving citation patterns
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Remove any remaining page numbers or headers/footers
+        text = re.sub(r'^\s*\d+\s*$', '', text, flags=re.MULTILINE)
+        
+        return text.strip()
+    except Exception as e:
+        print(f"Error in clean_extracted_text: {e}")
+        # Return the original text if cleaning fails
+        return text.strip()
 
 def handle_problematic_pdf(file_path):
     """Special handling for known problematic PDF files."""

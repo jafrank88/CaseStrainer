@@ -109,6 +109,53 @@ def extract_citations_with_eyecite(text):
 
     return formatted_citations
 
+def extract_citations_with_regex(text):
+    """Extract citations from text using regex patterns."""
+    print("Extracting citations using regex patterns...")
+    
+    # Look for citations with comprehensive patterns
+    citation_patterns = [
+        r'\b\d+\s+U\.?\s*S\.?\s+\d+\b',  # U.S. Reports
+        r'\b\d+\s+S\.?\s*Ct\.?\s+\d+\b',  # Supreme Court Reporter
+        r'\b\d+\s+L\.?\s*Ed\.?\s*(?:2d|3d)?\s+\d+\b',  # Lawyers Edition
+        r'\b\d+\s+U\.?\s*S\.?\s+C\.?\s+\d+\b',  # U.S. Court of Appeals
+        r'\b\d+\s+F\.?\s*(?:2d|3d|4th)?\s+\d+\b',  # Federal Reporter
+        r'\b\d+\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+\d+\b',  # Federal Supplement
+        r'\b\d+\s+W\.?\s*L\.?\s+\d+\b',  # Westlaw
+        r'\b\d+\s+W\.?\s*n\.?\s*2d\s+\d+\b',  # Washington Reports 2d
+        r'\b\d+\s+W\.?\s*n\.?\s*App\.?\s+\d+\b',  # Washington Court of Appeals
+        r'\b\d+\s+W\.?\s*n\.?\s*App\.?\s*2d\s+\d+\b',  # Washington Court of Appeals 2d
+        r'\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b',  # Pacific Reporter
+        r'\b\d+\s+P\.?\s*2d\s+\d+\b',  # Pacific Reporter 2d
+        r'\b\d+\s+P\.?\s*3d\s+\d+\b',  # Pacific Reporter 3d
+        r'\b\d+\s+A\.?\s*(?:2d|3d)?\s+\d+\b',  # Atlantic Reporter
+        r'\b\d+\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b',  # North Eastern Reporter
+        r'\b\d+\s+S\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b',  # South Eastern Reporter
+        r'\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # South Western Reporter
+        r'\b\d+\s+N\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # North Western Reporter
+        r'\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # South Western Reporter
+        r'\b\d+\s+N\.?\s*Y\.?\s*(?:2d|3d)?\s+\d+\b',  # New York Reporter
+        r'\b\d+\s+N\.?\s*Y\.?\s*S\.?\s*(?:2d|3d)?\s+\d+\b',  # New York Supplement
+        r'\b\d+\s+C\.?\s*A\.?\s*(?:2d|3d)?\s+\d+\b',  # California Reporter
+        r'\b\d+\s+C\.?\s*A\.?\s*2d\s+\d+\b',  # California Reporter 2d
+        r'\b\d+\s+C\.?\s*A\.?\s*3d\s+\d+\b',  # California Reporter 3d
+        r'\b\d+\s+C\.?\s*A\.?\s*4th\s+\d+\b',  # California Reporter 4th
+        r'\b\d+\s+C\.?\s*A\.?\s*5th\s+\d+\b',  # California Reporter 5th
+    ]
+    
+    # Find all matches
+    citations = set()
+    for pattern in citation_patterns:
+        matches = re.finditer(pattern, text)
+        for match in matches:
+            citation = match.group()
+            # Normalize spaces
+            citation = re.sub(r'\s+', ' ', citation).strip()
+            citations.add(citation)
+    
+    print(f"Found {len(citations)} citations with regex")
+    return list(citations)
+
 def process_text_in_chunks(text, chunk_size=1000000):
     """Process large text in chunks to avoid memory issues."""
     print(f"Processing text in chunks of {chunk_size} characters")
@@ -152,13 +199,24 @@ def process_pdf_url(url):
         print(f"Extracted text length: {len(text)}")
         print(f"Extracted text sample (first 500 chars): {text[:500]}")
 
-        # Always extract citations and write JSON
-        formatted_citations = extract_citations_with_eyecite(text)
-
+        # Extract citations using both methods
+        eyecite_citations = extract_citations_with_eyecite(text)
+        regex_citations = extract_citations_with_regex(text)
+        
+        # Combine results
+        all_citations = set()
+        for citation in eyecite_citations:
+            all_citations.add(citation['citation_text'])
+        for citation in regex_citations:
+            all_citations.add(citation)
+        
+        # Convert back to list and sort
+        formatted_citations = sorted(list(all_citations))
+        
         print(f"\nSuccessfully processed PDF and found {len(formatted_citations)} citations!")
         print("Citations found:")
         for c in formatted_citations:
-            print(f"  - {c['citation_text']}")
+            print(f"  - {c}")
         return formatted_citations
     except Exception as e:
         print(f"Error processing PDF URL: {e}")
