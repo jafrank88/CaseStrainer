@@ -2,27 +2,50 @@
 # This configuration is used by the Docker Nginx container, not Windows Nginx
 # The paths in this file are relative to the Docker container's filesystem
 
-worker_processes  1;
+# Optimize worker processes based on CPU cores
+worker_processes auto;
+worker_rlimit_nofile 65535;
 
 events {
-    worker_connections  1024;
+    worker_connections 1024;
+    multi_accept on;
+    use epoll;
 }
 
 http {
     include       mime.types;
     default_type  application/octet-stream;
 
+    # Basic Settings
     sendfile        on;
+    tcp_nopush      on;
+    tcp_nodelay     on;
     keepalive_timeout  300;
     keepalive_requests 100;
+    client_max_body_size 10M;
+
+    # File Descriptor Cache
+    open_file_cache max=1000 inactive=20s;
+    open_file_cache_valid 30s;
+    open_file_cache_min_uses 2;
+    open_file_cache_errors on;
+
+    # Gzip Compression
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 1000;
+    gzip_disable "MSIE [1-6]\.";
 
     server {
         listen 443 ssl http2;
         server_name wolf.law.uw.edu;
 
-        # Error logging
-        error_log /var/log/nginx/casestrainer_error.log debug;
-        access_log /var/log/nginx/casestrainer_access.log combined;
+        # Error logging - changed to error level for production
+        error_log /var/log/nginx/casestrainer_error.log error;
+        access_log /var/log/nginx/casestrainer_access.log combined buffer=512k flush=1m;
 
         # SSL configuration
         ssl_certificate /etc/nginx/ssl/WolfCertBundle.crt;
@@ -38,22 +61,34 @@ http {
         resolver 8.8.8.8 8.8.4.4 valid=300s;
         resolver_timeout 5s;
 
-        # Security headers
-        add_header Strict-Transport-Security "max-age=63072000" always;
-        add_header X-Frame-Options SAMEORIGIN;
-        add_header X-Content-Type-Options nosniff;
-        add_header X-XSS-Protection "1; mode=block";
-        add_header Content-Security-Policy "default-src 'self' https://wolf.law.uw.edu; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; connect-src 'self' https://wolf.law.uw.edu wss://wolf.law.uw.edu;";
-        add_header Referrer-Policy strict-origin-when-cross-origin;
-        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()";
+        # Enhanced Security Headers
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Content-Security-Policy "default-src 'self' https://wolf.law.uw.edu; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; connect-src 'self' https://wolf.law.uw.edu wss://wolf.law.uw.edu;" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
 
         # Root directory for static files
         root /etc/nginx/static/vue;
 
-        # Proxy settings
+        # Optimized Proxy settings
         location /casestrainer/ {
             proxy_pass http://casestrainer-casestrainer-1:5000;
             proxy_http_version 1.1;
+            
+            # Optimized buffer settings
+            proxy_buffer_size 16k;
+            proxy_buffers 8 16k;
+            proxy_busy_buffers_size 32k;
+            
+            # Optimized timeouts
+            proxy_connect_timeout 60s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+            
+            # Headers
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection 'upgrade';
             proxy_set_header Host $host;
@@ -61,16 +96,6 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
             proxy_cache_bypass $http_upgrade;
-            
-            # Increased timeouts for long-running operations
-            proxy_connect_timeout 600s;
-            proxy_send_timeout 600s;
-            proxy_read_timeout 600s;
-            
-            # Buffer settings
-            proxy_buffer_size 128k;
-            proxy_buffers 4 256k;
-            proxy_busy_buffers_size 256k;
             
             # WebSocket support
             proxy_set_header Connection "upgrade";
@@ -81,11 +106,20 @@ http {
             error_page 502 504 /50x.html;
         }
 
+        # Optimized static file serving
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 30d;
+            add_header Cache-Control "public, no-transform";
+            access_log off;
+            try_files $uri =404;
+        }
+
         # Serve static files directly
         location /casestrainer/static/ {
             alias /etc/nginx/static/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
+            access_log off;
         }
 
         # Serve Vue.js static files
@@ -93,24 +127,28 @@ http {
             alias /etc/nginx/static/vue/js/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
+            access_log off;
         }
 
         location /casestrainer/css/ {
             alias /etc/nginx/static/vue/css/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
+            access_log off;
         }
 
         location /casestrainer/img/ {
             alias /etc/nginx/static/vue/img/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
+            access_log off;
         }
 
         location /casestrainer/fonts/ {
             alias /etc/nginx/static/vue/fonts/;
             expires 30d;
             add_header Cache-Control "public, no-transform";
+            access_log off;
         }
 
         # Error pages
