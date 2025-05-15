@@ -18,9 +18,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
     
     // Get form elements
-    const uploadForm = document.getElementById('uploadForm');
-    const pasteForm = document.getElementById('pasteForm');
-    const urlForm = document.getElementById('urlForm');
+    const uploadForm = document.getElementById('upload-form');
+    const pasteForm = document.getElementById('paste-form');
+    const urlForm = document.getElementById('url-form');
+    
+    // Get input option elements
+    const inputOptions = document.querySelectorAll('.input-option');
+    const inputPanels = document.querySelectorAll('.input-panel');
+    const closePanelButtons = document.querySelectorAll('.close-panel');
+    
+    // Handle input option selection
+    inputOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const target = this.getAttribute('data-target');
+            
+            // Remove active class from all options
+            inputOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Add active class to clicked option
+            this.classList.add('active');
+            
+            // Hide all panels
+            inputPanels.forEach(panel => panel.classList.remove('active'));
+            
+            // Show the selected panel
+            document.getElementById(`${target}-panel`).classList.add('active');
+        });
+    });
+    
+    // Handle close panel buttons
+    closePanelButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Hide all panels
+            inputPanels.forEach(panel => panel.classList.remove('active'));
+            
+            // Remove active class from all options
+            inputOptions.forEach(opt => opt.classList.remove('active'));
+        });
+    });
     
     // Progress elements
     const uploadProgress = document.getElementById('uploadProgress');
@@ -110,69 +145,114 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Create a results container for displaying citation results
+    function createResultsContainer() {
+        // Check if results container already exists
+        let resultsContainer = document.getElementById('citation-results-container');
+        if (!resultsContainer) {
+            resultsContainer = document.createElement('div');
+            resultsContainer.id = 'citation-results-container';
+            resultsContainer.className = 'mt-5';
+            document.querySelector('.input-panels').after(resultsContainer);
+        }
+        return resultsContainer;
+    }
+    
+    // Display citation results
+    function displayCitationResults(data) {
+        const resultsContainer = createResultsContainer();
+        
+        // Create results HTML
+        let html = `
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Citation Analysis Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        ${data.message}
+                    </div>
+                    <h4>Found Citations:</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Citation</th>
+                                    <th>Case Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        `;
+        
+        // Add each citation to the table
+        data.citations.forEach(citation => {
+            html += `
+                <tr>
+                    <td><strong>${citation.text}</strong></td>
+                    <td>${citation.name}</td>
+                    <td>
+                        ${citation.valid ? 
+                            '<span class="badge bg-success">Valid</span>' : 
+                            '<span class="badge bg-danger">Invalid</span>'}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        resultsContainer.innerHTML = html;
+        
+        // Scroll to results
+        resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+    
     // Handle file upload form submission
     if (uploadForm) {
         uploadForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
+            const fileInput = document.getElementById('document-file');
+            
+            // Disable button during processing
             submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
             
-            const fileInput = document.getElementById('fileUpload');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please select a file to upload');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
-                return;
-            }
-            
+            // Create form data
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             
-            // Start progress tracking
-            const progressInterval = startProgressPolling(uploadProgress, uploadProgressBar);
-            
-            // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            // Send request to API
+            fetch(`${basePath}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Analysis results:', data);
-                
-                // Store the analysis results
-                window.analysisResults = data;
-                
-                // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
-                }
-                
-                // Reset button
+                // Re-enable button
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
+                submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
+                
+                // Display results
+                displayCitationResults(data);
             })
             .catch(error => {
-                console.error('Error analyzing file:', error);
-                alert('Error analyzing file: ' + error.message);
-                
-                // Reset button
+                console.error('Error:', error);
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
-                
-                // Hide progress bar
-                uploadProgress.style.display = 'none';
-                
-                // Clear progress interval
-                clearInterval(progressInterval);
+                submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
+                alert('An error occurred while processing your file. Please try again.');
             });
+            
+            // This section is now handled by the validation and API call above
         });
     }
     
@@ -182,62 +262,43 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+            const textArea = document.getElementById('citation-text');
             
-            const textInput = document.getElementById('textInput');
-            if (!textInput.value.trim()) {
-                alert('Please enter some text to analyze');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
+            // Validate input
+            if (!textArea.value.trim()) {
+                alert('Please enter text containing citations');
                 return;
             }
             
-            const formData = new FormData();
-            formData.append('text', textInput.value);
+            // Disable button during processing
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
             
-            // Start progress tracking
-            const progressInterval = startProgressPolling(pasteProgress, pasteProgressBar);
-            
-            // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            // Send request to API
+            fetch(`${basePath}/api/text`, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: textArea.value,
+                    checkMultipleSources: document.getElementById('check-citations-paste').checked
+                })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Analysis results:', data);
-                
-                // Store the analysis results
-                window.analysisResults = data;
-                
-                // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
-                }
-                
-                // Reset button
+                // Re-enable button
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
+                submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
+                
+                // Display results
+                displayCitationResults(data);
             })
             .catch(error => {
-                console.error('Error analyzing text:', error);
-                alert('Error analyzing text: ' + error.message);
-                
-                // Reset button
+                console.error('Error:', error);
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
-                
-                // Hide progress bar
-                pasteProgress.style.display = 'none';
-                
-                // Clear progress interval
-                clearInterval(progressInterval);
+                submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
+                alert('An error occurred while analyzing your text. Please try again.');
             });
         });
     }
@@ -248,97 +309,46 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+            const urlInput = document.getElementById('document-url');
             
-            const urlInput = document.getElementById('urlInput');
+            // Validate input
             if (!urlInput.value.trim()) {
-                alert('Please enter a URL to analyze');
-                submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
+                alert('Please enter a valid URL');
                 return;
             }
             
-            // Start progress tracking
-            const progressInterval = startProgressPolling(urlProgress, urlProgressBar);
+            // Disable button during processing
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
             
-            // Check if the URL is a PDF
-            const url = urlInput.value.trim();
-            const isPdf = url.toLowerCase().endsWith('.pdf');
-            
-            // Update progress bar with status
-            urlProgressBar.textContent = isPdf ? 'Processing PDF...' : 'Fetching URL...';
-            
-            // First fetch the URL content
-            fetch(`${basePath}/api/fetch_url`, {
+            // Send request to API
+            fetch(`${basePath}/api/url`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({
+                    url: urlInput.value,
+                    checkMultipleSources: document.getElementById('check-citations-url').checked
+                })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                if (data.status === 'success' && data.text) {
-                    urlProgressBar.textContent = 'Analyzing content...';
-                    
-                    // For PDFs, eyecite should have already processed the citations
-                    if (isPdf && data.eyecite_processed) {
-                        console.log('PDF processed with eyecite, skipping analyze step');
-                        return { status: 'success', citations_count: data.citations_count || 0 };
-                    }
-                    
-                    // Now analyze the fetched text
-                    const textFormData = new FormData();
-                    textFormData.append('text', data.text);
-                    
-                    return fetch(`${basePath}/api/analyze`, {
-                        method: 'POST',
-                        body: textFormData
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to fetch URL content');
-                }
-            })
-            .then(data => {
-                console.log('Analysis results:', data);
-                
-                // Store the analysis results
-                window.analysisResults = data;
-                
-                // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
-                }
-                
-                // Reset button
+                // Re-enable button
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
+                submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
+                
+                // Display results
+                displayCitationResults(data);
             })
             .catch(error => {
-                console.error('Error analyzing URL:', error);
-                alert('Error analyzing URL: ' + error.message);
-                
-                // Reset button
+                console.error('Error:', error);
                 submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
-                
-                // Hide progress bar
-                urlProgress.style.display = 'none';
-                
-                // Clear progress interval
-                clearInterval(progressInterval);
+                submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
+                alert('An error occurred while analyzing the URL content. Please try again.');
             });
+            
+            // This section is now handled by the validation and API call above
         });
     }
 });

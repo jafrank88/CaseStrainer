@@ -20,8 +20,8 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 from flask_cors import CORS
 from datetime import timedelta
-from src.enhanced_validator_production import enhanced_validator_bp as enhanced_validator_production_bp, register_enhanced_validator
-from src.citation_api import citation_api
+from enhanced_validator_production import enhanced_validator_bp as enhanced_validator_production_bp, register_enhanced_validator
+from citation_api import citation_api
 
 # Helper functions and constants remain at module level
 DATABASE_FILE = 'citations.db'
@@ -89,18 +89,8 @@ def create_app():
                 static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'),
                 template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'))
 
-    # Configure CORS
-    CORS(app, resources={
-        r"/*": {
-            "origins": "*",
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
-        }
-    })
-    logger.info("CORS configured with Flask-CORS")
-
-    # Configure logging
+    # Configure logging first so we can see what's happening
+    os.makedirs('logs', exist_ok=True)
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -109,53 +99,69 @@ def create_app():
             logging.StreamHandler()
         ]
     )
-    logger.info(f"Loaded CourtListener API key from config.json: {DEFAULT_API_KEY[:5]}...")
+    
+    # Configure CORS with more specific settings
+    CORS(app, resources={
+        r"/*": {
+            "origins": ["https://wolf.law.uw.edu", "http://localhost:5000", "http://127.0.0.1:5000"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+    logger.info("CORS configured with specific origins for security")
 
-    # Set SECRET_KEY from environment variable first, then try config.json
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-    if not app.config['SECRET_KEY']:
+    # Load SECRET_KEY with better error handling and security
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key:
         try:
-            with open('config.json', 'r') as f:
-                config = json.load(f)
-                app.config['SECRET_KEY'] = config.get('SECRET_KEY', '')
-                if not app.config['SECRET_KEY']:
-                    raise ValueError("SECRET_KEY not found in config.json")
-                logger.info(f"Loaded SECRET_KEY from config.json: {app.config['SECRET_KEY'][:5]}...")
-        except (FileNotFoundError, json.JSONDecodeError, ValueError) as e:
+            # Try to load from config.json in project root
+            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config.json')
+            if os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                    secret_key = config.get('SECRET_KEY', '')
+                    logger.info(f"Loaded SECRET_KEY from config.json: {secret_key[:5]}..." if secret_key else "No SECRET_KEY found in config.json")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
             logger.error(f"Error loading config.json: {e}")
-            app.config['SECRET_KEY'] = 'dev-secret-key-please-change-in-production'
-            logger.info(f"Using default SECRET_KEY: {app.config['SECRET_KEY'][:5]}...")
-    else:
-        logger.info(f"Using SECRET_KEY from environment: {app.config['SECRET_KEY'][:5]}...")
-
-    # Session configuration
+    
+    # If still no secret key, generate a random one (not ideal for production but better than hardcoded)
+    if not secret_key:
+        import secrets
+        secret_key = secrets.token_hex(32)
+        logger.warning("Generated random SECRET_KEY - this will change on restart!")
+    
+    app.config['SECRET_KEY'] = secret_key
+    
+    # Session configuration with better security settings
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flask_session')
-    if not os.path.exists(app.config['SESSION_FILE_DIR']):
-        os.makedirs(app.config['SESSION_FILE_DIR'])
+    os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+    app.config['SESSION_USE_SIGNER'] = True  # Sign the session cookie
     
-    # Initialize Flask-Session BEFORE any routes
+    # Initialize Flask-Session
     Session(app)
-    logger.info("Flask-Session initialized with filesystem storage")
+    logger.info("Flask-Session initialized with secure settings")
 
-    # URL prefix configuration
-    app.config['APPLICATION_ROOT'] = os.environ.get('APPLICATION_ROOT', '/casestrainer')
-    logger.info(f"Using APPLICATION_ROOT: {app.config['APPLICATION_ROOT']}")
-
-    # Configure for reverse proxy
+    # URL prefix configuration for Nginx proxy
+    app_root = os.environ.get('APPLICATION_ROOT', '/casestrainer')
+    app.config['APPLICATION_ROOT'] = app_root
+    logger.info(f"Using APPLICATION_ROOT: {app_root}")
+    
+    # Configure for reverse proxy with proper settings for Nginx
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
-        x_proto=1,
-        x_host=1,
-        x_prefix=1,
-        x_for=1,
-        x_port=1
+        x_proto=1,  # Number of proxy servers setting X-Forwarded-Proto
+        x_host=1,   # Number of proxy servers setting X-Forwarded-Host
+        x_port=1,   # Number of proxy servers setting X-Forwarded-Port
+        x_prefix=1, # Number of proxy servers setting X-Forwarded-Prefix
+        x_for=1     # Number of proxy servers setting X-Forwarded-For
     )
-    logger.info("ProxyFix middleware configured")
+    logger.info("ProxyFix middleware configured for Nginx proxy")
 
     # Create thread pool for handling concurrent requests
     thread_pool = ThreadPoolExecutor(max_workers=10)
@@ -178,12 +184,126 @@ def create_app():
         logger.warning(f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction.")
 
     # Register the citation API blueprint with proper prefix
+    app.register_blueprint(enhanced_validator_production_bp, url_prefix='/api')
     app.register_blueprint(citation_api, url_prefix='/api')
-    logger.info("Citation API registered with prefix /api")
-
-    # Register the Enhanced Validator blueprint
+    
+    # Register the enhanced validator with the citation_api
     register_enhanced_validator(app)
-    logger.info("Enhanced Validator blueprint registered with the application")
+    
+    # API endpoints for Vue.js frontend
+    @app.route('/api/upload', methods=['POST'])
+    def upload_file():
+        logger.info(f"Received file upload request from {request.remote_addr}")
+        
+        if 'file' not in request.files:
+            logger.warning("No file part in the request")
+            return jsonify({'error': 'No file part'}), 400
+            
+        file = request.files['file']
+        
+        if file.filename == '':
+            logger.warning("No file selected")
+            return jsonify({'error': 'No file selected'}), 400
+            
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+            
+            logger.info(f"File saved to {filepath}")
+            
+            try:
+                # Extract citations from the file
+                citations = extract_citations_from_file(filepath)
+                
+                # Process citations
+                for citation in citations:
+                    citation['valid'] = verify_citation(citation['text'])
+                
+                return jsonify({
+                    'message': f"Successfully analyzed {len(citations)} citations in {filename}",
+                    'citations': citations
+                })
+            except Exception as e:
+                logger.error(f"Error processing file: {str(e)}")
+                logger.error(traceback.format_exc())
+                return jsonify({'error': f"Error processing file: {str(e)}"}), 500
+        else:
+            logger.warning(f"Invalid file type: {file.filename}")
+            return jsonify({'error': 'Invalid file type'}), 400
+    
+    @app.route('/api/text', methods=['POST'])
+    def analyze_text():
+        logger.info(f"Received text analysis request from {request.remote_addr}")
+        
+        data = request.get_json()
+        if not data or 'text' not in data:
+            logger.warning("No text provided in request")
+            return jsonify({'error': 'No text provided'}), 400
+            
+        text = data['text']
+        check_multiple_sources = data.get('checkMultipleSources', False)
+        
+        try:
+            # Extract citations from the text
+            citations = extract_citations_from_text(text)
+            
+            # Process citations
+            for citation in citations:
+                citation['valid'] = verify_citation(citation['text'])
+                
+            return jsonify({
+                'message': f"Successfully analyzed {len(citations)} citations in the provided text",
+                'citations': citations
+            })
+        except Exception as e:
+            logger.error(f"Error analyzing text: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({'error': f"Error analyzing text: {str(e)}"}), 500
+    
+    @app.route('/api/url', methods=['POST'])
+    def analyze_url():
+        logger.info(f"Received URL analysis request from {request.remote_addr}")
+        
+        data = request.get_json()
+        if not data or 'url' not in data:
+            logger.warning("No URL provided in request")
+            return jsonify({'error': 'No URL provided'}), 400
+            
+        url = data['url']
+        check_multiple_sources = data.get('checkMultipleSources', False)
+        
+        try:
+            # Fetch content from URL
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            
+            # Extract text from HTML if it's an HTML page
+            content_type = response.headers.get('Content-Type', '').lower()
+            if 'text/html' in content_type:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                text = soup.get_text()
+            else:
+                text = response.text
+                
+            # Extract citations from the text
+            citations = extract_citations_from_text(text)
+            
+            # Process citations
+            for citation in citations:
+                citation['valid'] = verify_citation(citation['text'])
+                
+            return jsonify({
+                'message': f"Successfully analyzed {len(citations)} citations from {url}",
+                'citations': citations
+            })
+        except requests.RequestException as e:
+            logger.error(f"Error fetching URL {url}: {str(e)}")
+            return jsonify({'error': f"Error fetching URL: {str(e)}"}), 500
+        except Exception as e:
+            logger.error(f"Error analyzing URL content: {str(e)}")
+            logger.error(traceback.format_exc())
+            return jsonify({'error': f"Error analyzing URL content: {str(e)}"}), 500
 
     # Configure logging for the app
     app.logger.handlers = logger.handlers
@@ -375,9 +495,11 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def verify_citation(citation):
-    """Verify a citation using the robust CitationVerifier logic with improved error handling."""
+    """Verify a citation using the robust CitationVerifier logic with improved error handling.
+    Returns a boolean indicating whether the citation is valid.
+    """
     try:
-        # Import with better error handling
+        # Import CitationVerifier with better error handling
         try:
             from src.citation_verification import CitationVerifier
             logger.info(f"Successfully imported CitationVerifier from src.citation_verification")
@@ -406,27 +528,12 @@ def verify_citation(citation):
         result = verifier.verify_citation(citation)
         logger.info(f"Verification result: {result}")
         
-        # Return formatted result
-        return {
-            'citation': citation,
-            'verified': result.get('found', False),
-            'source': result.get('source'),
-            'case_name': result.get('case_name'),
-            'details': result.get('details'),
-            'url': result.get('url'),
-            'error': result.get('error')
-        }
+        # For the Vue.js frontend, we just need to return a boolean
+        return result.get('found', False)
     except Exception as e:
         logger.error(f"Error verifying citation: {e}")
         traceback.print_exc()  # Print full stack trace for debugging
-        return {
-            'citation': citation,
-            'verified': False,
-            'source': 'CourtListener',
-            'case_name': None,
-            'details': None,
-            'error': str(e)
-        }
+        return False
 
 def extract_citations_from_file(filepath):
     """Extract citations from a file and return full metadata."""
@@ -468,10 +575,18 @@ def extract_citations_from_text(text):
         
         citation_dicts = []
         for citation in citations:
+            # Get case name if available
+            case_name = None
+            try:
+                if hasattr(citation, 'metadata') and citation.metadata and hasattr(citation.metadata, 'case_name'):
+                    case_name = citation.metadata.case_name
+            except Exception:
+                pass
+                
             citation_dicts.append({
-                'citation_text': citation.matched_text(),
-                'corrected_citation': citation.corrected_citation() if hasattr(citation, 'corrected_citation') else None,
-                'citation_type': type(citation).__name__,
+                'text': citation.matched_text(),
+                'name': case_name or 'Unknown Case',
+                'valid': None,  # Will be filled in by the API endpoint
                 'metadata': {
                     'reporter': getattr(citation, 'reporter', None),
                     'volume': getattr(citation, 'volume', None),
@@ -547,13 +662,20 @@ if __name__ == '__main__':
     # Get command line arguments
     import argparse
     parser = argparse.ArgumentParser(description='Run CaseStrainer with Vue.js frontend')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to bind to')
+    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to (use 0.0.0.0 for Nginx proxy access)')
+    parser.add_argument('--port', type=int, default=5000, help='Port to bind to (use 5000 for Nginx proxy access)')
     parser.add_argument('--debug', action='store_true', help='Run in debug mode')
     parser.add_argument('--use-waitress', action='store_true', help='Use Waitress WSGI server (production mode)')
-    parser.add_argument('--env', choices=['development', 'production'], default='development', help='Environment to run in')
+    parser.add_argument('--env', choices=['development', 'production'], default='production', help='Environment to run in')
     parser.add_argument('--threads', type=int, default=10, help='Number of threads for the server')
     args = parser.parse_args()
+    
+    # Verify host and port settings
+    if args.host != '0.0.0.0':
+        logger.warning(f"Host set to {args.host} - this may prevent Nginx proxy access. Recommended: 0.0.0.0")
+    
+    if args.port != 5000:
+        logger.warning(f"Port set to {args.port} - this may prevent Nginx proxy access. Recommended: 5000")
     
     # Set environment
     os.environ['FLASK_ENV'] = args.env
@@ -561,7 +683,21 @@ if __name__ == '__main__':
     # Check if we should run with Waitress (production) or Flask's dev server
     use_waitress = args.use_waitress or os.environ.get('USE_WAITRESS', 'True').lower() in ('true', '1', 't')
     
+    # Check if port is already in use
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', args.port))
+    if result == 0:
+        logger.warning(f"Port {args.port} is already in use. The application may not start correctly.")
+        logger.warning("Use start_for_nginx.bat or start_casestrainer.bat to automatically handle port conflicts.")
+    sock.close()
+    
+    # Log startup information
+    logger.info(f"Starting CaseStrainer with Vue.js frontend")
+    logger.info(f"Host: {args.host}, Port: {args.port}, Environment: {args.env}")
     logger.info(f"Using Waitress: {use_waitress}")
+    logger.info(f"External access URL: https://wolf.law.uw.edu/casestrainer/")
+    logger.info(f"Local access URL: http://127.0.0.1:{args.port}/")
     
     if use_waitress:
         try:
@@ -576,8 +712,11 @@ if __name__ == '__main__':
                 import subprocess
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "waitress"])
                 logger.info("Waitress installed. Please restart the application.")
+                sys.exit(1)
             except Exception as e:
                 logger.error(f"Failed to install Waitress: {e}")
+                logger.info("Falling back to Flask development server")
+                app.run(debug=args.debug, host=args.host, port=args.port)
     else:
         logger.info("Starting with Flask development server")
         app.run(debug=args.debug, host=args.host, port=args.port)
