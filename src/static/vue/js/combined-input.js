@@ -542,51 +542,302 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('button[type="submit"]').forEach((button, index) => {
         console.log(`Found submit button ${index+1}: ${button.textContent.trim()}`);
         button.addEventListener('click', function(e) {
-            console.log(`Button clicked: ${this.textContent.trim()}`);
-            // Don't prevent default here, let the form handler do that
-        });
-    });
-    
-    // Add a manual file upload function as a last resort
-    window.manualFileUpload = function() {
-        console.log('Manual file upload function called');
-        const fileInput = document.getElementById('fileUpload');
-        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-            console.error('No file selected or file input not found');
-            alert('Please select a file first');
+});
+
+// This section is now handled by the validation and API call above
+});
+
+// Handle paste text form submission
+if (pasteForm) {
+    pasteForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitButton = this.querySelector('button[type="submit"]');
+        const textArea = document.getElementById('textInput');
+
+        // Validate input
+        if (!textArea.value.trim()) {
+            alert('Please enter text containing citations');
             return;
         }
-        
-        const file = fileInput.files[0];
-        console.log(`Manually uploading file: ${file.name} (${file.size} bytes)`);
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        fetch(`${basePath}/api/upload`, {
+
+        // Disable button during processing
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+
+        // Show progress bar
+        const progressElement = document.getElementById('pasteProgress');
+        const progressBar = document.getElementById('pasteProgressBar');
+
+        // Start progress polling
+        const progressInterval = startProgressPolling(progressElement, progressBar);
+
+        // Send request to API
+        fetch(`${basePath}/api/text`, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                text: textArea.value
+            })
         })
         .then(response => response.json())
         .then(data => {
-            console.log('File upload successful:', data);
-            alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
+
+            // Clear progress polling
+            clearInterval(progressInterval);
+
+            // Update progress to complete
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', 100);
+            progressBar.textContent = 'Complete!';
+            progressBar.className = 'progress-bar bg-success';
+
+            // Display results
+            displayCitationResults(data);
         })
         .catch(error => {
-            console.error('Manual file upload error:', error);
-            alert(`Error: ${error.message}`);
+            console.error('Error:', error);
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
+
+            // Clear progress polling
+            clearInterval(progressInterval);
+
+            // Update progress to error
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', 100);
+            progressBar.textContent = 'Error!';
+            progressBar.className = 'progress-bar bg-danger';
+
+            alert('An error occurred while analyzing your text. Please try again.');
         });
-    };
-    
-    // Add a manual upload button to the page
-    const filePanel = document.getElementById('file-panel');
-    if (filePanel) {
-        const manualButton = document.createElement('button');
-        manualButton.type = 'button';
-        manualButton.className = 'btn btn-warning mt-2';
-        manualButton.textContent = 'Manual Upload (Debug)';
-        manualButton.onclick = window.manualFileUpload;
-        filePanel.appendChild(manualButton);
-        console.log('Added manual upload button to the page');
-    }
+    });
+}
+
+// Handle URL form submission
+if (urlForm) {
+    urlForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitButton = this.querySelector('button[type="submit"]');
+        const urlInput = document.getElementById('urlInput');
+
+        // Validate input
+        if (!urlInput.value.trim()) {
+            alert('Please enter a valid URL');
+            return;
+        }
+
+        // Disable button during processing
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+
+        // Show progress bar
+        const progressElement = document.getElementById('urlProgress');
+        const progressBar = document.getElementById('urlProgressBar');
+
+        // Start progress polling
+        const progressInterval = startProgressPolling(progressElement, progressBar);
+
+        // Send request to API
+        fetch(`${basePath}/api/url`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: urlInput.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable button
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
+
+            // Clear progress polling
+            clearInterval(progressInterval);
+
+            // Update progress to complete
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', 100);
+            progressBar.textContent = 'Complete!';
+            progressBar.className = 'progress-bar bg-success';
+
+            // Display results
+            displayCitationResults(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
+
+            // Clear progress polling
+            clearInterval(progressInterval);
+
+            // Update progress to error
+            progressBar.style.width = '100%';
+            progressBar.setAttribute('aria-valuenow', 100);
+            progressBar.textContent = 'Error!';
+            progressBar.className = 'progress-bar bg-danger';
+
+            alert('An error occurred while analyzing the URL content. Please try again.');
+        });
+
+        // This section is now handled by the validation and API call above
+    });
+}
+
+// Add direct event listeners to all submit buttons as a backup
+console.log('Adding direct event listeners to submit buttons');
+document.querySelectorAll('button[type="submit"]').forEach((button, index) => {
+    console.log(`Found submit button ${index+1}: ${button.textContent.trim()}`);
+    button.addEventListener('click', function(e) {
+        console.log(`Button clicked: ${this.textContent.trim()}`);
+        // Don't prevent default here, let the form handler do that
+    });
 });
+
+// Function to handle file upload
+function handleFileUpload(event) {
+    event.preventDefault();
+    console.log('File upload form submitted');
+
+    // Add debug message directly to the page
+    const debugInfo = document.createElement('div');
+    debugInfo.className = 'alert alert-info mt-3';
+    debugInfo.innerHTML = '<strong>Debug:</strong> Form submission detected';
+    document.getElementById('uploadForm').appendChild(debugInfo);
+
+    const fileInput = document.getElementById('fileUpload');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select a file to upload');
+        debugInfo.className = 'alert alert-danger mt-3';
+        debugInfo.innerHTML += '<br><strong>Error:</strong> No file selected';
+        return;
+    }
+
+    console.log(`Selected file: ${file.name}, Size: ${file.size}, Type: ${file.type}`);
+    debugInfo.innerHTML += `<br>File: ${file.name}, Size: ${Math.round(file.size/1024)}KB, Type: ${file.type}`;
+
+    // Show progress bar
+    const progressBar = document.getElementById('uploadProgressBar');
+    const progressContainer = document.getElementById('uploadProgress');
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    debugInfo.innerHTML += '<br>Creating FormData and sending request...';
+
+    // Make API request
+    fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log(`Response status: ${response.status}`);
+        console.log(`Response headers: ${JSON.stringify(Array.from(response.headers.entries()))}`);
+        console.log(`Response type: ${response.type}`);
+
+        debugInfo.innerHTML += `<br>Response received: Status ${response.status}`;
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('Upload successful:', data);
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+
+        debugInfo.innerHTML += '<br><strong>Success:</strong> File processed successfully';
+
+        // Process the citations
+        processCitations(data.citations);
+    })
+    .catch(error => {
+        console.error('Error during file upload:', error);
+        progressBar.classList.remove('bg-info');
+        progressBar.classList.add('bg-danger');
+        progressBar.textContent = 'Error: ' + error.message;
+
+        debugInfo.className = 'alert alert-danger mt-3';
+        debugInfo.innerHTML += `<br><strong>Error:</strong> ${error.message}`;
+
+        // Display error message on the page
+        const resultsContainer = document.getElementById('resultsContainer');
+        resultsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                <h4>Error During File Upload</h4>
+                <p>${error.message}</p>
+                <h5>Troubleshooting:</h5>
+                <ul>
+                    <li>Check that the file format is supported (.pdf, .docx, .txt, etc.)</li>
+                    <li>Make sure the file is not empty or corrupted</li>
+                    <li>Try using the Direct Upload button for more detailed error information</li>
+                </ul>
+            </div>
+        `;
+    });
+}
+
+// Add a manual file upload function as a last resort
+window.manualFileUpload = function() {
+    console.log('Manual file upload function called');
+    const fileInput = document.getElementById('fileUpload');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+        console.error('No file selected or file input not found');
+        alert('Please select a file first');
+        return;
+    }
+
+    const file = fileInput.files[0];
+    console.log(`Manually uploading file: ${file.name} (${file.size} bytes)`);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch(`${basePath}/api/upload`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('File upload successful:', data);
+        alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
+    })
+    .catch(error => {
+        console.error('Manual file upload error:', error);
+        alert(`Error: ${error.message}`);
+    });
+};
+
+// Add a manual upload button to the page
+const filePanel = document.getElementById('file-panel');
+if (filePanel) {
+    const manualButton = document.createElement('button');
+    manualButton.type = 'button';
+    manualButton.className = 'btn btn-warning mt-2';
+    manualButton.textContent = 'Manual Upload (Debug)';
+    manualButton.onclick = window.manualFileUpload;
+    filePanel.appendChild(manualButton);
+    console.log('Added manual upload button to the page');
+}
+
+// Add event listener to the upload form
+const fileUploadForm = document.getElementById('uploadForm');
+if (fileUploadForm) {
+    fileUploadForm.addEventListener('submit', handleFileUpload);
+}

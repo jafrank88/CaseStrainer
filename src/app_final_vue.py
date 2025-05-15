@@ -195,6 +195,14 @@ def create_app():
     
     @app.route('/api/upload', methods=['POST'])
     def upload_file():
+        # Print to stdout for immediate visibility
+        print(f"\n\n==== FILE UPLOAD REQUEST RECEIVED ====\n")
+        print(f"Remote address: {request.remote_addr}")
+        print(f"Request method: {request.method}")
+        print(f"Content-Type: {request.headers.get('Content-Type')}")
+        print(f"Content-Length: {request.headers.get('Content-Length')}")
+        
+        # Log to the logger as well
         logger.info(f"Received file upload request from {request.remote_addr}")
         logger.info(f"Request headers: {dict(request.headers)}")
         logger.info(f"Request method: {request.method}")
