@@ -19,13 +19,24 @@ function createCitationReport(citations, containerId) {
     
     // Process and categorize each citation
     citations.forEach(citation => {
-        if (citation.valid && citation.metadata && citation.metadata.source === 'CourtListener') {
-            verifiedByCourtListener.push(citation);
-        } else if (citation.valid) {
-            verifiedAnotherWay.push(citation);
+        // Check if this citation has been properly verified
+        // The backend only sets citation.valid to true/false
+        // We need to check if it's explicitly false, not just falsy (null, undefined)
+        if (citation.valid === true) {
+            // If it's verified, check if it's from CourtListener
+            if (citation.metadata && citation.metadata.source === 'CourtListener') {
+                verifiedByCourtListener.push(citation);
+            } else {
+                // Otherwise it was verified by another source
+                verifiedAnotherWay.push(citation);
+            }
         } else {
+            // If it's explicitly false or null/undefined, it's not verified
             notVerified.push(citation);
         }
+        
+        // Debug logging to console
+        console.log(`Citation: ${citation.text}, Valid: ${citation.valid}, Source: ${citation.metadata?.source || 'None'}`);
     });
     
     // Create HTML for the report

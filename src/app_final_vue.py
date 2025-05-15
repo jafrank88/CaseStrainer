@@ -253,8 +253,42 @@ def create_app():
                 
                 for i, citation in enumerate(citations):
                     logger.info(f"Verifying citation {i+1}: {citation['text']}")
-                    citation['valid'] = verify_citation(citation['text'])
-                    logger.info(f"Citation {i+1} validity: {citation['valid']}")
+                    verification_result = verify_citation(citation['text'])
+                    
+                    # Update citation with verification results
+                    citation['valid'] = verification_result.get('found', False)
+                    citation['explanation'] = verification_result.get('explanation')
+                    
+                    # Update metadata with source information
+                    if 'source' in verification_result:
+                        citation['metadata']['source'] = verification_result['source']
+                    
+                    # Add case name if available
+                    if verification_result.get('case_name') and not citation['name']:
+                        citation['name'] = verification_result['case_name']
+                    
+                    # Add any additional details
+                    if verification_result.get('details'):
+                        for key, value in verification_result['details'].items():
+                            if value and key not in citation['metadata']:
+                                citation['metadata'][key] = value
+                    
+                    # Add URL if available
+                    if verification_result.get('url'):
+                        citation['metadata']['url'] = verification_result['url']
+                    
+                    # Add is_westlaw flag if available
+                    if 'is_westlaw' in verification_result:
+                        citation['metadata']['is_westlaw'] = verification_result['is_westlaw']
+                    
+                    logger.info(f"Citation {i+1} validity: {citation['valid']}, Source: {citation['metadata'].get('source', 'None')}")
+                    logger.info(f"Citation {i+1} explanation: {citation.get('explanation', 'None')}")
+                    
+                    # Add debug info
+                    print(f"DEBUG: Citation {i+1} verification result: {verification_result}")
+                    print(f"DEBUG: Citation {i+1} updated: {citation}")
+                    logger.info(f"DEBUG: Citation {i+1} verification result: {verification_result}")
+                    logger.info(f"DEBUG: Citation {i+1} updated: {citation}")
                 
                 verification_time = time.time() - verification_start
                 logger.info(f"Citation verification complete in {verification_time:.2f} seconds")
@@ -576,7 +610,7 @@ def allowed_file(filename):
 
 def verify_citation(citation):
     """Verify a citation using the robust CitationVerifier logic with improved error handling.
-    Returns a boolean indicating whether the citation is valid.
+    Returns a dictionary with verification results including whether the citation is valid and its source.
     """
     try:
         # Import CitationVerifier with better error handling
@@ -608,12 +642,21 @@ def verify_citation(citation):
         result = verifier.verify_citation(citation)
         logger.info(f"Verification result: {result}")
         
-        # For the Vue.js frontend, we just need to return a boolean
-        return result.get('found', False)
+        # Return the full verification result to the frontend
+        # This includes 'found', 'source', 'explanation', etc.
+        return result
     except Exception as e:
         logger.error(f"Error verifying citation: {e}")
         traceback.print_exc()  # Print full stack trace for debugging
-        return False
+        
+        # Return structured error information
+        return {
+            'found': False,
+            'source': None,
+            'explanation': f"Error during verification: {str(e)}",
+            'error': True,
+            'error_message': str(e)
+        }
 
 def extract_citations_from_file(filepath):
     """Extract citations from a file and return full metadata."""
