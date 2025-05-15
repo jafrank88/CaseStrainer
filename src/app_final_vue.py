@@ -191,46 +191,6 @@ def create_app():
     register_enhanced_validator(app)
     
     # API endpoints for Vue.js frontend
-    @app.route('/api/upload', methods=['POST'])
-    def upload_file():
-        logger.info(f"Received file upload request from {request.remote_addr}")
-        
-        if 'file' not in request.files:
-            logger.warning("No file part in the request")
-            return jsonify({'error': 'No file part'}), 400
-            
-        file = request.files['file']
-        
-        if file.filename == '':
-            logger.warning("No file selected")
-            return jsonify({'error': 'No file selected'}), 400
-            
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-            
-            logger.info(f"File saved to {filepath}")
-            
-            try:
-                # Extract citations from the file
-                citations = extract_citations_from_file(filepath)
-                
-                # Process citations
-                for citation in citations:
-                    citation['valid'] = verify_citation(citation['text'])
-                
-                return jsonify({
-                    'message': f"Successfully analyzed {len(citations)} citations in {filename}",
-                    'citations': citations
-                })
-            except Exception as e:
-                logger.error(f"Error processing file: {str(e)}")
-                logger.error(traceback.format_exc())
-                return jsonify({'error': f"Error processing file: {str(e)}"}), 500
-        else:
-            logger.warning(f"Invalid file type: {file.filename}")
-            return jsonify({'error': 'Invalid file type'}), 400
     
     @app.route('/api/upload', methods=['POST'])
     def upload_file():
