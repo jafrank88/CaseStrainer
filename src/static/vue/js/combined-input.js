@@ -236,15 +236,60 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Create form data
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            const file = fileInput.files[0];
+            formData.append('file', file);
+            
+            // Create debug div
+            const debugDiv = document.createElement('div');
+            debugDiv.className = 'alert alert-info mt-3';
+            debugDiv.innerHTML = `<h5>Debug Information</h5>`;
+            progressElement.parentNode.insertBefore(debugDiv, progressElement);
+            
+            // Function to add debug info
+            function addDebugInfo(message) {
+                const timestamp = new Date().toISOString();
+                console.log(`[${timestamp}] ${message}`);
+                const msgElement = document.createElement('p');
+                msgElement.textContent = `[${timestamp}] ${message}`;
+                debugDiv.appendChild(msgElement);
+            }
+            
+            // Log file details for debugging
+            addDebugInfo(`File upload initiated: ${file.name} (${file.size} bytes, ${file.type})`);
             
             // Send request to API
+            addDebugInfo(`Sending file to ${basePath}/api/upload endpoint...`);
             fetch(`${basePath}/api/upload`, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                // Log response details
+                const responseInfo = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries([...response.headers]),
+                    timestamp: new Date().toISOString()
+                };
+                
+                addDebugInfo(`Response received: ${response.status} ${response.statusText}`);
+                addDebugInfo(`Content-Type: ${response.headers.get('Content-Type')}`);
+                
+                if (!response.ok) {
+                    addDebugInfo(`ERROR: Server returned error status: ${response.status}`);
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                
+                addDebugInfo('Response OK, parsing JSON...');
+                return response.json().catch(error => {
+                    addDebugInfo(`ERROR: Failed to parse JSON response: ${error.message}`);
+                    throw error;
+                });
+            })
             .then(data => {
+                addDebugInfo('JSON parsed successfully!');
+                addDebugInfo(`Found ${data.citations ? data.citations.length : 0} citations`);
+                
                 // Re-enable button
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
@@ -258,11 +303,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 progressBar.textContent = 'Complete!';
                 progressBar.className = 'progress-bar bg-success';
                 
+                // Add more detailed debug info
+                if (data.citations && data.citations.length > 0) {
+                    addDebugInfo('Citation details:');
+                    data.citations.forEach((citation, index) => {
+                        addDebugInfo(`Citation ${index+1}: ${citation.text} (${citation.name})`);
+                    });
+                } else {
+                    addDebugInfo('No citations found in the document.');
+                }
+                
                 // Display results
                 displayCitationResults(data);
             })
             .catch(error => {
-                console.error('Error:', error);
+                // Log error details
+                const errorInfo = {
+                    message: error.message,
+                    stack: error.stack,
+                    timestamp: new Date().toISOString()
+                };
+                console.error('File upload error:', errorInfo);
+                
+                // Add debug information
+                addDebugInfo(`ERROR: ${error.message}`);
+                addDebugInfo(`Error occurred at: ${new Date().toISOString()}`);
+                
+                // Try to get more details about the error
+                if (error.name) addDebugInfo(`Error type: ${error.name}`);
+                if (error.stack) {
+                    const stackLines = error.stack.split('\n');
+                    addDebugInfo(`Stack trace (first line): ${stackLines[0]}`);
+                }
+                
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
                 
@@ -275,7 +348,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 progressBar.textContent = 'Error!';
                 progressBar.className = 'progress-bar bg-danger';
                 
-                alert('An error occurred while processing your file. Please try again.');
+                // Create a more detailed error message
+                const errorDetails = document.createElement('div');
+                errorDetails.className = 'alert alert-danger mt-3';
+                errorDetails.innerHTML = `
+                    <h5>Error Processing File</h5>
+                    <p>${error.message || 'Unknown error occurred'}</p>
+                    <p>Please check the debug information above for more details.</p>
+                    <p>Try using a different file format or a smaller file.</p>
+                `;
+                
+                // Insert error details after the progress bar
+                progressElement.parentNode.insertBefore(errorDetails, progressElement.nextSibling);
+                
+                // Add troubleshooting tips
+                addDebugInfo('Troubleshooting tips:');
+                addDebugInfo('1. Try a different file format (PDF, DOCX, TXT)');
+                addDebugInfo('2. Make sure the file contains legal citations');
+                addDebugInfo('3. Try a smaller file size');
+                addDebugInfo('4. Check if the server is running properly');
             });
             
             // This section is now handled by the validation and API call above
