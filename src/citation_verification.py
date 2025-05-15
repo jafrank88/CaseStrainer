@@ -236,15 +236,42 @@ class CitationVerifier:
             logging.info(f"[CourtListener] Headers: {self.headers}")
             logging.info(f"[CourtListener] API key being used: {self.api_key[:5]}... (truncated)")
             # First try the citation lookup API
-            response = requests.post(
-                COURTLISTENER_CITATION_API, 
-                headers=self.headers, 
-                json=data,
-                timeout=TIMEOUT_SECONDS
-            )
-            logging.info(f"[CourtListener] POST response status: {response.status_code}")
-            logging.info(f"[CourtListener] POST response headers: {response.headers}")
-            logging.info(f"[CourtListener] POST response text: {response.text}")
+            print(f"\n==== MAKING API REQUEST TO {COURTLISTENER_CITATION_API} ====\n")
+            print(f"Headers: {self.headers}")
+            print(f"Data: {data}\n")
+            
+            logging.info(f"==== MAKING API REQUEST TO {COURTLISTENER_CITATION_API} ====")
+            logging.info(f"Headers: {self.headers}")
+            logging.info(f"Data: {data}")
+            
+            try:
+                response = requests.post(
+                    COURTLISTENER_CITATION_API, 
+                    headers=self.headers, 
+                    json=data,
+                    timeout=TIMEOUT_SECONDS
+                )
+                
+                print(f"\n==== API RESPONSE ====\n")
+                print(f"Status code: {response.status_code}")
+                print(f"Response headers: {dict(response.headers)}")
+                print(f"Response text: {response.text}\n")
+                
+                logging.info(f"==== API RESPONSE ====")
+                logging.info(f"Status code: {response.status_code}")
+                logging.info(f"Response headers: {dict(response.headers)}")
+                logging.info(f"Response text: {response.text}")
+            except Exception as req_error:
+                print(f"\n==== API REQUEST ERROR ====\n")
+                print(f"Error: {str(req_error)}\n")
+                traceback.print_exc()
+                
+                logging.error(f"==== API REQUEST ERROR ====")
+                logging.error(f"Error: {str(req_error)}")
+                logging.error(traceback.format_exc())
+                
+                # Re-raise to be caught by the outer try-except
+                raise
             
             if response.status_code == 200:
                 api_result = response.json()

@@ -251,44 +251,68 @@ def create_app():
                 logger.info("Starting citation verification")
                 verification_start = time.time()
                 
+                # Enable more verbose debugging
+                print("\n==== STARTING CITATION VERIFICATION PROCESS ====\n")
+                logger.info("==== STARTING CITATION VERIFICATION PROCESS ====")
+                
                 for i, citation in enumerate(citations):
-                    logger.info(f"Verifying citation {i+1}: {citation['text']}")
-                    verification_result = verify_citation(citation['text'])
+                    print(f"\n==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====\n")
+                    logger.info(f"==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====")
                     
-                    # Update citation with verification results
-                    citation['valid'] = verification_result.get('found', False)
-                    citation['explanation'] = verification_result.get('explanation')
-                    
-                    # Update metadata with source information
-                    if 'source' in verification_result:
-                        citation['metadata']['source'] = verification_result['source']
-                    
-                    # Add case name if available
-                    if verification_result.get('case_name') and not citation['name']:
-                        citation['name'] = verification_result['case_name']
-                    
-                    # Add any additional details
-                    if verification_result.get('details'):
-                        for key, value in verification_result['details'].items():
-                            if value and key not in citation['metadata']:
-                                citation['metadata'][key] = value
-                    
-                    # Add URL if available
-                    if verification_result.get('url'):
-                        citation['metadata']['url'] = verification_result['url']
-                    
-                    # Add is_westlaw flag if available
-                    if 'is_westlaw' in verification_result:
-                        citation['metadata']['is_westlaw'] = verification_result['is_westlaw']
-                    
-                    logger.info(f"Citation {i+1} validity: {citation['valid']}, Source: {citation['metadata'].get('source', 'None')}")
-                    logger.info(f"Citation {i+1} explanation: {citation.get('explanation', 'None')}")
-                    
-                    # Add debug info
-                    print(f"DEBUG: Citation {i+1} verification result: {verification_result}")
-                    print(f"DEBUG: Citation {i+1} updated: {citation}")
-                    logger.info(f"DEBUG: Citation {i+1} verification result: {verification_result}")
-                    logger.info(f"DEBUG: Citation {i+1} updated: {citation}")
+                    try:
+                        verification_result = verify_citation(citation['text'])
+                        
+                        print(f"\n==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====\n")
+                        logger.info(f"==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====")
+                        
+                        # Update citation with verification results
+                        citation['valid'] = verification_result.get('found', False)
+                        citation['explanation'] = verification_result.get('explanation')
+                        
+                        # Update metadata with source information
+                        if 'source' in verification_result:
+                            citation['metadata']['source'] = verification_result['source']
+                        
+                        # Add case name if available
+                        if verification_result.get('case_name') and not citation['name']:
+                            citation['name'] = verification_result['case_name']
+                        
+                        # Add any additional details
+                        if verification_result.get('details'):
+                            for key, value in verification_result['details'].items():
+                                if value and key not in citation['metadata']:
+                                    citation['metadata'][key] = value
+                        
+                        # Add URL if available
+                        if verification_result.get('url'):
+                            citation['metadata']['url'] = verification_result['url']
+                        
+                        # Add is_westlaw flag if available
+                        if 'is_westlaw' in verification_result:
+                            citation['metadata']['is_westlaw'] = verification_result['is_westlaw']
+                        
+                        print(f"\n==== UPDATED CITATION {i+1}: {citation} ====\n")
+                        logger.info(f"==== UPDATED CITATION {i+1}: {citation} ====")
+                        
+                        # Add more detailed logging
+                        print(f"Citation {i+1} validity: {citation['valid']}")
+                        print(f"Citation {i+1} source: {citation['metadata'].get('source', 'None')}")
+                        print(f"Citation {i+1} explanation: {citation.get('explanation', 'None')}")
+                        
+                        logger.info(f"Citation {i+1} validity: {citation['valid']}")
+                        logger.info(f"Citation {i+1} source: {citation['metadata'].get('source', 'None')}")
+                        logger.info(f"Citation {i+1} explanation: {citation.get('explanation', 'None')}")
+                    except Exception as e:
+                        print(f"\n==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====\n")
+                        logger.error(f"==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====")
+                        logger.error(traceback.format_exc())
+                        
+                        # Set citation as invalid with error explanation
+                        citation['valid'] = False
+                        citation['explanation'] = f"Error during verification: {str(e)}"
+                        
+                print("\n==== CITATION VERIFICATION PROCESS COMPLETE ====\n")
+                logger.info("==== CITATION VERIFICATION PROCESS COMPLETE ====")
                 
                 verification_time = time.time() - verification_start
                 logger.info(f"Citation verification complete in {verification_time:.2f} seconds")
