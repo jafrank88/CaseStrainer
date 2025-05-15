@@ -196,13 +196,18 @@ def create_app():
     @app.route('/api/upload', methods=['POST'])
     def upload_file():
         logger.info(f"Received file upload request from {request.remote_addr}")
+        logger.info(f"Request headers: {dict(request.headers)}")
+        logger.info(f"Request method: {request.method}")
         
         # Check if the post request has the file part
         if 'file' not in request.files:
             logger.warning("No file part in the request")
+            logger.warning(f"Request files: {request.files}")
+            logger.warning(f"Request form: {request.form}")
             return jsonify({'error': 'No file part'}), 400
             
         file = request.files['file']
+        logger.info(f"File received: {file.filename}, Content-Type: {file.content_type}, Size: {file.content_length} bytes")
         
         if file.filename == '':
             logger.warning("No file selected")
@@ -213,24 +218,53 @@ def create_app():
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             file.save(filepath)
             
-            logger.info(f"File saved to {filepath}")
+            file_size = os.path.getsize(filepath)
+            logger.info(f"File saved to {filepath}, Size: {file_size} bytes")
             
             try:
+                # Log start of citation extraction
+                logger.info(f"Starting citation extraction from file: {filename}")
+                start_time = time.time()
+                
                 # Extract citations from the file
+                logger.info(f"Calling extract_citations_from_file for {filepath}")
                 citations = extract_citations_from_file(filepath)
                 
+                # Log extraction completion
+                extraction_time = time.time() - start_time
+                logger.info(f"Citation extraction complete. Found {len(citations)} citations in {extraction_time:.2f} seconds")
+                
+                # Log each citation found
+                for i, citation in enumerate(citations):
+                    logger.info(f"Citation {i+1}: {citation['text']}")
+                
                 # Process citations
-                for citation in citations:
+                logger.info("Starting citation verification")
+                verification_start = time.time()
+                
+                for i, citation in enumerate(citations):
+                    logger.info(f"Verifying citation {i+1}: {citation['text']}")
                     citation['valid'] = verify_citation(citation['text'])
+                    logger.info(f"Citation {i+1} validity: {citation['valid']}")
+                
+                verification_time = time.time() - verification_start
+                logger.info(f"Citation verification complete in {verification_time:.2f} seconds")
+                
+                total_time = time.time() - start_time
+                logger.info(f"Total processing time: {total_time:.2f} seconds")
                 
                 return jsonify({
                     'message': f"Successfully analyzed {len(citations)} citations in {filename}",
-                    'citations': citations
+                    'citations': citations,
+                    'processing_time': total_time
                 })
             except Exception as e:
                 logger.error(f"Error processing file: {str(e)}")
                 logger.error(traceback.format_exc())
-                return jsonify({'error': f"Error processing file: {str(e)}"}), 500
+                return jsonify({
+                    'error': f"Error processing file: {str(e)}",
+                    'traceback': traceback.format_exc()
+                }), 500
         else:
             logger.warning(f"Invalid file type: {file.filename}")
             return jsonify({'error': 'Invalid file type'}), 400
@@ -574,68 +608,163 @@ def verify_citation(citation):
 
 def extract_citations_from_file(filepath):
     """Extract citations from a file and return full metadata."""
+    logger.info(f"Starting extract_citations_from_file for: {filepath}")
+    file_size = os.path.getsize(filepath)
+    file_extension = os.path.splitext(filepath)[1].lower()
+    logger.info(f"File details - Size: {file_size} bytes, Extension: {file_extension}")
+    
     try:
         # Read file content based on file type
+        start_time = time.time()
+        text = ''
+        
         if filepath.endswith('.pdf'):
+            logger.info("Detected PDF file, using PyPDF2 for extraction")
             import PyPDF2
             with open(filepath, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                text = ''
-                for page in reader.pages:
-                    text += page.extract_text()
+                try:
+                    reader = PyPDF2.PdfReader(file)
+                    logger.info(f"PDF has {len(reader.pages)} pages")
+                    text = ''
+                    for i, page in enumerate(reader.pages):
+                        logger.info(f"Extracting text from page {i+1}/{len(reader.pages)}")
+                        page_text = page.extract_text()
+                        text += page_text
+                        logger.info(f"Page {i+1} extracted: {len(page_text)} characters")
+                except Exception as pdf_error:
+                    logger.error(f"Error reading PDF: {str(pdf_error)}")
+                    raise
         elif filepath.endswith(('.doc', '.docx')):
+            logger.info("Detected Word document, using python-docx for extraction")
             import docx
-            doc = docx.Document(filepath)
-            text = '\n'.join([paragraph.text for paragraph in doc.paragraphs])
+            try:
+                doc = docx.Document(filepath)
+                logger.info(f"Word document has {len(doc.paragraphs)} paragraphs")
+                paragraphs = [paragraph.text for paragraph in doc.paragraphs]
+                text = '\n'.join(paragraphs)
+                logger.info(f"Extracted {len(paragraphs)} paragraphs with total {len(text)} characters")
+            except Exception as docx_error:
+                logger.error(f"Error reading Word document: {str(docx_error)}")
+                raise
         else:
-            with open(filepath, 'r', encoding='utf-8') as file:
-                text = file.read()
+            logger.info(f"Using standard text file reading for {file_extension} file")
+            try:
+                with open(filepath, 'r', encoding='utf-8') as file:
+                    text = file.read()
+                    logger.info(f"Read {len(text)} characters from text file")
+            except UnicodeDecodeError:
+                logger.warning("UTF-8 decoding failed, trying with latin-1 encoding")
+                with open(filepath, 'r', encoding='latin-1') as file:
+                    text = file.read()
+                    logger.info(f"Read {len(text)} characters from text file using latin-1 encoding")
+        
+        extraction_time = time.time() - start_time
+        logger.info(f"File content extraction completed in {extraction_time:.2f} seconds")
+        logger.info(f"Extracted text sample (first 200 chars): {text[:200]}...")
+        
+        # Now extract citations from the text
+        logger.info("Calling extract_citations_from_text with the extracted content")
         return extract_citations_from_text(text)
     except Exception as e:
-        print(f"Error extracting citations from file: {e}")
+        logger.error(f"Error extracting citations from file: {str(e)}")
+        logger.error(traceback.format_exc())
         return []
 
 def extract_citations_from_text(text):
     """Extract citations from text using eyecite and return full metadata."""
+    logger.info(f"Starting extract_citations_from_text with text of length {len(text)}")
+    start_time = time.time()
+    
     try:
         from eyecite import get_citations
         from eyecite.tokenizers import AhocorasickTokenizer
+        logger.info("Successfully imported eyecite libraries")
         
         # Use AhocorasickTokenizer
         tokenizer = None
         try:
+            logger.info("Attempting to initialize AhocorasickTokenizer")
+            tokenizer_start = time.time()
             tokenizer = AhocorasickTokenizer()
-        except Exception:
+            logger.info(f"AhocorasickTokenizer initialized in {time.time() - tokenizer_start:.2f} seconds")
+        except Exception as tokenizer_error:
+            logger.warning(f"Failed to initialize AhocorasickTokenizer: {str(tokenizer_error)}")
+            logger.warning("Will fall back to default tokenizer")
             tokenizer = None
         
-        citations = get_citations(text, tokenizer=tokenizer) if tokenizer else get_citations(text)
+        logger.info("Starting citation extraction with eyecite")
+        extraction_start = time.time()
+        if tokenizer:
+            logger.info("Using AhocorasickTokenizer for extraction")
+            citations = get_citations(text, tokenizer=tokenizer)
+        else:
+            logger.info("Using default tokenizer for extraction")
+            citations = get_citations(text)
         
+        extraction_time = time.time() - extraction_start
+        logger.info(f"Citation extraction completed in {extraction_time:.2f} seconds")
+        logger.info(f"Found {len(citations)} citations in the text")
+        
+        logger.info("Processing citation objects to extract metadata")
+        metadata_start = time.time()
         citation_dicts = []
-        for citation in citations:
+        
+        for i, citation in enumerate(citations):
+            logger.info(f"Processing citation {i+1}/{len(citations)}: {citation.matched_text()}")
+            
             # Get case name if available
             case_name = None
             try:
                 if hasattr(citation, 'metadata') and citation.metadata and hasattr(citation.metadata, 'case_name'):
                     case_name = citation.metadata.case_name
-            except Exception:
+                    logger.info(f"Found case name: {case_name}")
+                else:
+                    logger.info("No case name found in metadata")
+            except Exception as name_error:
+                logger.warning(f"Error extracting case name: {str(name_error)}")
                 pass
+            
+            # Extract other metadata
+            reporter = getattr(citation, 'reporter', None)
+            volume = getattr(citation, 'volume', None)
+            page = getattr(citation, 'page', None)
+            year = getattr(citation, 'year', None)
+            court = getattr(citation, 'court', None)
+            
+            logger.info(f"Citation metadata - Reporter: {reporter}, Volume: {volume}, Page: {page}, Year: {year}, Court: {court}")
                 
-            citation_dicts.append({
+            citation_dict = {
                 'text': citation.matched_text(),
                 'name': case_name or 'Unknown Case',
                 'valid': None,  # Will be filled in by the API endpoint
                 'metadata': {
-                    'reporter': getattr(citation, 'reporter', None),
-                    'volume': getattr(citation, 'volume', None),
-                    'page': getattr(citation, 'page', None),
-                    'year': getattr(citation, 'year', None),
-                    'court': getattr(citation, 'court', None)
+                    'reporter': reporter,
+                    'volume': volume,
+                    'page': page,
+                    'year': year,
+                    'court': court
                 }
-            })
+            }
+            
+            citation_dicts.append(citation_dict)
+            logger.info(f"Added citation {i+1} to results")
+        
+        metadata_time = time.time() - metadata_start
+        logger.info(f"Metadata extraction completed in {metadata_time:.2f} seconds")
+        
+        total_time = time.time() - start_time
+        logger.info(f"Total citation extraction process completed in {total_time:.2f} seconds")
+        logger.info(f"Returning {len(citation_dicts)} citation dictionaries")
+        
         return citation_dicts
     except Exception as e:
-        logger.error(f"Error extracting citations from text: {e}")
-        logger.error(f"Error details: {traceback.format_exc()}")
+        logger.error(f"Error extracting citations from text: {str(e)}")
+        logger.error(traceback.format_exc())
+        logger.error(f"Error occurred after processing text of length {len(text)}")
+        # Log a sample of the text that caused the error
+        if len(text) > 0:
+            sample_size = min(500, len(text))
+            logger.error(f"Text sample that caused the error (first {sample_size} chars): {text[:sample_size]}")
         return []
 
 def initialize_session_data():
