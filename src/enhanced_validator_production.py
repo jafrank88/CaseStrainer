@@ -23,6 +23,10 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 # Try to import striprtf at module level
 try:
     import striprtf.striprtf
@@ -31,10 +35,6 @@ try:
 except ImportError:
     STRIPRTF_AVAILABLE = False
     logger.warning("striprtf not installed. RTF file processing will not be available.")
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 # Create logs directory if it doesn't exist
 log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
