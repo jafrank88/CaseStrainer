@@ -158,6 +158,10 @@
                                                 <div class="form-text">Supported formats: PDF, DOCX, TXT, RTF, DOC, HTML</div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Analyze File</button>
+                                            <!-- Progress bar for file upload -->
+                                            <div id="uploadProgress" class="progress mt-3" style="display: none;">
+                                                <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                            </div>
                                         </form>
                                     </div>
                                     
@@ -169,6 +173,10 @@
                                                 <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Analyze Text</button>
+                                            <!-- Progress bar for text analysis -->
+                                            <div id="pasteProgress" class="progress mt-3" style="display: none;">
+                                                <div id="pasteProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                            </div>
                                         </form>
                                     </div>
                                     
@@ -181,6 +189,10 @@
                                                 <div class="form-text">Enter a URL to a legal document (e.g., from Justia, CourtListener, etc.)</div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Analyze URL</button>
+                                            <!-- Progress bar for URL analysis -->
+                                            <div id="urlProgress" class="progress mt-3" style="display: none;">
+                                                <div id="urlProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>

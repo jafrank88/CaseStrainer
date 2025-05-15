@@ -227,6 +227,13 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
             
+            // Show progress bar
+            const progressElement = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadProgressBar');
+            
+            // Start progress polling
+            const progressInterval = startProgressPolling(progressElement, progressBar);
+            
             // Create form data
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
@@ -242,6 +249,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
                 
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to complete
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Complete!';
+                progressBar.className = 'progress-bar bg-success';
+                
                 // Display results
                 displayCitationResults(data);
             })
@@ -249,6 +265,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
+                
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to error
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Error!';
+                progressBar.className = 'progress-bar bg-danger';
+                
                 alert('An error occurred while processing your file. Please try again.');
             });
             
@@ -274,6 +300,13 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
             
+            // Show progress bar
+            const progressElement = document.getElementById('pasteProgress');
+            const progressBar = document.getElementById('pasteProgressBar');
+            
+            // Start progress polling
+            const progressInterval = startProgressPolling(progressElement, progressBar);
+            
             // Send request to API
             fetch(`${basePath}/api/text`, {
                 method: 'POST',
@@ -290,6 +323,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
                 
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to complete
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Complete!';
+                progressBar.className = 'progress-bar bg-success';
+                
                 // Display results
                 displayCitationResults(data);
             })
@@ -297,6 +339,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verify Citations';
+                
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to error
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Error!';
+                progressBar.className = 'progress-bar bg-danger';
+                
                 alert('An error occurred while analyzing your text. Please try again.');
             });
         });
@@ -320,6 +372,13 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
             
+            // Show progress bar
+            const progressElement = document.getElementById('urlProgress');
+            const progressBar = document.getElementById('urlProgressBar');
+            
+            // Start progress polling
+            const progressInterval = startProgressPolling(progressElement, progressBar);
+            
             // Send request to API
             fetch(`${basePath}/api/url`, {
                 method: 'POST',
@@ -336,6 +395,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
                 
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to complete
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Complete!';
+                progressBar.className = 'progress-bar bg-success';
+                
                 // Display results
                 displayCitationResults(data);
             })
@@ -343,6 +411,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-globe me-2"></i>Fetch and Verify';
+                
+                // Clear progress polling
+                clearInterval(progressInterval);
+                
+                // Update progress to error
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressBar.textContent = 'Error!';
+                progressBar.className = 'progress-bar bg-danger';
+                
                 alert('An error occurred while analyzing the URL content. Please try again.');
             });
             
