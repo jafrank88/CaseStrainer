@@ -26,10 +26,13 @@ import logging
 # These imports will be handled by moving the files later
 
 # API endpoints
-COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v4/citation-lookup/'
-COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v4/search/'
-COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v4/opinions/'
-COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v4/clusters/'
+COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v3/search/'
+COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v3/search/'
+COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v3/opinions/'
+COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v3/clusters/'
+
+# Note: CourtListener API v4 requires different parameters than v3
+# We're using v3 for better compatibility with citation lookup
 GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar'
 
 # Flags to track API availability
@@ -48,11 +51,32 @@ class CitationVerifier:
         """Initialize the CitationVerifier with API keys."""
         self.api_key = api_key or os.environ.get('COURTLISTENER_API_KEY')
         self.langsearch_api_key = langsearch_api_key or os.environ.get('LANGSEARCH_API_KEY')
+        
+        # Add more detailed logging for API key
+        if self.api_key:
+            print(f"DEBUG: Using CourtListener API key: {self.api_key[:6]}... (length: {len(self.api_key)})")
+            logging.info(f"DEBUG: Using CourtListener API key: {self.api_key[:6]}... (length: {len(self.api_key)})")
+        else:
+            print("WARNING: No CourtListener API key provided!")
+            logging.warning("WARNING: No CourtListener API key provided!")
+        
         self.headers = {
             'Authorization': f'Token {self.api_key}' if self.api_key else '',
             'Content-Type': 'application/json'
         }
+        
+        # Log the full headers (without the full token)
+        headers_log = self.headers.copy()
+        if 'Authorization' in headers_log and headers_log['Authorization']:
+            auth_parts = headers_log['Authorization'].split(' ')
+            if len(auth_parts) > 1:
+                headers_log['Authorization'] = f"{auth_parts[0]} {auth_parts[1][:6]}..."
+        
+        print(f"DEBUG: Request headers: {headers_log}")
+        logging.info(f"DEBUG: Request headers: {headers_log}")
+        
         logger.info(f"Initialized CitationVerifier with API key: {self.api_key[:6]}... (length: {len(self.api_key) if self.api_key else 0})")
+        print(f"Initialized CitationVerifier with API key: {self.api_key[:6]}... (length: {len(self.api_key) if self.api_key else 0})")
     
     def verify_citation(self, citation: str) -> Dict[str, Any]:
         """
@@ -183,15 +207,7 @@ class CitationVerifier:
         return result
     
     def verify_with_courtlistener_citation_api(self, citation: str) -> Dict[str, Any]:
-        """
-        Verify a citation using the CourtListener Citation Lookup API.
-        
-        Args:
-            citation: The legal citation to verify
-            
-        Returns:
-            Dict with verification results
-        """
+        """Verify a citation using the CourtListener Citation Lookup API."""
         result = {
             'citation': citation,
             'found': False,
@@ -209,9 +225,13 @@ class CitationVerifier:
             # Format citation for CourtListener
             formatted_citation = self._format_citation_for_courtlistener(citation)
             logging.info(f"[CourtListener] Formatted citation: {formatted_citation}")
-            # Use POST request with text field for all citations
-            data = {'text': formatted_citation}
+            print(f"DEBUG: Formatted citation for CourtListener: {formatted_citation}")
+            
+            # Use the correct format for the API request
+            # The API expects a 'q' parameter for the citation
+            data = {'q': formatted_citation}
             logging.info(f"[CourtListener] POST data: {data}")
+            print(f"DEBUG: CourtListener API request data: {data}")
             logging.info(f"[CourtListener] API URL: {COURTLISTENER_CITATION_API}")
             logging.info(f"[CourtListener] Headers: {self.headers}")
             logging.info(f"[CourtListener] API key being used: {self.api_key[:5]}... (truncated)")
@@ -228,28 +248,41 @@ class CitationVerifier:
             
             if response.status_code == 200:
                 api_result = response.json()
-                print(f"POST request response JSON: {api_result}")
+                print(f"DEBUG: CourtListener API response JSON: {api_result}")
+                logging.info(f"DEBUG: CourtListener API response JSON: {api_result}")
                 
-                if isinstance(api_result, list) and len(api_result) > 0:
-                    item = api_result[0]
-                    print(f"First item in response: {item}")
-                    clusters = item.get('clusters', [])
-                    print(f"Clusters found: {clusters}")
-                    if clusters:
-                        cluster = clusters[0]
-                        print(f"First cluster: {cluster}")
+                # API v3 returns a dict with 'results' key containing the search results
+                if api_result.get('results') and len(api_result['results']) > 0:
+                    # Get the first result
+                    opinion = api_result['results'][0]
+                    print(f"DEBUG: First opinion result: {opinion}")
+                    logging.info(f"DEBUG: First opinion result: {opinion}")
+                    
+                    # Extract the cluster information
+                    cluster = opinion.get('cluster', {})
+                    print(f"DEBUG: Cluster information: {cluster}")
+                    logging.info(f"DEBUG: Cluster information: {cluster}")
+                    
+                    if cluster:
+                        # Mark as found and update result with case information
                         result['found'] = True
-                        result['case_name'] = cluster.get('case_name', 'Unknown Case')
-                        result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
+                        result['source'] = 'CourtListener'
+                        result['case_name'] = cluster.get('case_name', opinion.get('case_name', 'Unknown Case'))
+                        result['url'] = f"https://www.courtlistener.com{opinion.get('absolute_url', '')}" 
+                        
+                        # Add detailed information
                         result['details'] = {
-                            'court': cluster.get('court', 'Unknown Court'),
-                            'date_filed': cluster.get('date_filed', 'Unknown Date'),
-                            'citations': [
-                                f"{cite.get('volume')} {cite.get('reporter')} {cite.get('page')}"
-                                for cite in cluster.get('citations', [])
-                            ]
+                            'court': opinion.get('court', cluster.get('court', 'Unknown Court')),
+                            'date_filed': opinion.get('date_filed', cluster.get('date_filed', 'Unknown Date')),
+                            'docket_number': opinion.get('docket_number', cluster.get('docket_number', 'Unknown'))
                         }
-                        print(f"Found case in POST request: {result['case_name']}")
+                        
+                        # Add citation information if available
+                        if 'citation' in opinion:
+                            result['details']['citation'] = opinion['citation']
+                        
+                        print(f"DEBUG: Found case in CourtListener API: {result['case_name']}")
+                        logging.info(f"DEBUG: Found case in CourtListener API: {result['case_name']}")
                         return result
                 else:
                     print("No results found in citation lookup API response")
