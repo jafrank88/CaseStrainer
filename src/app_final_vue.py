@@ -11,6 +11,7 @@ import requests
 import traceback
 import uuid
 import tempfile
+import datetime
 from flask_session import Session
 from bs4 import BeautifulSoup
 import urllib.parse
@@ -328,43 +329,77 @@ def create_app():
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
         logger.info(f"Serving Vue index from: {vue_dist_dir}")
         response = send_from_directory(vue_dist_dir, 'index.html')
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
         response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
         return response
 
     @app.route('/casestrainer/<path:path>')
     def serve_vue_assets(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
         response = send_from_directory(vue_dist_dir, path)
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
         response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
         return response
 
     @app.route('/js/<path:path>')
     @app.route('/casestrainer/js/<path:path>')
     def serve_vue_js(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', 'js')
-        return send_from_directory(vue_dist_dir, path)
+        response = send_from_directory(vue_dist_dir, path)
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+        return response
 
     @app.route('/css/<path:path>')
     @app.route('/casestrainer/css/<path:path>')
     def serve_vue_css(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', 'css')
-        return send_from_directory(vue_dist_dir, path)
+        response = send_from_directory(vue_dist_dir, path)
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+        return response
 
     @app.route('/img/<path:path>')
     @app.route('/casestrainer/img/<path:path>')
     def serve_vue_img(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', 'img')
-        return send_from_directory(vue_dist_dir, path)
+        response = send_from_directory(vue_dist_dir, path)
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+        return response
 
     @app.route('/fonts/<path:path>')
     @app.route('/casestrainer/fonts/<path:path>')
     def serve_vue_fonts(path):
         vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', 'fonts')
-        return send_from_directory(vue_dist_dir, path)
+        response = send_from_directory(vue_dist_dir, path)
+        # Enhanced cache control to ensure the latest version is always displayed
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        # Add a timestamp to force refresh
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+        return response
 
     @app.route('/original')
     @app.route('/casestrainer/original')
