@@ -47,9 +47,9 @@ echo Starting Flask application with Vue.js integration on port 5000 with host 0
 cd "%~dp0"
 
 REM Set environment variables
-SET USE_CHEROOT=True
+SET USE_WAITRESS=True
 SET FLASK_ENV=production
-SET FLASK_DEBUG=1
+SET FLASK_DEBUG=0
 
 REM Navigate to the project root directory
 cd "%~dp0.."
@@ -58,7 +58,7 @@ REM Try different Python installations in order of preference
 IF EXIST ".venv\Scripts\python.exe" (
     echo Using Python from virtual environment
     call .venv\Scripts\activate.bat
-    python src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-cheroot
+    python src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-waitress --env=production
 ) ELSE IF EXIST "D:\Python\python.exe" (
     echo Using Python from D:\Python
     "D:\Python\python.exe" src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-cheroot
@@ -67,7 +67,7 @@ IF EXIST ".venv\Scripts\python.exe" (
     "C:\Python313\python.exe" src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-cheroot
 ) ELSE (
     echo Python not found, trying system Python
-    python src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-cheroot
+    python src\app_final_vue.py --host=0.0.0.0 --port=5000 --use-waitress --env=production
 )
 
 echo.
