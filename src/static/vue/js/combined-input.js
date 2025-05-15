@@ -165,54 +165,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayCitationResults(data) {
         const resultsContainer = createResultsContainer();
         
-        // Create results HTML
-        let html = `
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Citation Analysis Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-success">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        ${data.message}
+        // Use the citation report functionality from citation-report.js
+        if (window.citationReport && typeof window.citationReport.display === 'function') {
+            // Use the new citation report functionality
+            window.citationReport.display(data);
+        } else {
+            // Fallback to a simple display if the citation report script is not loaded
+            let html = `
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Citation Analysis Results</h3>
                     </div>
-                    <h4>Found Citations:</h4>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Citation</th>
-                                    <th>Case Name</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-        `;
-        
-        // Add each citation to the table
-        data.citations.forEach(citation => {
-            html += `
-                <tr>
-                    <td><strong>${citation.text}</strong></td>
-                    <td>${citation.name}</td>
-                    <td>
-                        ${citation.valid ? 
-                            '<span class="badge bg-success">Valid</span>' : 
-                            '<span class="badge bg-danger">Invalid</span>'}
-                    </td>
-                </tr>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            ${data.message}
+                        </div>
+                        <p>Found ${data.citations.length} citations.</p>
+                    </div>
+                </div>
             `;
-        });
-        
-        html += `
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        resultsContainer.innerHTML = html;
+            resultsContainer.innerHTML = html;
+        }
         
         // Scroll to results
         resultsContainer.scrollIntoView({ behavior: 'smooth' });
