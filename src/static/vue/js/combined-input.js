@@ -834,63 +834,45 @@ window.manualFileUpload = function() {
     debugInfo.innerHTML = '<strong>Debug:</strong> Manual upload initiated';
     document.getElementById('uploadForm').appendChild(debugInfo);
     
-    // Try multiple approaches
-    debugInfo.innerHTML += '<br>Trying approach 1: FormData with /api/upload';
+    // Create a new form element
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/casestrainer/api/analyze';
+    form.enctype = 'multipart/form-data';
     
-    // Approach 1: Standard FormData to /api/upload
-    const formData = new FormData();
-    formData.append('file', file);
+    // Create a hidden input for the file name
+    const fileNameInput = document.createElement('input');
+    fileNameInput.type = 'hidden';
+    fileNameInput.name = 'filename';
+    fileNameInput.value = file.name;
+    form.appendChild(fileNameInput);
     
-    fetch(`${basePath}/api/upload`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        debugInfo.innerHTML += `<br>Response from approach 1: Status ${response.status}`;
-        return response.json();
-    })
-    .then(data => {
-        console.log('Upload successful (approach 1):', data);
-        debugInfo.innerHTML += '<br><strong>Success with approach 1!</strong>';
-        alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
-    })
-    .catch(error => {
-        console.error('Error with approach 1:', error);
-        debugInfo.innerHTML += `<br>Error with approach 1: ${error.message}`;
+    // Create a file input and copy the selected file
+    const newFileInput = document.createElement('input');
+    newFileInput.type = 'file';
+    newFileInput.name = 'file';
+    newFileInput.style.display = 'none';
+    
+    // We can't directly set the files property, so we'll use the DataTransfer API
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    newFileInput.files = dt.files;
+    form.appendChild(newFileInput);
+    
+    // Add the form to the document and submit it
+    document.body.appendChild(form);
+    debugInfo.innerHTML += '<br>Created and submitting form to /casestrainer/api/analyze';
+    
+    try {
+        form.submit();
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        debugInfo.innerHTML += `<br>Error submitting form: ${error.message}`;
         
-        // Try approach 2: Query parameter
-        debugInfo.innerHTML += '<br>Trying approach 2: Query parameter';
-        
-        // Create a URL with the file as a query parameter
-        const fileUrl = `${basePath}/api/upload?file=${encodeURIComponent(file.name)}`;
-        
-        // Create a new FormData for this approach
-        const formData2 = new FormData();
-        formData2.append('file', file);
-        
-        fetch(fileUrl, {
-            method: 'POST',
-            body: formData2
-        })
-        .then(response => {
-            debugInfo.innerHTML += `<br>Response from approach 2: Status ${response.status}`;
-            return response.json();
-        })
-        .then(data => {
-            console.log('Upload successful (approach 2):', data);
-            debugInfo.innerHTML += '<br><strong>Success with approach 2!</strong>';
-            alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
-        })
-        .catch(error => {
-            console.error('Error with approach 2:', error);
-            debugInfo.innerHTML += `<br>Error with approach 2: ${error.message}`;
-            
-            // Try approach 3: Direct file submission to the URL we saw in the browser
-            debugInfo.innerHTML += '<br>Trying approach 3: Direct URL with file parameter';
-            
-            window.location.href = `${basePath}/?file=${encodeURIComponent(file.name)}`;
-        });
-    });
+        // Fall back to direct URL navigation
+        debugInfo.innerHTML += '<br>Falling back to direct URL navigation';
+        window.location.href = `/casestrainer/api/analyze?file=${encodeURIComponent(file.name)}`;
+    }
 };
 
 // Add event listener to the upload form
