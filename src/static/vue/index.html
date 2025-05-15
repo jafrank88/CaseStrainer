@@ -154,7 +154,7 @@
                                 <div class="tab-content" id="input-method-content">
                                     <!-- File Upload Panel -->
                                     <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
-                                        <form id="uploadForm" enctype="multipart/form-data" action="/api/upload" method="post">
+                                        <form id="uploadForm" enctype="multipart/form-data" action="javascript:void(0);" onsubmit="handleFileUpload(event)">
                                             <div class="alert alert-danger">
                                                 <strong>File Upload Issue Detected</strong> - Please use the original interface for file uploads
                                                 <div class="mt-2">
@@ -325,6 +325,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="js/combined-input.js"></script>
     <script src="js/citation-report.js"></script>
+    <script src="js/file-upload-handler.js"></script>
     <script src="/vue/js/main.js"></script>
     <script src="/vue/js/multitool-citations.js"></script>
     <script src="/vue/js/unconfirmed-citations.js"></script>
