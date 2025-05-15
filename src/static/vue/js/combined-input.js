@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(progressElement, progressBar);
             
             // Send request to API
-            fetch(`${basePath}/api/text`, {
+            fetch(`${basePath}/api/analyze`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(progressElement, progressBar);
             
             // Send request to API
-            fetch(`${basePath}/api/url`, {
+            fetch(`${basePath}/api/analyze`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -837,7 +837,7 @@ window.manualFileUpload = function() {
     // Create a new form element
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/casestrainer/api/analyze';
+    form.action = '/api/upload';
     form.enctype = 'multipart/form-data';
     
     // Create a hidden input for the file name
