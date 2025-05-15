@@ -185,7 +185,7 @@
                                     
                                     <!-- Text Paste Panel -->
                                     <div class="tab-pane fade" id="text-panel" role="tabpanel" aria-labelledby="text-tab">
-                                        <form id="pasteForm">
+                                        <form id="pasteForm" action="javascript:void(0);" onsubmit="handleTextSubmit(event)">
                                             <div class="mb-3">
                                                 <label for="textInput" class="form-label">Paste text containing legal citations</label>
                                                 <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
@@ -200,7 +200,7 @@
                                     
                                     <!-- URL Input Panel -->
                                     <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
-                                        <form id="urlForm">
+                                        <form id="urlForm" action="javascript:void(0);" onsubmit="handleUrlSubmit(event)">
                                             <div class="mb-3">
                                                 <label for="urlInput" class="form-label">Enter URL of a legal document</label>
                                                 <input type="url" class="form-control" id="urlInput" name="url" placeholder="https://law.justia.com/cases/...">
@@ -326,6 +326,7 @@
     <script src="js/combined-input.js"></script>
     <script src="js/citation-report.js"></script>
     <script src="js/file-upload-handler.js"></script>
+    <script src="js/text-url-handler.js"></script>
     <script src="/vue/js/main.js"></script>
     <script src="/vue/js/multitool-citations.js"></script>
     <script src="/vue/js/unconfirmed-citations.js"></script>

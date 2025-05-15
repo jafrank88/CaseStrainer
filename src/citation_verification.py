@@ -68,17 +68,39 @@ class CitationVerifier:
             - case_name: Name of the case if found
             - details: Additional details about the case
             - url: Direct link to the case (if available)
+            - explanation: Explanation of verification result
         """
         print(f"DEBUG: Starting verification for citation: {citation}")
         logging.info(f"[DEBUG] Starting verification for citation: {citation}")
+        
+        # Check if this is a Westlaw citation
+        is_westlaw = bool(re.search(r'\d+\s+WL\s+\d+', citation, re.IGNORECASE))
+        
         result = {
             'citation': citation,
             'found': False,
             'source': None,
             'case_name': None,
             'url': None,
-            'details': {}
+            'details': {},
+            'explanation': None,
+            'is_westlaw': is_westlaw
         }
+        
+        # Special handling for Westlaw citations
+        if is_westlaw:
+            logging.info(f"[DEBUG] Detected Westlaw citation: {citation}")
+            print(f"DEBUG: Detected Westlaw citation: {citation}")
+            # Try to extract year from Westlaw citation
+            year_match = re.search(r'(\d{4})\s+WL', citation)
+            if year_match:
+                result['details']['year'] = year_match.group(1)
+                logging.info(f"[DEBUG] Extracted year from Westlaw citation: {result['details']['year']}")
+            
+            # Add explanation for Westlaw citations
+            result['explanation'] = "Westlaw citations require subscription access and may not be verifiable through public APIs."
+            
+            # We'll still try to verify with CourtListener, but with lower expectations
         try:
             logging.info("[DEBUG] Trying CourtListener Citation Lookup API...")
             print("DEBUG: Trying CourtListener Citation Lookup API...")
@@ -100,6 +122,26 @@ class CitationVerifier:
                 logging.info("[DEBUG] Citation verified by CourtListener Search API.")
                 print("DEBUG: Citation verified by CourtListener Search API.")
                 return result
+            
+            # If we get here, neither method found the citation
+            if not result.get('explanation'):
+                # Check for common citation patterns to provide better explanations
+                if re.search(r'\d+\s+F\.\s*Supp', citation):
+                    result['explanation'] = "Federal District Court opinions may have limited availability in free databases."
+                elif re.search(r'\d+\s+F\.\d+d', citation):
+                    result['explanation'] = "This appears to be a Federal Circuit Court citation. Verification failed, possibly due to database limitations."
+                elif re.search(r'\d+\s+S\.\s*Ct', citation):
+                    result['explanation'] = "This appears to be a Supreme Court citation. Verification failed, possibly due to database limitations."
+                elif re.search(r'\d+\s+U\.\s*S', citation):
+                    result['explanation'] = "This appears to be a U.S. Reports citation. Verification failed, possibly due to database limitations."
+                elif re.search(r'Id\.', citation, re.IGNORECASE):
+                    result['explanation'] = "'Id.' citations refer to the immediately preceding citation and cannot be verified independently."
+                elif re.search(r'supra', citation, re.IGNORECASE):
+                    result['explanation'] = "'Supra' citations refer to earlier citations in the document and cannot be verified independently."
+                elif re.search(r'\d+\s+P\.\d+d', citation):
+                    result['explanation'] = "This appears to be a Pacific Reporter citation. Verification failed, possibly due to database limitations."
+                else:
+                    result['explanation'] = "Citation could not be verified through available APIs. This may be due to database limitations or an uncommon citation format."
             logging.info("[DEBUG] Trying CourtListener Cluster/Docket APIs...")
             print("DEBUG: Trying CourtListener Cluster/Docket APIs...")
             cluster_result = self.verify_with_courtlistener_cluster_api(citation)

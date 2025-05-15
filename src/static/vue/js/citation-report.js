@@ -94,15 +94,26 @@ function createCitationTable(citations, source) {
                         <th>Citation</th>
                         <th>Case Name</th>
                         <th>Details</th>
+                        ${source === 'Unverified' ? '<th>Explanation</th>' : ''}
                     </tr>
                 </thead>
                 <tbody>
     `;
     
     citations.forEach(citation => {
+        // Determine if this is a Westlaw citation
+        const isWestlaw = citation.text && citation.text.match(/\d+\s+WL\s+\d+/i);
+        const isId = citation.text && citation.text.match(/^Id\.$/i);
+        const isSupra = citation.text && citation.text.match(/supra/i);
+        
+        // Add special styling for different citation types
+        let citationClass = '';
+        if (isWestlaw) citationClass = 'text-info';
+        if (isId || isSupra) citationClass = 'text-warning';
+        
         tableHtml += `
             <tr>
-                <td><strong>${citation.text}</strong></td>
+                <td><strong class="${citationClass}">${citation.text}</strong></td>
                 <td>${citation.name || 'Unknown Case'}</td>
                 <td>
         `;
@@ -124,10 +135,45 @@ function createCitationTable(citations, source) {
             if (citation.metadata.page) {
                 tableHtml += `<div>Page: ${citation.metadata.page}</div>`;
             }
+            if (citation.metadata.source) {
+                tableHtml += `<div>Source: ${citation.metadata.source}</div>`;
+            }
+        }
+        
+        // Add verification status
+        if (source === 'CourtListener') {
+            tableHtml += `<div class="mt-2 badge bg-success">Verified by CourtListener</div>`;
+        } else if (source === 'Other Sources') {
+            tableHtml += `<div class="mt-2 badge bg-success">Verified by ${citation.metadata?.source || 'Alternative Source'}</div>`;
         }
         
         tableHtml += `
                 </td>
+        `;
+        
+        // Add explanation column for unverified citations
+        if (source === 'Unverified') {
+            let explanation = '';
+            
+            // Use explanation from the API if available
+            if (citation.explanation) {
+                explanation = citation.explanation;
+            }
+            // Otherwise generate explanations based on citation type
+            else if (isWestlaw) {
+                explanation = 'Westlaw citations require subscription access and may not be verifiable through public APIs.';
+            } else if (isId) {
+                explanation = '"Id." citations refer to the immediately preceding citation and cannot be verified independently.';
+            } else if (isSupra) {
+                explanation = '"Supra" citations refer to earlier citations in the document and cannot be verified independently.';
+            } else {
+                explanation = 'Citation could not be verified through available APIs.';
+            }
+            
+            tableHtml += `<td><span class="text-muted">${explanation}</span></td>`;
+        }
+        
+        tableHtml += `
             </tr>
         `;
     });
