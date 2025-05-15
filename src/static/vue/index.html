@@ -6,6 +6,8 @@
     <title>CaseStrainer - Legal Citation Verification System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,175 +15,192 @@
             color: #333;
             background-color: #f8f9fa;
         }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         .card {
+            border: none;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
+        .card-header {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-bottom: none;
+            font-weight: 600;
+        }
         .tab-content {
             padding: 20px 0;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #0d6efd;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .nav-pills .nav-link {
+            color: #0d6efd;
+            border-radius: 0.25rem;
+            margin-right: 5px;
+        }
+        .input-panel {
+            display: none;
+        }
+        .input-panel.active {
+            display: block;
         }
     </style>
 </head>
 <body>
+    <!-- Version indicator in the corner -->
+    <div style="position: fixed; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; text-align: center; padding: 5px 10px; font-size: 12px; z-index: 9999; border-bottom-left-radius: 5px;">
+        v0.3.1
+    </div>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="#">CaseStrainer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#unconfirmed">Unconfirmed Citations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#multitool">Multitool Verified</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/">Original Interface</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
     <div class="container mt-4">
         <div class="jumbotron bg-light p-4 mb-4 rounded">
             <h1 class="display-5">CaseStrainer</h1>
-            <p class="lead">Advanced Legal Citation Verification System</p>
+            <p class="lead">
+                Advanced Legal Citation Verification System
+            </p>
+            <hr class="my-4">
         </div>
         
         <!-- Tabbed Interface -->
         <div class="card">
             <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="citationTabs" role="tablist">
+                <ul class="nav nav-tabs card-header-tabs" id="citation-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="true">
-                            Upload File
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="paste-tab" data-bs-toggle="tab" data-bs-target="#paste" type="button" role="tab" aria-controls="paste" aria-selected="false">
-                            Paste Text
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab" aria-controls="url" aria-selected="false">
-                            Enter URL
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="cl-citations-tab" data-bs-toggle="tab" data-bs-target="#cl-citations" type="button" role="tab" aria-controls="cl-citations" aria-selected="false">
-                            CourtListener Citations
+                        <button class="nav-link active" id="analyze-tab" data-bs-toggle="tab" data-bs-target="#analyze" type="button" role="tab" aria-controls="analyze" aria-selected="true">
+                            Analyze Citations
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="multitool-tab" data-bs-toggle="tab" data-bs-target="#multitool" type="button" role="tab" aria-controls="multitool" aria-selected="false">
-                            Verified Citations (Not-CL)
+                            Verified with Multi-tool
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="unconfirmed-tab" data-bs-toggle="tab" data-bs-target="#unconfirmed" type="button" role="tab" aria-controls="unconfirmed" aria-selected="false">
-                            Unverified Citations
+                            Unconfirmed Citations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="cl-gaps-tab" data-bs-toggle="tab" data-bs-target="#cl-gaps" type="button" role="tab" aria-controls="cl-gaps" aria-selected="false">
+                            CourtListener Gaps
                         </button>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
-                <div class="tab-content" id="citationTabsContent">
-                    <!-- Upload File Tab -->
-                    <div class="tab-pane fade show active" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+                <div class="tab-content" id="citation-tabs-content">
+                    <!-- Combined Analysis Tab -->
+                    <div class="tab-pane fade show active" id="analyze" role="tabpanel" aria-labelledby="analyze-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Upload a Document</h5>
+                                <h5>Analyze Citations</h5>
                             </div>
                             <div class="card-body">
-                                <form id="uploadForm" enctype="multipart/form-data">
-                                    <div class="mb-3">
-                                        <label for="fileUpload" class="form-label">Select a file to analyze for citations</label>
-                                        <input class="form-control" type="file" id="fileUpload" name="file" accept=".pdf,.docx,.txt,.rtf,.doc,.html,.htm">
-                                        <div class="form-text">Supported formats: PDF, DOCX, TXT, RTF, DOC, HTML</div>
+                                <!-- Input Method Selector -->
+                                <ul class="nav nav-pills mb-4" id="input-method-tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="file-tab" data-bs-toggle="pill" data-bs-target="#file-panel" type="button" role="tab" aria-controls="file-panel" aria-selected="true">Upload File</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="text-tab" data-bs-toggle="pill" data-bs-target="#text-panel" type="button" role="tab" aria-controls="text-panel" aria-selected="false">Paste Text</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="url-tab" data-bs-toggle="pill" data-bs-target="#url-panel" type="button" role="tab" aria-controls="url-panel" aria-selected="false">Enter URL</button>
+                                    </li>
+                                </ul>
+                                
+                                <div class="tab-content" id="input-method-content">
+                                    <!-- File Upload Panel -->
+                                    <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
+                                        <form id="uploadForm" action="/casestrainer/api/upload" method="post" enctype="multipart/form-data">
+                                            <div class="mb-3">
+                                                <label for="fileUpload" class="form-label">Select a file to analyze for citations</label>
+                                                <input class="form-control" type="file" id="fileUpload" name="file" accept=".pdf,.docx,.txt,.rtf,.doc,.html,.htm">
+                                                <div class="form-text">Supported formats: PDF, DOCX, TXT, RTF, DOC, HTML</div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Analyze File</button>
+                                        </form>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
-                                </form>
-                                <div id="uploadProgress" class="mt-3" style="display: none;">
-                                    <div class="progress">
-                                        <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                    
+                                    <!-- Text Paste Panel -->
+                                    <div class="tab-pane fade" id="text-panel" role="tabpanel" aria-labelledby="text-tab">
+                                        <form id="pasteForm" action="/casestrainer/api/text" method="post">
+                                            <div class="mb-3">
+                                                <label for="textInput" class="form-label">Paste text containing legal citations</label>
+                                                <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Analyze Text</button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- URL Input Panel -->
+                                    <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
+                                        <form id="urlForm" action="/casestrainer/api/url" method="post">
+                                            <div class="mb-3">
+                                                <label for="urlInput" class="form-label">Enter URL of a legal document</label>
+                                                <input type="url" class="form-control" id="urlInput" name="url" placeholder="https://law.justia.com/cases/...">
+                                                <div class="form-text">Enter a URL to a legal document (e.g., from Justia, CourtListener, etc.)</div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Analyze URL</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Paste Text Tab -->
-                    <div class="tab-pane fade" id="paste" role="tabpanel" aria-labelledby="paste-tab">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Paste Text</h5>
-                            </div>
-                            <div class="card-body">
-                                <form id="pasteForm">
-                                    <div class="mb-3">
-                                        <label for="textInput" class="form-label">Paste text containing legal citations</label>
-                                        <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
-                                </form>
-                                <div id="pasteProgress" class="mt-3" style="display: none;">
-                                    <div class="progress">
-                                        <div id="pasteProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- URL Tab -->
-                    <div class="tab-pane fade" id="url" role="tabpanel" aria-labelledby="url-tab">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Enter URL</h5>
-                            </div>
-                            <div class="card-body">
-                                <form id="urlForm">
-                                    <div class="mb-3">
-                                        <label for="urlInput" class="form-label">Enter URL of a legal document</label>
-                                        <input type="url" class="form-control" id="urlInput" name="url" placeholder="https://law.justia.com/cases/...">
-                                        <div class="form-text">Enter a URL to a legal document (e.g., from Justia, CourtListener, etc.)</div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Analyze Citations</button>
-                                </form>
-                                <div id="urlProgress" class="mt-3" style="display: none;">
-                                    <div class="progress">
-                                        <div id="urlProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- CourtListener Citations Tab -->
-                    <div class="tab-pane fade show active" id="cl-citations" role="tabpanel" aria-labelledby="cl-citations-tab">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>CourtListener Verified Citations</h5>
-                                <p class="card-text">Citations that were verified through the CourtListener API</p>
-                            </div>
-                            <div class="card-body">
-                                <div id="cl-citations-loading" class="text-center">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2">Loading CourtListener citations...</p>
-                                </div>
-                                <div id="cl-citations-content" style="display: none;">
-                                    <div class="mb-3">
-                                        <input type="text" id="cl-citations-search" class="form-control" placeholder="Search citations...">
-                                    </div>
-                                    <div id="cl-citations-list" class="list-group"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Other Source Verified Citations Tab -->
+                    <!-- Multitool Tab -->
                     <div class="tab-pane fade" id="multitool" role="tabpanel" aria-labelledby="multitool-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Other Source Verified Citations</h5>
-                                <p class="card-text">Citations that were verified through other sources</p>
+                                <h5>Citations Verified with Multi-tool</h5>
+                                <p class="card-text">Citations that were verified by multiple sources</p>
                             </div>
                             <div class="card-body">
                                 <div id="multitool-loading" class="text-center">
-                                    <div class="spinner-border text-success" role="status">
+                                    <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p class="mt-2">Loading other verified citations...</p>
+                                    <p class="mt-2">Loading verified citations...</p>
                                 </div>
                                 <div id="multitool-content" style="display: none;">
                                     <div class="mb-3">
@@ -193,19 +212,19 @@
                         </div>
                     </div>
                     
-                    <!-- Unverified Citations Tab -->
+                    <!-- Unconfirmed Citations Tab -->
                     <div class="tab-pane fade" id="unconfirmed" role="tabpanel" aria-labelledby="unconfirmed-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Unverified Citations</h5>
-                                <p class="card-text">Citations that could not be verified through any source</p>
+                                <h5>Unconfirmed Citations</h5>
+                                <p class="card-text">Citations that could not be verified by any source</p>
                             </div>
                             <div class="card-body">
                                 <div id="unconfirmed-loading" class="text-center">
-                                    <div class="spinner-border text-danger" role="status">
+                                    <div class="spinner-border text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p class="mt-2">Loading unverified citations...</p>
+                                    <p class="mt-2">Loading unconfirmed citations...</p>
                                 </div>
                                 <div id="unconfirmed-content" style="display: none;">
                                     <div class="mb-3">
@@ -216,15 +235,65 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- CourtListener Gaps Tab -->
+                    <div class="tab-pane fade" id="cl-gaps" role="tabpanel" aria-labelledby="cl-gaps-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>CourtListener Database Gaps</h5>
+                                <p class="card-text">Citations that represent potential gaps in the CourtListener database</p>
+                            </div>
+                            <div class="card-body">
+                                <div id="cl-gaps-loading" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">Loading potential database gaps...</p>
+                                </div>
+                                <div id="cl-gaps-content" style="display: none;">
+                                    <div class="mb-3">
+                                        <input type="text" id="cl-gaps-search" class="form-control" placeholder="Search citations...">
+                                    </div>
+                                    <div id="cl-gaps-citations" class="list-group"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>CaseStrainer <span class="badge bg-primary">v0.3.1</span></h5>
+                    <p>Advanced Legal Citation Verification System</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>About CaseStrainer</h5>
+                    <p>CaseStrainer is an advanced legal citation verification system designed to help legal professionals validate citations in their documents.</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Documentation</a></li>
+                        <li><a href="#" class="text-white">API</a></li>
+                        <li><a href="#" class="text-white">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2025 CaseStrainer. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/vue/js/combined-input.js"></script>
-    <script src="/vue/js/courtlistener-citations.js"></script>
+    <script src="/vue/js/main.js"></script>
     <script src="/vue/js/multitool-citations.js"></script>
     <script src="/vue/js/unconfirmed-citations.js"></script>
     <script src="/vue/js/courtlistener-gaps.js"></script>
