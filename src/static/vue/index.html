@@ -152,8 +152,14 @@
                                     <!-- File Upload Panel -->
                                     <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
                                         <form id="uploadForm" enctype="multipart/form-data">
-                                            <div class="alert alert-warning">
-                                                <strong>Debug Mode Active</strong> - Direct file upload enabled
+                                            <div class="alert alert-danger">
+                                                <strong>File Upload Issue Detected</strong> - Please use the original interface for file uploads
+                                                <div class="mt-2">
+                                                    <a href="/casestrainer/api/" class="btn btn-success">Go to Original Interface</a>
+                                                </div>
+                                                <div class="mt-2 small">
+                                                    The Vue.js interface is still under development. The original interface has full file upload functionality.
+                                                </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="fileUpload" class="form-label">Select a file to analyze for citations</label>
