@@ -26,13 +26,13 @@ import logging
 # These imports will be handled by moving the files later
 
 # API endpoints
-COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v3/search/'
-COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v3/search/'
-COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v3/opinions/'
-COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v3/clusters/'
+COURTLISTENER_CITATION_API = 'https://www.courtlistener.com/api/rest/v4/citation-lookup/'
+COURTLISTENER_SEARCH_API = 'https://www.courtlistener.com/api/rest/v4/search/'
+COURTLISTENER_OPINION_API = 'https://www.courtlistener.com/api/rest/v4/opinions/'
+COURTLISTENER_CLUSTER_API = 'https://www.courtlistener.com/api/rest/v4/clusters/'
 
-# Note: CourtListener API v4 requires different parameters than v3
-# We're using v3 for better compatibility with citation lookup
+# Note: CourtListener API v4 requires specific parameters
+# For citation-lookup, we need to use 'citation' parameter
 GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar'
 
 # Flags to track API availability
@@ -228,8 +228,8 @@ class CitationVerifier:
             print(f"DEBUG: Formatted citation for CourtListener: {formatted_citation}")
             
             # Use the correct format for the API request
-            # The API expects a 'q' parameter for the citation
-            data = {'q': formatted_citation}
+            # The API v4 citation-lookup endpoint expects a 'citation' parameter
+            data = {'citation': formatted_citation}
             logging.info(f"[CourtListener] POST data: {data}")
             print(f"DEBUG: CourtListener API request data: {data}")
             logging.info(f"[CourtListener] API URL: {COURTLISTENER_CITATION_API}")
@@ -251,44 +251,61 @@ class CitationVerifier:
                 print(f"DEBUG: CourtListener API response JSON: {api_result}")
                 logging.info(f"DEBUG: CourtListener API response JSON: {api_result}")
                 
-                # API v3 returns a dict with 'results' key containing the search results
-                if api_result.get('results') and len(api_result['results']) > 0:
+                # API v4 citation-lookup returns a different format than v3
+                print(f"DEBUG: Full API v4 response: {api_result}")
+                logging.info(f"DEBUG: Full API v4 response: {api_result}")
+                
+                # Check if we have results
+                if api_result and isinstance(api_result, list) and len(api_result) > 0:
                     # Get the first result
-                    opinion = api_result['results'][0]
-                    print(f"DEBUG: First opinion result: {opinion}")
-                    logging.info(f"DEBUG: First opinion result: {opinion}")
+                    citation_result = api_result[0]
+                    print(f"DEBUG: First citation result: {citation_result}")
+                    logging.info(f"DEBUG: First citation result: {citation_result}")
                     
-                    # Extract the cluster information
-                    cluster = opinion.get('cluster', {})
-                    print(f"DEBUG: Cluster information: {cluster}")
-                    logging.info(f"DEBUG: Cluster information: {cluster}")
-                    
-                    if cluster:
+                    # API v4 citation-lookup returns a list of matched citations with 'clusters'
+                    clusters = citation_result.get('clusters', [])
+                    if clusters and len(clusters) > 0:
+                        # Get the first cluster
+                        cluster = clusters[0]
+                        print(f"DEBUG: First cluster: {cluster}")
+                        logging.info(f"DEBUG: First cluster: {cluster}")
+                        
                         # Mark as found and update result with case information
                         result['found'] = True
                         result['source'] = 'CourtListener'
-                        result['case_name'] = cluster.get('case_name', opinion.get('case_name', 'Unknown Case'))
-                        result['url'] = f"https://www.courtlistener.com{opinion.get('absolute_url', '')}" 
+                        result['case_name'] = cluster.get('case_name', 'Unknown Case')
+                        
+                        # Build URL from cluster ID if available
+                        if cluster.get('id'):
+                            result['url'] = f"https://www.courtlistener.com/opinion/{cluster.get('id')}/"
+                        elif cluster.get('absolute_url'):
+                            result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url')}"
                         
                         # Add detailed information
                         result['details'] = {
-                            'court': opinion.get('court', cluster.get('court', 'Unknown Court')),
-                            'date_filed': opinion.get('date_filed', cluster.get('date_filed', 'Unknown Date')),
-                            'docket_number': opinion.get('docket_number', cluster.get('docket_number', 'Unknown'))
+                            'court': cluster.get('court', 'Unknown Court'),
+                            'date_filed': cluster.get('date_filed', 'Unknown Date'),
+                            'docket_number': cluster.get('docket_number', 'Unknown')
                         }
                         
                         # Add citation information if available
-                        if 'citation' in opinion:
-                            result['details']['citation'] = opinion['citation']
+                        if cluster.get('citations') and len(cluster['citations']) > 0:
+                            citations_list = []
+                            for cite in cluster['citations']:
+                                if cite.get('volume') and cite.get('reporter') and cite.get('page'):
+                                    citations_list.append(f"{cite['volume']} {cite['reporter']} {cite['page']}")
+                            if citations_list:
+                                result['details']['citations'] = citations_list
                         
-                        print(f"DEBUG: Found case in CourtListener API: {result['case_name']}")
-                        logging.info(f"DEBUG: Found case in CourtListener API: {result['case_name']}")
+                        print(f"DEBUG: Found case in CourtListener API v4: {result['case_name']}")
+                        logging.info(f"DEBUG: Found case in CourtListener API v4: {result['case_name']}")
                         return result
                 else:
                     print("No results found in citation lookup API response")
                 
                 # If no results found, try the search API as fallback
-                search_url = f"{COURTLISTENER_SEARCH_API}?type=o&q={urllib.parse.quote(formatted_citation)}"
+                # API v4 search endpoint uses different parameters
+                search_url = f"{COURTLISTENER_SEARCH_API}?type=o&q={urllib.parse.quote(formatted_citation)}&format=json"
                 print(f"Trying search API: {search_url}")
                 
                 response = requests.get(search_url, headers=self.headers, timeout=TIMEOUT_SECONDS)
