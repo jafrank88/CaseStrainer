@@ -802,42 +802,97 @@ window.manualFileUpload = function() {
         alert('Please select a file first');
         return;
     }
-
+    
     const file = fileInput.files[0];
     console.log(`Manually uploading file: ${file.name} (${file.size} bytes)`);
-
+    
+    // Create debug info element
+    const debugInfo = document.createElement('div');
+    debugInfo.className = 'alert alert-info mt-3';
+    debugInfo.innerHTML = '<strong>Debug:</strong> Manual upload initiated';
+    document.getElementById('uploadForm').appendChild(debugInfo);
+    
+    // Try multiple approaches
+    debugInfo.innerHTML += '<br>Trying approach 1: FormData with /api/upload';
+    
+    // Approach 1: Standard FormData to /api/upload
     const formData = new FormData();
     formData.append('file', file);
-
+    
     fetch(`${basePath}/api/upload`, {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        debugInfo.innerHTML += `<br>Response from approach 1: Status ${response.status}`;
+        return response.json();
+    })
     .then(data => {
-        console.log('File upload successful:', data);
+        console.log('Upload successful (approach 1):', data);
+        debugInfo.innerHTML += '<br><strong>Success with approach 1!</strong>';
         alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
     })
     .catch(error => {
-        console.error('Manual file upload error:', error);
-        alert(`Error: ${error.message}`);
+        console.error('Error with approach 1:', error);
+        debugInfo.innerHTML += `<br>Error with approach 1: ${error.message}`;
+        
+        // Try approach 2: Query parameter
+        debugInfo.innerHTML += '<br>Trying approach 2: Query parameter';
+        
+        // Create a URL with the file as a query parameter
+        const fileUrl = `${basePath}/api/upload?file=${encodeURIComponent(file.name)}`;
+        
+        // Create a new FormData for this approach
+        const formData2 = new FormData();
+        formData2.append('file', file);
+        
+        fetch(fileUrl, {
+            method: 'POST',
+            body: formData2
+        })
+        .then(response => {
+            debugInfo.innerHTML += `<br>Response from approach 2: Status ${response.status}`;
+            return response.json();
+        })
+        .then(data => {
+            console.log('Upload successful (approach 2):', data);
+            debugInfo.innerHTML += '<br><strong>Success with approach 2!</strong>';
+            alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
+        })
+        .catch(error => {
+            console.error('Error with approach 2:', error);
+            debugInfo.innerHTML += `<br>Error with approach 2: ${error.message}`;
+            
+            // Try approach 3: Direct file submission to the URL we saw in the browser
+            debugInfo.innerHTML += '<br>Trying approach 3: Direct URL with file parameter';
+            
+            window.location.href = `${basePath}/?file=${encodeURIComponent(file.name)}`;
+        });
     });
 };
+
+// Add event listener to the upload form
+const fileUploadForm = document.getElementById('uploadForm');
+if (fileUploadForm) {
+    fileUploadForm.addEventListener('submit', handleFileUpload);
+}
 
 // Add a manual upload button to the page
 const filePanel = document.getElementById('file-panel');
 if (filePanel) {
     const manualButton = document.createElement('button');
     manualButton.type = 'button';
-    manualButton.className = 'btn btn-warning mt-2';
-    manualButton.textContent = 'Manual Upload (Debug)';
+    manualButton.className = 'btn btn-danger ms-2';
+    manualButton.textContent = 'Direct Upload (Debug)';
     manualButton.onclick = window.manualFileUpload;
-    filePanel.appendChild(manualButton);
+    
+    // Find the submit button and insert after it
+    const submitButton = filePanel.querySelector('button[type="submit"]');
+    if (submitButton && submitButton.parentNode) {
+        submitButton.parentNode.insertBefore(manualButton, submitButton.nextSibling);
+    } else {
+        filePanel.appendChild(manualButton);
+    }
+    
     console.log('Added manual upload button to the page');
-}
-
-// Add event listener to the upload form
-const fileUploadForm = document.getElementById('uploadForm');
-if (fileUploadForm) {
-    fileUploadForm.addEventListener('submit', handleFileUpload);
 }
