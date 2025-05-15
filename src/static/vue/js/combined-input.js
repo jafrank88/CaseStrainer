@@ -14,8 +14,11 @@ window.citationProcessing = {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded event fired - initializing CaseStrainer JS');
+    
     // Always use the /casestrainer/ prefix for API calls to work with Nginx proxy
     const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
+    console.log('Base path for API calls:', basePath);
     
     // Get form elements
     const uploadForm = document.getElementById('uploadForm');
@@ -215,9 +218,24 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.scrollIntoView({ behavior: 'smooth' });
     }
     
+    // Add immediate debug logging
+    console.log('Document loaded, checking for uploadForm:', uploadForm ? 'Found' : 'Not found');
+    if (uploadForm) {
+        console.log('Adding event listener to uploadForm');
+    } else {
+        console.error('ERROR: uploadForm not found! DOM might not be properly loaded or form ID is incorrect');
+        // Try to find the form by other means
+        const possibleForms = document.querySelectorAll('form');
+        console.log(`Found ${possibleForms.length} forms on the page:`);
+        possibleForms.forEach((form, i) => {
+            console.log(`Form ${i+1} ID: ${form.id}, Action: ${form.action}`);
+        });
+    }
+    
     // Handle file upload form submission
     if (uploadForm) {
         uploadForm.addEventListener('submit', function(e) {
+            console.log('Upload form submit event triggered!');
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
@@ -517,5 +535,58 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // This section is now handled by the validation and API call above
         });
+    }
+    
+    // Add direct event listeners to all submit buttons as a backup
+    console.log('Adding direct event listeners to submit buttons');
+    document.querySelectorAll('button[type="submit"]').forEach((button, index) => {
+        console.log(`Found submit button ${index+1}: ${button.textContent.trim()}`);
+        button.addEventListener('click', function(e) {
+            console.log(`Button clicked: ${this.textContent.trim()}`);
+            // Don't prevent default here, let the form handler do that
+        });
+    });
+    
+    // Add a manual file upload function as a last resort
+    window.manualFileUpload = function() {
+        console.log('Manual file upload function called');
+        const fileInput = document.getElementById('fileUpload');
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+            console.error('No file selected or file input not found');
+            alert('Please select a file first');
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        console.log(`Manually uploading file: ${file.name} (${file.size} bytes)`);
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch(`${basePath}/api/upload`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('File upload successful:', data);
+            alert(`File processed successfully! Found ${data.citations ? data.citations.length : 0} citations.`);
+        })
+        .catch(error => {
+            console.error('Manual file upload error:', error);
+            alert(`Error: ${error.message}`);
+        });
+    };
+    
+    // Add a manual upload button to the page
+    const filePanel = document.getElementById('file-panel');
+    if (filePanel) {
+        const manualButton = document.createElement('button');
+        manualButton.type = 'button';
+        manualButton.className = 'btn btn-warning mt-2';
+        manualButton.textContent = 'Manual Upload (Debug)';
+        manualButton.onclick = window.manualFileUpload;
+        filePanel.appendChild(manualButton);
+        console.log('Added manual upload button to the page');
     }
 });
