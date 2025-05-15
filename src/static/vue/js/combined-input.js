@@ -727,70 +727,92 @@ function handleFileUpload(event) {
     console.log(`Selected file: ${file.name}, Size: ${file.size}, Type: ${file.type}`);
     debugInfo.innerHTML += `<br>File: ${file.name}, Size: ${Math.round(file.size/1024)}KB, Type: ${file.type}`;
 
-    // Show progress bar
-    const progressBar = document.getElementById('uploadProgressBar');
-    const progressContainer = document.getElementById('uploadProgress');
-    progressContainer.style.display = 'block';
-    progressBar.style.width = '0%';
-    progressBar.textContent = '0%';
+    // Based on the URL pattern we observed, it seems the application might be using a different approach
+    // Let's try redirecting to the URL pattern we saw in the browser
+    const redirectUrl = `${basePath}/?file=${encodeURIComponent(file.name)}`;
+    debugInfo.innerHTML += `<br>Redirecting to: ${redirectUrl}`;
 
-    const formData = new FormData();
-    formData.append('file', file);
+    // Save the file to localStorage so we can access it after the redirect
+    try {
+        // Create a temporary URL for the file
+        const fileUrl = URL.createObjectURL(file);
+        localStorage.setItem('lastUploadedFile', fileUrl);
+        localStorage.setItem('lastUploadedFileName', file.name);
+        debugInfo.innerHTML += '<br>File saved to localStorage for access after redirect';
 
-    debugInfo.innerHTML += '<br>Creating FormData and sending request...';
-
-    // Make API request
-    fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log(`Response status: ${response.status}`);
-        console.log(`Response headers: ${JSON.stringify(Array.from(response.headers.entries()))}`);
-        console.log(`Response type: ${response.type}`);
-
-        debugInfo.innerHTML += `<br>Response received: Status ${response.status}`;
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        return response.json();
-    })
-    .then(data => {
-        console.log('Upload successful:', data);
-        progressBar.style.width = '100%';
-        progressBar.textContent = '100%';
-
-        debugInfo.innerHTML += '<br><strong>Success:</strong> File processed successfully';
-
-        // Process the citations
-        processCitations(data.citations);
-    })
-    .catch(error => {
-        console.error('Error during file upload:', error);
-        progressBar.classList.remove('bg-info');
-        progressBar.classList.add('bg-danger');
-        progressBar.textContent = 'Error: ' + error.message;
-
+        // Redirect to the URL pattern we observed
+        window.location.href = redirectUrl;
+    } catch (error) {
+        console.error('Error saving file to localStorage:', error);
         debugInfo.className = 'alert alert-danger mt-3';
         debugInfo.innerHTML += `<br><strong>Error:</strong> ${error.message}`;
 
-        // Display error message on the page
-        const resultsContainer = document.getElementById('resultsContainer');
-        resultsContainer.innerHTML = `
-            <div class="alert alert-danger">
-                <h4>Error During File Upload</h4>
-                <p>${error.message}</p>
-                <h5>Troubleshooting:</h5>
-                <ul>
-                    <li>Check that the file format is supported (.pdf, .docx, .txt, etc.)</li>
-                    <li>Make sure the file is not empty or corrupted</li>
-                    <li>Try using the Direct Upload button for more detailed error information</li>
-                </ul>
-            </div>
-        `;
-    });
+        // Fall back to the original method
+        debugInfo.innerHTML += '<br>Falling back to original upload method...';
+
+        // Show progress bar
+        const progressBar = document.getElementById('uploadProgressBar');
+        const progressContainer = document.getElementById('uploadProgress');
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressBar.textContent = '0%';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Make API request
+        fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log(`Response status: ${response.status}`);
+            console.log(`Response headers: ${JSON.stringify(Array.from(response.headers.entries()))}`);
+            console.log(`Response type: ${response.type}`);
+
+            debugInfo.innerHTML += `<br>Response received: Status ${response.status}`;
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            console.log('Upload successful:', data);
+            progressBar.style.width = '100%';
+            progressBar.textContent = '100%';
+
+            debugInfo.innerHTML += '<br><strong>Success:</strong> File processed successfully';
+
+            // Process the citations
+            processCitations(data.citations);
+        })
+        .catch(error => {
+            console.error('Error during file upload:', error);
+            progressBar.classList.remove('bg-info');
+            progressBar.classList.add('bg-danger');
+            progressBar.textContent = 'Error: ' + error.message;
+
+            debugInfo.className = 'alert alert-danger mt-3';
+            debugInfo.innerHTML += `<br><strong>Error:</strong> ${error.message}`;
+
+            // Display error message on the page
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error During File Upload</h4>
+                    <p>${error.message}</p>
+                    <h5>Troubleshooting:</h5>
+                    <ul>
+                        <li>Check that the file format is supported (.pdf, .docx, .txt, etc.)</li>
+                        <li>Make sure the file is not empty or corrupted</li>
+                        <li>Try using the Direct Upload button for more detailed error information</li>
+                    </ul>
+                </div>
+            `;
+        });
+    }
 }
 
 // Add a manual file upload function as a last resort
