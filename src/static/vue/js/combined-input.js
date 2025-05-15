@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
     
     // Get form elements
-    const uploadForm = document.getElementById('upload-form');
-    const pasteForm = document.getElementById('paste-form');
-    const urlForm = document.getElementById('url-form');
+    const uploadForm = document.getElementById('uploadForm');
+    const pasteForm = document.getElementById('pasteForm');
+    const urlForm = document.getElementById('urlForm');
     
     // Get input option elements
     const inputOptions = document.querySelectorAll('.input-option');
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
-            const fileInput = document.getElementById('document-file');
+            const fileInput = document.getElementById('fileUpload');
             
             // Disable button during processing
             submitButton.disabled = true;
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
-            const textArea = document.getElementById('citation-text');
+            const textArea = document.getElementById('textInput');
             
             // Validate input
             if (!textArea.value.trim()) {
@@ -281,8 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    text: textArea.value,
-                    checkMultipleSources: document.getElementById('check-citations-paste').checked
+                    text: textArea.value
                 })
             })
             .then(response => response.json())
@@ -309,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const submitButton = this.querySelector('button[type="submit"]');
-            const urlInput = document.getElementById('document-url');
+            const urlInput = document.getElementById('urlInput');
             
             // Validate input
             if (!urlInput.value.trim()) {
@@ -328,8 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    url: urlInput.value,
-                    checkMultipleSources: document.getElementById('check-citations-url').checked
+                    url: urlInput.value
                 })
             })
             .then(response => response.json())
