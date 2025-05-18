@@ -1,0 +1,203 @@
+{
+  "newly_confirmed": [],
+  "still_unconfirmed": [
+    {
+      "citation_text": "175 F.3d 257",
+      "case_name": "Clark v. Gonzalez",
+      "confidence": 0.4,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "57 F.Supp.2d 460",
+      "case_name": "Rodriguez v. King County",
+      "confidence": 0.5,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "928 F.2d 739",
+      "case_name": "Microsoft v. State of Washington",
+      "confidence": 0.5,
+      "explanation": "Citation not found in any legal database. This may be a typo or a non-existent case.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "605 F.3d 144",
+      "case_name": "Miller v. Costco",
+      "confidence": 0.7,
+      "explanation": "Citation not found in any legal database. This may be a typo or a non-existent case.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about criminal law but details are unclear.",
+        "The case might involve an appeal of a lower court decision, but sources are inconsistent."
+      ],
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "334 F.Supp.3d 335",
+      "case_name": "White v. Garcia",
+      "confidence": 0.6,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about criminal law but details are unclear.",
+        "The case might involve a dispute between parties, but sources are inconsistent."
+      ],
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "825 Wn.2d 734",
+      "case_name": "Moore v. Davis",
+      "confidence": 0.7,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.38), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "235 Wash. App. 712",
+      "case_name": "White v. Hernandez",
+      "confidence": 0.7,
+      "explanation": "Citation could not be verified by CourtListener, web search, or AI analysis.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "775 L. Ed. 2d 24",
+      "case_name": "Zillow v. Taylor",
+      "confidence": 0.5,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "367 F.Supp.3d 797",
+      "case_name": "REI v. King County",
+      "confidence": 0.7,
+      "explanation": "Citation format appears valid but could not be verified in available legal databases.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about constitutional law but details are unclear.",
+        "The case might involve a motion to dismiss, but sources are inconsistent."
+      ],
+      "document": "Supplemental_Brief_Division1.pdf"
+    },
+    {
+      "citation_text": "963 F.4th 578",
+      "case_name": "Zillow v. Costco",
+      "confidence": 0.5,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.23), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Supplemental_Brief_Division1.pdf"
+    },
+    {
+      "citation": "000 Wash.2d 864",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 000 does not exist.",
+      "confidence": 0.14,
+      "document": "State v. Zamora - Reply Brief"
+    },
+    {
+      "citation": "999 Wash.2d 123",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 999 does not exist.",
+      "confidence": 0.4,
+      "document": "State v. Yishmael - Amicus Brief"
+    },
+    {
+      "citation": "444 Wash.2d 987",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 444 does not exist.",
+      "confidence": 0.31,
+      "document": "State v. Zamora - Reply Brief"
+    },
+    {
+      "citation": "999 Wash.2d 123",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 999 does not exist.",
+      "confidence": 0.28,
+      "document": "State v. Dennis - Answer to Petition"
+    },
+    {
+      "citation": "777 Wash.2d 789",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 777 does not exist.",
+      "confidence": 0.31,
+      "document": "State v. Yishmael - Amicus Brief"
+    },
+    {
+      "citation": "555 Wash.2d 654",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 555 does not exist.",
+      "confidence": 0.3,
+      "document": "State v. Yishmael - Amicus Brief"
+    },
+    {
+      "citation": "888 Wash.2d 456",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 888 does not exist.",
+      "confidence": 0.2,
+      "document": "State v. Prado - Petition for Review"
+    },
+    {
+      "citation": "555 Wash.2d 654",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 555 does not exist.",
+      "confidence": 0.23,
+      "document": "State v. Arlene's Flowers - Brief of Respondent"
+    },
+    {
+      "citation": "777 Wash.2d 789",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 777 does not exist.",
+      "confidence": 0.2,
+      "document": "State v. Arlene's Flowers - Brief of Respondent"
+    },
+    {
+      "citation": "444 Wash.2d 987",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 444 does not exist.",
+      "confidence": 0.16,
+      "document": "State v. Prado - Petition for Review"
+    },
+    {
+      "citation": "666 Wash.2d 321",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 666 does not exist.",
+      "confidence": 0.16,
+      "document": "State v. Prado - Petition for Review"
+    },
+    {
+      "citation": "000 Wash.2d 864",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 000 does not exist.",
+      "confidence": 0.3,
+      "document": "State v. Allen - Brief of Appellant"
+    },
+    {
+      "citation": "555 Wash.2d 654",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 555 does not exist.",
+      "confidence": 0.12,
+      "document": "State v. Johnson - Appellant's Opening Brief"
+    },
+    {
+      "citation": "000 Wash.2d 864",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 000 does not exist.",
+      "confidence": 0.33,
+      "document": "State v. Allen - Brief of Appellant"
+    },
+    {
+      "citation": "333 Wash.2d 246",
+      "explanation": "Citation not found in any legal database. The Washington Reports volume 333 does not exist.",
+      "confidence": 0.19,
+      "document": "State v. Yishmael - Amicus Brief"
+    }
+  ],
+  "summary": {
+    "total_tested": 10,
+    "newly_confirmed_count": 0,
+    "still_unconfirmed_count": 10,
+    "percentage_confirmed": 0.0
+  }
+}

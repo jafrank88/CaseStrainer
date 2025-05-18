@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CaseStrainer API Test</title>
+    <script>
+        // Test text input method
+        async function testTextInput() {
+            const response = await fetch('http://127.0.0.1:5000/api/text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: "In Smith v. Jones, 123 F.3d 456 (9th Cir. 1998), the court ruled on a minor procedural issue. Another case, United States v. Thompson, 234 F.2d 567 (7th Cir. 2002), addressed a specific evidentiary question without setting major precedent."
+                })
+            });
+            
+            const data = await response.json();
+            document.getElementById('textResult').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        // Test URL input method
+        async function testUrlInput() {
+            const response = await fetch('http://127.0.0.1:5000/api/url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: "https://www.law.cornell.edu/supct/html/05-184.ZS.html"
+                })
+            });
+            
+            const data = await response.json();
+            document.getElementById('urlResult').textContent = JSON.stringify(data, null, 2);
+        }
+        
+        // Test file upload method
+        async function testFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('http://127.0.0.1:5000/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            document.getElementById('fileResult').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</head>
+<body>
+    <h1>CaseStrainer API Test</h1>
+    
+    <div>
+        <h2>1. Test Text Input</h2>
+        <button onclick="testTextInput()">Test Text Input</button>
+        <pre id="textResult"></pre>
+    </div>
+    
+    <div>
+        <h2>2. Test URL Input</h2>
+        <button onclick="testUrlInput()">Test URL Input</button>
+        <pre id="urlResult"></pre>
+    </div>
+    
+    <div>
+        <h2>3. Test File Upload</h2>
+        <input type="file" id="fileInput">
+        <button onclick="testFileUpload()">Test File Upload</button>
+        <pre id="fileResult"></pre>
+    </div>
+</body>
+</html>

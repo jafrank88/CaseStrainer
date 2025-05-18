@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  casestrainer:
+    build: .
+    container_name: casestrainer
+    restart: always
+    networks:
+      - casestrainer_network
+    environment:
+      - SECRET_KEY=2b6e7c8e-4f1a-4e2b-9c3d-7f8e1a2b3c4d
+      - FLASK_APP=src/app_final_vue.py
+      - FLASK_ENV=production
+      - APPLICATION_ROOT=/casestrainer
+      - USE_WAITRESS=true
+    volumes:
+      - ../config.json:/app/config.json
+      - ../src:/app/src
+      - ../logs:/app/logs
+      - ../flask_session:/app/flask_session
+
+  nginx:
+    image: nginx:latest
+    container_name: casestrainer-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      - casestrainer
+    restart: always
+    networks:
+      - casestrainer_network
+
+networks:
+  casestrainer_network:
+    driver: bridge

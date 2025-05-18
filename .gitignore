@@ -20,6 +20,9 @@ word_addin/
 deprecated_scripts/
 "old files"/
 
+# Allow archived_batch_files to be included
+!archived_batch_files/
+
 # Python build directories
 build/
 develop-eggs/
@@ -100,6 +103,9 @@ citations.db
 
 # Batch files - with exceptions for essential scripts
 *.bat
+!scripts/*.bat
+!start_*.bat
+!restart_*.bat
 
 # JSON files - with exceptions for configuration
 verification_results.json

@@ -1,0 +1,74 @@
+{
+  "citations": [
+    {
+      "citation_text": "410 U.S. 113",
+      "case_name": "Roe v. Wade",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 1
+    },
+    {
+      "citation_text": "347 U.S. 483",
+      "case_name": "Brown v. Board of Education",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 2
+    },
+    {
+      "citation_text": "825 Wn.2d 734",
+      "case_name": "Moore v. Davis",
+      "document_name": "Appellant_Brief_Division2.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 3
+    },
+    {
+      "citation_text": "526 Wash.2d 835",
+      "case_name": "Department of Corrections v. United States",
+      "document_name": "Supplemental_Brief_Supreme.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 4
+    },
+    {
+      "citation_text": "184 L.Ed.2d 174",
+      "case_name": "United States v. State of Washington",
+      "document_name": "Generated_Citations_20250507_162632.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 5
+    },
+    {
+      "citation_text": "389 U.S. 524",
+      "case_name": "Thomas v. Rodriguez",
+      "document_name": "Reply_Brief_Supreme.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 6
+    },
+    {
+      "citation_text": "607 F.3d 507",
+      "case_name": "Rodriguez v. Davis",
+      "document_name": "Reply_Brief_Supreme.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 7
+    },
+    {
+      "citation_text": "56 S.Ct. 220",
+      "case_name": "State of Rhode Island v. Lyft",
+      "document_name": "Generated_Citations_20250507_162632.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 8
+    },
+    {
+      "citation_text": "750 F.3d 421",
+      "case_name": "United States v. Google",
+      "document_name": "Generated_Citations_20250507_162632.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 9
+    },
+    {
+      "citation_text": "499 Wn.2d 668",
+      "case_name": "Nordstrom v. Boeing",
+      "document_name": "Respondent_Brief_Division1.pdf",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 10
+    }
+  ]
+}

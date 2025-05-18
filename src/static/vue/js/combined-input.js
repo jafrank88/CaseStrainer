@@ -250,10 +250,19 @@ document.addEventListener('DOMContentLoaded', function() {
             addDebugInfo(`File upload initiated: ${file.name} (${file.size} bytes, ${file.type})`);
             
             // Send request to API
-            addDebugInfo(`Sending file to ${basePath}/api/upload endpoint...`);
-            fetch(`${basePath}/api/upload`, {
+            const uploadUrl = `${basePath}/api/upload`;
+            addDebugInfo(`Sending file to ${uploadUrl} endpoint...`);
+            addDebugInfo(`Current pathname: ${window.location.pathname}`);
+            addDebugInfo(`Base path: ${basePath}`);
+            
+            fetch(uploadUrl, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Accept': 'application/json',
+                    // Don't set Content-Type with FormData as the browser will set it with the boundary
+                },
+                body: formData,
+                credentials: 'same-origin'
             })
             .then(response => {
                 // Log response details
@@ -811,7 +820,7 @@ window.manualFileUpload = function() {
     // Create a new form element
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/api/upload';
+    form.action = `${basePath}/api/upload`;
     form.enctype = 'multipart/form-data';
     
     // Create a hidden input for the file name
@@ -874,3 +883,6 @@ if (filePanel) {
     
     console.log('Added manual upload button to the page');
 }
+
+// Close the DOMContentLoaded event listener
+});

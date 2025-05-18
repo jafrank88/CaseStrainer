@@ -11,16 +11,28 @@ import json
 import logging
 import uuid
 import traceback
+import time
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
-# Import the Enhanced Validator functionality
-try:
-    from enhanced_validator_production import extract_text_from_file, extract_citations, validate_citation
-    print("Enhanced Validator functionality imported successfully")
-    USE_ENHANCED_VALIDATOR = True
-except ImportError:
-    print("Enhanced Validator functionality not available")
-    USE_ENHANCED_VALIDATOR = False
+# Create a special logger for citation verification
+citation_logger = logging.getLogger('citation_verification')
+citation_logger.setLevel(logging.DEBUG)
+
+# Create a file handler for the citation verification logger
+if not os.path.exists('logs'):
+    os.makedirs('logs')
+citation_handler = logging.FileHandler('logs/citation_verification.log')
+citation_handler.setLevel(logging.DEBUG)
+
+# Create a formatter for the citation verification logger
+citation_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+citation_handler.setFormatter(citation_formatter)
+
+# Add the handler to the logger
+citation_logger.addHandler(citation_handler)
+print("Enhanced Validator functionality enabled")
+USE_ENHANCED_VALIDATOR = True
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -50,6 +62,48 @@ def allowed_file(filename):
 def generate_analysis_id():
     """Generate a unique ID for the analysis."""
     return str(uuid.uuid4())
+
+# Function to log citation verification details
+def log_citation_verification(citation, verification_result, api_response=None):
+    """Log detailed information about citation verification process.
+    
+    Args:
+        citation: The citation text being verified
+        verification_result: The result of the verification attempt
+        api_response: Optional raw API response for debugging
+    """
+    citation_logger.info(f"===== CITATION VERIFICATION DETAILS =====")
+    citation_logger.info(f"Citation: {citation}")
+    citation_logger.info(f"Verification Result: {verification_result}")
+    
+    # Log details about the verification result
+    if verification_result:
+        citation_logger.info(f"Found: {verification_result.get('found', False)}")
+        citation_logger.info(f"Source: {verification_result.get('source')}")
+        citation_logger.info(f"Case Name: {verification_result.get('case_name')}")
+        citation_logger.info(f"Explanation: {verification_result.get('explanation')}")
+        
+        # Log details about the citation
+        details = verification_result.get('details', {})
+        if details:
+            citation_logger.info(f"Citation Details:")
+            for key, value in details.items():
+                citation_logger.info(f"  {key}: {value}")
+    
+    # Log API response if provided
+    if api_response:
+        citation_logger.info(f"API Response:")
+        if isinstance(api_response, dict):
+            for key, value in api_response.items():
+                if key != 'results' and key != 'data':
+                    citation_logger.info(f"  {key}: {value}")
+            # Log API results summary if available
+            if 'results' in api_response:
+                citation_logger.info(f"  Results count: {len(api_response['results']) if isinstance(api_response['results'], list) else 'N/A'}")
+        else:
+            citation_logger.info(f"  Raw response: {str(api_response)[:500]}...")
+    
+    citation_logger.info(f"=========================================")
 
 def load_citation_verification_data():
     """Load data from the citation verification results file."""

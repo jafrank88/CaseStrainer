@@ -34,14 +34,125 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     return response
 
+# Import citation analysis functions from the main application
+import sys
+import traceback
+import threading
+import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
+
+# Thread-local storage for API keys
+thread_local = threading.local()
+
+# Import citation extraction and verification functions
+try:
+    from .app_final_vue import extract_citations_from_file, extract_citations_from_text, verify_citation
+    logger.info("Successfully imported citation functions from app_final_vue")
+except ImportError as e:
+    logger.error(f"Error importing citation functions: {str(e)}")
+    # Try to import from the current directory
+    try:
+        sys.path.append('.')
+        from app_final_vue import extract_citations_from_file, extract_citations_from_text, verify_citation
+        logger.info("Successfully imported citation functions from current directory")
+    except ImportError as e2:
+        logger.error(f"Failed to import citation functions: {str(e2)}")
+
+# Helper function to fetch content from a URL
+def fetch_url_content(url):
+    """Fetch content from a URL."""
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+        
+        # Add http:// if missing
+        if not url.startswith('http'):
+            url = 'http://' + url
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        # Parse HTML and extract text
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.extract()
+        
+        # Get text
+        text = soup.get_text(separator=' ', strip=True)
+        return text
+    except Exception as e:
+        logger.error(f"Error fetching URL content: {str(e)}")
+        raise
+
+# Helper function to verify citations in parallel
+def verify_citations_parallel(citations):
+    """Verify multiple citations in parallel using ThreadPoolExecutor."""
+    try:
+        # Create a thread pool
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            # Submit verification tasks
+            future_to_citation = {}
+            for i, citation in enumerate(citations):
+                # Get the citation text and context
+                citation_text = citation['text']
+                context = citation['contexts'][0]['text'] if citation['contexts'] else None
+                
+                # Submit the verification task
+                future = executor.submit(verify_citation, citation_text, context)
+                future_to_citation[future] = i
+            
+            # Process results as they complete
+            for future in future_to_citation:
+                try:
+                    # Get the verification result
+                    result = future.result()
+                    citation_index = future_to_citation[future]
+                    
+                    # Update the citation with verification results
+                    citations[citation_index]['valid'] = result.get('found', False)
+                    
+                    # Add metadata from verification
+                    if 'metadata' not in citations[citation_index]:
+                        citations[citation_index]['metadata'] = {}
+                    
+                    # Update metadata with verification results
+                    citations[citation_index]['metadata'].update({
+                        'source': result.get('source'),
+                        'url': result.get('url'),
+                        'explanation': result.get('explanation')
+                    })
+                    
+                    # If case name was found, update it
+                    if result.get('found_case_name'):
+                        citations[citation_index]['name'] = result.get('found_case_name')
+                except Exception as e:
+                    logger.error(f"Error processing verification result: {str(e)}")
+        
+        return citations
+    except Exception as e:
+        logger.error(f"Error in parallel verification: {str(e)}")
+        return citations
+
 # Citation analysis endpoints
 @api_blueprint.route('/analyze', methods=['POST'])
 def analyze():
     """
     Analyze a brief for citations.
-    Accepts either a text string, a file upload, or a file path.
+    Accepts either a text string, a file upload, or a URL.
     """
     try:
+        logger.info(f"Received analyze request with content type: {request.content_type}")
+        
+        # Initialize variables
+        citations = []
+        source_type = 'unknown'
+        
         if request.content_type and 'multipart/form-data' in request.content_type:
             # Handle file upload
             if 'file' not in request.files:
@@ -60,33 +171,64 @@ def analyze():
                 filepath = os.path.join(upload_folder, filename)
                 file.save(filepath)
                 
-                # Process the uploaded file
-                return jsonify({
-                    'analysis_id': '12345',
-                    'status': 'completed',
-                    'message': 'Analysis complete',
-                    'results': {
-                        'total_citations': 5,
-                        'unconfirmed_citations': 2,
-                        'confirmed_citations': 3
-                    }
-                })
+                # Extract citations from the file
+                logger.info(f"Extracting citations from file: {filepath}")
+                citations = extract_citations_from_file(filepath)
+                source_type = 'file'
+                logger.info(f"Extracted {len(citations)} citations from file")
             else:
                 return jsonify({'error': 'File type not allowed'}), 400
         else:
             # Handle JSON request
-            return jsonify({
-                'analysis_id': '12345',
-                'status': 'completed',
-                'message': 'Analysis complete',
-                'results': {
-                    'total_citations': 5,
-                    'unconfirmed_citations': 2,
-                    'confirmed_citations': 3
-                }
-            })
+            data = request.get_json()
+            
+            if data.get('text'):
+                # Extract citations from text
+                logger.info(f"Extracting citations from text of length: {len(data['text'])}")
+                citations = extract_citations_from_text(data['text'])
+                source_type = 'text'
+                logger.info(f"Extracted {len(citations)} citations from text")
+            elif data.get('url'):
+                # Fetch content from URL and extract citations
+                url = data['url']
+                logger.info(f"Fetching content from URL: {url}")
+                text = fetch_url_content(url)
+                logger.info(f"Extracted {len(text)} characters from URL")
+                
+                # Extract citations from the fetched text
+                citations = extract_citations_from_text(text)
+                source_type = 'url'
+                logger.info(f"Extracted {len(citations)} citations from URL content")
+            else:
+                return jsonify({'error': 'No text, file, or URL provided'}), 400
+        
+        # Verify the citations
+        logger.info(f"Verifying {len(citations)} citations")
+        verified_citations = verify_citations_parallel(citations)
+        
+        # Count confirmed and unconfirmed citations
+        confirmed_count = sum(1 for c in verified_citations if c.get('valid') == True)
+        unconfirmed_count = len(verified_citations) - confirmed_count
+        
+        # Prepare the response
+        response = {
+            'analysis_id': str(hash(str(verified_citations)))[:10],
+            'status': 'completed',
+            'message': 'Analysis complete',
+            'source_type': source_type,
+            'citations': verified_citations,
+            'results': {
+                'total_citations': len(verified_citations),
+                'confirmed_citations': confirmed_count,
+                'unconfirmed_citations': unconfirmed_count
+            }
+        }
+        
+        logger.info(f"Analysis complete: {len(verified_citations)} citations, {confirmed_count} confirmed, {unconfirmed_count} unconfirmed")
+        return jsonify(response)
     except Exception as e:
         logger.error(f"Error in analyze endpoint: {str(e)}")
+        logger.error(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
 @api_blueprint.route('/status', methods=['GET'])

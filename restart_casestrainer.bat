@@ -1,0 +1,3 @@
+@echo off
+echo Running CaseStrainer restart script...
+call scripts\restart_casestrainer.bat %*

@@ -25,44 +25,75 @@
     </div>
     
     <div v-if="results" class="mt-4">
+      <!-- Debug information -->
+      <div v-if="debugInfo" id="debug-info-data" style="display: none;"></div>
+      
       <div class="card">
         <div class="card-header">
-          <h5>Analysis Results</h5>
+          <ul class="nav nav-tabs card-header-tabs" id="result-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">
+                Analysis Results
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">
+                Debug Information
+              </a>
+            </li>
+          </ul>
         </div>
         <div class="card-body">
-          <div class="alert alert-success">
-            <h5>Analysis complete!</h5>
-            <p>Found {{ results.totalCitations }} citations in your document.</p>
-          </div>
-          
-          <div class="mt-3">
-            <h6>Citation Summary:</h6>
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Confirmed Citations
-                <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Unconfirmed Citations
-                <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Verified with Multi-tool
-                <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div class="mt-3">
-            <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">
-              View Confirmed Citations
-            </button>
-            <button class="btn btn-outline-danger me-2" @click="viewUnconfirmedCitations">
-              View Unconfirmed Citations
-            </button>
-            <button class="btn btn-outline-info" @click="viewMultitoolCitations">
-              View Multi-tool Verified
-            </button>
+          <div class="tab-content">
+            <!-- Results Tab -->
+            <div class="tab-pane fade show active" id="results-content" role="tabpanel">
+              <div class="alert alert-success">
+                <h5>Analysis complete!</h5>
+                <p>Found {{ results.totalCitations }} citations in your document.</p>
+              </div>
+              
+              <div class="mt-3">
+                <h6>Citation Summary:</h6>
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Confirmed Citations
+                    <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Unconfirmed Citations
+                    <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Verified with Multi-tool
+                    <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="mt-3">
+                <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">
+                  View Confirmed Citations
+                </button>
+                <button class="btn btn-outline-danger me-2" @click="viewUnconfirmedCitations">
+                  View Unconfirmed Citations
+                </button>
+                <button class="btn btn-outline-info" @click="viewMultitoolCitations">
+                  View Multi-tool Verified
+                </button>
+              </div>
+            </div>
+            
+            <!-- Debug Tab -->
+            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
+              <div class="card bg-light">
+                <div class="card-header bg-secondary text-white">
+                  <h6 class="mb-0">Debug Information</h6>
+                </div>
+                <div class="card-body">
+                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;" ref="debugContent">{{ debugInfo }}</pre>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -85,7 +116,8 @@ export default {
       file: null,
       isUploading: false,
       results: null,
-      error: null
+      error: null,
+      debugInfo: ''
     };
   },
   methods: {
@@ -95,13 +127,10 @@ export default {
       this.results = null;
     },
     formatFileSize(bytes) {
-      if (bytes < 1024) {
-        return bytes + ' bytes';
-      } else if (bytes < 1024 * 1024) {
-        return (bytes / 1024).toFixed(2) + ' KB';
-      } else {
-        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-      }
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      if (bytes === 0) return '0 Bytes';
+      const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+      return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
     },
     async uploadFile() {
       if (!this.file) {
@@ -112,9 +141,15 @@ export default {
       this.isUploading = true;
       this.error = null;
       
+      // Clear previous debug info
+      this.debugInfo = 'Debug: Starting file analysis...\n';
+      
       try {
         const formData = new FormData();
         formData.append('file', this.file);
+        
+        // Add to debug info
+        this.debugInfo += `Request to /api/analyze: [File data]\n`;
         
         const response = await axios.post('/api/analyze', formData, {
           headers: {
@@ -122,11 +157,15 @@ export default {
           }
         });
         
+        // Add to debug info
+        this.debugInfo += `Response received: Processing data...\n`;
+        this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
+        
         this.results = {
           totalCitations: response.data.citations.length,
-          confirmedCount: response.data.citations.filter(c => c.found).length,
-          unconfirmedCount: response.data.citations.filter(c => !c.found).length,
-          multitoolCount: response.data.citations.filter(c => c.found && c.source !== 'CourtListener').length,
+          confirmedCount: response.data.citations.filter(c => c.valid).length,
+          unconfirmedCount: response.data.citations.filter(c => !c.valid).length,
+          multitoolCount: response.data.citations.filter(c => c.valid && c.source !== 'courtlistener_api').length,
           analysisId: response.data.analysis_id,
           citations: response.data.citations
         };
@@ -137,6 +176,13 @@ export default {
       } catch (error) {
         console.error('Error uploading file:', error);
         this.error = error.response?.data?.error || 'An error occurred while analyzing the file';
+        
+        // Add error to debug info
+        this.debugInfo += `Error: ${error.message}\n`;
+        if (error.response) {
+          this.debugInfo += `Response status: ${error.response.status}\n`;
+          this.debugInfo += `Response data: ${JSON.stringify(error.response.data, null, 2)}\n`;
+        }
       } finally {
         this.isUploading = false;
       }

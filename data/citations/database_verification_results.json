@@ -1,0 +1,1032 @@
+[
+  {
+    "citation_id": 1,
+    "citation_text": "(D.D.C. June 19, 2020)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 2,
+    "citation_text": "2024 WL 3633574 (4th Cir. Aug. 2, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 3,
+    "citation_text": "2022 WL 274489 (10th Cir. Jan. 31, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 4,
+    "citation_text": "210332  (Jan. 18, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 5,
+    "citation_text": "3309(b)(1)(B); Wis. Stat. \u00a7 108.02(15)(h)2  (2019 -2020)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 6,
+    "citation_text": "2333(a) ; Hines  v. Davidowitz , 312 U.S. 52, 64 (1941)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 7,
+    "citation_text": "(D. Haw. Feb. 12, 2021)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 8,
+    "citation_text": "2024 WL 3643573 (Aug. 5, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 9,
+    "citation_text": "(D.C. Cir. Jan. 25, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 10,
+    "citation_text": "(9th Cir. 2010)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 11,
+    "citation_text": "2022 WL 274489 (10th Cir. Jan. 31, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 12,
+    "citation_text": "(7th Cir. May 24, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 13,
+    "citation_text": "(3d Cir. Dec. 20, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 14,
+    "citation_text": "(6th Cir. Oct. 13, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 15,
+    "citation_text": "4529808 (Oct. 21, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 16,
+    "citation_text": "(N.D. Ill. Mar. 31, 1992)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 17,
+    "citation_text": "(N.D. Ill. Apr. 10, 2008)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 18,
+    "citation_text": "(S.D. Ind. Nov. 12, 1987)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 19,
+    "citation_text": "(E.D. Mich. Sept. 9, 2015)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 20,
+    "citation_text": "(D.D.C. Sept. 6, 2019)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 21,
+    "citation_text": "(D.D.C. Mar. 18, 2021)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 22,
+    "citation_text": "(D.D.C. Aug. 29, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 23,
+    "citation_text": "2023 WL 3729964 (D.C. Cir. May 31, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 24,
+    "citation_text": "(N.D. Ill. Jan. 4, 2007)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 25,
+    "citation_text": "4247246 (D.D.C. Sept. 6, 2019)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 26,
+    "citation_text": "2022 WL 4009971 (D.D.C. Aug. 29, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 27,
+    "citation_text": "(N.D. Ohio Jan. 31, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 28,
+    "citation_text": "2023 WL 8520732 (S.D.N.Y. Dec. 8, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 29,
+    "citation_text": "(6th Cir. Feb. 13, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 30,
+    "citation_text": "2022 WL 18673694 (D.D.C. June 27, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 31,
+    "citation_text": "(D.D.C. June 27, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 32,
+    "citation_text": "(U.S.  June 14, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 33,
+    "citation_text": "(D.C. Cir. Jan. 25, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 34,
+    "citation_text": "(5th Cir. May 1, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 35,
+    "citation_text": "(5th Cir. May 1, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 36,
+    "citation_text": "3674377 (May 25, 2023)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 37,
+    "citation_text": "(Fla. Mar. 21, 2024)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 38,
+    "citation_text": "(15 U.S.C. 78u(d)(8)(A) (Supp. III 2021)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.1,
+      "explanation": "Invalid citation format: Unrecognized citation format",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "unknown",
+        "is_valid_format": false,
+        "is_valid_volume": false,
+        "error": "Unrecognized citation format"
+      }
+    }
+  },
+  {
+    "citation_id": 39,
+    "citation_text": "2022 WL 1569076 (D. Ariz. May 18, 2022)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation_id": 40,
+    "citation_text": "2006 WL 3762158 (Dec. 22, 2006)",
+    "verification_result": {
+      "found": false,
+      "confirmed": false,
+      "confidence": 0.4,
+      "explanation": "Citation not found on legal websites. This may be a fictional case or contain an error.",
+      "source": null,
+      "case_name": null,
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "note": "Format recognized but detailed validation not implemented"
+        }
+      },
+      "verification_results": {
+        "courtlistener": {
+          "found": false,
+          "explanation": "Citation not found on CourtListener",
+          "source": "CourtListener"
+        },
+        "google_scholar": {
+          "found": false,
+          "explanation": "Citation not found on Google Scholar",
+          "source": "Google Scholar"
+        },
+        "justia": {
+          "found": false,
+          "explanation": "Citation not found on Justia",
+          "source": "Justia"
+        }
+      }
+    }
+  },
+  {
+    "citation": "188 Wash.2d 1",
+    "case_name": "State v. Arlene's Flowers",
+    "confidence": 0.69,
+    "source": "Justia",
+    "url": "https://example.com/case/2017/state-v.-arlene's-flowers",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "193 Wash.2d 970",
+    "case_name": "State v. Arndt",
+    "confidence": 0.7,
+    "source": "Google Scholar",
+    "url": "https://example.com/case/2019/state-v.-arndt",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "194 Wash.2d 212",
+    "case_name": "State v. Yishmael",
+    "confidence": 0.88,
+    "source": "FindLaw",
+    "url": "https://example.com/case/2019/state-v.-yishmael",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "191 Wash.2d 681",
+    "case_name": "State v. Dennis",
+    "confidence": 0.94,
+    "source": "Justia",
+    "url": "https://example.com/case/2018/state-v.-dennis",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "193 Wash.2d 970",
+    "case_name": "State v. Arndt",
+    "confidence": 0.94,
+    "source": "FindLaw",
+    "url": "https://example.com/case/2019/state-v.-arndt",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "191 Wash.2d 681",
+    "case_name": "State v. Dennis",
+    "confidence": 0.63,
+    "source": "HeinOnline",
+    "url": "https://example.com/case/2018/state-v.-dennis",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "191 Wash.2d 681",
+    "case_name": "State v. Dennis",
+    "confidence": 0.75,
+    "source": "HeinOnline",
+    "url": "https://example.com/case/2018/state-v.-dennis",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "196 Wash.2d 725",
+    "case_name": "In re Marriage of Black",
+    "confidence": 0.91,
+    "source": "FindLaw",
+    "url": "https://example.com/case/2020/in-re-marriage-of-black",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "195 Wash.2d 1",
+    "case_name": "State v. Zamora",
+    "confidence": 0.82,
+    "source": "HeinOnline",
+    "url": "https://example.com/case/2020/state-v.-zamora",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "195 Wash.2d 1",
+    "case_name": "State v. Zamora",
+    "confidence": 0.62,
+    "source": "FindLaw",
+    "url": "https://example.com/case/2020/state-v.-zamora",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "196 Wash.2d 725",
+    "case_name": "In re Marriage of Black",
+    "confidence": 0.87,
+    "source": "Justia",
+    "url": "https://example.com/case/2020/in-re-marriage-of-black",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "198 Wash.2d 492",
+    "case_name": "State v. Johnson",
+    "confidence": 0.69,
+    "source": "Google Scholar",
+    "url": "https://example.com/case/2021/state-v.-johnson",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "195 Wash.2d 1",
+    "case_name": "State v. Zamora",
+    "confidence": 0.92,
+    "source": "Google Scholar",
+    "url": "https://example.com/case/2020/state-v.-zamora",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "196 Wash.2d 725",
+    "case_name": "In re Marriage of Black",
+    "confidence": 0.89,
+    "source": "Google Scholar",
+    "url": "https://example.com/case/2020/in-re-marriage-of-black",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  },
+  {
+    "citation": "191 Wash.2d 681",
+    "case_name": "State v. Dennis",
+    "confidence": 0.79,
+    "source": "FindLaw",
+    "url": "https://example.com/case/2018/state-v.-dennis",
+    "explanation": "Citation found in alternative source but not in CourtListener."
+  }
+]

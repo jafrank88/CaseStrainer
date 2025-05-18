@@ -31,26 +31,56 @@
     <div v-if="textAnalysisResult" class="mt-4">
       <div class="card">
         <div class="card-header">
-          <h5>Analysis Results</h5>
+          <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results-content" 
+                type="button" role="tab" aria-controls="results-content" aria-selected="true">
+                Analysis Results
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="debug-tab" data-bs-toggle="tab" data-bs-target="#debug-content" 
+                type="button" role="tab" aria-controls="debug-content" aria-selected="false">
+                Debug Information
+              </button>
+            </li>
+          </ul>
         </div>
         <div class="card-body">
-          <div class="alert alert-success">
-            <h5>Analysis complete!</h5>
-            <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
-          </div>
-          
-          <div class="mt-3">
-            <h6>Citation Summary:</h6>
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Confirmed Citations
-                <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Unconfirmed Citations
-                <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
-              </li>
-            </ul>
+          <div class="tab-content">
+            <!-- Results Tab -->
+            <div class="tab-pane fade show active" id="results-content" role="tabpanel" aria-labelledby="results-tab">
+              <div class="alert alert-success">
+                <h5>Analysis complete!</h5>
+                <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
+              </div>
+              
+              <div class="mt-3">
+                <h6>Citation Summary:</h6>
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Confirmed Citations
+                    <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Unconfirmed Citations
+                    <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- Debug Tab -->
+            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
+              <div class="card bg-light">
+                <div class="card-header bg-secondary text-white">
+                  <h6 class="mb-0">Debug Information</h6>
+                </div>
+                <div class="card-body">
+                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Citations Table -->
@@ -106,7 +136,9 @@ export default {
     return {
       pastedText: '',
       isAnalyzing: false,
-      textAnalysisResult: null
+      textAnalysisResult: null,
+      error: null,
+      debugInfo: ''
     };
   },
   computed: {
@@ -142,19 +174,37 @@ export default {
       this.isAnalyzing = true;
       this.textAnalysisResult = null;
       
+      // Clear previous debug info
+      this.debugInfo = 'Debug: Starting text analysis...\n';
+      this.debugInfo += `Text length: ${this.pastedText.length} characters\n`;
+      
       // Create form data
       const formData = new FormData();
       formData.append('brief_text', this.pastedText);
       
+      // Add to debug info
+      this.debugInfo += `Request to ${this.basePath}/api/analyze: [Text data]\n`;
+      
       // Send request to main API endpoint
       axios.post(`${this.basePath}/api/analyze`, formData)
       .then(response => {
+        // Add to debug info
+        this.debugInfo += `Response received: Processing data...\n`;
+        this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
+        
         this.textAnalysisResult = response.data;
         console.log('Text analysis result:', this.textAnalysisResult);
       })
       .catch(error => {
         console.error('Error analyzing text:', error);
         alert(`Error analyzing text: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+        
+        // Add error to debug info
+        this.debugInfo += `Error: ${error.message}\n`;
+        if (error.response) {
+          this.debugInfo += `Response status: ${error.response.status}\n`;
+          this.debugInfo += `Response data: ${JSON.stringify(error.response.data, null, 2)}\n`;
+        }
       })
       .finally(() => {
         this.isAnalyzing = false;

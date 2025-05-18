@@ -601,19 +601,19 @@ def check_courtlistener_api(citation_text):
     print(f"DEBUG: All citation formats failed for: {citation_text}")
     return None
 
-def validate_citation(citation_text):
+def validate_citation(citation_text, return_debug=False):
     """
     Enhanced citation validation function with improved error handling and logging.
     Tries multiple validation methods in sequence, starting with CourtListener API.
+    If return_debug is True, returns (result, debug_info).
     """
     logger.info(f"[DEBUG] validate_citation called with: {citation_text}")
-    print(f"DEBUG: validate_citation called with: {citation_text}")
-    
+    debug_info = [f"[DEBUG] validate_citation called with: {citation_text}"]
     # First check if it's a valid citation format
     if not citation_text or not isinstance(citation_text, str):
         logger.error(f"[ERROR] Invalid citation input: {type(citation_text)}")
-        print(f"ERROR: Invalid citation input: {type(citation_text)}")
-        return {
+        debug_info.append(f"[ERROR] Invalid citation input: {type(citation_text)}")
+        result = {
             "verified": False,
             "verified_by": None,
             "case_name": None,
@@ -742,15 +742,15 @@ def is_landmark_case(citation_text):
     validation_result = validate_citation(citation_text)
     return validation_result["verified"]
 
-@enhanced_validator_bp.route('/')
-@enhanced_validator_bp.route('/casestrainer/')
+@enhanced_validator_bp.route('/enhanced-validator/')
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/')
 def enhanced_validator_page():
     """Serve the Enhanced Validator page."""
     logger.info("Enhanced Validator page requested")
     return render_template('enhanced_validator.html')
 
-@enhanced_validator_bp.route('/api/enhanced-validate-citation', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/enhanced-validate-citation', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/validate-citation', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/validate-citation', methods=['POST'])
 def validate_citation_endpoint():
     try:
         data = request.get_json()
@@ -764,8 +764,8 @@ def validate_citation_endpoint():
         logger.error(f"Error in validate_citation_endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@enhanced_validator_bp.route('/api/citation-context', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/citation-context', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/citation-context', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/citation-context', methods=['POST'])
 def get_citation_context():
     try:
         data = request.get_json()
@@ -779,8 +779,8 @@ def get_citation_context():
         logger.error(f"Error in get_citation_context: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@enhanced_validator_bp.route('/api/classify-citation', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/classify-citation', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/classify-citation', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/classify-citation', methods=['POST'])
 def classify_citation():
     try:
         data = request.get_json()
@@ -809,8 +809,8 @@ def classify_citation():
         logger.error(f"Error in classify_citation: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@enhanced_validator_bp.route('/api/suggest-citation-corrections', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/suggest-citation-corrections', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/suggest-citation-corrections', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/suggest-citation-corrections', methods=['POST'])
 def suggest_corrections():
     try:
         data = request.get_json()
@@ -898,8 +898,8 @@ def fetch_url_content(url):
         logger.error(f"Unexpected error while fetching URL: {url} - {str(e)}")
         raise ValueError(f"Unexpected error: {str(e)}")
 
-@enhanced_validator_bp.route('/api/fetch_url', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/fetch_url', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/fetch_url', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/fetch_url', methods=['POST'])
 def fetch_url():
     try:
         data = request.get_json()
@@ -914,12 +914,14 @@ def fetch_url():
         return jsonify({'error': str(e)}), 500
 
 def analyze_text(text):
-    """Analyze text for legal citations and provide detailed analysis."""
+    """Analyze text for legal citations and provide detailed analysis, with debug info."""
     logger.info("Analyzing text for legal citations")
-    
+    debug_info = []
     try:
+        debug_info.append("[INFO] Starting citation extraction")
         # Extract citations
-        citation_results = extract_citations(text)
+        citation_results, extract_debug = extract_citations(text, return_debug=True)
+        debug_info.extend(extract_debug)
         
         # Initialize analysis results
         analysis = {
@@ -930,7 +932,8 @@ def analyze_text(text):
                 'possible_citations': len(citation_results['possible_citations'])
             },
             'landmark_cases': [],
-            'validation_results': []
+            'validation_results': [],
+            'debug_info': debug_info
         }
         
         # Check for landmark cases
@@ -940,21 +943,24 @@ def analyze_text(text):
         
         # Validate citations
         for citation in citation_results['confirmed_citations']:
-            validation_result = validate_citation(citation)
+            validation_result, validation_debug = validate_citation(citation, return_debug=True)
             analysis['validation_results'].append({
                 'citation': citation,
                 'validation': validation_result
             })
+            debug_info.extend(validation_debug)
         
         logger.info(f"Analysis complete: found {analysis['statistics']['total_citations']} citations")
+        debug_info.append(f"[INFO] Analysis complete: found {analysis['statistics']['total_citations']} citations")
         return analysis
         
     except Exception as e:
         logger.error(f"Error analyzing text: {str(e)}")
+        debug_info.append(f"[ERROR] Error analyzing text: {str(e)}")
         raise ValueError(f"Error analyzing text: {str(e)}")
 
-@enhanced_validator_bp.route('/api/enhanced-analyze', methods=['POST'])
-@enhanced_validator_bp.route('/casestrainer/api/enhanced-analyze', methods=['POST'])
+@enhanced_validator_bp.route('/enhanced-validator/api/analyze', methods=['POST'])
+@enhanced_validator_bp.route('/casestrainer/enhanced-validator/api/analyze', methods=['POST'])
 def enhanced_analyze():
     try:
         data = request.get_json()
@@ -970,6 +976,7 @@ def enhanced_analyze():
             return jsonify({'error': 'Text too large. Maximum size is 1MB.'}), 400
             
         analysis = analyze_text(text)
+        # Always include debug_info in the response for frontend visibility
         return jsonify(analysis)
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -1089,9 +1096,10 @@ def extract_text_from_file(file_path):
         traceback.print_exc()
         return f"Error extracting text: {str(e)}"
 
-def extract_citations(text):
-    """Extract legal citations from text using eyecite and regex patterns."""
+def extract_citations(text, return_debug=False):
+    """Extract legal citations from text using eyecite and regex patterns, with debug info."""
     logger.info("Extracting citations from text")
+    debug_info = []
     
     # Initialize results dictionary
     results = {
@@ -1104,88 +1112,80 @@ def extract_citations(text):
         from eyecite import get_citations
         from eyecite.tokenizers import AhocorasickTokenizer
         logger.info("Using eyecite with AhocorasickTokenizer for citation extraction")
+        debug_info.append("[INFO] Using eyecite with AhocorasickTokenizer for citation extraction")
         citations = get_citations(text, tokenizer=AhocorasickTokenizer())
         
         # Process eyecite citations
         for citation in citations:
-            # Get the full citation text including case name and pin cite
             citation_text = citation.matched_text()
-            
-            # Add pin cite if available
             if hasattr(citation, 'pin_cite') and citation.pin_cite:
                 citation_text = f"{citation_text}, {citation.pin_cite}"
-            
-            # Add case name if available
             if hasattr(citation, 'metadata') and citation.metadata:
                 if citation.metadata.plaintiff and citation.metadata.defendant:
                     case_name = f"{citation.metadata.plaintiff} v. {citation.metadata.defendant}"
                     citation_text = f"{case_name}, {citation_text}"
-            
-            # Clean up the citation
-            citation_text = re.sub(r'\s+', ' ', citation_text)  # Normalize whitespace
-            citation_text = re.sub(r',\s+', ', ', citation_text)  # Fix spacing around commas
-            
+            citation_text = re.sub(r'\s+', ' ', citation_text)
+            citation_text = re.sub(r',\s+', ', ', citation_text)
             if citation_text and citation_text not in results['confirmed_citations']:
                 results['confirmed_citations'].append(citation_text)
                 logger.debug(f"Found citation using eyecite: {citation_text}")
-        
+                debug_info.append(f"[DEBUG] Found citation using eyecite: {citation_text}")
         logger.info(f"Extracted {len(results['confirmed_citations'])} confirmed citations using eyecite")
+        debug_info.append(f"[INFO] Extracted {len(results['confirmed_citations'])} confirmed citations using eyecite")
     except ImportError as e:
         logger.warning(f"eyecite import error: {e}. Using regex patterns for citation extraction.")
+        debug_info.append(f"[WARNING] eyecite import error: {e}. Using regex patterns for citation extraction.")
     except Exception as e:
         logger.warning(f"Error using eyecite: {e}. Falling back to regex patterns.")
+        debug_info.append(f"[WARNING] Error using eyecite: {e}. Falling back to regex patterns.")
     
     # Extract possible citations using regex patterns
-    all_possible_citations = set()  # Use set to avoid duplicates
-    
-    # First try to extract LEXIS citations
+    all_possible_citations = set()
     lexis_patterns = {k: v for k, v in CITATION_PATTERNS.items() if k.startswith('lexis_')}
     for pattern_name, pattern in lexis_patterns.items():
         try:
             matches = re.finditer(pattern, text, re.IGNORECASE)
             for match in matches:
                 citation = match.group(0).strip()
-                # Clean up the citation
-                citation = re.sub(r'\s+', ' ', citation)  # Normalize whitespace
-                citation = re.sub(r',\s+', ', ', citation)  # Fix spacing around commas
+                citation = re.sub(r'\s+', ' ', citation)
+                citation = re.sub(r',\s+', ', ', citation)
                 if citation and citation not in results['confirmed_citations']:
                     all_possible_citations.add(citation)
                     logger.debug(f"Found possible LEXIS citation using {pattern_name} pattern: {citation}")
+                    debug_info.append(f"[DEBUG] Found possible LEXIS citation using {pattern_name} pattern: {citation}")
         except Exception as e:
             logger.warning(f"Error searching for LEXIS pattern {pattern_name}: {e}")
-    
-    # Then try other citation patterns
+            debug_info.append(f"[WARNING] Error searching for LEXIS pattern {pattern_name}: {e}")
     other_patterns = {k: v for k, v in CITATION_PATTERNS.items() if not k.startswith('lexis_')}
     for pattern_name, pattern in other_patterns.items():
         try:
             matches = re.finditer(pattern, text, re.IGNORECASE)
             for match in matches:
                 citation = match.group(0).strip()
-                # Clean up the citation
-                citation = re.sub(r'\s+', ' ', citation)  # Normalize whitespace
-                citation = re.sub(r',\s+', ', ', citation)  # Fix spacing around commas
+                citation = re.sub(r'\s+', ' ', citation)
+                citation = re.sub(r',\s+', ', ', citation)
                 if citation and citation not in results['confirmed_citations']:
                     all_possible_citations.add(citation)
                     logger.debug(f"Found possible citation using {pattern_name} pattern: {citation}")
+                    debug_info.append(f"[DEBUG] Found possible citation using {pattern_name} pattern: {citation}")
         except Exception as e:
             logger.warning(f"Error searching for pattern {pattern_name}: {e}")
-    
-    # Add unique possible citations to results
+            debug_info.append(f"[WARNING] Error searching for pattern {pattern_name}: {e}")
     results['possible_citations'] = list(all_possible_citations)
     logger.info(f"Extracted {len(results['possible_citations'])} possible citations using regex patterns")
-    
-    # Validate all citations
+    debug_info.append(f"[INFO] Extracted {len(results['possible_citations'])} possible citations using regex patterns")
     validated_citations = []
     for citation in results['possible_citations']:
-        validation_result = validate_citation(citation)
+        validation_result, validation_debug = validate_citation(citation, return_debug=True)
+        debug_info.extend(validation_debug)
         if validation_result['verified']:
             validated_citations.append(citation)
             results['confirmed_citations'].append(citation)
-    
-    # Remove validated citations from possible citations
     results['possible_citations'] = [c for c in results['possible_citations'] if c not in validated_citations]
-    
     logger.info(f"Final results: {len(results['confirmed_citations'])} confirmed and {len(results['possible_citations'])} possible citations")
+    debug_info.append(f"[INFO] Final results: {len(results['confirmed_citations'])} confirmed and {len(results['possible_citations'])} possible citations")
+    if return_debug:
+        return results, debug_info
     return results
 
 # Function to generate a unique analysis ID

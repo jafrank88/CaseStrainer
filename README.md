@@ -29,6 +29,21 @@ cd CaseStrainer
 pip install -r requirements.txt
 ```
 
+## Getting Started
+
+### Starting and Restarting CaseStrainer
+
+- Use the unified script `start_casestrainer.bat` to start or restart both the backend and Nginx.
+- For production (default):
+  ```
+  start_casestrainer.bat
+  ```
+- For test/minimal Nginx config:
+  ```
+  start_casestrainer.bat test
+  ```
+- All other batch files are archived in `archived_batch_files/` and should not be used for regular workflow.
+
 ## Running the Application
 
 ### Windows

@@ -1,0 +1,74 @@
+{
+  "citations": [
+    {
+      "citation_text": "410 U.S. 113",
+      "case_name": "Roe v. Wade",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 1
+    },
+    {
+      "citation_text": "347 U.S. 483",
+      "case_name": "Brown v. Board of Education",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 2
+    },
+    {
+      "citation_text": "597 U.S. 437",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 3
+    },
+    {
+      "citation_text": "576 U.S. 644",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 4
+    },
+    {
+      "citation_text": "590 U.S. 935",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 5
+    },
+    {
+      "citation_text": "537 U.S. 190",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 6
+    },
+    {
+      "citation_text": "507 U.S. 934",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 7
+    },
+    {
+      "citation_text": "560 U.S. 201",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 8
+    },
+    {
+      "citation_text": "93 S.Ct. 705",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 9
+    },
+    {
+      "citation_text": "108 S.Ct. 820",
+      "case_name": "Corrected Case",
+      "document_name": "Test Document",
+      "document_url": "https://example.com/test.pdf",
+      "page_number": 10
+    }
+  ]
+}

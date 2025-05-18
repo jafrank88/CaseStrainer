@@ -72,6 +72,17 @@
     </div>
     
     <div v-if="testResults.length > 0" class="card mb-4">
+      <ul class="nav nav-tabs" id="tester-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">Results</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">Debug Information</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="results-content" role="tabpanel">
+
       <div class="card-header bg-info text-white">
         <h5 class="mb-0">Test Results</h5>
       </div>
@@ -194,6 +205,17 @@
         </div>
       </div>
     </div>
+    <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
+      <div class="card bg-light">
+        <div class="card-header bg-secondary text-white">
+          <h6 class="mb-0">Debug Information</h6>
+        </div>
+        <div class="card-body">
+          <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
+        </div>
+      </div>
+    </div>
+    </div>
     
     <div class="card">
       <div class="card-header bg-light">
@@ -233,7 +255,8 @@ export default {
         apiKey: ''
       },
       testing: false,
-      testResults: []
+      testResults: [],
+      debugInfo: ''
     };
   },
   computed: {
@@ -307,17 +330,25 @@ export default {
     
     async runTest() {
       this.testing = true;
-      
+      // Start debug info
+      this.debugInfo = 'Debug: Starting citation test...\n';
+      this.debugInfo += `Request: count=${this.testConfig.count}, includeConfirmed=${this.testConfig.includeConfirmed}, includeUnconfirmed=${this.testConfig.includeUnconfirmed}\n`;
       try {
         const response = await api.getTestCitations(
           this.testConfig.count,
           this.testConfig.includeConfirmed,
           this.testConfig.includeUnconfirmed
         );
-        
+        this.debugInfo += `Response received: Success\n`;
+        this.debugInfo += `Response data: ${JSON.stringify(response.data, null, 2)}\n`;
         this.testResults = response.data.results || [];
       } catch (error) {
         console.error('Error running citation test:', error);
+        this.debugInfo += `Error: ${error.message}\n`;
+        if (error.response) {
+          this.debugInfo += `Response status: ${error.response.status}\n`;
+          this.debugInfo += `Response data: ${JSON.stringify(error.response.data, null, 2)}\n`;
+        }
         alert('Error running citation test. Please try again.');
       } finally {
         this.testing = false;

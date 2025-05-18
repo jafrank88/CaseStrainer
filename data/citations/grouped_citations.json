@@ -1,0 +1,32 @@
+[
+  {
+    "citation": "410 U.S. 113",
+    "case_name": "Roe v. Wade",
+    "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+    "source": "CourtListener Citation API",
+    "details": {
+      "court": "Supreme Court of the United States"
+    },
+    "alternate_citations": []
+  },
+  {
+    "citation": "196 Wash. 2d 725",
+    "case_name": "Associated Press v. Washington State Legislature",
+    "url": "https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/",
+    "source": "CourtListener Search API",
+    "details": {
+      "court": "Washington Supreme Court"
+    },
+    "alternate_citations": []
+  },
+  {
+    "citation": "190 Wash. 2d 1",
+    "case_name": "WPEA v. Washington State Center for Childhood Deafness",
+    "url": "https://www.courtlistener.com/opinion/4505648/wpea-v-washington-state-center-for-childhood-deafness/",
+    "source": "CourtListener Search API",
+    "details": {
+      "court": "Washington Supreme Court"
+    },
+    "alternate_citations": []
+  }
+]

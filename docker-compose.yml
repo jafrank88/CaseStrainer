@@ -3,13 +3,49 @@ version: '3.8'
 services:
   casestrainer:
     build: .
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
     volumes:
       - ./uploads:/app/uploads
       - ./templates:/app/templates
       - ./static:/app/static
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+      - ./data:/app/data
     environment:
       - FLASK_APP=src/app_final_vue.py
       - FLASK_ENV=production
-    restart: unless-stopped 
+      - FLASK_SESSION_TYPE=filesystem
+      - FLASK_SESSION_FILE_DIR=/app/casestrainer_sessions
+      - FLASK_SECRET_KEY=dev-key-change-in-production
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: ["python", "src/app_final_vue.py", "--host", "0.0.0.0", "--port", "5000", "--use-waitress"]
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./static:/usr/share/nginx/html/static
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    depends_on:
+      - casestrainer
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "--no-check-certificate", "https://localhost:8443/casestrainer"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  app-network:
+    driver: bridge

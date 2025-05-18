@@ -1,0 +1,37 @@
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build dependencies and Hyperscan
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    python3 \
+    python3-pip \
+    python3-dev \
+    libboost-all-dev \
+    ragel \
+    pkg-config \
+    libhyperscan-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone and build python-hyperscan using CMake
+WORKDIR /build
+RUN git clone https://github.com/darvid/python-hyperscan.git && \
+    cd python-hyperscan && \
+    git checkout v0.2.0 && \
+    pip3 install .
+
+# Set up working directory
+WORKDIR /app
+
+# Copy your application files
+COPY . .
+
+# Create a test script to verify installation
+RUN echo 'import hyperscan; print("Hyperscan version:", hyperscan.__version__)' > test_hyperscan.py
+
+# Run the test script first
+CMD ["sh", "-c", "python3 test_hyperscan.py && python3 comprehensive_test.py"] 

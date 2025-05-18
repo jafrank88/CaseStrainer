@@ -122,9 +122,32 @@ function createCitationTable(citations, source) {
         if (isWestlaw) citationClass = 'text-info';
         if (isId || isSupra) citationClass = 'text-warning';
         
+        // Generate a unique ID for this citation's dropdown
+        const dropdownId = `citation-context-${Math.random().toString(36).substring(2, 15)}`;
+        
+        // Check if we have contexts for this citation
+        const hasContexts = citation.contexts && citation.contexts.length > 0;
+        
         tableHtml += `
             <tr>
-                <td><strong class="${citationClass}">${citation.text}</strong></td>
+                <td>
+                    <strong class="${citationClass}">${citation.text}</strong>
+                    ${hasContexts ? `
+                        <button class="btn btn-sm btn-outline-secondary mt-1" type="button" data-bs-toggle="collapse" data-bs-target="#${dropdownId}" aria-expanded="false" aria-controls="${dropdownId}">
+                            Show Context (${citation.contexts.length})
+                        </button>
+                        <div class="collapse mt-2" id="${dropdownId}">
+                            <div class="card card-body bg-light">
+                                ${citation.contexts.map((ctx, index) => `
+                                    <div class="context-item ${index > 0 ? 'mt-2 pt-2 border-top' : ''}">
+                                        <small class="text-muted">Context ${index + 1}:</small>
+                                        <div class="context-text">${highlightCitation(ctx.text, ctx.citation_text)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </td>
                 <td>${citation.name || 'Unknown Case'}</td>
                 <td>
         `;
@@ -151,11 +174,34 @@ function createCitationTable(citations, source) {
             }
         }
         
-        // Add verification status
+        // Add verification status and link if available
         if (source === 'CourtListener') {
             tableHtml += `<div class="mt-2 badge bg-success">Verified by CourtListener</div>`;
+            
+            // Add link to CourtListener if available
+            if (citation.metadata?.url) {
+                tableHtml += `
+                    <div class="mt-2">
+                        <a href="${citation.metadata.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-box-arrow-up-right"></i> View on CourtListener
+                        </a>
+                    </div>
+                `;
+            }
         } else if (source === 'Other Sources') {
             tableHtml += `<div class="mt-2 badge bg-success">Verified by ${citation.metadata?.source || 'Alternative Source'}</div>`;
+            
+            // Add link to source if available
+            if (citation.metadata?.url) {
+                const sourceName = citation.metadata?.source || 'Source';
+                tableHtml += `
+                    <div class="mt-2">
+                        <a href="${citation.metadata.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-box-arrow-up-right"></i> View on ${sourceName}
+                        </a>
+                    </div>
+                `;
+            }
         }
         
         tableHtml += `
@@ -196,6 +242,20 @@ function createCitationTable(citations, source) {
     `;
     
     return tableHtml;
+}
+
+// Function to highlight a citation within context text
+function highlightCitation(contextText, citationText) {
+    if (!contextText || !citationText) return contextText || '';
+    
+    // Escape special characters in the citation text for use in regex
+    const escapedCitation = citationText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Replace the citation with a highlighted version
+    return contextText.replace(
+        new RegExp(escapedCitation, 'g'), 
+        `<mark class="bg-warning text-dark">${citationText}</mark>`
+    );
 }
 
 // Function to display the citation report

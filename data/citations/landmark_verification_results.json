@@ -1,0 +1,152 @@
+{
+  "newly_confirmed": [],
+  "still_unconfirmed": [
+    {
+      "citation_text": "175 F.3d 257",
+      "case_name": "Clark v. Gonzalez",
+      "confidence": 0.4,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "57 F.Supp.2d 460",
+      "case_name": "Rodriguez v. King County",
+      "confidence": 0.5,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "928 F.2d 739",
+      "case_name": "Microsoft v. State of Washington",
+      "confidence": 0.5,
+      "explanation": "Citation not found in any legal database. This may be a typo or a non-existent case.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "605 F.3d 144",
+      "case_name": "Miller v. Costco",
+      "confidence": 0.7,
+      "explanation": "Citation not found in any legal database. This may be a typo or a non-existent case.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about criminal law but details are unclear.",
+        "The case might involve an appeal of a lower court decision, but sources are inconsistent."
+      ],
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "334 F.Supp.3d 335",
+      "case_name": "White v. Garcia",
+      "confidence": 0.6,
+      "explanation": "Citation not found in CourtListener database. Web search also couldn't verify this citation.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about criminal law but details are unclear.",
+        "The case might involve a dispute between parties, but sources are inconsistent."
+      ],
+      "document": "Appellant_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "367 F.Supp.3d 797",
+      "case_name": "REI v. King County",
+      "confidence": 0.7,
+      "explanation": "Citation format appears valid but could not be verified in available legal databases.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about constitutional law but details are unclear.",
+        "The case might involve a motion to dismiss, but sources are inconsistent."
+      ],
+      "document": "Supplemental_Brief_Division1.pdf"
+    },
+    {
+      "citation_text": "963 F.4th 578",
+      "case_name": "Zillow v. Costco",
+      "confidence": 0.5,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.23), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Supplemental_Brief_Division1.pdf"
+    },
+    {
+      "citation_text": "270 S. Ct. 205",
+      "case_name": "Martinez v. Harris",
+      "confidence": 0.5,
+      "explanation": "Citation format appears valid but could not be verified in available legal databases.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about constitutional law but details are unclear.",
+        "The case might involve an appeal of a lower court decision, but sources are inconsistent."
+      ],
+      "document": "Amicus_Brief_Supreme.pdf"
+    },
+    {
+      "citation_text": "833 F.2d 882",
+      "case_name": "Costco v. Garcia",
+      "confidence": 0.5,
+      "explanation": "Citation format appears valid but could not be verified in available legal databases.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Supplemental_Brief_Supreme.pdf"
+    },
+    {
+      "citation_text": "671 Wash.2d 228",
+      "case_name": "Thomas v. Rodriguez",
+      "confidence": 0.4,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.31), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about constitutional law but details are unclear.",
+        "The case might involve a motion to dismiss, but sources are inconsistent."
+      ],
+      "document": "Respondent_Brief_Division3.pdf"
+    },
+    {
+      "citation_text": "722 U.S. 866",
+      "case_name": "Martin v. Harris",
+      "confidence": 0.4,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.19), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Respondent_Brief_Division2.pdf"
+    },
+    {
+      "citation_text": "760 F.4th 44",
+      "case_name": "Nordstrom v. Lopez",
+      "confidence": 0.7,
+      "explanation": "Citation not found in any legal database. This may be a typo or a non-existent case.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "document": "Reply_Brief_Supreme.pdf"
+    },
+    {
+      "citation_text": "672 Wash. 60",
+      "case_name": "Martinez v. Zillow",
+      "confidence": 0.4,
+      "explanation": "LangSearch generated inconsistent summaries for this citation (similarity: 0.38), suggesting it may be hallucinated.",
+      "is_hallucinated": true,
+      "hallucination_status": "unverified",
+      "summaries": [
+        "This appears to be a case about property but details are unclear.",
+        "The case might involve a dispute between parties, but sources are inconsistent."
+      ],
+      "document": "Appellant_Brief_Supreme.pdf"
+    }
+  ],
+  "summary": {
+    "total_tested": 13,
+    "newly_confirmed_count": 0,
+    "still_unconfirmed_count": 13,
+    "percentage_confirmed": 0.0
+  }
+}

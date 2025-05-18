@@ -1,0 +1,1003 @@
+[
+  {
+    "citation": "415 U.S. 308",
+    "normalized_citations": [
+      "415 U.S. 308"
+    ],
+    "start_index": 0,
+    "end_index": 12,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/108974/",
+        "id": 108974,
+        "absolute_url": "/opinion/108974/davis-v-alaska/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1962789,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1962789/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/108974/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9425616/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9425617/"
+        ],
+        "citations": [
+          {
+            "volume": 39,
+            "reporter": "L. Ed. 2d",
+            "page": "347",
+            "type": 1
+          },
+          {
+            "volume": 94,
+            "reporter": "S. Ct.",
+            "page": "1105",
+            "type": 1
+          },
+          {
+            "volume": 415,
+            "reporter": "U.S.",
+            "page": "308",
+            "type": 1
+          },
+          {
+            "volume": 1974,
+            "reporter": "U.S. LEXIS",
+            "page": "104",
+            "type": 6
+          }
+        ],
+        "date_created": "2016-01-28T13:51:08.847302-08:00",
+        "date_modified": "2024-11-15T01:33:46.546955-08:00",
+        "judges": "Burger, B\u00fcrger, Douglas, Brennan, Stewart, Marshall, Blackmun, Powell, White, Rehnquist",
+        "date_filed": "1974-02-27",
+        "date_filed_is_approximate": false,
+        "slug": "davis-v-alaska",
+        "case_name_short": "Davis",
+        "case_name": "Davis v. Alaska",
+        "case_name_full": "Davis v. Alaska",
+        "scdb_id": "1973-062",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 7,
+        "scdb_votes_minority": 2,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "Robert H. Wag staff argued the cause and filed briefs for petitioner., Charles M. Merriner argued the cause for respondent. With him on the brief was John E. Havelock, Attorney General of Alaska.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued December 12, 1973\u2014",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 4468,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.415/308.6174956.json",
+        "filepath_pdf_harvard": "harvard_pdf/108974.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b380-5\">\n    DAVIS\n    <em>\n     v.\n    </em>\n    ALASKA\n   </parties><br><docketnumber id=\"b380-7\">\n    No. 72-5794.\n   </docketnumber><otherdate id=\"AQK\">\n    Argued December 12, 1973\u2014\n   </otherdate><br><decisiondate id=\"b380-8\">\n    Decided February 27, 1974\n   </decisiondate><br><judges id=\"b380-13\">\n    B\u00fcRGER, C. J., delivered the opinion of the Court, in which Douglas, BrennaN, Stewart, Marshall, Blackmun, and Powell, JJ., joined. Stewart, J., filed a concurring statement,\n    <em>\n     post,\n    </em>\n    p. 321. White, J., filed a dissenting opinion, in which Rehnquist, J., joined,\n    <em>\n     post,\n    </em>\n    p. 321.\n   </judges><br><attorneys id=\"b380-14\">\n<em>\n     Robert H. Wag staff\n    </em>\n    argued the cause and filed briefs for petitioner.\n   </attorneys><br><attorneys id=\"b380-15\">\n<em>\n     Charles M. Merriner\n    </em>\n    argued the cause for respond\n    <span citation-index=\"1\" class=\"star-pagination\" label=\"309\"> \n     *309\n     </span>\n    ent. With him on the brief was\n    <em>\n     John E. Havelock,\n    </em>\n    Attorney General of Alaska.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b381-9\">\n<em>\n      William P. Homans, Jr.,\n     </em>\n     filed a brief for Arthur Bembury as\n     <em>\n      amicus curiae.\n     </em>\n</p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "385 U.S. 493",
+    "normalized_citations": [
+      "385 U.S. 493"
+    ],
+    "start_index": 13,
+    "end_index": 25,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/107336/",
+        "id": 107336,
+        "absolute_url": "/opinion/107336/garrity-v-new-jersey/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1507984,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1507984/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/107336/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9423318/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9423319/"
+        ],
+        "citations": [
+          {
+            "volume": 17,
+            "reporter": "L. Ed. 2d",
+            "page": "562",
+            "type": 1
+          },
+          {
+            "volume": 87,
+            "reporter": "S. Ct.",
+            "page": "616",
+            "type": 1
+          },
+          {
+            "volume": 385,
+            "reporter": "U.S.",
+            "page": "493",
+            "type": 1
+          },
+          {
+            "volume": 1967,
+            "reporter": "U.S. LEXIS",
+            "page": "2882",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-09T08:34:05.714824-08:00",
+        "date_modified": "2024-11-15T00:01:03.597646-08:00",
+        "judges": "Douglas, Harlan, Clark, Stewart",
+        "date_filed": "1967-01-23",
+        "date_filed_is_approximate": false,
+        "slug": "garrity-v-new-jersey",
+        "case_name_short": "Garrity",
+        "case_name": "Garrity v. New Jersey",
+        "case_name_full": "GARRITY Et Al. v. NEW JERSEY",
+        "scdb_id": "1966-038",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "Daniel L. O\u2019Connor argued the cause for appellants. With him on the brief was Eugene Gressman., Alan B. Handler, First Assistant Attorney General of New Jersey, argued the cause for appellee. With him on the brief were Arthur J. Sills, Attorney General, and Norman Heine.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued November 10, 1966.",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 1299,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.385/493.11340237.json",
+        "filepath_pdf_harvard": "harvard_pdf/107336.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b597-3\">\n    GARRITY et al.\n    <em>\n     v.\n    </em>\n    NEW JERSEY.\n   </parties><br><docketnumber id=\"b597-5\">\n    No. 13.\n   </docketnumber><otherdate id=\"A27\">\n    Argued November 10, 1966.\n   </otherdate><decisiondate id=\"Aur\">\n    Decided January 16, 1967.\n   </decisiondate><br><attorneys id=\"b598-13\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"494\"> \n     *494\n     </span>\n<em>\n     Daniel L. O\u2019Connor\n    </em>\n    argued the cause for appellants. With him on the brief was\n    <em>\n     Eugene Gressman.\n    </em>\n</attorneys><br><attorneys id=\"b598-14\">\n<em>\n     Alan B. Handler,\n    </em>\n    First Assistant Attorney General of New Jersey, argued the cause for appellee. With him on the brief were\n    <em>\n     Arthur J. Sills,\n    </em>\n    Attorney General, and\n    <em>\n     Norman Heine.\n    </em>\n</attorneys>"
+      }
+    ]
+  },
+  {
+    "citation": "481 U.S. 279",
+    "normalized_citations": [
+      "481 U.S. 279"
+    ],
+    "start_index": 26,
+    "end_index": 38,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/111869/",
+        "id": 111869,
+        "absolute_url": "/opinion/111869/mccleskey-v-kemp/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1235339,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1235339/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/111869/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430933/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430934/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430935/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430936/"
+        ],
+        "citations": [
+          {
+            "volume": 95,
+            "reporter": "L. Ed. 2d",
+            "page": "262",
+            "type": 1
+          },
+          {
+            "volume": 107,
+            "reporter": "S. Ct.",
+            "page": "1756",
+            "type": 1
+          },
+          {
+            "volume": 481,
+            "reporter": "U.S.",
+            "page": "279",
+            "type": 1
+          },
+          {
+            "volume": 1987,
+            "reporter": "U.S. LEXIS",
+            "page": "1817",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-29T10:23:14.234921-08:00",
+        "date_modified": "2024-11-15T04:54:49.459200-08:00",
+        "judges": "Powell, Rehnquist, White, O'Connor, Scalia, Brennan, Marshall, Blackmun, Stevens",
+        "date_filed": "1987-06-08",
+        "date_filed_is_approximate": false,
+        "slug": "mccleskey-v-kemp",
+        "case_name_short": "McCleskey",
+        "case_name": "McCleskey v. Kemp",
+        "case_name_full": "McCLESKEY v. KEMP, SUPERINTENDENT, GEORGIA DIAGNOSTIC AND CLASSIFICATION CENTER",
+        "scdb_id": "1986-080",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "John Charles Boger argued the cause for petitioner. With him on the briefs were Julius L. Chambers, James M. Nabrit III, Vivian Berger, Robert H. Stroup, Timothy K. Ford, and Anthony G. Amsterdam., Mary Beth Westmoreland, Assistant Attorney General of Georgia, argued the cause for respondent. With her on the brief were Michael J. Bowers, Attorney General, Marion 0. Gordon, First Assistant Attorney General, and William B. Hill, Jr., Senior Assistant Attorney General.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued October 15, 1986",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 1449,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.481/279.6214785.json",
+        "filepath_pdf_harvard": "harvard_pdf/111869.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b339-4\">\n    McCLESKEY\n    <em>\n     v.\n    </em>\n    KEMP, SUPERINTENDENT, GEORGIA DIAGNOSTIC AND CLASSIFICATION CENTER\n   </parties><br><docketnumber id=\"b339-6\">\n    No. 84-6811.\n   </docketnumber><otherdate id=\"Acf\">\n    Argued October 15, 1986\n   </otherdate><decisiondate id=\"AtC\">\n    Decided April 22, 1987\n   </decisiondate><br><judges id=\"b342-8\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"282\"> \n     *282\n     </span>\n    Powell, J., delivered the opinion of the Court, in which Rehnquist, C. J., and White, O\u2019ConnoR, and Scalia, JJ., joined. BRENNAN, J., filed a dissenting opinion in which Marshall, J., joined, and in all but Part I of which Blackmun and Stevens, JJ., joined,\n    <em>\n     post,\n    </em>\n    p. 320. Blackmun, J., filed a dissenting opinion in which MARSHALL and Stevens, JJ., joined, and in all but Part IV-B of which Brennan, J., joined,\n    <em>\n     post,\n    </em>\n    p. 345. Stevens, J., filed a dissenting opinion in which Blackmun, J., joined,\n    <em>\n     post,\n    </em>\n    p. 366.\n   </judges><br><attorneys id=\"b342-9\">\n<em>\n     John Charles Boger\n    </em>\n    argued the cause for petitioner. With him on the briefs were\n    <em>\n     Julius L. Chambers, James M. Nabrit III, Vivian Berger, Robert H. Stroup, Timothy K. Ford,\n    </em>\n    and\n    <em>\n     Anthony G. Amsterdam.\n    </em>\n</attorneys><br><attorneys id=\"b342-10\">\n<em>\n     Mary Beth Westmoreland,\n    </em>\n    Assistant Attorney General of Georgia, argued the cause for respondent. With her on the brief were\n    <em>\n     Michael J. Bowers,\n    </em>\n    Attorney General,\n    <em>\n     Marion 0. Gordon,\n    </em>\n    First Assistant Attorney General, and\n    <em>\n     William B. Hill, Jr.,\n    </em>\n    Senior Assistant Attorney General.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b342-13\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging reversal were filed for the Congressional Black Caucus et al. by\n     <em>\n      Seth P. Waxman, Harold R. Tyler, Jr., James Robertson, Norman Redlich, William L. Robinson,\n     </em>\n     and\n     <em>\n      Grover Hankins;\n     </em>\n     and for the International Human Rights Law Group by\n     <em>\n      Ralph G. Steinhardt.\n     </em>\n</p>\n<p id=\"b342-14\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging affirmance were filed for the State of California et al. by\n     <em>\n      Ira Reiner, Harry B. Sondheim, John K. Van de Kamp,\n     </em>\n     Attorney General,\n     <em>\n      Michael C. Wellington,\n     </em>\n     Supervising Deputy Attorney General, and\n     <em>\n      Susan Lee Frierson,\n     </em>\n     Deputy Attorney General; and for the Washington Legal Foundation et al. by\n     <em>\n      Daniel J. Popeo\n     </em>\n     and\n     <em>\n      George C. Smith.\n     </em>\n</p>\n<p id=\"b342-15\">\n<em>\n      Martin F. Richman\n     </em>\n     filed a brief for Dr. Franklin M. Fisher et al. as\n     <em>\n      amici curiae.\n     </em>\n</p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "451 U.S. 182",
+    "normalized_citations": [
+      "451 U.S. 182"
+    ],
+    "start_index": 39,
+    "end_index": 51,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/110463/",
+        "id": 110463,
+        "absolute_url": "/opinion/110463/rosales-lopez-v-united-states/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1061297,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1061297/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/110463/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428296/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428297/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428298/"
+        ],
+        "citations": [
+          {
+            "volume": 68,
+            "reporter": "L. Ed. 2d",
+            "page": "22",
+            "type": 1
+          },
+          {
+            "volume": 101,
+            "reporter": "S. Ct.",
+            "page": "1629",
+            "type": 1
+          },
+          {
+            "volume": 451,
+            "reporter": "U.S.",
+            "page": "182",
+            "type": 1
+          },
+          {
+            "volume": 1981,
+            "reporter": "U.S. LEXIS",
+            "page": "88",
+            "type": 6
+          },
+          {
+            "volume": 49,
+            "reporter": "U.S.L.W.",
+            "page": "4412",
+            "type": 4
+          }
+        ],
+        "date_created": "2015-12-22T17:05:59.445072-08:00",
+        "date_modified": "2024-11-15T03:18:07.584734-08:00",
+        "judges": "Rehnquist, White, Stewart, Blackmun, Powell, Rehn-Quist, Burger, Stevens, Brennan, Marshall",
+        "date_filed": "1981-04-21",
+        "date_filed_is_approximate": false,
+        "slug": "rosales-lopez-v-united-states",
+        "case_name_short": "Rosales-Lopez",
+        "case_name": "Rosales-Lopez v. United States",
+        "case_name_full": "Rosales-Lopez v. United States",
+        "scdb_id": "1980-074",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 6,
+        "scdb_votes_minority": 3,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "John J. Cleary, by appointment of the Court, 449 U. S. 947, argued the cause and filed a brief for petitioner., George W. Jones argued the cause pro hac vice for the United States. With him on the brief were Solicitor General McCree, Assistant Attorney General Heymann, Deputy Solicitor General Frey, and John De Fue.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued January 12, 1981",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 581,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.451/182.6183646.json",
+        "filepath_pdf_harvard": "harvard_pdf/110463.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b248-5\">\n    ROSALES-LOPEZ\n    <em>\n     v.\n    </em>\n    UNITED STATES\n   </parties><br><docketnumber id=\"b248-8\">\n    No. 79-6624.\n   </docketnumber><otherdate id=\"A0B\">\n    Argued January 12, 1981\n   </otherdate><decisiondate id=\"AsL\">\n    Decided April 21, 1981\n   </decisiondate><br><judges id=\"b249-7\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"183\"> \n     *183\n     </span>\n    White, J., announced the judgment of the Court and delivered an opinion, in which Stewart, BlackmuN, and Powell, JJ., joined. RehN-quist, J., filed an opinion concurring in the result, in which Burger, C. J., joined,\n    <em>\n     post,\n    </em>\n    p. 194. SteveNS, J., filed a dissenting opinion, in which BreNNAN and Marshall, JJ., joined,\n    <em>\n     post,\n    </em>\n    p. 195.\n   </judges><br><attorneys id=\"b249-8\">\n<em>\n     John J. Cleary,\n    </em>\n    by appointment of the Court, 449 U. S. 947, argued the cause and filed a brief for petitioner.\n   </attorneys><br><attorneys id=\"b249-9\">\n<em>\n     George W. Jones\n    </em>\n    argued the cause\n    <em>\n     pro hac vice\n    </em>\n    for the United States. With him on the brief were\n    <em>\n     Solicitor General McCree, Assistant Attorney General Heymann, Deputy Solicitor General Frey,\n    </em>\n    and\n    <em>\n     John De Fue.\n    </em>\n</attorneys>"
+      }
+    ]
+  },
+  {
+    "citation": "443 U.S. 545",
+    "normalized_citations": [
+      "443 U.S. 545"
+    ],
+    "start_index": 52,
+    "end_index": 64,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/110143/",
+        "id": 110143,
+        "absolute_url": "/opinion/110143/rose-v-mitchell/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 14877,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/14877/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/110143/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427696/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427697/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427698/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427699/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427700/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427701/"
+        ],
+        "citations": [
+          {
+            "volume": 61,
+            "reporter": "L. Ed. 2d",
+            "page": "739",
+            "type": 1
+          },
+          {
+            "volume": 99,
+            "reporter": "S. Ct.",
+            "page": "2993",
+            "type": 1
+          },
+          {
+            "volume": 443,
+            "reporter": "U.S.",
+            "page": "545",
+            "type": 1
+          },
+          {
+            "volume": 1979,
+            "reporter": "U.S. LEXIS",
+            "page": "146",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-07T11:14:53.676124-08:00",
+        "date_modified": "2024-11-15T02:51:45.603656-08:00",
+        "judges": "Blackmun, Rehnquist, Blacemun, Brennan, Marshall, Burger, Eehnquist, White, Stevens, Stewart, Powell",
+        "date_filed": "1979-07-02",
+        "date_filed_is_approximate": false,
+        "slug": "rose-v-mitchell",
+        "case_name_short": "Rose",
+        "case_name": "Rose v. Mitchell",
+        "case_name_full": "ROSE, WARDEN v. MITCHELL Et Al.",
+        "scdb_id": "1978-155",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "William M. Leech, Jr., Attorney General of Tennessee, argued the cause for petitioner. With him on the brief was Michael E. Terry, Assistant Attorney General., Walter Kurtz argued the cause and filed a brief for respondents.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued January 16, 1979",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 433,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.443/545.6184063.json",
+        "filepath_pdf_harvard": "harvard_pdf/110143.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b569-4\">\n    ROSE, WARDEN\n    <em>\n     v.\n    </em>\n    MITCHELL et al.\n   </parties><br><docketnumber id=\"b569-7\">\n    No. 77-1701.\n   </docketnumber><otherdate id=\"AXa\">\n    Argued January 16, 1979\n   </otherdate><decisiondate id=\"AIM\">\n    Decided July 2, 1979\n   </decisiondate><br><judges id=\"b571-4\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"547\"> \n     *547\n     </span>\n    Blacemun, J., delivered the opinion of the Court, in which Brennan and Marshall, JJ., joined; in Parts I, III, and IV of which Burger, C. J., and Eehnquist, J., joined; and in Parts I and II of which White and Stevens, JJ., joined. Eehnquist, J., filed a statement concurring in part,\n    <em>\n     post,\n    </em>\n    -p. 574. Stewart, J.,\n    <em>\n     post,\n    </em>\n    p. 574, and Powell, J.,\n    <em>\n     post,\n    </em>\n    p. 579, filed opinions concurring in the judgment, in which Eehnquist, J., joined. White, J., filed a dissenting opinion, in which Stevens, J., joined,\n    <em>\n     post,\n    </em>\n    p. 588. Stevens, J., filed an opinion dissenting in part,\n    <em>\n     post,\n    </em>\n    p. 593.\n   </judges><br><attorneys id=\"b571-5\">\n<em>\n     William M. Leech, Jr.,\n    </em>\n    Attorney General of Tennessee, argued the cause for petitioner. With him on the brief was\n    <em>\n     Michael E. Terry,\n    </em>\n    Assistant Attorney General.\n   </attorneys><br><attorneys id=\"b571-6\">\n<em>\n     Walter Kurtz\n    </em>\n    argued the cause and filed a brief for respondents.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b571-11\">\n<em>\n      Solicitor General McCree, Assistant Attorney General Days, Walter W. Barnett,\n     </em>\n     and\n     <em>\n      Mildred M. Matesich\n     </em>\n     filed a memorandum for the United States as\n     <em>\n      amicus curiae\n     </em>\n     urging affirmance.\n    </p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "94 S.Ct. 1105",
+    "normalized_citations": [
+      "94 S. Ct. 1105"
+    ],
+    "start_index": 65,
+    "end_index": 78,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/108974/",
+        "id": 108974,
+        "absolute_url": "/opinion/108974/davis-v-alaska/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1962789,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1962789/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/108974/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9425616/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9425617/"
+        ],
+        "citations": [
+          {
+            "volume": 39,
+            "reporter": "L. Ed. 2d",
+            "page": "347",
+            "type": 1
+          },
+          {
+            "volume": 94,
+            "reporter": "S. Ct.",
+            "page": "1105",
+            "type": 1
+          },
+          {
+            "volume": 415,
+            "reporter": "U.S.",
+            "page": "308",
+            "type": 1
+          },
+          {
+            "volume": 1974,
+            "reporter": "U.S. LEXIS",
+            "page": "104",
+            "type": 6
+          }
+        ],
+        "date_created": "2016-01-28T13:51:08.847302-08:00",
+        "date_modified": "2024-11-15T01:33:46.546955-08:00",
+        "judges": "Burger, B\u00fcrger, Douglas, Brennan, Stewart, Marshall, Blackmun, Powell, White, Rehnquist",
+        "date_filed": "1974-02-27",
+        "date_filed_is_approximate": false,
+        "slug": "davis-v-alaska",
+        "case_name_short": "Davis",
+        "case_name": "Davis v. Alaska",
+        "case_name_full": "Davis v. Alaska",
+        "scdb_id": "1973-062",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 7,
+        "scdb_votes_minority": 2,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "Robert H. Wag staff argued the cause and filed briefs for petitioner., Charles M. Merriner argued the cause for respondent. With him on the brief was John E. Havelock, Attorney General of Alaska.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued December 12, 1973\u2014",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 4468,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.415/308.6174956.json",
+        "filepath_pdf_harvard": "harvard_pdf/108974.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b380-5\">\n    DAVIS\n    <em>\n     v.\n    </em>\n    ALASKA\n   </parties><br><docketnumber id=\"b380-7\">\n    No. 72-5794.\n   </docketnumber><otherdate id=\"AQK\">\n    Argued December 12, 1973\u2014\n   </otherdate><br><decisiondate id=\"b380-8\">\n    Decided February 27, 1974\n   </decisiondate><br><judges id=\"b380-13\">\n    B\u00fcRGER, C. J., delivered the opinion of the Court, in which Douglas, BrennaN, Stewart, Marshall, Blackmun, and Powell, JJ., joined. Stewart, J., filed a concurring statement,\n    <em>\n     post,\n    </em>\n    p. 321. White, J., filed a dissenting opinion, in which Rehnquist, J., joined,\n    <em>\n     post,\n    </em>\n    p. 321.\n   </judges><br><attorneys id=\"b380-14\">\n<em>\n     Robert H. Wag staff\n    </em>\n    argued the cause and filed briefs for petitioner.\n   </attorneys><br><attorneys id=\"b380-15\">\n<em>\n     Charles M. Merriner\n    </em>\n    argued the cause for respond\n    <span citation-index=\"1\" class=\"star-pagination\" label=\"309\"> \n     *309\n     </span>\n    ent. With him on the brief was\n    <em>\n     John E. Havelock,\n    </em>\n    Attorney General of Alaska.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b381-9\">\n<em>\n      William P. Homans, Jr.,\n     </em>\n     filed a brief for Arthur Bembury as\n     <em>\n      amicus curiae.\n     </em>\n</p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "87 S.Ct. 616",
+    "normalized_citations": [
+      "87 S. Ct. 616"
+    ],
+    "start_index": 79,
+    "end_index": 91,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/107336/",
+        "id": 107336,
+        "absolute_url": "/opinion/107336/garrity-v-new-jersey/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1507984,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1507984/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/107336/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9423318/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9423319/"
+        ],
+        "citations": [
+          {
+            "volume": 17,
+            "reporter": "L. Ed. 2d",
+            "page": "562",
+            "type": 1
+          },
+          {
+            "volume": 87,
+            "reporter": "S. Ct.",
+            "page": "616",
+            "type": 1
+          },
+          {
+            "volume": 385,
+            "reporter": "U.S.",
+            "page": "493",
+            "type": 1
+          },
+          {
+            "volume": 1967,
+            "reporter": "U.S. LEXIS",
+            "page": "2882",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-09T08:34:05.714824-08:00",
+        "date_modified": "2024-11-15T00:01:03.597646-08:00",
+        "judges": "Douglas, Harlan, Clark, Stewart",
+        "date_filed": "1967-01-23",
+        "date_filed_is_approximate": false,
+        "slug": "garrity-v-new-jersey",
+        "case_name_short": "Garrity",
+        "case_name": "Garrity v. New Jersey",
+        "case_name_full": "GARRITY Et Al. v. NEW JERSEY",
+        "scdb_id": "1966-038",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "Daniel L. O\u2019Connor argued the cause for appellants. With him on the brief was Eugene Gressman., Alan B. Handler, First Assistant Attorney General of New Jersey, argued the cause for appellee. With him on the brief were Arthur J. Sills, Attorney General, and Norman Heine.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued November 10, 1966.",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 1299,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.385/493.11340237.json",
+        "filepath_pdf_harvard": "harvard_pdf/107336.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b597-3\">\n    GARRITY et al.\n    <em>\n     v.\n    </em>\n    NEW JERSEY.\n   </parties><br><docketnumber id=\"b597-5\">\n    No. 13.\n   </docketnumber><otherdate id=\"A27\">\n    Argued November 10, 1966.\n   </otherdate><decisiondate id=\"Aur\">\n    Decided January 16, 1967.\n   </decisiondate><br><attorneys id=\"b598-13\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"494\"> \n     *494\n     </span>\n<em>\n     Daniel L. O\u2019Connor\n    </em>\n    argued the cause for appellants. With him on the brief was\n    <em>\n     Eugene Gressman.\n    </em>\n</attorneys><br><attorneys id=\"b598-14\">\n<em>\n     Alan B. Handler,\n    </em>\n    First Assistant Attorney General of New Jersey, argued the cause for appellee. With him on the brief were\n    <em>\n     Arthur J. Sills,\n    </em>\n    Attorney General, and\n    <em>\n     Norman Heine.\n    </em>\n</attorneys>"
+      }
+    ]
+  },
+  {
+    "citation": "107 S.Ct. 1756",
+    "normalized_citations": [
+      "107 S. Ct. 1756"
+    ],
+    "start_index": 92,
+    "end_index": 106,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/111869/",
+        "id": 111869,
+        "absolute_url": "/opinion/111869/mccleskey-v-kemp/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1235339,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1235339/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/111869/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430933/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430934/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430935/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9430936/"
+        ],
+        "citations": [
+          {
+            "volume": 95,
+            "reporter": "L. Ed. 2d",
+            "page": "262",
+            "type": 1
+          },
+          {
+            "volume": 107,
+            "reporter": "S. Ct.",
+            "page": "1756",
+            "type": 1
+          },
+          {
+            "volume": 481,
+            "reporter": "U.S.",
+            "page": "279",
+            "type": 1
+          },
+          {
+            "volume": 1987,
+            "reporter": "U.S. LEXIS",
+            "page": "1817",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-29T10:23:14.234921-08:00",
+        "date_modified": "2024-11-15T04:54:49.459200-08:00",
+        "judges": "Powell, Rehnquist, White, O'Connor, Scalia, Brennan, Marshall, Blackmun, Stevens",
+        "date_filed": "1987-06-08",
+        "date_filed_is_approximate": false,
+        "slug": "mccleskey-v-kemp",
+        "case_name_short": "McCleskey",
+        "case_name": "McCleskey v. Kemp",
+        "case_name_full": "McCLESKEY v. KEMP, SUPERINTENDENT, GEORGIA DIAGNOSTIC AND CLASSIFICATION CENTER",
+        "scdb_id": "1986-080",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "John Charles Boger argued the cause for petitioner. With him on the briefs were Julius L. Chambers, James M. Nabrit III, Vivian Berger, Robert H. Stroup, Timothy K. Ford, and Anthony G. Amsterdam., Mary Beth Westmoreland, Assistant Attorney General of Georgia, argued the cause for respondent. With her on the brief were Michael J. Bowers, Attorney General, Marion 0. Gordon, First Assistant Attorney General, and William B. Hill, Jr., Senior Assistant Attorney General.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued October 15, 1986",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 1449,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.481/279.6214785.json",
+        "filepath_pdf_harvard": "harvard_pdf/111869.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b339-4\">\n    McCLESKEY\n    <em>\n     v.\n    </em>\n    KEMP, SUPERINTENDENT, GEORGIA DIAGNOSTIC AND CLASSIFICATION CENTER\n   </parties><br><docketnumber id=\"b339-6\">\n    No. 84-6811.\n   </docketnumber><otherdate id=\"Acf\">\n    Argued October 15, 1986\n   </otherdate><decisiondate id=\"AtC\">\n    Decided April 22, 1987\n   </decisiondate><br><judges id=\"b342-8\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"282\"> \n     *282\n     </span>\n    Powell, J., delivered the opinion of the Court, in which Rehnquist, C. J., and White, O\u2019ConnoR, and Scalia, JJ., joined. BRENNAN, J., filed a dissenting opinion in which Marshall, J., joined, and in all but Part I of which Blackmun and Stevens, JJ., joined,\n    <em>\n     post,\n    </em>\n    p. 320. Blackmun, J., filed a dissenting opinion in which MARSHALL and Stevens, JJ., joined, and in all but Part IV-B of which Brennan, J., joined,\n    <em>\n     post,\n    </em>\n    p. 345. Stevens, J., filed a dissenting opinion in which Blackmun, J., joined,\n    <em>\n     post,\n    </em>\n    p. 366.\n   </judges><br><attorneys id=\"b342-9\">\n<em>\n     John Charles Boger\n    </em>\n    argued the cause for petitioner. With him on the briefs were\n    <em>\n     Julius L. Chambers, James M. Nabrit III, Vivian Berger, Robert H. Stroup, Timothy K. Ford,\n    </em>\n    and\n    <em>\n     Anthony G. Amsterdam.\n    </em>\n</attorneys><br><attorneys id=\"b342-10\">\n<em>\n     Mary Beth Westmoreland,\n    </em>\n    Assistant Attorney General of Georgia, argued the cause for respondent. With her on the brief were\n    <em>\n     Michael J. Bowers,\n    </em>\n    Attorney General,\n    <em>\n     Marion 0. Gordon,\n    </em>\n    First Assistant Attorney General, and\n    <em>\n     William B. Hill, Jr.,\n    </em>\n    Senior Assistant Attorney General.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b342-13\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging reversal were filed for the Congressional Black Caucus et al. by\n     <em>\n      Seth P. Waxman, Harold R. Tyler, Jr., James Robertson, Norman Redlich, William L. Robinson,\n     </em>\n     and\n     <em>\n      Grover Hankins;\n     </em>\n     and for the International Human Rights Law Group by\n     <em>\n      Ralph G. Steinhardt.\n     </em>\n</p>\n<p id=\"b342-14\">\n     Briefs of\n     <em>\n      amici curiae\n     </em>\n     urging affirmance were filed for the State of California et al. by\n     <em>\n      Ira Reiner, Harry B. Sondheim, John K. Van de Kamp,\n     </em>\n     Attorney General,\n     <em>\n      Michael C. Wellington,\n     </em>\n     Supervising Deputy Attorney General, and\n     <em>\n      Susan Lee Frierson,\n     </em>\n     Deputy Attorney General; and for the Washington Legal Foundation et al. by\n     <em>\n      Daniel J. Popeo\n     </em>\n     and\n     <em>\n      George C. Smith.\n     </em>\n</p>\n<p id=\"b342-15\">\n<em>\n      Martin F. Richman\n     </em>\n     filed a brief for Dr. Franklin M. Fisher et al. as\n     <em>\n      amici curiae.\n     </em>\n</p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "137 S.Ct. 855",
+    "normalized_citations": [
+      "137 S. Ct. 855"
+    ],
+    "start_index": 107,
+    "end_index": 120,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/4374572/",
+        "id": 4374572,
+        "absolute_url": "/opinion/4374572/pena-rodriguez-v-colorado/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 4616505,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/4616505/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/4151825/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9873105/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9873107/"
+        ],
+        "citations": [
+          {
+            "volume": 197,
+            "reporter": "L. Ed. 2d",
+            "page": "107",
+            "type": 1
+          },
+          {
+            "volume": 137,
+            "reporter": "S. Ct.",
+            "page": "855",
+            "type": 1
+          },
+          {
+            "volume": 2017,
+            "reporter": "U.S. LEXIS",
+            "page": "1574",
+            "type": 6
+          },
+          {
+            "volume": 85,
+            "reporter": "U.S.L.W.",
+            "page": "4071",
+            "type": 4
+          },
+          {
+            "volume": 26,
+            "reporter": "Fla. L. Weekly Fed. S",
+            "page": "445",
+            "type": 1
+          },
+          {
+            "volume": 102,
+            "reporter": "Fed. R. Serv.",
+            "page": "1084",
+            "type": 4
+          },
+          {
+            "volume": 2017,
+            "reporter": "WL",
+            "page": "855760",
+            "type": 7
+          }
+        ],
+        "date_created": "2017-03-10T11:01:16.240222-08:00",
+        "date_modified": "2024-10-18T20:25:05.787773-07:00",
+        "judges": "Anthony Kennedy",
+        "date_filed": "2017-03-06",
+        "date_filed_is_approximate": false,
+        "slug": "pena-rodriguez-v-colorado",
+        "case_name_short": "Pena-Rodriguez",
+        "case_name": "Pena-Rodriguez v. Colorado",
+        "case_name_full": "Miguel Angel PE\u00d1A-RODRIGUEZ, Petitioner v. COLORADO.",
+        "scdb_id": "2016-002",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 3,
+        "source": "CU",
+        "procedural_history": "",
+        "attorneys": "Frederick R. Yarger, Denver, CO, for Respondent., Rachel P. Kovner for the United States as amicus curiae, by special leave of the Court, supporting the respondent., Jonathan D. Rosen, Denver, CO, Jeffrey L. Fisher, Pamela S. Karlan, Brian Wolfman, Stanford Law School, Supreme Court, Stanford, CA, for Petitioner., Cynthia H. Coffman, Colorado Attorney General, Frederick R. Yarger, Solicitor General, L. Andrew Cooper, Deputy Attorney General, Glenn P. Roper, Deputy Solicitor General, Katharine J. Gillespie, Stephanie Lindquist Scoville, Senior Assistant Attorneys General, Majid Yazdi, Molly E. McNab, Assistant Attorneys General, Office of the Colorado, Attorney General, Denver, CO, for Respondent.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 173,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.s-ct.137/855.12609913.json",
+        "filepath_pdf_harvard": null,
+        "arguments": "",
+        "headmatter": "<parties id=\"p-1\">\n    Miguel Angel PE\u00d1A-RODRIGUEZ, Petitioner\n    <br/>\n    v.\n    <br/>\n    COLORADO.\n   </parties><docketnumber id=\"p-2\">\n    No. 15-606.\n   </docketnumber><court id=\"p-3\">\n    Supreme Court of the United States\n   </court><decisiondate id=\"p-4\">\n    Argued Oct. 11, 2016.\n    <br/>\n    Decided March 6, 2017.\n   </decisiondate><p id=\"p-5\">\n    Jeffrey L. Fisher, Stanford, CA, the Petitioner.\n   </p><attorneys id=\"p-6\">\n    Frederick R. Yarger, Denver, CO, for Respondent.\n   </attorneys><attorneys id=\"p-7\">\n    Rachel P. Kovner for the United States as amicus curiae, by special leave of the Court, supporting the respondent.\n   </attorneys><attorneys id=\"p-8\">\n    Jonathan D. Rosen, Denver, CO, Jeffrey L. Fisher, Pamela S. Karlan, Brian Wolfman, Stanford Law School, Supreme Court, Stanford, CA, for Petitioner.\n   </attorneys><attorneys id=\"p-9\">\n    Cynthia H. Coffman, Colorado Attorney General, Frederick R. Yarger, Solicitor General, L. Andrew Cooper, Deputy Attorney General, Glenn P. Roper, Deputy Solicitor General, Katharine J. Gillespie, Stephanie Lindquist Scoville, Senior Assistant Attorneys General, Majid Yazdi, Molly E. McNab, Assistant Attorneys General, Office of the Colorado, Attorney General, Denver, CO, for Respondent.\n   </attorneys>"
+      }
+    ]
+  },
+  {
+    "citation": "101 S.Ct. 1629",
+    "normalized_citations": [
+      "101 S. Ct. 1629"
+    ],
+    "start_index": 121,
+    "end_index": 135,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/110463/",
+        "id": 110463,
+        "absolute_url": "/opinion/110463/rosales-lopez-v-united-states/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 1061297,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/1061297/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/110463/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428296/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428297/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9428298/"
+        ],
+        "citations": [
+          {
+            "volume": 68,
+            "reporter": "L. Ed. 2d",
+            "page": "22",
+            "type": 1
+          },
+          {
+            "volume": 101,
+            "reporter": "S. Ct.",
+            "page": "1629",
+            "type": 1
+          },
+          {
+            "volume": 451,
+            "reporter": "U.S.",
+            "page": "182",
+            "type": 1
+          },
+          {
+            "volume": 1981,
+            "reporter": "U.S. LEXIS",
+            "page": "88",
+            "type": 6
+          },
+          {
+            "volume": 49,
+            "reporter": "U.S.L.W.",
+            "page": "4412",
+            "type": 4
+          }
+        ],
+        "date_created": "2015-12-22T17:05:59.445072-08:00",
+        "date_modified": "2024-11-15T03:18:07.584734-08:00",
+        "judges": "Rehnquist, White, Stewart, Blackmun, Powell, Rehn-Quist, Burger, Stevens, Brennan, Marshall",
+        "date_filed": "1981-04-21",
+        "date_filed_is_approximate": false,
+        "slug": "rosales-lopez-v-united-states",
+        "case_name_short": "Rosales-Lopez",
+        "case_name": "Rosales-Lopez v. United States",
+        "case_name_full": "Rosales-Lopez v. United States",
+        "scdb_id": "1980-074",
+        "scdb_decision_direction": 1,
+        "scdb_votes_majority": 6,
+        "scdb_votes_minority": 3,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "John J. Cleary, by appointment of the Court, 449 U. S. 947, argued the cause and filed a brief for petitioner., George W. Jones argued the cause pro hac vice for the United States. With him on the brief were Solicitor General McCree, Assistant Attorney General Heymann, Deputy Solicitor General Frey, and John De Fue.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued January 12, 1981",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 581,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.451/182.6183646.json",
+        "filepath_pdf_harvard": "harvard_pdf/110463.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b248-5\">\n    ROSALES-LOPEZ\n    <em>\n     v.\n    </em>\n    UNITED STATES\n   </parties><br><docketnumber id=\"b248-8\">\n    No. 79-6624.\n   </docketnumber><otherdate id=\"A0B\">\n    Argued January 12, 1981\n   </otherdate><decisiondate id=\"AsL\">\n    Decided April 21, 1981\n   </decisiondate><br><judges id=\"b249-7\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"183\"> \n     *183\n     </span>\n    White, J., announced the judgment of the Court and delivered an opinion, in which Stewart, BlackmuN, and Powell, JJ., joined. RehN-quist, J., filed an opinion concurring in the result, in which Burger, C. J., joined,\n    <em>\n     post,\n    </em>\n    p. 194. SteveNS, J., filed a dissenting opinion, in which BreNNAN and Marshall, JJ., joined,\n    <em>\n     post,\n    </em>\n    p. 195.\n   </judges><br><attorneys id=\"b249-8\">\n<em>\n     John J. Cleary,\n    </em>\n    by appointment of the Court, 449 U. S. 947, argued the cause and filed a brief for petitioner.\n   </attorneys><br><attorneys id=\"b249-9\">\n<em>\n     George W. Jones\n    </em>\n    argued the cause\n    <em>\n     pro hac vice\n    </em>\n    for the United States. With him on the brief were\n    <em>\n     Solicitor General McCree, Assistant Attorney General Heymann, Deputy Solicitor General Frey,\n    </em>\n    and\n    <em>\n     John De Fue.\n    </em>\n</attorneys>"
+      }
+    ]
+  },
+  {
+    "citation": "99 S.Ct. 2993",
+    "normalized_citations": [
+      "99 S. Ct. 2993"
+    ],
+    "start_index": 136,
+    "end_index": 149,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v3/clusters/110143/",
+        "id": 110143,
+        "absolute_url": "/opinion/110143/rose-v-mitchell/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 14877,
+        "docket": "https://www.courtlistener.com/api/rest/v3/dockets/14877/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v3/opinions/110143/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427696/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427697/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427698/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427699/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427700/",
+          "https://www.courtlistener.com/api/rest/v3/opinions/9427701/"
+        ],
+        "citations": [
+          {
+            "volume": 61,
+            "reporter": "L. Ed. 2d",
+            "page": "739",
+            "type": 1
+          },
+          {
+            "volume": 99,
+            "reporter": "S. Ct.",
+            "page": "2993",
+            "type": 1
+          },
+          {
+            "volume": 443,
+            "reporter": "U.S.",
+            "page": "545",
+            "type": 1
+          },
+          {
+            "volume": 1979,
+            "reporter": "U.S. LEXIS",
+            "page": "146",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-12-07T11:14:53.676124-08:00",
+        "date_modified": "2024-11-15T02:51:45.603656-08:00",
+        "judges": "Blackmun, Rehnquist, Blacemun, Brennan, Marshall, Burger, Eehnquist, White, Stevens, Stewart, Powell",
+        "date_filed": "1979-07-02",
+        "date_filed_is_approximate": false,
+        "slug": "rose-v-mitchell",
+        "case_name_short": "Rose",
+        "case_name": "Rose v. Mitchell",
+        "case_name_full": "ROSE, WARDEN v. MITCHELL Et Al.",
+        "scdb_id": "1978-155",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 5,
+        "scdb_votes_minority": 4,
+        "source": "LRU",
+        "procedural_history": "",
+        "attorneys": "William M. Leech, Jr., Attorney General of Tennessee, argued the cause for petitioner. With him on the brief was Michael E. Terry, Assistant Attorney General., Walter Kurtz argued the cause and filed a brief for respondents.*",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Argued January 16, 1979",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 433,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.us.443/545.6184063.json",
+        "filepath_pdf_harvard": "harvard_pdf/110143.pdf",
+        "arguments": "",
+        "headmatter": "<parties id=\"b569-4\">\n    ROSE, WARDEN\n    <em>\n     v.\n    </em>\n    MITCHELL et al.\n   </parties><br><docketnumber id=\"b569-7\">\n    No. 77-1701.\n   </docketnumber><otherdate id=\"AXa\">\n    Argued January 16, 1979\n   </otherdate><decisiondate id=\"AIM\">\n    Decided July 2, 1979\n   </decisiondate><br><judges id=\"b571-4\">\n<span citation-index=\"1\" class=\"star-pagination\" label=\"547\"> \n     *547\n     </span>\n    Blacemun, J., delivered the opinion of the Court, in which Brennan and Marshall, JJ., joined; in Parts I, III, and IV of which Burger, C. J., and Eehnquist, J., joined; and in Parts I and II of which White and Stevens, JJ., joined. Eehnquist, J., filed a statement concurring in part,\n    <em>\n     post,\n    </em>\n    -p. 574. Stewart, J.,\n    <em>\n     post,\n    </em>\n    p. 574, and Powell, J.,\n    <em>\n     post,\n    </em>\n    p. 579, filed opinions concurring in the judgment, in which Eehnquist, J., joined. White, J., filed a dissenting opinion, in which Stevens, J., joined,\n    <em>\n     post,\n    </em>\n    p. 588. Stevens, J., filed an opinion dissenting in part,\n    <em>\n     post,\n    </em>\n    p. 593.\n   </judges><br><attorneys id=\"b571-5\">\n<em>\n     William M. Leech, Jr.,\n    </em>\n    Attorney General of Tennessee, argued the cause for petitioner. With him on the brief was\n    <em>\n     Michael E. Terry,\n    </em>\n    Assistant Attorney General.\n   </attorneys><br><attorneys id=\"b571-6\">\n<em>\n     Walter Kurtz\n    </em>\n    argued the cause and filed a brief for respondents.\n    <a class=\"footnote\" href=\"#fn*\" id=\"fn*_ref\">\n     *\n    </a>\n</attorneys><div class=\"footnotes\"><div class=\"footnote\" id=\"fn*\" label=\"*\">\n<a class=\"footnote\" href=\"#fn*_ref\">\n     *\n    </a>\n<p id=\"b571-11\">\n<em>\n      Solicitor General McCree, Assistant Attorney General Days, Walter W. Barnett,\n     </em>\n     and\n     <em>\n      Mildred M. Matesich\n     </em>\n     filed a memorandum for the United States as\n     <em>\n      amicus curiae\n     </em>\n     urging affirmance.\n    </p>\n</div></div>"
+      }
+    ]
+  },
+  {
+    "citation": "2021 WL 3910557",
+    "normalized_citations": [
+      "2021 WL 3910557"
+    ],
+    "start_index": 150,
+    "end_index": 165,
+    "status": 404,
+    "error_message": "Citation not found: '2021 WL 3910557'",
+    "clusters": []
+  }
+]

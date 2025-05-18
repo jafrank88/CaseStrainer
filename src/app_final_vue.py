@@ -94,7 +94,7 @@ def create_app():
     # Configure logging first so we can see what's happening
     os.makedirs('logs', exist_ok=True)
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,  # Changed to DEBUG level for more detailed logs
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.FileHandler('logs/casestrainer.log'),
@@ -106,7 +106,15 @@ def create_app():
     CORS(app, resources={
         r"/*": {
             "origins": ["https://wolf.law.uw.edu", "http://localhost:5000", "http://127.0.0.1:5000"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+            "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "X-CSRFToken"],
+            "expose_headers": ["Content-Type", "Content-Length", "X-CSRFToken"],
+            "supports_credentials": True,
+            "max_age": 600  # Cache preflight requests for 10 minutes
+        },
+        "/analyze": {
+            "origins": ["https://wolf.law.uw.edu", "http://localhost:5000", "http://127.0.0.1:5000"],
+            "methods": ["POST", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True
         }
@@ -185,12 +193,26 @@ def create_app():
         tokenizer = None
         logger.warning(f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction.")
 
-    # Register the citation API blueprint with proper prefix
-    app.register_blueprint(enhanced_validator_production_bp, url_prefix='/api')
+    # Register the blueprints
+    # Note: citation_api already includes the /api prefix in its route definitions
+    app.register_blueprint(enhanced_validator_production_bp, url_prefix='')
     app.register_blueprint(citation_api, url_prefix='/api')
     
     # Register the enhanced validator with the citation_api
     register_enhanced_validator(app)
+    
+    # Direct route for analyze endpoint to handle file uploads
+    @app.route('/api/analyze', methods=['POST', 'OPTIONS'])
+    def direct_analyze():
+        # Log the request for debugging
+        logger.info(f"Direct analyze endpoint called with method: {request.method}")
+        logger.info(f"Request headers: {dict(request.headers)}")
+        logger.info(f"Request files: {request.files}")
+        logger.info(f"Request form: {request.form}")
+        
+        # Forward to the Blueprint's analyze function
+        from citation_api import analyze as citation_analyze
+        return citation_analyze()
     
     # API endpoints for Vue.js frontend
     
@@ -260,7 +282,9 @@ def create_app():
                     logger.info(f"==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====")
                     
                     try:
-                        verification_result = verify_citation(citation['text'])
+                        # Get the first context if available
+                        context = citation.get('contexts', [])[0].get('text', '') if citation.get('contexts') else ''
+                        verification_result = verify_citation(citation['text'], context=context)
                         
                         print(f"\n==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====\n")
                         logger.info(f"==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====")
@@ -353,12 +377,73 @@ def create_app():
             citations = extract_citations_from_text(text)
             
             # Process citations
-            for citation in citations:
-                citation['valid'] = verify_citation(citation['text'])
+            logger.info("Starting citation verification for text input")
+            verification_start = time.time()
+            
+            # Enable more verbose debugging
+            print("\n==== STARTING CITATION VERIFICATION PROCESS FOR TEXT INPUT ====\n")
+            logger.info("==== STARTING CITATION VERIFICATION PROCESS FOR TEXT INPUT ====")
+            
+            for i, citation in enumerate(citations):
+                print(f"\n==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====\n")
+                logger.info(f"==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====")
                 
+                try:
+                    # Get the first context if available
+                    context = citation.get('contexts', [])[0].get('text', '') if citation.get('contexts') else ''
+                    verification_result = verify_citation(citation['text'], context=context)
+                    
+                    print(f"\n==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====\n")
+                    logger.info(f"==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====")
+                    
+                    # Update citation with verification results
+                    citation['valid'] = verification_result.get('found', False)
+                    citation['explanation'] = verification_result.get('explanation')
+                    
+                    # Update metadata with source information
+                    if 'source' in verification_result:
+                        citation['metadata']['source'] = verification_result['source']
+                    
+                    # Add case name if available
+                    if verification_result.get('case_name') and not citation['name']:
+                        citation['name'] = verification_result['case_name']
+                    
+                    # Add any additional details
+                    if verification_result.get('details'):
+                        for key, value in verification_result['details'].items():
+                            if value and key not in citation['metadata']:
+                                citation['metadata'][key] = value
+                    
+                    # Add URL if available
+                    if verification_result.get('url'):
+                        citation['metadata']['url'] = verification_result['url']
+                    
+                    # Add is_westlaw flag if available
+                    if 'is_westlaw' in verification_result:
+                        citation['metadata']['is_westlaw'] = verification_result['is_westlaw']
+                    
+                    print(f"\n==== UPDATED CITATION {i+1}: {citation} ====\n")
+                    logger.info(f"==== UPDATED CITATION {i+1}: {citation} ====")
+                    
+                except Exception as e:
+                    print(f"\n==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====\n")
+                    logger.error(f"==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====")
+                    logger.error(traceback.format_exc())
+                    
+                    # Set citation as invalid with error explanation
+                    citation['valid'] = False
+                    citation['explanation'] = f"Error during verification: {str(e)}"
+            
+            print("\n==== CITATION VERIFICATION PROCESS COMPLETE ====\n")
+            logger.info("==== CITATION VERIFICATION PROCESS COMPLETE ====")
+            
+            verification_time = time.time() - verification_start
+            logger.info(f"Citation verification complete in {verification_time:.2f} seconds")
+            
             return jsonify({
                 'message': f"Successfully analyzed {len(citations)} citations in the provided text",
-                'citations': citations
+                'citations': citations,
+                'processing_time': verification_time
             })
         except Exception as e:
             logger.error(f"Error analyzing text: {str(e)}")
@@ -394,12 +479,73 @@ def create_app():
             citations = extract_citations_from_text(text)
             
             # Process citations
-            for citation in citations:
-                citation['valid'] = verify_citation(citation['text'])
+            logger.info("Starting citation verification for URL input")
+            verification_start = time.time()
+            
+            # Enable more verbose debugging
+            print("\n==== STARTING CITATION VERIFICATION PROCESS FOR URL INPUT ====\n")
+            logger.info("==== STARTING CITATION VERIFICATION PROCESS FOR URL INPUT ====")
+            
+            for i, citation in enumerate(citations):
+                print(f"\n==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====\n")
+                logger.info(f"==== VERIFYING CITATION {i+1}/{len(citations)}: {citation['text']} ====")
+                
+                try:
+                    # Get the first context if available
+                    context = citation.get('contexts', [])[0].get('text', '') if citation.get('contexts') else ''
+                    verification_result = verify_citation(citation['text'], context=context)
+                    
+                    print(f"\n==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====\n")
+                    logger.info(f"==== VERIFICATION RESULT FOR CITATION {i+1}: {verification_result} ====")
+                    
+                    # Update citation with verification results
+                    citation['valid'] = verification_result.get('found', False)
+                    citation['explanation'] = verification_result.get('explanation')
+                    
+                    # Update metadata with source information
+                    if 'source' in verification_result:
+                        citation['metadata']['source'] = verification_result['source']
+                    
+                    # Add case name if available
+                    if verification_result.get('case_name') and not citation['name']:
+                        citation['name'] = verification_result['case_name']
+                    
+                    # Add any additional details
+                    if verification_result.get('details'):
+                        for key, value in verification_result['details'].items():
+                            if value and key not in citation['metadata']:
+                                citation['metadata'][key] = value
+                    
+                    # Add URL if available
+                    if verification_result.get('url'):
+                        citation['metadata']['url'] = verification_result['url']
+                    
+                    # Add is_westlaw flag if available
+                    if 'is_westlaw' in verification_result:
+                        citation['metadata']['is_westlaw'] = verification_result['is_westlaw']
+                    
+                    print(f"\n==== UPDATED CITATION {i+1}: {citation} ====\n")
+                    logger.info(f"==== UPDATED CITATION {i+1}: {citation} ====")
+                    
+                except Exception as e:
+                    print(f"\n==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====\n")
+                    logger.error(f"==== ERROR VERIFYING CITATION {i+1}: {str(e)} ====")
+                    logger.error(traceback.format_exc())
+                    
+                    # Set citation as invalid with error explanation
+                    citation['valid'] = False
+                    citation['explanation'] = f"Error during verification: {str(e)}"
+            
+            print("\n==== CITATION VERIFICATION PROCESS COMPLETE ====\n")
+            logger.info("==== CITATION VERIFICATION PROCESS COMPLETE ====")
+            
+            verification_time = time.time() - verification_start
+            logger.info(f"Citation verification complete in {verification_time:.2f} seconds")
                 
             return jsonify({
                 'message': f"Successfully analyzed {len(citations)} citations from {url}",
-                'citations': citations
+                'citations': citations,
+                'processing_time': verification_time
             })
         except requests.RequestException as e:
             logger.error(f"Error fetching URL {url}: {str(e)}")
@@ -632,9 +778,15 @@ app = create_app()
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def verify_citation(citation):
+def verify_citation(citation, context=None):
     """Verify a citation using the robust CitationVerifier logic with improved error handling.
-    Returns a dictionary with verification results including whether the citation is valid and its source.
+    
+    Args:
+        citation: The citation text to verify
+        context: Optional context around the citation (text before and after)
+        
+    Returns:
+        A dictionary with verification results including whether the citation is valid and its source.
     """
     try:
         # Import CitationVerifier with better error handling
@@ -650,6 +802,16 @@ def verify_citation(citation):
                 logger.error(f"Failed to import CitationVerifier: {str(import_err)}")
                 raise
         
+        # Import our citation verification logging function
+        try:
+            from citation_api import log_citation_verification
+            logger.info("Successfully imported log_citation_verification function")
+        except ImportError as import_err:
+            logger.warning(f"Could not import log_citation_verification function: {str(import_err)}")
+            # Define a simple fallback if import fails
+            def log_citation_verification(citation, verification_result, api_response=None):
+                logger.info(f"Citation: {citation}, Result: {verification_result}")
+        
         # Get API key from thread_local or use default
         api_key = getattr(thread_local, 'api_key', DEFAULT_API_KEY)
         
@@ -663,8 +825,21 @@ def verify_citation(citation):
         # Create verifier and verify citation
         verifier = CitationVerifier(api_key=api_key)
         logger.info(f"Verifying citation: {citation}")
-        result = verifier.verify_citation(citation)
+        
+        start_time = time.time()
+        
+        if context:
+            logger.info(f"Context provided, length: {len(context)}")
+            result = verifier.verify_citation(citation, context=context)
+        else:
+            result = verifier.verify_citation(citation)
+            
+        verification_time = time.time() - start_time
+        logger.info(f"Verification completed in {verification_time:.2f} seconds")
         logger.info(f"Verification result: {result}")
+        
+        # Log detailed information about the verification process
+        log_citation_verification(citation, result)
         
         # Return the full verification result to the frontend
         # This includes 'found', 'source', 'explanation', etc.
@@ -784,9 +959,11 @@ def extract_citations_from_text(text):
         logger.info("Processing citation objects to extract metadata")
         metadata_start = time.time()
         citation_dicts = []
+        unique_citations = {}
         
         for i, citation in enumerate(citations):
-            logger.info(f"Processing citation {i+1}/{len(citations)}: {citation.matched_text()}")
+            citation_text = citation.matched_text()
+            logger.info(f"Processing citation {i+1}/{len(citations)}: {citation_text}")
             
             # Get case name if available
             case_name = None
@@ -808,22 +985,59 @@ def extract_citations_from_text(text):
             court = getattr(citation, 'court', None)
             
             logger.info(f"Citation metadata - Reporter: {reporter}, Volume: {volume}, Page: {page}, Year: {year}, Court: {court}")
-                
-            citation_dict = {
-                'text': citation.matched_text(),
-                'name': case_name or 'Unknown Case',
-                'valid': None,  # Will be filled in by the API endpoint
-                'metadata': {
-                    'reporter': reporter,
-                    'volume': volume,
-                    'page': page,
-                    'year': year,
-                    'court': court
-                }
-            }
             
-            citation_dicts.append(citation_dict)
-            logger.info(f"Added citation {i+1} to results")
+            # Extract context (100 characters on either side of the citation)
+            try:
+                # Find the position of the citation in the text
+                citation_pos = text.find(citation_text)
+                if citation_pos != -1:
+                    # Get 100 characters before and after the citation
+                    start_pos = max(0, citation_pos - 100)
+                    end_pos = min(len(text), citation_pos + len(citation_text) + 100)
+                    context = text[start_pos:end_pos]
+                    logger.info(f"Extracted context of length {len(context)} for citation")
+                else:
+                    context = ""
+                    logger.warning(f"Could not find citation '{citation_text}' in text for context extraction")
+            except Exception as context_error:
+                logger.warning(f"Error extracting context: {str(context_error)}")
+                context = ""
+            
+            # Create a unique key for deduplication (using volume, reporter, and page if available)
+            citation_key = f"{volume or ''}|{reporter or ''}|{page or ''}|{citation_text}"
+            
+            # Create or update the citation dictionary
+            if citation_key in unique_citations:
+                # Add this context to the existing citation
+                unique_citations[citation_key]['contexts'].append({
+                    'text': context,
+                    'citation_text': citation_text
+                })
+                logger.info(f"Added context to existing citation: {citation_key}")
+            else:
+                # Create a new citation entry
+                citation_dict = {
+                    'text': citation_text,
+                    'name': case_name or 'Unknown Case',
+                    'valid': None,  # Will be filled in by the API endpoint
+                    'contexts': [{
+                        'text': context,
+                        'citation_text': citation_text
+                    }],
+                    'metadata': {
+                        'reporter': reporter,
+                        'volume': volume,
+                        'page': page,
+                        'year': year,
+                        'court': court
+                    }
+                }
+                unique_citations[citation_key] = citation_dict
+                logger.info(f"Added new citation: {citation_key}")
+        
+        # Convert the dictionary of unique citations back to a list
+        citation_dicts = list(unique_citations.values())
+        logger.info(f"After deduplication, {len(citation_dicts)} unique citations remain")
         
         metadata_time = time.time() - metadata_start
         logger.info(f"Metadata extraction completed in {metadata_time:.2f} seconds")

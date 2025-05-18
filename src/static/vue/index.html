@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="/casestrainer/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/casestrainer/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/casestrainer/favicon.ico" type="image/x-icon">
     <title>CaseStrainer - Legal Citation Verification System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="/css/main.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -63,7 +66,7 @@
 <body>
     <!-- Version indicator in the corner -->
     <div style="position: fixed; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; text-align: center; padding: 5px 10px; font-size: 12px; z-index: 9999; border-bottom-left-radius: 5px;">
-        v0.3.2
+        v0.4.0
     </div>
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -154,64 +157,49 @@
                                 <div class="tab-content" id="input-method-content">
                                     <!-- File Upload Panel -->
                                     <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
-                                        <form id="uploadForm" enctype="multipart/form-data" action="javascript:void(0);" onsubmit="handleFileUpload(event)">
-                                            <div class="alert alert-danger">
-                                                <strong>File Upload Issue Detected</strong> - Please use the original interface for file uploads
-                                                <div class="mt-2">
-                                                    <a href="/casestrainer/api" class="btn btn-success">Go to Original Interface</a>
-                                                    <a href="/api" class="btn btn-primary ms-2">Try Alternative URL</a>
-                                                </div>
-                                                <div class="mt-2">
-                                                    <a href="/" class="btn btn-warning">Go to Root URL</a>
-                                                    <a href="/api/" class="btn btn-info ms-2">Try API Root</a>
-                                                </div>
-                                                <div class="mt-2 small">
-                                                    The Vue.js interface is still under development. The original interface has full file upload functionality.
-                                                </div>
-                                            </div>
+                                        <form id="fileForm" enctype="multipart/form-data" action="javascript:void(0);">
                                             <div class="mb-3">
-                                                <label for="fileUpload" class="form-label">Select a file to analyze for citations</label>
-                                                <input class="form-control" type="file" id="fileUpload" name="file" accept=".pdf,.docx,.txt,.rtf,.doc,.html,.htm">
-                                                <div class="form-text">Supported formats: PDF, DOCX, TXT, RTF, DOC, HTML</div>
+                                                <label for="fileUpload" class="form-label">Upload a legal document containing citations</label>
+                                                <input class="form-control" type="file" id="fileUpload" name="file" accept=".txt,.doc,.docx,.pdf,.rtf,.html,.htm" data-gramm_editor="false">
+                                                <div class="form-text">Supported formats: .txt, .doc, .docx, .pdf, .rtf, .html, .htm</div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Analyze File</button>
-                                            <button type="button" class="btn btn-danger ms-2" onclick="window.manualFileUpload && window.manualFileUpload()">Direct Upload (Debug)</button>
-                                            <!-- Progress bar for file upload -->
-                                            <div id="uploadProgress" class="progress mt-3" style="display: none;">
-                                                <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
-                                            </div>
-                                        </form>
+                                             <button type="button" class="btn btn-primary" onclick="handleCitationInput('file', document.getElementById('fileUpload').files[0])">Analyze File</button>
+                                             <!-- Progress bar for file upload -->
+                                             <div id="fileProgress" class="progress mt-3">
+                                                 <div id="fileProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                             </div>
+                                         </form>
                                     </div>
                                     
                                     <!-- Text Paste Panel -->
                                     <div class="tab-pane fade" id="text-panel" role="tabpanel" aria-labelledby="text-tab">
-                                        <form id="pasteForm" action="javascript:void(0);" onsubmit="handleTextSubmit(event)">
+                                        <form id="pasteForm" action="javascript:void(0);">
                                             <div class="mb-3">
                                                 <label for="textInput" class="form-label">Paste text containing legal citations</label>
                                                 <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Analyze Text</button>
-                                            <!-- Progress bar for text analysis -->
-                                            <div id="pasteProgress" class="progress mt-3" style="display: none;">
-                                                <div id="pasteProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
-                                            </div>
-                                        </form>
+                                             <button type="button" class="btn btn-primary" onclick="handleCitationInput('text', document.getElementById('textInput').value)">Analyze Text</button>
+                                             <!-- Progress bar for text analysis -->
+                                             <div id="textProgress" class="progress mt-3">
+                                                 <div id="textProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                             </div>
+                                         </form>
                                     </div>
                                     
                                     <!-- URL Input Panel -->
                                     <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
-                                        <form id="urlForm" action="javascript:void(0);" onsubmit="handleUrlSubmit(event)">
+                                        <form id="urlForm" action="javascript:void(0);">
                                             <div class="mb-3">
                                                 <label for="urlInput" class="form-label">Enter URL of a legal document</label>
                                                 <input type="url" class="form-control" id="urlInput" name="url" placeholder="https://law.justia.com/cases/...">
                                                 <div class="form-text">Enter a URL to a legal document (e.g., from Justia, CourtListener, etc.)</div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Analyze URL</button>
-                                            <!-- Progress bar for URL analysis -->
-                                            <div id="urlProgress" class="progress mt-3" style="display: none;">
-                                                <div id="urlProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
-                                            </div>
-                                        </form>
+                                             <button type="button" class="btn btn-primary" onclick="handleCitationInput('url', document.getElementById('urlInput').value)">Analyze URL</button>
+                                             <!-- Progress bar for URL analysis -->
+                                             <div id="urlProgress" class="progress mt-3">
+                                                 <div id="urlProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>
+                                             </div>
+                                         </form>
                                     </div>
                                 </div>
                             </div>
@@ -298,7 +286,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>CaseStrainer <span class="badge bg-primary">v0.3.2</span></h5>
+                    <h5>CaseStrainer</h5><span class="badge bg-primary">v0.3.2</span>
                     <p>Advanced Legal Citation Verification System</p>
                 </div>
                 <div class="col-md-6">
@@ -322,14 +310,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="js/combined-input.js"></script>
     <script src="js/citation-report.js"></script>
-    <script src="js/file-upload-handler.js"></script>
-    <script src="js/text-url-handler.js"></script>
-    <script src="/vue/js/main.js"></script>
-    <script src="/vue/js/multitool-citations.js"></script>
-    <script src="/vue/js/unconfirmed-citations.js"></script>
-    <script src="/vue/js/courtlistener-gaps.js"></script>
+    <script src="js/unified-input-handler.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/multitool-citations.js"></script>
+    <script src="js/unconfirmed-citations.js"></script>
+    <script src="js/courtlistener-gaps.js"></script>
 </body>
 </html>

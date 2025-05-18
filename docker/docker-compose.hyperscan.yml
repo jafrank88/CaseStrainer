@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  hyperscan:
+    build:
+      context: .
+      dockerfile: Dockerfile.hyperscan
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python3 test_hyperscan.py 

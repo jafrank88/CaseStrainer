@@ -36,6 +36,16 @@
     </div>
     {% endif %}
 
+    <ul class="nav nav-tabs" id="tester-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">Results</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">Debug Information</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="results-content" role="tabpanel">
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Test Configuration</h5>
@@ -133,7 +143,23 @@
         </div>
     </div>
 </div>
-
+        </div>
+        <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
+            <div class="card bg-light mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">Debug Information</h6>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> {{ error }}
+                    </div>
+                    {% endif %}
+                    <pre id="debugLog" class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Ensure at least one checkbox is checked

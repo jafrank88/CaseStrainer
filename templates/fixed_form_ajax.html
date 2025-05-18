@@ -99,6 +99,9 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">About</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="debug-tab" data-bs-toggle="tab" data-bs-target="#debug" type="button" role="tab">Debug Information</button>
+                    </li>
                 </ul>
                 
                 <div class="tab-content" id="inputTabsContent">
@@ -597,6 +600,19 @@
                     <div class="tab-pane fade" id="about" role="tabpanel">
                         <div class="container">
                             <h2>About CaseStrainer</h2>
+                    </div>
+                    <!-- Debug Tab -->
+                    <div class="tab-pane fade" id="debug" role="tabpanel" aria-labelledby="debug-tab">
+                        <div class="container">
+                            <h2>Debug Information</h2>
+                            <div class="card mb-4">
+                                <div class="card-header bg-secondary text-white">Progress & Debug Logs</div>
+                                <div class="card-body">
+                                    <div id="progressLogs" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa; font-family: monospace; font-size: 12px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                             
                             <div class="card mb-4">
                                 <div class="card-header">Overview</div>
