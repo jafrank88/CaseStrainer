@@ -3903,3 +3903,173 @@ cal Diversity v. Zinke
 2025-05-19 12:14:50,303 - citation_verification - INFO -   year: 2018
 2025-05-19 12:14:50,304 - citation_verification - INFO -   wl_number: 3037217
 2025-05-19 12:14:50,304 - citation_verification - INFO - =========================================
+2025-05-19 12:35:37,448 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:35:37,449 - citation_verification - INFO - Citation: 2006 WL 3801910
+2025-05-19 12:35:37,450 - citation_verification - INFO - Verification Result: {'citation': '2006 WL 3801910', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2006', 'wl_number': '3801910'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'tionally, Wyoming case law reinforces these principles. In  Wyoming v. U.S. \nDepartment of Energy'}
+2025-05-19 12:35:37,450 - citation_verification - INFO - Found: False
+2025-05-19 12:35:37,451 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:35:37,452 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:35:37,452 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:35:37,453 - citation_verification - INFO - Citation Details:
+2025-05-19 12:35:37,453 - citation_verification - INFO -   year: 2006
+2025-05-19 12:35:37,454 - citation_verification - INFO -   wl_number: 3801910
+2025-05-19 12:35:37,454 - citation_verification - INFO - =========================================
+2025-05-19 12:35:57,894 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:35:57,894 - citation_verification - INFO - Citation: 2006 WL 3801910
+2025-05-19 12:35:57,895 - citation_verification - INFO - Verification Result: {'citation': '2006 WL 3801910', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2006', 'wl_number': '3801910'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'tionally, Wyoming case law reinforces these principles. In  Wyoming v. U.S. \nDepartment of Energy'}
+2025-05-19 12:35:57,895 - citation_verification - INFO - Found: False
+2025-05-19 12:35:57,896 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:35:57,901 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:35:57,902 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:35:57,902 - citation_verification - INFO - Citation Details:
+2025-05-19 12:35:57,903 - citation_verification - INFO -   year: 2006
+2025-05-19 12:35:57,903 - citation_verification - INFO -   wl_number: 3801910
+2025-05-19 12:35:57,904 - citation_verification - INFO - =========================================
+2025-05-19 12:35:58,622 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:35:58,622 - citation_verification - INFO - Citation: 2018 WL 2446162
+2025-05-19 12:35:58,627 - citation_verification - INFO - Verification Result: {'citation': '2018 WL 2446162', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2018', 'wl_number': '2446162'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'mphasized the importance \nof preventing jury confusion and undue prejudice. In  Holland v. Keller'}
+2025-05-19 12:35:58,628 - citation_verification - INFO - Found: False
+2025-05-19 12:35:58,628 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:35:58,629 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:35:58,629 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:35:58,630 - citation_verification - INFO - Citation Details:
+2025-05-19 12:35:58,631 - citation_verification - INFO -   year: 2018
+2025-05-19 12:35:58,632 - citation_verification - INFO -   wl_number: 2446162
+2025-05-19 12:35:58,632 - citation_verification - INFO - =========================================
+2025-05-19 12:35:59,569 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:35:59,570 - citation_verification - INFO - Citation: 534 F.3d 1290
+2025-05-19 12:35:59,570 - citation_verification - INFO - Verification Result: {'citation': '534 F.3d 1290', 'found': True, 'valid': True, 'source': 'CourtListener', 'case_name': 'United States v. Caraway', 'url': 'https://www.courtlistener.com/opinion/171021/united-states-v-caraway/', 'details': {}, 'explanation': 'Citation verified by CourtListener API.', 'status': 200, 'error_message': None, 'courtlistener': {'resource_uri': 'https://www.courtlistener.com/api/rest/v4/clusters/171021/', 'id': 171021, 'absolute_url': '/opinion/171021/united-states-v-caraway/', 'panel': ['https://www.courtlistener.com/api/rest/v4/people/1383/', 'https://www.courtlistener.com/api/rest/v4/people/1500/', 'https://www.courtlistener.com/api/rest/v4/people/2199/'], 'non_participating_judges': [], 'docket_id': 1539647, 'docket': 'https://www.courtlistener.com/api/rest/v4/dockets/1539647/', 'sub_opinions': ['https://www.courtlistener.com/api/rest/v4/opinions/171021/'], 'citations': [{'volume': 534, 'reporter': 'F.3d', 'page': '1290', 'type': 1}, {'volume': 2008, 'reporter': 'U.S. App. LEXIS', 'page': '15967', 'type': 6}, {'volume': 2008, 'reporter': 'WL', 'page': '2877475', 'type': 7}], 'date_created': '2015-10-14T00:38:24.039463-07:00', 'date_modified': '2024-11-04T19:40:10.230574-08:00', 'judges': 'Hartz, McWilliams, Holmes', 'date_filed': '2008-07-28', 'date_filed_is_approximate': False, 'slug': 'united-states-v-caraway', 'case_name_short': 'Caraway', 'case_name': 'United States v. Caraway', 'case_name_full': 'UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant', 'scdb_id': '', 'scdb_decision_direction': None, 'scdb_votes_majority': None, 'scdb_votes_minority': None, 'source': 'LCU', 'procedural_history': '', 'attorneys': 'Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant., James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.', 'nature_of_suit': '', 'posture': '', 'syllabus': '', 'headnotes': '', 'summary': '', 'disposition': '', 'history': '', 'other_dates': '', 'cross_reference': '', 'correction': '', 'citation_count': 49, 'precedential_status': 'Published', 'date_blocked': None, 'blocked': False, 'filepath_json_harvard': 'law.free.cap.f3d.534/1290.4064784.json', 'filepath_pdf_harvard': 'harvard_pdf/171021.pdf', 'arguments': '', 'headmatter': '<parties id="b1308-9">\n    UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant.\n   </parties><br><docketnumber id="b1308-12">\n    No. 07-3229.\n   </docketnumber><br><court id="b1308-13">\n    United States Court of Appeals, Tenth Circuit.\n   </court><br><decisiondate id="b1308-15">\n    July 28, 2008.\n   </decisiondate><br><attorneys id="b1310-3">\n<span citation-index="1" class="star-pagination" label="1292"> \n     *1292\n     </span>\n    Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant.\n   </attorneys><br><attorneys id="b1310-4">\n    James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.\n   </attorneys><br><judges id="b1310-5">\n    Before HARTZ, Circuit Judge, McWILLIAMS, Senior Circuit Judge, and HOLMES, Circuit Judge.\n   </judges>'}, 'sources_checked': ['CourtListener Citation Lookup API']}
+2025-05-19 12:35:59,571 - citation_verification - INFO - Found: True
+2025-05-19 12:35:59,571 - citation_verification - INFO - Source: CourtListener
+2025-05-19 12:35:59,572 - citation_verification - INFO - Case Name: United States v. Caraway
+2025-05-19 12:35:59,572 - citation_verification - INFO - Explanation: Citation verified by CourtListener API.
+2025-05-19 12:35:59,577 - citation_verification - INFO - =========================================
+2025-05-19 12:36:00,692 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:00,697 - citation_verification - INFO - Citation: 2017 WL 3461055
+2025-05-19 12:36:00,697 - citation_verification - INFO - Verification Result: {'citation': '2017 WL 3461055', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2017', 'wl_number': '3461055'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'ty should be excluded to preserve the integrity of the trial process . Meyer v. City \nof Cheyenne'}
+2025-05-19 12:36:00,698 - citation_verification - INFO - Found: False
+2025-05-19 12:36:00,699 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:00,699 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:00,700 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:00,700 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:00,701 - citation_verification - INFO -   year: 2017
+2025-05-19 12:36:00,701 - citation_verification - INFO -   wl_number: 3461055
+2025-05-19 12:36:00,702 - citation_verification - INFO - =========================================
+2025-05-19 12:36:01,796 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:01,801 - citation_verification - INFO - Citation: 2010 WL 4683851
+2025-05-19 12:36:01,801 - citation_verification - INFO - Verification Result: {'citation': '2010 WL 4683851', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2010', 'wl_number': '4683851'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'n  that the  Federal Rules of \nEvidence intend to protect against.  In Benson v. State of Wyoming'}
+2025-05-19 12:36:01,802 - citation_verification - INFO - Found: False
+2025-05-19 12:36:01,802 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:01,803 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:01,803 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:01,804 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:01,804 - citation_verification - INFO -   year: 2010
+2025-05-19 12:36:01,805 - citation_verification - INFO -   wl_number: 4683851
+2025-05-19 12:36:01,805 - citation_verification - INFO - =========================================
+2025-05-19 12:36:02,835 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:02,836 - citation_verification - INFO - Citation: 2011 WL 2160468
+2025-05-19 12:36:02,836 - citation_verification - INFO - Verification Result: {'citation': '2011 WL 2160468', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2011', 'wl_number': '2160468'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'where there is no evidence to establish a causal link to the incident. \nIn Smith v. United States'}
+2025-05-19 12:36:02,837 - citation_verification - INFO - Found: False
+2025-05-19 12:36:02,838 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:02,838 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:02,839 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:02,839 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:02,840 - citation_verification - INFO -   year: 2011
+2025-05-19 12:36:02,840 - citation_verification - INFO -   wl_number: 2160468
+2025-05-19 12:36:02,841 - citation_verification - INFO - =========================================
+2025-05-19 12:36:03,602 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:03,603 - citation_verification - INFO - Citation: 2019 WL 2516279
+2025-05-19 12:36:03,603 - citation_verification - INFO - Verification Result: {'citation': '2019 WL 2516279', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2019', 'wl_number': '2516279'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'potential for undue emphasis on certain aspects of the testimony. In  United \nStates v. Hargrove'}
+2025-05-19 12:36:03,604 - citation_verification - INFO - Found: False
+2025-05-19 12:36:03,604 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:03,605 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:03,605 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:03,606 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:03,606 - citation_verification - INFO -   year: 2019
+2025-05-19 12:36:03,607 - citation_verification - INFO -   wl_number: 2516279
+2025-05-19 12:36:03,607 - citation_verification - INFO - =========================================
+2025-05-19 12:36:04,536 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:04,541 - citation_verification - INFO - Citation: 2018 WL 3037217
+2025-05-19 12:36:04,541 - citation_verification - INFO - Verification Result: {'citation': '2018 WL 3037217', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2018', 'wl_number': '3037217'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'tion and distract from the \nrelevant issues at hand. Similarly, in Fitzgerald v. City of New York'}
+2025-05-19 12:36:04,542 - citation_verification - INFO - Found: False
+2025-05-19 12:36:04,542 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:04,543 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:04,543 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:04,544 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:04,544 - citation_verification - INFO -   year: 2018
+2025-05-19 12:36:04,545 - citation_verification - INFO -   wl_number: 3037217
+2025-05-19 12:36:04,545 - citation_verification - INFO - =========================================
+2025-05-19 12:36:08,001 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:08,002 - citation_verification - INFO - Citation: 2018 WL 2446162
+2025-05-19 12:36:08,002 - citation_verification - INFO - Verification Result: {'citation': '2018 WL 2446162', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2018', 'wl_number': '2446162'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'mphasized the importance \nof preventing jury confusion and undue prejudice. In  Holland v. Keller'}
+2025-05-19 12:36:08,005 - citation_verification - INFO - Found: False
+2025-05-19 12:36:08,009 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:08,010 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:08,010 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:08,011 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:08,011 - citation_verification - INFO -   year: 2018
+2025-05-19 12:36:08,012 - citation_verification - INFO -   wl_number: 2446162
+2025-05-19 12:36:08,012 - citation_verification - INFO - =========================================
+2025-05-19 12:36:08,606 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:08,607 - citation_verification - INFO - Citation: 534 F.3d 1290
+2025-05-19 12:36:08,608 - citation_verification - INFO - Verification Result: {'citation': '534 F.3d 1290', 'found': True, 'valid': True, 'source': 'CourtListener', 'case_name': 'United States v. Caraway', 'url': 'https://www.courtlistener.com/opinion/171021/united-states-v-caraway/', 'details': {}, 'explanation': 'Citation verified by CourtListener API.', 'status': 200, 'error_message': None, 'courtlistener': {'resource_uri': 'https://www.courtlistener.com/api/rest/v4/clusters/171021/', 'id': 171021, 'absolute_url': '/opinion/171021/united-states-v-caraway/', 'panel': ['https://www.courtlistener.com/api/rest/v4/people/1383/', 'https://www.courtlistener.com/api/rest/v4/people/1500/', 'https://www.courtlistener.com/api/rest/v4/people/2199/'], 'non_participating_judges': [], 'docket_id': 1539647, 'docket': 'https://www.courtlistener.com/api/rest/v4/dockets/1539647/', 'sub_opinions': ['https://www.courtlistener.com/api/rest/v4/opinions/171021/'], 'citations': [{'volume': 534, 'reporter': 'F.3d', 'page': '1290', 'type': 1}, {'volume': 2008, 'reporter': 'U.S. App. LEXIS', 'page': '15967', 'type': 6}, {'volume': 2008, 'reporter': 'WL', 'page': '2877475', 'type': 7}], 'date_created': '2015-10-14T00:38:24.039463-07:00', 'date_modified': '2024-11-04T19:40:10.230574-08:00', 'judges': 'Hartz, McWilliams, Holmes', 'date_filed': '2008-07-28', 'date_filed_is_approximate': False, 'slug': 'united-states-v-caraway', 'case_name_short': 'Caraway', 'case_name': 'United States v. Caraway', 'case_name_full': 'UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant', 'scdb_id': '', 'scdb_decision_direction': None, 'scdb_votes_majority': None, 'scdb_votes_minority': None, 'source': 'LCU', 'procedural_history': '', 'attorneys': 'Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant., James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.', 'nature_of_suit': '', 'posture': '', 'syllabus': '', 'headnotes': '', 'summary': '', 'disposition': '', 'history': '', 'other_dates': '', 'cross_reference': '', 'correction': '', 'citation_count': 49, 'precedential_status': 'Published', 'date_blocked': None, 'blocked': False, 'filepath_json_harvard': 'law.free.cap.f3d.534/1290.4064784.json', 'filepath_pdf_harvard': 'harvard_pdf/171021.pdf', 'arguments': '', 'headmatter': '<parties id="b1308-9">\n    UNITED STATES of America, Plaintiff-Appellee, v. Thomas Guy CARAWAY, Defendant-Appellant.\n   </parties><br><docketnumber id="b1308-12">\n    No. 07-3229.\n   </docketnumber><br><court id="b1308-13">\n    United States Court of Appeals, Tenth Circuit.\n   </court><br><decisiondate id="b1308-15">\n    July 28, 2008.\n   </decisiondate><br><attorneys id="b1310-3">\n<span citation-index="1" class="star-pagination" label="1292"> \n     *1292\n     </span>\n    Ronald E. Wnrtz, Assistant Federal Public Defender, (David J. Phillips, Federal Public Defender, with him on the briefs), Topeka, KS, for Defendant-Appellant.\n   </attorneys><br><attorneys id="b1310-4">\n    James A. Brown, Assistant United States Attorney, (Eric F. Melgren, United States Attorney, with him on the brief), Topeka, KS, for Plaintiff-Appellee.\n   </attorneys><br><judges id="b1310-5">\n    Before HARTZ, Circuit Judge, McWILLIAMS, Senior Circuit Judge, and HOLMES, Circuit Judge.\n   </judges>'}, 'sources_checked': ['CourtListener Citation Lookup API']}
+2025-05-19 12:36:08,608 - citation_verification - INFO - Found: True
+2025-05-19 12:36:08,609 - citation_verification - INFO - Source: CourtListener
+2025-05-19 12:36:08,609 - citation_verification - INFO - Case Name: United States v. Caraway
+2025-05-19 12:36:08,614 - citation_verification - INFO - Explanation: Citation verified by CourtListener API.
+2025-05-19 12:36:08,615 - citation_verification - INFO - =========================================
+2025-05-19 12:36:09,475 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:09,475 - citation_verification - INFO - Citation: 2017 WL 3461055
+2025-05-19 12:36:09,480 - citation_verification - INFO - Verification Result: {'citation': '2017 WL 3461055', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2017', 'wl_number': '3461055'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'ty should be excluded to preserve the integrity of the trial process . Meyer v. City \nof Cheyenne'}
+2025-05-19 12:36:09,481 - citation_verification - INFO - Found: False
+2025-05-19 12:36:09,481 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:09,482 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:09,483 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:09,484 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:09,486 - citation_verification - INFO -   year: 2017
+2025-05-19 12:36:09,487 - citation_verification - INFO -   wl_number: 3461055
+2025-05-19 12:36:09,487 - citation_verification - INFO - =========================================
+2025-05-19 12:36:10,588 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:10,588 - citation_verification - INFO - Citation: 2010 WL 4683851
+2025-05-19 12:36:10,589 - citation_verification - INFO - Verification Result: {'citation': '2010 WL 4683851', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2010', 'wl_number': '4683851'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'n  that the  Federal Rules of \nEvidence intend to protect against.  In Benson v. State of Wyoming'}
+2025-05-19 12:36:10,589 - citation_verification - INFO - Found: False
+2025-05-19 12:36:10,590 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:10,590 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:10,591 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:10,591 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:10,592 - citation_verification - INFO -   year: 2010
+2025-05-19 12:36:10,592 - citation_verification - INFO -   wl_number: 4683851
+2025-05-19 12:36:10,593 - citation_verification - INFO - =========================================
+2025-05-19 12:36:11,575 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:11,576 - citation_verification - INFO - Citation: 2011 WL 2160468
+2025-05-19 12:36:11,580 - citation_verification - INFO - Verification Result: {'citation': '2011 WL 2160468', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2011', 'wl_number': '2160468'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'where there is no evidence to establish a causal link to the incident. \nIn Smith v. United States'}
+2025-05-19 12:36:11,581 - citation_verification - INFO - Found: False
+2025-05-19 12:36:11,582 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:11,582 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:11,582 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:11,583 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:11,584 - citation_verification - INFO -   year: 2011
+2025-05-19 12:36:11,584 - citation_verification - INFO -   wl_number: 2160468
+2025-05-19 12:36:11,585 - citation_verification - INFO - =========================================
+2025-05-19 12:36:12,437 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:12,441 - citation_verification - INFO - Citation: 2019 WL 2516279
+2025-05-19 12:36:12,442 - citation_verification - INFO - Verification Result: {'citation': '2019 WL 2516279', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2019', 'wl_number': '2516279'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'potential for undue emphasis on certain aspects of the testimony. In  United \nStates v. Hargrove'}
+2025-05-19 12:36:12,442 - citation_verification - INFO - Found: False
+2025-05-19 12:36:12,443 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:12,443 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:12,444 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:12,444 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:12,445 - citation_verification - INFO -   year: 2019
+2025-05-19 12:36:12,445 - citation_verification - INFO -   wl_number: 2516279
+2025-05-19 12:36:12,446 - citation_verification - INFO - =========================================
+2025-05-19 12:36:13,032 - citation_verification - INFO - ===== CITATION VERIFICATION DETAILS =====
+2025-05-19 12:36:13,036 - citation_verification - INFO - Citation: 2018 WL 3037217
+2025-05-19 12:36:13,037 - citation_verification - INFO - Verification Result: {'citation': '2018 WL 3037217', 'found': False, 'source': 'citation_pattern', 'case_name': 'Westlaw Citation', 'url': None, 'details': {'year': '2018', 'wl_number': '3037217'}, 'explanation': 'Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.', 'is_westlaw': True, 'sources_checked': ['CourtListener Citation Lookup API', 'Pattern Recognition', 'Pattern Recognition'], 'extracted_case_name': 'tion and distract from the \nrelevant issues at hand. Similarly, in Fitzgerald v. City of New York'}
+2025-05-19 12:36:13,038 - citation_verification - INFO - Found: False
+2025-05-19 12:36:13,038 - citation_verification - INFO - Source: citation_pattern
+2025-05-19 12:36:13,039 - citation_verification - INFO - Case Name: Westlaw Citation
+2025-05-19 12:36:13,039 - citation_verification - INFO - Explanation: Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database.
+2025-05-19 12:36:13,040 - citation_verification - INFO - Citation Details:
+2025-05-19 12:36:13,040 - citation_verification - INFO -   year: 2018
+2025-05-19 12:36:13,040 - citation_verification - INFO -   wl_number: 3037217
+2025-05-19 12:36:13,041 - citation_verification - INFO - =========================================

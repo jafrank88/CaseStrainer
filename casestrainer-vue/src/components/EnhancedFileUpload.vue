@@ -29,43 +29,20 @@
     <div v-if="documentAnalysisResult" class="mt-4">
       <div class="card">
         <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results-content" 
-                type="button" role="tab" aria-controls="results-content" aria-selected="true">
-                Analysis Results
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div class="card-body">
-          <div class="tab-content">
-            <!-- Results Tab -->
-            <div class="tab-pane fade show active" id="results-content" role="tabpanel" aria-labelledby="results-tab">
-              <div class="alert alert-success">
-                <h5>Analysis complete!</h5>
-                <p>Found {{ documentAnalysisResult.citations_count }} citations in your document.</p>
-              </div>
-              
-              <div class="mt-3">
-                <h6>Citation Summary:</h6>
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Confirmed Citations
-                    <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Unconfirmed Citations
-                    <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-
-          </div>
-          
-          <!-- Citations Table -->
+  <h5>Analysis Results</h5>
+</div>
+<div class="card-body">
+  <div class="alert alert-success">
+    <h5>Analysis complete!</h5>
+    <p>Found {{ documentAnalysisResult.citations_count }} citations in your document.</p>
+  </div>
+  <div class="mt-3">
+    <h6>Citation Summary:</h6>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Confirmed Citations
+        <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
+      </li>
           <div class="mt-4">
             <h6>Citations Found:</h6>
             <div class="table-responsive">
@@ -98,7 +75,6 @@
               </table>
             </div>
           </div>
-          
           <div class="mt-3">
             <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">View All Confirmed</button>
             <button class="btn btn-outline-danger" @click="viewUnconfirmedCitations">View All Unconfirmed</button>
@@ -169,7 +145,7 @@ export default {
       
       // Clear previous debug info
       this.debugInfo = 'Debug: Starting file analysis...\n';
-      this.debugInfo += `Request to ${this.basePath}/api/upload: [File data]\n`;
+      this.debugInfo += `Request to ${this.basePath}/api/upload: [File data]\n`; // Only for backend logging
 
       const formData = new FormData();
       formData.append('file', this.file);
@@ -187,7 +163,7 @@ export default {
         this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
 
         this.documentAnalysisResult = response.data;
-        console.log('Document analysis result:', this.documentAnalysisResult);
+        // (debugInfo is still built and sent to backend, but not logged or displayed on frontend)
       })
       .catch(error => {
         console.error('Error analyzing document:', error);

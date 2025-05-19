@@ -340,6 +340,8 @@ export default {
         }
         alert('Error running citation test. Please try again.');
       } finally {
+        // Send debugInfo to backend for logging
+        api.logDebugInfo(this.debugInfo);
         this.testing = false;
       }
     }

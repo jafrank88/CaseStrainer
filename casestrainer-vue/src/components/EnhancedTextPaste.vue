@@ -31,80 +31,63 @@
     <div v-if="textAnalysisResult" class="mt-4">
       <div class="card">
         <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="results-tab" data-bs-toggle="tab" data-bs-target="#results-content" 
-                type="button" role="tab" aria-controls="results-content" aria-selected="true">
-                Analysis Results
-              </button>
-            </li>
-
-          </ul>
-        </div>
-        <div class="card-body">
-          <div class="tab-content">
-            <!-- Results Tab -->
-            <div class="tab-pane fade show active" id="results-content" role="tabpanel" aria-labelledby="results-tab">
-              <div class="alert alert-success">
-                <h5>Analysis complete!</h5>
-                <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
-              </div>
-              
-              <div class="mt-3">
-                <h6>Citation Summary:</h6>
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Confirmed Citations
-                    <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Unconfirmed Citations
-                    <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Citations Table -->
-          <div class="mt-4">
-            <h6>Citations Found:</h6>
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
-                <thead>
-                  <tr>
-                    <th>Citation</th>
-                    <th>Status</th>
-                    <th>Validation Method</th>
-                    <th>Case Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(result, index) in textAnalysisResult.validation_results" :key="index">
-                    <td>{{ result.citation }}</td>
-                    <td>
-                      <span class="badge" :class="result.verified ? 'bg-success' : 'bg-danger'">
-                        {{ result.verified ? 'Verified' : 'Not Verified' }}
-                      </span>
-                    </td>
-                    <td>
-                      <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
-                        {{ result.validation_method }}
-                      </span>
-                      <span v-else>-</span>
-                    </td>
-                    <td>{{ result.case_name || '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div class="mt-3">
-            <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">View All Confirmed</button>
-            <button class="btn btn-outline-danger" @click="viewUnconfirmedCitations">View All Unconfirmed</button>
-          </div>
-        </div>
+  <h5>Analysis Results</h5>
+</div>
+<div class="card-body">
+  <div class="alert alert-success">
+    <h5>Analysis complete!</h5>
+    <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
+  </div>
+  <div class="mt-3">
+    <h6>Citation Summary:</h6>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Confirmed Citations
+        <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Unconfirmed Citations
+        <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="mt-4">
+    <h6>Citations Found:</h6>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Citation</th>
+            <th>Status</th>
+            <th>Validation Method</th>
+            <th>Case Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(result, index) in textAnalysisResult.validation_results" :key="index">
+            <td>{{ result.citation }}</td>
+            <td>
+              <span class="badge" :class="result.verified ? 'bg-success' : 'bg-danger'">
+                {{ result.verified ? 'Verified' : 'Not Verified' }}
+              </span>
+            </td>
+            <td>
+              <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
+                {{ result.validation_method }}
+              </span>
+              <span v-else>-</span>
+            </td>
+            <td>{{ result.case_name || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="mt-3">
+    <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">View All Confirmed</button>
+    <button class="btn btn-outline-danger" @click="viewUnconfirmedCitations">View All Unconfirmed</button>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -172,7 +155,7 @@ export default {
         this.debugInfo += `Success: ${jsonString.substring(0, 500)}${jsonString.length > 500 ? '... [truncated]' : ''}\n`;
 
         this.textAnalysisResult = response.data;
-        console.log('Text analysis result:', this.textAnalysisResult);
+        // (debugInfo is still built and sent to backend, but not logged or displayed on frontend)
       })
       .catch(error => {
         console.error('Error analyzing text:', error);

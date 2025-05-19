@@ -28,55 +28,31 @@
 
       <div class="card">
         <div class="card-header">
-          <ul class="nav nav-tabs card-header-tabs" id="result-tabs">
-            <li class="nav-item">
-              <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">
-                Analysis Results
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div class="card-body">
-          <div class="tab-content">
-            <!-- Results Tab -->
-            <div class="tab-pane fade show active" id="results-content" role="tabpanel">
-              <div class="alert alert-success">
-                <h5>Analysis complete!</h5>
-                <p>Found {{ results.totalCitations }} citations in your document.</p>
-              </div>
-              
-              <div class="mt-3">
-                <h6>Citation Summary:</h6>
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Confirmed Citations
-                    <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Unconfirmed Citations
-                    <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Verified with Multi-tool
-                    <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div class="mt-3">
-                <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">
-                  View Confirmed Citations
-                </button>
-                <button class="btn btn-outline-danger me-2" @click="viewUnconfirmedCitations">
-                  View Unconfirmed Citations
-                </button>
-                <button class="btn btn-outline-info me-2" @click="viewMultitoolCitations">
-                  View Multi-tool Verified
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+  <h5>Analysis Results</h5>
+</div>
+<div class="card-body">
+  <div class="alert alert-success">
+    <h5>Analysis complete!</h5>
+    <p>Found {{ results.totalCitations }} citations in your document.</p>
+  </div>
+  <div class="mt-3">
+    <h6>Citation Summary:</h6>
+    <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Confirmed Citations
+        <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Unconfirmed Citations
+        <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
+      </li>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        Verified with Multi-tool
+        <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
+      </li>
+    </ul>
+  </div>
+</div>
       </div>
     </div>
     
@@ -132,7 +108,7 @@ export default {
         formData.append('debug_info', this.debugInfo);
         
         // Add to debug info
-        this.debugInfo += `Request to /api/analyze: [File data]\n`;
+        this.debugInfo += `Request to /api/analyze: [File data]\n`; // Only for backend logging
         
         const response = await axios.post('/api/analyze', formData, {
           headers: {
