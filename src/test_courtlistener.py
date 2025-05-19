@@ -11,7 +11,7 @@ def test_courtlistener_api(api_key, citation):
     print(f"Testing CourtListener API with citation: {citation}")
     
     # API endpoint
-    api_url = 'https://www.courtlistener.com/api/rest/v3/citation-lookup/'
+    api_url = 'https://www.courtlistener.com/api/rest/v4/citation-lookup/'
     
     # Prepare the request
     headers = {

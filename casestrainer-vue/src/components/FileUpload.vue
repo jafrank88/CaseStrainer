@@ -25,20 +25,13 @@
     </div>
     
     <div v-if="results" class="mt-4">
-      <!-- Debug information -->
-      <div v-if="debugInfo" id="debug-info-data" style="display: none;"></div>
-      
+
       <div class="card">
         <div class="card-header">
           <ul class="nav nav-tabs card-header-tabs" id="result-tabs">
             <li class="nav-item">
               <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">
                 Analysis Results
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">
-                Debug Information
               </a>
             </li>
           </ul>
@@ -77,21 +70,9 @@
                 <button class="btn btn-outline-danger me-2" @click="viewUnconfirmedCitations">
                   View Unconfirmed Citations
                 </button>
-                <button class="btn btn-outline-info" @click="viewMultitoolCitations">
+                <button class="btn btn-outline-info me-2" @click="viewMultitoolCitations">
                   View Multi-tool Verified
                 </button>
-              </div>
-            </div>
-            
-            <!-- Debug Tab -->
-            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-              <div class="card bg-light">
-                <div class="card-header bg-secondary text-white">
-                  <h6 class="mb-0">Debug Information</h6>
-                </div>
-                <div class="card-body">
-                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;" ref="debugContent">{{ debugInfo }}</pre>
-                </div>
               </div>
             </div>
           </div>
@@ -147,6 +128,8 @@ export default {
       try {
         const formData = new FormData();
         formData.append('file', this.file);
+        // Attach debug info for server-side logging
+        formData.append('debug_info', this.debugInfo);
         
         // Add to debug info
         this.debugInfo += `Request to /api/analyze: [File data]\n`;

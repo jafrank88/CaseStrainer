@@ -159,14 +159,12 @@
             Analyze Text
           </button>
           
-          <!-- Analysis Results -->
-          <div v-if="textAnalysisResult" class="mt-4">
-            <CitationResults :citations="transformedTextResults.citations" />
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>

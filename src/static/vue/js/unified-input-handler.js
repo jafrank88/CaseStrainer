@@ -405,7 +405,9 @@ function displayCitationReport(data) {
                         ${reportData.citations.map(citation => `
                             <div class="card mb-3 ${citation.valid ? 'border-success' : 'border-warning'}">
                                 <div class="card-header ${citation.valid ? 'bg-success text-white' : 'bg-warning'}">
-                                    <h5 class="mb-0">${citation.name || 'Unknown Case'}</h5>
+                                    <h5 class="mb-0">
+  ${citation.url && citation.name ? `<a href="${citation.url}" target="_blank">${citation.name}</a>` : (citation.name || 'Unknown Case')}
+</h5>
                                 </div>
                                 <div class="card-body">
                                     <p><strong>Citation:</strong> ${citation.text}</p>

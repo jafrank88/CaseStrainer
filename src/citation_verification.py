@@ -531,27 +531,6 @@ class CitationVerifier:
             logging.info(f"[CourtListener API] Returning result (Exception): {result}")
             return result
 
-                else:
-                    result['found'] = False
-                    result['valid'] = False
-                    result['explanation'] = 'CourtListener API returned no valid result object.'
-                    result['case_name'] = None
-                    result['url'] = None
-                    result['source'] = 'CourtListener'
-                    logging.warning(f"[CourtListener API] api_data is not a list of dicts for citation: {citation}. Raw api_data: {api_data}")
-                    result['valid'] = False
-                    if response.status_code == 404:
-                        result['explanation'] = 'Citation not found in CourtListener database.'
-                        result['error_message'] = f"Citation not found: '{citation}'"
-                        logging.info(f"[CourtListener API] Citation not found: {citation}")
-                    elif response.status_code in (401, 403):
-                        result['explanation'] = f'Authentication failed (status {response.status_code}). Check your API key.'
-                        result['error_message'] = response.text
-                        logging.error(f"[CourtListener API] Authentication failed: {response.text}")
-                    else:
-                        pass  # Other status codes handled above
-                logging.info(f"[CourtListener API] Returning result: {result}")
-                return result  # Always return result dictionary at the end of the function
 
         except requests.RequestException as e:
             result['explanation'] = f'Request error: {str(e)}'

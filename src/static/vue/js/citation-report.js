@@ -17,26 +17,21 @@ function createCitationReport(citations, containerId) {
     const verifiedAnotherWay = [];
     const notVerified = [];
     
-    // Process and categorize each citation
+    // Collect debug info for display in a tab
+    const debugInfo = [];
     citations.forEach(citation => {
         // Check if this citation has been properly verified
-        // The backend only sets citation.valid to true/false
-        // We need to check if it's explicitly false, not just falsy (null, undefined)
         if (citation.valid === true) {
-            // If it's verified, check if it's from CourtListener
             if (citation.metadata && citation.metadata.source === 'CourtListener') {
                 verifiedByCourtListener.push(citation);
             } else {
-                // Otherwise it was verified by another source
                 verifiedAnotherWay.push(citation);
             }
         } else {
-            // If it's explicitly false or null/undefined, it's not verified
             notVerified.push(citation);
         }
-        
-        // Debug logging to console
-        console.log(`Citation: ${citation.text}, Valid: ${citation.valid}, Source: ${citation.metadata?.source || 'None'}`);
+        // Collect debug info instead of logging to console
+        debugInfo.push(`Citation: ${citation.text}, Valid: ${citation.valid}, Source: ${citation.metadata?.source || 'None'}`);
     });
     
     // Create HTML for the report
@@ -63,7 +58,11 @@ function createCitationReport(citations, containerId) {
                         </button>
                     </li>
                 </ul>
-                
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="debug-info-tab" data-bs-toggle="tab" data-bs-target="#debug-info" type="button" role="tab" aria-controls="debug-info" aria-selected="false">
+                        Debug Info
+                    </button>
+                </li>
                 <div class="tab-content pt-3" id="citationTabsContent">
                     <!-- Verified by CourtListener -->
                     <div class="tab-pane fade show active" id="court-listener" role="tabpanel" aria-labelledby="court-listener-tab">
@@ -79,6 +78,11 @@ function createCitationReport(citations, containerId) {
                     <div class="tab-pane fade" id="not-verified" role="tabpanel" aria-labelledby="not-verified-tab">
                         ${createCitationTable(notVerified, 'Unverified')}
                     </div>
+                    
+                    <!-- Debug Info Tab -->
+                    <div class="tab-pane fade" id="debug-info" role="tabpanel" aria-labelledby="debug-info-tab">
+                        <pre style="max-height:300px;overflow:auto;font-size:0.9em;background:#f8f9fa;border:1px solid #dee2e6;padding:1em;">${debugInfo.map(line => escapeHtml(line)).join('\n')}</pre>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,7 +90,17 @@ function createCitationReport(citations, containerId) {
     
     // Set the HTML content
     container.innerHTML = html;
-    
+
+    // Helper to escape HTML for debug info
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     // Return the container for chaining
     return container;
 }
@@ -148,7 +162,9 @@ function createCitationTable(citations, source) {
                         </div>
                     ` : ''}
                 </td>
-                <td>${citation.name || 'Unknown Case'}</td>
+                <td>
+  ${citation.url && citation.name ? `<a href="${citation.url}" target="_blank">${citation.name}</a>` : (citation.name || 'Unknown Case')}
+</td>
                 <td>
         `;
         

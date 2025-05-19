@@ -73,12 +73,11 @@ class CourtListenerGaps {
       }
       
       // If no window.analysisResults or no citations in it, fetch from API
-      // Always use the /casestrainer/ prefix for API calls to work with Nginx proxy
-      const basePath = '/casestrainer';
+      const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
       const apiUrl = `${basePath}/api/courtlistener_gaps`;
       
       console.log('Fetching from API:', apiUrl);
-      const response = await fetch(apiUrl);
+      const response = await fetch(`${basePath}/api/courtlistener_gaps`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

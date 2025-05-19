@@ -4,6 +4,8 @@
  */
 
 // Function to handle text paste form submission
+const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
+
 function handleTextSubmit(event) {
     event.preventDefault();
     
@@ -38,7 +40,7 @@ function handleTextSubmit(event) {
     progressBar.textContent = '25%';
     
     // Send the text to the server
-    fetch('/api/analyze', {
+    fetch(`${basePath}/api/analyze', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -130,7 +132,7 @@ function handleUrlSubmit(event) {
     progressBar.textContent = '25%';
     
     // Send the URL to the server
-    fetch('/api/analyze', {
+    fetch(`${basePath}/api/analyze', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

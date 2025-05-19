@@ -64,8 +64,9 @@ vcpkg/
 #----------------------------------------------
 
 # Log files
-logs/*.log
-*.log
+# logs/*.log
+# *.log
+# (temporarily allow log access for troubleshooting)
 
 # Test data files
 test_*.txt
@@ -106,6 +107,8 @@ citations.db
 !scripts/*.bat
 !start_*.bat
 !restart_*.bat
+!commit_push_and_deploy.bat
+!deploy_*.bat
 
 # JSON files - with exceptions for configuration
 verification_results.json

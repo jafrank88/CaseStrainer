@@ -146,6 +146,15 @@ def extract_citations_with_context(text):
             context_before = text[context_start:start_pos]
             context_after = text[end_pos:context_end]
             
+            # Extract likely case name from context_before using regex
+            import re
+            case_name_regex = r"([A-Z][A-Za-z\s\.&,'-]+ v\. [A-Z][A-Za-z\s\.&,'-]+)"
+            extracted_case_name = None
+            context_search = context_before[-250:] if len(context_before) > 0 else ''
+            match = re.search(case_name_regex, context_search)
+            if match:
+                extracted_case_name = match.group(1).strip()
+            
             # Add to our list
             formatted_citations.append({
                 'citation_text': citation_text,
@@ -160,7 +169,8 @@ def extract_citations_with_context(text):
                     'volume': getattr(citation, 'volume', None),
                     'page': getattr(citation, 'page', None),
                     'year': getattr(citation, 'year', None)
-                }
+                },
+                'extracted_case_name': extracted_case_name
             })
         
         print(f"Found {len(formatted_citations)} citations using eyecite")

@@ -176,30 +176,24 @@ export default {
       
       // Clear previous debug info
       this.debugInfo = 'Debug: Starting text analysis...\n';
-      this.debugInfo += `Text length: ${this.pastedText.length} characters\n`;
-      
-      // Create form data
+      this.debugInfo += `Request to ${this.basePath}/api/upload: [Text data]\n`;
+
       const formData = new FormData();
       formData.append('brief_text', this.pastedText);
-      
-      // Add to debug info
-      this.debugInfo += `Request to ${this.basePath}/api/analyze: [Text data]\n`;
-      
-      // Send request to main API endpoint
-      axios.post(`${this.basePath}/api/analyze`, formData)
+
+      axios.post(`${this.basePath}/api/upload`, formData)
       .then(response => {
         // Add to debug info
         this.debugInfo += `Response received: Processing data...\n`;
-        this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
-        
+        const jsonString = JSON.stringify(response.data, null, 2);
+        this.debugInfo += `Success: ${jsonString.substring(0, 500)}${jsonString.length > 500 ? '... [truncated]' : ''}\n`;
+
         this.textAnalysisResult = response.data;
         console.log('Text analysis result:', this.textAnalysisResult);
       })
       .catch(error => {
         console.error('Error analyzing text:', error);
         alert(`Error analyzing text: ${error.response?.data?.message || error.message || 'Unknown error'}`);
-        
-        // Add error to debug info
         this.debugInfo += `Error: ${error.message}\n`;
         if (error.response) {
           this.debugInfo += `Response status: ${error.response.status}\n`;

@@ -36,12 +36,6 @@
                 Analysis Results
               </button>
             </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="debug-tab" data-bs-toggle="tab" data-bs-target="#debug-content" 
-                type="button" role="tab" aria-controls="debug-content" aria-selected="false">
-                Debug Information
-              </button>
-            </li>
           </ul>
         </div>
         <div class="card-body">
@@ -68,17 +62,7 @@
               </div>
             </div>
             
-            <!-- Debug Tab -->
-            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-              <div class="card bg-light">
-                <div class="card-header bg-secondary text-white">
-                  <h6 class="mb-0">Debug Information</h6>
-                </div>
-                <div class="card-body">
-                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
-                </div>
-              </div>
-            </div>
+
           </div>
           
           <!-- Citations Table -->
@@ -185,17 +169,14 @@ export default {
       
       // Clear previous debug info
       this.debugInfo = 'Debug: Starting file analysis...\n';
-      this.debugInfo += `File: ${this.file.name} (${this.formatFileSize(this.file.size)})\n`;
-      
-      // Create form data
+      this.debugInfo += `Request to ${this.basePath}/api/upload: [File data]\n`;
+
       const formData = new FormData();
       formData.append('file', this.file);
-      
-      // Add to debug info
-      this.debugInfo += `Request to ${this.basePath}/api/analyze: [File data]\n`;
-      
-      // Send request to main API endpoint
-      axios.post(`${this.basePath}/api/analyze`, formData, {
+      // Attach debug info for server-side logging
+      formData.append('debug_info', this.debugInfo);
+
+      axios.post(`${this.basePath}/api/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -204,15 +185,13 @@ export default {
         // Add to debug info
         this.debugInfo += `Response received: Processing data...\n`;
         this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
-        
+
         this.documentAnalysisResult = response.data;
         console.log('Document analysis result:', this.documentAnalysisResult);
       })
       .catch(error => {
         console.error('Error analyzing document:', error);
         alert(`Error analyzing document: ${error.response?.data?.message || error.message || 'Unknown error'}`);
-        
-        // Add error to debug info
         this.debugInfo += `Error: ${error.message}\n`;
         if (error.response) {
           this.debugInfo += `Response status: ${error.response.status}\n`;

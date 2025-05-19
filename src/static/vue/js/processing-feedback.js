@@ -275,18 +275,6 @@ window.citationProcessing.elapsedTimeInterval = setInterval(function() {
     
     // Monitor fetch requests to detect when analysis is complete
     const originalFetch = window.fetch;
-    window.fetch = function() {
-        const fetchPromise = originalFetch.apply(this, arguments);
-        
-        // Check if this is an analysis request
-        const url = arguments[0];
-        if (typeof url === 'string' && url.includes('/api/analyze')) {
-            fetchPromise
-                .then(response => {
-                    // Clone the response so we can read it twice
-                    const clonedResponse = response.clone();
-                    return clonedResponse.json().catch(() => null);
-                })
                 .then(data => {
                     if (data && data.status === 'success') {
                         // Update processing state

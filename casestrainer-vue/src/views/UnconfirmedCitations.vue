@@ -4,7 +4,6 @@
     <p class="lead">These citations could not be verified through standard legal databases or AI verification.</p>
     
     <UnconfirmedCitations />
-              <select 
   </div>
 </template>
 

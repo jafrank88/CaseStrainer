@@ -744,7 +744,7 @@ function handleFileUpload(event) {
         formData.append('file', file);
 
         // Make API request
-        fetch('/api/upload', {
+        fetch(`${basePath}/api/upload`, {
             method: 'POST',
             body: formData
         })

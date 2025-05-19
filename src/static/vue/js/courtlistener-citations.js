@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fetch CourtListener citations
     const apiUrl = `${basePath}/api/courtlistener_citations`;
-    fetch(apiUrl)
+    fetch(`${basePath}/api/courtlistener_citations`)
       .then(response => response.json())
       .then(data => {
         // Store the data
@@ -60,10 +60,16 @@ document.addEventListener('DOMContentLoaded', function() {
         citationDisplay.className = 'd-flex justify-content-between align-items-center';
         
         const citationText = document.createElement('div');
+        const docCaseName = group.citation.extracted_case_name || group.citation.name_in_document || 'Case name in document: (not found)';
+        const clCaseName = group.citation.case_name || 'Case name from CourtListener: (not found)';
+        const clCaseUrl = group.citation.url;
         citationText.innerHTML = `
             <strong>${group.citation.citation_text}</strong>
             ${group.count > 1 ? `<span class="badge bg-primary ms-2">${group.count} occurrences</span>` : ''}
-            ${group.citation.case_name ? `<br><small class="text-muted">${group.citation.case_name}</small>` : ''}
+            <br>
+            <span class="text-muted">${docCaseName}</span>
+            <br>
+            ${clCaseUrl && clCaseName !== 'Case name from CourtListener: (not found)' ? `<a href="${clCaseUrl}" target="_blank" class="text-decoration-underline">${clCaseName}</a>` : `<span class="text-muted">${clCaseName}</span>`}
         `;
         
         const actions = document.createElement('div');

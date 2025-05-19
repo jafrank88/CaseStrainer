@@ -4,6 +4,8 @@
  */
 
 // Function to handle file upload form submission
+const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
+
 function handleFileUpload(event) {
     event.preventDefault();
     
@@ -38,7 +40,7 @@ function handleFileUpload(event) {
     }
     
     // Send the file to the server
-    fetch('/api/upload', {
+    fetch(`${basePath}/api/upload', {
         method: 'POST',
         body: formData
     })

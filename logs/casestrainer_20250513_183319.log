@@ -1,0 +1,22 @@
+2025-05-13 18:33:19,095 - __main__ - INFO - Using DispatcherMiddleware from werkzeug.middleware.dispatcher
+2025-05-13 18:33:19,570 - enhanced_validator_production - INFO - Loaded CourtListener API key from config.json
+2025-05-13 18:33:20,078 - enhanced_validator_production - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 18:33:20,085 - __main__ - INFO - Creating Flask application...
+2025-05-13 18:33:20,088 - src.app_final_vue - INFO - Loaded CourtListener API key from config.json: 443a8...
+2025-05-13 18:33:20,151 - src.app_final_vue - INFO - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-13 18:33:20,159 - src.app_final_vue - INFO - Citation API registered with prefix /api
+2025-05-13 18:33:20,176 - enhanced_validator_production - INFO - Enhanced Validator blueprint registered with the Flask app
+2025-05-13 18:33:20,177 - src.app_final_vue - INFO - Enhanced Validator blueprint registered with the application
+2025-05-13 18:33:20,216 - __main__ - INFO - Flask application created successfully
+2025-05-13 18:33:20,220 - __main__ - INFO - ==================================================
+2025-05-13 18:33:20,221 - __main__ - INFO - Starting CaseStrainer in production mode
+2025-05-13 18:33:20,221 - __main__ - INFO - Server: HAUMEA (128.208.154.3)
+2025-05-13 18:33:20,221 - __main__ - INFO - Host: 0.0.0.0
+2025-05-13 18:33:20,222 - __main__ - INFO - Port: 5001
+2025-05-13 18:33:20,222 - __main__ - INFO - Threads: 10
+2025-05-13 18:33:20,222 - __main__ - INFO - Environment: production
+2025-05-13 18:33:20,223 - __main__ - INFO - URL Prefix: /casestrainer
+2025-05-13 18:33:20,223 - __main__ - INFO - ==================================================
+2025-05-13 18:33:20,225 - __main__ - INFO - Dispatcher middleware created successfully
+2025-05-13 18:33:20,226 - __main__ - INFO - Starting Waitress server with DispatcherMiddleware on http://0.0.0.0:5001/casestrainer
+2025-05-13 18:33:20,231 - waitress - INFO - Serving on http://0.0.0.0:5001

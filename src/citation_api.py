@@ -326,6 +326,16 @@ def analyze():
         document_text = None
         file_path = None
         
+        # Log debug_info if provided
+        debug_info = request.form.get('debug_info')
+        if debug_info:
+            try:
+                with open('logs/debug.log', 'a', encoding='utf-8') as debug_log:
+                    timestamp = datetime.now().isoformat()
+                    debug_log.write(f"[{timestamp}] Analysis ID: {analysis_id} | Debug Info: {debug_info}\n")
+            except Exception as log_err:
+                logger.error(f"Failed to write debug_info to debug.log: {log_err}")
+
         # Check if a file was uploaded
         if 'file' in request.files:
             file = request.files['file']
