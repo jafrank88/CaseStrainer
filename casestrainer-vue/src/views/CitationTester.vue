@@ -72,18 +72,10 @@
     </div>
     
     <div v-if="testResults.length > 0" class="card mb-4">
-      <ul class="nav nav-tabs" id="tester-tabs">
-        <li class="nav-item">
-          <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">Results</a>
-        </li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="results-content" role="tabpanel">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Test Results</h5>
-        <h5 class="mb-0">Test Results</h5>
-      </div>
-      <div class="card-body">
+      <div class="card-header bg-info text-white">
+  <h5 class="mb-0">Test Results</h5>
+</div>
+<div class="card-body">
         <div class="mb-4">
           <h5>Summary</h5>
           <div class="row text-center">

@@ -1732,3 +1732,4 @@
 185.242.226.156 - - [19/May/2025:12:42:44 -0700] "GET / HTTP/1.1" 301 169 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36"
 185.242.226.156 - - [19/May/2025:12:42:44 -0700] "GET /casestrainer/ HTTP/1.1" 200 3774 "https://128.208.154.3:443/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36"
 103.142.141.84 - - [19/May/2025:12:48:05 -0700] "G\x8E0\xE41\x12 \x9FK\x82\xB9i\x15d\xC6\xE5(&4\xD5\xB1,\x22\xCB\x90n\xE2gA\x8F\xE6\xE5F+\xA4\x96\xA3\x871\x8C\xA41\xF6cV/\x9C\xFE\xF0=i\x87\xC8\x0F\x180\x1D^\xAF\xAF\x82=\xBC\xC6\x90N\x9CP\x8D6\xF9\xF1\x22\xB5g\x12\xD3;\x86A\x00\xDF\xE6O\x8C\x8C\xAE\xB0\x0By\xD1Y\x15\xAC\xF3=\xBC\x92%\xE6\x03\x95/Y\x94" 400 157 "-" "-"
+185.242.226.156 - - [19/May/2025:12:52:50 -0700] "GET /casestrainer/favicon.ico HTTP/1.1" 200 245 "-" "Python/3.7 aiohttp/3.8.1"

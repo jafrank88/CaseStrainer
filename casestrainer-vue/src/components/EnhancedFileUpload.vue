@@ -29,20 +29,22 @@
     <div v-if="documentAnalysisResult" class="mt-4">
       <div class="card">
         <div class="card-header">
-  <h5>Analysis Results</h5>
-</div>
-<div class="card-body">
-  <div class="alert alert-success">
-    <h5>Analysis complete!</h5>
-    <p>Found {{ documentAnalysisResult.citations_count }} citations in your document.</p>
-  </div>
-  <div class="mt-3">
-    <h6>Citation Summary:</h6>
-    <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Confirmed Citations
-        <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-      </li>
+          <h5>Analysis Results</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-success">
+            <h5>Analysis complete!</h5>
+            <p>Found {{ documentAnalysisResult.citations_count }} citations in your document.</p>
+          </div>
+          <div class="mt-3">
+            <h6>Citation Summary:</h6>
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Confirmed Citations
+                <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
+              </li>
+            </ul>
+          </div>
           <div class="mt-4">
             <h6>Citations Found:</h6>
             <div class="table-responsive">

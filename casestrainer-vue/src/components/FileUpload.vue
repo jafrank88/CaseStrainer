@@ -28,13 +28,31 @@
 
       <div class="card">
         <div class="card-header">
-  <h5>Analysis Results</h5>
-</div>
-<div class="card-body">
-  <div class="alert alert-success">
-    <h5>Analysis complete!</h5>
-    <p>Found {{ results.totalCitations }} citations in your document.</p>
-  </div>
+          <h5>Analysis Results</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-success">
+            <h5>Analysis complete!</h5>
+            <p>Found {{ results.totalCitations }} citations in your document.</p>
+          </div>
+          <div class="mt-3">
+            <h6>Citation Summary:</h6>
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Confirmed Citations
+                <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Unconfirmed Citations
+                <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Verified with Multi-tool
+                <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
   <div class="mt-3">
     <h6>Citation Summary:</h6>
     <ul class="list-group">
