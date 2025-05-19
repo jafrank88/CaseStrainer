@@ -87,12 +87,30 @@ thread_local = threading.local()
 logger = logging.getLogger(__name__)
 
 def create_app():
-    app = Flask(__name__, 
-                static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '../casestrainer-vue/dist'),
-                template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '../casestrainer-vue/dist'),
-                static_url_path='')
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '../casestrainer-vue/dist'),
+        template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '../casestrainer-vue/dist'),
+        static_url_path=''
+    )
 
     # Configure logging first so we can see what's happening
+
+    # --- Session and Upload Config (from app.py) ---
+    app.config['SECRET_KEY'] = SECRET_KEY or 'devkey'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['PERMANENT_SESSION_LIFETIME'] = 3600 * 24
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['SESSION_FILE_DIR'] = os.path.join(os.path.dirname(__file__), '..', 'casestrainer_sessions')
+    app.config['SESSION_COOKIE_PATH'] = '/casestrainer/'
+
+    # --- Optionally register vue_api blueprint ---
+    try:
+        from vue_api import api_blueprint
+    except ImportError:
+        api_blueprint = None
+    if api_blueprint:
+        app.register_blueprint(api_blueprint, url_prefix='/casestrainer/api')
     os.makedirs('logs', exist_ok=True)
     logging.basicConfig(
         level=logging.DEBUG,  # Changed to DEBUG level for more detailed logs
@@ -196,12 +214,18 @@ def create_app():
 
     # Register the blueprints
     # Note: citation_api already includes the /api prefix in its route definitions
-    app.register_blueprint(enhanced_validator_production_bp, url_prefix='')
-    app.register_blueprint(citation_api, url_prefix='/api')
-    
-    # Register the enhanced validator with the citation_api
-    register_enhanced_validator(app)
-    
+    app.register_blueprint(enhanced_validator_production_bp, url_prefix='/casestrainer/enhanced-validator')
+    app.register_blueprint(citation_api, url_prefix='/casestrainer/api')
+    try:
+        register_enhanced_validator(app)
+    except Exception as e:
+        print(f"Enhanced validator registration failed: {e}")
+
+    # --- Error Handler for 500 ---
+    @app.errorhandler(500)
+    def server_error(error):
+        return jsonify({'error': 'Internal server error'}), 500  
+
     # Direct route for analyze endpoint to handle file uploads
     @app.route('/api/analyze', methods=['POST', 'OPTIONS'])
     def direct_analyze():
@@ -560,56 +584,6 @@ def create_app():
     app.logger.handlers = logger.handlers
     app.logger.setLevel(logger.level)
 
-    @app.before_request
-    def before_request():
-        if 'user_id' not in session:
-            session['user_id'] = str(uuid.uuid4())
-            session.permanent = True
-            logger.info(f"Created new session for user: {session['user_id']}")
-
-    # Serve Vue.js static files
-    @app.route('/')
-    def redirect_to_enhanced_validator():
-        return redirect('/casestrainer/')
-
-    @app.route('/casestrainer/')
-    def serve_vue_index():
-        vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-        logger.info(f"Serving Vue index from: {vue_dist_dir}")
-        response = send_from_directory(vue_dist_dir, 'index.html')
-        # Enhanced cache control to ensure the latest version is always displayed
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        # Add a timestamp to force refresh
-        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
-        return response
-
-    @app.route('/casestrainer/<path:path>')
-    def serve_vue_assets(path):
-        vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-        response = send_from_directory(vue_dist_dir, path)
-        # Enhanced cache control to ensure the latest version is always displayed
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        # Add a timestamp to force refresh
-        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
-        return response
-
-    @app.route('/js/<path:path>')
-    @app.route('/casestrainer/js/<path:path>')
-    def serve_vue_js(path):
-        vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', 'js')
-        response = send_from_directory(vue_dist_dir, path)
-        # Enhanced cache control to ensure the latest version is always displayed
-        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '-1'
-        # Add a timestamp to force refresh
-        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
-        return response
-
     # The following custom static asset routes are now disabled, as all static assets (css, js, img, fonts) should be served directly from the Vue build output (dist) via Flask's static file handling.
     # @app.route('/css/<path:path>')
     # @app.route('/casestrainer/css/<path:path>')
@@ -719,6 +693,21 @@ def create_app():
     def processing_progress():
         """Get the current processing progress."""
         return jsonify(processing_state)
+
+    @app.route('/casestrainer/')
+    def serve_vue_index():
+        # Redirect the default landing page to the enhanced validator
+        return redirect('/casestrainer/enhanced-validator', code=302)
+
+    @app.route('/casestrainer/<path:path>')
+    def serve_vue_assets(path):
+        vue_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'casestrainer-vue', 'dist'))
+        response = send_from_directory(vue_dist_dir, path)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '-1'
+        response.headers['Last-Modified'] = f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+        return response
 
     @app.route('/api/validate_citations', methods=['POST'])
     def validate_citations():

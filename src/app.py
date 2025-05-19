@@ -1,4 +1,6 @@
-# Unified CaseStrainer Flask App for Vue.js Frontend and API
+# DEPRECATED: Use app_final_vue.py as the single source of truth for the CaseStrainer Flask backend.
+# All future development and deployment should reference app_final_vue.py only.
+
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))

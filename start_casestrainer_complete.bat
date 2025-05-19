@@ -26,7 +26,9 @@ if exist %ERRLOG% del %ERRLOG%
 
 
 REM Set environment variables
-set FLASK_APP=src/app.py
+REM DEPRECATED: For most use cases, use start_casestrainer.bat instead of this script.
+REM This script is retained for full deployment cycles and legacy workflows.
+set FLASK_APP=src/app_final_vue.py
 set HOST=0.0.0.0
 set PORT=5000
 set FLASK_ENV=production

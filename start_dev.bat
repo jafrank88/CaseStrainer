@@ -15,7 +15,7 @@ echo ===================================================
 echo.
 
 REM Set environment variables (development mode)
-set FLASK_APP=src/app.py
+set FLASK_APP=src/app_final_vue.py
 set HOST=127.0.0.1
 set PORT=5000
 set FLASK_ENV=development
