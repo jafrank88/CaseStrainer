@@ -484,9 +484,7 @@ class CitationVerifier:
                             result['valid'] = False
                             result['case_name'] = None
                             result['url'] = None
-                            result['explanation'] = 'CourtListener API returned no valid cluster data for this citation.'
-                            result['source'] = 'CourtListener'
-                            logging.warning(f"[CourtListener API] No valid cluster data for citation: {citation}. Raw clusters: {clusters}")
+                            logging.info(f"[CourtListener API] Citation not found: {citation}")
                     except Exception as e:
                         logging.error(f"[CourtListener API] Exception during verification: {e}")
                         logging.error(f"[DEBUG] Exception details:", exc_info=True)
@@ -533,15 +531,6 @@ class CitationVerifier:
             logging.info(f"[CourtListener API] Returning result (Exception): {result}")
             return result
 
-                            result['explanation'] = 'CourtListener API returned no valid cluster data for this citation.'
-                            result['source'] = 'CourtListener'
-                            logging.warning(f"[CourtListener API] No valid cluster data for citation: {citation}. Raw clusters: {clusters}")
-                    except Exception as e:
-                        logging.error(f"[CourtListener API] Exception during verification: {e}")
-                        logging.error(f"[DEBUG] Exception details:", exc_info=True)
-                    else:
-                        result['found'] = False
-                        result['valid'] = False
                         result['explanation'] = 'Citation not found in CourtListener database.'
                         result['error_message'] = f"Citation not found: '{citation}'"
                         result['case_name'] = None
