@@ -531,12 +531,6 @@ class CitationVerifier:
             logging.info(f"[CourtListener API] Returning result (Exception): {result}")
             return result
 
-                        result['explanation'] = 'Citation not found in CourtListener database.'
-                        result['error_message'] = f"Citation not found: '{citation}'"
-                        result['case_name'] = None
-                        result['url'] = None
-                        result['source'] = 'CourtListener'
-                        logging.info(f"[CourtListener API] Citation not found: {citation}")
                 else:
                     result['found'] = False
                     result['valid'] = False
