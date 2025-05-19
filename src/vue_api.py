@@ -134,6 +134,16 @@ def verify_citations_parallel(citations):
                 except Exception as e:
                     logger.error(f"Error processing verification result: {str(e)}")
         
+        # Log unverified citations
+        unverified_citations = [citation for citation in citations if not citation.get('valid')]
+        if unverified_citations:
+            logs_dir = os.path.join(current_app.root_path, 'logs')
+            if not os.path.exists(logs_dir):
+                os.makedirs(logs_dir)
+            with open(os.path.join(logs_dir, 'unverified_citations.log'), 'a') as f:
+                for citation in unverified_citations:
+                    f.write(json.dumps(citation) + '\n')
+        
         return citations
     except Exception as e:
         logger.error(f"Error in parallel verification: {str(e)}")
@@ -201,6 +211,14 @@ def analyze():
                 logger.info(f"Extracted {len(citations)} citations from URL content")
             else:
                 return jsonify({'error': 'No text, file, or URL provided'}), 400
+        
+        # Log frontend debug info
+        if data.get('debug_info'):
+            logs_dir = os.path.join(current_app.root_path, 'logs')
+            if not os.path.exists(logs_dir):
+                os.makedirs(logs_dir)
+            with open(os.path.join(logs_dir, 'frontend_debug.log'), 'a') as f:
+                f.write(json.dumps(data['debug_info']) + '\n')
         
         # Verify the citations
         logger.info(f"Verifying {len(citations)} citations")

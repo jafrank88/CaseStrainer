@@ -29,17 +29,7 @@
     
     <!-- Tab content -->
     <div class="tab-content" id="validationTabsContent">
-      <!-- Debug Tab -->
-      <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-        <div class="card bg-light">
-          <div class="card-header bg-secondary text-white">
-            <h6 class="mb-0">Debug Information</h6>
-          </div>
-          <div class="card-body">
-            <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
-          </div>
-        </div>
-      </div>
+
       <!-- Single Citation Tab -->
       <div class="tab-pane fade show active" id="single" role="tabpanel" aria-labelledby="single-tab">
         <div class="card">

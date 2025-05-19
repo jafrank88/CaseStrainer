@@ -76,14 +76,11 @@
         <li class="nav-item">
           <a class="nav-link active" id="results-tab" data-bs-toggle="tab" href="#results-content" role="tab">Results</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">Debug Information</a>
-        </li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade show active" id="results-content" role="tabpanel">
-
-      <div class="card-header bg-info text-white">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Test Results</h5>
         <h5 class="mb-0">Test Results</h5>
       </div>
       <div class="card-body">
@@ -205,16 +202,7 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-      <div class="card bg-light">
-        <div class="card-header bg-secondary text-white">
-          <h6 class="mb-0">Debug Information</h6>
-        </div>
-        <div class="card-body">
-          <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
-        </div>
-      </div>
-    </div>
+
     </div>
     
     <div class="card">

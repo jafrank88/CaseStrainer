@@ -38,12 +38,7 @@
                 Analysis Results
               </button>
             </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="debug-tab" data-bs-toggle="tab" data-bs-target="#debug-content" 
-                type="button" role="tab" aria-controls="debug-content" aria-selected="false">
-                Debug Information
-              </button>
-            </li>
+
           </ul>
         </div>
         <div class="card-body">
@@ -67,18 +62,6 @@
                     <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-            
-            <!-- Debug Tab -->
-            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-              <div class="card bg-light">
-                <div class="card-header bg-secondary text-white">
-                  <h6 class="mb-0">Debug Information</h6>
-                </div>
-                <div class="card-body">
-                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
-                </div>
               </div>
             </div>
           </div>

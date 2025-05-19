@@ -24,8 +24,6 @@
     </div>
     
     <div v-if="results" class="mt-4">
-      <!-- Debug information (hidden, will be shown only in debug tab) -->
-      <div v-if="debugInfo" style="display: none;" id="debug-info-data">{{ debugInfo }}</div>
       
       <div class="card">
         <div class="card-header">
@@ -35,11 +33,7 @@
                 Analysis Results
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" id="debug-tab" data-bs-toggle="tab" href="#debug-content" role="tab">
-                Debug Information
-              </a>
-            </li>
+
           </ul>
         </div>
         <div class="card-body">
@@ -82,17 +76,7 @@
               </div>
             </div>
             
-            <!-- Debug Tab -->
-            <div class="tab-pane fade" id="debug-content" role="tabpanel" aria-labelledby="debug-tab">
-              <div class="card bg-light">
-                <div class="card-header bg-secondary text-white">
-                  <h6 class="mb-0">Debug Information</h6>
-                </div>
-                <div class="card-body">
-                  <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ debugInfo }}</pre>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
