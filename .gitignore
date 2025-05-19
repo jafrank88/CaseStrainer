@@ -182,5 +182,13 @@ cmake.msi
 # !install_vue_dependencies.bat
 # !update_nginx_config.bat
 
+
+# Allow Vue.js build output for troubleshooting
+!casestrainer-vue/dist/
+!casestrainer-vue/dist/index.html
+!casestrainer-vue/dist/js/
+!casestrainer-vue/dist/js/*
+!casestrainer-vue/dist/css/
+!casestrainer-vue/dist/css/*
 # Remove redundant entries
 # The following sections were redundant and have been consolidated above

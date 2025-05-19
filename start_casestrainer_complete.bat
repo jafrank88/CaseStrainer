@@ -11,8 +11,8 @@ for /f "tokens=1-4 delims=/ " %%a in ("%date% %time%") do set NOW=%%a-%%b-%%c_%%
 
 echo ===================================================
 echo =================================================== >> %LOGFILE%
-echo CaseStrainer Complete Deployment Script
-echo CaseStrainer Complete Deployment Script >> %LOGFILE%
+echo CaseStrainer Complete Deployment Script (Unified Vue.js + API)
+echo CaseStrainer Complete Deployment Script (Unified Vue.js + API) >> %LOGFILE%
 echo Started at %NOW%
 echo Started at %NOW% >> %LOGFILE%
 echo ===================================================
@@ -26,7 +26,7 @@ if exist %ERRLOG% del %ERRLOG%
 
 
 REM Set environment variables
-set FLASK_APP=src/app_final_vue.py
+set FLASK_APP=src/app.py
 set HOST=0.0.0.0
 set PORT=5000
 set FLASK_ENV=production

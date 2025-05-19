@@ -39,18 +39,14 @@
     <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
   </div>
   <div class="mt-3">
-    <h6>Citation Summary:</h6>
-    <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Confirmed Citations
-        <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Unconfirmed Citations
-        <span class="badge bg-danger rounded-pill">{{ unconfirmedCount }}</span>
-      </li>
-    </ul>
-  </div>
+  <h6>Citation Summary:</h6>
+  <ul class="list-group">
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      Confirmed Citations
+      <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
+    </li>
+  </ul>
+</div>
   <div class="mt-4">
     <h6>Citations Found:</h6>
     <div class="table-responsive">

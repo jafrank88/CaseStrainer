@@ -9,3 +9,4 @@
 2025/05/17 09:50:58 [emerg] 15844#9980: "server" directive is not allowed here in C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5/..\nginx_minimal.conf:2
 2025/05/17 09:57:22 [emerg] 11136#14884: CreateFile() "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5/..\mime.types" failed (2: The system cannot find the file specified) in C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5/..\nginx_test.conf:8
 2025/05/17 19:22:38 [notice] 13928#3380: signal process started
+2025/05/19 14:15:29 [notice] 12540#8204: signal process started

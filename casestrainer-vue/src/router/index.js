@@ -4,8 +4,8 @@ import Home from '../views/Home.vue'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'EnhancedValidator',
+    component: () => import('../views/EnhancedValidator.vue')
   },
   {
     path: '/unconfirmed-citations',
@@ -45,7 +45,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory('/casestrainer/'),
   routes
 })
 

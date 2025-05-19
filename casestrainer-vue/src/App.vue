@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid">
+      <div class="container-fluid position-relative">
         <router-link class="navbar-brand" to="/">CaseStrainer</router-link>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -35,6 +35,7 @@
           </ul>
         </div>
       </div>
+      <span class="version-badge position-absolute top-0 end-0 mt-2 me-3 bg-light text-primary px-2 py-1 rounded" style="font-size:0.95rem;font-weight:bold;">v0.4.1</span>
     </nav>
 
     <main class="container mt-4">

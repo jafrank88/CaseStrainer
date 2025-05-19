@@ -195,8 +195,6 @@
       </div>
     </div>
 
-    </div>
-    
     <div class="card">
       <div class="card-header bg-light">
         <h5 class="mb-0">About the Citation Tester</h5>
@@ -219,7 +217,6 @@
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>

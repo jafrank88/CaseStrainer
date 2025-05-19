@@ -53,24 +53,6 @@
             </ul>
           </div>
         </div>
-  <div class="mt-3">
-    <h6>Citation Summary:</h6>
-    <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Confirmed Citations
-        <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Unconfirmed Citations
-        <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Verified with Multi-tool
-        <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
-      </li>
-    </ul>
-  </div>
-</div>
       </div>
     </div>
     

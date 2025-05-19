@@ -34,7 +34,7 @@ for /f "tokens=1,2 delims=," %%a in (temp_processes.txt) do (
     set process=!process:"=!
     set "pid=%%b"
     set pid=!pid:"=! 
-    wmic process where "ProcessId=!pid!" get CommandLine | findstr /i "app_final_vue.py" > nul
+    wmic process where "ProcessId=!pid!" get CommandLine | findstr /i "app.py" > nul
     if !errorlevel! equ 0 (
         echo Stopping backend process with PID: !pid!
         taskkill /f /pid !pid! > nul 2>&1
@@ -43,7 +43,7 @@ for /f "tokens=1,2 delims=," %%a in (temp_processes.txt) do (
 del temp_processes.txt > nul 2>&1
 
 REM === START BACKEND ===
-echo Starting CaseStrainer backend on port %PORT% ...
+echo Starting CaseStrainer backend (Unified Vue.js + API) on port %PORT% ...
 start "CaseStrainer Backend" cmd /c "set FLASK_APP=%FLASK_APP% && set HOST=%HOST% && set PORT=%PORT% && set THREADS=%THREADS% && set USE_CHEROOT=%USE_CHEROOT% && python -m flask run --host=%HOST% --port=%PORT%"
 
 REM === START NGINX ===

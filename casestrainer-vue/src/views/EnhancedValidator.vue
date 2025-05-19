@@ -8,30 +8,65 @@
     <!-- Nav tabs for different validation methods -->
     <ul class="nav nav-tabs" id="validationTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" 
-          type="button" role="tab" aria-controls="single" aria-selected="true">
+        <button class="nav-link" :class="{ active: activeTab === 'single' }" @click="activeTab = 'single'" type="button">
           Single Citation
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="document-tab" data-bs-toggle="tab" data-bs-target="#document" 
-          type="button" role="tab" aria-controls="document" aria-selected="false">
+        <button class="nav-link" :class="{ active: activeTab === 'document' }" @click="activeTab = 'document'" type="button">
           Upload Document
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" 
-          type="button" role="tab" aria-controls="text" aria-selected="false">
+        <button class="nav-link" :class="{ active: activeTab === 'text' }" @click="activeTab = 'text'" type="button">
           Paste Text
         </button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" :class="{ active: activeTab === 'url' }" @click="activeTab = 'url'" type="button">
+          URL Check
+        </button>
+      </li>
     </ul>
-    
     <!-- Tab content -->
     <div class="tab-content" id="validationTabsContent">
+      <!-- URL Check Tab -->
+      <div v-show="activeTab === 'url'">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Check Citations from URL</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="url-input">Paste a URL to a legal document:</label>
+              <input
+                type="text"
+                id="url-input"
+                class="form-control"
+                v-model="urlInput"
+                placeholder="https://example.com/legal-document"
+                @keyup.enter="analyzeUrl"
+              />
+            </div>
+            <button
+              class="btn btn-primary mt-3"
+              @click="analyzeUrl"
+              :disabled="isAnalyzingUrl || !urlInput"
+            >
+              <span v-if="isAnalyzingUrl" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Analyze URL
+            </button>
+            <!-- URL Analysis Results -->
+            <div v-if="urlAnalysisResult" class="mt-4">
+              <CitationResults :citations="transformedUrlResults.citations" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Single Citation Tab -->
-      <div class="tab-pane fade show active" id="single" role="tabpanel" aria-labelledby="single-tab">
+      <div v-show="activeTab === 'single'">
+
         <div class="card">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Validate Citation</h5>
@@ -85,7 +120,8 @@
     </div>
       
     <!-- Document Upload Tab -->
-    <div class="tab-pane fade" id="document" role="tabpanel" aria-labelledby="document-tab">
+    <div v-show="activeTab === 'document'">
+
       <div class="card">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">Upload Document</h5>
@@ -124,7 +160,8 @@
     </div>
     
     <!-- Text Paste Tab -->
-    <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
+    <div v-show="activeTab === 'text'">
+
       <div class="card">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">Paste Text</h5>
@@ -168,6 +205,7 @@ export default {
   },
   data() {
     return {
+      activeTab: 'single',
       // Single citation validation
       citationText: '',
       isValidating: false,
@@ -187,7 +225,11 @@ export default {
       
       // Text paste
       pastedText: '',
-      textAnalysisResult: null
+      textAnalysisResult: null,
+      // URL check
+      urlInput: '',
+      isAnalyzingUrl: false,
+      urlAnalysisResult: null
     };
   },
   computed: {
@@ -243,41 +285,46 @@ export default {
 
     // Transform document analysis results
     transformedDocumentResults() {
-      if (!this.documentAnalysisResult) return null;
-      
+      if (!this.documentAnalysisResult) return { citations: [] };
       return {
-        citations: this.documentAnalysisResult.validation_results.map(result => ({
-          citation_text: result.citation,
-          verified: result.found,
-          validation_method: result.source,
-          case_name: result.found_case_name,
-          source: result.source,
-          confidence: result.confidence,
-          explanation: result.explanation,
-          url: result.url
-        }))
+        citations: this.documentAnalysisResult.citations || []
       };
     },
 
     // Transform text analysis results
     transformedTextResults() {
-      if (!this.textAnalysisResult) return null;
-      
+      if (!this.textAnalysisResult) return { citations: [] };
       return {
-        citations: this.textAnalysisResult.validation_results.map(result => ({
-          citation_text: result.citation,
-          verified: result.found,
-          validation_method: result.source,
-          case_name: result.found_case_name,
-          source: result.source,
-          confidence: result.confidence,
-          explanation: result.explanation,
-          url: result.url
-        }))
+        citations: this.textAnalysisResult.citations || []
+      };
+    },
+    // Transform URL analysis results
+    transformedUrlResults() {
+      if (!this.urlAnalysisResult) return { citations: [] };
+      return {
+        citations: this.urlAnalysisResult.citations || []
       };
     }
   },
   methods: {
+    async analyzeUrl() {
+      if (!this.urlInput) return;
+      this.isAnalyzingUrl = true;
+      this.urlAnalysisResult = null;
+      try {
+        const response = await axios.post(this.basePath + '/api/analyze', {
+          url: this.urlInput
+        });
+        this.urlAnalysisResult = response.data;
+      } catch (error) {
+        this.urlAnalysisResult = {
+          citations: [],
+          error: error.response?.data?.error || 'An error occurred while analyzing the URL.'
+        };
+      } finally {
+        this.isAnalyzingUrl = false;
+      }
+    },
     async validateCitation() {
       if (!this.citationText || this.isValidating) return;
       
