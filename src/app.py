@@ -6,7 +6,7 @@ import json
 import logging
 import datetime
 import traceback
-from flask import Flask, send_from_directory, request, jsonify, session
+from flask import Flask, send_from_directory, request, jsonify, session, redirect
 from flask_session import Session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
