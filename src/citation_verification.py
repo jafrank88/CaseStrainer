@@ -47,7 +47,11 @@ TIMEOUT_SECONDS = 30
 class CitationVerifier:
     """Class for verifying legal citations using multiple methods."""
     
-    def __init__(self, api_key=None, langsearch_api_key=None):
+    def __init__(self, api_key=None, langsearch_api_key=None, debug_mode=True):
+        """Initialize the CitationVerifier with API keys and debug mode."""
+        self.api_key = api_key or os.environ.get('COURTLISTENER_API_KEY')
+        self.langsearch_api_key = langsearch_api_key or os.environ.get('LANGSEARCH_API_KEY')
+        self.debug_mode = debug_mode
         """Initialize the CitationVerifier with API keys."""
         self.api_key = api_key or os.environ.get('COURTLISTENER_API_KEY')
         self.langsearch_api_key = langsearch_api_key or os.environ.get('LANGSEARCH_API_KEY')
@@ -89,48 +93,57 @@ class CitationVerifier:
         Returns:
             Dict with verification results including whether the citation is valid and its source.
         """
-        print(f"DEBUG: Starting verification for citation: {citation}")
-        logging.info(f"[DEBUG] Starting verification for citation: {citation}")
-        
-        # Check if this is a Westlaw citation
-        is_westlaw = bool(re.search(r'\d+\s+WL\s+\d+', citation, re.IGNORECASE))
-        is_us_citation = bool(re.search(r'\d+\s+U\.?\s*S\.?\s+\d+', citation, re.IGNORECASE))
-        is_f3d_citation = bool(re.search(r'\d+\s+F\.?\s*3d\s+\d+', citation, re.IGNORECASE))
-        is_sct_citation = bool(re.search(r'\d+\s+S\.?\s*Ct\.?\s+\d+', citation, re.IGNORECASE))
-        
-        result = {
-            'citation': citation,
-            'found': False,
-            'source': None,
-            'case_name': None,
-            'url': None,
-            'details': {},
-            'explanation': None,
-            'is_westlaw': is_westlaw
-        }
-
-        # First, try to verify using the CourtListener Citation Lookup API
         try:
-            print(f"DEBUG: Trying CourtListener Citation Lookup API for: {citation}")
-            logging.info(f"[DEBUG] Trying CourtListener Citation Lookup API for: {citation}")
+            print(f"DEBUG: Starting verification for citation: {citation}")
+            logging.info(f"[DEBUG] Starting verification for citation: {citation}")
             
-            api_result = self.verify_with_courtlistener_citation_api(citation)
+            # Check if this is a Westlaw citation
+            is_westlaw = bool(re.search(r'\d+\s+WL\s+\d+', citation, re.IGNORECASE))
+            is_us_citation = bool(re.search(r'\d+\s+U\.?\s*S\.?\s+\d+', citation, re.IGNORECASE))
+            is_f3d_citation = bool(re.search(r'\d+\s+F\.?\s*3d\s+\d+', citation, re.IGNORECASE))
+            is_sct_citation = bool(re.search(r'\d+\s+S\.?\s*Ct\.?\s+\d+', citation, re.IGNORECASE))
             
-            if api_result.get('found'):
-                print(f"DEBUG: Citation verified by CourtListener API: {citation}")
-                logging.info(f"[DEBUG] Citation verified by CourtListener API: {citation}")
-                return api_result
-            else:
-                print(f"DEBUG: Citation not found in CourtListener API: {citation}")
-                logging.info(f"[DEBUG] Citation not found in CourtListener API: {citation}")
-                # Store the explanation from the API result for later use
-                if api_result.get('explanation'):
-                    result['explanation'] = api_result['explanation']
-        except Exception as e:
-            print(f"DEBUG: Error using CourtListener Citation API: {str(e)}")
-            logging.error(f"[ERROR] Error using CourtListener Citation API: {str(e)}")
-            # Continue with fallback methods
+            result = {
+                'citation': citation,
+                'found': False,
+                'source': None,
+                'case_name': None,
+                'url': None,
+                'details': {},
+                'explanation': None,
+                'is_westlaw': is_westlaw,
+                'sources_checked': []
+            }
 
+            # First, try to verify using the CourtListener Citation Lookup API
+            try:
+                print(f"DEBUG: Trying CourtListener Citation Lookup API for: {citation}")
+                logging.info(f"[DEBUG] Trying CourtListener Citation Lookup API for: {citation}")
+                result['sources_checked'].append('CourtListener Citation Lookup API')
+                api_result = self.verify_with_courtlistener_citation_api(citation)
+                
+                if api_result.get('found'):
+                    print(f"DEBUG: Citation verified by CourtListener API: {citation}")
+                    logging.info(f"[DEBUG] Citation verified by CourtListener API: {citation}")
+                    api_result['sources_checked'] = result['sources_checked']
+                    return api_result
+                else:
+                    print(f"DEBUG: Citation not found in CourtListener API: {citation}")
+                    logging.info(f"[DEBUG] Citation not found in CourtListener API: {citation}")
+                    # Store the explanation from the API result for later use
+                    if api_result.get('explanation'):
+                        result['explanation'] = api_result['explanation']
+            except Exception as e:
+                print(f"DEBUG: Error using CourtListener Citation API: {str(e)}")
+                logging.error(f"[ERROR] Error using CourtListener Citation API: {str(e)}")
+                # Continue with fallback methods
+            else:
+                # If no exception occurred, continue with the rest of the function
+                pass
+        except Exception as e:
+            print(f"DEBUG: Error verifying citation: {str(e)}")
+            logging.error(f"[ERROR] Error verifying citation: {str(e)}")
+            traceback.print_exc()
 
         if context:
             # Look for patterns like "Case Name, 123 F.3d 456" or "123 F.3d 456 (Case Name)"
@@ -153,6 +166,9 @@ class CitationVerifier:
                 if v_pattern:
                     result['extracted_case_name'] = v_pattern.group(1).strip()
                     logging.info(f"[DEBUG] Extracted case name from context (v. pattern): {result['extracted_case_name']}")
+
+        # Track fallback sources checked
+        fallback_sources = []
         
         # If the API call failed, we can try to extract information from the citation format
         # and provide better explanations based on the citation type
@@ -174,11 +190,12 @@ class CitationVerifier:
                 try:
                     print(f"DEBUG: Trying CourtListener Search API for U.S. citation: {citation}")
                     logging.info(f"[DEBUG] Trying CourtListener Search API for U.S. citation: {citation}")
-                    
+                    fallback_sources.append('CourtListener Search API')
                     search_result = self.verify_with_courtlistener_search_api(citation)
                     if search_result.get('found'):
                         print(f"DEBUG: Citation found in CourtListener Search API: {citation}")
                         logging.info(f"[DEBUG] Citation found in CourtListener Search API: {citation}")
+                        search_result['sources_checked'] = result['sources_checked'] + fallback_sources
                         return search_result
                 except Exception as e:
                     print(f"DEBUG: Error using CourtListener Search API: {str(e)}")
@@ -194,20 +211,23 @@ class CitationVerifier:
                     page = match.group(2)
                     
                     formatted_citation = f"{volume} F.3d {page}"
+                    fallback_sources.append('CourtListener Citation Lookup API')
                     api_result = self.verify_with_courtlistener_citation_api(formatted_citation)
                     if api_result.get('found'):
                         print(f"DEBUG: Citation found in CourtListener Citation API: {citation}")
                         logging.info(f"[DEBUG] Citation found in CourtListener Citation API: {citation}")
+                        api_result['sources_checked'] = result['sources_checked'] + fallback_sources
                         return api_result
                     
                     # If not found with Citation API, try the Search API
                     print(f"DEBUG: Trying CourtListener Search API for F.3d citation: {citation}")
                     logging.info(f"[DEBUG] Trying CourtListener Search API for F.3d citation: {citation}")
-                    
+                    fallback_sources.append('CourtListener Search API')
                     search_result = self.verify_with_courtlistener_search_api(formatted_citation)
                     if search_result.get('found'):
                         print(f"DEBUG: Citation found in CourtListener Search API: {citation}")
                         logging.info(f"[DEBUG] Citation found in CourtListener Search API: {citation}")
+                        search_result['sources_checked'] = result['sources_checked'] + fallback_sources
                         return search_result
                     
                     # Even if API verification fails, mark standard F.3d citations as valid
@@ -237,6 +257,7 @@ class CitationVerifier:
                         'page': page
                     }
                     result['explanation'] = "Standard Federal Reporter (3d Series) citation recognized by format."
+                    result['sources_checked'] = result['sources_checked'] + fallback_sources
                     return result
                 except Exception as e:
                     print(f"DEBUG: Error verifying F.3d citation: {str(e)}")
@@ -247,6 +268,7 @@ class CitationVerifier:
         elif is_westlaw:
             logging.info(f"[DEBUG] Detected Westlaw citation: {citation}")
             print(f"DEBUG: Detected Westlaw citation: {citation}")
+            fallback_sources.append('Pattern Recognition')
             # Try to extract year from Westlaw citation
             year_match = re.search(r'(\d{4})\s+WL', citation)
             if year_match:
@@ -266,157 +288,49 @@ class CitationVerifier:
             result['case_name'] = 'Westlaw Citation'
             
             # Add explanation for Westlaw citations
-            result['explanation'] = "Citation could not be verified through available APIs. This may be due to database limitations or an uncommon citation format."
+            result['explanation'] = "Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database."
+            result['sources_checked'] = result['sources_checked'] + fallback_sources
         
         # If not verified by our mock system, add appropriate explanations
         if not result['found']:
-            if is_us_citation:
-                result['explanation'] = "This U.S. Reports citation could not be verified in the available databases."
-            elif is_f3d_citation:
-                result['explanation'] = "This Federal Reporter citation could not be verified in the available databases."
-            elif is_sct_citation:
-                result['explanation'] = "This Supreme Court Reporter citation could not be verified in the available databases."
-            elif is_westlaw and not result['explanation']:
-                result['explanation'] = "Westlaw citations require subscription access and may not be verifiable through public APIs."
-            else:
-                result['explanation'] = "Citation could not be verified through available APIs. This may be due to database limitations or an uncommon citation format."
-            
+            # Compose a detailed explanation with sources checked
+            if not result.get('explanation'):
+                if is_us_citation:
+                    result['explanation'] = f"This U.S. Reports citation could not be verified in the {', '.join(result['sources_checked'])} or via public APIs."
+                elif is_f3d_citation:
+                    result['explanation'] = f"This Federal Reporter citation could not be verified in the {', '.join(result['sources_checked'])} or via public APIs."
+                elif is_sct_citation:
+                    result['explanation'] = f"This Supreme Court Reporter citation could not be verified in the {', '.join(result['sources_checked'])} or via public APIs."
+                elif is_westlaw:
+                    result['explanation'] = "Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database."
+                else:
+                    result['explanation'] = f"Citation could not be verified through available APIs ({', '.join(result['sources_checked'])}). This may be due to database limitations, an uncommon citation format, or the citation not existing in public legal databases."
             # If we extracted a case name from context, use it for unverified citations
             if result.get('extracted_case_name') and not result.get('case_name'):
                 result['case_name'] = result['extracted_case_name']
                 logging.info(f"[DEBUG] Using extracted case name for unverified citation: {result['case_name']}")
-                # Remove the extracted_case_name field since we've used it
-                
-                # API v4 citation-lookup returns a different format than v3
-                print(f"DEBUG: Full API v4 response: {api_result}")
-                logging.info(f"DEBUG: Full API v4 response: {api_result}")
-                
-                # Check if we have results
-                if api_result and isinstance(api_result, list) and len(api_result) > 0:
-                    # Get the first result
-                    citation_result = api_result[0]
-                    print(f"DEBUG: First citation result: {citation_result}")
-                    logging.info(f"DEBUG: First citation result: {citation_result}")
-                    
-                    # API v4 citation-lookup returns a list of matched citations with 'clusters'
-                    clusters = citation_result.get('clusters', [])
-                    if clusters and len(clusters) > 0:
-                        # Get the first cluster
-                        cluster = clusters[0]
-                        print(f"DEBUG: First cluster: {cluster}")
-                        logging.info(f"DEBUG: First cluster: {cluster}")
-                        
-                        # Mark as found and update result with case information
-                        result['found'] = True
-                        result['source'] = 'CourtListener'
-                        result['case_name'] = cluster.get('case_name', 'Unknown Case')
-                        
-                        # Build URL from cluster ID if available
-                        if cluster.get('id'):
-                            result['url'] = f"https://www.courtlistener.com/opinion/{cluster.get('id')}/"
-                        elif cluster.get('absolute_url'):
-                            result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url')}"
-                        
-                        # Add detailed information
-                        result['details'] = {
-                            'court': cluster.get('court', 'Unknown Court'),
-                            'date_filed': cluster.get('date_filed', 'Unknown Date'),
-                            'docket_number': cluster.get('docket_number', 'Unknown')
-                        }
-                        
-                        # Add citation information if available
-                        if cluster.get('citations') and len(cluster['citations']) > 0:
-                            citations_list = []
-                            for cite in cluster['citations']:
-                                if cite.get('volume') and cite.get('reporter') and cite.get('page'):
-                                    citations_list.append(f"{cite['volume']} {cite['reporter']} {cite['page']}")
-                            if citations_list:
-                                result['details']['citations'] = citations_list
-                        
-                        print(f"DEBUG: Found case in CourtListener API v4: {result['case_name']}")
-                        logging.info(f"[CourtListener API] Found case in CourtListener API v4: {result['case_name']}")
-                        return result
-                else:
-                    print("No results found in citation lookup API response")
-                
-                # If no results found, try the search API as fallback
-                # API v4 search endpoint uses different parameters
-                search_url = f"{COURTLISTENER_SEARCH_API}?type=o&q={urllib.parse.quote(formatted_citation)}&format=json"
-                print(f"Trying search API: {search_url}")
-                
-                response = requests.get(search_url, headers=self.headers, timeout=TIMEOUT_SECONDS)
-                print(f"Search API response status: {response.status_code}")
-                print(f"Search API response headers: {response.headers}")
-                print(f"Search API response text: {response.text}")
-                
-                logging.info(f"[CourtListener API] Search API response status: {response.status_code}")
-                logging.info(f"[CourtListener API] Search API response headers: {response.headers}")
-                logging.info(f"[CourtListener API] Search API response text: {response.text}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    logging.info(f"[CourtListener API] Response count: {data.get('count', 0)}")
-                    print(f"Search API response JSON: {data}")
-                    
-                    if data.get('count', 0) > 0:
-                        # Look for exact match in results
-                        exact_match = None
-                        for item in data['results']:
-                            citations = item.get('citation', [])
-                            print(f"Checking citations: {citations}")
-                            if any(formatted_citation in cite for cite in citations):
-                                exact_match = item
-                                break
-                        
-                        if exact_match:
-                            result_item = exact_match
-                        else:
-                            # If no exact match, use the first result
-                            result_item = data['results'][0]
-                        
-                        result['found'] = True
-                        result['case_name'] = result_item.get('caseName', result_item.get('case_name', 'Unknown Case'))
-                        result['url'] = f"https://www.courtlistener.com{result_item.get('absolute_url', '')}"
-                        result['details'] = {
-                            'court': result_item.get('court', 'Unknown Court'),
-                            'date_filed': result_item.get('dateFiled', result_item.get('date_filed', 'Unknown Date')),
-                            'docket_number': result_item.get('docketNumber', result_item.get('docket_number', 'Unknown Docket')),
-                            'citations': result_item.get('citation', [])
-                        }
-                        print(f"Found case in search API: {result['case_name']}")
-                        logging.info(f"[CourtListener API] Found case in search API: {result['case_name']}")
-                        return result
-                    else:
-                        print("No results found in search API response")
-                        logging.info(f"[CourtListener API] No results found in search API response")
-            else:
-                print(f"Error response from citation lookup API: {response.status_code}")
-                print(f"Error response text: {response.text}")
-                logging.error(f"[CourtListener API] Error response: {response.status_code} - {response.text}")
-                
-                # Try to parse error response if possible
-                try:
-                    error_data = response.json()
-                    logging.error(f"[CourtListener API] Error details: {error_data}")
-                except:
-                    logging.error(f"[CourtListener API] Could not parse error response as JSON")
-                logging.error(f"[CourtListener API] Error response: {response.status_code} - {response.text}")
+            # Always attach the sources_checked for transparency
+            result['sources_checked'] = result['sources_checked'] + fallback_sources
         
-        except Exception as e:
-            error_msg = f"Error in verify_with_courtlistener_citation_api: {str(e)}"
-            print(error_msg)
-            logging.error(f"[CourtListener API] Exception: {str(e)}")
-            logging.error(f"[CourtListener API] Traceback: {traceback.format_exc()}")
-            result['explanation'] = error_msg
-            # Defensive: avoid NameError if formatted_citation is undefined
-            try:
-                logging.info(f"[CourtListener API] Citation not verified: {formatted_citation}")
-            except Exception as log_exc:
-                logging.error(f"[CourtListener API] Could not log citation: {log_exc}")
-            return result
-        
+
+
+        # Final defensive return: always log and guarantee a dictionary
+        logging.info(f"[RETURN] Returning from verify_citation (final fallback): type={type(result)}, value={result}")
+        if not isinstance(result, dict):
+            result = {
+                'citation': citation,
+                'found': False,
+                'source': None,
+                'case_name': None,
+                'url': None,
+                'details': {},
+                'explanation': 'Internal error: result was not a dictionary.',
+                'is_westlaw': False,
+                'sources_checked': [],
+                'error': True
+            }
         return result
-    
+
     def _format_citation_for_courtlistener(self, citation: str) -> str:
         """Format a citation for the CourtListener API.
         
@@ -487,6 +401,194 @@ class CitationVerifier:
         logging.info(f"No specific formatting applied, using citation as is: {citation}")
         return citation
     
+    def verify_with_courtlistener_citation_api(self, citation: str) -> Dict[str, Any]:
+        """
+        Verify a citation using the CourtListener Citation Lookup API v4.
+        Args:
+            citation: The legal citation to verify
+        Returns:
+            Dict with verification results
+        """
+        # Debug: Optionally bypass formatting for debugging
+        raw_citation = citation
+        formatted_citation = self._format_citation_for_courtlistener(citation) if not getattr(self, 'debug_mode', False) else citation
+        if getattr(self, 'debug_mode', False):
+            logging.info(f"[DEBUG] Debug mode enabled: sending citation as-is: '{raw_citation}'")
+        else:
+            logging.info(f"[DEBUG] Formatted citation for CourtListener: '{formatted_citation}' (original: '{raw_citation}')")
+        result = {
+            'citation': citation,
+            'found': False,
+            'valid': False,
+            'source': 'CourtListener Citation Lookup API',
+            'case_name': None,
+            'url': None,
+            'details': {},
+            'explanation': None,
+            'status': None,
+            'error_message': None
+        }
+        if not COURTLISTENER_AVAILABLE or not self.api_key:
+            result['status'] = 503
+            result['error_message'] = 'API unavailable or missing key.'
+            return result
+        try:
+            headers = {
+                'Authorization': f'Token {self.api_key}',
+                'Content-Type': 'application/json',
+                'User-Agent': 'CaseStrainer Citation Verifier (https://github.com/jafrank88/CaseStrainer)'
+            }
+            data = {'text': formatted_citation}
+            api_url = COURTLISTENER_CITATION_API
+            logging.info(f"[CourtListener API] POST to {api_url} with citation: {formatted_citation}")
+            logging.info(f"[DEBUG] Payload sent to CourtListener API: {data}")
+            logging.info(f"[DEBUG] API URL: {api_url}")
+            logging.info(f"[DEBUG] API Headers: {headers}")
+            response = requests.post(api_url, headers=headers, json=data, timeout=TIMEOUT_SECONDS)
+            logging.info(f"[DEBUG] CourtListener API status: {response.status_code}")
+            logging.info(f"[DEBUG] CourtListener API response: {response.text}")
+            result['status'] = response.status_code
+            if response.status_code == 200:
+                api_data = response.json()
+                # v4 returns a list of results (may be empty)
+                if (
+                    isinstance(api_data, list)
+                    and len(api_data) > 0
+                    and isinstance(api_data[0], dict)
+                ):
+                    try:
+                        logging.debug(f"[CourtListener API] Raw api_data: {api_data}")
+                        citation_result = api_data[0]
+                        logging.debug(f"[CourtListener API] citation_result: {citation_result}")
+                        clusters = citation_result.get('clusters', [])
+                        if (
+                            isinstance(clusters, list)
+                            and len(clusters) > 0
+                            and isinstance(clusters[0], dict)
+                        ):
+                            cluster = clusters[0]
+                            case_name = cluster.get('case_name')
+                            url = cluster.get('absolute_url')
+                            if url and not url.startswith('http'):
+                                url = f"https://www.courtlistener.com{url}"
+                            result['case_name'] = case_name
+                            result['url'] = url
+                            result['found'] = True
+                            result['valid'] = True
+                            result['explanation'] = 'Citation verified by CourtListener API.'
+                            result['source'] = 'CourtListener'
+                            result['courtlistener'] = cluster  # Ensure full cluster/case details are captured
+                            logging.info(f"[CourtListener API] Citation found: {cluster}")
+                        else:
+                            result['found'] = False
+                            result['valid'] = False
+                            result['case_name'] = None
+                            result['url'] = None
+                            result['explanation'] = 'CourtListener API returned no valid cluster data for this citation.'
+                            result['source'] = 'CourtListener'
+                            logging.warning(f"[CourtListener API] No valid cluster data for citation: {citation}. Raw clusters: {clusters}")
+                    except Exception as e:
+                        logging.error(f"[CourtListener API] Exception during verification: {e}")
+                        logging.error(f"[DEBUG] Exception details:", exc_info=True)
+                else:
+                    result['found'] = False
+                    result['valid'] = False
+                    result['explanation'] = 'Citation not found in CourtListener database.'
+                    result['error_message'] = f"Citation not found: '{citation}'"
+                    result['case_name'] = None
+                    result['url'] = None
+                    result['source'] = 'CourtListener'
+                    logging.info(f"[CourtListener API] Citation not found: {citation}")
+            else:
+                result['found'] = False
+                result['valid'] = False
+                result['explanation'] = 'CourtListener API returned no valid result object.'
+                result['case_name'] = None
+                result['url'] = None
+                result['source'] = 'CourtListener'
+                logging.warning(f"[CourtListener API] api_data is not a list of dicts for citation: {citation}. Raw api_data: {response.text}")
+                if response.status_code == 404:
+                    result['explanation'] = 'Citation not found in CourtListener database.'
+                    result['error_message'] = f"Citation not found: '{citation}'"
+                    logging.info(f"[CourtListener API] Citation not found: {citation}")
+                elif response.status_code in (401, 403):
+                    result['explanation'] = f'Authentication failed (status {response.status_code}). Check your API key.'
+                    result['error_message'] = response.text
+                    logging.error(f"[CourtListener API] Authentication failed: {response.text}")
+            logging.info(f"[CourtListener API] Returning result: {result}")
+            return result
+        except requests.RequestException as e:
+            result['explanation'] = f'Request error: {str(e)}'
+            result['error_message'] = str(e)
+            result['status'] = 500
+            logging.error(f"[CourtListener API] RequestException: {str(e)}")
+            logging.info(f"[CourtListener API] Returning result (RequestException): {result}")
+            return result
+        except Exception as e:
+            result['explanation'] = f'Exception during CourtListener verification: {str(e)}'
+            result['error_message'] = str(e)
+            result['status'] = 500
+            logging.error(f"[CourtListener API] Exception: {str(e)}")
+            traceback.print_exc()
+            logging.info(f"[CourtListener API] Returning result (Exception): {result}")
+            return result
+
+                            result['explanation'] = 'CourtListener API returned no valid cluster data for this citation.'
+                            result['source'] = 'CourtListener'
+                            logging.warning(f"[CourtListener API] No valid cluster data for citation: {citation}. Raw clusters: {clusters}")
+                    except Exception as e:
+                        logging.error(f"[CourtListener API] Exception during verification: {e}")
+                        logging.error(f"[DEBUG] Exception details:", exc_info=True)
+                    else:
+                        result['found'] = False
+                        result['valid'] = False
+                        result['explanation'] = 'Citation not found in CourtListener database.'
+                        result['error_message'] = f"Citation not found: '{citation}'"
+                        result['case_name'] = None
+                        result['url'] = None
+                        result['source'] = 'CourtListener'
+                        logging.info(f"[CourtListener API] Citation not found: {citation}")
+                else:
+                    result['found'] = False
+                    result['valid'] = False
+                    result['explanation'] = 'CourtListener API returned no valid result object.'
+                    result['case_name'] = None
+                    result['url'] = None
+                    result['source'] = 'CourtListener'
+                    logging.warning(f"[CourtListener API] api_data is not a list of dicts for citation: {citation}. Raw api_data: {api_data}")
+                    result['valid'] = False
+                    if response.status_code == 404:
+                        result['explanation'] = 'Citation not found in CourtListener database.'
+                        result['error_message'] = f"Citation not found: '{citation}'"
+                        logging.info(f"[CourtListener API] Citation not found: {citation}")
+                    elif response.status_code in (401, 403):
+                        result['explanation'] = f'Authentication failed (status {response.status_code}). Check your API key.'
+                        result['error_message'] = response.text
+                        logging.error(f"[CourtListener API] Authentication failed: {response.text}")
+                    else:
+                        pass  # Other status codes handled above
+                logging.info(f"[CourtListener API] Returning result: {result}")
+                return result  # Always return result dictionary at the end of the function
+
+        except requests.RequestException as e:
+            result['explanation'] = f'Request error: {str(e)}'
+            result['error_message'] = str(e)
+            result['status'] = 500
+            logging.error(f"[CourtListener API] RequestException: {str(e)}")
+            logging.info(f"[CourtListener API] Returning result (RequestException): {result}")
+            return result
+        except Exception as e:
+            result['explanation'] = f'Exception during CourtListener verification: {str(e)}'
+            result['error_message'] = str(e)
+            result['status'] = 500
+            logging.error(f"[CourtListener API] Exception: {str(e)}")
+            traceback.print_exc()
+            logging.info(f"[CourtListener API] Returning result (Exception): {result}")
+            return result
+
+        logging.info(f"[CourtListener API] Returning result (final fallback): {result}")
+        return result
+
     def verify_with_courtlistener_search_api(self, citation: str) -> Dict[str, Any]:
         """
         Verify a citation using the CourtListener Search API.
@@ -581,7 +683,10 @@ class CitationVerifier:
             print(f"Error in verify_with_courtlistener_search_api: {e}")
             logging.error(f"[CourtListener API] Exception: {str(e)}")
             traceback.print_exc()
+            logging.info(f"[CourtListener Search API] Returning result (Exception): {result}")
+            return result
         
+        logging.info(f"[CourtListener Search API] Returning result (final fallback): {result}")
         return result
     
     def _extract_citation_parts(self, citation: str) -> Dict[str, str]:
