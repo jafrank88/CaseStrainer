@@ -669,7 +669,13 @@ def validate_citation(citation_text, return_debug=False):
         logger.info(f"[DEBUG] Citation validated by CourtListener API: {clean_citation}")
         print(f"DEBUG: Citation validated by CourtListener API: {clean_citation}")
         return courtlistener_result
-    
+    else:
+        # If the result is not verified, ensure 'verified' is explicitly False
+        if courtlistener_result is not None:
+            courtlistener_result["verified"] = False
+            return courtlistener_result
+        # If no result at all, continue to next validation method
+
     # 2. Check if this is a LEXIS citation (these are always valid)
     logger.info(f"[DEBUG] Checking if citation is LEXIS format: {clean_citation}")
     if re.search(r'LEXIS', clean_citation, re.IGNORECASE):
@@ -679,6 +685,22 @@ def validate_citation(citation_text, return_debug=False):
         validation_result["reporter_type"] = "LEXIS"
         logger.info(f"[DEBUG] Validated LEXIS citation: {clean_citation}")
         print(f"DEBUG: Validated LEXIS citation: {clean_citation}")
+        return validation_result
+
+    # 2b. Check if this is a Westlaw citation (these are proprietary and not public)
+    logger.info(f"[DEBUG] Checking if citation is Westlaw format: {clean_citation}")
+    westlaw_pattern = r"\\b(?:^|\\D)(\\d{4})\\s*W\\.?\\s*L\\.?\\s*(\\d+)\\b"
+    if re.search(westlaw_pattern, clean_citation, re.IGNORECASE):
+        validation_result["verified"] = False
+        validation_result["verified_by"] = "Enhanced Validator"
+        validation_result["validation_method"] = "Westlaw"
+        validation_result["reporter_type"] = "Westlaw"
+        validation_result["explanation"] = (
+            "This is a Westlaw citation, which is unlikely to be found in public legal databases such as CourtListener. "
+            "Westlaw citations are proprietary to the Westlaw service. If you need to verify this citation, please use Westlaw directly."
+        )
+        logger.info(f"[DEBUG] Detected Westlaw citation: {clean_citation}. Marked as unlikely to be found in public legal databases.")
+        print(f"DEBUG: Detected Westlaw citation: {clean_citation}. Marked as unlikely to be found in public legal databases.")
         return validation_result
     
     # 3. Check static databases in order of reliability
