@@ -87,24 +87,104 @@ function handleCitationInput(inputType, inputData) {
     
     // Use different endpoints based on input type
     if (inputType === 'file') {
-        // For file uploads, try both with and without the /casestrainer prefix
-        // This ensures compatibility with different deployment configurations
-        endpoint = '/api/upload'; // Direct endpoint without prefix
-        console.log(`Using file upload endpoint: ${endpoint}`);
+        // For file uploads, send extracted text as JSON to the enhanced validator endpoint
+        endpoint = '/casestrainer/enhanced-validator/api/analyze';
+        console.log(`Using enhanced validator endpoint for file upload: ${endpoint}`);
     } else {
-        endpoint = `${basePath}/api/analyze`; // Use analyze endpoint for text and URL
+        endpoint = `${basePath}/api/analyze`;
         console.log(`Using analyze endpoint: ${endpoint}`);
     }
-    
+
     console.log(`Using endpoint for ${inputType}:`, endpoint);
     let requestData;
-    
+
+    // For file uploads, read the file as text, then send as JSON
+    if (inputType === 'file') {
+        const file = inputData;
+        if (!file) {
+            alert('Please select a file to upload');
+            return false;
+        }
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const fileText = event.target.result;
+            requestData = { text: fileText };
+            debugInfo.innerHTML += `<br><strong>Extracted Text (${fileText.length} chars)</strong>`;
+            // Set up request options
+            const requestOptions = {
+                method: 'POST',
+                body: JSON.stringify(requestData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                mode: 'cors'
+            };
+            // Log the full request details
+            console.log('Sending request to:', endpoint);
+            console.log('Request options:', {
+                method: requestOptions.method,
+                headers: requestOptions.headers,
+                body: '[Extracted file text as JSON]'
+            });
+            debugInfo.innerHTML += `<br><strong>Request to ${endpoint}:</strong> [Extracted file text as JSON]`;
+            // Send the request to the server
+            progressBar.style.width = '50%';
+            progressBar.textContent = '50%';
+            fetch(endpoint, requestOptions)
+                .then(response => {
+                    console.log('Received response status:', response.status, response.statusText);
+                    progressBar.style.width = '75%';
+                    progressBar.textContent = '75%';
+                    const contentType = response.headers.get('content-type');
+                    console.log('Response content type:', contentType);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Error response body:', text);
+                            throw new Error(`Server responded with status: ${response.status} - ${text}`);
+                        });
+                    }
+                    debugInfo.innerHTML += '<br><strong>Response received:</strong> Processing data...';
+                    return response.json().then(json => {
+                        console.log('Parsed JSON response:', json);
+                        return json;
+                    }).catch(err => {
+                        console.error('Error parsing JSON response:', err);
+                        throw new Error('Failed to parse server response as JSON');
+                    });
+                })
+                .then(data => {
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    progressBar.className = 'progress-bar bg-success progress-bar-striped progress-bar-animated';
+                    debugInfo.innerHTML += '<br><strong>Success:</strong> ' + JSON.stringify(data, null, 2);
+                    displayCitationReport(data);
+                })
+                .catch(error => {
+                    console.error(`Error during file analysis:`, error);
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = 'Error';
+                    progressBar.className = 'progress-bar bg-danger progress-bar-striped';
+                    debugInfo.className = 'alert alert-danger mt-3';
+                    debugInfo.innerHTML += `<br><strong>Error:</strong> ${error.message}`;
+                    alert(`Error analyzing file: ${error.message}`);
+                });
+        };
+        reader.onerror = function(event) {
+            console.error('File reading error:', event);
+            progressBar.style.width = '100%';
+            progressBar.textContent = 'Error';
+            progressBar.className = 'progress-bar bg-danger progress-bar-striped';
+            debugInfo.className = 'alert alert-danger mt-3';
+            debugInfo.innerHTML += `<br><strong>Error:</strong> Failed to read file.`;
+            alert('Failed to read file.');
+        };
+        reader.readAsText(file);
+        return; // Prevent the rest of the function from executing for file
+    }
+
     switch (inputType) {
-        case 'file':
-            // For file upload, create FormData
-            requestData = new FormData();
-            requestData.append('file', inputData);
-            break;
             
         case 'text':
             // For text input, create JSON object
