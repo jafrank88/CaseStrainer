@@ -1,5 +1,25 @@
 # CaseStrainer Deployment Guide
 
+---
+
+## Quick Start for New Contributors
+
+- **Use only `start_casestrainer.bat` to start/restart the backend and Nginx.**
+- **Build the Vue.js frontend with `build_and_deploy_vue.bat`.**
+- **All API endpoints must use the `/casestrainer/api/` prefix.**
+- **Copy `.env.example` to `.env` and fill in your secrets. Never commit real secrets!**
+- **.env is already in .gitignore.**
+- **Install pre-commit hooks for secret scanning and linting:**
+  ```bash
+  pip install pre-commit
+  pre-commit install
+  pre-commit run --all-files
+  ```
+- **See this file and `docs/DEPLOYMENT_VUE.md` for troubleshooting and rollback.**
+- **Check logs in the `logs/` directory if issues arise.**
+
+---
+
 This document provides comprehensive instructions for deploying and maintaining the CaseStrainer application with its Vue.js frontend.
 
 ## Deployment Architecture
@@ -37,18 +57,36 @@ This script:
 
 ### 2. Nginx Proxy Deployment
 
-For deployment with the Nginx proxy (recommended for production), use the `scripts\start_for_nginx.bat` script:
+For deployment with the Nginx proxy (recommended for production), use the unified script `start_casestrainer.bat` as described above. 
 
-```
-.\scripts\start_for_nginx.bat
-```
-
-This script performs the same checks as `start_casestrainer.bat` but is specifically configured for the Nginx proxy environment.
+**Note:** The old script `scripts\start_for_nginx.bat` is deprecated and should not be used. All startup and restart operations must use `start_casestrainer.bat`.
 
 ## Access URLs
 
 - **External access** (through Nginx proxy): https://wolf.law.uw.edu/casestrainer/
 - **Local access** (direct): http://127.0.0.1:5000/
+
+## Frontend Deployment
+
+See `docs/DEPLOYMENT_VUE.md` for instructions on building and deploying the Vue.js frontend.
+
+## Troubleshooting
+- If you see a 502 Bad Gateway error, check that the Flask application is running on port 5000 and Nginx is properly configured.
+- If you see path or 404 errors, ensure the Nginx proxy and frontend are using the `/casestrainer` prefix and API endpoints are under `/casestrainer/api/`.
+
+### API Base Path
+
+All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+- `https://wolf.law.uw.edu/casestrainer/api/verify_citation`
+- `http://localhost:5000/casestrainer/api/verify_citation`
+
+**Troubleshooting:**
+If you encounter 404 or path errors, ensure both the frontend and backend use the `/casestrainer/api/` prefix and your Nginx/proxy configuration is correct.
+
+### Startup Script
+
+Always use `start_casestrainer.bat` to start or restart the application. All other batch files are archived and unsupported.
+- For SSL/HTTPS issues, verify your Nginx SSL configuration matches the documented paths and certificates.
 
 ## Configuration Files
 

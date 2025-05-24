@@ -117,36 +117,41 @@ LANDING_PAGE = """
 </html>
 """
 
+
 # Handle URL prefix for Nginx proxy
 class PrefixMiddleware:
-    def __init__(self, app, prefix=''):
+    def __init__(self, app, prefix=""):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
+        if environ["PATH_INFO"].startswith(self.prefix):
+            environ["PATH_INFO"] = environ["PATH_INFO"][len(self.prefix) :]
+            environ["SCRIPT_NAME"] = self.prefix
             return self.app(environ, start_response)
         else:
             # If not prefixed, just pass through
             return self.app(environ, start_response)
 
+
 # Apply the prefix middleware
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix="/casestrainer")
+
 
 # Serve the landing page at the root URL
-@app.route('/')
+@app.route("/")
 def serve_landing():
     return render_template_string(LANDING_PAGE)
 
+
 # Redirect /api/ to the original CaseStrainer interface
-@app.route('/api/')
+@app.route("/api/")
 def redirect_to_original():
     # In a real setup, this would redirect to the original interface
     # For now, just show a message
     return "Original CaseStrainer Interface"
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Run the application
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=5000)

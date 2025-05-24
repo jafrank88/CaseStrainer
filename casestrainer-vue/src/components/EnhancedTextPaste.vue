@@ -1,9 +1,9 @@
 <template>
   <div class="enhanced-text-paste">
     <div class="card">
-      <div class="card-header">
-        <h5>Paste Text</h5>
-      </div>
+      <div class="bg-primary text-white p-3 rounded-top">
+  <h5 class="mb-0">Paste Text</h5>
+</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="textInput" class="form-label">Paste legal text to analyze for citations</label>
@@ -29,62 +29,7 @@
     
     <!-- Analysis Results -->
     <div v-if="textAnalysisResult" class="mt-4">
-      <div class="card">
-        <div class="card-header">
-  <h5>Analysis Results</h5>
-</div>
-<div class="card-body">
-  <div class="alert alert-success">
-    <h5>Analysis complete!</h5>
-    <p>Found {{ textAnalysisResult.citations_count }} citations in your text.</p>
-  </div>
-  <div class="mt-3">
-  <h6>Citation Summary:</h6>
-  <ul class="list-group">
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      Confirmed Citations
-      <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-    </li>
-  </ul>
-</div>
-  <div class="mt-4">
-    <h6>Citations Found:</h6>
-    <div class="table-responsive">
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>Citation</th>
-            <th>Status</th>
-            <th>Validation Method</th>
-            <th>Case Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(result, index) in textAnalysisResult.validation_results" :key="index">
-            <td>{{ result.citation }}</td>
-            <td>
-              <span class="badge" :class="result.verified ? 'bg-success' : 'bg-danger'">
-                {{ result.verified ? 'Verified' : 'Not Verified' }}
-              </span>
-            </td>
-            <td>
-              <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
-                {{ result.validation_method }}
-              </span>
-              <span v-else>-</span>
-            </td>
-            <td>{{ result.case_name || '-' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <div class="mt-3">
-    <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">View All Confirmed</button>
-    <button class="btn btn-outline-danger" @click="viewUnconfirmedCitations">View All Unconfirmed</button>
-  </div>
-</div>
-      </div>
+      <ReusableResults :results="textAnalysisResult" />
     </div>
   </div>
 </template>
@@ -92,8 +37,15 @@
 <script>
 import axios from 'axios';
 
+import ProgressBar from './ProgressBar.vue';
+import ReusableResults from './ReusableResults.vue';
+
 export default {
   name: 'EnhancedTextPaste',
+  components: {
+    ProgressBar,
+    ReusableResults
+  },
   data() {
     return {
       pastedText: '',
@@ -138,12 +90,9 @@ export default {
       
       // Clear previous debug info
       this.debugInfo = 'Debug: Starting text analysis...\n';
-      this.debugInfo += `Request to ${this.basePath}/api/upload: [Text data]\n`;
+      this.debugInfo += `Request to ${this.basePath}/api/analyze: [Text data]\n`;
 
-      const formData = new FormData();
-      formData.append('brief_text', this.pastedText);
-
-      axios.post(`${this.basePath}/api/upload`, formData)
+      axios.post(`${this.basePath}/api/analyze`, { text: this.pastedText })
       .then(response => {
         // Add to debug info
         this.debugInfo += `Response received: Processing data...\n`;
@@ -151,10 +100,8 @@ export default {
         this.debugInfo += `Success: ${jsonString.substring(0, 500)}${jsonString.length > 500 ? '... [truncated]' : ''}\n`;
 
         this.textAnalysisResult = response.data;
-        // (debugInfo is still built and sent to backend, but not logged or displayed on frontend)
       })
       .catch(error => {
-        console.error('Error analyzing text:', error);
         alert(`Error analyzing text: ${error.response?.data?.message || error.message || 'Unknown error'}`);
         this.debugInfo += `Error: ${error.message}\n`;
         if (error.response) {

@@ -1,0 +1,22 @@
+# Exclude all test files and folders from export (e.g., git archive)
+test/                 export-ignore
+test_files/           export-ignore
+tests/                export-ignore
+test_api.py           export-ignore
+test_citation.py      export-ignore
+test_courtlistener_api.py export-ignore
+test_enhanced_validator.py export-ignore
+test_normalize.py     export-ignore
+test_server.py        export-ignore
+test_citation.txt     export-ignore
+test_citations.txt    export-ignore
+test_api.html         export-ignore
+
+# Exclude any test scripts in src/
+src/test_*.py         export-ignore
+
+# Exclude other sample or temp/test data
+sample_briefs/        export-ignore
+archive/              export-ignore
+archived_batch_files/ export-ignore
+deprecated_scripts/   export-ignore

@@ -1,9 +1,9 @@
 <template>
   <div class="enhanced-file-upload">
     <div class="card">
-      <div class="card-header">
-        <h5>Upload a Document</h5>
-      </div>
+      <div class="bg-primary text-white p-3 rounded-top">
+  <h5 class="mb-0">Upload Document</h5>
+</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="enhancedFileUpload" class="form-label">Select a file to analyze for citations</label>
@@ -18,6 +18,7 @@
           </div>
         </div>
         
+        <ProgressBar :loading="isAnalyzing" message="Analyzing..." />
         <button class="btn btn-primary" @click="analyzeDocument" :disabled="!file || isAnalyzing">
           <span v-if="isAnalyzing" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Citations' }}
@@ -27,62 +28,87 @@
     
     <!-- Analysis Results -->
     <div v-if="documentAnalysisResult" class="mt-4">
-      <div class="card">
-        <div class="card-header">
-          <h5>Analysis Results</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-success">
-            <h5>Analysis complete!</h5>
-            <p>Found {{ documentAnalysisResult.citations_count }} citations in your document.</p>
-          </div>
-          <div class="mt-3">
-            <h6>Citation Summary:</h6>
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Confirmed Citations
-                <span class="badge bg-success rounded-pill">{{ confirmedCount }}</span>
-              </li>
-            </ul>
-          </div>
-          <div class="mt-4">
-            <h6>Citations Found:</h6>
-            <div class="table-responsive">
-              <table class="table table-striped table-hover">
-                <thead>
-                  <tr>
-                    <th>Citation</th>
-                    <th>Status</th>
-                    <th>Validation Method</th>
-                    <th>Case Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(result, index) in documentAnalysisResult.validation_results" :key="index">
-                    <td>{{ result.citation }}</td>
-                    <td>
-                      <span class="badge" :class="result.verified ? 'bg-success' : 'bg-danger'">
-                        {{ result.verified ? 'Verified' : 'Not Verified' }}
-                      </span>
-                    </td>
-                    <td>
-                      <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
-                        {{ result.validation_method }}
-                      </span>
-                      <span v-else>-</span>
-                    </td>
-                    <td>{{ result.case_name || '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="mt-3">
-            <button class="btn btn-outline-primary me-2" @click="viewConfirmedCitations">View All Confirmed</button>
-            <button class="btn btn-outline-danger" @click="viewUnconfirmedCitations">View All Unconfirmed</button>
-          </div>
-        </div>
-      </div>
+      <ReusableResults :results="documentAnalysisResult" />
+      <!-- Summary Bar -->
+<div class="alert alert-info mb-4">
+  <h5 class="mb-0">
+    <i class="fas fa-search me-2"></i>
+    Found {{ confirmedCount + unconfirmedCount }} Citations
+  </h5>
+</div>
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs mb-3" id="citationTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="confirmed-tab" data-bs-toggle="tab" data-bs-target="#confirmed" type="button" role="tab" aria-controls="confirmed" aria-selected="true">
+      Confirmed ({{ confirmedCount }})
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="unconfirmed-tab" data-bs-toggle="tab" data-bs-target="#unconfirmed" type="button" role="tab" aria-controls="unconfirmed" aria-selected="false">
+      Unconfirmed ({{ unconfirmedCount }})
+    </button>
+  </li>
+</ul>
+<div class="tab-content" id="citationTabsContent">
+  <div class="tab-pane fade show active" id="confirmed" role="tabpanel" aria-labelledby="confirmed-tab">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Citation</th>
+            <th>Status</th>
+            <th>Validation Method</th>
+            <th>Case Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(result, index) in (documentAnalysisResult.validation_results || []).filter(r => r.verified)" :key="index">
+            <td>{{ result.citation }}</td>
+            <td>
+              <span class="badge bg-success">Verified</span>
+            </td>
+            <td>
+              <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
+                {{ result.validation_method }}
+              </span>
+              <span v-else>-</span>
+            </td>
+            <td>{{ result.case_name || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="unconfirmed" role="tabpanel" aria-labelledby="unconfirmed-tab">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Citation</th>
+            <th>Status</th>
+            <th>Validation Method</th>
+            <th>Case Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(result, index) in (documentAnalysisResult.validation_results || []).filter(r => !r.verified)" :key="index">
+            <td>{{ result.citation }}</td>
+            <td>
+              <span class="badge bg-danger">Not Verified</span>
+            </td>
+            <td>
+              <span v-if="result.validation_method" class="badge" :class="getBadgeClass(result.validation_method)">
+                {{ result.validation_method }}
+              </span>
+              <span v-else>-</span>
+            </td>
+            <td>{{ result.case_name || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </template>
@@ -90,8 +116,15 @@
 <script>
 import axios from 'axios';
 
+import ProgressBar from './ProgressBar.vue';
+import ReusableResults from './ReusableResults.vue';
+
 export default {
   name: 'EnhancedFileUpload',
+  components: {
+    ProgressBar,
+    ReusableResults
+  },
   data() {
     return {
       file: null,
@@ -147,14 +180,14 @@ export default {
       
       // Clear previous debug info
       this.debugInfo = 'Debug: Starting file analysis...\n';
-      this.debugInfo += `Request to ${this.basePath}/api/upload: [File data]\n`; // Only for backend logging
+      this.debugInfo += `Request to /casestrainer/api/analyze: [File data]\n`; // Only for backend logging
 
       const formData = new FormData();
       formData.append('file', this.file);
       // Attach debug info for server-side logging
       formData.append('debug_info', this.debugInfo);
 
-      axios.post(`${this.basePath}/api/upload`, formData, {
+      axios.post(`/casestrainer/api/analyze`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -165,10 +198,8 @@ export default {
         this.debugInfo += `Success: ${JSON.stringify(response.data, null, 2)}\n`;
 
         this.documentAnalysisResult = response.data;
-        // (debugInfo is still built and sent to backend, but not logged or displayed on frontend)
       })
       .catch(error => {
-        console.error('Error analyzing document:', error);
         alert(`Error analyzing document: ${error.response?.data?.message || error.message || 'Unknown error'}`);
         this.debugInfo += `Error: ${error.message}\n`;
         if (error.response) {

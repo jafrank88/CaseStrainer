@@ -1,5 +1,25 @@
 # CaseStrainer Vue.js Deployment Guide
 
+---
+
+## Quick Start for New Contributors
+
+- **Use only `start_casestrainer.bat` to start/restart the backend and Nginx.**
+- **Build the Vue.js frontend with `build_and_deploy_vue.bat`.**
+- **All API endpoints must use the `/casestrainer/api/` prefix.**
+- **Copy `.env.example` to `.env` and fill in your secrets. Never commit real secrets!**
+- **.env is already in .gitignore.**
+- **Install pre-commit hooks for secret scanning and linting:**
+  ```bash
+  pip install pre-commit
+  pre-commit install
+  pre-commit run --all-files
+  ```
+- **See this file and `../DEPLOYMENT.md` for troubleshooting and rollback.**
+- **Check logs in the `logs/` directory if issues arise.**
+
+---
+
 This guide provides comprehensive instructions for deploying the Vue.js version of CaseStrainer to the production server at https://wolf.law.uw.edu/casestrainer/.
 
 ## Overview
@@ -27,7 +47,7 @@ The Vue.js version of CaseStrainer represents a complete modernization of the ap
 3. **Vue.js Frontend** - Located in the `casestrainer-vue` directory
 4. **Deployment Scripts**:
    - `build_and_deploy_vue.bat` - Builds and deploys the Vue.js frontend
-   - `start_vue.bat` - Starts the application with proper settings
+   - **All other batch scripts are deprecated. Use only `start_casestrainer.bat` for startup/restart and `build_and_deploy_vue.bat` for frontend build/deploy.**
 
 ## Deployment Steps
 
@@ -54,7 +74,34 @@ This script will:
 
 > **Note**: This step requires Node.js and npm to be installed. If you don't have them, you can download from https://nodejs.org/.
 
-### 3. Configure the Environment
+### 3. API Path and Prefix Consistency
+
+- All API endpoints are available under `/casestrainer/api/`.
+
+### API Base Path
+
+All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+- `https://wolf.law.uw.edu/casestrainer/api/verify_citation`
+- `http://localhost:5000/casestrainer/api/verify_citation`
+
+**Troubleshooting:**
+If you encounter 404 or path errors, ensure both the frontend and backend use the `/casestrainer/api/` prefix and your Nginx/proxy configuration is correct.
+
+### Startup Script
+
+Always use `start_casestrainer.bat` to start or restart the application. All other batch files are archived and unsupported.
+- The Vue.js frontend and Nginx proxy must use the `/casestrainer` prefix for all routes.
+- If you encounter 404 or path errors, check both frontend and Nginx configuration for prefix consistency.
+
+### 4. Security Checklist
+- All secrets and sensitive configuration must be stored in `.env` and referenced via `config.py`.
+- `.env` and other sensitive files must be included in `.gitignore` and never committed.
+- Use pre-commit hooks to scan for secrets before pushing code.
+
+### 5. Running Backend Tests
+- (To be filled in after test script is added)
+
+### 6. Configure the Environment
 
 Ensure the application is configured to run on port 5000 and listen on all interfaces (0.0.0.0):
 

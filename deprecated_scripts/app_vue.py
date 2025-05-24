@@ -17,89 +17,97 @@ from vue_api import api_blueprint
 app = Flask(__name__)
 
 # Register the API blueprint
-app.register_blueprint(api_blueprint, url_prefix='/api')
-app.register_blueprint(api_blueprint, url_prefix='/casestrainer/api')
+app.register_blueprint(api_blueprint, url_prefix="/api")
+app.register_blueprint(api_blueprint, url_prefix="/casestrainer/api")
 
 # Constants
-DATABASE_FILE = 'citations.db'
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
+DATABASE_FILE = "citations.db"
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"txt", "pdf", "docx", "doc"}
 
 # Configure the upload folder
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Ensure upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+
 # Add CORS headers to all responses
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,OPTIONS"
     return response
 
+
 # Serve the Vue.js static files
-@app.route('/<path:path>')
-@app.route('/casestrainer/<path:path>')
+@app.route("/<path:path>")
+@app.route("/casestrainer/<path:path>")
 def serve_static(path):
     # Check if the path is for a static asset (js, css, img, etc.)
-    if path.startswith(('js/', 'css/', 'img/', 'fonts/')):
+    if path.startswith(("js/", "css/", "img/", "fonts/")):
         # Extract the directory (js, css, img, fonts)
-        directory = path.split('/')[0]
+        directory = path.split("/")[0]
         # Get the file path after the directory
-        file_path = '/'.join(path.split('/')[1:])
+        file_path = "/".join(path.split("/")[1:])
         # Serve from the Vue.js build directory
-        vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue', directory)
+        vue_dist_dir = os.path.join(
+            os.path.dirname(__file__), "static", "vue", directory
+        )
         return send_from_directory(vue_dist_dir, file_path)
-    
+
     # For all other paths, serve the Vue.js index.html
-    vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-    return send_from_directory(vue_dist_dir, 'index.html')
+    vue_dist_dir = os.path.join(os.path.dirname(__file__), "static", "vue")
+    return send_from_directory(vue_dist_dir, "index.html")
+
 
 # Serve the Vue.js index.html at the root URL
-@app.route('/')
-@app.route('/casestrainer/')
+@app.route("/")
+@app.route("/casestrainer/")
 def serve_index():
-    vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-    return send_from_directory(vue_dist_dir, 'index.html')
+    vue_dist_dir = os.path.join(os.path.dirname(__file__), "static", "vue")
+    return send_from_directory(vue_dist_dir, "index.html")
+
 
 # Handle URL prefix for Nginx proxy
 class PrefixMiddleware(object):
-    def __init__(self, app, prefix=''):
+    def __init__(self, app, prefix=""):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
         # Check if request has our prefix
-        if self.prefix and environ['PATH_INFO'].startswith(self.prefix):
+        if self.prefix and environ["PATH_INFO"].startswith(self.prefix):
             # Strip the prefix
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
-        
+            environ["PATH_INFO"] = environ["PATH_INFO"][len(self.prefix) :]
+            environ["SCRIPT_NAME"] = self.prefix
+
         # Ensure PATH_INFO starts with a slash
-        if not environ['PATH_INFO']:
-            environ['PATH_INFO'] = '/'
-        elif not environ['PATH_INFO'].startswith('/'):
-            environ['PATH_INFO'] = '/' + environ['PATH_INFO']
-            
+        if not environ["PATH_INFO"]:
+            environ["PATH_INFO"] = "/"
+        elif not environ["PATH_INFO"].startswith("/"):
+            environ["PATH_INFO"] = "/" + environ["PATH_INFO"]
+
         # Pass the modified environment to the app
         return self.app(environ, start_response)
 
+
 # Apply the prefix middleware
 # This allows the application to work both with and without the /casestrainer prefix
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix="/casestrainer")
 
 # Create a placeholder index.html file in the static/vue directory if it doesn't exist
-vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
+vue_dist_dir = os.path.join(os.path.dirname(__file__), "static", "vue")
 if not os.path.exists(vue_dist_dir):
     os.makedirs(vue_dist_dir)
-    
-index_html_path = os.path.join(vue_dist_dir, 'index.html')
+
+index_html_path = os.path.join(vue_dist_dir, "index.html")
 if not os.path.exists(index_html_path):
-    with open(index_html_path, 'w') as f:
-        f.write('''
+    with open(index_html_path, "w") as f:
+        f.write(
+            """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -218,30 +226,35 @@ if not os.path.exists(index_html_path):
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-''')
+"""
+        )
     print(f"Created placeholder index.html at {index_html_path}")
 else:
     print(f"Found existing index.html at {index_html_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Get command line arguments
     import argparse
-    parser = argparse.ArgumentParser(description='Run CaseStrainer with Vue.js frontend')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to bind to')
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+
+    parser = argparse.ArgumentParser(
+        description="Run CaseStrainer with Vue.js frontend"
+    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-    
+
     print(f"Starting CaseStrainer with Vue.js frontend on {args.host}:{args.port}")
-    
+
     # Check if we should run with Cheroot (production) or Flask's dev server
-    use_cheroot = os.environ.get('USE_CHEROOT', 'True').lower() in ('true', '1', 't')
-    
+    use_cheroot = os.environ.get("USE_CHEROOT", "True").lower() in ("true", "1", "t")
+
     if use_cheroot:
         try:
             from cheroot.wsgi import Server as WSGIServer
+
             print("Starting with Cheroot WSGI server (production mode)")
-            
+
             server = WSGIServer((args.host, args.port), app)
             try:
                 print(f"Server started on http://{args.host}:{args.port}")
@@ -253,7 +266,10 @@ if __name__ == '__main__':
             print("Cheroot not installed. Installing now...")
             try:
                 import subprocess
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "cheroot"])
+
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", "cheroot"]
+                )
                 print("Cheroot installed. Please restart the application.")
                 sys.exit(0)
             except Exception as e:

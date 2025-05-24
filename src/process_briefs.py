@@ -35,7 +35,11 @@ DIV3_BRIEFS_URL = "https://www.courts.wa.gov/appellate_trial_courts/coaBriefs/in
 def download_brief(brief_url, output_path):
     """Download a brief from the Washington Courts website."""
     try:
-        response = requests.get(brief_url, stream=True)
+        try:
+        response = requests.get(brief_url, stream=True, timeout=30)
+    except requests.Timeout:
+        print(f"Timeout occurred while downloading {brief_url}")
+        return None
         response.raise_for_status()
         
         with open(output_path, 'wb') as f:

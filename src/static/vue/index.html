@@ -66,7 +66,7 @@
 <body>
     <!-- Version indicator in the corner -->
     <div style="position: fixed; top: 0; right: 0; background-color: rgba(0,0,0,0.5); color: white; text-align: center; padding: 5px 10px; font-size: 12px; z-index: 9999; border-bottom-left-radius: 5px;">
-        v0.4.0
+        v0.4.4
     </div>
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -157,7 +157,7 @@
                                 <div class="tab-content" id="input-method-content">
                                     <!-- File Upload Panel -->
                                     <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
-                                        <form id="fileForm" enctype="multipart/form-data" action="javascript:void(0);">
+                                        <form id="fileForm" enctype="multipart/form-data" action="" method="post">
                                             <div class="mb-3">
                                                 <label for="fileUpload" class="form-label">Upload a legal document containing citations</label>
                                                 <input class="form-control" type="file" id="fileUpload" name="file" accept=".txt,.doc,.docx,.pdf,.rtf,.html,.htm" data-gramm_editor="false">
@@ -173,7 +173,7 @@
                                     
                                     <!-- Text Paste Panel -->
                                     <div class="tab-pane fade" id="text-panel" role="tabpanel" aria-labelledby="text-tab">
-                                        <form id="pasteForm" action="javascript:void(0);">
+                                        <form id="pasteForm" action="" method="post">
                                             <div class="mb-3">
                                                 <label for="textInput" class="form-label">Paste text containing legal citations</label>
                                                 <textarea class="form-control" id="textInput" name="text" rows="10" placeholder="Paste text from a legal document containing citations..."></textarea>
@@ -188,7 +188,7 @@
                                     
                                     <!-- URL Input Panel -->
                                     <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
-                                        <form id="urlForm" action="javascript:void(0);">
+                                        <form id="urlForm" action="" method="post">
                                             <div class="mb-3">
                                                 <label for="urlInput" class="form-label">Enter URL of a legal document</label>
                                                 <input type="url" class="form-control" id="urlInput" name="url" placeholder="https://law.justia.com/cases/...">

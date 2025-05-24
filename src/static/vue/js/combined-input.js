@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addDebugInfo(`File upload initiated: ${file.name} (${file.size} bytes, ${file.type})`);
             
             // Send request to API
-            const uploadUrl = `${basePath}/api/upload`;
+            const uploadUrl = `${basePath}/api/analyze`; // updated to unified endpoint
             addDebugInfo(`Sending file to ${uploadUrl} endpoint...`);
             addDebugInfo(`Current pathname: ${window.location.pathname}`);
             addDebugInfo(`Base path: ${basePath}`);
@@ -288,16 +288,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             })
             .then(data => {
+                // Defensive checks for expected properties
+                if (!data || typeof data !== 'object') {
+                    addDebugInfo('Unexpected API response: no data returned.');
+                    alert('Unexpected API response: no data returned.');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
+                    clearInterval(progressInterval);
+                    return;
+                }
+                if (!Array.isArray(data.citations)) {
+                    addDebugInfo('No citations found in the API response.');
+                    alert('No citations found in the API response.');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
+                    clearInterval(progressInterval);
+                    return;
+                }
                 addDebugInfo('JSON parsed successfully!');
                 addDebugInfo(`Found ${data.citations ? data.citations.length : 0} citations`);
-                
                 // Re-enable button
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-upload me-2"></i>Upload and Verify';
-                
                 // Clear progress polling
                 clearInterval(progressInterval);
-                
                 // Update progress to complete
                 progressBar.style.width = '100%';
                 progressBar.setAttribute('aria-valuenow', 100);
@@ -400,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(progressElement, progressBar);
             
             // Send request to API
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -472,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(progressElement, progressBar);
             
             // Send request to API
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -744,7 +758,7 @@ function handleFileUpload(event) {
         formData.append('file', file);
 
         // Make API request
-        fetch(`${basePath}/api/upload`, {
+        fetch(`${basePath}/api/analyze`, {
             method: 'POST',
             body: formData
         })
@@ -820,7 +834,7 @@ window.manualFileUpload = function() {
     // Create a new form element
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = `${basePath}/api/upload`;
+    form.action = `${basePath}/api/analyze`; // updated to unified endpoint
     form.enctype = 'multipart/form-data';
     
     // Create a hidden input for the file name
@@ -844,7 +858,7 @@ window.manualFileUpload = function() {
     
     // Add the form to the document and submit it
     document.body.appendChild(form);
-    debugInfo.innerHTML += '<br>Created and submitting form to /casestrainer/api/analyze';
+    debugInfo.innerHTML += '<br>Created and submitting form to ' + apiUrl('/api/analyze');
     
     try {
         form.submit();

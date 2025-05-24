@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Start progress polling
         const progressInterval = setInterval(() => {
-            fetch(`${basePath}/api/processing_progress?total=${window.citationProcessing.totalCitations}`, {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'GET'
             })
             .then(response => response.json())
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(uploadProgress, uploadProgressBar);
             
             // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'POST',
                 body: formData
             })
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(pasteProgress, pasteProgressBar);
             
             // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'POST',
                 body: formData
             })
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(urlProgress, urlProgressBar);
             
             // First fetch the URL content
-            fetch(`${basePath}/api/fetch_url`, {
+            fetch(apiUrl('/api/fetch_url'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const textFormData = new FormData();
                     textFormData.append('text', data.text);
                     
-                    return fetch(`${basePath}/api/analyze`, {
+                    return fetch(apiUrl('/api/analyze'), {
                         method: 'POST',
                         body: textFormData
                     });

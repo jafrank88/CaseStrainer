@@ -1,5 +1,14 @@
 <template>
   <div class="citation-results">
+    <!-- Progress Bar for Loading -->
+    <div v-if="loading" class="mb-3">
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 100%">
+          Loading citation results...
+        </div>
+      </div>
+    </div>
+    <div v-if="safeCitations.length > 0">
     <!-- Summary Bar -->
     <div class="alert alert-info mb-4">
       <h5 class="mb-0">
@@ -66,24 +75,38 @@
                 <th>Case Name</th>
                 <th>Court</th>
                 <th>Year</th>
+                <th>Context</th>
                 <th>Source</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="citation in courtListenerCitations" :key="citation.citation_text">
-                <td>{{ citation.citation_text }}</td>
-                <td>{{ citation.case_name || 'N/A' }}</td>
-                <td>{{ citation.court || 'N/A' }}</td>
-                <td>{{ citation.year || 'N/A' }}</td>
+              <tr v-for="citation in courtListenerCitations" :key="citation.citation_text || citation.text">
+                {{ logCitation(citation) }} <!-- Debug: log each citation -->
+                <td>{{ citation.citation_text || citation.text || 'N/A' }}</td>
+                <td>{{ citation.case_name || citation.name || 'Unknown Case' }}</td>
+                <td>{{ (citation && citation.metadata && typeof citation.metadata === 'object' && citation.metadata.court !== undefined && citation.metadata.court !== null) ? citation.metadata.court : (citation && citation.court ? citation.court : 'N/A') }}</td>
+                <td>{{ (citation && citation.metadata && typeof citation.metadata === 'object' && citation.metadata.year !== undefined && citation.metadata.year !== null) ? citation.metadata.year : (citation && citation.year ? citation.year : 'N/A') }}</td>
                 <td>
-                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
-                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
+                  <span v-if="citation && Array.isArray(citation.contexts) && citation.contexts.length && citation.contexts[0] && citation.contexts[0].text">
+                    {{ citation.contexts[0].text.length > 120 ? citation.contexts[0].text.slice(0, 120) + '...' : citation.contexts[0].text }}
+                  </span>
+                  <span v-else>N/A</span>
+                </td>
+                <td>
+                  <span v-if="Array.isArray(citation.contexts) && citation.contexts.length && citation.contexts[0] && citation.contexts[0].source">
+                    {{ citation.contexts[0].source }}
+                  </span>
+                  <span v-else>N/A</span>
+                </td>
+                <td>
+                  <span class="badge" :class="(citation && citation.eyecite_processed) ? 'bg-info' : 'bg-secondary'">
+                    {{ (citation && citation.eyecite_processed) ? 'Eyecite' : 'Regex' }}
                   </span>
                 </td>
                 <td>
                   <a 
-                    v-if="citation.url" 
+                    v-if="citation && citation.url" 
                     :href="citation.url" 
                     target="_blank" 
                     class="btn btn-sm btn-outline-primary"
@@ -113,8 +136,8 @@
             </thead>
             <tbody>
               <tr v-for="citation in elsewhereCitations" :key="citation.citation_text">
-                <td>{{ citation.citation_text }}</td>
-                <td>{{ citation.case_name || 'N/A' }}</td>
+                <td>{{ citation.citation_text || citation.text || 'N/A' }}</td>
+                <td>{{ citation.case_name || citation.name || 'Unknown Case' }}</td>
                 <td>{{ citation.source }}</td>
                 <td>
                   <span class="badge" :class="getBadgeClass(citation.validation_method)">
@@ -122,8 +145,8 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
-                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
+                  <span class="badge" :class="(citation && citation.eyecite_processed) ? 'bg-info' : 'bg-secondary'">
+                    {{ (citation && citation.eyecite_processed) ? 'Eyecite' : 'Regex' }}
                   </span>
                 </td>
                 <td>
@@ -154,26 +177,37 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="citation in notFoundCitations" :key="citation.citation_text">
-                <td>{{ citation.citation_text }}</td>
-                <td>{{ citation.case_name || 'Unknown' }}</td>
-                <td>
-                  <div class="progress">
-                    <div 
-                      class="progress-bar bg-danger" 
-                      role="progressbar" 
-                      :style="{ width: (citation.confidence * 100) + '%' }"
-                      :aria-valuenow="citation.confidence * 100"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    >
-                      {{ Math.round(citation.confidence * 100) }}%
-                    </div>
-                  </div>
+              <!-- DEBUG: Show raw citation object for the first row -->
+              <tr v-if="notFoundCitations.length > 0">
+                <td colspan="5">
+                  <pre style="font-size: 0.85em; color: #555; background: #f7f7f7; border: 1px solid #eee; padding: 8px;">
+                    {{ JSON.stringify(notFoundCitations[0], null, 2) }}
+                  </pre>
                 </td>
+              </tr>
+              <tr v-for="citation in notFoundCitations" :key="citation.citation_text">
+                <td>{{ citation.citation_text || citation.text || 'N/A' }}</td>
+                <td>{{ citation.case_name || citation.name || 'Unknown Case' }}</td>
                 <td>
-                  <span class="badge" :class="citation.eyecite_processed ? 'bg-info' : 'bg-secondary'">
-                    {{ citation.eyecite_processed ? 'Eyecite' : 'Regex' }}
+  <div v-if="isFinite(Number(citation.confidence))">
+    <div class="progress">
+      <div 
+        class="progress-bar bg-danger" 
+        role="progressbar" 
+        :style="{ width: (citation.confidence * 100) + '%' }"
+        :aria-valuenow="citation.confidence * 100"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        {{ Math.round(citation.confidence * 100) }}%
+      </div>
+    </div>
+  </div>
+  <span v-else>N/A</span>
+</td>
+                <td>
+                  <span class="badge" :class="(citation && citation.eyecite_processed) ? 'bg-info' : 'bg-secondary'">
+                    {{ (citation && citation.eyecite_processed) ? 'Eyecite' : 'Regex' }}
                   </span>
                 </td>
                 <td>
@@ -262,54 +296,18 @@
       </div>
     </div>
   </div>
+    </div>
 </template>
 
 <script>
-import { Modal } from 'bootstrap'
+import * as bootstrap from 'bootstrap';
 
 export default {
-  name: 'CitationResults',
-  props: {
-    citations: {
-      type: Array,
-      required: true
-    }
-  },
-  data() {
-    return {
-      selectedCitation: null,
-      detailsModal: null,
-      suggestionsModal: null
-    }
-  },
-  computed: {
-    totalCitations() {
-      return this.citations.length
-    },
-    courtListenerCitations() {
-      return this.citations.filter(c => 
-        c.validation_method === 'CourtListener' && c.verified
-      )
-    },
-    elsewhereCitations() {
-      return this.citations.filter(c => 
-        c.verified && c.validation_method !== 'CourtListener'
-      )
-    },
-    notFoundCitations() {
-      return this.citations.filter(c => !c.verified)
-    },
-    courtListenerCount() {
-      return this.courtListenerCitations.length
-    },
-    elsewhereCount() {
-      return this.elsewhereCitations.length
-    },
-    notFoundCount() {
-      return this.notFoundCitations.length
-    }
-  },
   methods: {
+    logCitation(citation) {
+      // console.log('DEBUG citation:', citation);
+      return '';
+    },
     getBadgeClass(method) {
       const classes = {
         'Landmark': 'bg-success',
@@ -326,11 +324,70 @@ export default {
     showCitationSuggestions(citation) {
       this.selectedCitation = citation
       this.suggestionsModal.show()
+    },
+    // ...add any other methods here as needed
+  },
+
+  name: 'CitationResults',
+  props: {
+    citations: {
+      type: Array,
+      default: () => []
     }
   },
+  data() {
+    return {
+      selectedCitation: null,
+      detailsModal: null,
+      suggestionsModal: null
+    }
+  },
+  computed: {
+    safeCitations() {
+      return Array.isArray(this.citations) ? this.citations : [];
+    },
+    totalCitations() {
+      return this.safeCitations.length;
+    },
+    courtListenerCitations() {
+      return this.safeCitations.filter(citation => citation.validation_method === 'CourtListener' && citation.verified);
+    },
+    elsewhereCitations() {
+      return this.safeCitations.filter(citation => citation.verified && citation.validation_method !== 'CourtListener');
+    },
+    notFoundCitations() {
+      return this.safeCitations.filter(citation => !citation.verified);
+    },
+    courtListenerCount() {
+      return this.courtListenerCitations.length;
+    },
+    elsewhereCount() {
+      return this.elsewhereCitations.length;
+    },
+    notFoundCount() {
+      return this.notFoundCitations.length;
+    }
+  },
+
   mounted() {
-    this.detailsModal = new Modal(document.getElementById('citationDetailsModal'))
-    this.suggestionsModal = new Modal(document.getElementById('citationSuggestionsModal'))
+    this.$nextTick(() => {
+      if (this.$refs.citationDetailsModal && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        try {
+          this.detailsModal = new bootstrap.Modal(this.$refs.citationDetailsModal);
+        } catch (e) {
+          console.warn('Modal initialization failed:', e);
+        }
+      }
+    });
+    this.$nextTick(() => {
+      if (this.$refs.citationSuggestionsModal && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        try {
+          this.suggestionsModal = new bootstrap.Modal(this.$refs.citationSuggestionsModal);
+        } catch (e) {
+          console.warn('Modal initialization failed:', e);
+        }
+      }
+    });
   }
 }
 </script>
@@ -338,6 +395,49 @@ export default {
 <style scoped>
 .citation-results {
   margin-top: 2rem;
+}
+
+/* Responsive summary bar */
+.alert-info {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Responsive nav-tabs: allow horizontal scroll on small screens */
+.nav-tabs {
+  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+
+.nav-tabs .nav-item {
+  flex: 1 1 auto;
+  min-width: 180px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .alert-info {
+    font-size: 1rem;
+    padding: 0.75rem 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav-tabs {
+    font-size: 0.95rem;
+    padding-bottom: 0.5rem;
+  }
+  .nav-tabs .nav-item {
+    min-width: 140px;
+    font-size: 0.95rem;
+  }
 }
 
 .nav-tabs .badge {
@@ -361,4 +461,4 @@ export default {
   max-height: 70vh;
   overflow-y: auto;
 }
-</style> 
+</style>

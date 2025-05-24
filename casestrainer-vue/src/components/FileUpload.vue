@@ -17,6 +17,7 @@
           </div>
         </div>
         
+        <ProgressBar :loading="isUploading" message="Uploading & Analyzing..." />
         <button class="btn btn-primary" @click="uploadFile" :disabled="!file || isUploading">
           <span v-if="isUploading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           {{ isUploading ? 'Analyzing...' : 'Analyze Citations' }}
@@ -24,37 +25,7 @@
       </div>
     </div>
     
-    <div v-if="results" class="mt-4">
-
-      <div class="card">
-        <div class="card-header">
-          <h5>Analysis Results</h5>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-success">
-            <h5>Analysis complete!</h5>
-            <p>Found {{ results.totalCitations }} citations in your document.</p>
-          </div>
-          <div class="mt-3">
-            <h6>Citation Summary:</h6>
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Confirmed Citations
-                <span class="badge bg-success rounded-pill">{{ results.confirmedCount }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Unconfirmed Citations
-                <span class="badge bg-danger rounded-pill">{{ results.unconfirmedCount }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Verified with Multi-tool
-                <span class="badge bg-info rounded-pill">{{ results.multitoolCount }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ReusableResults v-if="results" :results="results" />
     
     <div v-if="error" class="mt-4 alert alert-danger">
       <h5>Error</h5>
@@ -66,8 +37,15 @@
 <script>
 import axios from 'axios';
 
+import ProgressBar from './ProgressBar.vue';
+import ReusableResults from './ReusableResults.vue';
+
 export default {
   name: 'FileUpload',
+  components: {
+    ProgressBar,
+    ReusableResults
+  },
   data() {
     return {
       file: null,
@@ -133,7 +111,7 @@ export default {
         localStorage.setItem('lastAnalysisResults', JSON.stringify(this.results));
         
       } catch (error) {
-        console.error('Error uploading file:', error);
+        // console.error('Error uploading file:', error);
         this.error = error.response?.data?.error || 'An error occurred while analyzing the file';
         
         // Add error to debug info

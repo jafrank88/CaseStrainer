@@ -17,74 +17,82 @@ from vue_api_fixed import api_blueprint
 app = Flask(__name__)
 
 # Register the API blueprint with different names for each URL prefix
-app.register_blueprint(api_blueprint, url_prefix='/api')
-app.register_blueprint(api_blueprint, url_prefix='/casestrainer/api', name='api_with_prefix')
+app.register_blueprint(api_blueprint, url_prefix="/api")
+app.register_blueprint(
+    api_blueprint, url_prefix="/casestrainer/api", name="api_with_prefix"
+)
 
 # Constants
-DATABASE_FILE = 'citations.db'
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
+DATABASE_FILE = "citations.db"
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"txt", "pdf", "docx", "doc"}
 
 # Configure the upload folder
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Ensure upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+
 # Add CORS headers to all responses
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,OPTIONS"
     return response
 
+
 # Serve the Vue.js static files
-@app.route('/<path:path>')
-@app.route('/casestrainer/<path:path>')
+@app.route("/<path:path>")
+@app.route("/casestrainer/<path:path>")
 def serve_static(path):
     # Check if the path is for a static asset (js, css, img, etc.)
-    if path.startswith(('js/', 'css/', 'img/', 'fonts/')):
+    if path.startswith(("js/", "css/", "img/", "fonts/")):
         # Extract the directory (js, css, img, fonts)
-        directory = path.split('/')[0]
+        directory = path.split("/")[0]
         # Get the file path after the directory
-        file_path = '/'.join(path.split('/')[1:])
+        file_path = "/".join(path.split("/")[1:])
         # Serve the file from the static/vue directory
-        return send_from_directory(os.path.join('static', 'vue', directory), file_path)
-    
+        return send_from_directory(os.path.join("static", "vue", directory), file_path)
+
     # For all other paths, serve the index.html file
-    return send_from_directory(os.path.join('static', 'vue'), 'index.html')
+    return send_from_directory(os.path.join("static", "vue"), "index.html")
+
 
 # Serve the Vue.js index.html at the root URL
-@app.route('/')
-@app.route('/casestrainer/')
+@app.route("/")
+@app.route("/casestrainer/")
 def serve_index():
-    return send_from_directory(os.path.join('static', 'vue'), 'index.html')
+    return send_from_directory(os.path.join("static", "vue"), "index.html")
+
 
 # Handle URL prefix for Nginx proxy
 class PrefixMiddleware:
-    def __init__(self, app, prefix=''):
+    def __init__(self, app, prefix=""):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
+        if environ["PATH_INFO"].startswith(self.prefix):
+            environ["PATH_INFO"] = environ["PATH_INFO"][len(self.prefix) :]
+            environ["SCRIPT_NAME"] = self.prefix
             return self.app(environ, start_response)
         else:
-            start_response('404', [('Content-Type', 'text/plain')])
-            return [b'Not Found']
+            start_response("404", [("Content-Type", "text/plain")])
+            return [b"Not Found"]
+
 
 # Apply the prefix middleware
 # This allows the application to work both with and without the /casestrainer prefix
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix="/casestrainer")
+
 
 # Default landing page for users who haven't built the Vue.js frontend yet
-@app.route('/default')
+@app.route("/default")
 def default_landing():
-    return '''
+    return """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,27 +175,34 @@ def default_landing():
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-    '''
+    """
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Get command line arguments
     import argparse
-    parser = argparse.ArgumentParser(description='Run CaseStrainer with Vue.js frontend')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to bind to')
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+
+    parser = argparse.ArgumentParser(
+        description="Run CaseStrainer with Vue.js frontend"
+    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-    
+
     # Check if the Vue.js frontend is built
-    vue_dist_dir = os.path.join(os.path.dirname(__file__), 'static', 'vue')
-    if not os.path.exists(vue_dist_dir) or not os.path.exists(os.path.join(vue_dist_dir, 'index.html')):
+    vue_dist_dir = os.path.join(os.path.dirname(__file__), "static", "vue")
+    if not os.path.exists(vue_dist_dir) or not os.path.exists(
+        os.path.join(vue_dist_dir, "index.html")
+    ):
         print("WARNING: Vue.js frontend is not built. Serving default landing page.")
         print("To build the Vue.js frontend, run: build_and_deploy_vue.bat")
+
         # Redirect root to default landing page
-        @app.route('/')
-        @app.route('/casestrainer/')
+        @app.route("/")
+        @app.route("/casestrainer/")
         def redirect_to_default():
-            return redirect('/default')
-    
+            return redirect("/default")
+
     # Run the application
     app.run(host=args.host, port=args.port, debug=args.debug)

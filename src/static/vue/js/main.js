@@ -10,12 +10,19 @@ window.citationProcessing = {
 
 document.addEventListener('DOMContentLoaded', function() {
     // Always use the /casestrainer/ prefix for API calls to work with Nginx proxy
-    const basePath = window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '';
+    // Build base API path using current protocol and host, always matching page protocol
+    const isHttps = window.location.protocol === 'https:';
+    const apiHost = window.location.host;
+    const basePath = (window.location.pathname.includes('/casestrainer/') ? '/casestrainer' : '');
+    // Helper to build full API URL with enforced protocol
+    // Import apiUrl from shared helper
+    // (Assume this is loaded via <script> or ES6 import elsewhere)
+
     
     // Get form elements
-    const fileForm = document.getElementById('fileForm');
-    const textForm = document.getElementById('textForm');
-    const urlForm = document.getElementById('urlForm');
+    const fileForm = document.getElementById('fileUploadForm');
+    const textForm = document.getElementById('textInputForm');
+    const urlForm = document.getElementById('urlInputForm');
     
     // Function to create and update progress bar
     function setupProgressTracking(form) {
@@ -52,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Start progress polling
         window.citationProcessing.progressInterval = setInterval(() => {
             console.log('Checking progress...');
-            fetch(`${basePath}/api/processing_progress?total=${window.citationProcessing.totalCitations}`, {
+            fetch(apiUrl('/analyze'), {
                 method: 'GET'
             })
             .then(response => response.json())
@@ -108,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Setup progress tracking
             const progressContainer = setupProgressTracking(this);
             
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/analyze'), {
                 method: 'POST',
                 body: formData
             })
@@ -121,17 +128,47 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Analysis results:', data);
                 
+                // Defensive checks for expected properties
+                if (!data || typeof data !== 'object') {
+                    alert('Unexpected API response: no data returned.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Analyze Citations';
+                    return;
+                }
+                if (!Array.isArray(data.citations)) {
+                    alert('No citations found in the API response.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Analyze Citations';
+                    return;
+                }
                 // Store the analysis results
                 window.analysisResults = data;
-                
                 // Update citation count for progress tracking
                 if (data.citations_count) {
                     window.citationProcessing.totalCitations = data.citations_count;
                 }
-                
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Analyze Citations';
+                // Switch to the Multitool tab to show results
+                const multitoolTab = document.getElementById('multitool-tab');
+                if (multitoolTab) {
+                    multitoolTab.click();
+                }
                 // Reset button
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
+                
+                // Remove progress bar on error
+                if (progressContainer) {
+                    progressContainer.remove();
+                }
+                
+                // Clear progress interval
+                if (window.citationProcessing.progressInterval) {
+                    clearInterval(window.citationProcessing.progressInterval);
+                    window.citationProcessing.isProcessing = false;
+                }
             })
             .catch(error => {
                 console.error('Error analyzing document:', error);
@@ -170,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Setup progress tracking
             const progressContainer = setupProgressTracking(this);
             
-            fetch(`${basePath}/api/analyze`, {
+            fetch(apiUrl('/analyze'), {
                 method: 'POST',
                 body: formData
             })
@@ -241,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressContainer = setupProgressTracking(this);
             
             console.log('Fetching URL content:', url);
-            fetch(`${basePath}/api/fetch_url`, {
+            fetch(apiUrl('/api/fetch_url'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -262,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const textFormData = new FormData();
                     textFormData.append('text', data.text);
                     
-                    return fetch(`${basePath}/api/analyze`, {
+                    return fetch(apiUrl('/analyze'), {
                         method: 'POST',
                         body: textFormData
                     });
@@ -272,32 +309,6 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('Analyze response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Analysis results:', data);
-                
-                // Store the analysis results
-                window.analysisResults = data;
-                
-                // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
-                    console.log('Updated total citations:', data.citations_count);
-                }
-                
-                // Reset button
-                submitButton.innerHTML = originalButtonText;
-                submitButton.disabled = false;
-            })
-            .catch(error => {
-                console.error('Error processing URL:', error);
-                alert('Error processing URL: ' + error.message);
-                
-                // Reset button
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
                 

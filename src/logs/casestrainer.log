@@ -1,0 +1,8 @@
+2025-05-22 15:18:24,374 | INFO | __main__ | CORS configured with specific origins for security
+2025-05-22 15:18:24,376 | INFO | __main__ | No SECRET_KEY found in config.json
+2025-05-22 15:18:24,376 | WARNING | __main__ | Generated random SECRET_KEY - this will change on restart!
+2025-05-22 15:18:24,428 | INFO | __main__ | Flask-Session initialized with secure settings
+2025-05-22 15:18:24,429 | INFO | __main__ | Using APPLICATION_ROOT: /casestrainer
+2025-05-22 15:18:24,429 | INFO | __main__ | ProxyFix middleware configured for Nginx proxy
+2025-05-22 15:18:24,493 | INFO | __main__ | Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-22 15:18:24,518 | INFO | enhanced_validator_production | Enhanced Validator blueprint registered with the Flask app

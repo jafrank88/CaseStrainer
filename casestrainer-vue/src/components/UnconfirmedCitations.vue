@@ -80,6 +80,9 @@
                     </span>
                   </td>
                   <td>
+                    <NotCitationFeedback :citation="citation.citation_text" />
+                  </td>
+                  <td>
                     <button 
                       class="btn btn-sm btn-outline-primary" 
                       @click="reprocessCitation(citation)"
@@ -229,6 +232,7 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import NotCitationFeedback from './NotCitationFeedback.vue';
 
 export default {
   name: 'UnconfirmedCitations',
@@ -260,6 +264,9 @@ export default {
       );
     }
   },
+  components: {
+    NotCitationFeedback
+  },
   methods: {
     async fetchCitations() {
       this.loading = true;
@@ -269,7 +276,7 @@ export default {
         // First, try to load directly from the JSON file
         try {
           const jsonResponse = await axios.get('/citation_verification_results.json');
-          console.log('Citation verification results:', jsonResponse.data);
+          // console.log('Citation verification results:', jsonResponse.data);
           
           if (jsonResponse.data && jsonResponse.data.still_unconfirmed && jsonResponse.data.still_unconfirmed.length > 0) {
             this.citations = jsonResponse.data.still_unconfirmed.map(citation => ({
@@ -302,7 +309,7 @@ export default {
           }
         }
         
-        console.log('Unconfirmed citations data response:', response.data);
+        // console.log('Unconfirmed citations data response:', response.data);
         if (response.data && response.data.citations) {
           this.citations = response.data.citations;
         }
@@ -347,7 +354,8 @@ export default {
         // Update the citation in the list
         const index = this.citations.findIndex(c => c.citation_text === citation.citation_text);
         if (index !== -1) {
-          const reprocessedCitation = response.data.results.find(r => r.citation_text === citation.citation_text);
+          const resultsArray = Array.isArray(response.data.results) ? response.data.results : [];
+const reprocessedCitation = resultsArray.find(r => r.citation_text === citation.citation_text);
           if (reprocessedCitation) {
             if (reprocessedCitation.found) {
               // If now confirmed, remove from unconfirmed list

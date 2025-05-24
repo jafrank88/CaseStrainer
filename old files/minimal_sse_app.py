@@ -4,7 +4,8 @@ import json
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     html = """
     <!DOCTYPE html>
@@ -80,22 +81,24 @@ def index():
     """
     return render_template_string(html)
 
-@app.route('/events')
+
+@app.route("/events")
 def events():
     def generate():
         yield "data: Hello SSE World!\\n\\n"
         time.sleep(1)
-        
+
         for i in range(5):
             data = {
-                'count': i,
-                'message': f'Message {i+1}',
-                'time': time.strftime('%H:%M:%S')
+                "count": i,
+                "message": f"Message {i+1}",
+                "time": time.strftime("%H:%M:%S"),
             }
             yield f"data: {json.dumps(data)}\\n\\n"
             time.sleep(1)
-    
-    return Response(generate(), mimetype='text/event-stream')
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    return Response(generate(), mimetype="text/event-stream")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5003, debug=True)

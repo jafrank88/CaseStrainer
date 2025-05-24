@@ -333,7 +333,7 @@ export default {
         
         this.classificationResult = response.data;
       } catch (error) {
-        console.error('Error classifying citation:', error);
+        // console.error('Error classifying citation:', error);
         // Handle error
       } finally {
         this.classifying = false;
@@ -349,7 +349,7 @@ export default {
         // Show success message or update model info
         alert('Model training completed successfully!');
       } catch (error) {
-        console.error('Error training model:', error);
+        // console.error('Error training model:', error);
         alert('Error training model. Please try again.');
       } finally {
         this.training = false;
@@ -384,7 +384,7 @@ export default {
           this.batchProcessing = false;
         }, 2000);
       } catch (error) {
-        console.error('Error processing batch:', error);
+        // console.error('Error processing batch:', error);
         alert('Error processing batch. Please try again.');
         this.batchProcessing = false;
       }

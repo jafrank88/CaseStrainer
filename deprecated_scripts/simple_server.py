@@ -118,36 +118,40 @@ LANDING_PAGE = """
 </html>
 """
 
-@app.route('/')
-@app.route('/casestrainer/')
+
+@app.route("/")
+@app.route("/casestrainer/")
 def serve_landing():
     """Serve the landing page"""
     return render_template_string(LANDING_PAGE)
 
-@app.route('/api/')
-@app.route('/casestrainer/api/')
+
+@app.route("/api/")
+@app.route("/casestrainer/api/")
 def redirect_to_api():
     """Redirect to the original interface"""
-    return redirect('https://wolf.law.uw.edu/casestrainer/api/')
+    return redirect("https://wolf.law.uw.edu/casestrainer/api/")
 
-@app.route('/vue/<path:path>')
-@app.route('/casestrainer/vue/<path:path>')
+
+@app.route("/vue/<path:path>")
+@app.route("/casestrainer/vue/<path:path>")
 def serve_vue_static(path):
     """Serve static files from the Vue.js build"""
-    return send_from_directory('static/vue', path)
+    return send_from_directory("static/vue", path)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import argparse
-    
-    parser = argparse.ArgumentParser(description='Simple HTTP server for CaseStrainer')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to listen on')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-    
+
+    parser = argparse.ArgumentParser(description="Simple HTTP server for CaseStrainer")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=5000, help="Port to listen on")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
+
     args = parser.parse_args()
-    
+
     print(f"Starting simple server on http://{args.host}:{args.port}")
     print("External access will be available at: https://wolf.law.uw.edu/casestrainer/")
     print("Local access will be available at: http://127.0.0.1:5000")
-    
+
     app.run(host=args.host, port=args.port, debug=args.debug)

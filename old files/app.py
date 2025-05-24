@@ -47,7 +47,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Function to extract text from different file types
-def extract_text_from_file(file_path):
+from file_utils import extract_text_from_file
+
     print(f"\n=== EXTRACTING TEXT FROM FILE ===\nFile path: {file_path}")
     try:
         if not os.path.exists(file_path):

@@ -1,5 +1,28 @@
 @echo off
 setlocal enabledelayedexpansion
+
+REM ===================================================
+REM CaseStrainer Startup Script (Scripts Folder)
+REM USAGE: Double-click or run from the CaseStrainer root directory.
+REM LOG: All output is logged to casestrainer_deploy.log
+REM REQUIREMENTS: Node.js, npm, Python 3.x, git, Docker, PowerShell
+REM TROUBLESHOOTING: Check casestrainer_deploy.log for errors.
+REM Exit code 0 = success, nonzero = failure.
+REM ===================================================
+
+set LOGFILE=casestrainer_deploy.log
+
+REM === Tool Checks ===
+where node >nul 2>&1 || (echo [ERROR] Node.js is not installed! | tee -a %LOGFILE% & exit /b 1)
+where npm >nul 2>&1 || (echo [ERROR] npm is not installed! | tee -a %LOGFILE% & exit /b 1)
+where python >nul 2>&1 || (echo [ERROR] Python is not installed! | tee -a %LOGFILE% & exit /b 1)
+where git >nul 2>&1 || (echo [ERROR] git is not installed! | tee -a %LOGFILE% & exit /b 1)
+where docker >nul 2>&1 || (echo [ERROR] Docker is not installed! | tee -a %LOGFILE% & exit /b 1)
+where powershell >nul 2>&1 || (echo [ERROR] PowerShell is not installed! | tee -a %LOGFILE% & exit /b 1)
+
+REM === Log Start ===
+echo =================================================== >> %LOGFILE%
+echo [%DATE% %TIME%] Starting CaseStrainer >> %LOGFILE%
 echo ===================================================
 echo CaseStrainer Startup Script with Nginx Verification
 echo ===================================================
@@ -87,8 +110,24 @@ echo External access will be available at: https://wolf.law.uw.edu/casestrainer/
 echo Local access will be available at: http://127.0.0.1:5000
 echo.
 
+pushd casestrainer-vue
+
+REM === Clear Vue/Node build cache ===
+if exist node_modules\.cache (
+    echo Deleting node_modules\.cache ...
+    rmdir /s /q node_modules\.cache
+)
+
+REM === Convert all .vue files to UTF-8 (without BOM) ===
+powershell -Command "Get-ChildItem -Recurse -Filter *.vue | ForEach-Object { $c = Get-Content $_.FullName; [System.IO.File]::WriteAllLines($_.FullName, $c, (New-Object System.Text.UTF8Encoding($false))) }"
+
+REM === Find duplicate EnhancedValidator.vue files ===
+dir /s /b EnhancedValidator.vue
+
+popd
+
 :: Use the correct host parameter (0.0.0.0 to listen on all interfaces)
-:: Setting environment variables to ensure app_final.py uses the correct settings
+:: Setting environment variables to ensure app_final_vue.py uses the correct settings
 set "HOST=0.0.0.0"
 set "PORT=5000"
 set "USE_CHEROOT=True"

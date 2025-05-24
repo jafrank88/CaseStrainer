@@ -40,7 +40,7 @@ function handleTextSubmit(event) {
     progressBar.textContent = '25%';
     
     // Send the text to the server
-    fetch(`${basePath}/api/analyze', {
+    fetch(apiUrl('/api/analyze'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ function handleUrlSubmit(event) {
     progressBar.textContent = '25%';
     
     // Send the URL to the server
-    fetch(`${basePath}/api/analyze', {
+    fetch(apiUrl('/api/analyze'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

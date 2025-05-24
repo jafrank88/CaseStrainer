@@ -321,7 +321,7 @@ export default {
         this.debugInfo += `Response data: ${JSON.stringify(response.data, null, 2)}\n`;
         this.testResults = response.data.results || [];
       } catch (error) {
-        console.error('Error running citation test:', error);
+        // // console.error('Error running citation test:', error);
         this.debugInfo += `Error: ${error.message}\n`;
         if (error.response) {
           this.debugInfo += `Response status: ${error.response.status}\n`;

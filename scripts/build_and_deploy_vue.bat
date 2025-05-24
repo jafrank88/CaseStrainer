@@ -1,4 +1,17 @@
 @echo off
+REM ===================================================
+REM CaseStrainer Vue.js Build and Deploy Script
+REM ===================================================
+REM
+REM USAGE:
+REM   Run this script to build and deploy the Vue.js frontend for production.
+REM   Should be executed after making changes to the frontend code.
+REM   This script will:
+REM     - Check for Node.js and npm
+REM     - Install dependencies if needed
+REM     - Build the Vue.js frontend
+REM     - Copy the built files to the appropriate static directory
+REM ===================================================
 echo ===================================================
 echo CaseStrainer Vue.js Build and Deploy Script
 echo ===================================================

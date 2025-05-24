@@ -42,9 +42,82 @@ pip install -r requirements.txt
   ```
   start_casestrainer.bat test
   ```
-- All other batch files are archived in `archived_batch_files/` and should not be used for regular workflow.
+- To build and deploy the Vue.js frontend after frontend changes:
+  ```
+  scripts\build_and_deploy_vue.bat
+  ```
+- **All other batch files are deprecated and should not be used for regular workflow.**
 
 ## Running the Application
+
+### Dual Interface Structure
+
+- **Modern Vue.js Frontend:**
+  - Accessible at: https://wolf.law.uw.edu/casestrainer/
+  - Features modern UI, supports file upload, text, and URL input
+- **Legacy Interface:**
+  - Accessible at: https://wolf.law.uw.edu/casestrainer/api/
+  - Will eventually be replaced by the full Vue.js implementation
+
+---
+
+## For New Contributors
+
+**Start Here:**
+
+- **Scripts:**
+  - Use only `start_casestrainer.bat` to start/restart backend and Nginx.
+  - Use `build_and_deploy_vue.bat` to build and deploy the Vue.js frontend.
+  - All other batch files are deprecated and archived.
+- **API Path:**
+  - All frontend and backend API calls must use the `/casestrainer/api/` prefix.
+- **Docs:**
+  - See `DEPLOYMENT.md` and `docs/DEPLOYMENT_VUE.md` for deployment, troubleshooting, and rollback procedures.
+- **Environment & Security:**
+  - Copy `.env.example` to `.env` and fill in your secrets. Never commit real secrets.
+  - `.env` is already in `.gitignore`.
+  - Use pre-commit hooks for secret scanning and code linting. Install with:
+    ```bash
+    pip install pre-commit
+    pre-commit install
+    pre-commit run --all-files
+    ```
+- **Testing:**
+  - Use `test_api.py` to verify backend endpoints. See comments in the script for usage.
+- **Code Quality:**
+  - Code is formatted with `black` and checked with `flake8` (see `.pre-commit-config.yaml`).
+  - Type hints and docstrings are encouraged for Python code.
+- **Troubleshooting:**
+  - Check the logs in the `logs/` directory if issues arise.
+  - Ensure all dependencies are installed and your `.env` is configured.
+
+---
+
+### API Path and Troubleshooting
+- All API endpoints are available under `/casestrainer/api/`.
+
+### API Base Path
+
+All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+- `https://wolf.law.uw.edu/casestrainer/api/verify_citation`
+- `http://localhost:5000/casestrainer/api/verify_citation`
+
+**Troubleshooting:**
+If you receive 404 or path errors, ensure that both the frontend and backend are using the `/casestrainer/api/` prefix and that your Nginx or proxy configuration matches this path.
+
+### Startup Script
+
+Always use `start_casestrainer.bat` to start or restart the application. All other batch files are archived and unsupported.
+- If you encounter 404s or path errors, ensure the frontend and Nginx proxy are configured to use the `/casestrainer` prefix.
+- See `DEPLOYMENT.md` and `DEPLOYMENT_VUE.md` for Nginx and proxy configuration details.
+
+### Security Practices
+- All sensitive information (API keys, database paths, etc.) must be stored in the `.env` file and referenced via `config.py`.
+- `.env` and other sensitive files are included in `.gitignore` and must never be committed.
+- It is recommended to use pre-commit hooks to scan for secrets before pushing code.
+
+### Running Backend Tests
+- (To be filled in after test script is added)
 
 ### Windows
 

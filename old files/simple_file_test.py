@@ -5,7 +5,8 @@ import traceback
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     html = """
     <!DOCTYPE html>
@@ -187,124 +188,114 @@ def index():
     """
     return render_template_string(html)
 
-@app.route('/test_path', methods=['POST'])
+
+@app.route("/test_path", methods=["POST"])
 def test_path():
     try:
-        file_path = request.form.get('file_path')
+        file_path = request.form.get("file_path")
         print(f"Testing file path: {file_path}")
-        
+
         if not file_path:
-            return jsonify({
-                'error': 'No file path provided'
-            })
-        
+            return jsonify({"error": "No file path provided"})
+
         # Check if file exists
         file_exists = os.path.isfile(file_path)
         print(f"File exists: {file_exists}")
-        
-        result = {
-            'file_path': file_path,
-            'file_exists': file_exists,
-            'file_size': 0
-        }
-        
+
+        result = {"file_path": file_path, "file_exists": file_exists, "file_size": 0}
+
         if file_exists:
             file_size = os.path.getsize(file_path)
-            result['file_size'] = file_size
+            result["file_size"] = file_size
             print(f"File size: {file_size} bytes")
-            
+
             # If it's a PDF, try to extract text
-            if file_path.lower().endswith('.pdf'):
+            if file_path.lower().endswith(".pdf"):
                 try:
-                    with open(file_path, 'rb') as file:
+                    with open(file_path, "rb") as file:
                         reader = PyPDF2.PdfReader(file)
                         print(f"PDF has {len(reader.pages)} pages")
-                        
-                        text = ''
+
+                        text = ""
                         for i, page in enumerate(reader.pages):
                             if i >= 1:  # Only extract text from the first page
                                 break
-                            text += page.extract_text() + '\n'
-                        
-                        result['text_sample'] = text[:500] + '...' if len(text) > 500 else text
+                            text += page.extract_text() + "\n"
+
+                        result["text_sample"] = (
+                            text[:500] + "..." if len(text) > 500 else text
+                        )
                         print(f"Extracted {len(text)} characters of text")
                 except Exception as e:
                     print(f"Error extracting text from PDF: {e}")
                     traceback.print_exc()
-                    result['error'] = f"Error extracting text from PDF: {str(e)}"
+                    result["error"] = f"Error extracting text from PDF: {str(e)}"
         else:
-            result['error'] = f"File not found: {file_path}"
+            result["error"] = f"File not found: {file_path}"
             print(f"File not found: {file_path}")
-        
+
         return jsonify(result)
     except Exception as e:
         print(f"Error in test_path: {e}")
         traceback.print_exc()
-        return jsonify({
-            'error': f"Server error: {str(e)}"
-        })
+        return jsonify({"error": f"Server error: {str(e)}"})
 
-@app.route('/test_upload', methods=['POST'])
+
+@app.route("/test_upload", methods=["POST"])
 def test_upload():
     try:
-        if 'file' not in request.files:
+        if "file" not in request.files:
             print("No file part in the request")
-            return jsonify({
-                'error': 'No file part in the request'
-            })
-        
-        file = request.files['file']
-        
-        if file.filename == '':
+            return jsonify({"error": "No file part in the request"})
+
+        file = request.files["file"]
+
+        if file.filename == "":
             print("No file selected")
-            return jsonify({
-                'error': 'No file selected'
-            })
-        
+            return jsonify({"error": "No file selected"})
+
         print(f"File uploaded: {file.filename}")
-        
+
         # Save the file temporarily
-        upload_dir = 'uploads'
+        upload_dir = "uploads"
         os.makedirs(upload_dir, exist_ok=True)
-        
+
         file_path = os.path.join(upload_dir, file.filename)
         file.save(file_path)
-        
+
         file_size = os.path.getsize(file_path)
         print(f"File saved to {file_path}, size: {file_size} bytes")
-        
-        result = {
-            'filename': file.filename,
-            'file_size': file_size
-        }
-        
+
+        result = {"filename": file.filename, "file_size": file_size}
+
         # If it's a PDF, try to extract text
-        if file.filename.lower().endswith('.pdf'):
+        if file.filename.lower().endswith(".pdf"):
             try:
-                with open(file_path, 'rb') as f:
+                with open(file_path, "rb") as f:
                     reader = PyPDF2.PdfReader(f)
                     print(f"PDF has {len(reader.pages)} pages")
-                    
-                    text = ''
+
+                    text = ""
                     for i, page in enumerate(reader.pages):
                         if i >= 1:  # Only extract text from the first page
                             break
-                        text += page.extract_text() + '\n'
-                    
-                    result['text_sample'] = text[:500] + '...' if len(text) > 500 else text
+                        text += page.extract_text() + "\n"
+
+                    result["text_sample"] = (
+                        text[:500] + "..." if len(text) > 500 else text
+                    )
                     print(f"Extracted {len(text)} characters of text")
             except Exception as e:
                 print(f"Error extracting text from PDF: {e}")
                 traceback.print_exc()
-                result['error'] = f"Error extracting text from PDF: {str(e)}"
-        
+                result["error"] = f"Error extracting text from PDF: {str(e)}"
+
         return jsonify(result)
     except Exception as e:
         print(f"Error in test_upload: {e}")
         traceback.print_exc()
-        return jsonify({
-            'error': f"Server error: {str(e)}"
-        })
+        return jsonify({"error": f"Server error: {str(e)}"})
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5005, debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5005, debug=True)

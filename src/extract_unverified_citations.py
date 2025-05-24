@@ -141,7 +141,11 @@ def download_brief(brief_url):
         }
         
         # Make the request
-        response = requests.get(brief_url, headers=headers)
+        try:
+        response = requests.get(brief_url, headers=headers, timeout=30)
+    except requests.Timeout:
+        print(f"Timeout occurred while downloading {brief_url}")
+        return None
         
         if response.status_code != 200:
             print(f"Error downloading brief: {response.status_code}")

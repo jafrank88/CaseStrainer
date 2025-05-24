@@ -7,14 +7,15 @@ import sys
 import subprocess
 import shutil
 
+
 def main():
     """Fix Python path issues and start CaseStrainer"""
     print("CaseStrainer Python Path Fixer")
     print("==============================")
-    
+
     # Get the directory of this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # Check if D:\Python\python.exe is expected
     if os.path.exists("D:\\Python\\python.exe"):
         print("D:\\Python\\python.exe exists, using it")
@@ -33,21 +34,21 @@ def main():
             else:
                 print("Python not found. Please install Python and try again.")
                 return 1
-    
+
     # Get the path to app_final_vue.py
     app_path = os.path.join(script_dir, "app_final_vue.py")
     if not os.path.exists(app_path):
         print(f"Error: {app_path} not found")
         return 1
-    
+
     print(f"Starting CaseStrainer from: {app_path}")
     print("Using Python executable:", python_exe)
-    
+
     # Set environment variables
     os.environ["HOST"] = "0.0.0.0"
     os.environ["PORT"] = "5000"
     os.environ["USE_CHEROOT"] = "True"
-    
+
     # Create a temporary directory to simulate D:\Python if it doesn't exist
     if not os.path.exists("D:\\Python"):
         try:
@@ -55,7 +56,7 @@ def main():
             print("Created D:\\Python directory")
         except (PermissionError, OSError):
             print("Could not create D:\\Python directory (permission denied)")
-    
+
     # Start the application
     try:
         # Use subprocess.call to run the application with the correct Python executable
@@ -63,8 +64,9 @@ def main():
     except Exception as e:
         print(f"Error starting application: {e}")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -201,7 +201,7 @@ export default {
         // First, try to load directly from the JSON file
         try {
           const jsonResponse = await axios.get('/citation_verification_results.json');
-          console.log('Citation verification results:', jsonResponse.data);
+          // console.log('Citation verification results:', jsonResponse.data);
           
           if (jsonResponse.data && jsonResponse.data.newly_confirmed && jsonResponse.data.newly_confirmed.length > 0) {
             this.citations = jsonResponse.data.newly_confirmed.map(citation => ({
@@ -235,7 +235,7 @@ export default {
           }
         }
         
-        console.log('Multitool confirmed data response:', response.data);
+        // console.log('Multitool confirmed data response:', response.data);
         if (response.data && response.data.citations) {
           this.citations = response.data.citations;
         }

@@ -1,8 +1,19 @@
 # CaseStrainer .gitignore - Optimized for Vue.js migration
-# Last updated: 2025-05-15
+# Last updated: 2025-05-22
+
+# --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
+node_modules/
+*.tsbuildinfo
+*.pem
+*.crt
+*.key
+docker/ssl/
+# -------------------------------------------------------------------------------
 
 #----------------------------------------------
 # DIRECTORIES TO EXCLUDE
+# Allow src/version.txt for dynamic versioning
+!src/version.txt
 #----------------------------------------------
 
 # Development and runtime directories
@@ -64,9 +75,10 @@ vcpkg/
 #----------------------------------------------
 
 # Log files
-# logs/*.log
-# *.log
-# (temporarily allow log access for troubleshooting)
+# Exclude all log files in src/logs/ from version control
+src/logs/*.log
+# Exclude all other log files
+*.log
 
 # Test data files
 test_*.txt

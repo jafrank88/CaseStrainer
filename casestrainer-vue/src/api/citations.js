@@ -2,16 +2,16 @@ import axios from 'axios';
 
 const API_URL = process.env.NODE_ENV === 'production' 
   ? '/casestrainer/api' 
-  : '/api';
+  : '/casestrainer/api';
 
 export default {
   // Citation analysis endpoints
   analyzeBriefText(text, apiKey) {
-    return axios.post(`${API_URL}/analyze`, { text, api_key: apiKey });
+    return axios.post(`/casestrainer/api/analyze`, { text, api_key: apiKey });
   },
   
   analyzeFile(formData) {
-    return axios.post(`${API_URL}/analyze`, formData, {
+    return axios.post(`/casestrainer/api/analyze`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -19,7 +19,7 @@ export default {
   },
   
   analyzeFilePath(filePath, apiKey) {
-    return axios.post(`${API_URL}/analyze`, { file_path: filePath, api_key: apiKey });
+    return axios.post(`/casestrainer/api/analyze`, { file_path: filePath, api_key: apiKey });
   },
   
   getAnalysisStatus(analysisId) {

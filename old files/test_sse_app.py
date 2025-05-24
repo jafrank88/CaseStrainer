@@ -4,7 +4,8 @@ import json
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     html = """
     <!DOCTYPE html>
@@ -57,26 +58,22 @@ def index():
     """
     return render_template_string(html)
 
-@app.route('/stream')
+
+@app.route("/stream")
 def stream():
     def generate():
         # Send a message every second for 5 seconds
         for i in range(5):
-            data = {
-                'message': f'Message {i+1}',
-                'timestamp': time.strftime('%H:%M:%S')
-            }
+            data = {"message": f"Message {i+1}", "timestamp": time.strftime("%H:%M:%S")}
             yield f"data: {json.dumps(data)}\n\n"
             time.sleep(1)
-        
-        # Send a final message
-        data = {
-            'message': 'complete',
-            'timestamp': time.strftime('%H:%M:%S')
-        }
-        yield f"data: {json.dumps(data)}\n\n"
-    
-    return Response(generate(), mimetype='text/event-stream')
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5002, debug=True)
+        # Send a final message
+        data = {"message": "complete", "timestamp": time.strftime("%H:%M:%S")}
+        yield f"data: {json.dumps(data)}\n\n"
+
+    return Response(generate(), mimetype="text/event-stream")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5002, debug=True)

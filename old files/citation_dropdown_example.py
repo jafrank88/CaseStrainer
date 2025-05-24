@@ -180,10 +180,10 @@ HTML_TEMPLATE = """
 
 # Load API keys from config.json
 try:
-    with open('config.json', 'r') as f:
+    with open("config.json", "r") as f:
         config = json.load(f)
-        courtlistener_api_key = config.get('courtlistener_api_key')
-        langsearch_api_key = config.get('langsearch_api_key')
+        courtlistener_api_key = config.get("courtlistener_api_key")
+        langsearch_api_key = config.get("langsearch_api_key")
 except Exception as e:
     print(f"Error loading config.json: {e}")
     courtlistener_api_key = None
@@ -191,24 +191,26 @@ except Exception as e:
 
 # Create the citation verifier
 verifier = CitationVerifier(
-    api_key=courtlistener_api_key,
-    langsearch_api_key=langsearch_api_key
+    api_key=courtlistener_api_key, langsearch_api_key=langsearch_api_key
 )
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route('/verify', methods=['POST'])
+
+@app.route("/verify", methods=["POST"])
 def verify():
     data = request.json
-    citation = data.get('citation', '')
-    
+    citation = data.get("citation", "")
+
     if not citation:
-        return jsonify({'error': 'No citation provided'}), 400
-    
+        return jsonify({"error": "No citation provided"}), 400
+
     result = verifier.verify_citation(citation)
     return jsonify(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True, port=5001)

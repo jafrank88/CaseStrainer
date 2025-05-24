@@ -51,7 +51,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Function to extract text from different file types
-def extract_text_from_file(file_path):
+from file_utils import extract_text_from_file
+
     """Extract text from a file based on its extension."""
     print(f"Extracting text from file: {file_path}")
     

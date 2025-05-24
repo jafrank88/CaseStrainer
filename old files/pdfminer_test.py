@@ -2,12 +2,14 @@ import os
 import sys
 import traceback
 
+
 def install_pdfminer():
     """Install pdfminer.six package."""
     print("Installing pdfminer.six...")
     try:
         import pip
-        pip.main(['install', 'pdfminer.six'])
+
+        pip.main(["install", "pdfminer.six"])
         print("pdfminer.six installed successfully")
         return True
     except Exception as e:
@@ -15,10 +17,12 @@ def install_pdfminer():
         traceback.print_exc()
         return False
 
+
 def extract_text_with_pdfminer(file_path):
     """Extract text from a PDF file using pdfminer.six."""
     try:
         from pdfminer.high_level import extract_text
+
         print(f"Extracting text from {file_path}...")
         text = extract_text(file_path)
         print(f"Successfully extracted {len(text)} characters")
@@ -28,10 +32,11 @@ def extract_text_with_pdfminer(file_path):
         traceback.print_exc()
         return None
 
+
 def save_text_to_file(text, filename):
     """Save extracted text to a file."""
     try:
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(text)
         print(f"Text saved to {filename}")
         return True
@@ -40,19 +45,20 @@ def save_text_to_file(text, filename):
         traceback.print_exc()
         return False
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python pdfminer_test.py <path_to_pdf_file>")
         sys.exit(1)
-    
+
     file_path = sys.argv[1]
     print(f"Testing PDF extraction on file: {file_path}")
-    
+
     # Check if file exists
     if not os.path.exists(file_path):
         print(f"File does not exist: {file_path}")
         sys.exit(1)
-    
+
     # Install pdfminer.six if needed
     if install_pdfminer():
         # Extract text
@@ -60,7 +66,7 @@ if __name__ == "__main__":
         if extracted_text:
             # Save to file
             save_text_to_file(extracted_text, "extracted_pdfminer.txt")
-            
+
             # Display sample
             print("\nFirst 500 characters of extracted text:")
             print("-" * 80)

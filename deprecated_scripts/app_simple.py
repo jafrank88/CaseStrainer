@@ -3,7 +3,14 @@ CaseStrainer Flask application with a simple landing page.
 This is a simplified version that works with the Nginx proxy.
 """
 
-from flask import Flask, send_from_directory, request, jsonify, redirect, render_template_string
+from flask import (
+    Flask,
+    send_from_directory,
+    request,
+    jsonify,
+    redirect,
+    render_template_string,
+)
 import os
 import sys
 
@@ -95,54 +102,63 @@ LANDING_PAGE = """
 </html>
 """
 
+
 # Serve the landing page at the root URL
-@app.route('/')
+@app.route("/")
 def serve_landing():
     return render_template_string(LANDING_PAGE)
 
+
 # Redirect /casestrainer/ to the root URL
-@app.route('/casestrainer/')
+@app.route("/casestrainer/")
 def redirect_to_root():
-    return redirect('/')
+    return redirect("/")
+
 
 # Add a test endpoint
-@app.route('/api/test')
+@app.route("/api/test")
 def test_api():
-    return jsonify({'status': 'success', 'message': 'API is working'})
+    return jsonify({"status": "success", "message": "API is working"})
+
 
 # Redirect /api/ to the original CaseStrainer interface
-@app.route('/api/')
+@app.route("/api/")
 def redirect_to_original():
     # This assumes the original interface is running on a different port or path
     # You'll need to modify this based on your actual setup
-    return redirect('/casestrainer/api/')
+    return redirect("/casestrainer/api/")
+
 
 # Handle URL prefix for Nginx proxy
 class PrefixMiddleware:
-    def __init__(self, app, prefix=''):
+    def __init__(self, app, prefix=""):
         self.app = app
         self.prefix = prefix
 
     def __call__(self, environ, start_response):
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
+        if environ["PATH_INFO"].startswith(self.prefix):
+            environ["PATH_INFO"] = environ["PATH_INFO"][len(self.prefix) :]
+            environ["SCRIPT_NAME"] = self.prefix
             return self.app(environ, start_response)
         else:
             # If not prefixed, just pass through
             return self.app(environ, start_response)
 
-# Apply the prefix middleware
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
 
-if __name__ == '__main__':
+# Apply the prefix middleware
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix="/casestrainer")
+
+if __name__ == "__main__":
     # Get command line arguments
     import argparse
-    parser = argparse.ArgumentParser(description='Run CaseStrainer with a simple landing page')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to bind to')
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+
+    parser = argparse.ArgumentParser(
+        description="Run CaseStrainer with a simple landing page"
+    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-    
+
     # Run the application
     app.run(host=args.host, port=args.port, debug=args.debug)

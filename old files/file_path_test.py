@@ -4,10 +4,11 @@ import PyPDF2
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     html = """
     <!DOCTYPE html>
@@ -100,45 +101,43 @@ def index():
     """
     return render_template_string(html)
 
-@app.route('/test_file_path', methods=['POST'])
+
+@app.route("/test_file_path", methods=["POST"])
 def test_file_path():
-    file_path = request.form.get('file_path')
-    
+    file_path = request.form.get("file_path")
+
     if not file_path:
-        return jsonify({
-            'error': 'No file path provided'
-        })
-    
+        return jsonify({"error": "No file path provided"})
+
     # Check if file exists
     file_exists = os.path.isfile(file_path)
-    
-    result = {
-        'file_path': file_path,
-        'file_exists': file_exists,
-        'file_size': 0
-    }
-    
+
+    result = {"file_path": file_path, "file_exists": file_exists, "file_size": 0}
+
     if file_exists:
-        result['file_size'] = os.path.getsize(file_path)
-        
+        result["file_size"] = os.path.getsize(file_path)
+
         # If it's a PDF, try to extract text
-        if file_path.lower().endswith('.pdf'):
+        if file_path.lower().endswith(".pdf"):
             try:
-                with open(file_path, 'rb') as file:
+                with open(file_path, "rb") as file:
                     reader = PyPDF2.PdfReader(file)
-                    text = ''
+                    text = ""
                     for i, page in enumerate(reader.pages):
                         if i >= 1:  # Only extract text from the first page
                             break
-                        text += page.extract_text() + '\n'
-                    
-                    result['text_sample'] = text[:500] + '...' if len(text) > 500 else text
+                        text += page.extract_text() + "\n"
+
+                    result["text_sample"] = (
+                        text[:500] + "..." if len(text) > 500 else text
+                    )
             except Exception as e:
-                result['error'] = f"Error extracting text from PDF: {str(e)}"
+                result["error"] = f"Error extracting text from PDF: {str(e)}"
     else:
-        result['error'] = f"File not found: {file_path}"
-    
+        result["error"] = f"File not found: {file_path}"
+
     return jsonify(result)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5002, debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5002, debug=True)

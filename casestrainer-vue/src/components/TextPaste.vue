@@ -92,8 +92,15 @@
 <script>
 import axios from 'axios';
 
+import ProgressBar from './ProgressBar.vue';
+import ReusableResults from './ReusableResults.vue';
+
 export default {
   name: 'TextPaste',
+  components: {
+    ProgressBar,
+    ReusableResults
+  },
   data() {
     return {
       text: '',

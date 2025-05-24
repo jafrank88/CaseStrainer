@@ -3,7 +3,14 @@ CaseStrainer Flask application with a simplified Vue.js frontend.
 This is a simplified version that works with the Nginx proxy.
 """
 
-from flask import Flask, send_from_directory, request, jsonify, redirect, render_template_string
+from flask import (
+    Flask,
+    send_from_directory,
+    request,
+    jsonify,
+    redirect,
+    render_template_string,
+)
 import os
 import sys
 import json
@@ -14,23 +21,25 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 # Constants
-DATABASE_FILE = 'citations.db'
-UPLOAD_FOLDER = 'uploads'
+DATABASE_FILE = "citations.db"
+UPLOAD_FOLDER = "uploads"
 
 # Configure the upload folder
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Ensure upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+
 # Add CORS headers to all responses
 @app.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,OPTIONS"
     return response
+
 
 # Simple landing page HTML that looks like a Vue.js app
 LANDING_PAGE = """
@@ -142,40 +151,48 @@ LANDING_PAGE = """
 </html>
 """
 
+
 # Serve the landing page at the root URL
-@app.route('/')
-@app.route('/casestrainer/')
+@app.route("/")
+@app.route("/casestrainer/")
 def serve_landing():
     return render_template_string(LANDING_PAGE)
 
+
 # API endpoints
-@app.route('/api/test')
-@app.route('/casestrainer/api/test')
+@app.route("/api/test")
+@app.route("/casestrainer/api/test")
 def test_api():
-    return jsonify({'status': 'success', 'message': 'API is working'})
+    return jsonify({"status": "success", "message": "API is working"})
+
 
 # Redirect /api/ to the original CaseStrainer interface
-@app.route('/api/')
-@app.route('/casestrainer/api/')
+@app.route("/api/")
+@app.route("/casestrainer/api/")
 def redirect_to_original():
     # In a real setup, this would redirect to the original interface
     # For now, just show a message
     return "Original CaseStrainer Interface"
 
-# Serve static files
-@app.route('/static/<path:path>')
-@app.route('/casestrainer/static/<path:path>')
-def serve_static(path):
-    return send_from_directory('static', path)
 
-if __name__ == '__main__':
+# Serve static files
+@app.route("/static/<path:path>")
+@app.route("/casestrainer/static/<path:path>")
+def serve_static(path):
+    return send_from_directory("static", path)
+
+
+if __name__ == "__main__":
     # Get command line arguments
     import argparse
-    parser = argparse.ArgumentParser(description='Run CaseStrainer with a simplified Vue.js frontend')
-    parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
-    parser.add_argument('--port', type=int, default=5000, help='Port to bind to')
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+
+    parser = argparse.ArgumentParser(
+        description="Run CaseStrainer with a simplified Vue.js frontend"
+    )
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=5000, help="Port to bind to")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-    
+
     # Run the application
     app.run(host=args.host, port=args.port, debug=args.debug)

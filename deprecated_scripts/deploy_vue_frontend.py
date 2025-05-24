@@ -12,8 +12,8 @@ from pathlib import Path
 
 # Define paths
 BASE_DIR = Path(__file__).resolve().parent
-VUE_SRC_DIR = BASE_DIR / 'casestrainer-vue' / 'src'
-STATIC_VUE_DIR = BASE_DIR / 'static' / 'vue'
+VUE_SRC_DIR = BASE_DIR / "casestrainer-vue" / "src"
+STATIC_VUE_DIR = BASE_DIR / "static" / "vue"
 
 # Create static/vue directory if it doesn't exist
 os.makedirs(STATIC_VUE_DIR, exist_ok=True)
@@ -168,18 +168,19 @@ index_html = """<!DOCTYPE html>
 """
 
 # Write the index.html file
-with open(STATIC_VUE_DIR / 'index.html', 'w') as f:
+with open(STATIC_VUE_DIR / "index.html", "w") as f:
     f.write(index_html)
 
 # Copy CSS and JS files if they exist
-css_dir = STATIC_VUE_DIR / 'css'
-js_dir = STATIC_VUE_DIR / 'js'
+css_dir = STATIC_VUE_DIR / "css"
+js_dir = STATIC_VUE_DIR / "js"
 os.makedirs(css_dir, exist_ok=True)
 os.makedirs(js_dir, exist_ok=True)
 
 # Create a simple CSS file
-with open(css_dir / 'main.css', 'w') as f:
-    f.write("""
+with open(css_dir / "main.css", "w") as f:
+    f.write(
+        """
 /* CaseStrainer Vue.js Frontend Styles */
 .app-container {
     display: flex;
@@ -189,14 +190,17 @@ with open(css_dir / 'main.css', 'w') as f:
 .main-content {
     flex: 1;
 }
-""")
+"""
+    )
 
 # Create a simple JavaScript file
-with open(js_dir / 'main.js', 'w') as f:
-    f.write("""
+with open(js_dir / "main.js", "w") as f:
+    f.write(
+        """
 // CaseStrainer Vue.js Frontend Scripts
 console.log('CaseStrainer Vue.js Frontend loaded');
-""")
+"""
+    )
 
 print("Vue.js frontend deployed successfully to static/vue directory!")
 print("The application will be accessible at:")

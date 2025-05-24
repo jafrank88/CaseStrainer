@@ -9,28 +9,31 @@ from eyecite.resolve import resolve_citations
 from pdf_handler import extract_text_from_pdf  # Import at module level
 import urllib.parse
 
+
 def fetch_pdf_content(url_or_path):
     """Fetch content from a PDF URL or local file and extract text."""
     print(f"Fetching PDF from: {url_or_path}")
 
     # Check if it's a URL or a local file path
-    if urllib.parse.urlparse(url_or_path).scheme in ('http', 'https'):
+    if urllib.parse.urlparse(url_or_path).scheme in ("http", "https"):
         # Existing code for downloading from the web
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'application/pdf,*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Referer': 'https://www.google.com/',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "application/pdf,*/*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Referer": "https://www.google.com/",
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
         }
         try:
             print("Sending GET request (extra logging)...")
-            response = requests.get(url_or_path, headers=headers, timeout=60, stream=True)
+            response = requests.get(
+                url_or_path, headers=headers, timeout=60, stream=True
+            )
             response.raise_for_status()
             print("GET request completed (extra logging).")
-            with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         temp_file.write(chunk)
@@ -43,7 +46,7 @@ def fetch_pdf_content(url_or_path):
                 if isinstance(text, str) and text.startswith("Error:"):
                     print(f"Error extracting text (extra logging): {text}")
                     raise Exception(text)
-                text = re.sub(r'\s+', ' ', text).strip()
+                text = re.sub(r"\s+", " ", text).strip()
                 print(f"Extracted {len(text)} characters from PDF (extra logging)")
                 with open("pdf_extracted_text.txt", "w", encoding="utf-8") as f:
                     f.write(text)
@@ -67,12 +70,13 @@ def fetch_pdf_content(url_or_path):
         print(f"Extracted {len(text)} characters from local PDF")
         return text
 
+
 def extract_citations_with_eyecite(text):
     """Extract citations from text using eyecite and write to JSON."""
     print("Extracting citations using eyecite...")
 
     # Normalize whitespace so citations split by line breaks are found
-    text = re.sub(r'\s+', ' ', text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
 
     # Get citations using eyecite
     citations = get_citations(text)
@@ -85,19 +89,27 @@ def extract_citations_with_eyecite(text):
     formatted_citations = []
     for citation in citations:
         citation_info = {
-            'citation_text': str(citation),
-            'case_name': getattr(citation, 'plaintiff', '') + ' v. ' + getattr(citation, 'defendant', '') if hasattr(citation, 'plaintiff') and hasattr(citation, 'defendant') else 'Unknown',
-            'reporter': getattr(citation, 'reporter', ''),
-            'volume': getattr(citation, 'volume', ''),
-            'page': getattr(citation, 'page', ''),
-            'year': getattr(citation, 'year', ''),
-            'court': getattr(citation, 'court', '')
+            "citation_text": str(citation),
+            "case_name": (
+                getattr(citation, "plaintiff", "")
+                + " v. "
+                + getattr(citation, "defendant", "")
+                if hasattr(citation, "plaintiff") and hasattr(citation, "defendant")
+                else "Unknown"
+            ),
+            "reporter": getattr(citation, "reporter", ""),
+            "volume": getattr(citation, "volume", ""),
+            "page": getattr(citation, "page", ""),
+            "year": getattr(citation, "year", ""),
+            "court": getattr(citation, "court", ""),
         }
         formatted_citations.append(citation_info)
 
     # Print first 10 citations
     for i, citation in enumerate(formatted_citations[:10]):
-        print(f"  {i+1}. {citation['citation_text']} - {citation['case_name']} ({citation['year']})")
+        print(
+            f"  {i+1}. {citation['citation_text']} - {citation['case_name']} ({citation['year']})"
+        )
 
     if len(formatted_citations) > 10:
         print(f"  ... and {len(formatted_citations) - 10} more")
@@ -105,44 +117,47 @@ def extract_citations_with_eyecite(text):
     # Save formatted citations to a JSON file
     with open("eyecite_citations.json", "w") as f:
         json.dump(formatted_citations, f, indent=2)
-    print("eyecite_citations.json written to:", os.path.abspath("eyecite_citations.json"))
+    print(
+        "eyecite_citations.json written to:", os.path.abspath("eyecite_citations.json")
+    )
 
     return formatted_citations
+
 
 def extract_citations_with_regex(text):
     """Extract citations from text using regex patterns."""
     print("Extracting citations using regex patterns...")
-    
+
     # Look for citations with comprehensive patterns
     citation_patterns = [
-        r'\b\d+\s+U\.?\s*S\.?\s+\d+\b',  # U.S. Reports
-        r'\b\d+\s+S\.?\s*Ct\.?\s+\d+\b',  # Supreme Court Reporter
-        r'\b\d+\s+L\.?\s*Ed\.?\s*(?:2d|3d)?\s+\d+\b',  # Lawyers Edition
-        r'\b\d+\s+U\.?\s*S\.?\s+C\.?\s+\d+\b',  # U.S. Court of Appeals
-        r'\b\d+\s+F\.?\s*(?:2d|3d|4th)?\s+\d+\b',  # Federal Reporter
-        r'\b\d+\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+\d+\b',  # Federal Supplement
-        r'\b\d+\s+W\.?\s*L\.?\s+\d+\b',  # Westlaw
-        r'\b\d+\s+W\.?\s*n\.?\s*2d\s+\d+\b',  # Washington Reports 2d
-        r'\b\d+\s+W\.?\s*n\.?\s*App\.?\s+\d+\b',  # Washington Court of Appeals
-        r'\b\d+\s+W\.?\s*n\.?\s*App\.?\s*2d\s+\d+\b',  # Washington Court of Appeals 2d
-        r'\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b',  # Pacific Reporter
-        r'\b\d+\s+P\.?\s*2d\s+\d+\b',  # Pacific Reporter 2d
-        r'\b\d+\s+P\.?\s*3d\s+\d+\b',  # Pacific Reporter 3d
-        r'\b\d+\s+A\.?\s*(?:2d|3d)?\s+\d+\b',  # Atlantic Reporter
-        r'\b\d+\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b',  # North Eastern Reporter
-        r'\b\d+\s+S\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b',  # South Eastern Reporter
-        r'\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # South Western Reporter
-        r'\b\d+\s+N\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # North Western Reporter
-        r'\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b',  # South Western Reporter
-        r'\b\d+\s+N\.?\s*Y\.?\s*(?:2d|3d)?\s+\d+\b',  # New York Reporter
-        r'\b\d+\s+N\.?\s*Y\.?\s*S\.?\s*(?:2d|3d)?\s+\d+\b',  # New York Supplement
-        r'\b\d+\s+C\.?\s*A\.?\s*(?:2d|3d)?\s+\d+\b',  # California Reporter
-        r'\b\d+\s+C\.?\s*A\.?\s*2d\s+\d+\b',  # California Reporter 2d
-        r'\b\d+\s+C\.?\s*A\.?\s*3d\s+\d+\b',  # California Reporter 3d
-        r'\b\d+\s+C\.?\s*A\.?\s*4th\s+\d+\b',  # California Reporter 4th
-        r'\b\d+\s+C\.?\s*A\.?\s*5th\s+\d+\b',  # California Reporter 5th
+        r"\b\d+\s+U\.?\s*S\.?\s+\d+\b",  # U.S. Reports
+        r"\b\d+\s+S\.?\s*Ct\.?\s+\d+\b",  # Supreme Court Reporter
+        r"\b\d+\s+L\.?\s*Ed\.?\s*(?:2d|3d)?\s+\d+\b",  # Lawyers Edition
+        r"\b\d+\s+U\.?\s*S\.?\s+C\.?\s+\d+\b",  # U.S. Court of Appeals
+        r"\b\d+\s+F\.?\s*(?:2d|3d|4th)?\s+\d+\b",  # Federal Reporter
+        r"\b\d+\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+\d+\b",  # Federal Supplement
+        r"\b\d+\s+W\.?\s*L\.?\s+\d+\b",  # Westlaw
+        r"\b\d+\s+W\.?\s*n\.?\s*2d\s+\d+\b",  # Washington Reports 2d
+        r"\b\d+\s+W\.?\s*n\.?\s*App\.?\s+\d+\b",  # Washington Court of Appeals
+        r"\b\d+\s+W\.?\s*n\.?\s*App\.?\s*2d\s+\d+\b",  # Washington Court of Appeals 2d
+        r"\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b",  # Pacific Reporter
+        r"\b\d+\s+P\.?\s*2d\s+\d+\b",  # Pacific Reporter 2d
+        r"\b\d+\s+P\.?\s*3d\s+\d+\b",  # Pacific Reporter 3d
+        r"\b\d+\s+A\.?\s*(?:2d|3d)?\s+\d+\b",  # Atlantic Reporter
+        r"\b\d+\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b",  # North Eastern Reporter
+        r"\b\d+\s+S\.?\s*E\.?\s*(?:2d|3d)?\s+\d+\b",  # South Eastern Reporter
+        r"\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b",  # South Western Reporter
+        r"\b\d+\s+N\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b",  # North Western Reporter
+        r"\b\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b",  # South Western Reporter
+        r"\b\d+\s+N\.?\s*Y\.?\s*(?:2d|3d)?\s+\d+\b",  # New York Reporter
+        r"\b\d+\s+N\.?\s*Y\.?\s*S\.?\s*(?:2d|3d)?\s+\d+\b",  # New York Supplement
+        r"\b\d+\s+C\.?\s*A\.?\s*(?:2d|3d)?\s+\d+\b",  # California Reporter
+        r"\b\d+\s+C\.?\s*A\.?\s*2d\s+\d+\b",  # California Reporter 2d
+        r"\b\d+\s+C\.?\s*A\.?\s*3d\s+\d+\b",  # California Reporter 3d
+        r"\b\d+\s+C\.?\s*A\.?\s*4th\s+\d+\b",  # California Reporter 4th
+        r"\b\d+\s+C\.?\s*A\.?\s*5th\s+\d+\b",  # California Reporter 5th
     ]
-    
+
     # Find all matches
     citations = set()
     for pattern in citation_patterns:
@@ -150,46 +165,52 @@ def extract_citations_with_regex(text):
         for match in matches:
             citation = match.group()
             # Normalize spaces
-            citation = re.sub(r'\s+', ' ', citation).strip()
+            citation = re.sub(r"\s+", " ", citation).strip()
             citations.add(citation)
-    
+
     print(f"Found {len(citations)} citations with regex")
     return list(citations)
+
 
 def process_text_in_chunks(text, chunk_size=1000000):
     """Process large text in chunks to avoid memory issues."""
     print(f"Processing text in chunks of {chunk_size} characters")
     all_citations = []
-    
+
     # Split text into overlapping chunks to avoid missing citations at boundaries
     overlap = 1000  # Overlap size to ensure we don't miss citations at chunk boundaries
     chunks = []
     for i in range(0, len(text), chunk_size - overlap):
-        chunk = text[i:i + chunk_size]
+        chunk = text[i : i + chunk_size]
         chunks.append(chunk)
-    
+
     print(f"Split text into {len(chunks)} chunks")
-    
+
     # Process each chunk
     for i, chunk in enumerate(chunks):
         print(f"Processing chunk {i+1}/{len(chunks)}")
         try:
             # Extract citations from chunk
             citations = get_citations(chunk)  # Use standard tokenizer
-            
+
             # Add unique citations to our list
             for citation in citations:
-                citation_str = citation.corrected_citation() if hasattr(citation, 'corrected_citation') else str(citation)
+                citation_str = (
+                    citation.corrected_citation()
+                    if hasattr(citation, "corrected_citation")
+                    else str(citation)
+                )
                 if citation_str not in all_citations:
                     all_citations.append(citation_str)
-            
+
             print(f"Found {len(citations)} citations in chunk {i+1}")
         except Exception as e:
             print(f"Error processing chunk {i+1}: {e}")
             continue
-    
+
     print(f"Total unique citations found: {len(all_citations)}")
     return all_citations
+
 
 def process_pdf_url(url):
     """Process a PDF URL or local file to extract and analyze citations."""
@@ -202,18 +223,20 @@ def process_pdf_url(url):
         # Extract citations using both methods
         eyecite_citations = extract_citations_with_eyecite(text)
         regex_citations = extract_citations_with_regex(text)
-        
+
         # Combine results
         all_citations = set()
         for citation in eyecite_citations:
-            all_citations.add(citation['citation_text'])
+            all_citations.add(citation["citation_text"])
         for citation in regex_citations:
             all_citations.add(citation)
-        
+
         # Convert back to list and sort
         formatted_citations = sorted(list(all_citations))
-        
-        print(f"\nSuccessfully processed PDF and found {len(formatted_citations)} citations!")
+
+        print(
+            f"\nSuccessfully processed PDF and found {len(formatted_citations)} citations!"
+        )
         print("Citations found:")
         for c in formatted_citations:
             print(f"  - {c}")
@@ -222,12 +245,14 @@ def process_pdf_url(url):
         print(f"Error processing PDF URL: {e}")
         return []
 
+
 if __name__ == "__main__":
     import sys
+
     if len(sys.argv) > 1:
-         # Use the provided local PDF file path (e.g. C:/Users/jafrank/Downloads/22-451_7m58.pdf) if given.
-         url = sys.argv[1]
+        # Use the provided local PDF file path (e.g. C:/Users/jafrank/Downloads/22-451_7m58.pdf) if given.
+        url = sys.argv[1]
     else:
-         # Fallback to the hard-coded URL (e.g. the Avianca sanctions opinion PDF).
-         url = "https://www.gibbonslawalert.com/wp-content/uploads/2023/07/Mata-v.-Avianca-Sanctions-opinion.pdf"
-    process_pdf_url (url)
+        # Fallback to the hard-coded URL (e.g. the Avianca sanctions opinion PDF).
+        url = "https://www.gibbonslawalert.com/wp-content/uploads/2023/07/Mata-v.-Avianca-Sanctions-opinion.pdf"
+    process_pdf_url(url)

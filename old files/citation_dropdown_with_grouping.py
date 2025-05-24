@@ -280,47 +280,47 @@ HTML_TEMPLATE = """
 # Sample data for demonstration
 SAMPLE_CITATIONS = [
     {
-        'citation': '410 U.S. 113',
-        'case_name': 'Roe v. Wade',
-        'url': 'https://www.courtlistener.com/opinion/108713/roe-v-wade/',
-        'source': 'CourtListener Citation API',
-        'details': {'court': 'Supreme Court of the United States'}
+        "citation": "410 U.S. 113",
+        "case_name": "Roe v. Wade",
+        "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+        "source": "CourtListener Citation API",
+        "details": {"court": "Supreme Court of the United States"},
     },
     {
-        'citation': '93 S. Ct. 705',
-        'case_name': 'Roe v. Wade',
-        'url': 'https://www.courtlistener.com/opinion/108713/roe-v-wade/',
-        'source': 'CourtListener Citation API',
-        'details': {'court': 'Supreme Court of the United States'}
+        "citation": "93 S. Ct. 705",
+        "case_name": "Roe v. Wade",
+        "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+        "source": "CourtListener Citation API",
+        "details": {"court": "Supreme Court of the United States"},
     },
     {
-        'citation': '35 L. Ed. 2d 147',
-        'case_name': 'Roe v. Wade',
-        'url': 'https://www.courtlistener.com/opinion/108713/roe-v-wade/',
-        'source': 'CourtListener Citation API',
-        'details': {'court': 'Supreme Court of the United States'}
+        "citation": "35 L. Ed. 2d 147",
+        "case_name": "Roe v. Wade",
+        "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+        "source": "CourtListener Citation API",
+        "details": {"court": "Supreme Court of the United States"},
     },
     {
-        'citation': '196 Wash. 2d 725',
-        'case_name': 'Associated Press v. Washington State Legislature',
-        'url': 'https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/',
-        'source': 'CourtListener Search API',
-        'details': {'court': 'Washington Supreme Court'}
+        "citation": "196 Wash. 2d 725",
+        "case_name": "Associated Press v. Washington State Legislature",
+        "url": "https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/",
+        "source": "CourtListener Search API",
+        "details": {"court": "Washington Supreme Court"},
     },
     {
-        'citation': '455 P.3d 1164',
-        'case_name': 'Associated Press v. Wash. State Legislature',
-        'url': 'https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/',
-        'source': 'CourtListener Search API',
-        'details': {'court': 'Washington Supreme Court'}
+        "citation": "455 P.3d 1164",
+        "case_name": "Associated Press v. Wash. State Legislature",
+        "url": "https://www.courtlistener.com/opinion/4688692/associated-press-v-wash-state-legislature/",
+        "source": "CourtListener Search API",
+        "details": {"court": "Washington Supreme Court"},
     },
     {
-        'citation': '190 Wash. 2d 1',
-        'case_name': 'WPEA v. Washington State Center for Childhood Deafness',
-        'url': 'https://www.courtlistener.com/opinion/4505648/wpea-v-washington-state-center-for-childhood-deafness/',
-        'source': 'CourtListener Search API',
-        'details': {'court': 'Washington Supreme Court'}
-    }
+        "citation": "190 Wash. 2d 1",
+        "case_name": "WPEA v. Washington State Center for Childhood Deafness",
+        "url": "https://www.courtlistener.com/opinion/4505648/wpea-v-washington-state-center-for-childhood-deafness/",
+        "source": "CourtListener Search API",
+        "details": {"court": "Washington Supreme Court"},
+    },
 ]
 
 # Group the sample citations
@@ -328,10 +328,10 @@ GROUPED_CITATIONS = group_citations(SAMPLE_CITATIONS)
 
 # Load API keys from config.json
 try:
-    with open('config.json', 'r') as f:
+    with open("config.json", "r") as f:
         config = json.load(f)
-        courtlistener_api_key = config.get('courtlistener_api_key')
-        langsearch_api_key = config.get('langsearch_api_key')
+        courtlistener_api_key = config.get("courtlistener_api_key")
+        langsearch_api_key = config.get("langsearch_api_key")
 except Exception as e:
     print(f"Error loading config.json: {e}")
     courtlistener_api_key = None
@@ -339,52 +339,56 @@ except Exception as e:
 
 # Create the citation verifier
 verifier = CitationVerifier(
-    api_key=courtlistener_api_key,
-    langsearch_api_key=langsearch_api_key
+    api_key=courtlistener_api_key, langsearch_api_key=langsearch_api_key
 )
 
 # Store verified citations
 verified_citations = []
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route('/verify', methods=['POST'])
+
+@app.route("/verify", methods=["POST"])
 def verify():
     global verified_citations
-    
+
     data = request.json
-    citation = data.get('citation', '')
-    
+    citation = data.get("citation", "")
+
     if not citation:
-        return jsonify({'error': 'No citation provided'}), 400
-    
+        return jsonify({"error": "No citation provided"}), 400
+
     result = verifier.verify_citation(citation)
-    
-    if result.get('found'):
+
+    if result.get("found"):
         # Add to verified citations if not already present
-        if not any(c.get('citation') == citation for c in verified_citations):
+        if not any(c.get("citation") == citation for c in verified_citations):
             verified_citations.append(result)
-    
+
     return jsonify(result)
 
-@app.route('/grouped-citations')
+
+@app.route("/grouped-citations")
 def get_grouped_citations():
     global verified_citations
-    
+
     # For demonstration, use sample citations if no verified citations yet
     if not verified_citations:
         return jsonify(GROUPED_CITATIONS)
-    
+
     # Group the verified citations
     grouped = group_citations(verified_citations)
     return jsonify(grouped)
 
-@app.route('/citation-suggestions')
+
+@app.route("/citation-suggestions")
 def get_citation_suggestions():
     # Return sample citations for dropdown suggestions
     return jsonify(SAMPLE_CITATIONS)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True, port=5002)

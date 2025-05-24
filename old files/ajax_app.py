@@ -10,8 +10,8 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 # Configuration
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"txt", "pdf", "docx", "doc"}
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -19,85 +19,90 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Dictionary to store analysis results
 analysis_results = {}
 
+
 # Helper function to check if a file has an allowed extension
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # Simulated analysis function
 def run_analysis(analysis_id, file_path=None):
     print(f"Starting analysis for ID: {analysis_id}")
     print(f"File path: {file_path}" if file_path else "No file path provided")
-    
+
     try:
         # Initialize the results for this analysis
         analysis_results[analysis_id] = {
-            'status': 'running',
-            'progress': 0,
-            'total_steps': 3,
-            'message': 'Analysis started',
-            'completed': False,
-            'results': None,
-            'error': None
+            "status": "running",
+            "progress": 0,
+            "total_steps": 3,
+            "message": "Analysis started",
+            "completed": False,
+            "results": None,
+            "error": None,
         }
-        
+
         # Simulate file processing
         if file_path:
             # Check if file exists
             if not os.path.isfile(file_path):
-                analysis_results[analysis_id]['status'] = 'error'
-                analysis_results[analysis_id]['error'] = f'File not found: {file_path}'
-                analysis_results[analysis_id]['completed'] = True
+                analysis_results[analysis_id]["status"] = "error"
+                analysis_results[analysis_id]["error"] = f"File not found: {file_path}"
+                analysis_results[analysis_id]["completed"] = True
                 return
-            
+
             # Get file size
             file_size = os.path.getsize(file_path)
-            
+
             # Update progress - Step 1
-            analysis_results[analysis_id]['progress'] = 1
-            analysis_results[analysis_id]['message'] = f'Processing file: {os.path.basename(file_path)} ({file_size} bytes)'
-            
+            analysis_results[analysis_id]["progress"] = 1
+            analysis_results[analysis_id][
+                "message"
+            ] = f"Processing file: {os.path.basename(file_path)} ({file_size} bytes)"
+
             # Simulate reading file
             time.sleep(2)
-            
+
             # Update progress - Step 2
-            analysis_results[analysis_id]['progress'] = 2
-            analysis_results[analysis_id]['message'] = 'Extracting text from file'
-            
+            analysis_results[analysis_id]["progress"] = 2
+            analysis_results[analysis_id]["message"] = "Extracting text from file"
+
             # Simulate text extraction
             time.sleep(2)
-            
+
             # Update progress - Step 3
-            analysis_results[analysis_id]['progress'] = 3
-            analysis_results[analysis_id]['message'] = 'Analyzing citations'
-            
+            analysis_results[analysis_id]["progress"] = 3
+            analysis_results[analysis_id]["message"] = "Analyzing citations"
+
             # Simulate citation analysis
             time.sleep(2)
-            
+
             # Complete the analysis
-            analysis_results[analysis_id]['status'] = 'complete'
-            analysis_results[analysis_id]['progress'] = 3
-            analysis_results[analysis_id]['message'] = 'Analysis complete'
-            analysis_results[analysis_id]['completed'] = True
-            analysis_results[analysis_id]['results'] = {
-                'file_name': os.path.basename(file_path),
-                'file_size': file_size,
-                'citations_found': 5,
-                'citations_verified': 3
+            analysis_results[analysis_id]["status"] = "complete"
+            analysis_results[analysis_id]["progress"] = 3
+            analysis_results[analysis_id]["message"] = "Analysis complete"
+            analysis_results[analysis_id]["completed"] = True
+            analysis_results[analysis_id]["results"] = {
+                "file_name": os.path.basename(file_path),
+                "file_size": file_size,
+                "citations_found": 5,
+                "citations_verified": 3,
             }
         else:
             # No file provided
-            analysis_results[analysis_id]['status'] = 'error'
-            analysis_results[analysis_id]['error'] = 'No file provided'
-            analysis_results[analysis_id]['completed'] = True
-    
+            analysis_results[analysis_id]["status"] = "error"
+            analysis_results[analysis_id]["error"] = "No file provided"
+            analysis_results[analysis_id]["completed"] = True
+
     except Exception as e:
         print(f"Error running analysis: {e}")
         traceback.print_exc()
-        
+
         # Update with error
-        analysis_results[analysis_id]['status'] = 'error'
-        analysis_results[analysis_id]['error'] = f"Error running analysis: {str(e)}"
-        analysis_results[analysis_id]['completed'] = True
+        analysis_results[analysis_id]["status"] = "error"
+        analysis_results[analysis_id]["error"] = f"Error running analysis: {str(e)}"
+        analysis_results[analysis_id]["completed"] = True
+
 
 # HTML template for the application
 HTML_TEMPLATE = """
@@ -360,78 +365,81 @@ HTML_TEMPLATE = """
 </html>
 """
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route('/analyze', methods=['POST'])
+
+@app.route("/analyze", methods=["POST"])
 def analyze():
     print("\n\n==== ANALYZE ENDPOINT CALLED =====")
     print(f"Request method: {request.method}")
     print(f"Request headers: {request.headers}")
     print(f"Request form data: {request.form}")
     print(f"Request files: {request.files}")
-    
+
     try:
         # Generate a unique analysis ID
         analysis_id = str(uuid.uuid4())
         print(f"Generated analysis ID: {analysis_id}")
-        
+
         # Get file path if provided
         file_path = None
-        
+
         # Check if a file was uploaded
-        if 'file' in request.files:
-            file = request.files['file']
+        if "file" in request.files:
+            file = request.files["file"]
             if file and file.filename and allowed_file(file.filename):
                 print(f"File uploaded: {file.filename}")
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
                 print(f"File saved to: {file_path}")
-        
+
         # Check if a file path was provided
-        elif 'file_path' in request.form:
-            file_path = request.form['file_path'].strip()
+        elif "file_path" in request.form:
+            file_path = request.form["file_path"].strip()
             print(f"File path provided: {file_path}")
-            
+
             # Handle file:/// URLs
-            if file_path.startswith('file:///'):
+            if file_path.startswith("file:///"):
                 file_path = file_path[8:]  # Remove 'file:///' prefix
-        
+
         # Start the analysis in a background thread
         threading.Thread(target=run_analysis, args=(analysis_id, file_path)).start()
-        
+
         # Return the analysis ID to the client
-        return jsonify({
-            'status': 'success',
-            'message': 'Analysis started',
-            'analysis_id': analysis_id
-        })
+        return jsonify(
+            {
+                "status": "success",
+                "message": "Analysis started",
+                "analysis_id": analysis_id,
+            }
+        )
     except Exception as e:
         print(f"Error in analyze endpoint: {e}")
         traceback.print_exc()
-        return jsonify({
-            'status': 'error',
-            'message': f'Error: {str(e)}'
-        }), 500
+        return jsonify({"status": "error", "message": f"Error: {str(e)}"}), 500
 
-@app.route('/status')
+
+@app.route("/status")
 def status():
     """Get the status of an analysis."""
     print("\n\n==== STATUS ENDPOINT CALLED =====")
-    
+
     # Get the analysis ID from the query string
-    analysis_id = request.args.get('id')
+    analysis_id = request.args.get("id")
     if not analysis_id:
-        return jsonify({'status': 'error', 'message': 'No analysis ID provided'}), 400
-    
+        return jsonify({"status": "error", "message": "No analysis ID provided"}), 400
+
     # Check if the analysis exists
     if analysis_id not in analysis_results:
-        return jsonify({'status': 'error', 'message': 'Analysis not found'}), 404
-    
+        return jsonify({"status": "error", "message": "Analysis not found"}), 404
+
     # Return the current status
     return jsonify(analysis_results[analysis_id])
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5003)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5003)

@@ -88,10 +88,10 @@ function handleCitationInput(inputType, inputData) {
     // Use different endpoints based on input type
     if (inputType === 'file') {
         // For file uploads, send extracted text as JSON to the enhanced validator endpoint
-        endpoint = '/casestrainer/enhanced-validator/api/analyze';
+        endpoint = apiUrl('/api/analyze');
         console.log(`Using enhanced validator endpoint for file upload: ${endpoint}`);
     } else {
-        endpoint = `${basePath}/api/analyze`;
+        endpoint = apiUrl('/api/analyze');
         console.log(`Using analyze endpoint: ${endpoint}`);
     }
 

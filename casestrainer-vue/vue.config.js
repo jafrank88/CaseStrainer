@@ -1,7 +1,7 @@
 module.exports = {
   devServer: {
     proxy: {
-      '/api': {
+      '/casestrainer/api': {
         target: 'http://localhost:5000',
         changeOrigin: true
       }

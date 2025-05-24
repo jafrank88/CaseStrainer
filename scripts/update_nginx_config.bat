@@ -1,4 +1,17 @@
 @echo off
+REM ===================================================
+REM CaseStrainer Docker Nginx Proxy Update Script
+REM ===================================================
+REM
+REM USAGE:
+REM   Run this script to update and verify the Docker Nginx proxy configuration.
+REM   Use this after making changes to Nginx or deployment configuration.
+REM   This script will:
+REM     - Stop Windows Nginx if running
+REM     - Ensure Docker is running
+REM     - Rebuild and start Docker containers
+REM     - Verify Nginx configuration and container status
+REM ===================================================
 
 :: Stop Windows Nginx if running
 taskkill /F /IM nginx.exe 2>nul

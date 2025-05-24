@@ -10,8 +10,8 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 # Configuration
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'doc'}
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"txt", "pdf", "docx", "doc"}
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -19,126 +19,141 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Dictionary to store analysis results
 analysis_results = {}
 
+
 # Helper function to check if a file has an allowed extension
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # Function to send progress updates
 def send_progress(analysis_id, data):
     print(f"Sending progress update for analysis {analysis_id}: {data}")
     if analysis_id in analysis_results:
         # Add the event to the events list
-        analysis_results[analysis_id]['events'].append(data)
-        
+        analysis_results[analysis_id]["events"].append(data)
+
         # If this is a 'complete' event, mark the analysis as completed
-        if data.get('status') == 'complete':
-            analysis_results[analysis_id]['completed'] = True
-            
+        if data.get("status") == "complete":
+            analysis_results[analysis_id]["completed"] = True
+
         # Save the event data to a file for debugging
         try:
-            with open(f'event_{analysis_id}_{data.get("status", "unknown")}_{len(analysis_results[analysis_id]["events"])}.json', 'w') as f:
+            with open(
+                f'event_{analysis_id}_{data.get("status", "unknown")}_{len(analysis_results[analysis_id]["events"])}.json',
+                "w",
+            ) as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
             print(f"Error saving event data to file: {e}")
+
 
 # Simulated analysis function
 def run_analysis(analysis_id, file_path=None):
     print(f"Starting analysis for ID: {analysis_id}")
     print(f"File path: {file_path}" if file_path else "No file path provided")
-    
+
     try:
         # Initialize the results for this analysis
         analysis_results[analysis_id] = {
-            'status': 'running',
-            'events': [],
-            'completed': False
+            "status": "running",
+            "events": [],
+            "completed": False,
         }
-        
+
         # Send initial progress event
-        send_progress(analysis_id, {
-            'status': 'started',
-            'message': 'Analysis started'
-        })
-        
+        send_progress(analysis_id, {"status": "started", "message": "Analysis started"})
+
         # Simulate file processing
         if file_path:
             # Check if file exists
             if not os.path.isfile(file_path):
-                send_progress(analysis_id, {
-                    'status': 'error',
-                    'message': f'File not found: {file_path}'
-                })
+                send_progress(
+                    analysis_id,
+                    {"status": "error", "message": f"File not found: {file_path}"},
+                )
                 return
-            
+
             # Get file size
             file_size = os.path.getsize(file_path)
-            
+
             # Send file processing event
-            send_progress(analysis_id, {
-                'status': 'progress',
-                'current': 0,
-                'total': 3,
-                'message': f'Processing file: {os.path.basename(file_path)} ({file_size} bytes)'
-            })
-            
+            send_progress(
+                analysis_id,
+                {
+                    "status": "progress",
+                    "current": 0,
+                    "total": 3,
+                    "message": f"Processing file: {os.path.basename(file_path)} ({file_size} bytes)",
+                },
+            )
+
             # Simulate reading file
             time.sleep(1)
-            
+
             # Send progress update
-            send_progress(analysis_id, {
-                'status': 'progress',
-                'current': 1,
-                'total': 3,
-                'message': 'Extracting text from file'
-            })
-            
+            send_progress(
+                analysis_id,
+                {
+                    "status": "progress",
+                    "current": 1,
+                    "total": 3,
+                    "message": "Extracting text from file",
+                },
+            )
+
             # Simulate text extraction
             time.sleep(1)
-            
+
             # Send progress update
-            send_progress(analysis_id, {
-                'status': 'progress',
-                'current': 2,
-                'total': 3,
-                'message': 'Analyzing citations'
-            })
-            
+            send_progress(
+                analysis_id,
+                {
+                    "status": "progress",
+                    "current": 2,
+                    "total": 3,
+                    "message": "Analyzing citations",
+                },
+            )
+
             # Simulate citation analysis
             time.sleep(1)
-            
+
             # Send complete event
-            send_progress(analysis_id, {
-                'status': 'complete',
-                'current': 3,
-                'total': 3,
-                'message': 'Analysis complete',
-                'results': {
-                    'file_name': os.path.basename(file_path),
-                    'file_size': file_size,
-                    'citations_found': 5,
-                    'citations_verified': 3
-                }
-            })
+            send_progress(
+                analysis_id,
+                {
+                    "status": "complete",
+                    "current": 3,
+                    "total": 3,
+                    "message": "Analysis complete",
+                    "results": {
+                        "file_name": os.path.basename(file_path),
+                        "file_size": file_size,
+                        "citations_found": 5,
+                        "citations_verified": 3,
+                    },
+                },
+            )
         else:
             # Send error event
-            send_progress(analysis_id, {
-                'status': 'error',
-                'message': 'No file provided'
-            })
-    
+            send_progress(
+                analysis_id, {"status": "error", "message": "No file provided"}
+            )
+
     except Exception as e:
         print(f"Error running analysis: {e}")
         traceback.print_exc()
-        
+
         # Send error event
-        send_progress(analysis_id, {
-            'status': 'error',
-            'message': f"Error running analysis: {str(e)}"
-        })
-        
+        send_progress(
+            analysis_id,
+            {"status": "error", "message": f"Error running analysis: {str(e)}"},
+        )
+
         # Mark the analysis as completed
         if analysis_id in analysis_results:
-            analysis_results[analysis_id]['completed'] = True
+            analysis_results[analysis_id]["completed"] = True
+
 
 # HTML template for the application
 HTML_TEMPLATE = """
@@ -451,102 +466,105 @@ HTML_TEMPLATE = """
 </html>
 """
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route('/analyze', methods=['POST'])
+
+@app.route("/analyze", methods=["POST"])
 def analyze():
     print("\n\n==== ANALYZE ENDPOINT CALLED =====")
     print(f"Request method: {request.method}")
     print(f"Request headers: {request.headers}")
     print(f"Request form data: {request.form}")
     print(f"Request files: {request.files}")
-    
+
     try:
         # Generate a unique analysis ID
         analysis_id = str(uuid.uuid4())
         print(f"Generated analysis ID: {analysis_id}")
-        
+
         # Get file path if provided
         file_path = None
-        
+
         # Check if a file was uploaded
-        if 'file' in request.files:
-            file = request.files['file']
+        if "file" in request.files:
+            file = request.files["file"]
             if file and file.filename and allowed_file(file.filename):
                 print(f"File uploaded: {file.filename}")
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
                 print(f"File saved to: {file_path}")
-        
+
         # Check if a file path was provided
-        elif 'file_path' in request.form:
-            file_path = request.form['file_path'].strip()
+        elif "file_path" in request.form:
+            file_path = request.form["file_path"].strip()
             print(f"File path provided: {file_path}")
-            
+
             # Handle file:/// URLs
-            if file_path.startswith('file:///'):
+            if file_path.startswith("file:///"):
                 file_path = file_path[8:]  # Remove 'file:///' prefix
-        
+
         # Start the analysis in a background thread
         threading.Thread(target=run_analysis, args=(analysis_id, file_path)).start()
-        
+
         # Return the analysis ID to the client
-        return jsonify({
-            'status': 'success',
-            'message': 'Analysis started',
-            'analysis_id': analysis_id
-        })
+        return jsonify(
+            {
+                "status": "success",
+                "message": "Analysis started",
+                "analysis_id": analysis_id,
+            }
+        )
     except Exception as e:
         print(f"Error in analyze endpoint: {e}")
         traceback.print_exc()
-        return jsonify({
-            'status': 'error',
-            'message': f'Error: {str(e)}'
-        }), 500
+        return jsonify({"status": "error", "message": f"Error: {str(e)}"}), 500
 
-@app.route('/stream')
+
+@app.route("/stream")
 def stream():
     """Stream events for a specific analysis."""
     print("\n\n==== STREAM ENDPOINT CALLED =====")
-    
+
     # Get the analysis ID from the query string
-    analysis_id = request.args.get('id')
+    analysis_id = request.args.get("id")
     if not analysis_id:
-        return jsonify({'status': 'error', 'message': 'No analysis ID provided'}), 400
-    
+        return jsonify({"status": "error", "message": "No analysis ID provided"}), 400
+
     # Check if the analysis exists
     if analysis_id not in analysis_results:
-        return jsonify({'status': 'error', 'message': 'Analysis not found'}), 404
-    
+        return jsonify({"status": "error", "message": "Analysis not found"}), 404
+
     def generate():
         # Send initial message
         yield f'data: {{"message": "Connected to event stream for analysis {analysis_id}"}}\n\n'
-        
+
         # Send all existing events
-        for event in analysis_results[analysis_id]['events']:
-            event_type = event.get('status', 'message')
+        for event in analysis_results[analysis_id]["events"]:
+            event_type = event.get("status", "message")
             event_data = json.dumps(event)
-            yield f'event: {event_type}\ndata: {event_data}\n\n'
-        
+            yield f"event: {event_type}\ndata: {event_data}\n\n"
+
         # If the analysis is not completed, keep the connection open
-        if not analysis_results[analysis_id]['completed']:
+        if not analysis_results[analysis_id]["completed"]:
             # Keep the connection open by sending a comment every 15 seconds
             for _ in range(60):  # Keep connection open for up to 15 minutes
                 time.sleep(15)
-                yield ': keepalive\n\n'
-                
+                yield ": keepalive\n\n"
+
                 # If the analysis has completed, break the loop
-                if analysis_results[analysis_id]['completed']:
+                if analysis_results[analysis_id]["completed"]:
                     break
-    
-    response = Response(generate(), mimetype='text/event-stream')
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Cache-Control', 'no-cache')
-    response.headers.add('Connection', 'keep-alive')
+
+    response = Response(generate(), mimetype="text/event-stream")
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Cache-Control", "no-cache")
+    response.headers.add("Connection", "keep-alive")
     return response
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5002)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5002)

@@ -4,7 +4,8 @@ import json
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     html = """
     <!DOCTYPE html>
@@ -212,33 +213,50 @@ def index():
     """
     return render_template_string(html)
 
-@app.route('/sse-stream')
+
+@app.route("/sse-stream")
 def sse_stream():
     def generate():
         # Send initial event
         yield 'event: started\ndata: {"status": "started", "total_citations": 3}\n\n'
         time.sleep(1)
-        
+
         # Send progress events
         for i in range(1, 4):
             yield f'event: progress\ndata: {{"status": "progress", "current": {i}, "total": 3, "message": "Processing citation {i} of 3"}}\n\n'
             time.sleep(1)
-        
+
         # Send result events
         citations = [
-            {"citation_text": "347 U.S. 483", "is_hallucinated": False, "confidence": 0.95, "explanation": "This is a real citation to Brown v. Board of Education."},
-            {"citation_text": "410 U.S. 113", "is_hallucinated": False, "confidence": 0.92, "explanation": "This is a real citation to Roe v. Wade."},
-            {"citation_text": "2099 WL 123456", "is_hallucinated": True, "confidence": 0.88, "explanation": "This appears to be a hallucinated citation as the year 2099 is in the future."}
+            {
+                "citation_text": "347 U.S. 483",
+                "is_hallucinated": False,
+                "confidence": 0.95,
+                "explanation": "This is a real citation to Brown v. Board of Education.",
+            },
+            {
+                "citation_text": "410 U.S. 113",
+                "is_hallucinated": False,
+                "confidence": 0.92,
+                "explanation": "This is a real citation to Roe v. Wade.",
+            },
+            {
+                "citation_text": "2099 WL 123456",
+                "is_hallucinated": True,
+                "confidence": 0.88,
+                "explanation": "This appears to be a hallucinated citation as the year 2099 is in the future.",
+            },
         ]
-        
+
         for i, citation in enumerate(citations):
             yield f'event: result\ndata: {{"status": "result", "citation_index": {i}, "result": {json.dumps(citation)}, "total": 3}}\n\n'
             time.sleep(1)
-        
+
         # Send complete event
         yield 'event: complete\ndata: {"status": "complete", "total_citations": 3, "hallucinated_count": 1, "message": "Analysis complete"}\n\n'
-    
-    return Response(generate(), mimetype='text/event-stream')
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    return Response(generate(), mimetype="text/event-stream")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5003, debug=True)

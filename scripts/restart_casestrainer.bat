@@ -1,4 +1,10 @@
 @echo off
+REM ===================================================
+REM DEPRECATED SCRIPT
+REM ===================================================
+REM This script is no longer supported.
+REM Please use start_casestrainer.bat for all startup and restart operations.
+REM ===================================================
 setlocal enabledelayedexpansion
 
 echo ===================================================
