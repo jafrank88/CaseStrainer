@@ -1,3 +1,6 @@
+# Nginx log files
+nginx-1.27.5/logs/*.log
+
 # TEMPORARY: All files visible - Original .gitignore rules are commented out below
 # To restore the original .gitignore, uncomment the sections below and remove this header
 
