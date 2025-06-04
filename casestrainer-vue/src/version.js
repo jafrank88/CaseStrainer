@@ -3,11 +3,10 @@ import axios from 'axios';
 
 export async function fetchVersion() {
   try {
-    // Adjust for deployment prefix if needed
-    const prefix = window.location.pathname.includes('/casestrainer') ? '/casestrainer' : '';
-    const response = await axios.get(`${prefix}/api/version`);
+    const response = await axios.get('/casestrainer/api/version');
     return response.data.version || 'unknown';
   } catch (error) {
+    console.error('Error fetching version:', error);
     return 'unknown';
   }
 }

@@ -1,0 +1,5 @@
+2025-05-29 13:37:00,057 - vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_133700.log
+2025-05-29 13:37:01,248 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
+2025-05-29 13:37:03,671 - citation_classifier - INFO - No existing model found
+2025-05-29 13:37:03,727 - vue_api_endpoints - INFO - Citation correction engine initialized successfully
+2025-05-29 13:37:03,729 - vue_api_endpoints - INFO - Citation correction engine initialized successfully

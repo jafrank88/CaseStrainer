@@ -14,7 +14,6 @@ import json
 import logging
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from pathlib import Path
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")

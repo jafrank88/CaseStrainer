@@ -6,13 +6,12 @@ Uses eyecite for robust citation parsing with Hyperscan when available.
 
 import os
 import re
-import json
 import logging
 from pathlib import Path
 from typing import List, Set
 import PyPDF2
 from datetime import datetime
-from eyecite import get_citations, resolve_citations
+from eyecite import get_citations
 
 # Try to import HyperscanTokenizer, fall back to default if not available
 try:

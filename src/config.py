@@ -37,15 +37,61 @@ def get_config_value(key, default=None):
 
 # General app config (use get_config_value for all relevant keys)
 SECRET_KEY: str = get_config_value("SECRET_KEY", "devkey")
-DATABASE_FILE: str = get_config_value("DATABASE_FILE", "citations.db")
+# Get the base directory (one level up from src)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Set the database file path to be in the data directory
+DATABASE_FILE: str = get_config_value(
+    "DATABASE_FILE", os.path.join(BASE_DIR, "data", "citations.db")
+)
+print(f"Database file path: {DATABASE_FILE}")  # Debug print
+
+# Feature flags
+USE_ENHANCED_VALIDATOR: bool = get_config_value("USE_ENHANCED_VALIDATOR", True)
+ENHANCED_VALIDATOR_AVAILABLE: bool = get_config_value(
+    "ENHANCED_VALIDATOR_AVAILABLE", True
+)
+ENHANCED_VALIDATOR_MODEL_PATH: str = get_config_value(
+    "ENHANCED_VALIDATOR_MODEL_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "models", "enhanced_validator"),
+)
+ML_CLASSIFIER_AVAILABLE: bool = get_config_value("ML_CLASSIFIER_AVAILABLE", True)
+ML_CLASSIFIER_MODEL_PATH: str = get_config_value(
+    "ML_CLASSIFIER_MODEL_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "models", "ml_classifier"),
+)
+CORRECTION_ENGINE_AVAILABLE: bool = get_config_value(
+    "CORRECTION_ENGINE_AVAILABLE", True
+)
+CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
+    "CORRECTION_ENGINE_MODEL_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "models", "correction_engine"),
+)
+
 UPLOAD_FOLDER: str = get_config_value("UPLOAD_FOLDER", "uploads")
 ALLOWED_EXTENSIONS = set(
     get_config_value("ALLOWED_EXTENSIONS", ["txt", "pdf", "docx", "doc"])
 )
+
+# Email configuration for UW SMTP
+MAIL_SERVER: str = get_config_value("MAIL_SERVER", "smtp.uw.edu")
+MAIL_PORT: int = int(get_config_value("MAIL_PORT", 587))
+MAIL_USE_TLS: bool = get_config_value("MAIL_USE_TLS", "True").lower() == "true"
+MAIL_USE_SSL: bool = get_config_value("MAIL_USE_SSL", "False").lower() == "true"
+MAIL_USERNAME: str = get_config_value(
+    "MAIL_USERNAME", "jafrank"
+)  # Just the NetID, not full email
+MAIL_PASSWORD: str = get_config_value("MAIL_PASSWORD", "Race4theGa!axy!")
+MAIL_DEFAULT_SENDER: str = get_config_value("MAIL_DEFAULT_SENDER", "jafrank@uw.edu")
+MAIL_RECIPIENT: str = get_config_value("MAIL_RECIPIENT", "jafrank@uw.edu")
+MAIL_DEBUG: bool = (
+    get_config_value("MAIL_DEBUG", "True").lower() == "true"
+)  # Enable debug output
 COURTLISTENER_API_URL: str = get_config_value(
     "COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/opinions/"
 )
 COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
+
+
 LANGSEARCH_API_KEY: str = get_config_value("LANGSEARCH_API_KEY", "")
 SESSION_TYPE: str = get_config_value("SESSION_TYPE", "filesystem")
 SESSION_FILE_DIR: str = get_config_value(

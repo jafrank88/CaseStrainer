@@ -4,11 +4,9 @@ Deployment script for CaseStrainer
 Copies the necessary files to the production server and restarts the application
 """
 import os
-import sys
 import subprocess
 import shutil
 import argparse
-import time
 
 # Production server details
 PRODUCTION_SERVER = "wolf.law.uw.edu"

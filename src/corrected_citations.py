@@ -6,10 +6,6 @@ in the unconfirmed citations database, ensuring they follow standard legal citat
 """
 
 import json
-import os
-import sys
-import re
-from datetime import datetime
 
 # Create a mapping of corrected citations
 CORRECTED_CITATIONS = {
@@ -101,7 +97,7 @@ def create_properly_formatted_citations():
 
         for citation in citations:
             citation_text = citation["citation_text"]
-            case_name = citation.get("case_name")
+            citation.get("case_name")
 
             # Create a copy of the citation for the corrected database
             formatted_citation = citation.copy()
@@ -179,7 +175,7 @@ def create_test_api_request():
     try:
         with open("test_api_request.json", "w") as f:
             json.dump(api_request, f, indent=2)
-        print(f"Test API request saved to test_api_request.json")
+        print("Test API request saved to test_api_request.json")
 
         # Also create a PowerShell command to test the API
         ps_command = "$headers = @{ 'Content-Type' = 'application/json' }; "
@@ -189,7 +185,7 @@ def create_test_api_request():
 
         with open("test_api.ps1", "w") as f:
             f.write(ps_command)
-        print(f"PowerShell test script saved to test_api.ps1")
+        print("PowerShell test script saved to test_api.ps1")
 
         return True
     except Exception as e:

@@ -1,0 +1,27 @@
+{
+  "total": 15,
+  "verified": 7,
+  "unverified": 8,
+  "sources": {
+    "Justia": {
+      "total": 1,
+      "verified": 1,
+      "unverified": 0
+    },
+    "FindLaw": {
+      "total": 3,
+      "verified": 3,
+      "unverified": 0
+    },
+    "Google Scholar": {
+      "total": 3,
+      "verified": 3,
+      "unverified": 0
+    },
+    "None": {
+      "total": 8,
+      "verified": 0,
+      "unverified": 8
+    }
+  }
+}

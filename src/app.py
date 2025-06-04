@@ -6,20 +6,18 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 import json
-import logging
 import datetime
-import traceback
-from flask import Flask, send_from_directory, request, jsonify, session, redirect
+from flask import Flask, send_from_directory, jsonify, redirect
 from flask_session import Session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 
 # Import blueprints and modules
-from enhanced_validator_production import (
+from .enhanced_validator_production import (
     enhanced_validator_bp as enhanced_validator_production_bp,
-    register_enhanced_validator,
+    register_enhanced_validator as register_enhanced_validator_func,
 )
-from citation_api import citation_api
+from .citation_api import citation_api
 
 # Import API blueprint if exists
 try:
@@ -42,7 +40,7 @@ try:
             "courtlistener_api_key", ""
         )
         SECRET_KEY = config.get("SECRET_KEY", "")
-except Exception as e:
+except Exception:
     DEFAULT_API_KEY = os.environ.get("COURTLISTENER_API_KEY", "")
     SECRET_KEY = os.environ.get("SECRET_KEY", "")
 
@@ -70,7 +68,13 @@ def create_app():
     if api_blueprint:
         app.register_blueprint(api_blueprint, url_prefix="/casestrainer/api")
     try:
-        register_enhanced_validator(app)
+        if register_enhanced_validator_func and callable(
+            register_enhanced_validator_func
+        ):
+            app = register_enhanced_validator_func(app)
+            print("Successfully registered enhanced validator")
+        else:
+            print("Enhanced validator function is not callable")
     except Exception as e:
         print(f"Enhanced validator registration failed: {e}")
 
@@ -94,7 +98,7 @@ def create_app():
             response.headers["Pragma"] = "no-cache"
             response.headers["Expires"] = "-1"
             response.headers["Last-Modified"] = (
-                f"{datetime.datetime.now().strftime('%a, %d %b %Y %H:%M:%S GMT')}"
+                f"{datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S')} GMT"
             )
             return response
         else:

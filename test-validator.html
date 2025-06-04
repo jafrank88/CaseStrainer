@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Citation Validator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Test Citation Validator</h1>
+        <div class="mb-3">
+            <label for="citationInput" class="form-label">Enter Citation:</label>
+            <input type="text" class="form-control" id="citationInput" value="534 F.3d 1290">
+        </div>
+        <button id="testButton" class="btn btn-primary">Test Validation</button>
+        
+        <div id="result" class="mt-4">
+            <h3>Results:</h3>
+            <pre id="resultOutput" class="bg-light p-3 border rounded">Results will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', async () => {
+            const citation = document.getElementById('citationInput').value.trim();
+            const resultOutput = document.getElementById('resultOutput');
+            
+            if (!citation) {
+                resultOutput.textContent = 'Please enter a citation to validate';
+                return;
+            }
+
+            resultOutput.textContent = 'Validating...';
+            
+            try {
+                const response = await fetch('http://localhost:5000/casestrainer/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: citation })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                resultOutput.textContent = JSON.stringify(data, null, 2);
+                
+                // Extract and display key information
+                if (data.validation_results && data.validation_results.length > 0) {
+                    const validation = data.validation_results[0].validation;
+                    const caseName = validation.case_name || 'Not available';
+                    const citationText = data.citations[0].citation_text || citation;
+                    const verified = validation.verified ? '✅ Verified' : '❌ Not Verified';
+                    const validationMethod = validation.validation_method || 'Unknown';
+                    const confidence = validation.confidence || 'Not specified';
+                    
+                    const formattedResult = `
+Citation: ${citationText}
+Case Name: ${caseName}
+Status: ${verified}
+Method: ${validationMethod}
+Confidence: ${confidence}
+
+Additional Details:
+- Court: ${validation.details?.court || 'Not specified'}
+- Date Filed: ${validation.details?.date_filed || 'Not specified'}
+- Docket Number: ${validation.details?.docket_number || 'Not specified'}
+- Parallel Citations: ${validation.parallel_citations?.join(', ') || 'None'}
+
+Full Response:
+${JSON.stringify(data, null, 2)}
+                    `;
+                    
+                    resultOutput.textContent = formattedResult;
+                }
+            } catch (error) {
+                resultOutput.textContent = `Error: ${error.message}\n\nMake sure the backend server is running on port 5000.`;
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

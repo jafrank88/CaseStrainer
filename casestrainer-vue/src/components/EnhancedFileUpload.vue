@@ -28,14 +28,7 @@
     
     <!-- Analysis Results -->
     <div v-if="documentAnalysisResult" class="mt-4">
-      <ReusableResults :results="documentAnalysisResult" />
-      <!-- Summary Bar -->
-<div class="alert alert-info mb-4">
-  <h5 class="mb-0">
-    <i class="fas fa-search me-2"></i>
-    Found {{ confirmedCount + unconfirmedCount }} Citations
-  </h5>
-</div>
+      <ResultsViewer :results="documentAnalysisResult" />
 <!-- Tabs Navigation -->
 <ul class="nav nav-tabs mb-3" id="citationTabs" role="tablist">
   <li class="nav-item" role="presentation">
@@ -63,7 +56,7 @@
         </thead>
         <tbody>
           <tr v-for="(result, index) in (documentAnalysisResult.validation_results || []).filter(r => r.verified)" :key="index">
-            <td>{{ result.citation }}</td>
+            <td v-html="result.citation.replace(/</g, '&lt;').replace(/>/g, '&gt;')"></td>
             <td>
               <span class="badge bg-success">Verified</span>
             </td>
@@ -92,7 +85,7 @@
         </thead>
         <tbody>
           <tr v-for="(result, index) in (documentAnalysisResult.validation_results || []).filter(r => !r.verified)" :key="index">
-            <td>{{ result.citation }}</td>
+            <td v-html="result.citation.replace(/</g, '&lt;').replace(/>/g, '&gt;')"></td>
             <td>
               <span class="badge bg-danger">Not Verified</span>
             </td>
@@ -115,15 +108,15 @@
 
 <script>
 import axios from 'axios';
-
+import { formatCitation } from '@/utils/citationFormatter';
 import ProgressBar from './ProgressBar.vue';
-import ReusableResults from './ReusableResults.vue';
+import ResultsViewer from './ResultsViewer.vue';
 
 export default {
   name: 'EnhancedFileUpload',
   components: {
     ProgressBar,
-    ReusableResults
+    ResultsViewer
   },
   data() {
     return {
@@ -158,6 +151,7 @@ export default {
     }
   },
   methods: {
+    formatCitation,
     handleFileChange(event) {
       this.file = event.target.files[0];
       this.documentAnalysisResult = null;

@@ -1,0 +1,90 @@
+[
+  {
+    "id": 8,
+    "citation": "000 Wash.2d 864",
+    "case_name": "Nowhere v. Nothing",
+    "confidence": 0.33,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 000 does not exist.",
+    "source": "None",
+    "source_document": "State v. Allen - Brief of Appellant",
+    "context": "The court in Nowhere v. Nothing (000 Wash.2d 864) held that the defendant's rights were violated.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 9,
+    "citation": "999 Wash.2d 123",
+    "case_name": "State v. Fictional",
+    "confidence": 0.28,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 999 does not exist.",
+    "source": "None",
+    "source_document": "State v. Dennis - Answer to Petition",
+    "context": "We find State v. Fictional (999 Wash.2d 123) to be distinguishable from the present case.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 10,
+    "citation": "444 Wash.2d 987",
+    "case_name": "Fake v. Unreal",
+    "confidence": 0.16,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 444 does not exist.",
+    "source": "None",
+    "source_document": "State v. Prado - Petition for Review",
+    "context": "The concurrence in Fake v. Unreal (444 Wash.2d 987) offers additional insights.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 11,
+    "citation": "777 Wash.2d 789",
+    "case_name": "Doe v. Nonexistent",
+    "confidence": 0.2,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 777 does not exist.",
+    "source": "None",
+    "source_document": "State v. Arlene's Flowers - Brief of Respondent",
+    "context": "The plaintiff relies on Doe v. Nonexistent (777 Wash.2d 789) to support their argument.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 12,
+    "citation": "555 Wash.2d 654",
+    "case_name": "In re Estate of Nobody",
+    "confidence": 0.12,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 555 does not exist.",
+    "source": "None",
+    "source_document": "State v. Johnson - Appellant's Opening Brief",
+    "context": "The plaintiff relies on In re Estate of Nobody (555 Wash.2d 654) to support their argument.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 13,
+    "citation": "888 Wash.2d 456",
+    "case_name": "Smith v. Imaginary Corp",
+    "confidence": 0.2,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 888 does not exist.",
+    "source": "None",
+    "source_document": "State v. Prado - Petition for Review",
+    "context": "We find Smith v. Imaginary Corp (888 Wash.2d 456) to be distinguishable from the present case.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 14,
+    "citation": "666 Wash.2d 321",
+    "case_name": "Washington v. Made Up",
+    "confidence": 0.16,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 666 does not exist.",
+    "source": "None",
+    "source_document": "State v. Prado - Petition for Review",
+    "context": "The defendant cites Washington v. Made Up (666 Wash.2d 321) as controlling authority.",
+    "verification_date": "2025-05-08 20:29:34"
+  },
+  {
+    "id": 15,
+    "citation": "333 Wash.2d 246",
+    "case_name": "Imaginary v. Pretend",
+    "confidence": 0.19,
+    "explanation": "Citation not found in any legal database. The Washington Reports volume 333 does not exist.",
+    "source": "None",
+    "source_document": "State v. Yishmael - Amicus Brief",
+    "context": "The court's decision in Imaginary v. Pretend (333 Wash.2d 246) represents a significant departure from prior precedent.",
+    "verification_date": "2025-05-08 20:29:34"
+  }
+]

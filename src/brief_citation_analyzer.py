@@ -13,13 +13,12 @@ import requests
 import traceback
 import time
 import random
-from datetime import datetime
 import re
 
-# Import functions from app_final.py
+# Import functions from app_final_vue.py
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from file_utils import extract_text_from_file
-from app_final import extract_citations, query_courtlistener_api
+from app_final_vue import extract_citations, query_courtlistener_api
 
 # Constants
 OUTPUT_FILE = "unverified_citations_with_context.json"

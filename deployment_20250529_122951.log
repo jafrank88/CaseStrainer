@@ -1,0 +1,8 @@
+[2025-05-29 12:29:51] [INFO] === Starting CaseStrainer Deployment ===
+[2025-05-29 12:29:51] [INFO] Project Root: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
+[2025-05-29 12:29:51] [INFO] Log File: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_122951.log
+[2025-05-29 12:29:51] [INFO] === Running Linting and Formatting ===
+[2025-05-29 12:29:51] [INFO] Running Black formatter...
+[2025-05-29 12:29:51] [INFO] Executing: black .
+[2025-05-29 12:29:51] [ERROR] Black formatting failed: The term 'black' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+[2025-05-29 12:29:51] [ERROR] Fatal error encountered. Exiting...

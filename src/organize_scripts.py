@@ -102,7 +102,7 @@ if other_scripts:
 print(
     f"\nOrganization complete. Moved {moved_count} deprecated scripts to the deprecated_scripts directory."
 )
-print(f"Essential scripts remain in the main directory.")
+print("Essential scripts remain in the main directory.")
 
 # Create a README file in the deprecated_scripts directory
 readme_content = """# Deprecated Scripts
@@ -130,4 +130,4 @@ Last updated: {}
 with open(deprecated_dir / "README.md", "w") as f:
     f.write(readme_content)
 
-print(f"Created README.md in the deprecated_scripts directory.")
+print("Created README.md in the deprecated_scripts directory.")

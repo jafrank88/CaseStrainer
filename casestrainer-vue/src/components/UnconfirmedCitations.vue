@@ -1,124 +1,19 @@
 <template>
   <div class="unconfirmed-citations">
-    <div class="card">
-      <div class="card-header bg-danger text-white">
-        <h5>Unconfirmed Citations</h5>
-        <p class="mb-0">These citations could not be verified in any of our sources</p>
+    <div v-if="loading" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <div class="card-body">
-        <div v-if="loading" class="text-center py-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-2">Loading citations...</p>
-        </div>
-        
-        <div v-else-if="error" class="alert alert-danger">
-          <h5>Error</h5>
-          <p>{{ error }}</p>
-        </div>
-        
-        <div v-else-if="citations.length === 0" class="alert alert-info">
-          <p>No unconfirmed citations found.</p>
-        </div>
-        
-        <div v-else>
-          <div class="mb-3">
-            <input 
-              type="text" 
-              class="form-control" 
-              placeholder="Search citations..." 
-              v-model="searchQuery"
-            >
-          </div>
-          
-          <div class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Possible Case Name</th>
-                  <th>Details</th>
-                  <th>Confidence</th>
-                  <th>Explanation</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in filteredCitations" :key="index">
-                  <td>{{ citation.citation_text }}</td>
-                  <td>{{ citation.case_name || 'Unknown' }}</td>
-                  <td>
-                    <span v-if="citation.volume || citation.reporter || citation.page">
-                      <strong>Vol:</strong> {{ citation.volume || 'N/A' }}
-                      <strong>Rep:</strong> {{ citation.reporter || 'N/A' }}
-                      <strong>Pg:</strong> {{ citation.page || 'N/A' }}
-                      <br>
-                    </span>
-                    <span v-if="citation.court || citation.year">
-                      <strong>Court:</strong> {{ citation.court || 'N/A' }}
-                      <strong>Year:</strong> {{ citation.year || 'N/A' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="progress">
-                      <div 
-                        class="progress-bar bg-danger" 
-                        role="progressbar" 
-                        :style="{ width: (citation.confidence * 100) + '%' }" 
-                        :aria-valuenow="citation.confidence * 100" 
-                        aria-valuemin="0" 
-                        aria-valuemax="100"
-                      >
-                        {{ Math.round(citation.confidence * 100) }}%
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="text-truncate d-inline-block" style="max-width: 200px;">
-                      {{ citation.explanation || 'No explanation available' }}
-                    </span>
-                  </td>
-                  <td>
-                    <NotCitationFeedback :citation="citation.citation_text" />
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary" 
-                      @click="reprocessCitation(citation)"
-                      :disabled="reprocessing === citation.citation_text"
-                    >
-                      <span v-if="reprocessing === citation.citation_text" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      Reprocess
-                    </button>
-                    <a 
-                      v-if="citation.file_link" 
-                      :href="citation.file_link" 
-                      target="_blank" 
-                      class="btn btn-sm btn-outline-secondary ms-1"
-                    >
-                      Source File
-                    </a>
-                    <button 
-                      v-if="citation.context" 
-                      class="btn btn-sm btn-outline-info ms-1" 
-                      @click="showContext(citation)"
-                    >
-                      Context
-                    </button>
-                    <button 
-                      class="btn btn-sm btn-outline-success ms-1" 
-                      @click="showSuggestions(citation)"
-                    >
-                      Suggestions
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <p class="mt-2">Loading unconfirmed citations...</p>
+    </div>
+    
+    <div v-else-if="error" class="alert alert-danger">
+      <h5>Error</h5>
+      <p>{{ error }}</p>
+    </div>
+    
+    <div v-else>
+      <ResultsViewer :results="transformedResults" />
     </div>
     
     <!-- Context Modal -->
@@ -131,7 +26,7 @@
           </div>
           <div class="modal-body">
             <div v-if="selectedCitation">
-              <h6>Citation: {{ selectedCitation.citation_text }}</h6>
+              <h6>Citation: <span v-html="formatCitation(selectedCitation.citation_text)"></span></h6>
               
               <div class="citation-details mb-3" v-if="selectedCitation.volume || selectedCitation.reporter || selectedCitation.page || selectedCitation.court || selectedCitation.year">
                 <h6>Citation Details:</h6>
@@ -157,13 +52,16 @@
               </div>
               
               <h6>Citation Context:</h6>
-              <p class="context-text">{{ selectedCitation.context }}</p>
+              <p class="context-text">{{ selectedCitation.context || 'No context available' }}</p>
               
               <div v-if="selectedCitation.file_link" class="mt-3">
                 <a :href="selectedCitation.file_link" target="_blank" class="btn btn-outline-primary">
                   <i class="bi bi-file-earmark-text"></i> View Source Document
                 </a>
               </div>
+            </div>
+            <div v-else>
+              <p>No citation selected or citation data is not available.</p>
             </div>
           </div>
           <div class="modal-footer">
@@ -209,7 +107,7 @@
                   @click.prevent="applySuggestion(suggestion)"
                 >
                   <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">{{ suggestion.corrected_citation }}</h6>
+                    <h6 class="mb-1" v-html="formatCitation(suggestion.corrected_citation)"></h6>
                     <small class="text-success">{{ Math.round(suggestion.confidence * 100) }}% match</small>
                   </div>
                   <p class="mb-1">{{ suggestion.explanation }}</p>
@@ -232,7 +130,9 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import { formatCitation } from '@/utils/citationFormatter';
 import NotCitationFeedback from './NotCitationFeedback.vue';
+import ResultsViewer from './ResultsViewer.vue';
 
 export default {
   name: 'UnconfirmedCitations',
@@ -241,33 +141,45 @@ export default {
       citations: [],
       loading: true,
       error: null,
-      searchQuery: '',
-      selectedCitation: null,
+      currentContext: null,
       contextModal: null,
-      suggestionsModal: null,
+      reprocessing: null,
       suggestions: [],
-      loadingSuggestions: false,
-      suggestionError: null,
-      reprocessing: null
+      selectedCitation: null,
+      suggestionsModal: null
     };
   },
   computed: {
-    filteredCitations() {
-      if (!this.searchQuery) {
-        return this.citations;
-      }
-      
-      const query = this.searchQuery.toLowerCase();
-      return this.citations.filter(citation => 
-        citation.citation_text.toLowerCase().includes(query) || 
-        (citation.case_name && citation.case_name.toLowerCase().includes(query))
-      );
+    transformedResults() {
+      return {
+        validation_results: this.citations.map(citation => ({
+          citation: citation.citation_text,
+          case_name: citation.case_name || 'Unknown',
+          verified: false,
+          validation_method: 'Unverified',
+          metadata: {
+            explanation: citation.explanation || 'Could not be verified in any source',
+            source: citation.source,
+            volume: citation.volume,
+            reporter: citation.reporter,
+            page: citation.page,
+            court: citation.court,
+            year: citation.year,
+            confidence: citation.confidence ? Math.round(citation.confidence * 100) + '%' : 'N/A',
+            url: citation.url
+          }
+        })),
+        unconfirmedCount: this.citations.length,
+        totalCitations: this.citations.length
+      };
     }
   },
   components: {
-    NotCitationFeedback
+    NotCitationFeedback,
+    ResultsViewer
   },
   methods: {
+    formatCitation,
     async fetchCitations() {
       this.loading = true;
       this.error = null;
@@ -332,10 +244,16 @@ export default {
       this.suggestionsModal.show();
       
       try {
-        const response = await axios.post('/api/correction-suggestions', {
+        const response = await axios.post('/casestrainer/api/suggest-citation-corrections', {
           citation: citation.citation_text
         });
-        this.suggestions = response.data.suggestions;
+        
+        // Check if there's a warning about the correction engine not being available
+        if (response.data.warning) {
+          this.suggestionError = response.data.warning;
+        }
+        
+        this.suggestions = response.data.suggestions || [];
       } catch (error) {
         console.error('Error fetching correction suggestions:', error);
         this.suggestionError = error.response?.data?.error || 'An error occurred while fetching suggestions';

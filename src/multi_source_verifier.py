@@ -8,22 +8,18 @@ hallucinations, and typographical errors.
 
 import os
 import re
-import json
 import requests
 import urllib.parse
 import traceback
 from bs4 import BeautifulSoup
-from datetime import datetime
-import time
-import random
 
-# Import functions from app_final.py if available
+# Import functions from app_final_vue.py if available
 try:
-    from app_final import is_landmark_case, normalize_citation, check_name_match
+    from app_final_vue import is_landmark_case, normalize_citation, check_name_match
 
-    print("Successfully imported functions from app_final.py")
+    print("Successfully imported functions from app_final_vue.py")
 except ImportError:
-    print("Warning: Could not import functions from app_final.py")
+    print("Warning: Could not import functions from app_final_vue.py")
 
     # Define fallback functions
     def normalize_citation(citation_text):
@@ -62,7 +58,7 @@ except ImportError:
 # Dictionary of verification sources
 VERIFICATION_SOURCES = {
     "courtlistener": {
-        "base_url": "https://www.courtlistener.com/api/rest/v3/search/",
+        "base_url": "https://www.courtlistener.com/api/rest/v4/search/",
         "requires_api_key": True,
     },
     "google_scholar": {

@@ -59,7 +59,7 @@
                   </thead>
                   <tbody>
                     <tr v-for="(result, index) in results.validation_results" :key="'citation-'+index">
-                      <td>{{ result.citation }}</td>
+                      <td v-html="result.citation ? formatCitation(result.citation) : '&nbsp;'"></td>
                       <td>
                         <span v-if="result.metadata && result.metadata.explanation">
                           <i class="fas fa-exclamation-triangle text-warning me-1"></i>
@@ -128,6 +128,8 @@
 </template>
 
 <script>
+import { formatCitation } from '@/utils/citationFormatter';
+
 export default {
   name: 'ReusableResults',
   props: {
@@ -148,6 +150,7 @@ export default {
     }
   },
   methods: {
+    formatCitation,
     getBadgeClass(method) {
       if (!method) return 'bg-secondary';
       const map = {

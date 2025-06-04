@@ -5,9 +5,6 @@ This script extracts unverified citations from the main CaseStrainer database
 and adds them to the Unconfirmed Citations Database tab for verification.
 """
 
-import os
-import sys
-import json
 import sqlite3
 from datetime import datetime
 

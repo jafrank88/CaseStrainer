@@ -1,0 +1,715 @@
+Citation Analysis Summary
+=======================
+
+Total briefs processed: 5
+Total citations found: 256
+Citations validated by CourtListener API: 0
+Citations not verified: 61
+
+Percentages:
+CourtListener API validated: 0.0%
+Not verified: 23.8%
+
+Unverified Citations Summary:
+===========================
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 240 U.S. 214
+Error: Not found in CourtListener API
+Context: regarding the gov-
+ernment’s total liability on a claim.  See Illinois Sur. Co. 
+v. United States , 240 U.S. 214, 219 (1916).   The Barring  
+Act specifies which officials are authori zed to settle the 
+accounts 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 73 Comp. Gen. 157
+Error: Not found in CourtListener API
+Context: ............... ...................  17 
+TABLE  OF  AUTHORITIES  
+Cases:   
+Joseph M. Ford, In re , 73 Comp. Gen. 157  (1994)  ................  3 
+Hernandez v. Department of the Air Force ,  
+498 F.3d 1328 (Fed. Cir.
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 498 F.3d 1328
+Error: Not found in CourtListener API
+Context: n re , 73 Comp. Gen. 157  (1994)  ................  3 
+Hernandez v. Department of the Air Force ,  
+498 F.3d 1328 (Fed. Cir. 2007)  ................................ ...........  14 
+Illinois Sur. Co. v. United Sta
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 240 U.S. 214
+Error: Not found in CourtListener API
+Context: ir. 2007)  ................................ ...........  14 
+Illinois Sur. Co. v. United States ,  
+240 U.S. 214 (1916) ................................ ....................  2, 12, 13  
+Lee v. Department of Just
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 99 M.S.P.R. 256
+Error: Not found in CourtListener API
+Context: ................................ ....................  2, 12, 13  
+Lee v. Department of Justice ,  
+99 M.S.P.R. 256 (2005)  ................................ .................  13, 14  
+Statutes, regulations, and rul
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 92 F.4th 1094
+Error: Not found in CourtListener API
+Context: TION  
+ 
+ 
+OPINIONS BELOW  
+The opinion of the court of appeals (Pet. App. 1a -19a) 
+is reported at 92 F.4th 1094 .  The order  of the district 
+court (Pet. App. 32a -37a) i s available at 2021 WL 
+7286022 .  A pr
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 240 U.S. 214
+Error: Not found in CourtListener API
+Context: ions, including any 
+applicable adjustments and offsets.  See Illinois Sur. 
+Co. v. United States , 240 U.S. 214, 219 ( 1916).  As origi-
+nally enacted, the settlement authority conferred by  the 
+Barring Act “wa
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 73 Comp. Gen. 157
+Error: Not found in CourtListener API
+Context: applicable to claims filed in administrative agencies a nd 
+the courts .’ ”  In re Joseph M. Ford , 73 Comp. Gen. 157, 
+161 (1994) (quoting S. Rep. No. 1314, 93d Cong., 2d 
+Sess. 5 -6 (1974) ) (brackets in original ).
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 240 U.S. 214
+Error: Not found in CourtListener API
+Context: th 
+this Court’s understanding  of the term “settlement” in 
+Illinois Surety Co. v. United States , 240 U.S. 214 ( 1916).  
+See id. at 219 (defining  “settlement” to mean “adminis-
+trative determination of the am
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 99 M.S.P.R. 256
+Error: Not found in CourtListener API
+Context: on  the decision of 
+the Merit System s Protection Board (MSPB)  in Lee v. 
+Department of Justice , 99 M.S.P.R. 256 (2005) , in which 
+the MSPB held that it has authority to order back pay 
+as compensation  for viol
+
+--------------------------------------------------------------------------------
+
+Brief: 1389196_Soto_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389196_Soto_v__United_States/
+Citation: 498 F.3d 1328
+Error: Not found in CourtListener API
+Context: .S.P.R.  at 265 ; see id. at 265 -
+266, 268 ; see also Hernandez v. Department of  the Air 
+Force , 498 F.3d 1328, 1331 & n.1 (Fed. Cir. 2007) ( stat-
+ing that USERRA claims are “governed exclusively” by 
+USERRA ’
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 528 U.S. 950
+Error: Not found in CourtListener API
+Context: ................ ...................  14 
+TABLE OF AUTHORITIES  
+Cases:   
+Bach  v. United States , 528 U.S. 950 (1999)  ...........................  8 
+Beazell  v. Ohio , 269 U.S. 167 (1925) ....................
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 269 U.S. 167
+Error: Not found in CourtListener API
+Context:   
+Bach  v. United States , 528 U.S. 950 (1999)  ...........................  8 
+Beazell  v. Ohio , 269 U.S. 167 (1925) ................................ ....... 9 
+Calder  v. Bull , 3 U.S. (3 Dall.) 386 (1798)  .
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 3 U.S. (3 Dall.) 386
+Error: Not found in CourtListener API
+Context: eazell  v. Ohio , 269 U.S. 167 (1925) ................................ ....... 9 
+Calder  v. Bull , 3 U.S. (3 Dall.) 386 (1798)  .............................  9 
+California Dep’t of Corr.  v. Morales , 
+514 U.S. 499 (19
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 514 U.S. 499
+Error: Not found in CourtListener API
+Context: S. (3 Dall.) 386 (1798)  .............................  9 
+California Dep’t of Corr.  v. Morales , 
+514 U.S. 499 (1995) ................................ ................................  7 
+Collin s v. Youngblood
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 497 U.S. 37
+Error: Not found in CourtListener API
+Context: 995) ................................ ................................  7 
+Collin s v. Youngblood , 497 U.S. 37 (1990)  ........................  7, 9 
+Falter  v. United States , 23 F.2d 420 (2d Cir.),  
+cert. d
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 23 F.2d 420
+Error: Not found in CourtListener API
+Context: in s v. Youngblood , 497 U.S. 37 (1990)  ........................  7, 9 
+Falter  v. United States , 23 F.2d 420 (2d Cir.),  
+cert. denied, 277 U.S. 590 (1928)  ................................ ....... 11 
+Hudson
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 277 U.S. 590
+Error: Not found in CourtListener API
+Context:   ........................  7, 9 
+Falter  v. United States , 23 F.2d 420 (2d Cir.),  
+cert. denied, 277 U.S. 590 (1928)  ................................ ....... 11 
+Hudson  v. United States , 522 U.S. 93 (1997) 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 522 U.S. 93
+Error: Not found in CourtListener API
+Context: enied, 277 U.S. 590 (1928)  ................................ ....... 11 
+Hudson  v. United States , 522 U.S. 93 (1997)  ........................  6 
+Kansas v. Hendricks , 521 U.S. 346 (1997)  ...................
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 521 U.S. 346
+Error: Not found in CourtListener API
+Context:  
+Hudson  v. United States , 522 U.S. 93 (1997)  ........................  6 
+Kansas v. Hendricks , 521 U.S. 346 (1997)  ..........................  12 
+Paroline  v. United States , 572 U.S. 434 (2014)  .........
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 572 U.S. 434
+Error: Not found in CourtListener API
+Context: as v. Hendricks , 521 U.S. 346 (1997)  ..........................  12 
+Paroline  v. United States , 572 U.S. 434 (2014)  ................  5, 6 
+Pasquantino  v. United States , 544 U.S. 349 (2005)  ............. 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 544 U.S. 349
+Error: Not found in CourtListener API
+Context: ne  v. United States , 572 U.S. 434 (2014)  ................  5, 6 
+Pasquantino  v. United States , 544 U.S. 349 (2005)  .............  5 
+Peugh v. United States , 569 U.S. 530 (2013)  .........................  
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 569 U.S. 530
+Error: Not found in CourtListener API
+Context:  6 
+Pasquantino  v. United States , 544 U.S. 349 (2005)  .............  5 
+Peugh v. United States , 569 U.S. 530 (2013)  .........................  9 
+Roberts  v. United  States , 531 U.S. 1128 (2001)  ..........
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 531 U.S. 1128
+Error: Not found in CourtListener API
+Context:  v. United States , 569 U.S. 530 (2013)  .........................  9 
+Roberts  v. United  States , 531 U.S. 1128 (2001)  ....................  8 
+Smith  v. United States , 528 U.S. 987 (1999)  ...................
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 528 U.S. 987
+Error: Not found in CourtListener API
+Context: berts  v. United  States , 531 U.S. 1128 (2001)  ....................  8 
+Smith  v. United States , 528 U.S. 987 (1999)  .........................  8 
+Stoecker  v. United  States , 531 U.S. 1127 (2001)  .........
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 531 U.S. 1127
+Error: Not found in CourtListener API
+Context: v. United States , 528 U.S. 987 (1999)  .........................  8 
+Stoecker  v. United  States , 531 U.S. 1127 (2001)  ...................  8 
+Stogner  v. California , 539 U.S. 607 (2003)  .....................
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 539 U.S. 607
+Error: Not found in CourtListener API
+Context: toecker  v. United  States , 531 U.S. 1127 (2001)  ...................  8 
+Stogner  v. California , 539 U.S. 607 (2003)  ..........................  10 
+Supervisors  v. Stanley , 105 U.S. 305 (1882)  ............
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 105 U.S. 305
+Error: Not found in CourtListener API
+Context: ner  v. California , 539 U.S. 607 (2003)  ..........................  10 
+Supervisors  v. Stanley , 105 U.S. 305 (1882)  .......................  11 
+United States  v. Anthony , 25 F.4th 792  
+(10th Cir. 2022)  .
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 25 F.4th 792
+Error: Not found in CourtListener API
+Context: rvisors  v. Stanley , 105 U.S. 305 (1882)  .......................  11 
+United States  v. Anthony , 25 F.4th 792  
+(10th Cir. 2022)  ................................ ................................ ...... 8 
+Uni
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 125 F.3d 1319
+Error: Not found in CourtListener API
+Context: ............................ ................................ ...... 8 
+United States  v. Baggett , 125 F.3d 1319  
+(9th Cir. 1997)  ................................ ................................ ........  7 
+I
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 852 F.3d 1164
+Error: Not found in CourtListener API
+Context: ......................... ........  7 
+IV 
+ Cases —Continued:  Page  
+United States  v. Blackwell , 852 F.3d 1164  
+(9th Cir. 2017)  ................................ ................................ .. 9, 10  
+Uni
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 418 F.3d 900
+Error: Not found in CourtListener API
+Context: ........................... ................................ .. 9, 10  
+United States  v. Carruth , 418 F.3d 900  
+(8th Cir. 2005)  ................................ ................................ ........  5 
+U
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 162 F.3d 87
+Error: Not found in CourtListener API
+Context: .......................... ................................ ........  5 
+United States v. Edwards , 162 F.3d 87  
+(3d. Cir. 1998)  ................................ ................................ ........  7 
+U
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 144 F.3d 531
+Error: Not found in CourtListener API
+Context: ............................. ................................ ...... 9 
+United States  v. Newman , 144 F.3d 531  
+(7th Cir. 1998)  ................................ ................................ ........  8 
+U
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 169 F.3d 1255
+Error: Not found in CourtListener API
+Context: ......................... ................................ ........  8 
+United States  v. Nichols , 169 F.3d 1255  
+(10th Cir.), cert. denied, 528 U.S. 934 (1999)  .....................  8 
+United States  v. Norwo
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 528 U.S. 934
+Error: Not found in CourtListener API
+Context: ............... ........  8 
+United States  v. Nichols , 169 F.3d 1255  
+(10th Cir.), cert. denied, 528 U.S. 934 (1999)  .....................  8 
+United States  v. Norwood , 49 F.4th 189  
+(3d Cir. 2022)  ......
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 49 F.4th 189
+Error: Not found in CourtListener API
+Context: 0th Cir.), cert. denied, 528 U.S. 934 (1999)  .....................  8 
+United States  v. Norwood , 49 F.4th 189  
+(3d Cir. 2022)  ................................ ................................ ... 9, 11  
+Uni
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 204 F.3d 177
+Error: Not found in CourtListener API
+Context: ......................... ................................ ... 9, 11  
+United States  v. Richards , 204 F.3d 177 (5th Cir.), 
+cert. denied, 531 U.S. 826 (2000) , overruled on 
+other grounds by United States v. Co
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 531 U.S. 826
+Error: Not found in CourtListener API
+Context: .................. ... 9, 11  
+United States  v. Richards , 204 F.3d 177 (5th Cir.), 
+cert. denied, 531 U.S. 826 (2000) , overruled on 
+other grounds by United States v. Cotton ,  
+535 U.S. 625 (2002) ...........
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 535 U.S. 625
+Error: Not found in CourtListener API
+Context: .), 
+cert. denied, 531 U.S. 826 (2000) , overruled on 
+other grounds by United States v. Cotton ,  
+535 U.S. 625 (2002) ................................ ................................  7 
+United States  v. Rose
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 264 F.3d 656
+Error: Not found in CourtListener API
+Context: ............................ ................................ ...... 9 
+United States  v. Schulte , 264 F.3d 656  
+(6th Cir. 2001)  ................................ ................................ ........  7 
+U
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 153 F.3d 1256
+Error: Not found in CourtListener API
+Context: .......................... ................................ ........  7 
+United States  v. Siegel , 153 F.3d 1256  
+(11th Cir. 1998)  ................................ ................................ ...... 8 
+Uni
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 799 F.3d 1203
+Error: Not found in CourtListener API
+Context: ........................ ................................ ...... 8 
+United States  v. Thunderhawk , 799 F.3d 1203  
+(8th Cir. 2015)  ................................ ................................ ........  5 
+U
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 109 F.4th 91
+Error: Not found in CourtListener API
+Context: ........................ ................................ ........  5 
+United States  v. Weinlein , 109 F.4th 91  
+(2d Cir. 2024), petition for cert. pending,  
+No. 24 -458 (filed Oct. 21, 2024)  ................
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 128 F.3d 1239
+Error: Not found in CourtListener API
+Context:  (filed Oct. 21, 2024)  ................................ ....... 9-11 
+United States  v. Williams , 128 F.3d 1239  
+(8th Cir. 1997)  ................................ ................................ ........  5 
+W
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 450 U.S. 24
+Error: Not found in CourtListener API
+Context:  ................................ ................................ ........  5 
+Weaver  v. Graham , 450 U.S. 24 (1981)  ..............................  4, 7 
+ 
+ 
+V 
+ Constitution and statutes:  Page  
+U.S. Const
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 113 F.4th 839
+Error: Not found in CourtListener API
+Context: OSITION  
+ 
+OPINIONS BELOW  
+The opinion of the court of appeals (Pet. App. 2a -9a) 
+is reported at 113 F.4th 839.  The order of the district 
+court (Pet. App. 12a -16a) is unreported.  
+JURISDICTION  
+The judgmen
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 450 U.S. 24
+Error: Not found in CourtListener API
+Context: se or the 
+ultimate facts necessary to establish guilt. ”  Id. at 15a 
+(quoting Weaver  v. Graham , 450 U.S. 24, 29 n.12 (1981)).  
+The court agreed with “the great majority of the federal 
+circuit courts  that 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 418 F.3d 900
+Error: Not found in CourtListener API
+Context: ngs for reasons of econ-
+omy and practicality. ’ ”  Id. at 5a (quoting United States  
+v. Carruth , 418 F.3d 900, 904 ( 8th Cir. 2005)).   
+The court of appeals  suggested  that two subsequent 
+decisions of this 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 572 U.S. 434
+Error: Not found in CourtListener API
+Context: ing that MVRA restitution is a civil remedy .  Pet. 
+App. 5a  (citing  Paroline  v. United States , 572 U.S. 434 
+(2014) ; Pasquantino  v. United States , 544 U.S. 349 
+(2005)).  The Eighth Circuit , however, had
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 544 U.S. 349
+Error: Not found in CourtListener API
+Context: p. 5a  (citing  Paroline  v. United States , 572 U.S. 434 
+(2014) ; Pasquantino  v. United States , 544 U.S. 349 
+(2005)).  The Eighth Circuit , however, had previously “de-
+clined” to overrule its precedent in l
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 799 F.3d 1203
+Error: Not found in CourtListener API
+Context: at Carruth  “remain [s] bind-
+ing precedent.”  Id. at 6a  (citing United States  v. Thun-
+derhawk , 799 F.3d 1203, 1209 (8th Cir. 2015)).  Because  
+those decisions “remain the binding  precedent in the 
+Eighth Ci
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 128 F.3d 1239
+Error: Not found in CourtListener API
+Context: by “increasing the 
+punishment for the crime. ”  Pet. App. 4a (quoting 
+United States v. Williams , 128 F.3d 1239,  1241 (8th Cir. 
+1997 )). 
+6 
+ b.  In a concurring opinion, Judge Melloy, joined by 
+Judge Kelly, 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 522 U.S. 93
+Error: Not found in CourtListener API
+Context:  as well as criminal goals .”  Ibid.  (brackets  in origi-
+nal) (quoting Hudson  v. United States , 522 U.S. 93, 10 5 
+(1997) ).  “Whether restitution is primarily civil or crim-
+inal,” Judge Gruender explained,
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 514 U.S. 499
+Error: Not found in CourtListener API
+Context: rimes or 
+increase the punishment for criminal acts. ’ ”  California 
+Dep’t  of Corr . v. Morales , 514 U.S. 499, 504 (1995) (quot-
+ing Collin s v. Youngblood , 497 U.S. 37, 43 (1990 )).  Thus, 
+one who claims an
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 497 U.S. 37
+Error: Not found in CourtListener API
+Context: ifornia 
+Dep’t  of Corr . v. Morales , 514 U.S. 499, 504 (1995) (quot-
+ing Collin s v. Youngblood , 497 U.S. 37, 43 (1990 )).  Thus, 
+one who claims an ex -post-facto violation must establish 
+“two critical elem
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 450 U.S. 2
+Error: Not found in CourtListener API
+Context: ho claims an ex -post-facto violation must establish 
+“two critical elements.”  Weaver  v. Graham , 450 U.S. 2 4, 
+29 (1981).  First, he must show that a change in the rel-
+evant “criminal or penal law ” is “re
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 204 F.3d 177
+Error: Not found in CourtListener API
+Context: ee United States v. Edwards , 162 
+F.3d 87, 89 -92 (3d. Cir. 1998);  United States  v. Rich-
+ards , 204 F.3d 177, 213 (5th Cir.), cert. denied, 531 U.S. 
+826 (2000) , overruled on other grounds by  United States 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 264 F.3d 656
+Error: Not found in CourtListener API
+Context: on other grounds by  United States 
+v. Cotton , 535 U.S.  625 (2002) ; United States  v. Schulte , 
+264 F.3d 656, 662 (6th Cir. 2001); United States  v. Bag-
+8 
+ gett, 125 F.3d 1319, 1322 (9th Cir. 1997); United 
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 125 F.3d 1319
+Error: Not found in CourtListener API
+Context:  ; United States  v. Schulte , 
+264 F.3d 656, 662 (6th Cir. 2001); United States  v. Bag-
+8 
+ gett, 125 F.3d 1319, 1322 (9th Cir. 1997); United States  
+v. Siegel , 153 F.3d 1256, 1259 (11th Cir. 1998) .  The Sev-
+
+--------------------------------------------------------------------------------
+
+Brief: 1389191_Ellingburg_v__United_States.pdf
+Brief URL: https://www.courtlistener.com/docket/1389191_Ellingburg_v__United_States/
+Citation: 153 F.3d 1256
+Error: Not found in CourtListener API
+Context: ; United States  v. Bag-
+8 
+ gett, 125 F.3d 1319, 1322 (9th Cir. 1997); United States  
+v. Siegel , 153 F.3d 1256, 1259 (11th Cir. 1998) .  The Sev-
+enth and Tenth Circuits, like the Eighth Circuit  (Pet.  
+App. 6
+
+--------------------------------------------------------------------------------
+

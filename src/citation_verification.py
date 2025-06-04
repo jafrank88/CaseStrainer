@@ -14,11 +14,10 @@ It implements a fallback mechanism to try different methods if one fails.
 
 import os
 import re
-import json
 import time
 import requests
 import urllib.parse
-from typing import Optional, Dict, Any, List, Tuple, Union
+from typing import Optional, Dict, Any
 import traceback
 import logging
 
@@ -622,7 +621,7 @@ class CitationVerifier:
                         logging.error(
                             f"[CourtListener API] Exception during verification: {e}"
                         )
-                        logging.error(f"[DEBUG] Exception details:", exc_info=True)
+                        logging.error("[DEBUG] Exception details:", exc_info=True)
                 else:
                     result["found"] = False
                     result["valid"] = False
@@ -842,56 +841,36 @@ class CitationVerifier:
         patterns = [
             # Standard pattern: 123 U.S. 456
             r"(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)",
-            # Pattern with reporter in middle: 123 F. 2d 456
-            r"(\d+)\s+([A-Za-z\.\s]+\d+[a-z]*\s+)\s*(\d+)",
+            # Pattern for Federal Reporter: 534 F.3d 1290 or 534 F. 3d 1290
+            r"(\d+)\s+([A-Z])\.?\s*(\d*[a-z]*)\s+(\d+)",
         ]
 
         for pattern in patterns:
             match = re.search(pattern, citation)
             if match:
-                return {
-                    "volume": match.group(1),
-                    "reporter": match.group(2).strip(),
-                    "page": match.group(3),
-                }
+                if len(match.groups()) == 3:
+                    # Standard pattern match (e.g., "123 U.S. 456")
+                    return {
+                        "volume": match.group(1),
+                        "reporter": match.group(2).strip(),
+                        "page": match.group(3),
+                    }
+                elif len(match.groups()) == 4:
+                    # Federal Reporter pattern (e.g., "534 F.3d 1290" or "534 F. 3d 1290")
+                    reporter_abbr = match.group(2)
+                    series = match.group(3)
+                    return {
+                        "volume": match.group(1),
+                        "reporter": (
+                            f"{reporter_abbr}.{series}"
+                            if series
+                            else f"{reporter_abbr}."
+                        ),
+                        "page": match.group(4),
+                    }
 
         # If no pattern matches, return empty dict
         return {}
-
-    def _get_opinion_details(self, opinion_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Get detailed information about an opinion from the CourtListener API.
-
-        Args:
-            opinion_id: The ID of the opinion
-
-        Returns:
-            Dict with opinion details or None if not found
-        """
-        try:
-            url = f"{COURTLISTENER_OPINION_API}{opinion_id}/"
-            response = requests.get(url, headers=self.headers, timeout=TIMEOUT_SECONDS)
-
-            if response.status_code == 200:
-                opinion_data = response.json()
-
-                # If the opinion has a cluster reference, get the cluster details
-                cluster_ref = opinion_data.get("cluster")
-                if isinstance(cluster_ref, str) and cluster_ref.startswith("http"):
-                    # Extract cluster ID from URL
-                    cluster_id = cluster_ref.rstrip("/").split("/")[-1]
-                    cluster_data = self._get_cluster_details(cluster_id)
-                    if cluster_data:
-                        # Combine opinion and cluster data
-                        return {**opinion_data, **cluster_data}
-
-                return opinion_data
-
-        except Exception as e:
-            print(f"Error getting opinion details: {e}")
-            logging.error(f"[CourtListener API] Error getting opinion details: {e}")
-
-        return None
 
     def _get_cluster_details(self, cluster_id: str) -> Optional[Dict[str, Any]]:
         """

@@ -1,206 +1,210 @@
-# CaseStrainer .gitignore - Optimized for Vue.js migration
-# Last updated: 2025-05-22
+# TEMPORARY: All files visible - Original .gitignore rules are commented out below
+# To restore the original .gitignore, uncomment the sections below and remove this header
 
-# --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
-node_modules/
-*.tsbuildinfo
-*.pem
-*.crt
-*.key
-docker/ssl/
-# -------------------------------------------------------------------------------
+# Original .gitignore content (commented out):
+# # CaseStrainer .gitignore - Optimized for Vue.js migration
+# # Last updated: 2025-05-22
+#
+# # --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
+# node_modules/
+# *.tsbuildinfo
+# *.pem
+# *.crt
+# *.key
+# docker/ssl/
+# # -------------------------------------------------------------------------------
+#
+# #----------------------------------------------
+# # DIRECTORIES TO EXCLUDE
+# # Allow src/version.txt for dynamic versioning
+# !src/version.txt
+# #----------------------------------------------
+#
+# # Development and runtime directories
+# archive/
+# __pycache__/
+# .cache/
+# citation_cache/
+# results/
+# uploads/
+# wa_briefs/
+# downloaded_briefs/
+# sample_briefs/
+# reports/
+# word_addin/
+# deprecated_scripts/
+# "old files"/
 
-#----------------------------------------------
-# DIRECTORIES TO EXCLUDE
-# Allow src/version.txt for dynamic versioning
-!src/version.txt
-#----------------------------------------------
+# # Allow archived_batch_files to be included
+# !archived_batch_files/
 
-# Development and runtime directories
-archive/
-__pycache__/
-.cache/
-citation_cache/
-results/
-uploads/
-wa_briefs/
-downloaded_briefs/
-sample_briefs/
-reports/
-word_addin/
-deprecated_scripts/
-"old files"/
+# # Python build directories
+# build/
+# develop-eggs/
+# dist/
+# downloads/
+# eggs/
+# .eggs/
+# lib/
+# lib64/
+# parts/
+# sdist/
+# var/
+# wheels/
+# *.egg-info/
 
-# Allow archived_batch_files to be included
-!archived_batch_files/
+# # Environment directories
+# .venv/
+# env/
+# venv/
+# ENV/
 
-# Python build directories
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
+# # IDE directories
+# .idea/
+# .vscode/
 
-# Environment directories
-.venv/
-env/
-venv/
-ENV/
+# # Test directories - with specific exceptions
+# tests/
+# test/
+# !test/test_courtlistener_api.py
+# !src/test_api.py
 
-# IDE directories
-.idea/
-.vscode/
-
-# Test directories - with specific exceptions
-tests/
-test/
-!test/test_courtlistener_api.py
-!src/test_api.py
-
-# Large external libraries
-python-hyperscan/
-hyperscan/
-vcpkg/
+# # Large external libraries
+# python-hyperscan/
+# hyperscan/
+# vcpkg/
 
 #----------------------------------------------
 # FILES TO EXCLUDE
 #----------------------------------------------
 
-# Log files
-# Exclude all log files in src/logs/ from version control
-src/logs/*.log
-# Exclude all other log files
-*.log
+# # Log files
+# # Allow the logs directory structure but ignore .log files
+# logs/
+# !logs/.gitkeep
+# *.log
 
-# Test data files
-test_*.txt
-*_test.txt
-comprehensive_test.txt
-comprehensive_test_citations.txt
-test_citations_fixed.txt
-specific_gaps_test.txt
-courtlistener_gaps_test.txt
-extracted_pdf_text.txt
-extracted_text.txt
-avianca_extracted_text.txt
+# # Test data files
+# test_*.txt
+# *_test.txt
+# comprehensive_test.txt
+# comprehensive_test_citations.txt
+# test_citations_fixed.txt
+# specific_gaps_test.txt
+# courtlistener_gaps_test.txt
+# extracted_pdf_text.txt
+# extracted_text.txt
+# avianca_extracted_text.txt
 
-# Python cache files
-*.py[cod]
-*$py.class
-*.so
-*.pyc
-*.pyo
-*.pyd
+# # Python cache files
+# *.py[cod]
+# *$py.class
+# *.so
+# *.pyc
+# *.pyo
+# *.pyd
 
-# Database files - with exceptions
-*.db
-citations.db
+# # Database files - with exceptions
+# *.db
+# citations.db
 
-# Backup files
-*.bak
+# # Backup files
+# *.bak
 
-# Environment and IDE files
-.env
-*.swp
-*.swo
-*.sublime-workspace
-*.sublime-project
+# # Environment and IDE files
+# .env
+# *.swp
+# *.swo
+# *.sublime-workspace
+# *.sublime-project
 
-# Batch files - with exceptions for essential scripts
-*.bat
-!scripts/*.bat
-!start_*.bat
-!restart_*.bat
-!commit_push_and_deploy.bat
-!deploy_*.bat
+# # Batch files - with exceptions for essential scripts
+# *.bat
+# !scripts/*.bat
+# !start_*.bat
+# !restart_*.bat
+# !commit_push_and_deploy.bat
+# !deploy_*.bat
 
-# JSON files - with exceptions for configuration
-verification_results.json
-unverified_citations.json
-verified_citations.json
-citations.json
-truly_unverified_citations.json
-data/citations/verified_citations.json
+# # JSON files - with exceptions for configuration
+# verification_results.json
+# unverified_citations.json
+# verified_citations.json
+# citations.json
+# truly_unverified_citations.json
+# data/citations/verified_citations.json
 
-# Configuration files - with exceptions
-config/*.conf
+# # Configuration files - with exceptions
+# config/*.conf
 
-# Debug files
-debug_*.py
-debug_*.log
+# # Debug files
+# debug_*.py
+# debug_*.log
 
-# Temporary files
-*.tmp
-*.temp
-*~
-.Python
+# # Temporary files
+# *.tmp
+# *.temp
+# *~
+# .Python
 
-# System files
-.DS_Store
-Thumbs.db
+# # System files
+# .DS_Store
+# Thumbs.db
 
-# Binary and media files
-*.png
-*.csv
-*.txt
-cmake.msi
+# # Binary and media files
+# *.png
+# *.csv
+# *.txt
+# cmake.msi
 
-#----------------------------------------------
-# EXCEPTIONS - FILES TO INCLUDE
-#----------------------------------------------
+# #----------------------------------------------
+# # EXCEPTIONS - FILES TO INCLUDE
+# #----------------------------------------------
+# 
+# # Documentation
+# !README.txt
+# !DEPLOYMENT.md
+# !DEPLOYMENT_VUE.md
+# !BATCH_FILES.md
+# 
+# # Configuration files
+# !requirements.txt
+# !config.json
+# !package.json
+# !package-lock.json
+# !tsconfig.json
+# !config/template_*.conf
+# 
+# # Example data
+# !example_citations.db
+# 
+# # Essential deployment scripts
+# # Primary deployment scripts
+# !scripts/start_for_nginx.bat
+# !start_casestrainer_new.bat
+# # Build scripts
+# !scripts/build_and_deploy_vue.bat
+# # Fallback/comprehensive script
+# !scripts/start_casestrainer.bat
+# 
+# # Docker and Nginx configuration
+# !docker/nginx.conf
+# !nginx/sites-available/casestrainer.conf
+# !docker/docker-compose.yml
+# !docker/Dockerfile
+# 
+# # Future Vue.js deployment scripts (when implemented)
+# # !start_vue.bat
+# # !install_vue_dependencies.bat
+# # !update_nginx_config.bat
 
-# Documentation
-!README.txt
-!DEPLOYMENT.md
-!DEPLOYMENT_VUE.md
-!BATCH_FILES.md
 
-# Configuration files
-!requirements.txt
-!config.json
-!package.json
-!package-lock.json
-!tsconfig.json
-!config/template_*.conf
-
-# Example data
-!example_citations.db
-
-# Essential deployment scripts
-# Primary deployment scripts
-!scripts/start_for_nginx.bat
-!start_casestrainer_new.bat
-# Build scripts
-!scripts/build_and_deploy_vue.bat
-# Fallback/comprehensive script
-!scripts/start_casestrainer.bat
-
-# Docker and Nginx configuration
-!docker/nginx.conf
-!nginx/sites-available/casestrainer.conf
-!docker/docker-compose.yml
-!docker/Dockerfile
-
-# Future Vue.js deployment scripts (when implemented)
-# !start_vue.bat
-# !install_vue_dependencies.bat
-# !update_nginx_config.bat
-
-
-# Allow Vue.js build output for troubleshooting
-!casestrainer-vue/dist/
-!casestrainer-vue/dist/index.html
-!casestrainer-vue/dist/js/
-!casestrainer-vue/dist/js/*
-!casestrainer-vue/dist/css/
-!casestrainer-vue/dist/css/*
+# # Allow Vue.js build output for troubleshooting
+# !casestrainer-vue/dist/
+# !casestrainer-vue/dist/index.html
+# !casestrainer-vue/dist/js/
+# !casestrainer-vue/dist/js/*
+# !casestrainer-vue/dist/css/
+# !casestrainer-vue/dist/css/*
 # Remove redundant entries
 # The following sections were redundant and have been consolidated above

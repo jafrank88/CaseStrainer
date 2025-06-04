@@ -1,0 +1,116 @@
+import os
+import sys
+
+# Add the src directory to the Python path
+src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+from flask import Flask, request, jsonify, send_from_directory, url_for, Response
+from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+import os
+import sys
+
+# Add the src directory to the Python path
+src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+# Import configuration
+from config import Config
+
+# Set configuration values
+SECRET_KEY = Config.SECRET_KEY
+DATABASE_FILE = "instance/casestrainer.db"
+
+# Import the Vue API blueprint
+from src.vue_api_endpoints import vue_api
+
+app = Flask(__name__, static_folder="casestrainer-vue/dist", static_url_path="")
+app.config.update(
+    SECRET_KEY=SECRET_KEY,
+    DATABASE_FILE=DATABASE_FILE,
+    # Add other configuration values as needed
+)
+
+# Add URL prefix handling
+class PrefixMiddleware:
+    def __init__(self, app, prefix=''):
+        self.app = app
+        self.prefix = prefix.rstrip('/')
+        self.api_prefix = '/api'  # The internal API prefix
+
+    def __call__(self, environ, start_response):
+        path_info = environ.get('PATH_INFO', '')
+        
+        # Handle /casestrainer/api/... -> /api/...
+        if path_info.startswith(f"{self.prefix}/api/"):
+            environ['PATH_INFO'] = path_info[len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+        
+        # Handle /api/... directly
+        if path_info.startswith('/api/'):
+            return self.app(environ, start_response)
+            
+        # Handle root path
+        if path_info in ('', '/'):
+            return self.app(environ, start_response)
+            
+        # For all other paths, try to serve static files
+        return self.app(environ, start_response)
+
+# Set up the prefix middleware
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/casestrainer')
+
+# Add proxy fix for when running behind a reverse proxy
+app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)
+
+# Register Vue.js API blueprint with a single prefix
+# We'll use the PrefixMiddleware to handle both /api and /casestrainer/api
+app.register_blueprint(vue_api, url_prefix="/api")
+
+# Import and register the enhanced validator blueprint
+try:
+    from enhanced_validator_production import (
+        enhanced_validator_bp,
+        register_enhanced_validator,
+    )
+
+    app.register_blueprint(enhanced_validator_bp, url_prefix="/api/enhanced")
+    register_enhanced_validator(app)
+    print("Enhanced Validator registered successfully")
+except ImportError as e:
+    print(f"Warning: Could not import enhanced validator: {e}")
+    print("The application will run with basic validation only.")
+except Exception as e:
+    print(f"Error registering enhanced validator: {e}")
+    print("The application will run with basic validation only.")
+
+
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
+
+
+@app.route("/<path:path>")
+def serve_vue(path):
+    # Don't serve the favicon.ico from here, let the static handler take care of it
+    if path == "favicon.ico":
+        return "", 404
+    
+    # Try to serve the file directly
+    try:
+        return app.send_static_file(path)
+    except:
+        # For HTML5 history mode, return index.html for any non-existent paths
+        try:
+            return app.send_static_file("index.html")
+        except:
+            return "Not Found", 404
+
+
+if __name__ == "__main__":
+    # Use host='0.0.0.0' to allow Docker Nginx to access
+    app.run(host="0.0.0.0", port=5000, debug=False)

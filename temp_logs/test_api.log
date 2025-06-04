@@ -1,0 +1,89 @@
+2025-05-30 15:21:31,131 - __main__ - INFO - Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\..\temp_logs\test_api.log
+2025-05-30 15:21:31,135 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:21:31,143 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/verify-citation HTTP/1.1" 200 83
+2025-05-30 15:21:31,147 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:21:31,259 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 2283
+2025-05-30 15:21:31,270 - __main__ - INFO - Testing /casestrainer/api/analyze endpoint with text: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-30 15:21:31,271 - __main__ - DEBUG - Sending request to http://127.0.0.1:5000/casestrainer/api/analyze
+2025-05-30 15:21:31,271 - __main__ - DEBUG - Request headers: {'Content-Type': 'application/json'}
+2025-05-30 15:21:31,271 - __main__ - DEBUG - Request payload: {"text": "Brown v. Board of Education, 347 U.S. 483 (1954)..."}
+2025-05-30 15:21:31,273 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:21:31,362 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 438
+2025-05-30 15:21:31,362 - __main__ - INFO - Response status code: 200
+2025-05-30 15:21:31,363 - __main__ - DEBUG - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Fri, 30 May 2025 22:21:31 GMT', 'Content-Type': 'application/json', 'Content-Length': '438', 'Access-Control-Allow-Origin': 'http://127.0.0.1:5000', 'Access-Control-Expose-Headers': 'Content-Length, Content-Type, X-CSRFToken', 'Access-Control-Allow-Credentials': 'true', 'Vary': 'Origin', 'Connection': 'close'}
+2025-05-30 15:21:31,363 - __main__ - INFO - Successfully parsed JSON response
+2025-05-30 15:21:31,364 - __main__ - DEBUG - Response JSON: {
+  "results": [
+    {
+      "citation": {
+        "contexts": [
+          {
+            "citation_text": "347 U.S. 483",
+            "text": "Brown v. Board of Education, 347 U.S. 483 (1954)"
+          }
+        ],
+        "extraction_method": "eyecite",
+        "eyecite_processed": true,
+        "metadata": {
+          "court": null,
+          "page": null,
+          "reporter": null,
+          "volume": null,
+          "year": 1954
+        },
+        "name": "Brown v. Board",
+        "text": "347 U.S. 483",
+        "valid": null
+      },
+      "details": {
+        "error": "'tuple' object has no attribute 'get'"
+      },
+      "exists": false,
+      "method": "error"
+    }
+  ],
+  "status": "success"
+}
+2025-05-30 15:21:31,367 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:21:31,372 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 400 59
+2025-05-30 15:21:31,373 - __main__ - INFO - Testing /casestrainer/api/analyze endpoint with text: 347 U.S. 483
+2025-05-30 15:21:31,373 - __main__ - DEBUG - Sending request to http://127.0.0.1:5000/casestrainer/api/analyze
+2025-05-30 15:21:31,374 - __main__ - DEBUG - Request headers: {'Content-Type': 'application/json'}
+2025-05-30 15:21:31,374 - __main__ - DEBUG - Request payload: {"text": "347 U.S. 483..."}
+2025-05-30 15:21:31,375 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:21:31,475 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 400
+2025-05-30 15:21:31,476 - __main__ - INFO - Response status code: 200
+2025-05-30 15:21:31,476 - __main__ - DEBUG - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Fri, 30 May 2025 22:21:31 GMT', 'Content-Type': 'application/json', 'Content-Length': '400', 'Access-Control-Allow-Origin': 'http://127.0.0.1:5000', 'Access-Control-Expose-Headers': 'Content-Length, Content-Type, X-CSRFToken', 'Access-Control-Allow-Credentials': 'true', 'Vary': 'Origin', 'Connection': 'close'}
+2025-05-30 15:21:31,477 - __main__ - INFO - Successfully parsed JSON response
+2025-05-30 15:21:31,477 - __main__ - DEBUG - Response JSON: {
+  "results": [
+    {
+      "citation": {
+        "contexts": [
+          {
+            "citation_text": "347 U.S. 483",
+            "text": "347 U.S. 483"
+          }
+        ],
+        "extraction_method": "eyecite",
+        "eyecite_processed": true,
+        "metadata": {
+          "court": null,
+          "page": null,
+          "reporter": null,
+          "volume": null,
+          "year": null
+        },
+        "name": "Unknown Case",
+        "text": "347 U.S. 483",
+        "valid": null
+      },
+      "details": {
+        "error": "'tuple' object has no attribute 'get'"
+      },
+      "exists": false,
+      "method": "error"
+    }
+  ],
+  "status": "success"
+}

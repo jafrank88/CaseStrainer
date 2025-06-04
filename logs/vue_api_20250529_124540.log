@@ -1,0 +1,14 @@
+2025-05-29 12:45:40,618 - src.vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_124540.log
+2025-05-29 12:45:41,321 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
+2025-05-29 12:45:44,061 - citation_classifier - INFO - No existing model found
+2025-05-29 12:45:44,127 - src.vue_api_endpoints - INFO - Citation correction engine initialized successfully
+2025-05-29 12:45:44,647 - werkzeug - WARNING -  * Debugger is active!
+2025-05-29 12:45:44,652 - werkzeug - INFO -  * Debugger PIN: 738-247-000
+2025-05-29 12:47:19,112 - werkzeug - INFO - 198.235.24.96 - - [29/May/2025 12:47:19] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-05-29 12:47:20,317 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:20] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-05-29 12:47:20,410 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:20] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-05-29 12:47:20,592 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:20] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-05-29 12:47:20,709 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:20] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=qX18R2K4oA5h0oE9770N HTTP/1.1" 200 -
+2025-05-29 12:47:20,948 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:20] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-05-29 12:47:21,027 - werkzeug - INFO - 127.0.0.1 - - [29/May/2025 12:47:21] "[35m[1mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 500 -
+2025-05-29 12:47:46,338 - werkzeug - INFO -  * Detected change in 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\app_final_vue.py', reloading

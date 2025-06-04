@@ -1,0 +1,16 @@
+{
+  "citation": "invalid-citation",
+  "isValid": false,
+  "message": "Invalid citation format",
+  "metadata": null,
+  "suggestions": [
+    "123 U.S. 456",
+    "456 F.3d 789",
+    "789 F. Supp. 2d 123"
+  ],
+  "error": {
+    "code": "INVALID_FORMAT",
+    "details": "The provided citation does not match any known citation format.",
+    "suggestedAction": "Please check the citation format and try again."
+  }
+}

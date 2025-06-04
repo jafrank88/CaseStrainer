@@ -11,9 +11,8 @@ import requests
 from typing import Optional, Dict, Any
 
 # Import CourtListener functions
-from courtlistener_integration import (
+from .courtlistener_integration import (
     search_citation,
-    generate_case_summary_from_courtlistener,
 )
 
 # Flag to track if LangSearch API is available
@@ -133,19 +132,6 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
         raise ValueError("Case citation cannot be empty")
 
     # Create the prompt
-    prompt = f"""
-    Please provide a comprehensive summary of the legal case: {case_citation}
-    
-    Include the following information if available:
-    - Court and date
-    - Key facts
-    - Legal issues
-    - Holding/ruling
-    - Legal principles established
-    - Significance of the case
-    
-    If this is not a real case or you don't have information about it, please provide a summary based on what you know about similar cases or legal principles that might apply to a case with this name.
-    """
 
     # Maximum retry attempts
     max_retries = 3
@@ -348,7 +334,7 @@ def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
         # Add a warning if most values are unknown
         if unknown_count >= 3:
             summary = (
-                f"WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA\n\n" + summary
+                "WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA\n\n" + summary
             )
 
         # Add a brief excerpt from the opinion if available
@@ -398,7 +384,7 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
         # Get more detailed information if we have a case ID
         case_id = case_data.get("id")
         if case_id:
-            from courtlistener_integration import get_case_details
+            from .courtlistener_integration import get_case_details
 
             details = get_case_details(case_id)
             if details:

@@ -29,22 +29,21 @@
     
     <!-- Analysis Results -->
     <div v-if="textAnalysisResult" class="mt-4">
-      <ReusableResults :results="textAnalysisResult" />
+      <ResultsViewer :results="textAnalysisResult" />
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
+import api from '@/services/api';
 import ProgressBar from './ProgressBar.vue';
-import ReusableResults from './ReusableResults.vue';
+import ResultsViewer from './ResultsViewer.vue';
 
 export default {
   name: 'EnhancedTextPaste',
   components: {
     ProgressBar,
-    ReusableResults
+    ResultsViewer
   },
   data() {
     return {
@@ -54,6 +53,10 @@ export default {
       error: null,
       debugInfo: ''
     };
+  },
+  created() {
+    // Test API connection on component creation
+    this.testApiConnection();
   },
   computed: {
     confirmedCount() {
@@ -79,7 +82,17 @@ export default {
     }
   },
   methods: {
-    analyzeText() {
+    async testApiConnection() {
+      try {
+        console.log('Testing API connection...');
+        const response = await api.checkHealth();
+        console.log('API Health Check:', response.data);
+      } catch (error) {
+        console.error('API Connection Test Failed:', error);
+      }
+    },
+    
+    async analyzeText() {
       if (!this.pastedText) {
         alert('Please paste some text to analyze');
         return;
@@ -87,31 +100,37 @@ export default {
       
       this.isAnalyzing = true;
       this.textAnalysisResult = null;
+      this.error = null;
       
-      // Clear previous debug info
+      // Reset debug info
       this.debugInfo = 'Debug: Starting text analysis...\n';
-      this.debugInfo += `Request to ${this.basePath}/api/analyze: [Text data]\n`;
+      this.debugInfo += `Sending request to analyze text...\n`;
 
-      axios.post(`${this.basePath}/api/analyze`, { text: this.pastedText })
-      .then(response => {
-        // Add to debug info
-        this.debugInfo += `Response received: Processing data...\n`;
+      try {
+        const response = await api.analyzeText(this.pastedText);
+        
+        // Log success
+        this.debugInfo += 'Analysis successful! Processing results...\n';
         const jsonString = JSON.stringify(response.data, null, 2);
         this.debugInfo += `Success: ${jsonString.substring(0, 500)}${jsonString.length > 500 ? '... [truncated]' : ''}\n`;
-
+        
         this.textAnalysisResult = response.data;
-      })
-      .catch(error => {
-        alert(`Error analyzing text: ${error.response?.data?.message || error.message || 'Unknown error'}`);
-        this.debugInfo += `Error: ${error.message}\n`;
+      } catch (error) {
+        const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+        console.error('Analysis Error:', error);
+        this.error = `Error analyzing text: ${errorMessage}`;
+        
+        // Update debug info
+        this.debugInfo += `Error: ${errorMessage}\n`;
         if (error.response) {
-          this.debugInfo += `Response status: ${error.response.status}\n`;
-          this.debugInfo += `Response data: ${JSON.stringify(error.response.data, null, 2)}\n`;
+          this.debugInfo += `Status: ${error.response.status} ${error.response.statusText}\n`;
+          this.debugInfo += `Data: ${JSON.stringify(error.response.data, null, 2)}\n`;
         }
-      })
-      .finally(() => {
+        
+        alert(this.error);
+      } finally {
         this.isAnalyzing = false;
-      });
+      }
     },
     getBadgeClass(validationMethod) {
       // Return appropriate Bootstrap badge classes based on validation method

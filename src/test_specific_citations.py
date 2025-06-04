@@ -90,7 +90,7 @@ def test_specific_citations():
     successes = sum(1 for r in results if r.get("found"))
     failures = sum(1 for r in results if not r.get("found"))
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Total citations tested: {len(results)}")
     print(f"  Successfully verified: {successes} ({successes/len(results)*100:.1f}%)")
     print(f"  Failed to verify: {failures} ({failures/len(results)*100:.1f}%)")

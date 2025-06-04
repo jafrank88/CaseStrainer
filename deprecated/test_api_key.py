@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Get the API key from environment variables
-api_key = os.getenv('COURTLISTENER_API_KEY')
+api_key = os.getenv("COURTLISTENER_API_KEY")
 
 if not api_key:
     logger.error("ERROR: COURTLISTENER_API_KEY environment variable is not set")
@@ -22,5 +22,9 @@ else:
     logger.info(f"Key length: {len(api_key)} characters")
     logger.info(f"Key starts with: {api_key[:5]}...")
     logger.info("\nAPI key configuration is working correctly!")
-    print("\nTo test the actual API call, you can run the enhanced_validator_production.py script.")
-    print("Or you can run: python -c \"from src.enhanced_validator_production import check_courtlistener_api; print(check_courtlistener_api('410 U.S. 113'))\"")
+    print(
+        "\nTo test the actual API call, you can run the enhanced_validator_production.py script."
+    )
+    print(
+        "Or you can run: python -c \"from src.enhanced_validator_production import check_courtlistener_api; print(check_courtlistener_api('410 U.S. 113'))\""
+    )

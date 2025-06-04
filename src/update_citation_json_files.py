@@ -6,7 +6,6 @@ and clears the old ones to ensure the CaseStrainer application has the latest in
 """
 
 import os
-import sys
 import json
 import logging
 import sqlite3

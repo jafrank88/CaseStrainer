@@ -6,7 +6,6 @@ with the multi-source tool but not with CourtListener, along with all context.
 """
 
 import os
-import sys
 import json
 import sqlite3
 from datetime import datetime

@@ -1,0 +1,23 @@
+{
+  "citation": "123 U.S. 456",
+  "isValid": true,
+  "message": "Valid citation format",
+  "metadata": {
+    "caseName": "Sample Case Name",
+    "volume": "123",
+    "reporter": "U.S.",
+    "page": "456",
+    "year": "2022",
+    "court": "United States Supreme Court",
+    "docketNumber": "21-123",
+    "decisionDate": "2022-06-15",
+    "url": "https://example.com/case/123-us-456"
+  },
+  "analysis": {
+    "confidence": 0.95,
+    "citationType": "case",
+    "jurisdiction": "federal",
+    "isPublished": true,
+    "hasParallelCitations": false
+  }
+}

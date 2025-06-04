@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseStrainer URL Input Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+        .tab-buttons {
+            margin-top: 20px;
+        }
+        .tab-button {
+            background-color: #008CBA;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CaseStrainer URL Input Test</h1>
+    <div class="container">
+        <div class="form-group">
+            <label for="url">URL to Analyze:</label>
+            <input type="text" id="url" name="url" value="https://www.law.cornell.edu/supremecourt/text/347/483" placeholder="Enter URL to analyze">
+        </div>
+        <button id="analyzeButton">Analyze URL</button>
+        <div id="result">Results will appear here...</div>
+        <div class="tab-buttons" style="display: none;">
+            <button class="tab-button" data-tab="verified_citations">Verified Citations</button>
+            <button class="tab-button" data-tab="unconfirmed_citations">Unconfirmed Citations</button>
+            <button class="tab-button" data-tab="courtlistener_cases">CourtListener Cases</button>
+            <button class="tab-button" data-tab="google_scholar_cases">Google Scholar Cases</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeButton = document.getElementById('analyzeButton');
+            const resultDiv = document.getElementById('result');
+            const tabButtons = document.querySelector('.tab-buttons');
+            let currentAnalysisId = null;
+
+            analyzeButton.addEventListener('click', function() {
+                const url = document.getElementById('url').value.trim();
+                if (!url) {
+                    resultDiv.textContent = 'Please enter a URL to analyze';
+                    return;
+                }
+
+                resultDiv.textContent = 'Analyzing URL, please wait...';
+                
+                // Make the API request to the direct_url_analyze endpoint
+                fetch('http://localhost:5000/api/direct_url_analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: url })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                    
+                    // Store the analysis ID for tab requests
+                    if (data.status === 'success' && data.analysis_id) {
+                        currentAnalysisId = data.analysis_id;
+                        tabButtons.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    resultDiv.textContent = `Error: ${error.message}`;
+                });
+            });
+
+            // Add event listeners for tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    if (!currentAnalysisId) {
+                        resultDiv.textContent = 'Please analyze a URL first';
+                        return;
+                    }
+
+                    resultDiv.textContent = `Loading ${tab} data...`;
+                    
+                    // Make the API request to get tab data
+                    fetch(`http://localhost:5000/api/results/${currentAnalysisId}/${tab}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        resultDiv.textContent = JSON.stringify(data, null, 2);
+                    })
+                    .catch(error => {
+                        resultDiv.textContent = `Error loading ${tab} data: ${error.message}`;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

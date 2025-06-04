@@ -37,8 +37,8 @@ try:
 
     print("Successfully imported enhanced_validator_production module")
     # Register the enhanced validator with the app
-    register_enhanced_validator(app)
-    app.register_blueprint(enhanced_validator_bp, url_prefix="/api/enhanced")
+    app = register_enhanced_validator(app)
+    # The blueprint is now registered inside register_enhanced_validator
     print("Successfully registered Enhanced Validator with the app")
 except Exception as e:
     print(f"Error importing/registering Enhanced Validator: {e}")

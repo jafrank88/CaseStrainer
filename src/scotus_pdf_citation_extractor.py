@@ -1,8 +1,14 @@
+import os
+import re
+import io
 import requests
 import PyPDF2
-import io
-import re
 from typing import Set, List, Dict, Optional
+
+# Configure logging
+import logging
+
+logger = logging.getLogger(__name__)
 import logging
 import sys
 import json
@@ -149,17 +155,13 @@ class SCOTUSPDFCitationExtractor:
                     # Reset file pointer before using basic pdfminer
                     pdf_file.seek(0)
                     try:
-                        page_text = pdfminer_extract_text(
-                            pdf_file, page_numbers=[i]
-                        )
+                        page_text = pdfminer_extract_text(pdf_file, page_numbers=[i])
                         logger.info(
                             f"Basic pdfminer extracted {len(page_text)} characters "
                             f"from page {i+1}"
                         )
                     except Exception as e:
-                        logger.error(
-                            f"Basic pdfminer failed on page {i+1}: {e}"
-                        )
+                        logger.error(f"Basic pdfminer failed on page {i+1}: {e}")
                         page_text = ""
                 else:
                     logger.info(
@@ -193,92 +195,44 @@ class SCOTUSPDFCitationExtractor:
         text = re.sub(
             r"(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)", r"\1 L.Ed. \2", text
         )  # Fix L.Ed. spacing
+        # Fix F. spacing
         text = re.sub(
-        )  # Fix F. spacing
+            r"(\d+)\s*[Ff]\.?\s*(2d|3d|4th)?\s*(\d+)",
+            lambda m: f"{m.group(1)} F.{' ' + m.group(2) if m.group(2) else ''} {m.group(3)}",
+            text,
+        )
 
         # Fix line breaks within citations
-        text = re.sub(
-            r"(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)", 
-            r"\1 U.S. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)", 
-            r"\1 S.Ct. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)", 
-            r"\1 L.Ed. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)", 
-            r"\1 F. \2", 
-            text
-        )
+        text = re.sub(r"(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)", r"\1 U.S. \2", text)
+        text = re.sub(r"(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)", r"\1 S.Ct. \2", text)
+        text = re.sub(r"(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)", r"\1 L.Ed. \2", text)
+        text = re.sub(r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)", r"\1 F. \2", text)
 
         # Fix page breaks within citations
         text = re.sub(
-            r"(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)", 
-            r"\1 U.S. \2", 
-            text
+            r"(\d+)\s*U\.?\s*S\.?\s*-\s*(\d+)", r"\1 U.S. \2", text
         )  # Fix page break markers
-        text = re.sub(
-            r"(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)", 
-            r"\1 S.Ct. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)", 
-            r"\1 L.Ed. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)", 
-            r"\1 F. \2", 
-            text
-        )
+        text = re.sub(r"(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)", r"\1 S.Ct. \2", text)
+        text = re.sub(r"(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)", r"\1 L.Ed. \2", text)
+        text = re.sub(r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)", r"\1 F. \2", text)
 
         # Normalize whitespace while preserving citation patterns
         text = re.sub(r"\s+", " ", text)
 
         # Fix spacing in abbreviations
-{{ ... }}
         text = re.sub(r"([Ll]\.?\s*[Ee][Dd]\.?)", "L.Ed.", text)
-        text = re.sub(
-            r"([Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?)", 
-            "F.", 
-            text
-        )
+        text = re.sub(r"([Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?)", "F.", text)
 
         # Fix spacing around citations
-        text = re.sub(
-            r"(\d+)\s*U\.?\s*S\.?\s*(\d+)", 
-            r"\1 U.S. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*S\.?\s*Ct\.?\s*(\d+)", 
-            r"\1 S.Ct. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*L\.?\s*Ed\.?\s*(\d+)", 
-            r"\1 L.Ed. \2", 
-            text
-        )
-        text = re.sub(
-            r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*(\d+)", 
-            r"\1 F. \2", 
-            text
-        )
+        text = re.sub(r"(\d+)\s*U\.?\s*S\.?\s*(\d+)", r"\1 U.S. \2", text)
+        text = re.sub(r"(\d+)\s*S\.?\s*Ct\.?\s*(\d+)", r"\1 S.Ct. \2", text)
+        text = re.sub(r"(\d+)\s*L\.?\s*Ed\.?\s*(\d+)", r"\1 L.Ed. \2", text)
+        text = re.sub(r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*(\d+)", r"\1 F. \2", text)
 
         return text
 
     def format_citation(self, match: re.Match) -> str:
         """Format a citation match with proper spacing and punctuation."""
-{{ ... }}
         groups = match.groups()
         if len(groups) == 2:
             volume, page = groups
@@ -390,28 +344,112 @@ class SCOTUSPDFCitationExtractor:
                 found_citations.add(citation)
         return found_citations
 
-    def validate_citation_with_courtlistener(self, citation: str) -> Dict:
-        """Validate a citation with CourtListener API."""
-        try:
-            # Format citation for API
-            formatted_citation = citation.replace(" ", "")
-            api_url = (
-                f"https://cite.case.law/api/rest/v4/citations/{formatted_citation}"
-            )
+    def validate_citation_with_courtlistener(
+        self, citation_text: str, case_name: str = None
+    ) -> Dict:
+        """Validate a citation with CourtListener API.
 
-            headers = {
-                "Authorization": f"Token {COURT_LISTENER_API_KEY}",
-                "Accept": "application/json",
+        Args:
+            citation_text: The citation text to validate (e.g., "123 F.3d 456")
+            case_name: Optional case name to help with validation
+
+        Returns:
+            dict: Validation results including verification status and metadata
+        """
+        if not self.courtlistener_api_key:
+            logger.warning("No CourtListener API key provided, skipping validation")
+            return {
+                "verified": False,
+                "error": "No CourtListener API key provided",
+                "validation_method": "none",
+                "confidence": "none",
             }
 
-            response = requests.get(api_url, headers=headers)
-            response.raise_for_status()
-
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logging.error(
-                f"Error validating citation {citation} with CourtListener: {str(e)}"
+        try:
+            # First try to find the case by citation
+            response = requests.get(
+                f"{self.COURTLISTENER_API_BASE}/api/rest/v4/opinion-cites/find-citations/",
+                params={"citation__cite": citation_text},
+                headers={"Authorization": f"Token {self.courtlistener_api_key}"},
+                timeout=10,
             )
+
+            if response.status_code == 200 and response.json().get("count", 0) > 0:
+                result = response.json()["results"][0]
+                return {
+                    "verified": True,
+                    "case_name": result.get("caseName", ""),
+                    "citation": result.get("citation", ""),
+                    "parallel_citations": result.get("parallel_citations", []),
+                    "reporter_type": (
+                        result.get("reporter", "").split()[-1]
+                        if result.get("reporter")
+                        else ""
+                    ),
+                    "court": result.get("court", ""),
+                    "date_filed": result.get("date_filed", ""),
+                    "docket_number": result.get("docket_number", ""),
+                    "url": result.get("absolute_url", ""),
+                    "validation_method": "CourtListener API",
+                    "confidence": "high",
+                    "source": "courtlistener",
+                }
+
+            # If not found by citation, try searching by case name if provided
+            if case_name and case_name.strip() and case_name != "§":
+                search_response = requests.get(
+                    f"{self.COURTLISTENER_API_BASE}/api/rest/v4/search/",
+                    params={"q": f'"{case_name}"', "type": "opinion"},
+                    headers={"Authorization": f"Token {self.courtlistener_api_key}"},
+                    timeout=10,
+                )
+
+                if (
+                    search_response.status_code == 200
+                    and search_response.json().get("count", 0) > 0
+                ):
+                    result = search_response.json()["results"][0]
+                    return {
+                        "verified": True,
+                        "case_name": result.get("caseName", ""),
+                        "citation": result.get("citation", ""),
+                        "parallel_citations": (
+                            result.get("citation", "").split("; ")
+                            if result.get("citation")
+                            else []
+                        ),
+                        "reporter_type": (
+                            result.get("citation", "").split()[-1]
+                            if result.get("citation")
+                            else ""
+                        ),
+                        "court": result.get("court", ""),
+                        "date_filed": result.get("date_filed", ""),
+                        "docket_number": result.get("docket_number", ""),
+                        "url": result.get("absolute_url", ""),
+                        "validation_method": "CourtListener API (by case name)",
+                        "confidence": "medium",
+                        "source": "courtlistener",
+                    }
+
+            # If we get here, the citation wasn't found
+            return {
+                "verified": False,
+                "error": "Citation not found in CourtListener",
+                "validation_method": "CourtListener API",
+                "confidence": "high",
+                "citation": citation_text,
+            }
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error validating citation with CourtListener: {str(e)}")
+            return {
+                "verified": False,
+                "error": str(e),
+                "validation_method": "error",
+                "confidence": "none",
+                "citation": citation_text,
+            }
             return {"error": str(e)}
         except Exception as e:
             logging.error(f"Unexpected error validating citation {citation}: {str(e)}")
@@ -430,7 +468,7 @@ class SCOTUSPDFCitationExtractor:
             response = requests.post(url, headers=headers, data=data)
             response.raise_for_status()
             logger.info(
-                f"Successfully validated citations with CourtListener citation-lookup API"
+                "Successfully validated citations with CourtListener citation-lookup API"
             )
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -438,35 +476,225 @@ class SCOTUSPDFCitationExtractor:
                 f"Error validating citations with CourtListener citation-lookup: {str(e)}"
             )
 
-    def extract_citations_from_url(self, url: str) -> dict:
-        """Download a PDF from a URL, extract text, find citations, and return results as a dictionary."""
-        logger.info(f"[extract_citations_from_url] Downloading PDF from {url}")
-        pdf_content = self.download_pdf(url)
-        if not pdf_content:
-            return {"error": ["Failed to download PDF."]}
+    def extract_citations_from_url(
+        self, url: str, verify_citations: bool = True
+    ) -> dict:
+        """Extract and verify citations from a PDF at the given URL or local file path.
 
-        logger.info(f"[extract_citations_from_url] Extracting text from PDF")
-        text = self.extract_text_from_pdf(pdf_content)
-        if not text or len(text.strip()) == 0:
-            return {"error": ["Failed to extract text from PDF."]}
+        Args:
+            url: Either a URL to download a PDF from, or a local file path
+            verify_citations: If True, verify citations using CourtListener API
 
-        logger.info(f"[extract_citations_from_url] Finding citations")
-        if EYECITE_AVAILABLE:
-            citations = self.find_citations_with_eyecite(text)
-        else:
-            citations = list(self.find_citations_with_regex(text))
+        Returns:
+            dict: Dictionary containing extracted citations, verification results, and metadata
+        """
+        from reusable_results import ReusableResults
 
-        logger.info(f"[extract_citations_from_url] Found {len(citations)} citations")
-        # Optionally validate with CourtListener lookup (commented out for performance)
-        # validation_raw = self.validate_citations_with_courtlistener_lookup(text)
-        validation_raw = None
+        result = ReusableResults(
+            operation="pdf_citation_extraction",
+            source=url,
+            metadata={"source_type": "file" if os.path.isfile(url) else "url"},
+        )
 
-        return {
-            "citations": citations,
-            "total_pages": None,  # Could be extracted if needed
-            "text_preview": text[:1000],
-            "validation_raw": validation_raw or {},
-        }
+        try:
+            pdf_content = None
+
+            # Check if the input is a local file path
+            if os.path.isfile(url):
+                logger.info(f"[extract_citations_from_url] Reading local file: {url}")
+                try:
+                    with open(url, "rb") as f:
+                        pdf_content = f.read()
+                except Exception as e:
+                    error_msg = f"Error reading local file {url}: {str(e)}"
+                    logger.error(error_msg)
+                    result.add_error(error_msg)
+                    return result.to_dict()
+            else:
+                # Treat as URL
+                logger.info(f"[extract_citations_from_url] Downloading PDF from {url}")
+                pdf_content = self.download_pdf(url)
+
+            if not pdf_content:
+                error_msg = f"Failed to get PDF content from {url}"
+                result.add_error(error_msg)
+                return result.to_dict()
+
+            # Extract text from PDF
+            logger.info("[extract_citations_from_url] Extracting text from PDF")
+            text = self.extract_text_from_pdf(pdf_content)
+            if not text or not text.strip():
+                error_msg = "Failed to extract text from PDF"
+                result.add_error(error_msg)
+                return result.to_dict()
+
+            # Extract citations
+            logger.info("[extract_citations_from_url] Finding citations")
+            if EYECITE_AVAILABLE:
+                citations = self.find_citations_with_eyecite(text)
+            else:
+                citations = list(self.find_citations_with_regex(text))
+
+            logger.info(
+                f"[extract_citations_from_url] Found {len(citations)} citations"
+            )
+
+            # Add citations to result
+            result.add_data("citations", citations)
+
+            # Add metadata
+            result.metadata.update(
+                {
+                    "total_pages": (
+                        len(PyPDF2.PdfReader(io.BytesIO(pdf_content)).pages)
+                        if pdf_content
+                        else 0
+                    ),
+                    "text_preview": text[:1000] if text else "",
+                }
+            )
+
+            # Verify citations if requested
+            if verify_citations and citations:
+                logger.info(
+                    f"[extract_citations_from_url] Verifying {len(citations)} citations with CourtListener"
+                )
+                validation_results = []
+                verified_citations = []
+
+                for citation in citations:
+                    try:
+                        if isinstance(citation, dict):
+                            citation_text = citation.get("citation_text", "")
+                            case_name = citation.get("case_name", "")
+                        else:
+                            citation_text = str(citation)
+                            case_name = ""
+
+                        if (
+                            not citation_text or citation_text == "§"
+                        ):  # Skip invalid citations
+                            continue
+
+                        # Validate the citation
+                        validation = self.validate_citation_with_courtlistener(
+                            citation_text, case_name
+                        )
+
+                        # Update citation with validation status
+                        if isinstance(citation, dict):
+                            citation.update(
+                                {
+                                    "validation_status": (
+                                        "verified"
+                                        if validation.get("verified")
+                                        else "not_found"
+                                    ),
+                                    "validation_details": validation,
+                                }
+                            )
+
+                            # Only include verified citations in the main results
+                            if validation.get("verified"):
+                                verified_citations.append(citation)
+
+                        validation_results.append(
+                            {
+                                "citation": citation_text,
+                                "case_name": case_name,
+                                "validation": validation,
+                            }
+                        )
+
+                    except Exception as e:
+                        logger.error(f"Error validating citation {citation}: {str(e)}")
+                        validation_results.append(
+                            {
+                                "citation": str(citation),
+                                "error": str(e),
+                                "validation": {
+                                    "verified": False,
+                                    "error": str(e),
+                                    "validation_method": "error",
+                                    "confidence": "none",
+                                },
+                            }
+                        )
+
+                # Combine all citations with their validation status
+                all_citations = []
+                for citation_data in validation_results:
+                    citation = citation_data.copy()
+                    validation = citation.pop("validation", {})
+
+                    # Create a unified citation object with all necessary fields
+                    unified_citation = {
+                        "citation_text": citation.get("citation", ""),
+                        "case_name": citation.get("case_name", ""),
+                        "verified": validation.get("verified", False),
+                        "validation_method": validation.get(
+                            "validation_method", "unknown"
+                        ),
+                        "confidence": validation.get("confidence", "none"),
+                        "metadata": {
+                            "court": validation.get("court", ""),
+                            "year": (
+                                validation.get("date_filed", "")[:4]
+                                if validation.get("date_filed")
+                                else ""
+                            ),
+                            "source": validation.get("source", "unknown"),
+                        },
+                        "contexts": (
+                            [
+                                {
+                                    "text": citation.get("context", ""),
+                                    "source": "extracted",
+                                }
+                            ]
+                            if citation.get("context")
+                            else []
+                        ),
+                        "validation_details": validation,
+                    }
+
+                    # Add any additional fields from the original citation
+                    if isinstance(citation, dict):
+                        for key, value in citation.items():
+                            if key not in unified_citation and not key.startswith("_"):
+                                unified_citation[key] = value
+
+                    all_citations.append(unified_citation)
+
+                # Update the results with all citations
+                result.add_data("citations", all_citations)
+
+                # Add statistics
+                verified_count = sum(
+                    1 for c in all_citations if c.get("verified", False)
+                )
+                result.metadata.update(
+                    {
+                        "verified_citations": verified_count,
+                        "total_citations": len(all_citations),
+                        "verification_rate": (
+                            f"{(verified_count / len(all_citations) * 100):.1f}%"
+                            if all_citations
+                            else "0%"
+                        ),
+                        "verification_timestamp": datetime.now(
+                            timezone.utc
+                        ).isoformat(),
+                    }
+                )
+
+            return result.to_dict()
+
+        except Exception as e:
+            error_msg = f"Unexpected error in extract_citations_from_url: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            result.add_error(error_msg)
+            return result.to_dict()
 
 
 def main():

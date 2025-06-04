@@ -1,0 +1,121 @@
+2025-05-23 13:58:42,941 - __main__ - INFO - Successfully loaded config.json
+2025-05-23 13:58:42,942 - __main__ - INFO - Using API key from config.json
+2025-05-23 13:58:42,943 - __main__ - INFO - Starting API tests
+2025-05-23 13:58:42,944 - __main__ - INFO - Testing single citation: 347 U.S. 483
+2025-05-23 13:58:42,944 - __main__ - INFO - Using CourtListener API key: 443a87...
+2025-05-23 13:58:42,945 - __main__ - INFO - Making POST request to: http://localhost:5000/casestrainer/api/verify_citation
+2025-05-23 13:58:42,945 - __main__ - INFO - Using Authorization header: Token 443a87...
+2025-05-23 13:58:44,982 - __main__ - INFO - Response status: 200 (2037ms)
+2025-05-23 13:58:44,986 - __main__ - INFO - Testing single citation: 591 U.S. ___
+2025-05-23 13:58:44,987 - __main__ - INFO - Using CourtListener API key: 443a87...
+2025-05-23 13:58:44,987 - __main__ - INFO - Making POST request to: http://localhost:5000/casestrainer/api/verify_citation
+2025-05-23 13:58:44,987 - __main__ - INFO - Using Authorization header: Token 443a87...
+2025-05-23 13:58:47,120 - __main__ - INFO - Response status: 200 (2133ms)
+2025-05-23 13:58:47,123 - __main__ - INFO - Testing text analysis with 420 characters
+2025-05-23 13:58:47,123 - __main__ - INFO - Making POST request to: http://localhost:5000/casestrainer/api/analyze
+2025-05-23 13:58:47,123 - __main__ - INFO - Using Authorization header: Token 443a87...
+2025-05-23 13:58:49,226 - __main__ - INFO - Response status: 200 (2102ms)
+2025-05-23 13:58:49,229 - __main__ - INFO - Making ANALYZE request to: http://localhost:5000/casestrainer/api/POST
+2025-05-23 13:58:51,247 - __main__ - INFO - Response status: 405 (2017ms)
+2025-05-23 13:58:51,248 - __main__ - ERROR - Error response: <!doctype html>
+<html lang=en>
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p>
+
+2025-05-23 13:58:51,254 - __main__ - INFO - Making ANALYZE request to: http://localhost:5000/casestrainer/api/POST
+2025-05-23 13:58:53,283 - __main__ - INFO - Response status: 405 (2028ms)
+2025-05-23 13:58:53,284 - __main__ - ERROR - Error response: <!doctype html>
+<html lang=en>
+<title>405 Method Not Allowed</title>
+<h1>Method Not Allowed</h1>
+<p>The method is not allowed for the requested URL.</p>
+
+2025-05-30 15:20:34,873 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:20:34,885 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/verify-citation HTTP/1.1" 200 83
+2025-05-30 15:20:34,888 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:20:35,050 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 2283
+2025-05-30 15:20:35,059 - __main__ - INFO - Testing /casestrainer/api/analyze endpoint with text: Brown v. Board of Education, 347 U.S. 483 (1954)
+2025-05-30 15:20:35,059 - __main__ - DEBUG - Sending request to http://127.0.0.1:5000/casestrainer/api/analyze
+2025-05-30 15:20:35,059 - __main__ - DEBUG - Request headers: {'Content-Type': 'application/json'}
+2025-05-30 15:20:35,059 - __main__ - DEBUG - Request payload: {"text": "Brown v. Board of Education, 347 U.S. 483 (1954)..."}
+2025-05-30 15:20:35,061 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:20:35,157 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 438
+2025-05-30 15:20:35,158 - __main__ - INFO - Response status code: 200
+2025-05-30 15:20:35,158 - __main__ - DEBUG - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Fri, 30 May 2025 22:20:35 GMT', 'Content-Type': 'application/json', 'Content-Length': '438', 'Access-Control-Allow-Origin': 'http://127.0.0.1:5000', 'Access-Control-Expose-Headers': 'Content-Length, Content-Type, X-CSRFToken', 'Access-Control-Allow-Credentials': 'true', 'Vary': 'Origin', 'Connection': 'close'}
+2025-05-30 15:20:35,159 - __main__ - INFO - Successfully parsed JSON response
+2025-05-30 15:20:35,160 - __main__ - DEBUG - Response JSON: {
+  "results": [
+    {
+      "citation": {
+        "contexts": [
+          {
+            "citation_text": "347 U.S. 483",
+            "text": "Brown v. Board of Education, 347 U.S. 483 (1954)"
+          }
+        ],
+        "extraction_method": "eyecite",
+        "eyecite_processed": true,
+        "metadata": {
+          "court": null,
+          "page": null,
+          "reporter": null,
+          "volume": null,
+          "year": 1954
+        },
+        "name": "Brown v. Board",
+        "text": "347 U.S. 483",
+        "valid": null
+      },
+      "details": {
+        "error": "'tuple' object has no attribute 'get'"
+      },
+      "exists": false,
+      "method": "error"
+    }
+  ],
+  "status": "success"
+}
+2025-05-30 15:20:35,163 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:20:35,168 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 400 59
+2025-05-30 15:20:35,169 - __main__ - INFO - Testing /casestrainer/api/analyze endpoint with text: 347 U.S. 483
+2025-05-30 15:20:35,170 - __main__ - DEBUG - Sending request to http://127.0.0.1:5000/casestrainer/api/analyze
+2025-05-30 15:20:35,170 - __main__ - DEBUG - Request headers: {'Content-Type': 'application/json'}
+2025-05-30 15:20:35,170 - __main__ - DEBUG - Request payload: {"text": "347 U.S. 483..."}
+2025-05-30 15:20:35,171 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:5000
+2025-05-30 15:20:35,270 - urllib3.connectionpool - DEBUG - http://127.0.0.1:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 400
+2025-05-30 15:20:35,271 - __main__ - INFO - Response status code: 200
+2025-05-30 15:20:35,271 - __main__ - DEBUG - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Fri, 30 May 2025 22:20:35 GMT', 'Content-Type': 'application/json', 'Content-Length': '400', 'Access-Control-Allow-Origin': 'http://127.0.0.1:5000', 'Access-Control-Expose-Headers': 'Content-Length, Content-Type, X-CSRFToken', 'Access-Control-Allow-Credentials': 'true', 'Vary': 'Origin', 'Connection': 'close'}
+2025-05-30 15:20:35,272 - __main__ - INFO - Successfully parsed JSON response
+2025-05-30 15:20:35,272 - __main__ - DEBUG - Response JSON: {
+  "results": [
+    {
+      "citation": {
+        "contexts": [
+          {
+            "citation_text": "347 U.S. 483",
+            "text": "347 U.S. 483"
+          }
+        ],
+        "extraction_method": "eyecite",
+        "eyecite_processed": true,
+        "metadata": {
+          "court": null,
+          "page": null,
+          "reporter": null,
+          "volume": null,
+          "year": null
+        },
+        "name": "Unknown Case",
+        "text": "347 U.S. 483",
+        "valid": null
+      },
+      "details": {
+        "error": "'tuple' object has no attribute 'get'"
+      },
+      "exists": false,
+      "method": "error"
+    }
+  ],
+  "status": "success"
+}

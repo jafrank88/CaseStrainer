@@ -6,7 +6,6 @@ extracts citations, and adds them to the CaseStrainer database.
 """
 
 import os
-import sys
 import json
 import logging
 import sqlite3
@@ -14,7 +13,6 @@ import PyPDF2
 import re
 import uuid
 from datetime import datetime
-from pathlib import Path
 import importlib.util
 
 # Constants

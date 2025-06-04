@@ -1,0 +1,13 @@
+2025-05-29 12:44:21,082 - src.vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_124421.log
+2025-05-29 12:44:21,120 - src.vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_124421.log
+2025-05-29 12:44:21,905 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
+2025-05-29 12:44:21,940 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
+2025-05-29 12:44:24,496 - citation_classifier - INFO - No existing model found
+2025-05-29 12:44:24,541 - citation_classifier - INFO - No existing model found
+2025-05-29 12:44:24,552 - src.vue_api_endpoints - INFO - Citation correction engine initialized successfully
+2025-05-29 12:44:24,597 - src.vue_api_endpoints - INFO - Citation correction engine initialized successfully
+2025-05-29 12:44:25,045 - werkzeug - WARNING -  * Debugger is active!
+2025-05-29 12:44:25,050 - werkzeug - INFO -  * Debugger PIN: 738-247-000
+2025-05-29 12:44:25,093 - werkzeug - WARNING -  * Debugger is active!
+2025-05-29 12:44:25,097 - werkzeug - INFO -  * Debugger PIN: 738-247-000
+2025-05-29 12:45:39,405 - werkzeug - INFO -  * Detected change in 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\app_final_vue.py', reloading

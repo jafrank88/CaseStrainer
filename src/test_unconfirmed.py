@@ -6,7 +6,6 @@ import json
 import os
 import sys
 import traceback
-import urllib.parse
 from app_final_vue import is_landmark_case, search_citation_on_web, check_case_with_ai
 from app_final_vue import get_cache_key, get_cache_path
 

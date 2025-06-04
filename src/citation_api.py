@@ -5,15 +5,34 @@ This module provides API endpoints for accessing citation data
 from the JSON files in the CaseStrainer application.
 """
 
-from flask import Blueprint, jsonify, request, make_response, current_app
+from flask import (
+    Blueprint,
+    jsonify,
+    request,
+    make_response,
+)
 import os
 import json
 import logging
 import uuid
 import traceback
-import time
 from werkzeug.utils import secure_filename
 from datetime import datetime
+
+# Add the project root to the Python path
+import os
+import sys
+
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Import from src to ensure consistent imports
+from src.citation_utils import extract_all_citations as extract_citations
+from src.citation_processor import CitationProcessor
+
+# Create an instance of CitationProcessor
+citation_processor = CitationProcessor()
 
 # Create a special logger for citation verification
 citation_logger = logging.getLogger("citation_verification")
@@ -86,7 +105,7 @@ def log_citation_verification(citation, verification_result, api_response=None):
         verification_result: The result of the verification attempt
         api_response: Optional raw API response for debugging
     """
-    citation_logger.info(f"===== CITATION VERIFICATION DETAILS =====")
+    citation_logger.info("===== CITATION VERIFICATION DETAILS =====")
     citation_logger.info(f"Citation: {citation}")
     citation_logger.info(f"Verification Result: {verification_result}")
 
@@ -100,13 +119,13 @@ def log_citation_verification(citation, verification_result, api_response=None):
         # Log details about the citation
         details = verification_result.get("details", {})
         if details:
-            citation_logger.info(f"Citation Details:")
+            citation_logger.info("Citation Details:")
             for key, value in details.items():
                 citation_logger.info(f"  {key}: {value}")
 
     # Log API response if provided
     if api_response:
-        citation_logger.info(f"API Response:")
+        citation_logger.info("API Response:")
         if isinstance(api_response, dict):
             for key, value in api_response.items():
                 if key != "results" and key != "data":
@@ -119,7 +138,7 @@ def log_citation_verification(citation, verification_result, api_response=None):
         else:
             citation_logger.info(f"  Raw response: {str(api_response)[:500]}...")
 
-    citation_logger.info(f"=========================================")
+    citation_logger.info("=========================================")
 
 
 def load_citation_verification_data():
@@ -349,11 +368,6 @@ def analyze():
     )
 
     # Add CORS headers for this specific endpoint
-    response_headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-    }
 
     try:
         # Generate a unique analysis ID
@@ -383,8 +397,8 @@ def analyze():
             except Exception as log_err:
                 logger.error(f"Failed to write debug_info to debug.log: {log_err}")
 
-        # Check if a file was uploaded
-        if "file" in request.files:
+        # Check if a file was uploaded or a URL was provided
+        if "file" in request.files and request.files["file"].filename:
             file = request.files["file"]
             logger.info(f"File uploaded: {file.filename if file else 'None'}")
 
@@ -403,6 +417,58 @@ def analyze():
                 logger.info(f"Extracted {len(document_text)} characters from file")
             else:
                 error_msg = f"Invalid file: {file.filename if file else 'None'}"
+                logger.error(error_msg)
+                return jsonify({"status": "error", "message": error_msg}), 400
+
+        # Check if a URL was provided
+        elif "url" in request.form and request.form["url"].strip():
+            url = request.form["url"].strip()
+            logger.info(f"URL provided: {url}")
+
+            try:
+                # Check if it's a PDF URL
+                if url.lower().endswith(".pdf"):
+                    import tempfile
+                    import requests
+
+                    # Download the PDF
+                    response = requests.get(url, stream=True)
+                    response.raise_for_status()
+
+                    # Save to a temporary file
+                    with tempfile.NamedTemporaryFile(
+                        delete=False, suffix=".pdf"
+                    ) as temp_file:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            if chunk:
+                                temp_file.write(chunk)
+                        temp_file_path = temp_file.name
+
+                    try:
+                        # Extract text from the downloaded PDF
+                        from file_utils import extract_text_from_file
+
+                        document_text = extract_text_from_file(temp_file_path)
+                        logger.info(
+                            f"Extracted {len(document_text)} characters from PDF URL"
+                        )
+                    finally:
+                        # Clean up the temporary file
+                        try:
+                            os.unlink(temp_file_path)
+                        except Exception as e:
+                            logger.warning(
+                                f"Failed to delete temporary file {temp_file_path}: {e}"
+                            )
+                else:
+                    # For non-PDF URLs, use the existing extract_text_from_url function
+                    from .enhanced_validator_production import extract_text_from_url
+
+                    document_text = extract_text_from_url(url)
+                    logger.info(f"Extracted {len(document_text)} characters from URL")
+
+            except Exception as e:
+                error_msg = f"Error processing URL: {str(e)}"
                 logger.error(error_msg)
                 return jsonify({"status": "error", "message": error_msg}), 400
 
@@ -426,54 +492,214 @@ def analyze():
         # Extract citations from text
         citations = []
         if document_text:
-            extracted_citations = extract_citations(document_text)
-            logger.info(f"Extracted {len(extracted_citations)} citations from text")
+            try:
+                # Extract citations with debug info
+                extracted_result = extract_citations(document_text, return_debug=True)
+
+                # Handle the return value from extract_citations
+                if isinstance(extracted_result, tuple) and len(extracted_result) == 2:
+                    # If it's a tuple with debug info, extract just the citations data
+                    extracted_data, extract_debug = extracted_result
+                    logger.debug(f"Extracted citations with debug info")
+                else:
+                    # If not a tuple, use the result as is
+                    extracted_data = extracted_result
+                    extract_debug = {}
+
+                # Extract confirmed and possible citations
+                if isinstance(extracted_data, dict):
+                    confirmed_citations = extracted_data.get("confirmed_citations", [])
+                    possible_citations = extracted_data.get("possible_citations", [])
+
+                    # Combine confirmed and possible citations, with confirmed first
+                    extracted_citations = confirmed_citations + possible_citations
+                    logger.info(
+                        f"Extracted {len(extracted_citations)} citations ({len(confirmed_citations)} confirmed, {len(possible_citations)} possible)"
+                    )
+                else:
+                    # Fallback if the structure is unexpected
+                    logger.warning(
+                        f"Unexpected extracted data format: {type(extracted_data)}"
+                    )
+                    extracted_citations = []
+
+                # Ensure extracted_citations is a list of dictionaries with the expected structure
+                processed_citations = []
+                for item in extracted_citations:
+                    if isinstance(item, dict):
+                        # Ensure the citation has the expected structure
+                        citation = {
+                            "citation_text": item.get("citation_text", ""),
+                            "case_name": item.get("case_name", ""),
+                            "metadata": item.get("metadata", {}),
+                            "source": item.get("source", "unknown"),
+                            "validation_status": item.get(
+                                "validation_status", "pending"
+                            ),
+                            "is_valid": item.get("is_valid", False),
+                        }
+                        processed_citations.append(citation)
+
+                extracted_citations = processed_citations
+
+                # Log the number of extracted citations
+                logger.info(f"Extracted {len(extracted_citations)} citations from text")
+
+            except Exception as e:
+                logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
+                extracted_citations = []
 
             # Validate each citation
-            for citation_text in extracted_citations:
-                validation_result = validate_citation(citation_text)
+            for i, citation_item in enumerate(extracted_citations):
+                try:
+                    logger.debug(
+                        f"Processing citation item {i+1}/{len(extracted_citations)}: {citation_item}"
+                    )
 
-                # Format the result to match the expected format by the Vue.js frontend
-                citations.append(
-                    {
+                    # Skip if not a dictionary
+                    if not isinstance(citation_item, dict):
+                        logger.warning(
+                            f"Skipping non-dict citation item: {citation_item}"
+                        )
+                        continue
+
+                    # Log the complete structure of the citation item for debugging
+                    logger.debug(f"Citation item type: {type(citation_item)}")
+                    logger.debug(
+                        f"Citation item structure: {json.dumps(citation_item, default=str, indent=2)}"
+                    )
+
+                    # Log all keys in the citation item for debugging
+                    if hasattr(citation_item, "keys"):
+                        logger.debug(
+                            f"Citation item keys: {list(citation_item.keys())}"
+                        )
+
+                    # Get citation text from various possible fields
+                    citation_text = citation_item.get("citation_text", "")
+                    if not citation_text and "citation" in citation_item:
+                        citation_text = citation_item["citation"]
+
+                    # Skip empty citations
+                    if not citation_text or not citation_text.strip():
+                        logger.warning(f"Skipping empty citation at index {i}")
+                        continue
+
+                    # Log the citation being processed
+                    logger.debug(f"Processing citation: {citation_text}")
+
+                    # Validate the citation
+                    try:
+                        # Call the validation endpoint
+                        validation_response = requests.post(
+                            f"{request.host_url}casestrainer/api/verify-citation",
+                            json={"citation": {"citation_text": citation_text}},
+                            headers={"Content-Type": "application/json"},
+                        )
+
+                        # Parse the validation response
+                        if validation_response.status_code == 200:
+                            validation_result = validation_response.json()
+                            is_valid = validation_result.get("verified", False)
+                            source = validation_result.get("source", "unknown")
+                            validation_method = validation_result.get(
+                                "validation_method", source
+                            )
+                            explanation = validation_result.get(
+                                "explanation",
+                                (
+                                    "Citation validated"
+                                    if is_valid
+                                    else "Citation not found"
+                                ),
+                            )
+                            case_name = validation_result.get("case_name", "")
+                            url = validation_result.get("url", "")
+                            confidence = float(
+                                validation_result.get(
+                                    "confidence", 1.0 if is_valid else 0.0
+                                )
+                            )
+                            name_match = bool(
+                                validation_result.get("name_match", is_valid)
+                            )
+                        else:
+                            logger.error(
+                                f"Error validating citation {citation_text}: {validation_response.status_code} - {validation_response.text}"
+                            )
+                            is_valid = False
+                            source = "error"
+                            validation_method = "error"
+                            explanation = f"Validation failed with status {validation_response.status_code}"
+                            case_name = ""
+                            url = ""
+                            confidence = 0.0
+                            name_match = False
+                    except Exception as e:
+                        logger.error(
+                            f"Exception during citation validation for {citation_text}: {str(e)}",
+                            exc_info=True,
+                        )
+                        is_valid = False
+                        source = "error"
+                        validation_method = "error"
+                        explanation = f"Validation error: {str(e)}"
+                        case_name = ""
+                        url = ""
+                        confidence = 0.0
+                        name_match = False
+
+                    # Create citation data with consistent structure
+                    citation_data = {
                         "citation": citation_text,
-                        "found": validation_result["verified"],
-                        "url": None,  # Not provided by Enhanced Validator
-                        "found_case_name": validation_result["case_name"],
-                        "name_match": True if validation_result["verified"] else False,
-                        "confidence": 1.0 if validation_result["verified"] else 0.0,
-                        "explanation": (
-                            f"Validated by {validation_result['validation_method']}"
-                            if validation_result["verified"]
-                            else "Citation not found"
-                        ),
-                        "source": (
-                            validation_result["validation_method"]
-                            if validation_result["verified"]
-                            else None
-                        ),
+                        "found": is_valid,
+                        "found_case_name": case_name,
+                        "url": url,
+                        "explanation": explanation,
+                        "source": source,
+                        "validation_method": validation_method,
+                        "confidence": confidence,
+                        "name_match": name_match,
+                        "metadata": citation_item.get("metadata", {}),
                     }
-                )
+
+                    # Add to citations list
+                    citations.append(citation_data)
+                    logger.debug(f"Added citation to results: {citation_data}")
+
+                except Exception as e:
+                    logger.error(
+                        f"Error processing citation {citation_item}: {str(e)}",
+                        exc_info=True,
+                    )
+                    continue
 
             logger.info(f"Validated {len(citations)} citations")
 
-            # Store the validated citations in the user's session instead of a global variable
+            # Store the validated citations in the user's session
             from flask import session
 
             session["user_citations"] = citations
             logger.info(f"Stored {len(citations)} citations in user session")
+
+            # Log a sample of the citations for debugging
+            if citations:
+                sample = min(3, len(citations))
+                logger.debug(f"Sample of {sample} citations: {citations[:sample]}")
 
         # Return results in the format expected by the EnhancedFileUpload component
         validation_results = []
         for citation in citations:
             validation_results.append(
                 {
-                    "citation": citation["citation"],
-                    "verified": citation["found"],
-                    "validation_method": (
-                        citation["source"] if citation["found"] else None
-                    ),
-                    "case_name": citation["found_case_name"],
+                    "citation": citation.get("citation", ""),
+                    "verified": citation.get("found", False),
+                    "validation_method": citation.get("source"),
+                    "case_name": citation.get("found_case_name", ""),
+                    "url": citation.get("url"),
+                    "explanation": citation.get("explanation", ""),
+                    "confidence": citation.get("confidence", 0.0),
+                    "name_match": citation.get("name_match", False),
                 }
             )
 

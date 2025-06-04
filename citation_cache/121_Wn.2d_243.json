@@ -1,0 +1,18 @@
+{
+  "verified": false,
+  "source": "Database",
+  "error": "Database error: no such column: citation",
+  "citation": "121 Wn.2d 243",
+  "sources": {},
+  "verified_by": null,
+  "confidence": 0.0,
+  "case_name": "",
+  "date_filed": "",
+  "docket_number": "",
+  "court": "",
+  "url": "",
+  "context": "",
+  "parallel_citations": [],
+  "warning": "",
+  "verification_steps": []
+}

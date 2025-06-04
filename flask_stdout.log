@@ -1,0 +1,20 @@
+
+============================================================
+Starting test Flask server on http://localhost:5000/
+The server will:
+1. Work normally for the first 3 requests
+2. Return 500 errors for requests 4-5
+3. Crash on the 6th request
+============================================================
+
+2025-06-03 11:04:58,164 - INFO - Hostname: HAUMEA
+2025-06-03 11:04:58,167 - INFO - Local IP: 128.208.154.3
+2025-06-03 11:04:58,168 - INFO - Process ID: 9540
+2025-06-03 11:04:58,170 - INFO - Port 5000 is available
+ * Serving Flask app 'test_flask'
+ * Debug mode: off
+2025-06-03 11:04:58,203 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.158.120.151:5000
+2025-06-03 11:04:58,205 - INFO - [33mPress CTRL+C to quit[0m

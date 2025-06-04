@@ -19,7 +19,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
-from sklearn.pipeline import Pipeline
 
 # Path to the citation database and model files
 DOWNLOAD_DIR = "downloaded_briefs"
@@ -155,7 +154,7 @@ def train_citation_classifier():
     vectorizer = TfidfVectorizer(
         analyzer="char_wb", ngram_range=(2, 5), max_features=200
     )
-    text_features = vectorizer.fit_transform(texts)
+    vectorizer.fit_transform(texts)
 
     # Convert DataFrame to numpy array
     feature_array = features_df.to_numpy()
@@ -234,10 +233,55 @@ def classify_citation(citation_text, case_name=None):
         text_features = vectorizer.transform([citation_text])
 
         # Get prediction probability
-        proba = model.predict_proba(text_features)[0]
+        try:
+            proba = model.predict_proba(text_features)
 
-        # Return probability of reliable class (index 1)
-        confidence = proba[1] if len(proba) > 1 else 0.5
+            # Initialize default confidence
+            confidence = 0.5
+
+            # Handle different shapes of predict_proba output
+            if hasattr(proba, "shape"):
+                if len(proba.shape) > 1 and proba.shape[0] > 0:
+                    if proba.shape[1] > 1:
+                        # Standard case: 2D array with probabilities for each class
+                        confidence = float(
+                            proba[0, 1]
+                        )  # Probability of reliable class (index 1)
+                    else:
+                        # Single class probability
+                        confidence = float(proba[0, 0])
+                elif len(proba.shape) == 1 and len(proba) > 0:
+                    # Case: 1D array (binary classification with shape [n_samples])
+                    confidence = float(proba[0])
+            elif isinstance(proba, (list, np.ndarray)) and len(proba) > 0:
+                # Handle list or array input
+                if len(proba) > 1:
+                    # Multiple classes - take the last probability if more than one class
+                    confidence = float(proba[-1])
+                else:
+                    # Single probability
+                    confidence = float(proba[0])
+            else:
+                # Fallback to prediction if proba is in an unexpected format
+                prediction = model.predict(text_features)
+                confidence = (
+                    float(prediction[0])
+                    if hasattr(prediction, "__len__") and len(prediction) > 0
+                    else 0.5
+                )
+        except (IndexError, TypeError, AttributeError) as e:
+            print(f"Error processing prediction probabilities: {e}")
+            try:
+                # Fallback to prediction if proba fails
+                prediction = model.predict(text_features)
+                confidence = (
+                    float(prediction[0])
+                    if hasattr(prediction, "__len__") and len(prediction) > 0
+                    else 0.5
+                )
+            except Exception as e2:
+                print(f"Fallback prediction also failed: {e2}")
+                confidence = 0.5
 
         # Adjust confidence based on feature heuristics
         if features["has_valid_reporter"] == 0:
@@ -269,30 +313,88 @@ def batch_classify_citations(citations):
     try:
         # Extract text and features
         texts = [c.get("citation_text", "") for c in citations]
+        if not texts:  # Handle empty input
+            return []
 
         # Create text features
         text_features = vectorizer.transform(texts)
 
         # Get prediction probabilities
-        probas = model.predict_proba(text_features)
+        try:
+            probas = model.predict_proba(text_features)
 
-        # Extract confidence scores (probability of reliable class)
-        confidences = [p[1] if len(p) > 1 else 0.5 for p in probas]
+            # Initialize confidences with default value
+            confidences = [0.5] * len(texts)
+
+            # Process probabilities based on their shape
+            confidences = [0.5] * len(texts)  # Initialize with default confidence
+
+            try:
+                if hasattr(probas, "shape"):
+                    if len(probas.shape) == 2 and probas.shape[0] > 0:
+                        if probas.shape[1] > 1:
+                            # Standard case: 2D array with probabilities for each class
+                            confidences = [
+                                float(p[-1]) for p in probas
+                            ]  # Take last probability
+                        else:
+                            # Single class probability
+                            confidences = [float(p[0]) for p in probas]
+                    elif len(probas.shape) == 1:
+                        # 1D array of probabilities
+                        confidences = [float(p) for p in probas]
+                elif isinstance(probas, (list, np.ndarray)) and len(probas) > 0:
+                    # Handle list or array input
+                    confidences = []
+                    for p in probas:
+                        try:
+                            if hasattr(p, "__len__") and len(p) > 1:
+                                # Take the last probability if multiple classes
+                                confidences.append(float(p[-1]))
+                            else:
+                                # Single probability or empty array
+                                confidences.append(
+                                    float(p[0])
+                                    if hasattr(p, "__len__") and len(p) > 0
+                                    else 0.5
+                                )
+                        except (IndexError, TypeError, ValueError) as e:
+                            print(f"Error processing probability: {e}")
+                            confidences.append(0.5)
+            except Exception as e:
+                print(f"Error processing batch probabilities: {e}")
+                # Fallback to prediction if proba fails
+                try:
+                    predictions = model.predict(text_features)
+                    confidences = (
+                        [float(p) for p in predictions]
+                        if hasattr(predictions, "__len__")
+                        else [0.5] * len(texts)
+                    )
+                except Exception as e2:
+                    print(f"Fallback prediction also failed: {e2}")
+                    confidences = [0.5] * len(texts)
+        except Exception as e:
+            print(f"Error in batch prediction: {e}")
+            confidences = [0.5] * len(texts)
 
         # Adjust confidence based on feature heuristics
         for i, citation in enumerate(citations):
-            features = extract_features_from_citation(
-                citation.get("citation_text", ""), citation.get("case_name", "")
-            )
+            try:
+                features = extract_features_from_citation(
+                    citation.get("citation_text", ""), citation.get("case_name", "")
+                )
 
-            if features["has_valid_reporter"] == 0:
-                confidences[i] *= 0.8  # Reduce confidence if no valid reporter
+                if features["has_valid_reporter"] == 0:
+                    confidences[i] *= 0.8  # Reduce confidence if no valid reporter
 
-            if features["is_wl_citation"] == 1:
-                confidences[i] *= 0.9  # Slightly reduce confidence for WL citations
+                if features["is_wl_citation"] == 1:
+                    confidences[i] *= 0.9  # Slightly reduce confidence for WL citations
 
-            if features["has_unusual_characters"] == 1:
-                confidences[i] *= 0.7  # Reduce confidence for unusual characters
+                if features["has_unusual_characters"] == 1:
+                    confidences[i] *= 0.7  # Reduce confidence for unusual characters
+            except Exception as e:
+                print(f"Error processing citation features: {e}")
 
         return confidences
     except Exception as e:

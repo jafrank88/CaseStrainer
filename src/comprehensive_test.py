@@ -11,9 +11,8 @@ import os
 import logging
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
-from requests.exceptions import RequestException
 import traceback
 
 # Set up logging

@@ -6,7 +6,6 @@ to D:\CaseStrainer\downloaded_briefs, extracts citations, and adds them to the C
 """
 
 import os
-import sys
 import json
 import logging
 import sqlite3
@@ -15,7 +14,6 @@ import re
 import uuid
 import shutil
 from datetime import datetime
-from pathlib import Path
 import importlib.util
 from tqdm import tqdm
 
@@ -27,7 +25,8 @@ EXTRACTED_DIR = os.path.join(RESULTS_DIR, "extracted_text")
 CITATIONS_FILE = os.path.join(RESULTS_DIR, "unverified_wa_citations.json")
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")
 FILE_LINKS_DIR = os.path.join(RESULTS_DIR, "file_links")
-CONTEXT_LENGTH = 200  # Number of characters to extract before and after a citation
+# Number of characters to extract before and after a citation
+CONTEXT_LENGTH = 200
 
 # Configure logging
 logging.basicConfig(
@@ -179,13 +178,13 @@ def verify_citation(citation):
         # Verify the citation
         result = verifier.verify_citation(citation)
 
-        logger.info(f"Verified citation: {citation}")
-        logger.info(f"Verification result: {result}")
+        logger.info("Verified citation: %s", citation)
+        logger.info("Verification result: %s", result)
 
         return result
 
     except Exception as e:
-        logger.error(f"Error verifying citation {citation}: {e}")
+        logger.error("Error verifying citation %s: %s", citation, e)
         return {"verified": False, "error": str(e)}
 
 
@@ -249,7 +248,7 @@ def add_to_database(citation_data, source, verification_result, file_link=None):
                 ),
             )
             logger.info(
-                f"Updated existing citation in database: {citation_data['citation']}"
+                "Updated existing citation in database: %s", citation_data["citation"]
             )
         else:
             # Insert a new citation
@@ -278,7 +277,7 @@ def add_to_database(citation_data, source, verification_result, file_link=None):
                     datetime.now().isoformat(),
                 ),
             )
-            logger.info(f"Added new citation to database: {citation_data['citation']}")
+            logger.info("Added new citation to database: %s", citation_data["citation"])
 
         # Commit the changes
         conn.commit()
@@ -289,7 +288,7 @@ def add_to_database(citation_data, source, verification_result, file_link=None):
         return True
 
     except Exception as e:
-        logger.error(f"Error adding citation to database: {e}")
+        logger.error("Error adding citation to database: %s", e)
         return False
 
 
@@ -304,13 +303,13 @@ def create_file_link(brief_path):
 
         # Copy the file
         shutil.copy2(brief_path, new_file_path)
-        logger.info(f"Created file link: {new_file_path}")
+        logger.info("Created file link: %s", new_file_path)
 
         # Return the relative path to the file
         return os.path.join("WA_Briefs_Results", "file_links", new_file_name)
 
     except Exception as e:
-        logger.error(f"Error creating file link for {brief_path}: {e}")
+        logger.error("Error creating file link for %s: %s", brief_path, e)
         return None
 
 
@@ -321,7 +320,7 @@ def process_brief(brief_path):
     try:
         # Extract court and case information from the file path
         path_parts = brief_path.split(os.sep)
-        court_id = path_parts[-2] if len(path_parts) > 1 else "Unknown"
+        path_parts[-2] if len(path_parts) > 1 else "Unknown"
         file_name = os.path.basename(brief_path)
 
         # Create a file link for the brief
@@ -404,8 +403,8 @@ def save_unverified_citations(unverified_citations):
         # Also save a report with statistics
         report_path = os.path.join(RESULTS_DIR, "citation_processing_report.txt")
         with open(report_path, "w", encoding="utf-8") as f:
-            f.write(f"Citation Processing Report\n")
-            f.write(f"=========================\n\n")
+            f.write("Citation Processing Report\n")
+            f.write("=========================\n\n")
             f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write(f"Total unverified citations: {len(unverified_citations)}\n\n")
 
@@ -415,7 +414,7 @@ def save_unverified_citations(unverified_citations):
                 error = citation["verification_result"].get("error", "Unknown error")
                 error_counts[error] = error_counts.get(error, 0) + 1
 
-            f.write(f"Error breakdown:\n")
+            f.write("Error breakdown:\n")
             for error, count in error_counts.items():
                 f.write(f"  - {error}: {count}\n")
 
@@ -471,9 +470,9 @@ def main():
             for column in missing_columns:
                 try:
                     cursor.execute(f"ALTER TABLE citations ADD COLUMN {column} TEXT")
-                    logger.info(f"Added column: {column}")
+                    logger.info("Added column: %s", column)
                 except sqlite3.OperationalError as e:
-                    logger.warning(f"Could not add column {column}: {e}")
+                    logger.warning("Could not add column %s: %s", column, e)
 
             conn.commit()
 
@@ -483,7 +482,7 @@ def main():
 
     # Find all briefs
     briefs = find_briefs()
-    logger.info(f"Found {len(briefs)} briefs to process")
+    logger.info("Found %d briefs to process", len(briefs))
 
     # Process each brief
     all_unverified_citations = []
@@ -499,7 +498,7 @@ def main():
     logger.info(
         "Finished processing Washington briefs with enhanced citation validation"
     )
-    logger.info(f"Total unverified citations: {len(all_unverified_citations)}")
+    logger.info("Total unverified citations: %d", len(all_unverified_citations))
 
     # Print a summary
     print("\nProcessing Summary:")
@@ -524,7 +523,7 @@ def main():
         "3. Test the enhanced citation validation with some of the extracted citations"
     )
     print("4. Check the citation context and file links for verified citations")
-    logger.info(f"Results are saved in: {RESULTS_DIR}")
+    logger.info("Results are saved in: %s", RESULTS_DIR)
 
 
 if __name__ == "__main__":

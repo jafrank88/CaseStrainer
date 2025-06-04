@@ -29,6 +29,48 @@ cd CaseStrainer
 pip install -r requirements.txt
 ```
 
+## Environment Variables
+
+CaseStrainer uses environment variables for configuration. You can set them up in two ways:
+
+### Option 1: Using the Setup Script (Recommended)
+
+Run the interactive setup script:
+
+```bash
+scripts\setup_env.bat
+```
+
+This will guide you through the process of creating a `.env` file with the required configuration.
+
+### Option 2: Manual Setup
+
+1. Copy the example environment file:
+   ```bash
+   copy .env.example .env
+   ```
+
+2. Edit the `.env` file and update the following variables:
+   - `COURTLISTENER_API_KEY`: Your CourtListener API key (required for citation validation). Note: Only v4 of the CourtListener API is supported. The application will automatically use the v4 endpoints.
+   - `LANGSEARCH_API_KEY`: Your LangSearch API key (if using LangSearch features)
+   - `SECRET_KEY`: A secret key for Flask session encryption
+   - Other settings can be left as default for local development
+
+### Important Security Notes
+- Never commit the `.env` file to version control (it's already in `.gitignore`)
+- Keep your API keys secure and never share them publicly
+- The setup script generates a secure random `SECRET_KEY` for you
+
+### Verifying Your Configuration
+
+After setting up your environment, you can verify your configuration by running:
+
+```bash
+scripts\test_env.bat
+```
+
+This will check that all required environment variables are properly set and display their values (without showing sensitive information).
+
 ## Getting Started
 
 ### Starting and Restarting CaseStrainer
@@ -127,13 +169,21 @@ The application can be started in two modes:
 ```bash
 start_casestrainer.bat
 ```
-This runs the Flask development server with debug mode enabled, which is ideal for development and testing.
+This will:
+- Stop any running Python processes on port 5000
+- Install/update Python dependencies
+- Start the Flask development server on http://localhost:5000/
+  - API endpoints are available at http://localhost:5000/api/...
 
 #### Production Mode
 ```bash
 start_casestrainer.bat production
 ```
-This runs the application using Waitress WSGI server, which is suitable for production deployment.
+This will:
+- Stop any running Python processes on port 5000
+- Install/update Python dependencies
+- Start the Waitress WSGI server on http://localhost:5000/
+  - API endpoints are available at http://localhost:5000/api/...
 
 ### Manual Start
 

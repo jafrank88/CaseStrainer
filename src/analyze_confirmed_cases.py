@@ -10,13 +10,10 @@ where even verified citations might contain problematic references.
 """
 
 import os
-import sys
 import json
 import time
-import random
 import requests
 import traceback
-from datetime import datetime
 from bs4 import BeautifulSoup
 
 # Import functions from analyze_more_briefs.py
@@ -131,7 +128,7 @@ def analyze_case_with_casestrainer(case_path, case_text, api_key):
     """
     Analyze a case using CaseStrainer to find unconfirmed citations
     """
-    from app_final import run_analysis, generate_analysis_id
+    from app_final_vue import run_analysis, generate_analysis_id
 
     print(f"Analyzing case: {os.path.basename(case_path)}")
 

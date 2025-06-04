@@ -6,13 +6,7 @@ that can distinguish between real cases, hallucinations, and typos.
 """
 
 import re
-import json
 import requests
-import urllib.parse
-import traceback
-from bs4 import BeautifulSoup
-import time
-import random
 
 # Citation patterns for different formats - with more flexible matching
 CITATION_PATTERNS = {

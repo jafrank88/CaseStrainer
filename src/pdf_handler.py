@@ -4,16 +4,12 @@ import io
 import tempfile
 import shutil
 import subprocess
-import traceback
 import PyPDF2
-from io import StringIO
-from datetime import datetime
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.high_level import extract_text as pdfminer_extract_text
-from PIL import ImageEnhance
 import re
 
 

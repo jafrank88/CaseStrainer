@@ -13,8 +13,6 @@ import requests
 import traceback
 import time
 import random
-from datetime import datetime
-from urllib.parse import urljoin
 
 # Import eyecite for citation extraction
 try:

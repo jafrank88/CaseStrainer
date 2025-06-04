@@ -12,7 +12,6 @@ import requests
 import traceback
 import time
 import random
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -27,7 +26,7 @@ except ImportError:
 
 # Import CaseStrainer functions
 try:
-    from app_final import extract_text_from_file, extract_citations
+    from app_final_vue import extract_text_from_file, extract_citations
     from multi_source_verifier import MultiSourceVerifier
 
     print("Successfully imported CaseStrainer functions")

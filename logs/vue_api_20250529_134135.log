@@ -1,0 +1,9 @@
+2025-05-29 13:41:35,548 - src.vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_134135.log
+2025-05-29 13:41:36,378 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
+2025-05-29 13:41:38,900 - citation_classifier - INFO - No existing model found
+2025-05-29 13:41:38,962 - src.vue_api_endpoints - INFO - Citation correction engine initialized successfully
+2025-05-29 13:41:40,310 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.158.120.151:5000
+2025-05-29 13:41:40,312 - werkzeug - INFO - [33mPress CTRL+C to quit[0m

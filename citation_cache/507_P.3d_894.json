@@ -1,0 +1,22 @@
+{
+  "verified": true,
+  "source": "CourtListener",
+  "citation": "507 P.3d 894",
+  "case_name": "",
+  "decision_date": "",
+  "parallel_citations": [
+    {
+      "citation": "507 P.3d 894",
+      "source": "original",
+      "verified": true
+    }
+  ],
+  "api_response": {
+    "verified": false,
+    "citation": "507 P.3d 894",
+    "source": "CourtListener API",
+    "error": null,
+    "citations": [],
+    "parallel_citations": []
+  }
+}

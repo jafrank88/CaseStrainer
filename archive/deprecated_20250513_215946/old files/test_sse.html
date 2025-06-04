@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Test</title>
+</head>
+<body>
+    <h1>SSE Connection Test</h1>
+    <button id="connect">Connect to SSE</button>
+    <div id="status">Not connected</div>
+    <div id="messages"></div>
+
+    <script>
+        document.getElementById('connect').addEventListener('click', function() {
+            const statusDiv = document.getElementById('status');
+            const messagesDiv = document.getElementById('messages');
+            
+            statusDiv.textContent = 'Connecting...';
+            
+            // Close any existing connection
+            if (window.eventSource) {
+                window.eventSource.close();
+            }
+            
+            // Create a new EventSource connection
+            window.eventSource = new EventSource('/analyze?test=1');
+            
+            window.eventSource.onopen = function() {
+                statusDiv.textContent = 'Connected';
+                console.log('Connection established');
+            };
+            
+            window.eventSource.onmessage = function(event) {
+                console.log('Message received:', event.data);
+                const message = document.createElement('div');
+                message.textContent = event.data;
+                messagesDiv.appendChild(message);
+            };
+            
+            window.eventSource.onerror = function(error) {
+                statusDiv.textContent = 'Error: Connection failed';
+                console.error('EventSource error:', error);
+                window.eventSource.close();
+            };
+        });
+    </script>
+</body>
+</html>

@@ -9,11 +9,9 @@ import os
 import sys
 import json
 import requests
-import re
 import traceback
 import time
 import random
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -28,20 +26,22 @@ except ImportError:
 
         print("Successfully imported MultiSourceVerifier from multi_source_verifier")
     except ImportError:
-        print("Error importing MultiSourceVerifier, trying to import from app_final")
+        print(
+            "Error importing MultiSourceVerifier, trying to import from app_final_vue"
+        )
         try:
-            from app_final import check_case_with_ai
+            from app_final_vue import check_case_with_ai
 
-            print("Successfully imported check_case_with_ai from app_final")
+            print("Successfully imported check_case_with_ai from app_final_vue")
         except ImportError:
             print("Error importing verification functions. Cannot proceed.")
             sys.exit(1)
 
 # Try to import citation extraction function
 try:
-    from app_final import extract_citations
+    from app_final_vue import extract_citations
 
-    print("Successfully imported extract_citations from app_final")
+    print("Successfully imported extract_citations from app_final_vue")
 except ImportError:
     print("Error importing extract_citations. Cannot proceed.")
     sys.exit(1)
@@ -371,7 +371,7 @@ def main():
 
             # Stop after processing 100 briefs total
             if total_briefs_processed >= 100:
-                print(f"Reached limit of 100 briefs processed. Stopping.")
+                print("Reached limit of 100 briefs processed. Stopping.")
                 break
 
         # Stop after processing 100 briefs total

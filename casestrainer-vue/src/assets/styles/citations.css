@@ -1,0 +1,36 @@
+/* Citation styling for CaseStrainer */
+
+/* Style for reporter suffixes (like 2d, 3d, 4th, etc.) */
+.reporter-suffix {
+  font-feature-settings: "tnum" 1; /* Use tabular numbers for better alignment */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.05em; /* Slightly tighten letter spacing for numbers */
+  margin-right: -0.1em; /* Compensate for the letter spacing on the right */
+}
+
+/* Ensure proper spacing around citations */
+.citation {
+  white-space: nowrap; /* Keep citation parts together */
+}
+
+/* Style for citation tables */
+.table td {
+  vertical-align: middle;
+}
+
+/* Style for citation status badges */
+.badge {
+  font-size: 0.85em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Style for the citation context in modals */
+.context-text {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

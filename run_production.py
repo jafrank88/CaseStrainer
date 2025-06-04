@@ -1,10 +1,16 @@
 import os
 import sys
-from waitress import serve
-from src.app_final_vue import app
 import logging
 import socket
 from datetime import datetime
+from waitress import serve
+
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.app_final_vue import app
 
 
 # --- URL Prefix Middleware ---
@@ -99,4 +105,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # Apply the prefix middleware for /casestrainer/
+    app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix="/casestrainer")
     main()

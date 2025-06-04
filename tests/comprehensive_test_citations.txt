@@ -1,0 +1,247 @@
+COMPREHENSIVE TEST DOCUMENT WITH VARIOUS CITATIONS
+
+SECTION 1: SUPREME COURT CITATIONS
+This Court has consistently upheld the principles established in Brown v. Board of Education, 347 U.S. 483 (1954) and Roe v. Wade, 410 U.S. 113 (1973). The Court has also recognized that the Fourth Amendment protects against unreasonable searches and seizures in the digital realm. Riley v. California, 573 U.S. 373 (2014). The Court has acknowledged that individuals have a reasonable expectation of privacy in their digital communications. Carpenter v. United States, 138 S. Ct. 2206 (2018).
+
+The Fourth Amendment's protection against unreasonable searches and seizures extends to digital information. In Katz v. United States, 389 U.S. 347 (1967), this Court established that the Fourth Amendment "protects people, not places." The Court has consistently applied this principle to new technologies, as demonstrated in United States v. Jones, 565 U.S. 400 (2012).
+
+The third-party doctrine, established in Smith v. Maryland, 442 U.S. 735 (1979) and United States v. Miller, 425 U.S. 435 (1976), holds that individuals have no reasonable expectation of privacy in information voluntarily disclosed to third parties. However, this doctrine requires reconsideration in the digital age.
+
+SECTION 2: CIRCUIT COURT CITATIONS
+Lower courts have also recognized these principles. In United States v. Warshak, 631 F.3d 266 (6th Cir. 2010), the Sixth Circuit held that individuals have a reasonable expectation of privacy in their email communications. In United States v. Forrester, 512 F.3d 500 (9th Cir. 2008), the Ninth Circuit distinguished between the content of communications, which is protected, and addressing information, which is not.
+
+This distinction has been further developed in more recent cases such as In re Application of the United States for Historical Cell Site Data, 724 F.3d 600 (5th Cir. 2013) and United States v. Graham, 824 F.3d 421 (4th Cir. 2016). In U.S. v. Caraway, 534 F.3d 1290, 1301 (10th Cir. 2008), the court discussed the definition of unfair prejudice in the context of Rule 403.
+
+SECTION 3: DISTRICT COURT CITATIONS
+District courts have also addressed these issues. In In re Search of Information Associated with Email Accounts, 13 F. Supp. 3d 157 (D.D.C. 2014), the court limited the government's ability to obtain email communications without appropriate procedural safeguards. In Smith v. United States, 2011 WL 2160468 (D. Wyo. 2011), the court ruled that evidence of a party's alcohol consumption was inadmissible because it lacked a direct connection to the events at issue.
+
+In Meyer v. City of Cheyenne, 2017 WL 3461055 (D. Wyo. 2017), the court excluded terms that could unduly influence a jury's perception. Similarly, in Benson v. State of Wyoming, 2010 WL 4683851 (D. Wyo. 2010), the court emphasized that speculative testimony without concrete evidence is inadmissible.
+
+SECTION 4: STATE COURT CITATIONS
+State courts have also addressed these issues. In People v. Weaver, 12 N.Y.3d 433 (2009), the New York Court of Appeals held that the installation and use of a GPS device on a defendant's vehicle constituted a search under the state constitution. Similarly, in Commonwealth v. Augustine, 467 Mass. 230 (2014), the Supreme Judicial Court of Massachusetts held that obtaining cell site location information requires a warrant under the state constitution.
+
+SECTION 5: INTERNATIONAL COURT CITATIONS
+International courts have also recognized the importance of digital privacy. In S. and Marper v. United Kingdom, 48 EHRR 50 (2008), the European Court of Human Rights held that the retention of DNA samples and fingerprints of individuals who were arrested but not convicted violated the right to privacy under Article 8 of the European Convention on Human Rights.
+
+Similarly, in Digital Rights Ireland Ltd v. Minister for Communications, Marine and Natural Resources, Case C-293/12 (2014), the Court of Justice of the European Union invalidated the Data Retention Directive, finding that it constituted a disproportionate interference with the rights to privacy and data protection.
+
+SECTION 6: POTENTIALLY NON-EXISTENT OR OBSCURE CITATIONS
+The principles established in Johnson v. Eisentrager, 339 U.S. 763 (1950) regarding extraterritorial application of constitutional rights should be reconsidered in light of modern technological capabilities. See also Smith v. Robinson Manufacturing, 553 U.S. 874 (2008) (discussing extraterritorial application in the digital context).
+
+The Court should also consider the reasoning in United States v. Thompson, 562 F.3d 387 (7th Cir. 2009) and Williams v. Department of Justice, 389 F. Supp. 3d 52 (S.D.N.Y. 2019), both of which addressed novel questions of digital privacy.
+
+The landmark case of Doe v. Internet Services Provider, 601 F.3d 1045 (9th Cir. 2010) established important precedent for privacy expectations in cloud storage, while Jackson v. Metropolitan Police Department, 875 F. Supp. 2d 221 (D.D.C. 2012) addressed privacy concerns in facial recognition technology.
+
+SECTION 7: CITATIONS FROM MULTITOOL REPORT
+The following citations have been verified by Google Scholar with varying confidence levels:
+1. 1998 WL 864012 (10th Cir. Dec. 14, 1998)
+2. 1999 WL 265286 (7th Cir. 1999)
+3. 2023 WL 119577 (4th Cir. Jan. 6, 2023)
+4. 2024 WL 4529794 (U.S. Oct. 21, 2024)
+5. 389 U.S. 977 (1967)
+6. 2021 WL 1061528 (D.D.C. Mar. 18, 2021)
+7. 2023 WL 3584466 (S.D.N.Y. May 19, 2023)
+8. 2023 WL 4145321 (6th Cir. June 23, 2023)
+9. 2024 WL 195468 (D.N.J. Jan. 18, 2024)
+10. 2023 WL 7020377 (D. Idaho Oct. 25, 2023)
+11. 2024 WL 779604 (N.D. Cal. Feb. 26, 2024)
+12. 2024 WL 1108700 (5th Cir. Mar. 14, 2024)
+13. 2023 WL 395030 (Jan. 25, 2023)
+14. 2023 WL 2755656 (6th Cir. Apr. 3, 2023)
+15. 2024 WL 807436 (2d Cir. Feb. 27, 2024)
+
+SECTION 8: ADDITIONAL CITATIONS
+Additional citations from various sources:
+1. 385 U.S. 493
+2. 481 U.S. 279
+3. 451 U.S. 182
+4. 443 U.S. 545
+5. 94 S.Ct. 1105
+6. 87 S.Ct. 616
+7. 107 S.Ct. 1756
+8. 137 S.Ct. 855
+9. 101 S.Ct. 1629
+10. 99 S.Ct. 2993
+11. 2021 WL 3910557
+
+SECTION 9: STATUTORY CITATIONS
+Various statutory citations:
+1. 8 U.S.C. 1153 (2018 & Supp. IV 2022)
+2. 47 U.S.C. 227(b)(2) (2018 & Supp. IV 2022)
+3. 10 U.S.C. 2733 (2018 & Supp. IV 2022)
+4. 10 U.S.C. 1448 (2018 & Supp. IV 2022)
+5. 10 U.S.C. 1451 (2018 & Supp. IV 2022)
+6. 10 U.S.C. 12731 (2018 & Supp. IV 2022)
+7. 18 U.S.C. 1114 (1982 & Supp. II 1984)
+
+
+SECTION 8: ADDITIONAL CITATIONS FROM BRIEFS
+The following citations were extracted from various legal briefs:
+
+101 P.3d 1; 111  P.3d 899; 494 P.2d 
+
+485; 556 F.3d 920; 659 P.2d 514
+53 P.3d 17; 286 P.3d 673; 530 P.2d 243; 481 P.3d 521; 17 L.  Ed.  2d 562
+168  P.3d 359; 408 U.S. 934; 80 L.Ed.2d 674; 523  U.S.  1008; 137 S.Ct. 855
+104 S. Ct. 2052; 482 P.2d 775; 2016 
+
+WL 165971; 371 U.S. 
+
+471; 399 P.3d 1106
+258 P.3d 43; 396 P.3d 316; 577 P.2d 975; 826 P.2d 147; 899 P.2d 1251
+358 
+
+P.3d 359; 940 P.2d 633; 111 P.3d 1183; 101 P.3d 80; 944 P.2d 1104
+616 P.2d 628; 67 P.3d 1147; 278 P.3d 653; 309 P.3d 326; 998 P.2d 
+
+907
+371 U.S. 471; 621 
+
+P.2d 784; 375 P.3d 664; 257 P.3d 551; 427 P.3d 621
+2017  WL 
+
+3461055; 647 S.E.2d 899; 104 S. Ct. 
+
+2052; 974 P.2d 832; 230 
+
+P.3d 576
+2006 WL 3801910; 17 L.Ed.2d 
+
+562; 917 P.2d 155; 977 F.2d 1067; 94 S.Ct. 
+
+1105
+892 P.2d 29; 888 P.2d 1169; 240 P.3d 1158; 282 P.3d 98; 87 S.  Ct.  616
+554 P.2d 1069; 539 P.2d 680; 80 L. Ed. 2d 674; 33  L.  Ed. 2d 747; 230 P.3d 576
+100 
+
+S.Ct. 1870; 68 L.Ed.2d 22; 479 P.3d 656; 206 P.3d 697; 80 L.  Ed. 2d 674
+429 P.3d 1116; 80  L. Ed. 2d 674; 483 P.3d 98; 246 P.3d  1260; 87 S.Ct. 
+616
+245 P.3d 776; 808 F.2d 723; 257 P.3d 
+
+551; 204 P.3d 916; 846 P.2d 1365
+470 P.3d 488; 41 P.3d 1189; 42 S.Ct. 397; 217 P.3d 756; 965 P.2d 593
+386 U.S. 18; 71 P.3d 638; 88  S.  Ct. 
+
+1868; 534  F.3d  1290; 258 U.S. 495
+256 P.3d 321; 415 U.S. 308; 443 U.S. 545; 808 P.2d 1159; 997 P.2d 950
+548 U.S. 212; 419 P.3d 410; 829 P.2d 1068; 155 P.3d 125; 88  S.  Ct.  1868
+682 P.2d 925; 64 L.Ed.2d 497; 550 U.S. 544; 33  L.  Ed.  2d 747; 440 P.3d 1032
+165 L. Ed. 2d 
+
+27; 229 P.3d 678; 195 
+
+P.3d 940; 83 S.Ct. 407; 665 P.2d 443
+466 U.S.  668; 49 L.Ed. 518; 69 P.3d 594; 128 P.3d 1271; 998 P.2d 907
+429 P.3d 467; 2019 WL 
+2516279; 439 F.2d 536; 334 P.3d 529; 370 F.2d 82
+426 
+
+P.3d 714; 256 P.3d 426; 882 P.2d 747; 368 P.3d 222; 351 P.2d 153
+17 L.Ed.2d 562; 106 S. Ct. 1431; 482 P.3d 913; 17 
+
+L.Ed.2d 562; 256 P.3d 
+
+426
+475 U.S. 673; 104 S.  Ct. 
+
+2052; 39 
+
+L.Ed.2d 347; 705 P.2d 1182; 536 P.2d 20
+577 P.2d 925; 713 
+
+P.2d 1101; 107 S.Ct. 1756; 87 S.  Ct. 616; 94 S.Ct. 1105
+127 
+
+S.Ct. 1955; 621  P.2d 784; 17 L.  Ed. 2d 562; 271 P.3d 876; 621 P.2d 784
+2017 WL 3461055; 2016 
+WL 165971; 222 P.3d 92; 790 P.2d 610; 316 P.3d 1020
+352 P.3d 776; 2010 WL 4683851; 355 P.3d 1167; 901 P.2d 286; 95 
+
+L.Ed.2d 262
+453 P.3d 696; 864 P.2d 426; 811 P.2d 687; 451 U.S. 182; 178 P.2d 341
+77 P.3d 681; 249 P.3d 202; 126 S. Ct. 2546; 743 P.2d 816; 17 L.  Ed.  2d  562
+134 P.3d 221; 285 P.3d 83; 748 P.2d 597; 847 P.2d 919; 904 P.2d 245
+975 P.2d 512; 982 P.2d 627; 9 L.Ed.2d 441; 458 P.3d 
+
+750; 899 P.2d  1251
+2017 
+WL 4534206; 66 L.Ed. 735; 222 P.3d 107; 104 
+
+S.  Ct.  2052; 2018 WL 2446162
+99 S.Ct. 2993; 25 S.Ct. 276; 470 P.3d 499; 829 P.2d 1069; 940 P.2d 546
+47 P.3d 173; 39 L.Ed.2d 347; 431  P.3d 126; 338 P.3d 278; 755 P.2d 174
+168 P.3d 359; 634 P.2d 316; 24 P.3d 1006; 87 S. Ct. 616; 825 P.2d 754
+734 A.2d 1245; 399 L.Ed.2d 347; 408 P.3d 675; 62 P.3d 489; 2018 WL 3037217
+326 P.3d 125; 438 P.3d 541; 101 S.Ct. 1629; 482 P.3d 
+
+913; 183 P.3d 
+
+1086
+87 S.Ct. 824; 494 P.2d 485; 577 
+P.2d 925; 6 F.2d 536; 92  S.  Ct. 2852
+87  S.  Ct.  616; 17 L.Ed.2d 705; 556  F.3d  920; 10 P.3d 977; 385 U.S. 493
+730 A.2d 181; 481 U.S. 279; 358 P.3d 359; 730 A.2d 
+
+181; 16 P.3d 610
+182 P.3d 426; 89 L. Ed. 2d 674; 17 L.  Ed. 
+
+2d 562; 14 
+
+ 
+P.3d 1124; 197 L.Ed.2d 107
+440 P.3d 994; 351 
+
+P.2d 153; 935 P.2d 1294; 104 S.  Ct.  2052; 95 L.Ed.2d 
+
+262
+60 F.3d 913; 392 U.S.  1; 107 P.3d 
+
+728; 115 P.3d 368; 20 L.  Ed.  2d 889
+195 P.3d 940; 536 
+
+P.2d 20; 354 P.3d 900; 104 S.Ct. 2052; 481 P.3d 
+
+7
+83 P.3d 970; 958 P.2d 364; 20 
+
+L.Ed.2d 889; 948 P.2d 1280; 456 P.3d 1199
+823 P.2d 1068; 20 L.Ed.2d 889; 446 P.2d 571; 410 P.3d 1142; 167 L.Ed.2d 929
+87  S.  Ct. 616; 609  F.Supp.  867; 80 L. 
+
+Ed. 2d 674; 609 F.Supp. 867; 341 P.3d 976
+713 P.2d 1101; 246 P.3d 1260; 621 P.2d 1272; 20  L.  Ed. 2d 889; 917 P.2d 563
+534 F.3d 1290; 385  U.S. 493; 183 P.3d 1086; 982 P.2d 681; 87 S.Ct. 616
+2017 WL 4534206; 998 F.2d 1460; 128 P.3d 
+
+1271; 426 P.3d 714; 2021 WL 3910557
+398 P.3d 1124; 523 U.S.  1008; 215 P.3d 177; 2019 WL 2516279; 2019 WL 
+
+2516279
+2018 WL 4697269; 100 S.Ct. 1870; 196 U.S. 375; 604 P.2d 1293; 458 P.3d 750
+536 P.2d 
+
+20; 239 P.3d 573; 917 P.2d 108; 141 S. 
+
+Ct. 398; 202 P.3d 937
+2011 WL 2160468; 61 L.Ed.2d 739; 36 P.3d 374; 940 P.2d 1239; 156 P.3d 201
+466 U.S. 668; 892 P.2d 
+
+29; 127 S.Ct. 1955; 181 P.3d 831; 10 P.3d 358
+904 P.2d 324; 2017 WL 
+3461055; 446 U.S. 544; 942 P.2d 999; 740 P.2d 824
+288 P.3d 1167; 940 
+
+P.2d  1239; 693 P.2d 89; 258  P.3d 43; 230 P.3d 
+
+38
+17 L.Ed.2d 
+562; 385 U.S.  493; 392 U.S. 1; 166 P.3d 677; 93 P.3d 904
+948 P.2d 
+
+1280; 309 P.3d 1052; 248 P.3d 518; 385 
+U.S. 493; 17 L. Ed. 2d 562
+935  P.2d 1294; 196 
+U.S. 375; 88 S.Ct. 1868; 101 P.3d 
+
+1

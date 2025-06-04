@@ -5,7 +5,6 @@ This script tests the simple citation verifier with various test citations
 to ensure it correctly distinguishes between real cases, hallucinations, and typos.
 """
 
-import sys
 import traceback
 from simple_citation_verifier import SimpleCitationVerifier
 

@@ -5,8 +5,6 @@ This script checks all citations in the Unconfirmed Citations tab using
 the enhanced citation verification tool with multiple sources.
 """
 
-import os
-
 import json
 import sqlite3
 
@@ -15,7 +13,7 @@ import random
 
 
 from multi_source_verifier import MultiSourceVerifier
-from config import DATABASE_FILE
+from src.config import DATABASE_FILE
 
 # Constants
 CONFIG_FILE = "config.json"

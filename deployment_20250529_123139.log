@@ -1,0 +1,23 @@
+[2025-05-29 12:31:39] [INFO] === Starting CaseStrainer Deployment ===
+[2025-05-29 12:31:39] [INFO] Project Root: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
+[2025-05-29 12:31:39] [INFO] Log File: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_123139.log
+[2025-05-29 12:31:39] [INFO] === Running Tests ===
+[2025-05-29 12:31:39] [WARNING] Skipping tests (test command not configured)
+[2025-05-29 12:31:39] [INFO] === Git Operations ===
+[2025-05-29 12:31:40] [INFO] Staging changes...
+[2025-05-29 12:31:40] [INFO] Executing: git add .
+[2025-05-29 12:31:40] [INFO] 
+[2025-05-29 12:31:40] [INFO] Creating commit...
+[2025-05-29 12:31:40] [INFO] Executing: git commit -m \
+[2025-05-29 12:32:52] [INFO] 
+[2025-05-29 12:32:55] [INFO] Pulling latest changes...
+[2025-05-29 12:32:55] [INFO] Executing: git pull --rebase origin main
+[2025-05-29 12:32:55] [INFO] 
+[2025-05-29 12:32:55] [INFO] Pushing changes...
+[2025-05-29 12:32:55] [INFO] Executing: git push origin main
+[2025-05-29 12:32:56] [INFO] 
+[2025-05-29 12:32:56] [INFO] === Stopping Existing Services ===
+[2025-05-29 12:32:57] [INFO] === Starting Application ===
+[2025-05-29 12:32:57] [INFO] Starting Nginx...
+[2025-05-29 12:32:59] [INFO] Starting CaseStrainer application...
+[2025-05-29 12:33:13] [ERROR] Failed to start CaseStrainer. Check the logs for details.

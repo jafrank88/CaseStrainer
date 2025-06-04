@@ -1,0 +1,17 @@
+{
+  "verified": false,
+  "source": "Database",
+  "error": "Database error: no such column: citation",
+  "citation": "410 U.S. 113 (1973)",
+  "sources": {},
+  "verified_by": null,
+  "confidence": 0.0,
+  "case_name": "",
+  "date_filed": "",
+  "docket_number": "",
+  "court": "",
+  "url": "",
+  "context": "",
+  "parallel_citations": [],
+  "warning": ""
+}

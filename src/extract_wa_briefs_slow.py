@@ -11,11 +11,9 @@ import os
 import json
 import requests
 import re
-import traceback
 import time
 import random
 import logging
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -43,21 +41,21 @@ except ImportError:
         )
     except ImportError:
         logger.error(
-            "Error importing MultiSourceVerifier, trying to import from app_final"
+            "Error importing MultiSourceVerifier, trying to import from app_final_vue"
         )
         try:
-            from app_final import check_case_with_ai
+            from app_final_vue import check_case_with_ai
 
-            logger.info("Successfully imported check_case_with_ai from app_final")
+            logger.info("Successfully imported check_case_with_ai from app_final_vue")
         except ImportError:
             logger.error("Error importing verification functions. Cannot proceed.")
             sys.exit(1)
 
 # Try to import citation extraction function
 try:
-    from app_final import extract_citations
+    from app_final_vue import extract_citations
 
-    logger.info("Successfully imported extract_citations from app_final")
+    logger.info("Successfully imported extract_citations from app_final_vue")
 except ImportError:
     logger.error("Error importing extract_citations. Cannot proceed.")
     sys.exit(1)

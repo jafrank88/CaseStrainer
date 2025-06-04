@@ -3,6 +3,7 @@ print("This is a test")
 
 # Test basic requests
 import requests
+
 print(f"Requests version: {requests.__version__}")
 
 # Try a simple request

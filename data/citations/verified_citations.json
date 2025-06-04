@@ -1,0 +1,88 @@
+{
+  "citations": [
+    {
+      "id": 1,
+      "citation": "188 Wash.2d 1",
+      "case_name": "State v. Arlene's Flowers",
+      "confidence": 0.69,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "Justia",
+      "source_document": "State v. Johnson - Appellant's Opening Brief",
+      "url": "https://example.com/case/2017/state-v.-arlene's-flowers",
+      "context": "The dissent in State v. Arlene's Flowers (188 Wash.2d 1) provides a compelling alternative analysis.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 2,
+      "citation": "193 Wash.2d 970",
+      "case_name": "State v. Arndt",
+      "confidence": 0.94,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "FindLaw",
+      "source_document": "State v. Zamora - Reply Brief",
+      "url": "https://example.com/case/2019/state-v.-arndt",
+      "context": "The plaintiff relies on State v. Arndt (193 Wash.2d 970) to support their argument.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 3,
+      "citation": "194 Wash.2d 212",
+      "case_name": "State v. Yishmael",
+      "confidence": 0.88,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "FindLaw",
+      "source_document": "State v. Prado - Petition for Review",
+      "url": "https://example.com/case/2019/state-v.-yishmael",
+      "context": "The defendant cites State v. Yishmael (194 Wash.2d 212) as controlling authority.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 4,
+      "citation": "191 Wash.2d 681",
+      "case_name": "State v. Dennis",
+      "confidence": 0.79,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "FindLaw",
+      "source_document": "State v. Yishmael - Amicus Brief",
+      "url": "https://example.com/case/2018/state-v.-dennis",
+      "context": "According to State v. Dennis (191 Wash.2d 681), the statute must be interpreted narrowly.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 5,
+      "citation": "196 Wash.2d 725",
+      "case_name": "In re Marriage of Black",
+      "confidence": 0.89,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "Google Scholar",
+      "source_document": "State v. Sassen Van Elsloo - Motion for Reconsideration",
+      "url": "https://example.com/case/2020/in-re-marriage-of-black",
+      "context": "The plaintiff relies on In re Marriage of Black (196 Wash.2d 725) to support their argument.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 6,
+      "citation": "195 Wash.2d 1",
+      "case_name": "State v. Zamora",
+      "confidence": 0.92,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "Google Scholar",
+      "source_document": "State v. Johnson - Appellant's Opening Brief",
+      "url": "https://example.com/case/2020/state-v.-zamora",
+      "context": "According to State v. Zamora (195 Wash.2d 1), the statute must be interpreted narrowly.",
+      "verification_date": "2025-05-08 20:29:34"
+    },
+    {
+      "id": 7,
+      "citation": "198 Wash.2d 492",
+      "case_name": "State v. Johnson",
+      "confidence": 0.69,
+      "explanation": "Citation found in alternative source but not in CourtListener.",
+      "source": "Google Scholar",
+      "source_document": "State v. Allen - Brief of Appellant",
+      "url": "https://example.com/case/2021/state-v.-johnson",
+      "context": "We find State v. Johnson (198 Wash.2d 492) to be distinguishable from the present case.",
+      "verification_date": "2025-05-08 20:29:34"
+    }
+  ]
+}

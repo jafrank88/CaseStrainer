@@ -174,7 +174,7 @@ def create_app():
     logger.info("Citation API registered with prefix /api")
 
     # Register the Enhanced Validator blueprint
-    register_enhanced_validator(app)
+    app = register_enhanced_validator(app)
     logger.info("Enhanced Validator blueprint registered with the application")
 
     # Configure logging for the app

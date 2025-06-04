@@ -7,6 +7,14 @@ This document provides comprehensive documentation for all API endpoints in the 
 - Development: `http://localhost:5000/api`
 - Production: `https://wolf.law.uw.edu/casestrainer/api`
 
+## Integration with CourtListener API
+
+CaseStrainer uses the CourtListener API (v4) for citation validation. When using this integration:
+
+- Only v4 of the CourtListener API is supported
+- All API endpoints automatically use the v4 base URL: `https://www.courtlistener.com/api/rest/v4/`
+- The v3 API is not supported and may not work correctly
+
 ## Authentication
 
 Most endpoints require a valid API key to be included in the request header:

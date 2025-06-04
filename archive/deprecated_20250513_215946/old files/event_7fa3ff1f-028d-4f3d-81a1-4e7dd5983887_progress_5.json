@@ -1,0 +1,17 @@
+{
+  "status": "progress",
+  "current": 1,
+  "total": 1,
+  "message": "Successfully extracted 9 citations from document",
+  "extracted_citations": [
+    "534 F.3d 1290",
+    "2006 WL 3801910",
+    "2018 WL 2446162",
+    "2019 WL 2516279",
+    "2017 WL 3461055",
+    "2010 WL 4683851",
+    "2011 WL 2160468",
+    "2016 WL 165971",
+    "2018 WL 3037217"
+  ]
+}

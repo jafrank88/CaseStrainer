@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM ===================================================
-REM CaseStrainer Startup Script
+REM CaseStrainer Production Startup Script
 REM USAGE: Double-click or run from the CaseStrainer root directory.
 REM LOG: All output is logged to casestrainer_deploy.log
 REM REQUIREMENTS: Node.js, npm, Python 3.x, git, Docker, PowerShell
@@ -10,7 +10,15 @@ REM TROUBLESHOOTING: Check casestrainer_deploy.log for errors.
 REM Exit code 0 = success, nonzero = failure.
 REM ===================================================
 
-set LOGFILE=casestrainer_deploy.log
+set "SCRIPT_DIR=%~dp0"
+cd /d "%SCRIPT_DIR%"
+
+set "LOG_DIR=logs"
+set "LOGFILE=%LOG_DIR%\casestrainer_%DATE:/=-%_%TIME::=-%.log"
+set "ENV_FILE=.env.production"
+
+REM Create logs directory if it doesn't exist
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 
 REM === Tool Checks ===
 where node >nul 2>&1 || (echo [ERROR] Node.js is not installed! | tee -a %LOGFILE% & exit /b 1)
@@ -34,30 +42,41 @@ if defined PSModulePath (
     )
 )
 
+REM === Activate Python Virtual Environment ===
+if exist ".venv\Scripts\activate" (
+    echo Activating Python virtual environment...
+    call .venv\Scripts\activate
+) else (
+    echo Creating Python virtual environment...
+    python -m venv .venv
+    call .venv\Scripts\activate
+    
+    echo Installing required Python packages...
+    python -m pip install --upgrade pip
+    python -m pip install -r requirements.txt
+)
+
+REM === Set Environment Variables ===
+if exist "%ENV_FILE%" (
+    echo Loading environment variables from %ENV_FILE%
+    for /f "usebackq tokens=*" %%i in ("%ENV_FILE%") do (
+        for /f "tokens=1* delims==" %%a in ("%%i") do (
+            if not "%%a"=="" if not "%%a"=="#" if not "%%a"=="" set "%%a=%%b"
+        )
+    )
+) else (
+    echo Warning: %ENV_FILE% not found. Using default settings. >> "%LOGFILE%"
+)
+
 REM === Activate Python venv ===
 call C:\Users\jafrank\venv_casestrainer\Scripts\activate.bat
-set FLASK_APP=src/app_final_vue.py
 
-REM ===================================================
-REM CaseStrainer Startup Script
-REM ===================================================
-REM
-REM USAGE:
-REM   Double-click or run this script from the CaseStrainer root directory.
-REM
-REM DESCRIPTION:
-REM   This is the ONLY supported script for starting or restarting CaseStrainer.
-REM   - Stops any conflicting Windows Nginx instances
-REM   - Verifies Docker and Docker Nginx container status (if relevant)
-REM   - Ensures required directories exist
-REM   - Builds Vue.js frontend if needed
-REM   - Ensures port 5000 is available and kills any conflicting processes
-REM   - Starts CaseStrainer with proper host (0.0.0.0) and port (5000) settings
-REM
-REM   All other batch files are deprecated and should not be used for normal workflow.
-REM ===================================================
+REM Set required environment variables if not already set
+if "%FLASK_APP%"=="" set FLASK_APP=src/app_final_vue.py
+if "%FLASK_ENV%"=="" set FLASK_ENV=production
+if "%SECRET_KEY%"=="" set SECRET_KEY=insecure-secret-key-change-in-production
 
-REM === CONFIGURATION ===
+echo Environment: %FLASK_ENV% >> "%LOGFILE%"
 
 REM === Directory Creation ===
 if not exist logs mkdir logs
@@ -179,14 +198,37 @@ for /f "tokens=1,2 delims=," %%a in (temp_processes.txt) do (
 )
 del temp_processes.txt > nul 2>&1
 
-REM === START BACKEND WITH WAITRESS ===
-echo Starting CaseStrainer backend (Unified Vue.js + API) on port %PORT% with Waitress...
-REM Start backend in a new window and keep it open after exit
-start "CaseStrainer Backend" cmd /k "python src\app_final_vue.py --use-waitress --host=%HOST% --port=%PORT% --threads=%THREADS% & echo. & echo Backend process ended. Press any key to close. & pause"
+REM === CREATE TEMPORARY SCRIPT FOR BACKEND ===
+echo @echo off > start_backend.bat
+echo call .venv\Scripts\activate >> start_backend.bat
+echo set FLASK_APP=src.app_final_vue:app >> start_backend.bat
 
-REM === START NGINX ===
-echo Starting Nginx with config: %NGINX_CONFIG%
-cd /d "%NGINX_DIR%"
+REM === START BACKEND WITH WAITRESS ===
+if "%DEBUG_MODE%"=="True" (
+    echo [DEBUG] Starting backend in DEBUG mode...
+    echo set FLASK_DEBUG=1 >> start_backend.bat
+    echo set FLASK_ENV=development >> start_backend.bat
+echo set FLASK_DEBUG=1 >> start_backend.bat
+echo python -m flask run --host=%HOST% --port=%PORT% >> start_backend.bat
+    start "CaseStrainer Backend (Debug)" cmd /k "start_backend.bat & echo. & echo Backend process ended. Press any key to close... & pause"
+) else if "%USE_CHEROOT%"=="True" (
+    echo Starting backend with CherryPy...
+    echo python -m waitress --host=%HOST% --port=%PORT% --threads=%THREADS% src.app_final_vue:app >> start_backend.bat
+    start "CaseStrainer Backend" cmd /k "start_backend.bat & echo. & echo Backend process ended. Press any key to close... & pause"
+) else (
+    echo Starting backend with Waitress...
+    echo python -m waitress --host=%HOST% --port=%PORT% --threads=%THREADS% src.app_final_vue:app >> start_backend.bat
+    start "CaseStrainer Backend" cmd /k "start_backend.bat & echo. & echo Backend process ended. Press any key to close... & pause"
+)
+
+REM === Start Nginx ===
+echo [%TIME%] Starting Nginx...
+if exist "%SCRIPT_DIR%nginx-1.27.5\nginx.exe" (
+    "%SCRIPT_DIR%nginx-1.27.5\nginx.exe" -c "%SCRIPT_DIR%nginx.conf"
+) else (
+    start "" /B nginx.exe -c "%SCRIPT_DIR%nginx.conf"
+)
+
 REM Start Nginx in a new window and keep it open after exit
 start "Nginx" cmd /k "nginx.exe -c "%NGINX_CONFIG%" & echo. & echo Nginx process ended. Press any key to close. & pause"
 cd /d "%~dp0"
@@ -208,6 +250,13 @@ set HOST=0.0.0.0
 set PORT=5000
 set THREADS=10
 set USE_CHEROOT=True
+set DEBUG_MODE=False
+
+REM Check for debug flag
+if "%1"=="--debug" (
+    set DEBUG_MODE=True
+    shift
+)
 
 :: Create required directories
 if not exist logs mkdir logs
@@ -233,6 +282,9 @@ if %errorLevel% equ 0 (
 echo Installing dependencies...
 py -3.13 -m pip install -r requirements.txt
 
+:: Set PYTHONPATH to include the project root directory
+set "PYTHONPATH=%CD%\src;%PYTHONPATH%"
+
 :: Check if development mode is requested
 if "%1"=="dev" (
     echo Starting in DEVELOPMENT mode...
@@ -245,7 +297,7 @@ if "%1"=="dev" (
     echo External access will be available at: https://wolf.law.uw.edu/casestrainer/
     echo Local access will be available at: http://127.0.0.1:5000
     echo.
-    py -3.13 src/app_final_vue.py --host=%HOST% --port=%PORT%
+    py -3.13 -m waitress --host=%HOST% --port=%PORT% --threads=%THREADS% src.app_final_vue:app
 )
 
 pause

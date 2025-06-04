@@ -42,9 +42,11 @@ except ImportError:
             "Error importing MultiSourceVerifier, trying to import from app_final_vue"
         )
         try:
-            # Removed unused import
+            from app_final_vue import extract_citations, check_case_with_ai
 
-            logger.info("No verification function imported")
+            logger.info(
+                "Successfully imported extract_citations and check_case_with_ai from app_final_vue"
+            )
         except ImportError:
             logger.error("Error importing verification functions. Cannot proceed.")
             exit(1)
@@ -498,7 +500,7 @@ def main():
     )
     logger.info(f"Found {len(all_unconfirmed_citations)} unconfirmed citations")
 
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Found {len(all_multitool_citations)} citations verified with multitool")
     print(f"Found {len(all_unconfirmed_citations)} unconfirmed citations")
 

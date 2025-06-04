@@ -6,16 +6,14 @@ extracts citations, verifies them, and records unverified citations with context
 """
 
 import os
-import sys
 import json
 import csv
 import traceback
 import re
-from datetime import datetime
 
 # Import CaseStrainer functions
 from file_utils import extract_text_from_file
-from app_final import extract_citations
+from app_final_vue import extract_citations
 from multi_source_verifier import MultiSourceVerifier
 
 # Constants

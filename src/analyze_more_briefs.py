@@ -4,7 +4,6 @@ Script to download and analyze briefs from multiple Washington Courts divisions
 to find unconfirmed citations.
 """
 import os
-import sys
 import requests
 import json
 import time
@@ -433,7 +432,7 @@ def main():
         print("Successfully reached the target number of unconfirmed citations!")
     else:
         print(
-            f"Did not reach target. Consider running the script again or increasing the number of briefs processed."
+            "Did not reach target. Consider running the script again or increasing the number of briefs processed."
         )
 
     print(

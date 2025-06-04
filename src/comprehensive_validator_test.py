@@ -12,10 +12,8 @@ It generates a detailed report on the performance of the Enhanced Validator for 
 """
 
 import os
-import re
 import json
 import time
-import random
 import requests
 import logging
 import csv

@@ -1,0 +1,8 @@
+This is a test document with some well-known Supreme Court citations:
+
+1. Brown v. Board of Education, 347 U.S. 483 (1954)
+2. District of Columbia v. Heller, 554 U.S. 570 (2008)
+3. Obergefell v. Hodges, 576 U.S. 644 (2015)
+4. Plessy v. Ferguson, 163 U.S. 537 (1896)
+
+These are landmark cases in U.S. constitutional law. 

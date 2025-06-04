@@ -14,9 +14,7 @@ import socketserver
 import urllib.request
 import urllib.error
 import urllib.parse
-import sys
 import logging
-import os
 
 # Configure logging
 logging.basicConfig(

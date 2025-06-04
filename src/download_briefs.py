@@ -5,7 +5,6 @@ This script downloads Supreme Court briefs from the Justice Department website.
 """
 
 import os
-import sys
 import json
 import requests
 import traceback

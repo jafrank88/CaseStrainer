@@ -1,0 +1,46 @@
+Multitool Confirmed Citations Summary Report
+===========================================
+
+Total Citations: 33
+
+Verification Sources:
+  Google Scholar: 33 (100.00%)
+
+Confidence Ranges:
+  0.6-0.8: 31 (93.94%)
+  0.8-1.0: 2 (6.06%)
+
+Citation List:
+  1. 1998 WL 864012 (10th Cir. Dec. 14, 1998) (Source: Google Scholar, Confidence: 0.60)
+  2. 6029 Doc. 2 (Jan. 5, 2022) (Source: Google Scholar, Confidence: 0.60)
+  3. 1999 WL 265286 (7th Cir. 1999) (Source: Google Scholar, Confidence: 0.60)
+  4. 2023 WL 119577 (4th Cir. Jan. 6, 2023) (Source: Google Scholar, Confidence: 0.60)
+  5. 8 U.S.C. 1153 (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  6. 2024 WL 4529794 (U.S. Oct. 21, 2024) (Source: Google Scholar, Confidence: 0.60)
+  7. 47 U.S.C. 227(b)(2) (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  8. 1990 WL 10608981 (Jan. 8, 1990) (Source: Google Scholar, Confidence: 0.60)
+  9. 389 U.S. 977 (1967) (Source: Google Scholar, Confidence: 0.60)
+  10. 10 U.S.C. 2733 (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  11. 10 U.S.C. 1448 (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  12. 10 U.S.C. 1451 (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  13. 10 U.S.C. 12731 (2018 & Supp. IV 2022) (Source: Google Scholar, Confidence: 0.60)
+  14. 1998 WL 864012 (10th Cir. Dec. 14, 1998) (Source: Google Scholar, Confidence: 0.60)
+  15. 2024 WL 4529808 (Oct. 21, 2024) (Source: Google Scholar, Confidence: 0.60)
+  16. 2021 WL 1061528 (D.D.C. Mar. 18, 2021) (Source: Google Scholar, Confidence: 0.60)
+  17. 2023 WL 3584466 (S.D.N.Y. May 19, 2023) (Source: Google Scholar, Confidence: 0.60)
+  18. 2023 WL 4145321 (6th Cir. June 23, 2023) (Source: Google Scholar, Confidence: 0.60)
+  19. 18 U.S.C. 1114 ( 1982 & Supp. II 1984) (Source: Google Scholar, Confidence: 0.60)
+  20. 2024 WL 195468 (D.N.J. Jan. 18, 2024) (Source: Google Scholar, Confidence: 0.60)
+  21. 2023 WL 7020377 (D. Idaho Oct. 25, 2023) (Source: Google Scholar, Confidence: 0.60)
+  22. 2024 WL 779604 (N.D. Cal. Feb. 26, 2024) (Source: Google Scholar, Confidence: 0.60)
+  23. 2024 WL 1108700 (5th Cir. Mar. 14,  2024) (Source: Google Scholar, Confidence: 0.80)
+  24. 2024 WL 1108700 (5th Cir. Mar. 14, 2024) (Source: Google Scholar, Confidence: 0.80)
+  25. 2023 WL 395030 (Jan.  25, 2023) (Source: Google Scholar, Confidence: 0.60)
+  26. 2023 WL 2755656 (6th Cir. Apr. 3, 2023) (Source: Google Scholar, Confidence: 0.60)
+  27. 2024 WL 807436 (2d Cir. Feb. 27, 2024) (Source: Google Scholar, Confidence: 0.60)
+  28. 2023 WL 3674377 ( D.C. May 25, 2023) (Source: Google Scholar, Confidence: 0.60)
+  29. 2021 WL 3609986 (D.D.C. Apr. 4, 2021) (Source: Google Scholar, Confidence: 0.60)
+  30. 2022 WL 2072735 (9th Cir. June 9, 2022) (Source: Google Scholar, Confidence: 0.60)
+  31. 2023 WL 6036237 (released Sept. 13, 2023) (Source: Google Scholar, Confidence: 0.60)
+  32. 2023 WL 4012359 (released June 14, 2023) (Source: Google Scholar, Confidence: 0.60)
+  33. 2023 WL 2733500 (10th Cir. Mar. 31, 2023) (Source: Google Scholar, Confidence: 0.60)

@@ -2,8 +2,15 @@ import os
 import traceback
 import time
 import logging
+import sys
 
-from config import ALLOWED_EXTENSIONS
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Now import from config with absolute path
+from src.config import ALLOWED_EXTENSIONS
 
 # Robust import for extract_text_from_file
 try:
@@ -23,7 +30,59 @@ def allowed_file(filename):
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)
 
-from config import COURTLISTENER_API_KEY
+from src.config import COURTLISTENER_API_KEY
+import re
+
+
+def normalize_citation_text(citation_text):
+    """
+    Normalize citation text to a standard format before processing.
+
+    Handles common issues like:
+    - Extra spaces in reporter abbreviations (e.g., 'F. 3d' -> 'F.3d')
+    - Double periods (e.g., 'U.S..' -> 'U.S.')
+    - Inconsistent spacing around v. (e.g., 'U.S. v.Caraway' -> 'U.S. v. Caraway')
+
+    Args:
+        citation_text (str): The citation text to normalize
+
+    Returns:
+        str: The normalized citation text
+    """
+    if not citation_text or not isinstance(citation_text, str):
+        return citation_text
+
+    # Remove any leading/trailing whitespace
+    normalized = citation_text.strip()
+
+    # Fix double periods
+    normalized = re.sub(r"\.\.+", ".", normalized)
+
+    # Fix spaces in reporter abbreviations (e.g., 'F. 3d' -> 'F.3d')
+    normalized = re.sub(r"(\b[A-Za-z]+\.)\s+(\d+[a-z]*)", r"\1\2", normalized)
+
+    # Fix spacing around 'v.'
+    normalized = re.sub(r"\s+v\.\s*", " v. ", normalized, flags=re.IGNORECASE)
+
+    # Fix common reporter abbreviations
+    reporter_fixes = {
+        r"\bFed\.\s*": "F.",
+        r"\bFed\.\s*App\.\s*": "F. App'x",
+        r"\bF\.\s*2d\b": "F.2d",
+        r"\bF\.\s*3d\b": "F.3d",
+        r"\bF\.\s*4th\b": "F.4th",
+        r"\bU\.\s*S\.\s*": "U.S. ",
+        r"\bS\.\s*Ct\.\s*": "S. Ct. ",
+        r"\bL\.\s*Ed\.\s*2d\b": "L. Ed. 2d",
+    }
+
+    for pattern, replacement in reporter_fixes.items():
+        normalized = re.sub(pattern, replacement, normalized)
+
+    # Remove extra spaces
+    normalized = " ".join(normalized.split())
+
+    return normalized
 
 
 def verify_citation(
@@ -32,22 +91,70 @@ def verify_citation(
     logger=logger,
     DEFAULT_API_KEY=COURTLISTENER_API_KEY,
     thread_local=None,
+    timeout=30,  # Global timeout in seconds for the entire verification process
 ):
-    """Verify a citation using the robust CitationVerifier logic with improved error handling, including retry, throttling, timeout, and caching."""
-    try:
+    """Verify a citation using the robust CitationVerifier logic with improved error handling, including retry, throttling, timeout, and caching.
+
+    Args:
+        citation: The citation to verify
+        context: Optional context around the citation
+        logger: Logger instance
+        DEFAULT_API_KEY: Default API key to use
+        thread_local: Thread-local storage for API key
+        timeout: Global timeout in seconds for the entire verification process
+    """
+    import threading
+    import time
+    import random
+    from functools import wraps
+
+    # Decorator to enforce timeout on a function
+    def timeout_decorator(timeout_seconds):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                result = [None]
+                exception = [None]
+
+                def target():
+                    try:
+                        result[0] = func(*args, **kwargs)
+                    except Exception as e:
+                        exception[0] = e
+
+                thread = threading.Thread(target=target)
+                thread.daemon = True
+                thread.start()
+                thread.join(timeout_seconds)
+
+                if thread.is_alive():
+                    raise TimeoutError(
+                        f"Operation timed out after {timeout_seconds} seconds"
+                    )
+                if exception[0] is not None:
+                    raise exception[0]
+                return result[0]
+
+            return wrapper
+
+        return decorator
+
+    # Wrapper function for the actual verification with timeout
+    @timeout_decorator(timeout)
+    def _verify_citation_with_timeout(citation, context, api_key, logger):
         # Import CitationVerifier with better error handling
         try:
             from src.citation_verification import CitationVerifier
 
             logger.info(
-                f"Successfully imported CitationVerifier from src.citation_verification"
+                "Successfully imported CitationVerifier from src.citation_verification"
             )
         except ImportError as import_err:
             try:
                 from citation_verification import CitationVerifier
 
                 logger.info(
-                    f"Successfully imported CitationVerifier from citation_verification (relative import)"
+                    "Successfully imported CitationVerifier from citation_verification (relative import)"
                 )
             except ImportError:
                 logger.error(f"Failed to import CitationVerifier: {str(import_err)}")
@@ -55,7 +162,7 @@ def verify_citation(
 
         # Import our citation verification logging function
         try:
-            from citation_api import log_citation_verification
+            from .citation_api import log_citation_verification
 
             logger.info("Successfully imported log_citation_verification function")
         except ImportError as import_err:
@@ -68,24 +175,7 @@ def verify_citation(
             ):
                 logger.info(f"Citation: {citation}, Result: {verification_result}")
 
-        api_key = (
-            getattr(thread_local, "api_key", DEFAULT_API_KEY)
-            if thread_local
-            else DEFAULT_API_KEY
-        )
-        if api_key:
-            logger.info(
-                f"Using API key for verification: {api_key[:5]}... (length: {len(api_key)})"
-            )
-        else:
-            logger.warning("No API key available for citation verification")
-            print("WARNING: No API key available for citation verification")
-
         # --- Begin: Caching and Throttling ---
-        import threading
-        import time
-        import random
-
         # Simple in-memory cache for previously verified citations
         if not hasattr(verify_citation, "_cache"):
             verify_citation._cache = {}
@@ -108,51 +198,110 @@ def verify_citation(
         if elapsed < min_interval:
             sleep_time = min_interval - elapsed
             logger.info(f"Throttling: sleeping {sleep_time:.2f}s before API call")
-            time.sleep(sleep_time)
+            time.sleep(
+                min(sleep_time, 1.0)
+            )  # Don't sleep too long to respect the global timeout
         verify_citation._last_call_time = time.time()
         # --- End: Throttling ---
 
         verifier = CitationVerifier(api_key=api_key)
         logger.info(f"Verifying citation: {citation}")
         start_time = time.time()
-        # --- Begin: Retry Logic with Exponential Backoff ---
-        max_retries = 3
-        base_timeout = 45  # seconds (increased from 30)
+
+        # --- Begin: Retry Logic with Exponential Backoff and Timeout ---
+        max_retries = 2  # Reduced from 3 to respect global timeout
+        min(15, timeout // 2)  # Cap individual timeouts to respect global timeout
+
         for attempt in range(1, max_retries + 1):
             try:
+                attempt_start = time.time()
                 if context:
                     logger.info(f"Context provided, length: {len(context)}")
                     result = verifier.verify_citation(citation, context=context)
                 else:
                     result = verifier.verify_citation(citation)
-                verification_time = time.time() - start_time
+
+                verification_time = time.time() - attempt_start
                 logger.info(
                     f"Verification completed in {verification_time:.2f} seconds (attempt {attempt})"
                 )
                 logger.info(f"Verification result: {result}")
                 log_citation_verification(citation, result)
+
                 # Save to cache
                 with cache_lock:
                     cache[cache_key] = result
                 return result
+
             except Exception as e:
-                logger.warning(f"Attempt {attempt} failed: {e}")
-                if attempt == max_retries:
-                    logger.error(
-                        f"All {max_retries} attempts failed for citation: {citation}"
-                    )
+                elapsed = time.time() - start_time
+                time_remaining = timeout - elapsed
+
+                if (
+                    attempt == max_retries or time_remaining < 5
+                ):  # Don't retry if we're running out of time
+                    logger.error(f"Final attempt failed for citation: {citation}")
+                    logger.error(f"Error: {str(e)}")
                     traceback.print_exc()
                     break
-                backoff = 2 ** (attempt - 1) + random.uniform(0, 1)
-                logger.info(f"Retrying after {backoff:.2f}s...")
-                time.sleep(backoff)
+
+                # Calculate backoff with jitter, but respect the remaining timeout
+                backoff = min(
+                    2 ** (attempt - 1) + random.uniform(0, 1), time_remaining - 1
+                )
+                if backoff > 0:
+                    logger.info(
+                        f"Retrying after {backoff:.2f}s... (time remaining: {time_remaining:.1f}s)"
+                    )
+                    time.sleep(backoff)
         # --- End: Retry Logic ---
+
         return {
             "found": False,
             "source": None,
-            "explanation": f"Error during verification after {max_retries} attempts.",
+            "explanation": "Unable to verify citation within the allowed time.",
             "error": True,
-            "error_message": f"Failed after {max_retries} attempts.",
+            "error_message": f"Verification timed out after {timeout} seconds",
+        }
+
+    # Main function logic
+    try:
+        api_key = (
+            getattr(thread_local, "api_key", DEFAULT_API_KEY)
+            if thread_local
+            else DEFAULT_API_KEY
+        )
+        if api_key:
+            logger.info(
+                f"Using API key for verification: {api_key[:5]}... (length: {len(api_key)})"
+            )
+        else:
+            logger.warning("No API key available for citation verification")
+            print("WARNING: No API key available for citation verification")
+
+        return _verify_citation_with_timeout(citation, context, api_key, logger)
+
+    except TimeoutError as te:
+        logger.error(
+            f"Citation verification timed out after {timeout} seconds: {citation}"
+        )
+        return {
+            "found": False,
+            "source": None,
+            "explanation": "Citation verification timed out.",
+            "error": True,
+            "error_message": str(te),
+            "timed_out": True,
+        }
+    except Exception as e:
+        logger.error(f"Error verifying citation: {e}")
+        traceback.print_exc()
+        return {
+            "found": False,
+            "source": None,
+            "explanation": f"Error during verification: {str(e)}",
+            "error": True,
+            "error_message": str(e),
         }
     except Exception as e:
         logger.error(f"Error verifying citation: {e}")
@@ -239,6 +388,133 @@ def extract_citations_from_file(filepath, logger=logger):
         return []
 
 
+def normalize_citation_text(citation_text):
+    """
+    Normalize citation text to a standard format before processing.
+
+    Handles common issues like:
+    - Extra spaces in reporter abbreviations (e.g., 'F. 3d' -> 'F.3d')
+    - Double periods (e.g., 'U.S..' -> 'U.S.')
+    - Inconsistent spacing around v. (e.g., 'U.S. v.Caraway' -> 'U.S. v. Caraway')
+
+    Args:
+        citation_text (str): The citation text to normalize
+
+    Returns:
+        str: The normalized citation text
+    """
+    if not citation_text or not isinstance(citation_text, str):
+        return citation_text
+
+    # Remove any leading/trailing whitespace
+    normalized = citation_text.strip()
+
+    # Fix double periods
+    normalized = re.sub(r"\.\.+", ".", normalized)
+
+    # Fix spaces in reporter abbreviations (e.g., 'F. 3d' -> 'F.3d')
+    normalized = re.sub(r"(\b[A-Za-z]+\.)\s+(\d+[a-z]*)", r"\1\2", normalized)
+
+    # Fix spacing around 'v.'
+    normalized = re.sub(r"\s+v\.\s*", " v. ", normalized, flags=re.IGNORECASE)
+
+    # Fix common reporter abbreviations
+    reporter_fixes = {
+        r"\bFed\.\s*": "F.",
+        r"\bFed\.\s*App\.\s*": "F. App'x",
+        r"\bF\.\s*2d\b": "F.2d",
+        r"\bF\.\s*3d\b": "F.3d",
+        r"\bF\.\s*4th\b": "F.4th",
+        r"\bU\.\s*S\.\s*": "U.S. ",
+        r"\bS\.\s*Ct\.\s*": "S. Ct. ",
+        r"\bL\.\s*Ed\.\s*2d\b": "L. Ed. 2d",
+    }
+
+    for pattern, replacement in reporter_fixes.items():
+        normalized = re.sub(pattern, replacement, normalized, flags=re.IGNORECASE)
+
+    # Remove extra spaces
+    normalized = " ".join(normalized.split())
+
+    if normalized != citation_text:
+        logger.debug(f"Normalized citation: '{citation_text}' -> '{normalized}'")
+
+    return normalized
+
+
+def get_citation_context(text, citation_text, context_size=100):
+    """
+    Extract context around a citation in the text.
+
+    Args:
+        text: The full text containing the citation
+        citation_text: The citation text to find in the text
+        context_size: Number of characters to include before and after the citation
+
+    Returns:
+        str: The context around the citation, or None if not found
+    """
+    if not text or not citation_text:
+        return None
+
+    # Find the citation in the text (case insensitive)
+    start = text.lower().find(citation_text.lower())
+    if start == -1:
+        return None
+
+    # Calculate start and end positions for the context
+    start = max(0, start - context_size)
+    end = min(len(text), start + len(citation_text) + context_size)
+
+    # Add ellipsis if not at the start/end of the text
+    prefix = "..." if start > 0 else ""
+    suffix = "..." if end < len(text) else ""
+
+    return f"{prefix}{text[start:end]}{suffix}"
+
+
+def batch_validate_citations(citations, api_key=None):
+    """
+    Validate a batch of citations using the verify_citation function.
+
+    Args:
+        citations: List of citation strings to validate
+        api_key: Optional API key for CourtListener
+
+    Returns:
+        List of validation results
+    """
+    if not citations:
+        return []
+
+    results = []
+    for citation in citations:
+        try:
+            result = verify_citation(citation, api_key=api_key)
+            results.append(
+                {
+                    "citation": citation,
+                    "exists": result.get("exists", False),
+                    "method": result.get("method", "unknown"),
+                    "error": None,
+                    "data": result,
+                }
+            )
+        except Exception as e:
+            logger.error(f"Error validating citation {citation}: {str(e)}")
+            results.append(
+                {
+                    "citation": citation,
+                    "exists": False,
+                    "method": "error",
+                    "error": str(e),
+                    "data": None,
+                }
+            )
+
+    return results
+
+
 def extract_citations_from_text(text, logger=logger):
     """Extract citations from text using eyecite and return full metadata."""
     try:
@@ -258,7 +534,10 @@ def extract_citations_from_text(text, logger=logger):
                     f"[DEBUG] Failed to convert text to string: {conversion_error}"
                 )
                 text = ""
-        logger.info(f"[DEBUG] Text sample: {text[:300]}...")
+
+        # Normalize the text before processing
+        text = normalize_citation_text(text)
+        logger.info(f"[DEBUG] Text sample after normalization: {text[:300]}...")
         start_time = time.time()
         from eyecite import get_citations
         from eyecite.tokenizers import AhocorasickTokenizer

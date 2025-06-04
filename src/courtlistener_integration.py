@@ -7,10 +7,10 @@ It also provides functions to search for citations in local PDF folders as an al
 """
 
 import os
-import json
-import requests
 import re
-from typing import Optional, Dict, Any, List, Tuple
+import time
+import requests
+from typing import Optional, Dict, Any, Tuple
 
 # Flag to track if CourtListener API is available
 COURTLISTENER_AVAILABLE = True
@@ -241,11 +241,11 @@ def search_citation(
 
             # For standard reporter citations, try the citation lookup API first
             # This API doesn't support WestLaw or Lexis citations
-            if not is_westlaw and not "lexis" in citation.lower():
+            if not is_westlaw and "lexis" not in citation.lower():
                 try:
                     # The citation lookup API expects a properly formatted citation
-                    # Example: /api/rest/v3/citation-lookup/?citation=410 U.S. 113
-                    lookup_url = f"https://www.courtlistener.com/api/rest/v3/citation-lookup/?citation={citation}"
+                    # Example: /api/rest/v4/citation-lookup/?citation=410 U.S. 113
+                    lookup_url = f"https://www.courtlistener.com/api/rest/v4/citation-lookup/?citation={citation}"
 
                     print(f"Trying citation lookup API: {lookup_url}")
 
@@ -259,7 +259,7 @@ def search_citation(
                         data = response.json()
                         if data and len(data) > 0:
                             # Found at least one matching case
-                            print(f"Citation found via citation lookup API")
+                            print("Citation found via citation lookup API")
                             return True, data[0]
                     elif (
                         response.status_code != 404
@@ -615,7 +615,7 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
                 break
 
         if not folders_exist:
-            print(f"Warning: None of the specified PDF folders exist")
+            print("Warning: None of the specified PDF folders exist")
             return False
 
         # Search in each folder

@@ -1,5 +1,4 @@
 import sqlite3
-import datetime
 
 # Sample citation data
 sample_citations = [

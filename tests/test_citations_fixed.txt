@@ -1,0 +1,63 @@
+SAMPLE LEGAL BRIEF WITH VARIOUS CITATIONS
+
+IN THE SUPREME COURT OF THE UNITED STATES
+_________________
+
+JOHN DOE, Petitioner,
+v.
+UNITED STATES OF AMERICA, Respondent.
+_________________
+
+BRIEF FOR PETITIONER
+
+STATEMENT OF THE CASE
+
+This case concerns the interpretation of the Fourth Amendment as it applies to digital privacy rights. The Court has previously recognized that the Fourth Amendment protects against unreasonable searches and seizures in the digital realm. Riley v. California, 573 U.S. 373 (2014). The Court has also acknowledged that individuals have a reasonable expectation of privacy in their digital communications. Carpenter v. United States, 138 S. Ct. 2206 (2018).
+
+ARGUMENT
+
+I. The Fourth Amendment Protects Digital Privacy Rights
+
+The Fourth Amendment's protection against unreasonable searches and seizures extends to digital information. In Katz v. United States, 389 U.S. 347 (1967), this Court established that the Fourth Amendment "protects people, not places." The Court has consistently applied this principle to new technologies, as demonstrated in United States v. Jones, 565 U.S. 400 (2012), where it held that attaching a GPS device to a vehicle constitutes a search under the Fourth Amendment.
+
+More recently, in Riley v. California, 573 U.S. 373 (2014), the Court recognized the unique privacy concerns raised by cell phones, holding that police generally cannot search digital information on a cell phone seized from an arrestee without a warrant. Similarly, in Carpenter v. United States, 138 S. Ct. 2206 (2018), the Court held that accessing cell-site location information requires a warrant.
+
+Lower courts have also recognized these principles. In United States v. Warshak, 631 F.3d 266 (6th Cir. 2010), the Sixth Circuit held that individuals have a reasonable expectation of privacy in their email communications. Similarly, in In re Search of Information Associated with Email Accounts, 13 F. Supp. 3d 157 (D.D.C. 2014), the court limited the government's ability to obtain email communications without appropriate procedural safeguards.
+
+II. The Third-Party Doctrine Should Be Limited in the Digital Age
+
+The third-party doctrine, established in Smith v. Maryland, 442 U.S. 735 (1979) and United States v. Miller, 425 U.S. 435 (1976), holds that individuals have no reasonable expectation of privacy in information voluntarily disclosed to third parties. However, this doctrine requires reconsideration in the digital age.
+
+In United States v. Forrester, 512 F.3d 500 (9th Cir. 2008), the Ninth Circuit distinguished between the content of communications, which is protected, and addressing information, which is not. This distinction has been further developed in more recent cases such as In re Application of the United States for Historical Cell Site Data, 724 F.3d 600 (5th Cir. 2013) and United States v. Graham, 824 F.3d 421 (4th Cir. 2016).
+
+State courts have also addressed these issues. In People v. Weaver, 12 N.Y.3d 433 (2009), the New York Court of Appeals held that the installation and use of a GPS device on a defendant's vehicle constituted a search under the state constitution. Similarly, in Commonwealth v. Augustine, 467 Mass. 230 (2014), the Supreme Judicial Court of Massachusetts held that obtaining cell site location information requires a warrant under the state constitution.
+
+III. International Perspectives on Digital Privacy
+
+International courts have also recognized the importance of digital privacy. In S. and Marper v. United Kingdom, 48 EHRR 50 (2008), the European Court of Human Rights held that the retention of DNA samples and fingerprints of individuals who were arrested but not convicted violated the right to privacy under Article 8 of the European Convention on Human Rights.
+
+Similarly, in Digital Rights Ireland Ltd v. Minister for Communications, Marine and Natural Resources, Case C-293/12 (2014), the Court of Justice of the European Union invalidated the Data Retention Directive, finding that it constituted a disproportionate interference with the rights to privacy and data protection.
+
+IV. Obscure and Potentially Non-existent Citations
+
+The principles established in Johnson v. Eisentrager, 339 U.S. 763 (1950) regarding extraterritorial application of constitutional rights should be reconsidered in light of modern technological capabilities. See also Smith v. Robinson Manufacturing, 553 U.S. 874 (2008) (discussing extraterritorial application in the digital context).
+
+The Court should also consider the reasoning in United States v. Thompson, 562 F.3d 387 (7th Cir. 2009) and Williams v. Department of Justice, 389 F. Supp. 3d 52 (S.D.N.Y. 2019), both of which addressed novel questions of digital privacy.
+
+The landmark case of Doe v. Internet Services Provider, 601 F.3d 1045 (9th Cir. 2010) established important precedent for privacy expectations in cloud storage, while Jackson v. Metropolitan Police Department, 875 F. Supp. 2d 221 (D.D.C. 2012) addressed privacy concerns in facial recognition technology.
+
+CONCLUSION
+
+For the foregoing reasons, the judgment of the court of appeals should be reversed.
+
+Respectfully submitted,
+
+Jane Smith
+Counsel of Record
+LAW OFFICES OF JANE SMITH
+123 Legal Street
+Washington, D.C. 20001
+(202) 555-1234
+jsmith@lawoffice.com
+
+May 9, 2025

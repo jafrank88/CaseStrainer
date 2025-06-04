@@ -1,0 +1,47 @@
+2025-06-03 11:12:42,829 - __main__ - INFO - ================================================================================
+2025-06-03 11:12:42,831 - __main__ - INFO - Starting CaseStrainer Debug - 2025-06-03 11:12:42.830013
+2025-06-03 11:12:42,832 - __main__ - INFO - ================================================================================
+2025-06-03 11:12:42,833 - __main__ - INFO - 
+System Information:
+2025-06-03 11:12:42,835 - __main__ - INFO - Python: 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]
+2025-06-03 11:12:42,835 - __main__ - INFO - Working Directory: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
+2025-06-03 11:12:42,837 - __main__ - INFO - Python Path: ['C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\src', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\win32', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\win32\\lib', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\Pythonwin']
+2025-06-03 11:12:42,840 - __main__ - INFO - 
+Checking required packages...
+2025-06-03 11:12:44,329 - __main__ - ERROR - 
+Missing or unimportable packages: beautifulsoup4, python-dotenv, python-magic, python-dateutil
+2025-06-03 11:12:44,330 - __main__ - INFO - You can install missing packages with: pip install beautifulsoup4 python-dotenv python-magic python-dateutil
+2025-06-03 11:12:44,331 - __main__ - INFO - 
+Checking environment variables...
+2025-06-03 11:12:44,363 - __main__ - WARNING - 
+Missing environment variables: FLASK_APP, FLASK_ENV, DATABASE_URL
+2025-06-03 11:12:44,364 - __main__ - INFO - Please set these variables in your .env file or environment
+2025-06-03 11:12:44,365 - __main__ - INFO - 
+Checking directories...
+2025-06-03 11:12:44,385 - __main__ - ERROR - 
+Pre-flight checks failed. Please fix the issues above.
+mportable: No module named 'python_magic'
+2025-06-03 11:12:44 - ✓ pytz is importable
+2025-06-03 11:12:44 - ✗ python-dateutil is NOT importable: No module named 'python_dateutil'
+2025-06-03 11:12:44 - 
+Missing or unimportable packages: beautifulsoup4, python-dotenv, python-magic, python-dateutil
+2025-06-03 11:12:44 - You can install missing packages with: pip install beautifulsoup4 python-dotenv python-magic python-dateutil
+2025-06-03 11:12:44 - 
+Checking environment variables...
+2025-06-03 11:12:44 - ✗ Missing or empty environment variable: FLASK_APP
+2025-06-03 11:12:44 - ✗ Missing or empty environment variable: FLASK_ENV
+2025-06-03 11:12:44 - ✓ SECRET_KEY is set
+2025-06-03 11:12:44 - ✗ Missing or empty environment variable: DATABASE_URL
+2025-06-03 11:12:44 - ✓ MAIL_SERVER = smtp.uw.edu
+2025-06-03 11:12:44 - ✓ MAIL_USERNAME = jafrank
+2025-06-03 11:12:44 - ✓ MAIL_PASSWORD is set
+2025-06-03 11:12:44 - 
+Missing environment variables: FLASK_APP, FLASK_ENV, DATABASE_URL
+2025-06-03 11:12:44 - Please set these variables in your .env file or environment
+2025-06-03 11:12:44 - 
+Checking directories...
+2025-06-03 11:12:44 - ✓ Directory is writable: uploads
+2025-06-03 11:12:44 - ✓ Directory is writable: logs
+2025-06-03 11:12:44 - ✓ Directory is writable: instance
+2025-06-03 11:12:44 - 
+Pre-flight checks failed. Please fix the issues above.

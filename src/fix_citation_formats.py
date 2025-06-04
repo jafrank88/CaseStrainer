@@ -7,8 +7,6 @@ based on standard legal citation formats.
 
 import json
 import re
-import os
-import sys
 
 
 def load_unconfirmed_citations(

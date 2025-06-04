@@ -38,8 +38,8 @@ try:
 
     print("Successfully imported enhanced_validator_production module")
     # Register the enhanced validator with the app
-    register_enhanced_validator(app)
-    app.register_blueprint(enhanced_validator_bp, url_prefix="/api/enhanced")
+    app = register_enhanced_validator(app)
+    # The blueprint is now registered inside register_enhanced_validator
     print("Successfully registered Enhanced Validator with the app")
 except Exception as e:
     print(f"Error importing/registering Enhanced Validator: {e}")
@@ -192,7 +192,95 @@ def index():
     """
 
 
+class TestEnhancedValidator(unittest.TestCase):
+    def test_extract_citations(self):
+        # Test extracting citations from sample text
+        citations = extract_citations_from_text(SAMPLE_TEXT)
+        self.assertGreater(len(citations), 0)
+
+    def test_verify_citation(self):
+        # Test verifying a single citation
+        citation_text = "Miranda v. Arizona, 384 U.S. 436 (1966)"
+        context = ""
+        verified = verify_citation(citation_text, context)
+        self.assertTrue(verified.get("valid", False))
+
+    def test_batch_processing(self):
+        # Test batch processing of multiple citations
+        citations = extract_citations_from_text(SAMPLE_TEXT)
+        verified_citations = []
+        for citation in citations:
+            citation_text = citation.get("citation", "")
+            context = citation.get("context", "")
+            verified = verify_citation(citation_text, context)
+            verified_citations.append(verified)
+        self.assertGreater(len(verified_citations), 0)
+
+    def test_error_handling(self):
+        # Test error handling for invalid citations
+        citation_text = "Invalid Citation"
+        context = ""
+        verified = verify_citation(citation_text, context)
+        self.assertFalse(verified.get("valid", True))
+        self.assertIn("error", verified)
+
+    def test_different_citation_types(self):
+        # Test different citation types (e.g., Supreme Court, Circuit Court)
+        citations = [
+            "Miranda v. Arizona, 384 U.S. 436 (1966)",  # Supreme Court
+            "United States v. Jones, 565 U.S. 400 (2012)",  # Supreme Court
+            "Smith v. Jones, 123 F.3d 456 (2025)",  # Circuit Court
+        ]
+        for citation in citations:
+            verified = verify_citation(citation, "")
+            self.assertTrue(verified.get("valid", False))
+
+
+def run_tests():
+    test_suite = unittest.TestLoader().loadTestsFromTestCase(TestEnhancedValidator)
+    test_results = unittest.TextTestRunner().run(test_suite)
+    return {
+        "tests_run": test_results.testsRun,
+        "failures": len(test_results.failures),
+        "errors": len(test_results.errors),
+        "skipped": len(test_results.skipped),
+        "was_successful": test_results.wasSuccessful(),
+        "test_cases": [
+            {
+                "name": test.id(),
+                "success": test.success,
+            }
+            for test in test_results.testsRun
+        ],
+    }
+
+
 if __name__ == "__main__":
+    # Run tests directly
+    print("Running Enhanced Validator Tests...\n" + "=" * 50 + "\n")
+
+    # Run tests and get results
+    test_results = run_tests()
+
+    # Print summary
+    print("\n" + "=" * 50)
+    print("TEST SUMMARY")
+    print("=" * 50)
+    print(f"Tests Run: {test_results['tests_run']}")
+    print(f"Failures: {test_results['failures']}")
+    print(f"Errors: {test_results['errors']}")
+    print(f"Skipped: {test_results['skipped']}")
+    print(f"\nOverall: {'SUCCESS' if test_results['was_successful'] else 'FAILED'}")
+
+    # Print detailed results
+    if not test_results["was_successful"]:
+        print("\nFailed/Error Tests:")
+        for test in test_results["test_cases"]:
+            if not test["success"]:
+                print(f"- {test['name']}")
+
+    print("\n" + "=" * 50 + "\n")
+
     # Run the application on port 5000
     print("Starting Enhanced Validator Test Server...")
     print("Open http://127.0.0.1:5000 in your browser to test the Enhanced Validator")

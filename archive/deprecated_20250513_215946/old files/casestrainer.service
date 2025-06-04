@@ -1,0 +1,36 @@
+[Unit]
+Description=CaseStrainer Multi-User Service
+After=network.target
+
+[Service]
+# Replace with the actual user that should run the service
+User=casestrainer
+# Replace with the actual path to your CaseStrainer installation
+WorkingDirectory=/path/to/casestrainer
+# Adjust parameters as needed for your environment
+# The --workers parameter determines how many worker processes to run
+# Each worker will use a different port (base port + worker_id)
+ExecStart=/usr/bin/python3 run_server.py --threads 8 --workers 4 --port 5000 --channel-timeout 300 --connection-limit 2000 --timeout 300
+
+# Environment variables - UNCOMMENT AND SET THESE VALUES
+Environment="SSL_CERT_PATH=/path/to/cert.pem"
+Environment="SSL_KEY_PATH=/path/to/key.pem"
+Environment="COURTLISTENER_API_KEY=your_api_key_here"
+Environment="LANGSEARCH_API_KEY=your_api_key_here"
+Environment="SECRET_KEY=your_secret_key_here"
+
+# Restart policy
+Restart=always
+RestartSec=5
+
+# Limits
+LimitNOFILE=65536
+TimeoutStartSec=600
+TimeoutStopSec=600
+
+# Output logging
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

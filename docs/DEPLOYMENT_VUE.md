@@ -80,12 +80,12 @@ This script will:
 
 ### API Base Path
 
-All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+All API endpoints are accessed under the `/api/` prefix. For example:
 - `https://wolf.law.uw.edu/casestrainer/api/verify_citation`
-- `http://localhost:5000/casestrainer/api/verify_citation`
+- `http://localhost:5000/api/verify_citation`
 
 **Troubleshooting:**
-If you encounter 404 or path errors, ensure both the frontend and backend use the `/casestrainer/api/` prefix and your Nginx/proxy configuration is correct.
+If you encounter 404 or path errors, ensure your Nginx/proxy configuration is correctly handling the `/casestrainer` prefix and forwarding requests to the backend with the correct path.
 
 ### Startup Script
 

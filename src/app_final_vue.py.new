@@ -1,0 +1,3 @@
+        response.headers["Last-Modified"] = (
+            f"{datetime.now(timezone.utc).strftime('%a, %d %b %Y %H:%M:%S')} GMT"
+        )

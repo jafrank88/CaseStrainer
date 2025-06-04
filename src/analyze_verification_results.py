@@ -5,8 +5,6 @@ This script analyzes the verification results from the multi-source verifier
 and updates the CaseStrainer database with the findings.
 """
 
-import os
-import sys
 import json
 import sqlite3
 from datetime import datetime

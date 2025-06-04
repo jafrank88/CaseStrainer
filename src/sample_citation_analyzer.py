@@ -13,8 +13,6 @@ import requests
 import traceback
 import time
 import random
-from datetime import datetime
-import re
 
 # Import eyecite for citation extraction
 try:

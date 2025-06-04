@@ -6,21 +6,22 @@ and adds unconfirmed citations to the database for the Citation Tester page.
 """
 
 import json
-import os
-import re
 import random
-import string
 import traceback
 from datetime import datetime
 
-# Import functions from app_final.py if available
+# Import functions from app_final_vue.py if available
 try:
-    from app_final import is_landmark_case, search_citation_on_web, check_case_with_ai
-    from app_final import get_cache_key, get_cache_path
+    from app_final_vue import (
+        is_landmark_case,
+        search_citation_on_web,
+        check_case_with_ai,
+    )
+    from app_final_vue import get_cache_key, get_cache_path
 
-    print("Successfully imported verification functions from app_final.py")
+    print("Successfully imported verification functions from app_final_vue.py")
 except ImportError:
-    print("Warning: Could not import verification functions from app_final.py")
+    print("Warning: Could not import verification functions from app_final_vue.py")
 
 # List of court reporter abbreviations for generating citations
 REPORTERS = [

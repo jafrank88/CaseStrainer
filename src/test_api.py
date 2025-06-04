@@ -7,32 +7,27 @@ import sys
 import requests
 import json
 import time
+import logging
+
+# Configure logging to console only
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+logger = logging.getLogger(__name__)
+logger.info("Logging to console")
 
 
 def test_verify_citation(citation_text, case_name=None):
-    """Test the /casestrainer/api/verify_citation endpoint with a citation text."""
+    """Test the /casestrainer/api/verify-citation endpoint with a citation text."""
     print(
-        f"Testing /casestrainer/api/verify_citation endpoint with citation: {citation_text}"
+        f"Testing /casestrainer/api/verify-citation endpoint with citation: {citation_text}"
     )
-    api_url = "http://127.0.0.1:5000/casestrainer/api/verify_citation"
+    api_url = "http://127.0.0.1:5000/casestrainer/api/verify-citation"
     payload = {"citation": citation_text}
     if case_name:
         payload["case_name"] = case_name
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(api_url, json=payload, headers=headers)
-    print(f"Response status code: {response.status_code}")
-    try:
-        result = response.json()
-        print(f"Response JSON: {json.dumps(result, indent=2)}")
-    except Exception as e:
-        print(f"Invalid JSON response: {response.text}")
-
-
-def test_analyze_text(citation_text):
-    """Test the /casestrainer/api/analyze endpoint with pasted text."""
-    print(f"Testing /casestrainer/api/analyze endpoint with text: {citation_text}")
-    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
-    payload = {"text": citation_text}
     headers = {"Content-Type": "application/json"}
     try:
         response = requests.post(api_url, json=payload, headers=headers)
@@ -41,45 +36,139 @@ def test_analyze_text(citation_text):
             result = response.json()
             print(f"Response JSON: {json.dumps(result, indent=2)}")
         except Exception as e:
-            print(f"Invalid JSON response: {response.text}")
+            print(f"Error parsing JSON: {e}")
+            print(f"Raw response: {response.text}")
     except Exception as e:
-        print(f"Exception during test_analyze_text: {e}")
+        print(f"Request failed: {e}")
+
+
+def test_analyze_text(citation_text):
+    """Test the /casestrainer/api/analyze endpoint with pasted text."""
+    logger.info(f"\n{'='*80}")
+    logger.info(f"TESTING CITATION ANALYSIS FOR TEXT: {citation_text}")
+    logger.info(f"{'='*80}\n")
+
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
+    headers = {"Content-Type": "application/json"}
+
+    # Log the request details
+    logger.debug(f"Sending request to {api_url}")
+    logger.debug(f"Request headers: {headers}")
+    logger.debug(f'Request payload: {{"text": "{citation_text[:100]}..."}}')
+
+    try:
+        # Send as JSON with the correct Content-Type header
+        start_time = time.time()
+        response = requests.post(api_url, json={"text": citation_text}, headers=headers)
+        elapsed_time = time.time() - start_time
+
+        # Log response details
+        logger.info(f"Response received in {elapsed_time:.2f} seconds")
+        logger.info(f"Response status code: {response.status_code}")
+        logger.debug(f"Response headers: {dict(response.headers)}")
+
+        try:
+            result = response.json()
+            logger.info("Successfully parsed JSON response")
+
+            # Log detailed citation results
+            if "results" in result:
+                logger.info(
+                    f"Found {len(result['results'])} citation(s) in the response"
+                )
+                for i, citation_result in enumerate(result["results"], 1):
+                    logger.info(f"\n--- Citation {i} ---")
+
+                    # Log basic citation info
+                    if "citation" in citation_result:
+                        citation = citation_result["citation"]
+                        logger.info(f"Citation text: {citation.get('text', 'N/A')}")
+                        logger.info(f"Case name: {citation.get('name', 'N/A')}")
+                        logger.info(f"Valid: {citation.get('valid', 'N/A')}")
+
+                        # Log metadata if available
+                        if "metadata" in citation:
+                            logger.info("Metadata:")
+                            for key, value in citation["metadata"].items():
+                                if value:  # Only log non-null values
+                                    logger.info(f"  {key}: {value}")
+
+                    # Log verification details
+                    if "details" in citation_result:
+                        logger.info("Verification details:")
+                        for key, value in citation_result["details"].items():
+                            logger.info(f"  {key}: {value}")
+
+                    logger.info(f"Exists: {citation_result.get('exists', 'N/A')}")
+                    logger.info(f"Method: {citation_result.get('method', 'N/A')}")
+
+            logger.debug(f"Full response JSON:\n{json.dumps(result, indent=2)}")
+            return result
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response: {e}")
+            logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+        except Exception as e:
+            logger.exception(f"Unexpected error processing response: {e}")
+            logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+
+    except requests.exceptions.RequestException as e:
+        logger.exception(f"Request failed: {e}")
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
+
+    return None
 
 
 def test_analyze_url(url):
     """Test the /casestrainer/api/analyze endpoint with a URL input."""
     print(f"Testing /casestrainer/api/analyze endpoint with URL: {url}")
     api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
-    payload = {"url": url}
     headers = {"Content-Type": "application/json"}
     try:
-        response = requests.post(api_url, json=payload, headers=headers)
+        # Send as JSON with the correct Content-Type header
+        response = requests.post(api_url, json={"url": url}, headers=headers)
         print(f"Response status code: {response.status_code}")
         try:
             result = response.json()
             print(f"Response JSON: {json.dumps(result, indent=2)}")
+            return result
         except Exception as e:
-            print(f"Invalid JSON response: {response.text}")
+            print(f"Error parsing JSON: {e}")
+            print(f"Raw response: {response.text}")
     except Exception as e:
-        print(f"Exception during test_analyze_url: {e}")
+        print(f"Request failed: {e}")
+    return None
 
 
 def test_analyze_file(file_path):
     """Test the /casestrainer/api/analyze endpoint with a file upload."""
     print(f"Testing /casestrainer/api/analyze endpoint with file: {file_path}")
     api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
-    if not os.path.isfile(file_path):
-        print(f"File not found: {file_path}")
-        return
-    with open(file_path, "rb") as f:
-        files = {"file": (os.path.basename(file_path), f, "application/pdf")}
-        response = requests.post(api_url, files=files)
+    try:
+        with open(file_path, "rb") as f:
+            # Read the file content and send it as text in the JSON payload
+            file_content = f.read().decode("utf-8")
+
+        # Send as JSON with the file content
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(
+            api_url,
+            json={"text": file_content, "filename": os.path.basename(file_path)},
+            headers=headers,
+        )
+
         print(f"Response status code: {response.status_code}")
         try:
             result = response.json()
             print(f"Response JSON: {json.dumps(result, indent=2)}")
+            return result
         except Exception as e:
-            print(f"Invalid JSON response: {response.text}")
+            print(f"Error parsing JSON: {e}")
+            print(f"Raw response: {response.text}")
+    except Exception as e:
+        print(f"File operation or request failed: {e}")
+    return None
 
 
 # Deprecated: test_analyze_brief used legacy endpoint and polling, which is no longer supported
@@ -136,7 +225,7 @@ def test_analyze_brief(file_path):
 
                     # Check if analysis is complete
                     if status_result.get("completed", False):
-                        print(f"Analysis completed!")
+                        print("Analysis completed!")
 
                         # Save the results to a file
                         results_file = f"{os.path.splitext(file_path)[0]}_results.json"
@@ -191,8 +280,18 @@ if __name__ == "__main__":
     print("\n==== Testing /casestrainer/api/verify_citation (single citation) ====")
     test_verify_citation("347 U.S. 483")
 
-    print("\n==== Testing /casestrainer/api/analyze (file upload) ====")
-    test_analyze_file("test_files/test.pdf")  # Ensure this file exists
+    # Test with a known good text file first
+    test_file = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "test_files",
+        "test.txt",
+    )
+    if os.path.exists(test_file):
+        print("\n==== Testing /casestrainer/api/analyze (file upload) ====")
+        test_analyze_file(test_file)
+    else:
+        print("\n==== Skipping file upload test - test file not found ====")
+        print(f"Expected test file at: {test_file}")
 
     print("\n==== Testing /casestrainer/api/analyze (pasted text) ====")
     test_analyze_text("Brown v. Board of Education, 347 U.S. 483 (1954)")

@@ -30,6 +30,12 @@
             <li class="nav-item">
               <router-link class="nav-link" to="/about">About</router-link>
             </li>
+            <li class="nav-item">
+              <router-link class="nav-link text-warning" to="/api-test">API Test</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link text-info" to="/backend-test">Backend Test</router-link>
+            </li>
           </ul>
         </div>
       </div>
@@ -38,11 +44,16 @@
 </span>
     </nav>
 
-    <main class="container mt-4">
+    <main class="container mt-4 flex-grow-1">
       <router-view />
     </main>
 
-    <footer class="footer mt-5 py-3 bg-light">
+    <!-- Feedback Form -->
+    <div class="container mt-4">
+      <FeedbackForm />
+    </div>
+
+    <footer class="footer py-3 bg-light">
       <div class="container text-center">
         <span class="text-muted">CaseStrainer &copy; 2025 - University of Washington</span>
       </div>
@@ -52,9 +63,13 @@
 
 <script>
 import { fetchVersion } from './version.js';
+import FeedbackForm from './components/FeedbackForm.vue';
 
 export default {
   name: 'App',
+  components: {
+    FeedbackForm
+  },
   data() {
     return {
       version: null

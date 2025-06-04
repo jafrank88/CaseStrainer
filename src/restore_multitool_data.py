@@ -1,6 +1,4 @@
 import sqlite3
-import json
-import datetime
 
 # Sample citation data for 33 citations
 sample_citations = [

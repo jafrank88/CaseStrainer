@@ -1,18 +1,24 @@
 {
   "name": "casestrainer-vue",
-  "version": "0.4.4",
+  "version": "0.4.7",
   "description": "Modern Vue.js frontend for CaseStrainer",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint --config .eslintrc.cjs",
+    "test": "node test-runner.js",
+    "test:e2e": "cypress open",
+    "test:e2e:headless": "cypress run",
+    "test:validator": "cypress run --spec 'cypress/e2e/enhanced-validator.cy.js'",
+    "test:validator:open": "cypress open",
+    "test:ci": "start-server-and-test start http-get://localhost:5000/casestrainer/api/health 'cypress run'"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.9.0",
     "bootstrap": "^5.2.3",
     "chart.js": "^3.9.1",
-    "core-js": "^3.26.1",
+    "core-js": "^3.42.0",
     "d3": "^7.8.0",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
@@ -20,15 +26,24 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.27.1",
-    "@vue/cli-plugin-babel": "~5.0.8",
-    "@vue/cli-plugin-eslint": "~5.0.8",
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-router": "~5.0.8",
     "@vue/cli-plugin-vuex": "~5.0.8",
-    "@vue/cli-service": "~5.0.8",
+    "@vue/cli-service": "^3.3.1",
     "@vue/compiler-sfc": "^3.2.45",
+    "cypress": "^14.4.0",
     "eslint": "^8.28.0",
+    "eslint-plugin-cypress": "^2.13.4",
     "eslint-plugin-vue": "^9.8.0",
     "sass": "^1.56.1",
-    "sass-loader": "^13.2.0"
-  }
+    "sass-loader": "^13.2.0",
+    "start-server-and-test": "^2.0.12"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
 }

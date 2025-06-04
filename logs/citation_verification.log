@@ -4357,3 +4357,108 @@ cal Diversity v. Zinke
 2025-05-20 14:07:03,699 - citation_verification - INFO - Case Name: Missouri v. Jenkins
 2025-05-20 14:07:03,710 - citation_verification - INFO - Explanation: Citation verified by CourtListener API.
 2025-05-20 14:07:03,721 - citation_verification - INFO - =========================================
+2025-05-23 20:21:46,462 - enhanced_validator_production - INFO - [enhanced_validator_production.py:141] - striprtf library loaded successfully
+2025-05-23 20:21:46,464 - enhanced_validator_production - INFO - [enhanced_validator_production.py:245] - Loaded CourtListener API key from config.json
+2025-05-23 20:21:46,952 - enhanced_validator_production - INFO - [enhanced_validator_production.py:408] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:22:25,491 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:22:25,494 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:22:25,997 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:24:57,954 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:24:57,957 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:24:58,460 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:25:14,175 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:25:14,178 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:25:14,672 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:36:50,058 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:36:50,060 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:36:50,555 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:37:25,636 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:37:25,639 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:37:26,135 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:55:06,033 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:55:06,036 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:55:06,506 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 20:55:28,496 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 20:55:28,499 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 20:55:28,994 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 21:20:44,994 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 21:20:44,997 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 21:20:45,479 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 21:22:01,266 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 21:22:01,269 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 21:22:01,762 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 21:41:44,041 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 21:41:44,044 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 21:41:44,510 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 21:41:57,423 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 21:41:57,426 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 21:41:57,912 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:09:03,000 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:09:03,003 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:09:03,470 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:09:14,291 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:09:14,294 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:09:14,783 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:15:38,999 - enhanced_validator_production - WARNING - [enhanced_validator_production.py:155] - striprtf not installed. RTF file processing will not be available.
+2025-05-23 22:15:39,049 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:15:39,067 - enhanced_validator_production - WARNING - [enhanced_validator_production.py:431] - Eyecite not installed: No module named 'regex'. Using regex patterns for citation extraction.
+2025-05-23 22:19:40,028 - enhanced_validator_production - WARNING - [enhanced_validator_production.py:155] - striprtf not installed. RTF file processing will not be available.
+2025-05-23 22:19:40,079 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:19:40,097 - enhanced_validator_production - WARNING - [enhanced_validator_production.py:431] - Eyecite not installed: No module named 'regex'. Using regex patterns for citation extraction.
+2025-05-23 22:19:53,084 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:19:53,087 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:19:53,573 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:20:09,355 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:20:09,358 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:20:09,830 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:45:40,168 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:45:40,171 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:45:40,645 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 22:45:53,676 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 22:45:53,679 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 22:45:54,168 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 23:05:36,872 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 23:05:36,875 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 23:05:37,355 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 23:05:51,310 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 23:05:51,313 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 23:05:51,802 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 23:23:32,704 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 23:23:32,707 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 23:23:33,194 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-23 23:23:46,351 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-23 23:23:46,354 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-23 23:23:46,856 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-24 07:11:31,110 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-24 07:11:31,113 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-24 07:11:31,589 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-27 20:35:58,678 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-27 20:35:58,680 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-27 20:35:59,522 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-27 20:36:00,255 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-27 20:36:12,123 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found
+2025-05-27 20:48:21,740 - enhanced_validator_production - INFO - [enhanced_validator_production.py:152] - striprtf library loaded successfully
+2025-05-27 20:48:21,743 - enhanced_validator_production - INFO - [enhanced_validator_production.py:256] - Loaded CourtListener API key from config.json
+2025-05-27 20:48:22,443 - enhanced_validator_production - INFO - [enhanced_validator_production.py:419] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-27 20:48:23,172 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-27 20:48:35,542 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found
+2025-05-28 09:28:34,949 - enhanced_validator_production - INFO - [enhanced_validator_production.py:209] - striprtf library loaded successfully
+2025-05-28 09:28:34,952 - enhanced_validator_production - INFO - [enhanced_validator_production.py:313] - Loaded CourtListener API key from config.json
+2025-05-28 09:28:35,441 - enhanced_validator_production - INFO - [enhanced_validator_production.py:476] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-28 09:28:35,575 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-28 09:28:37,717 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found
+2025-05-28 09:46:50,675 - enhanced_validator_production - INFO - [enhanced_validator_production.py:209] - striprtf library loaded successfully
+2025-05-28 09:46:50,678 - enhanced_validator_production - INFO - [enhanced_validator_production.py:313] - Loaded CourtListener API key from config.json
+2025-05-28 09:46:51,178 - enhanced_validator_production - INFO - [enhanced_validator_production.py:476] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-28 09:46:51,328 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-28 09:46:53,778 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found
+2025-05-28 10:27:11,136 - enhanced_validator_production - INFO - [enhanced_validator_production.py:209] - striprtf library loaded successfully
+2025-05-28 10:27:11,139 - enhanced_validator_production - INFO - [enhanced_validator_production.py:313] - Loaded CourtListener API key from config.json
+2025-05-28 10:27:11,625 - enhanced_validator_production - INFO - [enhanced_validator_production.py:475] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-28 10:27:11,720 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-28 10:27:13,967 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found
+2025-05-28 10:35:12,899 - enhanced_validator_production - INFO - [enhanced_validator_production.py:209] - striprtf library loaded successfully
+2025-05-28 10:35:12,902 - enhanced_validator_production - INFO - [enhanced_validator_production.py:313] - Loaded CourtListener API key from config.json
+2025-05-28 10:35:13,401 - enhanced_validator_production - INFO - [enhanced_validator_production.py:475] - Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction
+2025-05-28 10:35:13,545 - enhanced_verifier - INFO - [enhanced_multi_source_verifier.py:60] - Successfully imported original MultiSourceVerifier
+2025-05-28 10:35:16,061 - citation_classifier - INFO - [ml_citation_classifier.py:70] - No existing model found

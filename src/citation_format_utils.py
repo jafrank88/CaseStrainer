@@ -17,9 +17,9 @@ def washington_state_to_bluebook(citation: str) -> str:
     year = match.group(1) if match else None
     # Determine court type
     if "Wash. App." in citation:
-        parenthetical = f"(Wash. Ct. App."
+        parenthetical = "(Wash. Ct. App."
     elif "Wash. 2d" in citation:
-        parenthetical = f"(Wash."
+        parenthetical = "(Wash."
     else:
         parenthetical = None
 

@@ -6,8 +6,6 @@ that can identify valid citations with high accuracy without requiring API calls
 """
 
 import os
-import sys
-import json
 import logging
 import sqlite3
 import re
@@ -300,59 +298,78 @@ class CitationClassifier:
             # Make prediction
             prediction = self.model.predict_proba(X_combined)[0]
 
-            # Return confidence score for the positive class
-            return prediction[1]
+            # Handle case where model was trained on only one class
+            if len(prediction) == 1:
+                # If we only have one class, return 1.0 if the model is confident
+                # in that class, otherwise 0.0
+                return 1.0 if prediction[0] > 0.5 else 0.0
+
+            # For binary classification, return the probability of the positive class
+            # The positive class is usually at index 1, but verify this with your model
+            # You can check with: model.classes_ to see the order of classes
+            return prediction[1] if len(prediction) > 1 else prediction[0]
 
         except Exception as e:
-            logger.error(f"Error predicting citation '{citation}': {e}")
+            logger.error(f"Error predicting citation '{citation}': {str(e)}")
             return 0.0
 
     def classify_citation(self, citation):
         """
         Classify a citation and return a detailed result.
         """
-        confidence = self.predict(citation)
+        try:
+            confidence = self.predict(citation)
 
-        # Extract features for explanation
-        features = self._extract_features(citation)
+            # Extract features for explanation
+            features = self._extract_features(citation)
 
-        # Determine classification
-        is_valid = confidence >= 0.7  # Threshold can be adjusted
+            # Determine classification
+            is_valid = confidence >= 0.7  # Threshold can be adjusted
 
-        # Create explanation
-        explanation = []
+            # Create explanation
+            explanation = []
 
-        if features["has_reporter"]:
-            explanation.append("Contains a recognized legal reporter")
-        else:
-            explanation.append("Does not contain a recognized legal reporter")
+            if features["has_reporter"]:
+                explanation.append("Contains a recognized legal reporter")
+            else:
+                explanation.append("Does not contain a recognized legal reporter")
 
-        if features["has_vol_page"]:
-            explanation.append(
-                f"Contains volume ({features['volume']}) and page ({features['page']}) numbers"
-            )
-        else:
-            explanation.append("Missing volume and page number pattern")
+            if features["has_vol_page"]:
+                explanation.append(
+                    f"Contains volume ({features['volume']}) and page ({features['page']}) numbers"
+                )
+            else:
+                explanation.append("Missing volume and page number pattern")
 
-        if features["has_year"]:
-            explanation.append(f"Contains a year ({features['year']})")
-        else:
-            explanation.append("Missing year")
+            if features["has_year"]:
+                explanation.append(f"Contains a year ({features['year']})")
+            else:
+                explanation.append("Missing year")
 
-        if features["has_v"]:
-            explanation.append("Contains 'v.' (versus) indicating a case name")
-        else:
-            explanation.append("Missing 'v.' (versus) in case name")
+            if features["has_v"]:
+                explanation.append("Contains 'v.' (versus) indicating a case name")
+            else:
+                explanation.append("Missing 'v.' (versus) in case name")
 
-        # Return classification result
-        return {
-            "citation": citation,
-            "is_valid": is_valid,
-            "confidence": confidence,
-            "features": features,
-            "explanation": explanation,
-            "classification_date": datetime.now().isoformat(),
-        }
+            # Return classification result
+            return {
+                "citation": citation,
+                "is_valid": is_valid,
+                "confidence": confidence,
+                "features": features,
+                "explanation": explanation,
+                "classification_date": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            logger.error(f"Error in classify_citation for '{citation}': {str(e)}")
+            return {
+                "citation": citation,
+                "is_valid": False,
+                "confidence": 0.0,
+                "error": str(e),
+                "classification_date": datetime.now().isoformat(),
+            }
 
     def batch_classify(self, citations):
         """

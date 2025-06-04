@@ -2,7 +2,6 @@ import tempfile
 import os
 import re
 import requests
-import PyPDF2
 import json
 from eyecite import get_citations
 from eyecite.resolve import resolve_citations
@@ -83,7 +82,7 @@ def extract_citations_with_eyecite(text):
     print(f"Found {len(citations)} citations with eyecite")
 
     # Resolve citations
-    resolved_citations = resolve_citations(citations)
+    resolve_citations(citations)
 
     # Format citations for display
     formatted_citations = []

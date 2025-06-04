@@ -1,0 +1,21 @@
+[2025-05-29 12:34:55] [INFO] === Starting CaseStrainer Deployment ===
+[2025-05-29 12:34:55] [INFO] Project Root: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
+[2025-05-29 12:34:55] [INFO] Log File: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_123455.log
+[2025-05-29 12:34:55] [INFO] === Running Tests ===
+[2025-05-29 12:34:55] [WARNING] Skipping tests (test command not configured)
+[2025-05-29 12:34:55] [INFO] === Git Operations ===
+[2025-05-29 12:34:55] [INFO] Staging changes...
+[2025-05-29 12:34:55] [INFO] Executing: git add .
+[2025-05-29 12:34:55] [INFO] 
+[2025-05-29 12:34:55] [INFO] Creating commit...
+[2025-05-29 12:34:55] [INFO] Executing: git commit -m \
+[2025-05-29 12:36:06] [INFO] 
+[2025-05-29 12:36:06] [INFO] Pulling latest changes...
+[2025-05-29 12:36:06] [INFO] Executing: git pull --rebase origin main
+[2025-05-29 12:36:06] [INFO] 
+[2025-05-29 12:36:06] [INFO] Pushing changes...
+[2025-05-29 12:36:06] [INFO] Executing: git push origin main
+[2025-05-29 12:36:07] [INFO] 
+[2025-05-29 12:36:07] [INFO] === Stopping Existing Services ===
+[2025-05-29 12:36:08] [INFO] === Starting Application ===
+[2025-05-29 12:36:08] [INFO] Starting Nginx with config: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\conf\nginx.conf

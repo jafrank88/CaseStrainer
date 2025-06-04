@@ -66,8 +66,8 @@ try:
         enhanced_validator_bp,
     )
 
-    register_enhanced_validator()
-    app.register_blueprint(enhanced_validator_bp, url_prefix="/api/enhanced")
+    app = register_enhanced_validator(app)
+    # The blueprint is now registered inside register_enhanced_validator
     logger.info("Enhanced Validator registered successfully")
 except ImportError as e:
     logger.warning(f"Could not import enhanced validator: {e}")

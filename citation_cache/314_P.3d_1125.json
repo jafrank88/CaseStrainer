@@ -1,0 +1,22 @@
+{
+  "verified": true,
+  "source": "CourtListener",
+  "citation": "314 P.3d 1125",
+  "case_name": "",
+  "decision_date": "",
+  "parallel_citations": [
+    {
+      "citation": "314 P.3d 1125",
+      "source": "original",
+      "verified": true
+    }
+  ],
+  "api_response": {
+    "verified": false,
+    "citation": "314 P.3d 1125",
+    "source": "CourtListener API",
+    "error": null,
+    "citations": [],
+    "parallel_citations": []
+  }
+}
