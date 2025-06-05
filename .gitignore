@@ -241,3 +241,4 @@ yarn-error.log*
 # !casestrainer-vue/dist/css/*
 # Remove redundant entries
 # The following sections were redundant and have been consolidated above
+vcpkg
