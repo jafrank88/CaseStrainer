@@ -431,15 +431,74 @@ echo ================================================
 echo     CaseStrainer Production Deployment Complete
 echo ================================================
 echo.
-echo Production URLs:
+echo [STATUS] Service Status:
+echo.
+
+:: Check Flask backend status
+echo [BACKEND] Flask Application:
+netstat -ano | findstr ":%PROD_BACKEND_PORT%" | findstr "LISTENING" >nul
+if %ERRORLEVEL% equ 0 (
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PROD_BACKEND_PORT%" ^| findstr "LISTENING"') do (
+        set "FLASK_PID=%%a"
+        for /f "tokens=1,2 delims= " %%b in ('tasklist /FI "PID eq !FLASK_PID!" /FO LIST ^| findstr "Image"') do (
+            set "FLASK_IMAGE=%%c"
+        )
+        echo   Status:    RUNNING (PID: !FLASK_PID! - !FLASK_IMAGE!)
+    )
+) else (
+    echo   Status:    NOT RUNNING
+)
+echo   Port:      %PROD_BACKEND_PORT%
+echo   URL:       http://localhost:%PROD_BACKEND_PORT%/api/
+
+:: Check Nginx status
+echo.
+echo [FRONTEND] Nginx Server:
+tasklist /FI "IMAGENAME eq nginx.exe" 2>NUL | find /I /N "nginx.exe">NUL
+if %ERRORLEVEL% equ 0 (
+    echo   Status:    RUNNING
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":80 " ^| findstr "LISTENING"') do (
+        set "NGINX_PID=%%a"
+    )
+    if defined NGINX_PID (
+        echo   PID:       %NGINX_PID%
+    )
+) else (
+    echo   Status:    NOT RUNNING
+)
+echo   Ports:     80 (HTTP), 443 (HTTPS)
+echo   Config:    %NGINX_CONF%
+
+:: Check port 80 and 443 status
+echo.
+echo [PORTS] Port Status:
+for %%p in (80 443) do (
+    netstat -ano | findstr ":%%p" | findstr "LISTENING" >nul
+    if !errorlevel! equ 0 (
+        for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%%p " ^| findstr "LISTENING"') do (
+            set "PORT_PID=%%a"
+            for /f "tokens=1,2 delims= " %%b in ('tasklist /FI "PID eq !PORT_PID!" /FO LIST ^| findstr "Image"') do (
+                set "PORT_IMAGE=%%c"
+            )
+            echo   Port %%p:   IN USE by !PORT_IMAGE! (PID: !PORT_PID!)
+            set "PORT_FOUND=true"
+        )
+    ) else (
+        echo   Port %%p:   AVAILABLE
+    )
+)
+
+echo.
+echo [ACCESS] Production URLs:
 echo   Main App: https://%SERVER_NAME%%APP_PATH%/
 echo   API:      https://%SERVER_NAME%%APP_PATH%/api/
 echo   Health:   https://%SERVER_NAME%/health
 echo.
-echo Server Details:
+echo [INFO] Server Details:
 echo   Server IP: %SERVER_IP%
-echo   Backend:   Port %PROD_BACKEND_PORT% (Flask)
 echo   Frontend:  Ports 80/443 (Nginx with SSL)
+echo   Backend:   Port %PROD_BACKEND_PORT% (Flask)
+
 echo.
 echo [INFO] Enterprise Features Enabled:
 echo   - SSL/TLS with strong ciphers
@@ -449,6 +508,10 @@ echo   - Security headers (HSTS, CSP, XSS protection)
 echo   - Gzip compression
 echo   - Static asset caching
 echo   - Request timeouts and limits
+
+echo.
+echo [INFO] Press any key to close this window...
+pause >nul
 echo.
 echo [SUCCESS] CaseStrainer is live at https://%SERVER_NAME%%APP_PATH%/
 echo.
