@@ -1,6 +1,6 @@
 # CaseStrainer - Vue.js Frontend
 
-A modern, responsive frontend for the CaseStrainer application built with Vue 3, Vite, and Pinia.
+A modern, responsive frontend for the CaseStrainer application built with Vue 3, Vite, and Pinia using the Composition API.
 
 ## Features
 
@@ -9,11 +9,14 @@ A modern, responsive frontend for the CaseStrainer application built with Vue 3,
 - 🚀 Fast and efficient with Vue 3's Composition API
 - 🏗️ Modular and maintainable codebase
 - 🔄 Real-time updates and feedback
+- 📱 Mobile-friendly interface
+- 📊 Interactive citation network visualization
 
 ## Prerequisites
 
 - Node.js 16+ (LTS recommended)
 - npm 8+ or yarn 1.22+
+- Python 3.8+ (for backend API)
 - Backend API server (see [Backend Setup](#backend-setup))
 
 ## Project Setup
@@ -21,16 +24,22 @@ A modern, responsive frontend for the CaseStrainer application built with Vue 3,
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/casestrainer.git
-cd casestrainer/casestrainer-vue-new
+git clone https://github.com/your-username/CaseStrainer.git
+cd CaseStrainer/casestrainer-vue-new
 ```
 
 ### 2. Install dependencies
 
 ```bash
+# Using npm
 npm install
-# or
+
+# Or using yarn
 yarn install
+
+# Install Python dependencies (from project root)
+cd ..
+pip install -r requirements.txt
 ```
 
 ## Available Scripts

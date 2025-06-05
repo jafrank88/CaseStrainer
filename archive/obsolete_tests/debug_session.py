@@ -1,7 +1,6 @@
 import requests
 import json
 import time
-import os
 
 # Base URL for the API
 BASE_URL = "https://wolf.law.uw.edu/casestrainer"

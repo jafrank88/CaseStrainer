@@ -2,7 +2,6 @@ import os
 import re
 import glob
 import random
-from pathlib import Path
 
 # Citation patterns to look for
 citation_patterns = [

@@ -6,10 +6,8 @@ Test script for citation extraction functionality.
 
 import os
 import sys
-import json
 import logging
 import traceback
-from pprint import pprint
 
 # Add the src directory to the path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

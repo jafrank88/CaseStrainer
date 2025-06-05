@@ -18,7 +18,7 @@ def test_analyze_text():
     print("TESTING ANALYZE ENDPOINT (TEXT INPUT)")
     print("=" * 80)
     print(f"URL: {url}")
-    print(f"Method: POST")
+    print("Method: POST")
     print(f"Headers: {json.dumps(headers, indent=2)}")
     print(f"Request data: {json.dumps(data, indent=2)}")
     print("-" * 80)

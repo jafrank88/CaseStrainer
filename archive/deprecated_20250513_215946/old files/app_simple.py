@@ -4,7 +4,6 @@ from flask import (
     render_template,
     jsonify,
     Response,
-    send_from_directory,
 )
 import os
 import re
@@ -122,7 +121,7 @@ def extract_text_from_file(file_path):
                 try:
                     with open("extracted_pdf_text.txt", "w", encoding="utf-8") as f:
                         f.write(text)
-                    print(f"Extracted PDF text saved to extracted_pdf_text.txt")
+                    print("Extracted PDF text saved to extracted_pdf_text.txt")
                 except Exception as e:
                     print(f"Error saving extracted text to file: {e}")
 
@@ -240,7 +239,7 @@ def extract_citations(text):
             with open("extracted_citations.txt", "w", encoding="utf-8") as f:
                 for i, citation in enumerate(citations):
                     f.write(f"{i+1}. {citation}\n")
-            print(f"Extracted citations saved to extracted_citations.txt")
+            print("Extracted citations saved to extracted_citations.txt")
         except Exception as e:
             print(f"Error saving extracted citations to file: {e}")
 
@@ -678,7 +677,7 @@ def analyze():
             print(f"Error getting raw data: {e}")
 
         # Debug: Print environment variables
-        print(f"\nRequest environment:")
+        print("\nRequest environment:")
         for key, value in request.environ.items():
             if key.startswith("HTTP_") or key in [
                 "REQUEST_METHOD",

@@ -1,7 +1,6 @@
 import requests
 import json
 import logging
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(

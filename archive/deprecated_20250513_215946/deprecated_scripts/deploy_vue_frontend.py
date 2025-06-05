@@ -6,8 +6,6 @@ without requiring a full Node.js build process.
 """
 
 import os
-import shutil
-import json
 from pathlib import Path
 
 # Define paths

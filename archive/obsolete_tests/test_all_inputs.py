@@ -3,7 +3,6 @@ import json
 import os
 import time
 import logging
-from bs4 import BeautifulSoup
 
 # Configure logging
 logging.basicConfig(

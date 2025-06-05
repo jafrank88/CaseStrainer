@@ -4,9 +4,7 @@ from flask import (
     send_from_directory,
     request,
     jsonify,
-    render_template,
     redirect,
-    url_for,
     session,
 )
 import os
@@ -19,10 +17,7 @@ import re
 import requests
 import traceback
 import uuid
-import tempfile
 from flask_session import Session
-from bs4 import BeautifulSoup
-import urllib.parse
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from concurrent.futures import ThreadPoolExecutor
@@ -30,7 +25,6 @@ import threading
 from flask_cors import CORS
 from datetime import timedelta
 from enhanced_validator_production import (
-    enhanced_validator_bp as enhanced_validator_production_bp,
     register_enhanced_validator,
 )
 from citation_api import citation_api
@@ -140,7 +134,7 @@ def create_app():
     Session(app)
 
     # Create thread pool for handling concurrent requests
-    thread_pool = ThreadPoolExecutor(max_workers=10)
+    ThreadPoolExecutor(max_workers=10)
 
     # Thread-local storage for user-specific data
     thread_local = threading.local()
@@ -151,20 +145,15 @@ def create_app():
         from eyecite.tokenizers import AhocorasickTokenizer
 
         try:
-            tokenizer = AhocorasickTokenizer()
-            EYECITE_AVAILABLE = True
+            AhocorasickTokenizer()
             logger.info(
                 "Eyecite library and AhocorasickTokenizer loaded successfully for citation extraction"
             )
         except ImportError as e:
-            EYECITE_AVAILABLE = False
-            tokenizer = None
             logger.warning(
                 f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction."
             )
     except ImportError as e:
-        EYECITE_AVAILABLE = False
-        tokenizer = None
         logger.warning(
             f"Eyecite not installed: {str(e)}. Using regex patterns for citation extraction."
         )

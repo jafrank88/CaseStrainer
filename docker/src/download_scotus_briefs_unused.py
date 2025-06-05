@@ -12,7 +12,6 @@ import requests
 import traceback
 import time
 import random
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 

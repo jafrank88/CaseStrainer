@@ -2,7 +2,6 @@
 import subprocess
 import time
 import sys
-from pathlib import Path
 
 
 def run_test_cycle():

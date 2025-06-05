@@ -9,11 +9,9 @@ import os
 import sys
 import json
 import requests
-import re
 import traceback
 import time
 import random
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -371,7 +369,7 @@ def main():
 
             # Stop after processing 100 briefs total
             if total_briefs_processed >= 100:
-                print(f"Reached limit of 100 briefs processed. Stopping.")
+                print("Reached limit of 100 briefs processed. Stopping.")
                 break
 
         # Stop after processing 100 briefs total

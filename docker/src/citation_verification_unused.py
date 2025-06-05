@@ -14,11 +14,10 @@ It implements a fallback mechanism to try different methods if one fails.
 
 import os
 import re
-import json
 import time
 import requests
 import urllib.parse
-from typing import Optional, Dict, Any, List, Tuple, Union
+from typing import Optional, Dict, Any
 import traceback
 
 # Import existing modules (copy them from old files if needed)

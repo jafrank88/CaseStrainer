@@ -150,7 +150,7 @@ def generate_multitool_citations(num_citations=15):
             "case_name": case["case_name"],
             "confidence": round(random.uniform(0.6, 0.95), 2),
             "found": True,
-            "explanation": f"Citation found in alternative source but not in CourtListener.",
+            "explanation": "Citation found in alternative source but not in CourtListener.",
             "source": random.choice(sources),
             "source_document": random.choice(WA_BRIEFS),
             "url": f"https://example.com/case/{case['year']}/{case['case_name'].replace(' ', '-').lower()}",
@@ -351,7 +351,7 @@ def main():
     logger.info("Updating citation JSON files...")
     update_citation_json_files(multitool_citations, unconfirmed_citations)
 
-    print(f"Sample citation generation complete!")
+    print("Sample citation generation complete!")
     print(f"Generated {len(multitool_citations)} citations verified with multitool")
     print(f"Generated {len(unconfirmed_citations)} unconfirmed citations")
 

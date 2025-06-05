@@ -5,7 +5,6 @@ Test script specifically for UW SMTP server.
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import getpass
 
 
 def test_uw_smtp():

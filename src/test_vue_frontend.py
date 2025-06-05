@@ -27,12 +27,8 @@ Requirements:
 
 import os
 import time
-import json
-import pytest
 import sys
 import requests
-from pathlib import Path
-from datetime import datetime
 from playwright.sync_api import (
     sync_playwright,
     expect,
@@ -158,7 +154,7 @@ def test_file_upload():
             citations = page.locator(".citation-card")
             try:
                 citations.first.wait_for(state="visible", timeout=30000)
-            except Exception as e:
+            except Exception:
                 print("Timed out waiting for citation cards to appear")
                 print(f"Current page URL: {page.url}")
                 print(f"Page content: {page.content()[:1000]}...")
@@ -315,7 +311,7 @@ def test_text_paste():
                     locator.wait_for(state="visible", timeout=10000)
                     citations_found.append(citation)
                     print(f"✅ Found expected citation: {citation}")
-                except Exception as e:
+                except Exception:
                     print(f"❌ Missing expected citation: {citation}")
 
             # Verify at least one citation was found

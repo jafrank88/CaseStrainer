@@ -2,7 +2,6 @@
 
 import requests
 import sys
-import os
 
 
 def test_health_endpoint(port=5000):

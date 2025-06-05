@@ -1,4 +1,3 @@
-import os
 import sys
 import logging
 from src.app_final_vue import create_app, app

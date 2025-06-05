@@ -4,8 +4,6 @@ using the multi-source verification system.
 """
 
 import json
-import sys
-import os
 import traceback
 from multi_source_verifier import MultiSourceVerifier
 

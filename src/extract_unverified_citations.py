@@ -10,11 +10,9 @@ import os
 import sys
 import json
 import requests
-import re
 import traceback
 import time
 import random
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, session, request
+from flask import Flask, jsonify, session
 import logging
 import sys
 

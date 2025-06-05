@@ -5,7 +5,6 @@ This script tests the multi-source verifier with various types of citations
 to ensure it correctly distinguishes between real cases, hallucinations, and typos.
 """
 
-import os
 import json
 import traceback
 from multi_source_verifier import MultiSourceVerifier

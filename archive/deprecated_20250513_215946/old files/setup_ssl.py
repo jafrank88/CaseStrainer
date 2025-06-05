@@ -5,9 +5,7 @@ SSL Certificate and Nginx Configuration Setup Script
 This script helps set up SSL certificates and Nginx configuration for the CaseStrainer web application.
 """
 
-import os
 import sys
-import shutil
 from pathlib import Path
 
 

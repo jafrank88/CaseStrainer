@@ -1,8 +1,6 @@
 import requests
-import json
 import time
 import os
-from bs4 import BeautifulSoup
 
 # Base URL for the API
 BASE_URL = "https://wolf.law.uw.edu/casestrainer"

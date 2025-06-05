@@ -2,7 +2,7 @@ import requests
 import json
 import os
 import time
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, Union
 from dataclasses import dataclass
 from pathlib import Path
 import logging
@@ -189,7 +189,7 @@ class CitationTester:
                     data={"source_type": "file"},
                     timeout=60,
                 )  # Longer timeout for file upload
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             return TestResult(
                 success=False,
                 status_code=0,

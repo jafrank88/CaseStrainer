@@ -1,6 +1,5 @@
 import os
 import sqlite3
-from pathlib import Path
 from src.config import DATABASE_FILE
 
 

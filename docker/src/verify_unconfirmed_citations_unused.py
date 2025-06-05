@@ -5,15 +5,12 @@ This script checks all citations in the Unconfirmed Citations tab using
 the enhanced citation verification tool with multiple sources.
 """
 
-import os
 import sys
 import json
 import sqlite3
 import traceback
 import time
 import random
-import requests
-from datetime import datetime
 
 # Import the multi-source verifier if available
 try:

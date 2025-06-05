@@ -7,7 +7,6 @@ This script shows how the tool would work without actually running a web server.
 """
 
 # Standard library imports
-import json
 import re
 import sys
 

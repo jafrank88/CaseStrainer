@@ -74,7 +74,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 REM Install and build Vue.js frontend
 echo [%TIME%] Installing Node.js dependencies...
-cd casestrainer-vue
+cd casestrainer-vue-new
 call npm install
 if %ERRORLEVEL% NEQ 0 (
     echo [%TIME%] ERROR: Failed to install Node.js dependencies

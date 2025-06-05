@@ -32,7 +32,6 @@ app = Flask(__name__)
 try:
     from src.enhanced_validator_production import (
         register_enhanced_validator,
-        enhanced_validator_bp,
     )
 
     print("Successfully imported enhanced_validator_production module")

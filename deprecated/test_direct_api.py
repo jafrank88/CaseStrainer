@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import logging
 import requests
@@ -45,7 +44,7 @@ def test_api_directly():
         # Log request details
         logger.info("\nRequest Details:")
         logger.info(f"URL: {url}")
-        logger.info(f"Method: POST")
+        logger.info("Method: POST")
         logger.info(f"Headers: {json.dumps(headers, indent=2)}")
         logger.info(f"Payload: {json.dumps(payload, indent=2)}")
 

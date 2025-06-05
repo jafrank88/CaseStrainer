@@ -3,7 +3,7 @@ CaseStrainer Flask application with a simple landing page.
 This is a minimal version that works with the Nginx proxy.
 """
 
-from flask import Flask, render_template_string, redirect
+from flask import Flask, render_template_string
 
 # Create the Flask application
 app = Flask(__name__)

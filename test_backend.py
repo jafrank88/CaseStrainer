@@ -1,5 +1,4 @@
 import requests
-import sys
 
 
 def test_health():

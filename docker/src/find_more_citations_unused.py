@@ -6,10 +6,7 @@ and adds unconfirmed citations to the database for the Citation Tester page.
 """
 
 import json
-import os
-import re
 import random
-import string
 import traceback
 from datetime import datetime
 

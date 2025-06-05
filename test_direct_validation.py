@@ -1,7 +1,6 @@
 import sys
 import os
 import logging
-from datetime import datetime
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +21,6 @@ def test_citation_validation(citation_text):
         # Import the enhanced validator
         from src.enhanced_validator_production import (
             validate_citations_batch,
-            citation_processor,
         )
 
         logger.info("\n" + "=" * 80)

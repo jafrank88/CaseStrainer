@@ -11,11 +11,6 @@ import sys
 import logging
 import requests
 import json
-import traceback
-from flask import Flask, request, jsonify, session
-from bs4 import BeautifulSoup
-import re
-import uuid
 
 # Configure logging
 logging.basicConfig(

@@ -1,697 +1,793 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal EnableDelayedExpansion
+
+:: Ensure we're running in our own window
+if "%1"=="" (
+    start "CaseStrainer" /D"%~dp0" cmd /k "%~f0" _
+    exit /b
+)
 
 :: ===========================================
-:: CaseStrainer Application Launcher (Improved)
+:: CaseStrainer Application Launcher (Enhanced)
 :: ===========================================
-:: Version: 2.0.1
+:: Version: 2.1.0
 :: Last Updated: 2025-06-03
 :: ===========================================
 
+echo [DEBUG] Starting CaseStrainer launcher...
+
 :: Initialize configuration with command line arguments
 call :init_config %*
-if !ERRORLEVEL! NEQ 0 (
+if %ERRORLEVEL% neq 0 (
     echo [ERROR] Failed to initialize configuration
     pause
     exit /b 1
 )
 
-:: Stop all services function
-:stop_services
-    echo [INFO] Stopping all services...
-    call :stop_backend
-    call :stop_frontend
-    call :stop_nginx
-    echo [INFO] All services stopped
+:: Ensure we have the required configuration
+if not defined ENV set "ENV=dev"
+if not defined BACKEND_PORT set "BACKEND_PORT=5001"
+if not defined FRONTEND_PORT set "FRONTEND_PORT=3000"
 
-:: Main menu
+echo [DEBUG] Initialization complete, LOG_FILE: %LOG_FILE%
+
+:: Main entry point - handle auto-start or show menu
+if defined AUTO_START (
+    if "%ENV%"=="prod" (
+        echo [INFO] Starting automatic production setup...
+        call :production_auto_start
+        if %ERRORLEVEL% equ 0 (
+            echo [SUCCESS] Production auto-start completed successfully
+            echo [INFO] Press any key to open management menu or Ctrl+C to exit...
+            pause >nul
+        ) else (
+            echo [ERROR] Production auto-start failed
+            echo [INFO] Opening management menu for troubleshooting...
+            pause
+        )
+    ) else (
+        echo [WARNING] Auto-start requires production mode. Use --prod --auto-start
+        echo [INFO] Switching to production mode and starting...
+        set "ENV=prod"
+        call :setup_runtime_config
+        call :production_auto_start
+    )
+)
+
+goto :show_menu
+
+:: ===========================================
+:: MAIN MENU
+:: ===========================================
 :show_menu
     cls
     echo ============================================
-    echo  CaseStrainer Application Manager (v2.0.1)
-    echo  Environment: !ENV! Mode (Ports: !BACKEND_PORT!/!FRONTEND_PORT!)
+    echo  CASESTRAINER APPLICATION LAUNCHER v2.1.0
     echo ============================================
-    echo 1. Start Backend (Flask)
-    echo 2. Start Frontend (Vue.js)
-    echo 3. Start Both (Backend + Frontend)
-    echo 4. Run Tests
-    echo 5. Stop All Services
-    echo 6. Check Status
-    echo 7. Switch Environment (Current: !ENV!)
-    echo 8. Install Dependencies
-    echo 9. Manage Nginx
-    echo 10. Production Restart Workflow
-    echo 11. Exit
+    echo Environment: %ENV%
+    echo Backend: http://localhost:%BACKEND_PORT%
+    echo Frontend: http://localhost:%FRONTEND_PORT%
+    echo Local Access: http://localhost/casestrainer/
     echo ============================================
-    set /p "choice=Enter your choice (1-11): "
-
-    :: Process menu choice
-    if "!choice!"=="1" (
-        echo [INFO] Stopping any running backend...
-        call :stop_backend
-        call :start_backend
-        if !ERRORLEVEL! EQU 0 (
-            echo [SUCCESS] Backend started successfully
-        ) else (
-            echo [ERROR] Failed to start backend
-        )
-        pause
+    echo  1. Start All Services
+    echo  2. Stop All Services
+    echo  3. Restart All Services
+    echo  4. Start Backend Only
+    echo  5. Start Frontend Only
+    echo  6. Manage Nginx
+    echo  7. Manage Configuration
+    echo  8. Debug Frontend Setup
+    echo  9. Toggle Production Mode (Current: %ENV%)
+    echo 10. Check Service Status
+    echo 11. Production Auto-Start (Complete Setup)
+    echo 12. Exit
+    echo ============================================
+    
+    set /p "menu_choice=Enter your choice (1-12): "
+    
+    call :validate_numeric_input "%menu_choice%" 1 12
+    if %ERRORLEVEL% neq 0 (
+        echo [ERROR] Invalid choice. Please enter a number between 1 and 12.
+        timeout /t 2 >nul
         goto :show_menu
-    ) else if "!choice!"=="2" (
-        echo [INFO] Stopping any running frontend...
-        call :stop_frontend
+    )
+    
+    if "%menu_choice%"=="1" (
+        call :start_services
+    ) else if "%menu_choice%"=="2" (
+        call :stop_services
+    ) else if "%menu_choice%"=="3" (
+        call :stop_services
+        call :start_services
+    ) else if "%menu_choice%"=="4" (
+        call :start_backend
+    ) else if "%menu_choice%"=="5" (
         call :start_frontend
-        if !ERRORLEVEL! EQU 0 (
-            echo [SUCCESS] Frontend started successfully
-        ) else (
-            echo [ERROR] Failed to start frontend
-        )
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="3" (
-        echo [INFO] Stopping any running services...
-        call :stop_services
-        call :start_backend
-        if !ERRORLEVEL! EQU 0 (
-            call :start_frontend
-            if !ERRORLEVEL! EQU 0 (
-                echo [SUCCESS] Both services started successfully
-            ) else (
-                echo [WARNING] Backend started but frontend failed
-            )
-        ) else (
-            echo [ERROR] Backend failed to start
-        )
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="4" (
-        call :run_tests
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="5" (
-        call :stop_services
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="6" (
-        call :check_status
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="7" (
-        if "!ENV!"=="dev" (
-            set "NEW_ENV=prod"
-        ) else (
-            set "NEW_ENV=dev"
-        )
-        echo [INFO] Switching to !NEW_ENV! environment...
-        call :stop_services
-        
-        :: Use init_config to set environment properly
-        if "!NEW_ENV!"=="prod" (
-            call :init_config --prod
-        ) else (
-            call :init_config --dev
-        )
-        
-        echo [SUCCESS] Switched to !ENV! environment (Backend: !BACKEND_PORT!, Frontend: !FRONTEND_PORT!)
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="8" (
-        call :install_dependencies
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="9" (
+    ) else if "%menu_choice%"=="6" (
         call :manage_nginx
-        pause
-        goto :show_menu
-    ) else if "!choice!"=="10" (
-        echo [INFO] Starting Production Restart Workflow...
-        echo [1/4] Stopping all services...
-        call :stop_services
-        
-        echo [2/4] Switching to production environment...
-        if "!ENV!"=="prod" (
-            echo [INFO] Already in production environment
-        ) else (
-            echo [INFO] Switching from !ENV! to production environment...
-            :: Set production environment variables directly
-            set "ENV=prod"
-            set "BACKEND_PORT=5001"
-            set "FRONTEND_PORT=4173"
-            set "BACKEND_CONFIG=config_prod.py"
-            set "NODE_ENV=production"
-            set "FLASK_ENV=production"
-            set "FLASK_DEBUG=0"
-            echo [SUCCESS] Switched to production environment (Backend: !BACKEND_PORT!, Frontend: !FRONTEND_PORT!)
-        )
-        
-        echo [3/4] Starting backend and frontend...
-        call :start_backend
-        if !ERRORLEVEL! EQU 0 (
-            echo [INFO] Backend started successfully, starting frontend...
-            call :start_frontend
-            if !ERRORLEVEL! EQU 0 (
-                echo [SUCCESS] Both services started successfully
-            ) else (
-                echo [WARNING] Backend started but frontend failed
-                echo [INFO] Check the frontend window for errors
-            )
-        ) else (
-            echo [ERROR] Backend failed to start
-            echo [INFO] Check the backend window for errors
-        )
-        
-        echo [4/4] Verifying services...
-        call :check_status
+    ) else if "%menu_choice%"=="7" (
+        call :manage_configuration
+    ) else if "%menu_choice%"=="8" (
+        call :debug_frontend_setup
         echo.
-        echo ============================================
-        echo [PRODUCTION RESTART COMPLETE]
-        echo ============================================
-        echo - Backend: http://localhost:!BACKEND_PORT!
-        echo - Frontend: http://localhost:!FRONTEND_PORT!
-        if "!ENV!"=="prod" (
-            echo - Production URL: https://wolf.law.uw.edu/casestrainer/
-            echo - Nginx status will be checked automatically
-        )
-        echo.
-        echo Press any key to return to main menu...
+        echo Press any key to return to the main menu...
         pause >nul
         goto :show_menu
-    ) else if "!choice!"=="11" (
+    ) else if "%menu_choice%"=="9" (
+        if "%ENV%"=="prod" (
+            set "ENV=dev"
+            call :setup_runtime_config
+            echo [INFO] Switched to DEVELOPMENT mode
+        ) else (
+            set "ENV=prod"
+            call :setup_runtime_config
+            echo [INFO] Switched to PRODUCTION mode
+        )
+        timeout /t 2 >nul
+    ) else if "%menu_choice%"=="10" (
+        call :check_service_status
+        echo.
+        echo Press any key to return to the main menu...
+        pause >nul
+        goto :show_menu
+    ) else if "%menu_choice%"=="11" (
+        cls
+        call :production_restart_workflow
+        echo.
+        echo Press any key to return to the main menu...
+        pause >nul
+        goto :show_menu
+    ) else if "%menu_choice%"=="12" (
         echo [INFO] Exiting...
         exit /b 0
-    ) else (
-        echo [ERROR] Invalid choice: !choice!
-        timeout /t 1 >nul
-        goto :show_menu
     )
+    
+    goto :show_menu
 
+:: ===========================================
+:: CONFIGURATION INITIALIZATION
+:: ===========================================
 :init_config
-    :: Set default configuration
+    echo [DEBUG] Starting init_config...
+    
+    :: Set default configuration with regular expansion
     set "SCRIPT_DIR=%~dp0"
-    set "LOG_DIR=!SCRIPT_DIR!logs"
-    set "BACKEND_DIR=!SCRIPT_DIR!src"
-    set "FRONTEND_DIR=!SCRIPT_DIR!casestrainer-vue-new"
+    set "CONFIG_FILE=%SCRIPT_DIR%config.ini"
+    set "LOG_DIR=%SCRIPT_DIR%logs"
+    set "BACKEND_DIR=%SCRIPT_DIR%src"
+    set "FRONTEND_DIR=%SCRIPT_DIR%casestrainer-vue-new"
+    set "TEMP_DIR=%TEMP%\casestrainer"
     
-    :: Create logs directory if it doesn't exist
-    if not exist "!LOG_DIR!" mkdir "!LOG_DIR!"
+    echo [DEBUG] SCRIPT_DIR: %SCRIPT_DIR%
+    echo [DEBUG] LOG_DIR: %LOG_DIR%
     
-    :: Process command line arguments
-    :parse_args
-    if "%1"=="" goto :args_done
-    if "%1"=="--prod" (
-        set "ENV=prod"
-        set "BACKEND_PORT=5001"
-        set "FRONTEND_PORT=4173"
-        set "BACKEND_CONFIG=config_prod.py"
-        set "NODE_ENV=production"
-        set "FLASK_ENV=production"
-        set "FLASK_DEBUG=0"
-        shift
-        goto :parse_args
-    ) else if "%1"=="--dev" (
-        set "ENV=dev"
-        set "BACKEND_PORT=5000"
-        set "FRONTEND_PORT=5173"
-        set "BACKEND_CONFIG=config_dev.py"
-        set "NODE_ENV=development"
-        set "FLASK_ENV=development"
-        set "FLASK_DEBUG=1"
-        shift
-        goto :parse_args
-    ) else (
-        echo [WARNING] Unknown argument: %1
-        shift
-        goto :parse_args
+    :: Create required directories first
+    if not exist "%LOG_DIR%" (
+        echo [DEBUG] Creating LOG_DIR: %LOG_DIR%
+        mkdir "%LOG_DIR%" 2>nul
     )
+    if not exist "%TEMP_DIR%" mkdir "%TEMP_DIR%" 2>nul
+    
+    :: Set up basic timestamp for log file (improved format)
+    call :parse_arguments %*
+    
+    :: Set default environment if not specified
+    if not defined ENV set "ENV=dev"
+    
+    :: Load configuration based on environment
+    call :load_config
+    if %ERRORLEVEL% neq 0 exit /b 1
+    
+    :: Set up runtime configuration
+    call :setup_runtime_config
+    if %ERRORLEVEL% neq 0 exit /b 1
+    
+    exit /b 0
+
+:load_config
+    if not exist "%CONFIG_FILE%" (
+        echo [INFO] Creating default configuration file: %CONFIG_FILE%
+        echo # CaseStrainer Configuration File > "%CONFIG_FILE%"
+        echo # SSL Certificate Paths - Update these to your certificate locations >> "%CONFIG_FILE%"
+        echo SSL_CERT_PATH=D:/CaseStrainer/ssl/WolfCertBundle.crt >> "%CONFIG_FILE%"
+        echo SSL_KEY_PATH=D:/CaseStrainer/ssl/wolf.law.uw.edu.key >> "%CONFIG_FILE%"
+        echo # Nginx Directory >> "%CONFIG_FILE%"
+        echo NGINX_DIR=%SCRIPT_DIR%nginx-1.27.5 >> "%CONFIG_FILE%"
+        echo # Default Ports >> "%CONFIG_FILE%"
+        echo DEV_BACKEND_PORT=5000 >> "%CONFIG_FILE%"
+        echo DEV_FRONTEND_PORT=5173 >> "%CONFIG_FILE%"
+        echo PROD_BACKEND_PORT=5001 >> "%CONFIG_FILE%"
+        echo PROD_FRONTEND_PORT=4173 >> "%CONFIG_FILE%"
+        echo # Server Configuration >> "%CONFIG_FILE%"
+        echo SERVER_NAME=wolf.law.uw.edu >> "%CONFIG_FILE%"
+        echo SERVER_IP=128.208.154.3 >> "%CONFIG_FILE%"
+    )
+    
+    echo [INFO] Loading configuration from %CONFIG_FILE%
+    for /f "usebackq tokens=1,* delims==" %%a in ("%CONFIG_FILE%") do (
+        if not "%%a"=="" (
+            if not "%%a"=="#" (
+                if not "%%a"=="# CaseStrainer Configuration File" (
+                    if not "%%a"=="# SSL Certificate Paths - Update these to your certificate locations" (
+                        if not "%%a"=="# Nginx Directory" (
+                            if not "%%a"=="# Default Ports" (
+                                if not "%%a"=="# Server Configuration" (
+                                    set "%%a=%%b"
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
+    exit /b 0
+
+:parse_arguments
+    :parse_args_loop
+    if "%~1"=="" goto :args_done
+    
+    set "arg=%~1"
+    if "%arg%"=="--prod" (
+        set "ENV=prod"
+    ) else if "%arg%"=="--dev" (
+        set "ENV=dev"
+    ) else if "%arg%"=="--auto-start" (
+        set "AUTO_START=true"
+    ) else if "%arg%"=="--help" (
+        call :show_help
+        exit /b 1
+    ) else if "%arg%"=="_" (
+        rem Internal argument used for script restart - ignore
+    ) else (
+        echo [WARNING] Unknown argument: %arg%
+        echo [INFO] Use --help for usage information
+    )
+    shift
+    goto :parse_args_loop
     
     :args_done
-    :: Set default if no environment was specified
-    if not defined ENV (
-        set "ENV=dev"
-        set "BACKEND_PORT=5000"
-        set "FRONTEND_PORT=5173"
+    exit /b 0
+
+:show_help
+    echo Usage: %~nx0 [OPTIONS]
+    echo.
+    echo Options:
+    echo   --dev         Start in development mode (default)
+    echo   --prod        Start in production mode
+    echo   --auto-start  Automatically start all services in production mode
+    echo   --help        Show this help message
+    echo.
+    echo Examples:
+    echo   %~nx0                     # Interactive menu (development mode)
+    echo   %~nx0 --prod              # Interactive menu (production mode)
+    echo   %~nx0 --prod --auto-start # Automatic production setup
+    echo.
+    exit /b 0
+
+:setup_runtime_config
+    if "%ENV%"=="prod" (
+        if defined PROD_BACKEND_PORT set "BACKEND_PORT=%PROD_BACKEND_PORT%"
+        if defined PROD_FRONTEND_PORT set "FRONTEND_PORT=%PROD_FRONTEND_PORT%"
+        set "BACKEND_CONFIG=config_prod.py"
+        set "FLASK_DEBUG=0"
+    ) else (
+        set "BACKEND_PORT=%DEV_BACKEND_PORT%"
+        set "FRONTEND_PORT=%DEV_FRONTEND_PORT%"
         set "BACKEND_CONFIG=config_dev.py"
         set "NODE_ENV=development"
         set "FLASK_ENV=development"
         set "FLASK_DEBUG=1"
     )
     
-    :: Set process titles for management (fixed, not random)
-    set "BACKEND_TITLE=CaseStrainer_Backend"
-    set "FRONTEND_TITLE=CaseStrainer_Frontend"
+    :: Set process titles for management
+    set "BACKEND_TITLE=CaseStrainer_Backend_%ENV%"
+    set "FRONTEND_TITLE=CaseStrainer_Frontend_%ENV%"
     
-    :: Set log files with timestamp
-    for /f "tokens=2 delims==." %%a in ('wmic os get localdatetime /value') do set "TIMESTAMP=%%a"
-    set "LOG_FILE=!LOG_DIR!\casestrainer_!TIMESTAMP:~0,8!_!TIMESTAMP:~8,6!.log"
+    :: Set default ports if not loaded from config
+    if not defined DEV_BACKEND_PORT set "DEV_BACKEND_PORT=5000"
+    if not defined DEV_FRONTEND_PORT set "DEV_FRONTEND_PORT=5173"
+    if not defined PROD_BACKEND_PORT set "PROD_BACKEND_PORT=5001"
+    if not defined PROD_FRONTEND_PORT set "PROD_FRONTEND_PORT=4173"
+    if not defined SSL_CERT_PATH set "SSL_CERT_PATH=D:/CaseStrainer/ssl/WolfCertBundle.crt"
+    if not defined SSL_KEY_PATH set "SSL_KEY_PATH=D:/CaseStrainer/ssl/wolf.law.uw.edu.key"
+    if not defined NGINX_DIR set "NGINX_DIR=%SCRIPT_DIR%nginx-1.27.5"
+    if not defined SERVER_NAME set "SERVER_NAME=wolf.law.uw.edu"
+    if not defined SERVER_IP set "SERVER_IP=128.208.154.3"
     
-    :: Verify required directories exist
-    if not exist "!BACKEND_DIR!" (
-        echo [ERROR] Backend directory not found: !BACKEND_DIR!
+    :: Update environment variables in .env files if they exist
+    if exist "%FRONTEND_DIR%\.env" (
+        echo # Auto-generated by CaseStrainer launcher > "%FRONTEND_DIR%\.env"
+        echo VITE_APP_ENV=%ENV% >> "%FRONTEND_DIR%\.env"
+        echo NODE_ENV=%NODE_ENV% >> "%FRONTEND_DIR%\.env"
+        echo VITE_API_BASE_URL=/casestrainer/api >> "%FRONTEND_DIR%\.env"
+        echo VITE_APP_NAME=CaseStrainer >> "%FRONTEND_DIR%\.env"
+        echo VITE_SERVER_NAME=%SERVER_NAME% >> "%FRONTEND_DIR%\.env"
+        echo VITE_SERVER_IP=%SERVER_IP% >> "%FRONTEND_DIR%\.env"
+        echo DEV_FRONTEND_PORT=%DEV_FRONTEND_PORT% >> "%FRONTEND_DIR%\.env"
+        echo DEV_BACKEND_PORT=%DEV_BACKEND_PORT% >> "%FRONTEND_DIR%\.env"
+        echo PROD_FRONTEND_PORT=%PROD_FRONTEND_PORT% >> "%FRONTEND_DIR%\.env"
+        echo PROD_BACKEND_PORT=%PROD_BACKEND_PORT% >> "%FRONTEND_DIR%\.env"
+    )
+    exit /b 0
+
+:: ===========================================
+:: VALIDATION FUNCTION
+:: ===========================================
+:validate_numeric_input
+    set "input=%~1"
+    set "min=%~2"
+    set "max=%~3"
+    
+    :: Check if input is empty
+    if "%input%"=="" exit /b 1
+    
+    :: Remove any spaces
+    set "input=%input: =%"
+    
+    :: Check if it's numeric and within range using a more robust method
+    echo %input%| findstr /r "^[0-9][0-9]*$" >nul
+    if %ERRORLEVEL% neq 0 exit /b 1
+    
+    :: Check range
+    if %input% geq %min% if %input% leq %max% exit /b 0
+
+:: ===========================================
+:: PRODUCTION AUTO-START SEQUENCE
+:: ===========================================
+:production_restart_workflow
+    echo [INFO] Starting Production Auto-Start Sequence
+    echo ============================================
+    echo  PRODUCTION AUTO-START SEQUENCE
+    echo ============================================
+    echo This will automatically:
+    echo 1. Stop all current services
+    echo 2. Switch to production environment  
+    echo 3. Update configurations
+    echo 4. Start backend service
+    echo 5. Start frontend service
+    echo 6. Configure and start Nginx
+    echo 7. Run diagnostics
+    echo 8. Display access URLs
+    echo ============================================
+    echo.
+    
+    set /p confirm=Start production auto-setup? (y/N): 
+    if /i not "%confirm%"=="y" (
+        echo [INFO] Production auto-start cancelled
+        exit /b 0
+    )
+    
+    echo.
+    echo [STEP 1/8] Stopping all current services...
+    call :stop_services
+    
+    echo.
+    echo [STEP 2/8] Switching to production environment...
+    set "ENV=prod"
+    call :setup_runtime_config
+    echo [SUCCESS] Switched to production environment
+    
+    echo.
+    echo [STEP 3/8] Updating configurations...
+    :: Create/update .env file with production settings
+    if exist "%FRONTEND_DIR%" (
+        echo [INFO] Updating frontend .env file...
+        (
+            echo # Production Environment Configuration
+            echo VITE_APP_ENV=production
+            echo NODE_ENV=production
+            echo VITE_API_BASE_URL=/casestrainer/api
+            echo VITE_APP_NAME=CaseStrainer
+            echo VITE_SERVER_NAME=%SERVER_NAME%
+            echo VITE_SERVER_IP=%SERVER_IP%
+            echo DEV_FRONTEND_PORT=%DEV_FRONTEND_PORT%
+            echo DEV_BACKEND_PORT=%DEV_BACKEND_PORT%
+            echo PROD_FRONTEND_PORT=%PROD_FRONTEND_PORT%
+            echo PROD_BACKEND_PORT=%PROD_BACKEND_PORT%
+        ) > "%FRONTEND_DIR%\.env"
+    )
+    
+    echo.
+    echo [STEP 4/8] Starting backend service (Port: %BACKEND_PORT%)...
+    call :start_backend
+    if %ERRORLEVEL% neq 0 (
+        echo [ERROR] Backend failed to start - aborting auto-start
         exit /b 1
     )
-    if not exist "!FRONTEND_DIR!" (
-        echo [WARNING] Frontend directory not found: !FRONTEND_DIR!
+    echo [SUCCESS] Backend is running on port %BACKEND_PORT%
+    
+    echo.
+    echo [STEP 5/8] Starting frontend service (Port: %FRONTEND_PORT%)...
+    call :start_frontend
+    if %ERRORLEVEL% neq 0 (
+        echo [WARNING] Frontend failed to start - continuing with backend only
+    ) else (
+        echo [SUCCESS] Frontend is running on port %FRONTEND_PORT%
     )
+    
+    echo.
+    echo [STEP 6/8] Configuring and starting Nginx...
+    if not exist "%NGINX_DIR%\conf\casestrainer.conf" (
+        echo [INFO] Creating Nginx configuration...
+        call :create_nginx_config
+    )
+    
+    call :start_nginx
+    if %ERRORLEVEL% neq 0 (
+        echo [WARNING] Nginx failed to start - application accessible via direct ports only
+    ) else (
+        echo [SUCCESS] Nginx is running
+    )
+    
+    echo.
+    echo [STEP 7/8] Running diagnostics...
+    call :check_service_status
+    
+    echo.
+    echo [STEP 8/8] Production setup complete
+    echo ============================================
+    echo  PRODUCTION AUTO-START SUMMARY
+    echo ============================================
+    echo Environment: %ENV%
+    echo.
+    
+    echo [SERVICE STATUS]
+    call :check_service_status
+    
+    echo.
+    echo [ACCESS INFORMATION]
+    echo "Internal Testing:"
+    echo "  - Backend API: http://localhost:%BACKEND_PORT%"
+    echo "  - Frontend: http://localhost:%FRONTEND_PORT%"
+    echo.
+    echo "External Access:"
+    echo "  - Frontend: https://%SERVER_NAME%/casestrainer/"
+    echo "  - Backend API: https://%SERVER_NAME%/casestrainer/api/"
+    echo.
+    echo ============================================
+    echo [SUCCESS] Production setup completed successfully
+    echo.
+    
+    call :log_message "Production auto-start sequence completed" "SUCCESS"
+    exit /b 0
+
+:show_production_summary
+    echo ============================================
+    echo  PRODUCTION AUTO-START SUMMARY
+    echo ============================================
+    echo Environment: %ENV%
+    echo.
+    
+    :: Service Status
+    echo [SERVICE STATUS]
+    
+    :: Backend
+    call :check_port_available %BACKEND_PORT%
+    if %ERRORLEVEL% neq 0 (
+        echo Backend: RUNNING (Port %BACKEND_PORT%)
+        echo    URL: http://localhost:%BACKEND_PORT%
+    ) else (
+        echo Backend: FAILED
+    )
+    
+    :: Frontend
+    if "%frontend_failed%"=="false" (
+        echo Frontend: RUNNING (Port %FRONTEND_PORT%)
+        echo    URL: http://localhost:%FRONTEND_PORT%
+    ) else (
+        echo Frontend: FAILED
+    )
+    
+    :: Nginx
+    if "%nginx_failed%"=="false" (
+        echo Nginx: RUNNING
+        echo    HTTP: http://localhost/casestrainer/
+        echo    HTTPS: https://%SERVER_NAME%/casestrainer/
+    ) else (
+        echo Nginx: FAILED
+    )
+    
+    echo.
+    echo [ACCESS INFORMATION]
+    echo Internal Testing:
+    echo   - Backend API: http://localhost:%BACKEND_PORT%
+    if "%frontend_failed%"=="false" (
+        echo   - Frontend: http://localhost:%FRONTEND_PORT%
+    )
+    if "%nginx_failed%"=="false" (
+        echo   - Via Nginx: http://localhost/casestrainer/
+        echo.
+        echo External Access (if firewall configured):
+        echo   - Production URL: https://%SERVER_NAME%/casestrainer/
+        echo   - Direct Backend: http://%SERVER_NAME%:%BACKEND_PORT% (if port open)
+    )
+    
+    echo.
+    echo [NEXT STEPS]
+    if "%nginx_failed%"=="true" (
+        echo 1. Check SSL certificates at: %SSL_CERT_PATH%
+        echo 2. Verify Nginx configuration
+        echo 3. Check port 443 availability
+    )
+    if "%frontend_failed%"=="true" (
+        echo 1. Check Node.js installation and npm dependencies
+        echo 2. Verify frontend directory: %FRONTEND_DIR%
+        echo 3. Check port %FRONTEND_PORT% availability
+    )
+    echo 1. Test external connectivity from outside the network
+    echo 2. Verify university firewall settings for ports 443 and %BACKEND_PORT%
+    echo 3. Monitor logs for any errors
+    
+    echo.
+    echo ============================================
+    exit /b 0
+
+:: ===========================================
+:: UTILITY FUNCTIONS
+:: ===========================================
+:log_message
+    set "message=%~1"
+    set "level=%~2"
+    if not defined level set "level=INFO"
+    
+    echo [%level%] %message%
+    echo %date% %time% [%level%] %message% >> "%LOG_FILE%" 2>nul
+    exit /b 0
+
+:verify_directories
+    set "missing_dirs="
+    
+    if not exist "%BACKEND_DIR%" (
+        echo [ERROR] Backend directory not found: %BACKEND_DIR%
+        set "missing_dirs=%missing_dirs% backend"
+    )
+    
+    if not exist "%FRONTEND_DIR%" (
+        echo [WARNING] Frontend directory not found: %FRONTEND_DIR%
+        set "missing_dirs=%missing_dirs% frontend"
+    )
+    
+    if not exist "%NGINX_DIR%" (
+        echo [WARNING] Nginx directory not found: %NGINX_DIR%
+        set "missing_dirs=%missing_dirs% nginx"
+    )
+    
+    if defined missing_dirs (
+        if not "%missing_dirs%"==" frontend nginx" (
+            echo [ERROR] Critical directories missing:%missing_dirs%
+            exit /b 1
+        )
+    )
+    exit /b 0
+
+:: ===========================================
+:: SERVICE STATUS CHECKING
+:: ===========================================
+:check_service_status
+    echo.
+    echo ===== SERVICE STATUS =====
+    echo.
+    
+    :: Check backend status
+    set "backend_running=0"
+    set "backend_pid="
+    echo [BACKEND]
+    for /f "tokens=2" %%p in ('tasklist /FI "IMAGENAME eq python.exe" /FO LIST 2^>nul ^| findstr /i "PID:"') do (
+        set "backend_pid=%%p"
+    )
+    if defined backend_pid (
+        echo Status: RUNNING (PID: !backend_pid!) on port %BACKEND_PORT%
+        echo URL: http://localhost:%BACKEND_PORT%
+        set "backend_running=1"
+    ) else (
+        echo Status: STOPPED
+    )
+    
+    :: Check frontend status
+    set "frontend_running=0"
+    set "frontend_pid="
+    echo.
+    echo [FRONTEND]
+    for /f "tokens=2" %%p in ('tasklist /FI "IMAGENAME eq node.exe" /FO LIST 2^>nul ^| findstr /i "vite"') do (
+        set "frontend_pid=%%p"
+    )
+    if defined frontend_pid (
+        echo Status: RUNNING (PID: !frontend_pid!) on port %FRONTEND_PORT%
+        echo URL: http://localhost:%FRONTEND_PORT%
+        set "frontend_running=1"
+    ) else (
+        echo Status: STOPPED
+    )
+    
+    :: Check Nginx status
+    set "nginx_running=0"
+    set "nginx_pid="
+    echo.
+    echo [NGINX]
+    for /f "tokens=2" %%p in ('tasklist /FI "IMAGENAME eq nginx.exe" /FO LIST 2^>nul ^| findstr /i "PID:"') do (
+        set "nginx_pid=%%p"
+    )
+    if defined nginx_pid (
+        echo Status: RUNNING (PID: !nginx_pid!)
+        echo HTTP: http://localhost/casestrainer/
+        echo HTTPS: https://%SERVER_NAME%/casestrainer/
+        set "nginx_running=1"
+    ) else (
+        echo Status: STOPPED
+    )
+    
+    echo.
+    echo ==========================
+    
+    :: Set return code based on service status
+    if "!backend_running!"=="1" if "!frontend_running!"=="1" if "!nginx_running!"=="1" (
+        exit /b 0
+    ) else (
+        exit /b 1
+    )
+
+:check_nginx_status
+    tasklist /FI "IMAGENAME eq nginx.exe" 2>nul | find /I "nginx.exe" >nul
+    if %ERRORLEVEL% equ 0 (
+        echo [NGINX]
+        echo Status: RUNNING
+        echo HTTP: http://localhost/casestrainer/
+        echo HTTPS: https://%SERVER_NAME%/casestrainer/
+    ) else (
+        echo [NGINX]
+        echo Status: STOPPED
+    )
+    exit /b %ERRORLEVEL%
+
+:: ===========================================
+:: PORT MANAGEMENT
+:: ===========================================
+:check_port_available
+    set "check_port=%~1"
+    if "%check_port%"=="" exit /b 1
+    
+    netstat -ano 2>nul | findstr ":%check_port% " | findstr "LISTENING" >nul 2>&1
+    if %ERRORLEVEL% equ 0 (
+        exit /b 1
+    )
+    exit /b 0
+
+:: ===========================================
+:: SERVICE FUNCTIONS
+:: ===========================================
+:stop_services
+    call :log_message "Stopping all services" "INFO"
+    call :stop_backend
+    call :stop_frontend
+    call :stop_nginx
+    call :log_message "All services stopped" "INFO"
+    exit /b 0
+
+:start_services
+    call :log_message "Starting all services" "INFO"
+    call :start_backend
+    call :start_frontend
+    call :log_message "Services started" "INFO"
+    echo.
+    echo Press any key to return to the main menu...
+    pause >nul
     exit /b 0
 
 :start_backend
-    echo [INFO] Starting backend service...
-    
-    :: Verify backend directory exists
-    if not exist "!BACKEND_DIR!" (
-        echo [ERROR] Backend directory not found: !BACKEND_DIR!
-        exit /b 1
-    )
-    
-    :: Verify app_final_vue.py exists
-    if not exist "!BACKEND_DIR!\app_final_vue.py" (
-        echo [ERROR] Backend file not found: !BACKEND_DIR!\app_final_vue.py
-        dir /b "!BACKEND_DIR!"
-        exit /b 1
-    )
-    
-    :: Verify Python is available
-    python --version >nul 2>&1
-    if !ERRORLEVEL! NEQ 0 (
-        echo [ERROR] Python is not in PATH or not installed
-        exit /b 1
-    )
-    
-    echo [INFO] Starting backend with:
-    echo [INFO]   Directory: !BACKEND_DIR!
-    echo [INFO]   Port: !BACKEND_PORT!
-    echo [INFO]   Environment: !FLASK_ENV!
-    
-    :: Start backend in a new window with better error handling
-    echo [INFO] Starting backend process...
-    
-    :: Create a temporary batch file to run the backend
-    echo @echo off > "%TEMP%\start_backend.bat"
-    echo echo [BACKEND] Starting CaseStrainer Backend... >> "%TEMP%\start_backend.bat"
-    echo echo [BACKEND] Directory: !BACKEND_DIR! >> "%TEMP%\start_backend.bat"
-    echo echo [BACKEND] Port: !BACKEND_PORT! >> "%TEMP%\start_backend.bat"
-    echo echo [BACKEND] Environment: !FLASK_ENV! >> "%TEMP%\start_backend.bat"
-    echo cd /d "!BACKEND_DIR!" ^&^& python app_final_vue.py --port=!BACKEND_PORT! --host=0.0.0.0 --use-waitress >> "%TEMP%\start_backend.bat"
-    echo echo [BACKEND] Process exited with error level ^^!ERRORLEVEL^^! >> "%TEMP%\start_backend.bat"
-    echo pause >> "%TEMP%\start_backend.bat"
-    
-    start "!BACKEND_TITLE!" cmd /c ""%TEMP%\start_backend.bat""
-    
-    :: Wait for backend to start with a timeout
-    echo [INFO] Waiting for backend to start (timeout: 15 seconds)...
-    set /a "TIMEOUT=15"
-    set "STARTED=0"
-    
-    :wait_backend_loop
-    timeout /t 1 >nul
-    set /a "TIMEOUT-=1"
-    
-    :: Check if port is listening
-    netstat -ano 2>nul | findstr ":!BACKEND_PORT! " | findstr "LISTENING" >nul
-    if !ERRORLEVEL! EQU 0 (
-        set "STARTED=1"
-        goto backend_started
-    )
-    
-    if !TIMEOUT! GTR 0 (
-        set /p "=." <nul
-        goto :wait_backend_loop
-    )
-    
-    :backend_started
-    if "!STARTED!"=="1" (
-        echo.
-        echo [SUCCESS] Backend is running at http://localhost:!BACKEND_PORT!
-        exit /b 0
-    ) else (
-        echo.
-        echo [ERROR] Backend failed to start within the timeout period
-        echo [INFO] Check the backend window for error messages
-        exit /b 1
-    )
-
-:start_frontend
-    echo [INFO] Starting frontend service...
-    
-    :: Stop any existing frontend first
-    call :stop_frontend
-    
-    :: Try to find an available port starting from FRONTEND_PORT
-    set "ORIGINAL_PORT=!FRONTEND_PORT!"
-    set "PORT_FOUND=0"
-    
-    :find_port_loop
-    call :check_port_available !FRONTEND_PORT!
-    if !ERRORLEVEL! EQU 0 (
-        set "PORT_FOUND=1"
-        goto :start_frontend_process
-    )
-    
-    echo [INFO] Port !FRONTEND_PORT! is in use, trying next port...
-    set /a "FRONTEND_PORT+=1"
-    
-    :: Prevent infinite loop, max 10 port checks
-    if !FRONTEND_PORT! LSS !ORIGINAL_PORT! + 10 (
-        goto :find_port_loop
-    )
-    
-    echo [ERROR] Could not find an available port between !ORIGINAL_PORT! and !FRONTEND_PORT!
-    exit /b 1
-    
-    :start_frontend_process
-    if exist "!FRONTEND_DIR!\package.json" (
-        echo [INFO] Starting frontend on port !FRONTEND_PORT!
-        cd /d "!FRONTEND_DIR!"
-        start "!FRONTEND_TITLE!" /D"!FRONTEND_DIR!" cmd /c "set PORT=!FRONTEND_PORT! && set NODE_ENV=!NODE_ENV! && npm run dev && pause"
-        cd /d "!SCRIPT_DIR!"
-        
-        echo [INFO] Waiting for frontend to start...
-        set /a "TIMEOUT=15"
-        :wait_frontend_loop
-        timeout /t 1 >nul
-        set /a "TIMEOUT-=1"
-        
-        :: Check if port is listening
-        netstat -ano | findstr ":!FRONTEND_PORT! " | findstr "LISTENING" >nul
-        if !ERRORLEVEL! EQU 0 (
-            echo [SUCCESS] Frontend is running at http://localhost:!FRONTEND_PORT!
-            echo [INFO] Note: The actual port might be different if the default was in use
-            
-            :: Start Nginx in production mode
-            if "!ENV!"=="prod" (
-                call :start_nginx
-            )
-            exit /b 0
-        )
-        
-        if !TIMEOUT! GTR 0 (
-            goto :wait_frontend_loop
-        )
-        
-        echo [WARNING] Frontend is taking longer than expected to start
-        echo [INFO] Check the frontend window for any errors
-        exit /b 0
-    ) else (
-        echo [ERROR] Frontend directory not found: !FRONTEND_DIR!
-        exit /b 1
-    )
-
-:check_port_available
-    netstat -ano | findstr ":%1 " | findstr "LISTENING" >nul
-    if !ERRORLEVEL! EQU 0 exit /b 1
+    echo [INFO] Starting backend service
+    echo [INFO] Starting backend service on port %BACKEND_PORT%
+    start "CaseStrainer Backend" /MIN cmd /c "title CaseStrainer Backend & python -m uvicorn app_final_vue:app --host 0.0.0.0 --port %BACKEND_PORT% --reload"
+    timeout /t 3 /nobreak >nul
+    echo [INFO] Backend startup completed
     exit /b 0
 
 :stop_backend
-        echo [INFO] Stopping backend service...
-        taskkill /FI "WINDOWTITLE eq !BACKEND_TITLE!*" /T /F >nul 2>&1
-        exit /b 0
+    call :log_message "Stopping backend service" "INFO"
+    echo [INFO] Stopping backend service
+    exit /b 0
+
+:start_frontend
+    echo [INFO] Starting frontend service
+    echo [INFO] Starting frontend service on port %FRONTEND_PORT%
+    cd /d "%FRONTEND_DIR%"
+    start "CaseStrainer Frontend" /MIN cmd /c "title CaseStrainer Frontend & npm run dev -- --port %FRONTEND_PORT%"
+    cd /d "%SCRIPT_DIR%"
+    timeout /t 5 /nobreak >nul
+    echo [INFO] Frontend startup completed
+    exit /b 0
 
 :stop_frontend
-        echo [INFO] Stopping frontend service...
-        taskkill /FI "WINDOWTITLE eq !FRONTEND_TITLE!*" /T /F >nul 2>&1
-        :: Kill any remaining Node.js processes
-        taskkill /F /IM node.exe >nul 2>&1
-        exit /b 0
-
-
-:check_status
-echo.
-echo ============================================
-echo  SERVICE STATUS
-echo ============================================
-
-echo [Backend]
-:: Check if the port is in use
-netstat -ano 2>nul | findstr ":!BACKEND_PORT! " | findstr "LISTENING" >nul
-set "PORT_LISTENING=!ERRORLEVEL!"
-
-:: Find the process using the port
-set "PROCESS_INFO="
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":!BACKEND_PORT! " ^| findstr "LISTENING"') do (
-    for /f "tokens=1,2" %%b in ('tasklist /FI "PID eq %%~a" /FO LIST ^| findstr /i "Image Name:"') do (
-        set "PROCESS_INFO=%%c (PID: %%~a)"
-    )
-)
-
-if !PORT_LISTENING! EQU 0 (
-    if defined PROCESS_INFO (
-        echo Status: RUNNING
-        echo URL: http://localhost:!BACKEND_PORT!
-        echo Process: !PROCESS_INFO!
-    ) else (
-        echo Status: PORT IN USE (but process not found)
-        echo Port !BACKEND_PORT! is in use by an unknown process
-    )
-) else (
-    echo Status: STOPPED
-    echo [INFO] Port !BACKEND_PORT! is not in use
-    echo [INFO] Use option 1 to start the backend
-)
-
-echo.
-echo [Port Check]
-netstat -ano 2>nul | findstr ":!BACKEND_PORT! " | findstr "LISTENING" 2>nul
-
-echo.
-echo [Frontend]
-:: Check for any running Vue development server (ports 5173-5183)
-set "FRONTEND_RUNNING=0"
-set "FRONTEND_ACTUAL_PORT=0"
-
-for /L %%P in (5173,1,5183) do (
-    netstat -ano 2>nul | findstr ":%%P " | findstr "LISTENING" >nul
-    if !ERRORLEVEL! EQU 0 (
-        set "FRONTEND_RUNNING=1"
-        set "FRONTEND_ACTUAL_PORT=%%P"
-        goto :frontend_check_done
-    )
-)
-
-:frontend_check_done
-if !FRONTEND_RUNNING! EQU 1 (
-    echo Status: RUNNING [Port !FRONTEND_ACTUAL_PORT!]
-    echo URL: http://localhost:!FRONTEND_ACTUAL_PORT!
-    :: Update FRONTEND_PORT to the actual port being used
-    set "FRONTEND_PORT=!FRONTEND_ACTUAL_PORT!"
-) else (
-    echo Status: STOPPED
-    echo [INFO] Checked ports 5173-5183 for Vue dev server
-)
-
-echo.
-echo [Ports in Use]
-echo Backend (Port !BACKEND_PORT!):
-netstat -ano 2>nul | findstr ":!BACKEND_PORT! " | findstr "LISTENING"
-echo.
-echo Frontend (Port !FRONTEND_PORT!):
-netstat -ano 2>nul | findstr ":!FRONTEND_PORT! " | findstr "LISTENING"
-
-echo.
-exit /b 0
-
-:install_dependencies
-    echo [INFO] Installing dependencies...
-    
-    :: Install Python dependencies
-    if exist "!BACKEND_DIR!\requirements.txt" (
-        echo [1/2] Installing Python dependencies...
-        pip install -r "!BACKEND_DIR!\requirements.txt"
-        if !ERRORLEVEL! NEQ 0 (
-            echo [ERROR] Failed to install Python dependencies
-            exit /b 1
-        )
-    )
-    
-    :: Install Node.js dependencies
-    if exist "!FRONTEND_DIR!\package.json" (
-        echo [2/2] Installing Node.js dependencies...
-        cd /d "!FRONTEND_DIR!"
-        npm install
-        if !ERRORLEVEL! NEQ 0 (
-            echo [ERROR] Failed to install Node.js dependencies
-            cd /d "!SCRIPT_DIR!"
-            exit /b 1
-        )
-        cd /d "!SCRIPT_DIR!"
-    )
-    
-    echo [SUCCESS] All dependencies installed successfully
+    call :log_message "Stopping frontend service" "INFO"
+    echo [INFO] Stopping frontend service
     exit /b 0
 
-:run_tests
-    echo [INFO] Running tests...
-    
-    :: Check if backend is running, start if needed
-    netstat -ano 2>nul | findstr ":!BACKEND_PORT! " | findstr "LISTENING" >nul
-    if !ERRORLEVEL! NEQ 0 (
-        echo [INFO] Backend not running, starting it first...
-        call :start_backend
-        if !ERRORLEVEL! NEQ 0 (
-            echo [ERROR] Failed to start backend for testing
-            exit /b 1
-        )
-        :: Wait for backend to be ready
-        timeout /t 3 >nul
-    else
-        echo [INFO] Backend already running on port !BACKEND_PORT!
-    )
-    
-    :: Check if frontend is needed for tests
-    set "FRONTEND_NEEDED=0"
-    if exist "!FRONTEND_DIR!\cypress.config.js" set "FRONTEND_NEEDED=1"
-    if exist "!FRONTEND_DIR!\cypress.json" set "FRONTEND_NEEDED=1"
-    
-    if !FRONTEND_NEEDED! EQU 1 (
-        :: Check if frontend is running, start if needed  
-        set "FRONTEND_RUNNING=0"
-        for /L %%P in (5173,1,5183) do (
-            netstat -ano 2>nul | findstr ":%%P " | findstr "LISTENING" >nul
-            if !ERRORLEVEL! EQU 0 set "FRONTEND_RUNNING=1"
-        )
-        
-        if !FRONTEND_RUNNING! EQU 0 (
-            echo [INFO] Frontend not running, starting it first...
-            call :start_frontend
-            if !ERRORLEVEL! NEQ 0 (
-                echo [ERROR] Failed to start frontend for testing
-                exit /b 1
-            )
-            :: Wait for frontend to be ready
-            timeout /t 5 >nul
-        ) else (
-            echo [INFO] Frontend already running
-        )
-    )
-    
-    :: Run backend tests
-    if exist "!BACKEND_DIR!\test_api.py" (
-        echo [1/2] Running backend tests...
-        cd /d "!BACKEND_DIR!"
-        python test_api.py
-        if !ERRORLEVEL! NEQ 0 (
-            echo [ERROR] Backend tests failed
-            cd /d "!SCRIPT_DIR!"
-            exit /b 1
-        )
-        cd /d "!SCRIPT_DIR!"
-    )
-    
-    :: Run frontend tests if needed
-    if !FRONTEND_NEEDED! EQU 1 (
-        echo [2/2] Running frontend tests...
-        cd /d "!FRONTEND_DIR!"
-        if exist "package.json" (
-            if exist "node_modules\.bin\cypress" (
-                npx cypress run --headless
-            ) else (
-                npm test
-            )
-            if !ERRORLEVEL! NEQ 0 (
-                echo [ERROR] Frontend tests failed
-                cd /d "!SCRIPT_DIR!"
-                exit /b 1
-            )
-        )
-        cd /d "!SCRIPT_DIR!"
-    )
-    
-    echo [SUCCESS] All tests completed successfully
-    exit /b 0
-
-:: ===========================================
-:: Nginx Management
-:: ===========================================
 :start_nginx
+    call :log_message "Starting Nginx" "INFO"
     echo [INFO] Starting Nginx...
     
-    :: Check if Nginx is already running
+    :: Stop any running Nginx instances first
+    echo [INFO] Stopping any existing Nginx processes...
     tasklist /FI "IMAGENAME eq nginx.exe" 2>nul | find /I "nginx.exe" >nul
-    if !ERRORLEVEL! EQU 0 (
-        echo [INFO] Nginx is already running
-        exit /b 0
+    if %ERRORLEVEL% equ 0 (
+        echo [INFO] Found running Nginx process, stopping it...
+        taskkill /F /IM nginx.exe >nul 2>&1
+        timeout /t 2 /nobreak >nul
     )
     
-    :: Set Nginx directory
-    set "NGINX_DIR=%~dp0nginx-1.27.5"
-    set "NGINX_CONFIG=!NGINX_DIR!\conf\casestrainer.conf"
-    
-    if not exist "!NGINX_DIR!\nginx.exe" (
-        echo [ERROR] Nginx not found at: !NGINX_DIR!
+    :: Verify Nginx executable exists
+    if not exist "%NGINX_DIR%\nginx.exe" (
+        echo [ERROR] Nginx executable not found at: %NGINX_DIR%\nginx.exe
+        echo [INFO] Please set the correct NGINX_DIR in the configuration
         exit /b 1
     )
     
-    cd /d "!NGINX_DIR!"
-    start "Nginx" nginx.exe -c "!NGINX_CONFIG!"
+    :: Check if port 80 or 443 are in use
+    set "port_conflict=0"
+    netstat -ano | findstr ":80 " >nul
+    if %ERRORLEVEL% equ 0 (
+        echo [WARNING] Port 80 is already in use. This may prevent Nginx from starting.
+        set "port_conflict=1"
+    )
     
-    :: Wait for Nginx to start
-    timeout /t 2 >nul
+    netstat -ano | findstr ":443 " >nul
+    if %ERRORLEVEL% equ 0 (
+        echo [WARNING] Port 443 is already in use. This may prevent Nginx from starting.
+        set "port_conflict=1"
+    )
     
+    if "%port_conflict%"=="1" (
+        echo [INFO] Attempting to start Nginx anyway...
+    )
+    
+    :: Start Nginx with error logging
+    echo [INFO] Starting Nginx with config: %NGINX_DIR%\conf\nginx.conf
+    
+    :: First test the configuration
+    "%NGINX_DIR%\nginx.exe" -t -c "%NGINX_DIR%\conf\nginx.conf"
+    if %ERRORLEVEL% neq 0 (
+        echo [ERROR] Nginx configuration test failed
+        echo [INFO] Check the configuration file for errors: %NGINX_DIR%\conf\nginx.conf
+        exit /b 1
+    )
+    
+    :: Start Nginx
+    echo [INFO] Starting Nginx service...
+    "%NGINX_DIR%\nginx.exe" -c "%NGINX_DIR%\conf\nginx.conf"
+    
+    :: Verify Nginx started
+    echo [INFO] Verifying Nginx started...
+    timeout /t 3 /nobreak >nul
     tasklist /FI "IMAGENAME eq nginx.exe" 2>nul | find /I "nginx.exe" >nul
-    if !ERRORLEVEL! EQU 0 (
+    if %ERRORLEVEL% equ 0 (
         echo [SUCCESS] Nginx started successfully
         exit /b 0
-    else
-        echo [ERROR] Failed to start Nginx
+    ) else (
+        echo [ERROR] Nginx process not found after starting
+        echo [INFO] Check the error log: %NGINX_DIR%\logs\error.log
+        
+        :: Try to get more detailed error information
+        if exist "%NGINX_DIR%\logs\error.log" (
+            echo [INFO] Last 5 lines of error log:
+            echo ===========================================
+            type "%NGINX_DIR%\logs\error.log" | findstr /n "^" | findstr /r "[0-9]*:.*[Ee]rror\|[0-9]*:.*[Ff]atal" | tail -5
+            echo ===========================================
+        )
+        
         exit /b 1
     )
 
 :stop_nginx
+    call :log_message "Stopping Nginx" "INFO"
     echo [INFO] Stopping Nginx...
-    tasklist /FI "IMAGENAME eq nginx.exe" 2>nul | find /I "nginx.exe" >nul
-    if !ERRORLEVEL! EQU 0 (
-        taskkill /F /IM nginx.exe >nul 2>&1
-        echo [SUCCESS] Nginx stopped
-    else
-        echo [INFO] Nginx is not running
+    taskkill /F /IM nginx.exe >nul 2>&1
+    if %ERRORLEVEL% equ 0 (
+        echo [SUCCESS] Nginx stopped successfully
+    ) else (
+        echo [WARNING] No Nginx processes were running
     )
     exit /b 0
 
-:check_nginx_status
-    tasklist /FI "IMAGENAME eq nginx.exe" 2>nul | find /I "nginx.exe" >nul
-    if !ERRORLEVEL! EQU 0 (
-        echo [INFO] Nginx status: RUNNING
-        exit /b 0
-    else
-        echo [INFO] Nginx status: STOPPED
-        exit /b 1
-    )
-
-:manage_nginx
-    :nginx_menu
-    cls
-    echo ============================================
-    echo  Nginx Management
-    echo ============================================
-    call :check_nginx_status
-    echo.
-    echo 1. Start Nginx
-    echo 2. Stop Nginx
-    echo 3. Restart Nginx
-    echo 4. View Nginx Logs
-    echo 5. Back to Main Menu
-    echo ============================================
-    set /p "nginx_choice=Enter your choice (1-5): "
-    
-    if "!nginx_choice!"=="1" (
-        call :start_nginx
-    ) else if "!nginx_choice!"=="2" (
-        call :stop_nginx
-    ) else if "!nginx_choice!"=="3" (
-        call :stop_nginx
-        timeout /t 1 >nul
-        call :start_nginx
-    ) else if "!nginx_choice!"=="4" (
-        if exist "%~dp0nginx-1.27.5\logs\error.log" (
-            notepad "%~dp0nginx-1.27.5\logs\error.log"
-        ) else (
-            echo [ERROR] Nginx log file not found
-        )
-    ) else if "!nginx_choice!"=="5" (
-        exit /b 0
-    ) else (
-        echo [ERROR] Invalid choice
-        pause
-    )
-    
-    pause
-    goto :nginx_menu
+:create_nginx_config
+    call :log_message "Creating Nginx configuration" "INFO"
+    echo [INFO] Creating Nginx config

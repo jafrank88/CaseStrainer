@@ -1,9 +1,7 @@
-import sys
 import traceback
 
 try:
     print("Attempting to import app_final...")
-    import app_final
 
     print("Successfully imported app_final")
 except Exception as e:
@@ -12,7 +10,6 @@ except Exception as e:
 
 try:
     print("\nAttempting to import serve_vue...")
-    import serve_vue
 
     print("Successfully imported serve_vue")
 except Exception as e:
@@ -21,7 +18,6 @@ except Exception as e:
 
 try:
     print("\nAttempting to import app_final_vue...")
-    import app_final_vue
 
     print("Successfully imported app_final_vue")
 except Exception as e:

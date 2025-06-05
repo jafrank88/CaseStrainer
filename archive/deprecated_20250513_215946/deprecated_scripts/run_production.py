@@ -10,8 +10,6 @@ import subprocess
 import traceback
 import time
 import socket
-import re
-import shutil
 
 
 def check_nginx_running():

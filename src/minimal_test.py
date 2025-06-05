@@ -2,7 +2,6 @@
 
 import sys
 import os
-from flask import Flask
 
 print("Python version:", sys.version)
 print("Working directory:", os.getcwd())

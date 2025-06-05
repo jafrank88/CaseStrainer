@@ -1,0 +1,299 @@
+@chcp 65001 >nul 2>&1
+@echo off
+setlocal enabledelayedexpansion
+@echo off
+setlocal enabledelayedexpansion
+
+:: ===================================================
+:: CaseStrainer Clean Deployment Script
+:: Simple version with debug option
+:: ===================================================
+
+net session >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo ===================================================
+    echo   ADMINISTRATOR PRIVILEGES REQUIRED
+    echo ===================================================
+    echo Please right-click this script and select "Run as administrator"
+    pause
+    exit /b 1
+)
+
+set "CASESTRAINER_DIR=%~dp0"
+set "BACKEND_DIR=%CASESTRAINER_DIR%src"
+set "FRONTEND_DIR=%CASESTRAINER_DIR%casestrainer-vue-new"
+set "NGINX_DIR=%CASESTRAINER_DIR%nginx-1.27.5"
+
+echo.
+echo ===================================================
+echo  CaseStrainer Clean Deployment
+echo ===================================================
+echo Time: %DATE% %TIME%
+echo Working Directory: %CASESTRAINER_DIR%
+echo ===================================================
+echo.
+
+echo [STEP 1] Loading configuration...
+if not exist "config.ini" (
+    echo SERVER_NAME=wolf.law.uw.edu > config.ini
+    echo PROD_BACKEND_PORT=5002 >> config.ini
+    echo SSL_CERT_PATH=D:/CaseStrainer/ssl/WolfCertBundle.crt >> config.ini
+    echo SSL_KEY_PATH=D:/CaseStrainer/ssl/wolf.law.uw.edu.key >> config.ini
+)
+
+for /f "usebackq tokens=1,* delims==" %%a in ("config.ini") do (
+    if not "%%a"=="" if not "%%a"=="#" set "%%a=%%b"
+)
+
+echo [CONFIG] Server: %SERVER_NAME%
+echo [CONFIG] Backend Port: %PROD_BACKEND_PORT%
+echo [CONFIG] SSL Certificate: %SSL_CERT_PATH%
+echo [CONFIG] SSL Key: %SSL_KEY_PATH%
+echo.
+
+echo [STEP 2] Checking prerequisites...
+node --version >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Node.js not found
+    pause
+    exit /b 1
+)
+echo [OK] Node.js found
+
+python --version >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Python not found
+    pause
+    exit /b 1
+)
+echo [OK] Python found
+
+if exist "%NGINX_DIR%\nginx.exe" (
+    echo [OK] Nginx found
+) else (
+    echo [ERROR] Nginx not found
+    pause
+    exit /b 1
+)
+
+if exist "%SSL_CERT_PATH%" (
+    echo [OK] SSL Certificate found
+) else (
+    echo [ERROR] SSL Certificate not found
+    pause
+    exit /b 1
+)
+
+if exist "%SSL_KEY_PATH%" (
+    echo [OK] SSL Key found
+) else (
+    echo [ERROR] SSL Key not found
+    pause
+    exit /b 1
+)
+echo.
+
+echo [STEP 3] Choose Build Mode
+echo.
+echo 1. Production Build (minified)
+echo 2. Debug Build (unminified - for troubleshooting)
+echo.
+set /p "build_choice=Enter choice (1 or 2): "
+echo.
+
+if "%build_choice%"=="2" (
+    echo [SELECTED] Debug build mode
+    set "BUILD_MODE=debug"
+) else (
+    echo [SELECTED] Production build mode  
+    set "BUILD_MODE=production"
+)
+echo.
+
+echo [STEP 4] Deployment Confirmation
+echo.
+echo Ready to deploy with:
+echo - Nginx + SSL/HTTPS
+echo - Vue.js frontend (%BUILD_MODE% build)
+echo - Flask backend API
+echo - URL: https://%SERVER_NAME%/casestrainer/
+echo.
+set /p "confirm=Continue? (y/n): "
+if /i not "%confirm%"=="y" (
+    echo Cancelled
+    pause
+    exit /b 0
+)
+echo.
+
+echo ===================================================
+echo  DEPLOYMENT IN PROGRESS
+echo ===================================================
+echo.
+
+echo [4.1] Building Vue.js application...
+cd /d "%FRONTEND_DIR%"
+
+if not exist "node_modules" (
+    echo [INFO] Installing dependencies...
+    npm install
+    if %ERRORLEVEL% neq 0 (
+        echo [ERROR] npm install failed
+        pause
+        exit /b 1
+    )
+)
+
+if "%BUILD_MODE%"=="debug" (
+    echo [INFO] Building in debug mode (unminified)...
+    set "NODE_ENV=development"
+    npm run build -- --mode development
+) else (
+    echo [INFO] Building in production mode (minified)...
+    set "NODE_ENV=production" 
+    npm run build
+)
+
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Build failed
+    pause
+    exit /b 1
+)
+
+if not exist "dist\index.html" (
+    echo [ERROR] Build output not found
+    pause
+    exit /b 1
+)
+
+echo [SUCCESS] Build completed
+echo.
+
+echo [4.2] Starting Flask backend...
+cd /d "%BACKEND_DIR%"
+
+netstat -ano | findstr ":%PROD_BACKEND_PORT% " | findstr "LISTENING" >nul
+if %ERRORLEVEL% equ 0 (
+    echo [INFO] Stopping existing Flask process...
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":%PROD_BACKEND_PORT% " ^| findstr "LISTENING"') do (
+        taskkill /PID %%a /F >nul 2>&1
+    )
+    timeout /t 3 /nobreak >nul
+)
+
+start "Flask_Backend" cmd /c "title Flask Backend - Port %PROD_BACKEND_PORT% && echo Starting Flask... && python app_final_vue.py --port=%PROD_BACKEND_PORT% --host=0.0.0.0 && pause"
+
+echo [INFO] Waiting for Flask to start...
+timeout /t 10 /nobreak >nul
+
+netstat -ano | findstr ":%PROD_BACKEND_PORT% " | findstr "LISTENING" >nul
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Flask failed to start
+    pause
+    exit /b 1
+)
+
+echo [SUCCESS] Flask started on port %PROD_BACKEND_PORT%
+echo.
+
+echo [4.3] Starting Nginx with SSL...
+cd /d "%NGINX_DIR%"
+
+taskkill /F /IM nginx.exe >nul 2>&1
+timeout /t 2 /nobreak >nul
+
+set "CONFIG_FILE=conf\casestrainer.conf"
+
+echo # CaseStrainer Nginx Configuration > "%CONFIG_FILE%"
+echo worker_processes 1; >> "%CONFIG_FILE%"
+echo events { worker_connections 1024; } >> "%CONFIG_FILE%"
+echo http { >> "%CONFIG_FILE%"
+echo     include mime.types; >> "%CONFIG_FILE%"
+echo     server { >> "%CONFIG_FILE%"
+echo         listen 80; >> "%CONFIG_FILE%"
+echo         return 301 https://$server_name$request_uri; >> "%CONFIG_FILE%"
+echo     } >> "%CONFIG_FILE%"
+echo     server { >> "%CONFIG_FILE%"
+echo         listen 443 ssl; >> "%CONFIG_FILE%"
+echo         server_name %SERVER_NAME% localhost; >> "%CONFIG_FILE%"
+echo         ssl_certificate "%SSL_CERT_PATH:\=/%"; >> "%CONFIG_FILE%"
+echo         ssl_certificate_key "%SSL_KEY_PATH:\=/%"; >> "%CONFIG_FILE%"
+echo         location = / { >> "%CONFIG_FILE%"
+echo             return 301 /casestrainer/; >> "%CONFIG_FILE%"
+echo         } >> "%CONFIG_FILE%"
+echo         location /casestrainer/ { >> "%CONFIG_FILE%"
+echo             alias "%FRONTEND_DIR:\=/%/dist/"; >> "%CONFIG_FILE%"
+echo             try_files $uri $uri/ /casestrainer/index.html; >> "%CONFIG_FILE%"
+echo         } >> "%CONFIG_FILE%"
+echo         location /casestrainer/api/ { >> "%CONFIG_FILE%"
+echo             proxy_pass http://127.0.0.1:%PROD_BACKEND_PORT%/casestrainer/api/; >> "%CONFIG_FILE%"
+echo             proxy_set_header Host $host; >> "%CONFIG_FILE%"
+echo         } >> "%CONFIG_FILE%"
+echo     } >> "%CONFIG_FILE%"
+echo } >> "%CONFIG_FILE%"
+
+nginx.exe -t -c "%CONFIG_FILE%" >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Nginx config test failed
+    nginx.exe -t -c "%CONFIG_FILE%"
+    pause
+    exit /b 1
+)
+
+start "Nginx_Server" cmd /c "title Nginx Server - HTTPS && echo Starting Nginx... && nginx.exe -c \"%CONFIG_FILE%\" && timeout /t -1 >nul"
+
+timeout /t 5 /nobreak >nul
+
+tasklist | findstr "nginx.exe" >nul
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] Nginx failed to start
+    pause
+    exit /b 1
+)
+
+echo [SUCCESS] Nginx started with SSL
+echo.
+
+echo ===================================================
+echo  DEPLOYMENT COMPLETED!
+echo ===================================================
+echo.
+echo [SERVICES RUNNING]
+netstat -ano | findstr ":%PROD_BACKEND_PORT% " | findstr "LISTENING" >nul
+if %ERRORLEVEL% equ 0 (
+    echo - Flask Backend: Port %PROD_BACKEND_PORT%
+) else (
+    echo - Flask Backend: NOT RUNNING
+)
+
+tasklist | findstr "nginx.exe" >nul
+if %ERRORLEVEL% equ 0 (
+    echo - Nginx HTTPS: Port 443
+) else (
+    echo - Nginx: NOT RUNNING
+)
+
+echo.
+echo [ACCESS]
+echo Primary: https://%SERVER_NAME%/casestrainer/
+echo Local: https://localhost/casestrainer/
+echo.
+
+if "%BUILD_MODE%"=="debug" (
+    echo [DEBUG MODE NOTES]
+    echo - JavaScript is unminified
+    echo - Function names are preserved
+    echo - Check browser console for clearer errors
+    echo.
+)
+
+echo Press any key to open application...
+pause >nul
+
+start "" "https://%SERVER_NAME%/casestrainer/"
+
+echo.
+echo Deployment complete. Keep Flask and Nginx windows open.
+echo Press any key to exit...
+pause >nul
+exit /b 0

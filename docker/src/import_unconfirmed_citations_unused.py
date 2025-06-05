@@ -6,8 +6,6 @@ into CaseStrainer's database for display in the Unconfirmed Citations tab.
 """
 
 import os
-import sys
-import json
 import sqlite3
 import csv
 from datetime import datetime

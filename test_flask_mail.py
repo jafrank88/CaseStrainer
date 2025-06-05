@@ -4,7 +4,6 @@ Test Flask-Mail with UW SMTP configuration.
 
 from flask import Flask, jsonify
 from flask_mail import Mail, Message
-import os
 from dotenv import load_dotenv
 
 # Load environment variables

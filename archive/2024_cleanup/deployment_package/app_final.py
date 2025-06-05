@@ -3,7 +3,6 @@ from flask import (
     request,
     render_template,
     jsonify,
-    Response,
     send_from_directory,
     redirect,
 )
@@ -11,23 +10,17 @@ from flask_cors import CORS
 import os
 import re
 import json
-import time
 import uuid
 import sys
-import io
 import subprocess
 import threading
 import traceback
 import requests
-import tempfile
-import threading
 import random
-import string
 import hashlib
 import os.path
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
-from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 from functools import lru_cache
 from test_citations import get_random_test_citations
@@ -96,11 +89,6 @@ def load_citations(filter_criteria=None):
     return []
 
 
-from datetime import datetime, timedelta
-from werkzeug.utils import secure_filename
-from concurrent.futures import ThreadPoolExecutor
-from bs4 import BeautifulSoup
-from functools import lru_cache
 
 # Import citation grouping functionality
 from citation_grouping import group_citations
@@ -496,7 +484,7 @@ def extract_citations(text):
             with open("extracted_citations.txt", "w", encoding="utf-8") as f:
                 for i, citation in enumerate(citations):
                     f.write(f"{i+1}. {citation}\n")
-            print(f"Extracted citations saved to extracted_citations.txt")
+            print("Extracted citations saved to extracted_citations.txt")
         except Exception as e:
             print(f"Error saving extracted citations to file: {e}")
 
@@ -624,7 +612,7 @@ def search_citation_on_web(citation_text, case_name=None):
         "found_case_name": None,
         "name_match": False,
         "confidence": 0.5,
-        "explanation": f"Citation not found on legal websites",
+        "explanation": "Citation not found on legal websites",
         "source": None,
     }
 
@@ -796,7 +784,7 @@ def search_citation_on_web(citation_text, case_name=None):
                                 }
 
                                 if name_match:
-                                    result["explanation"] += f" (case name matches)"
+                                    result["explanation"] += " (case name matches)"
                                     result["confidence"] = 0.9
 
                                 return result
@@ -866,7 +854,7 @@ def search_citation_on_web(citation_text, case_name=None):
                                 }
 
                                 if name_match:
-                                    result["explanation"] += f" (case name matches)"
+                                    result["explanation"] += " (case name matches)"
                                     result["confidence"] = 0.9
 
                                 return result
@@ -912,7 +900,7 @@ def search_citation_on_web(citation_text, case_name=None):
                             }
 
                             if name_match:
-                                result["explanation"] += f" (case name matches)"
+                                result["explanation"] += " (case name matches)"
                                 result["confidence"] = 0.9
 
                             return result
@@ -959,7 +947,7 @@ def search_citation_on_web(citation_text, case_name=None):
                             }
 
                             if name_match:
-                                result["explanation"] += f" (case name matches)"
+                                result["explanation"] += " (case name matches)"
                                 result["confidence"] = 0.9
 
                             return result
@@ -1001,7 +989,7 @@ def search_citation_on_web(citation_text, case_name=None):
                             }
 
                             if name_match:
-                                result["explanation"] += f" (case name matches)"
+                                result["explanation"] += " (case name matches)"
                                 result["confidence"] = 0.9
 
                             return result
@@ -1034,7 +1022,7 @@ def search_citation_on_web(citation_text, case_name=None):
                             }
 
                             if name_match:
-                                result["explanation"] += f" (case name matches)"
+                                result["explanation"] += " (case name matches)"
                                 result["confidence"] = 0.9
 
                             return result
@@ -1145,7 +1133,7 @@ def check_case_with_langsearch(citation_text):
             return {
                 "is_real": False,
                 "confidence": 0.6,
-                "explanation": f"Error checking citation: Second API request failed",
+                "explanation": "Error checking citation: Second API request failed",
             }
 
         second_result = second_response.json()
@@ -1239,7 +1227,7 @@ def check_case_with_ai(citation_text, case_name=None):
                 return {
                     "found": False,
                     "confidence": result.get("confidence", 0.5),
-                    "explanation": f"Citation not verified by automated sources. Please verify manually with Descrybe.ai before proceeding to AI summarization.",
+                    "explanation": "Citation not verified by automated sources. Please verify manually with Descrybe.ai before proceeding to AI summarization.",
                     "manual_verification_suggested": True,
                     "manual_verification_source": "Descrybe.ai",
                     "manual_verification_url": descrybe_url,
@@ -1252,7 +1240,7 @@ def check_case_with_ai(citation_text, case_name=None):
 
             # Otherwise, continue with the AI check as a fallback
             print(
-                f"Enhanced citation verifier couldn't confirm citation. Trying AI check as fallback."
+                "Enhanced citation verifier couldn't confirm citation. Trying AI check as fallback."
             )
         except Exception as e:
             print(f"Error using enhanced citation verifier: {e}")
@@ -1361,7 +1349,7 @@ def check_case_with_ai(citation_text, case_name=None):
                 return {
                     "found": False,
                     "confidence": 0.7,
-                    "explanation": f"AI indicates this is not a valid citation.",
+                    "explanation": "AI indicates this is not a valid citation.",
                     "summaries": [first_summary, second_summary],
                 }
 
@@ -1742,7 +1730,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
             with open(test_file, "w") as f:
                 f.write(f"Test write at {datetime.now()}")
             os.remove(test_file)
-            print(f"Upload folder is writable")
+            print("Upload folder is writable")
         except Exception as e:
             print(f"WARNING: Upload folder may not be writable: {e}")
 
@@ -1781,7 +1769,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
             print(
                 f"File last modified: {datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')}"
             )
-            print(f"Attempting to extract text...")
+            print("Attempting to extract text...")
 
             # Check file permissions
             try:
@@ -1983,7 +1971,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         found = False  # Not verified if case name is unknown
                         hallucination_status = "unconfirmed"
                         confidence = 0.7
-                        explanation = f"Citation format recognized but case name unknown - unconfirmed citation"
+                        explanation = "Citation format recognized but case name unknown - unconfirmed citation"
 
                         # If we have a URL, it's unconfirmed rather than hallucinated
                         if court_listener_url:
@@ -2042,7 +2030,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             not case_name or case_name == "Unknown case"
                         ):
                             confidence = 0.6
-                            explanation = f"Citation format recognized but case details unknown - potential hallucination"
+                            explanation = "Citation format recognized but case details unknown - potential hallucination"
                             hallucination_status = "possible_hallucination"
                         # If we haven't processed any citations yet, it means the API response format wasn't recognized
                         if not citation_results:
@@ -2342,7 +2330,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             # If case_name is 'Unknown case', change the explanation and mark as potential hallucination
                             if case_name == "Unknown case":
                                 result_data["explanation"] = (
-                                    f"Citation format recognized but case details unknown - potential hallucination"
+                                    "Citation format recognized but case details unknown - potential hallucination"
                                 )
                                 result_data["is_hallucinated"] = True
                                 result_data["hallucination_status"] = (
@@ -2458,7 +2446,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                                             "is_hallucinated": True,
                                             "hallucination_status": "unverified",
                                             "confidence": ai_result["confidence"],
-                                            "explanation": f"Citation could not be verified by CourtListener, web search, or AI analysis.",
+                                            "explanation": "Citation could not be verified by CourtListener, web search, or AI analysis.",
                                         }
 
                                         # Add summaries if available for reference
@@ -2975,8 +2963,8 @@ def api_classify_citation():
 @app.route("/api/export_citations")
 def api_export_citations():
     """Export citations in various formats."""
-    format_type = request.args.get("format", "text")
-    filename = request.args.get("filename")
+    request.args.get("format", "text")
+    request.args.get("filename")
 
     # Get filter criteria from query parameters
     filter_criteria = {}
@@ -3336,7 +3324,6 @@ def get_random_test_citations(
     Returns:
         list: Random selection of test citations
     """
-    import random
 
     filtered_citations = []
 
@@ -3485,7 +3472,7 @@ def citation_tester():
                             traceback.print_exc()
 
                     # For testing purposes, we'll use a simplified approach if multi-source verifier is not available
-                    if not USE_MULTI_SOURCE_VERIFIER or not "result" in locals():
+                    if not USE_MULTI_SOURCE_VERIFIER or "result" not in locals():
                         if expected_result == "confirmed":
                             result = {
                                 "found": True,
@@ -3810,7 +3797,7 @@ if __name__ == "__main__":
                     import stat
 
                     os.chmod(unix_socket, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-                    print(f"Socket permissions set for Nginx access")
+                    print("Socket permissions set for Nginx access")
 
                 except KeyboardInterrupt:
                     server.stop()

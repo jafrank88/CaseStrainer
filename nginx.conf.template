@@ -1,0 +1,186 @@
+# Nginx configuration template
+# This is automatically generated - do not edit directly
+
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    # Map variable for WebSocket connection upgrade
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
+    # Rate limiting zones
+    limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=api:10m rate=50r/s;
+
+    # Temp paths
+    client_body_temp_path "temp/client_body_temp";
+    fastcgi_temp_path "temp/fastcgi_temp";
+    proxy_temp_path "temp/proxy_temp";
+    scgi_temp_path "temp/scgi_temp";
+    uwsgi_temp_path "temp/uwsgi_temp";
+
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  300;
+    keepalive_requests 100;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 10240;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml application/javascript;
+    gzip_disable "MSIE [1-9]\.";
+
+    # HTTP server for all domains - redirect to HTTPS
+    server {
+        listen 80;
+        server_name ${SERVER_NAME} localhost 127.0.0.1 ${SERVER_IP};
+        return 301 https://$host$request_uri;
+    }
+
+    # HTTPS server
+    server {
+        listen 443 ssl http2;
+        server_name ${SERVER_NAME} localhost 127.0.0.1 ${SERVER_IP};
+
+        # Error logging
+        error_log logs/casestrainer_error.log debug;
+        access_log logs/casestrainer_access.log combined;
+
+        # SSL configuration using environment variables
+        ssl_certificate ${SSL_CERT_PATH};
+        ssl_certificate_key ${SSL_KEY_PATH};
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers off;
+        ssl_session_timeout 1d;
+        ssl_session_cache shared:SSL:50m;
+        ssl_session_tickets off;
+        ssl_stapling on;
+        ssl_stapling_verify on;
+        resolver 8.8.8.8 8.8.4.4 valid=300s;
+        resolver_timeout 5s;
+
+        # Security headers
+        add_header Strict-Transport-Security "max-age=63072000" always;
+        add_header X-Frame-Options DENY;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Content-Security-Policy "default-src 'self' https://${SERVER_NAME}; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self' https://${SERVER_NAME} wss:;";
+        add_header Referrer-Policy strict-origin-when-cross-origin;
+        add_header Permissions-Policy "geolocation=(), microphone=(), camera=()";
+
+        # =========================================
+        # DEVELOPMENT SETUP
+        # Frontend: Vue dev server (${DEV_FRONTEND_PORT}) + Backend: Flask (${DEV_BACKEND_PORT})
+        # =========================================
+
+        # CaseStrainer frontend with rate limiting
+        location /casestrainer/ {
+            limit_req zone=general burst=20 nodelay;
+
+            # Remove /casestrainer prefix before proxying
+            rewrite ^/casestrainer/(.*)$ /$1 break;
+
+            # Proxy to frontend DEV SERVER (Vue.js)
+            proxy_pass http://127.0.0.1:${DEV_FRONTEND_PORT}/;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Prefix /casestrainer;
+
+            # WebSocket support for Vue dev server hot reloading
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_cache_bypass $http_upgrade;
+
+            # Timeouts
+            proxy_connect_timeout 60s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+
+            # Disable buffering for development
+            proxy_buffering off;
+        }
+
+
+        # CaseStrainer API with enhanced rate limiting
+        location /casestrainer/api/ {
+            limit_req zone=api burst=50 nodelay;
+
+            # Proxy to backend (Flask)
+            proxy_pass http://127.0.0.1:${DEV_BACKEND_PORT}/api/;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Prefix /casestrainer/api;
+
+            # File upload settings
+            client_max_body_size 50M;
+            proxy_request_buffering off;
+            
+            # API-specific timeouts
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 300s;
+
+            # Buffer settings
+            proxy_buffer_size 128k;
+            proxy_buffers 4 256k;
+            proxy_busy_buffers_size 256k;
+
+            # Disable buffering for API responses
+            proxy_buffering off;
+
+            # CORS headers
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+
+            # Handle OPTIONS method for CORS preflight
+            if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+                add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+                add_header 'Access-Control-Max-Age' 1728000;
+                add_header 'Content-Type' 'text/plain; charset=utf-8';
+                add_header 'Content-Length' 0;
+                return 204;
+            }
+        }
+
+        # Serve static files directly (if needed)
+        location /casestrainer/static/ {
+            alias "${STATIC_FILES_PATH}";
+            expires 30d;
+            access_log off;
+            add_header Cache-Control "public, no-transform";
+        }
+
+        # Error pages
+        error_page 404 /404.html;
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root html;
+        }
+
+        # Redirect root to /casestrainer
+        location = / {
+            return 301 https://$host/casestrainer/;
+        }
+    }
+}

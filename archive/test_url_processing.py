@@ -7,7 +7,6 @@ This script tests the functionality of processing a PDF URL
 """
 
 import os
-import sys
 import requests
 import logging
 from enhanced_validator_production import extract_text_from_file

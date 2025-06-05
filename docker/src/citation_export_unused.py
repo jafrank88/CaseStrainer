@@ -12,7 +12,6 @@ import os
 import re
 import json
 import datetime
-import uuid
 
 # Path to the citation database
 DOWNLOAD_DIR = "downloaded_briefs"

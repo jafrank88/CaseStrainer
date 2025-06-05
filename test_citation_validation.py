@@ -6,7 +6,6 @@ import logging
 import tempfile
 import shutil
 from unittest.mock import patch, MagicMock
-from typing import Dict, Any, List, Optional, Union
 
 # Set up logging
 logging.basicConfig(
@@ -24,10 +23,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from flask.testing import FlaskClient
-from flask import Flask, jsonify, current_app
 from src.app_final_vue import create_app
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 
 class TestCitationValidation(unittest.TestCase):

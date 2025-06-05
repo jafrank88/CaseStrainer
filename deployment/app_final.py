@@ -3,24 +3,18 @@ from flask import (
     request,
     render_template,
     jsonify,
-    Response,
-    send_from_directory,
 )
 import os
 import re
 import json
-import time
 import uuid
 import sys
-import io
 import subprocess
 import threading
 import traceback
 from werkzeug.utils import secure_filename
 import docx
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import concurrent.futures
 
 # Import eyecite for better citation extraction
 from eyecite import get_citations
@@ -238,7 +232,7 @@ def extract_citations(text):
             with open("extracted_citations.txt", "w", encoding="utf-8") as f:
                 for i, citation in enumerate(citations):
                     f.write(f"{i+1}. {citation}\n")
-            print(f"Extracted citations saved to extracted_citations.txt")
+            print("Extracted citations saved to extracted_citations.txt")
         except Exception as e:
             print(f"Error saving extracted citations to file: {e}")
 
@@ -329,7 +323,7 @@ def check_case_with_langsearch(citation_text):
             return {
                 "is_real": False,
                 "confidence": 0.6,
-                "explanation": f"Error checking citation: Second API request failed",
+                "explanation": "Error checking citation: Second API request failed",
             }
 
         second_result = second_response.json()
@@ -366,14 +360,14 @@ def check_case_with_langsearch(citation_text):
                     "is_real": True,
                     "confidence": 0.8
                     + (similarity_score * 0.2),  # Higher similarity = higher confidence
-                    "explanation": f"Case appears to be real. LangSearch provided consistent information across two queries.",
+                    "explanation": "Case appears to be real. LangSearch provided consistent information across two queries.",
                     "summaries": [first_summary, second_summary],
                 }
             else:
                 return {
                     "is_real": False,
                     "confidence": 0.7,
-                    "explanation": f"Case may be hallucinated. LangSearch provided inconsistent information across two queries.",
+                    "explanation": "Case may be hallucinated. LangSearch provided inconsistent information across two queries.",
                     "summaries": [first_summary, second_summary],
                 }
         elif len(first_summary) > 50 or len(second_summary) > 50:
@@ -381,7 +375,7 @@ def check_case_with_langsearch(citation_text):
             return {
                 "is_real": True,
                 "confidence": 0.7,
-                "explanation": f"Case appears to be real based on LangSearch response, but with limited information.",
+                "explanation": "Case appears to be real based on LangSearch response, but with limited information.",
                 "summaries": [first_summary, second_summary],
             }
         else:
@@ -389,7 +383,7 @@ def check_case_with_langsearch(citation_text):
             return {
                 "is_real": False,
                 "confidence": 0.6,
-                "explanation": f"LangSearch provided limited information about this citation, suggesting it may be hallucinated.",
+                "explanation": "LangSearch provided limited information about this citation, suggesting it may be hallucinated.",
                 "summaries": [first_summary, second_summary],
             }
 
@@ -798,11 +792,11 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                             hallucinated_count += 1
                             confidence = 0.7
                             if court_listener_url:
-                                explanation = f"Citation format recognized but case name unknown - potential hallucination"
+                                explanation = "Citation format recognized but case name unknown - potential hallucination"
                             elif case_name and case_name != "Unknown case":
-                                explanation = f"Citation format recognized but no URL found - potential hallucination"
+                                explanation = "Citation format recognized but no URL found - potential hallucination"
                             else:
-                                explanation = f"Citation format recognized but case details unknown - potential hallucination"
+                                explanation = "Citation format recognized but case details unknown - potential hallucination"
 
                     # If not found, check with LangSearch API
                     if not found:
@@ -1358,7 +1352,7 @@ if __name__ == "__main__":
                     import stat
 
                     os.chmod(unix_socket, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-                    print(f"Socket permissions set for Nginx access")
+                    print("Socket permissions set for Nginx access")
 
                 except KeyboardInterrupt:
                     server.stop()

@@ -1,5 +1,4 @@
 import os
-import sys
 
 # Files and their import patterns to fix
 FIXES = [

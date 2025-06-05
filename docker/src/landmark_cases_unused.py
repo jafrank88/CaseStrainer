@@ -115,7 +115,6 @@ def is_landmark_case(citation):
         return LANDMARK_CASES[clean_citation]
 
     # Try to normalize U.S. citations
-    us_match = None
     if "U.S." in clean_citation:
         import re
 
@@ -127,7 +126,6 @@ def is_landmark_case(citation):
                 return LANDMARK_CASES[normalized]
 
     # Try to normalize S.Ct. citations
-    sct_match = None
     if "S.Ct." in clean_citation or "S. Ct." in clean_citation:
         import re
 

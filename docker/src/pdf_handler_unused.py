@@ -4,15 +4,11 @@ import io
 import tempfile
 import shutil
 import subprocess
-import traceback
 import PyPDF2
-from io import StringIO
-from datetime import datetime
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
-from pdfminer.high_level import extract_text as pdfminer_extract_text
 from PIL import ImageEnhance
 import re
 
@@ -73,7 +69,6 @@ def extract_text_from_pdf(file_path):
             print("All text extraction methods failed. Trying OCR with Tesseract...")
             import pytesseract
             from pdf2image import convert_from_path
-            from PIL import Image
 
             # Convert PDF pages to images with higher DPI for better OCR
             images = convert_from_path(file_path, dpi=300)

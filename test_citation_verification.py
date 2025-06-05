@@ -5,7 +5,6 @@ import json
 import sys
 import os
 import logging
-from pathlib import Path
 from datetime import datetime
 from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
@@ -144,10 +143,10 @@ def test_api_verification():
                         isinstance(citation, dict)
                         and citation.get("citation") == test_citation
                     ):
-                        logger.info(f"Found matching citation in API response")
+                        logger.info("Found matching citation in API response")
                         return True
 
-            logger.warning(f"Test citation not found in API response")
+            logger.warning("Test citation not found in API response")
             return False
 
         except json.JSONDecodeError:

@@ -13,29 +13,17 @@ import os
 import json
 import time
 import uuid
-import socket
-import hashlib
 import logging
-import sqlite3
 import threading
 import traceback
-import re
-import urllib.parse
-from datetime import datetime
 from werkzeug.utils import secure_filename
 from flask import (
     Flask,
     request,
     jsonify,
     render_template,
-    redirect,
-    url_for,
     send_from_directory,
-    send_file,
-    make_response,
 )
-from functools import lru_cache
-from test_citations import get_random_test_citations
 
 # Import Enhanced Validator functionality if available
 try:

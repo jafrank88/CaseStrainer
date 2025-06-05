@@ -5,14 +5,10 @@ This is a simplified version that works with the Nginx proxy.
 
 from flask import (
     Flask,
-    send_from_directory,
-    request,
     jsonify,
     redirect,
     render_template_string,
 )
-import os
-import sys
 
 # Create the Flask application
 app = Flask(__name__)

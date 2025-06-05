@@ -5,7 +5,7 @@ This module provides API endpoints for accessing citation data
 from the JSON files in the CaseStrainer application.
 """
 
-from flask import Blueprint, jsonify, request, make_response, current_app
+from flask import Blueprint, jsonify, request, make_response
 import os
 import json
 import logging
@@ -292,11 +292,6 @@ def analyze():
     )
 
     # Add CORS headers for this specific endpoint
-    response_headers = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-    }
 
     try:
         # Generate a unique analysis ID

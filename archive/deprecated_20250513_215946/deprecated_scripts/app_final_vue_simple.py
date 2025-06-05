@@ -6,16 +6,10 @@ This is a simplified version that works with the Nginx proxy.
 from flask import (
     Flask,
     send_from_directory,
-    request,
     jsonify,
-    redirect,
     render_template_string,
 )
 import os
-import sys
-import json
-import sqlite3
-from werkzeug.utils import secure_filename
 
 # Create the Flask application
 app = Flask(__name__)

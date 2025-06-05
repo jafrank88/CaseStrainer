@@ -3,12 +3,9 @@ CaseStrainer Flask application with Vue.js frontend.
 This is the main entry point for the CaseStrainer application.
 """
 
-from flask import Flask, send_from_directory, request, jsonify, redirect, url_for
+from flask import Flask, send_from_directory
 import os
 import sys
-import json
-import sqlite3
-from werkzeug.utils import secure_filename
 
 # Import the API blueprint
 from vue_api import api_blueprint

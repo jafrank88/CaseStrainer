@@ -6,10 +6,7 @@ with the tabbed interface for file upload, text paste, and citation viewing.
 """
 
 import os
-import shutil
-import json
 from pathlib import Path
-import sys
 
 # Define paths
 BASE_DIR = Path(__file__).resolve().parent

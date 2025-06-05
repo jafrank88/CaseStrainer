@@ -5,15 +5,12 @@ This script extracts citations from the Unconfirmed Citations Database tab
 and verifies them using the multi-source verification tool.
 """
 
-import os
 import sys
 import json
 import sqlite3
 import traceback
 import time
 import random
-import requests
-from datetime import datetime
 
 # Import the multi-source verifier if available
 try:

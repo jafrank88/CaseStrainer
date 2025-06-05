@@ -85,7 +85,7 @@ if not exist casestrainer_sessions mkdir casestrainer_sessions
 
 REM === Vue Build Check and Auto-Build with Checksum ===
 echo Checking Vue.js source for changes...
-pushd casestrainer-vue
+pushd casestrainer-vue-new
 
 REM === Clear Vue/Node build cache ===
 if exist node_modules\.cache (

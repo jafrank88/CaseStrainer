@@ -54,7 +54,6 @@ except ImportError:
         logger.error(f"Failed to import DispatcherMiddleware: {e}")
         sys.exit(1)
 
-from werkzeug.exceptions import NotFound
 from src.app_final_vue import create_app
 
 

@@ -6,7 +6,6 @@ and advanced techniques to validate legal citations.
 """
 
 import os
-import sys
 import json
 import logging
 import requests

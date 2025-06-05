@@ -1,15 +1,17 @@
-from flask import Flask, jsonify, request
-import time
+# Standard library imports
+import logging
 import sys
+import time
+
+# Third-party imports
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
 # Counter to simulate crashes
 error_counter = 0
 
-# Enable logging to file
-import logging
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",

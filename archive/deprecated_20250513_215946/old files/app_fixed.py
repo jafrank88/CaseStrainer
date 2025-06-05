@@ -1,5 +1,4 @@
 import os
-import json
 import time
 import uuid
 import threading
@@ -9,8 +8,6 @@ from flask import (
     jsonify,
     render_template,
     send_from_directory,
-    Response,
-    session,
 )
 from flask_cors import CORS
 

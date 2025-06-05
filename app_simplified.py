@@ -1,32 +1,31 @@
 """
-Simplified CaseStrainer application with Enhanced Validator enabled
+Simplified CaseStrainer application with Enhanced Validator enabled.
 """
 
-import os
-import sys
+# Standard library imports
 import json
 import logging
+import os
+import sys
 import tempfile
-from flask import Flask, request, jsonify, send_from_directory
-from werkzeug.utils import secure_filename
-from werkzeug.middleware.proxy_fix import ProxyFix
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Add the src directory to the Python path
 src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-# Import required modules from src
+# Third-party imports
+from flask import Flask, jsonify, request, send_from_directory
+from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.utils import secure_filename
+
+# Local application imports
+from src.app_final_vue import extract_citations_from_file, extract_citations_from_text, verify_citation
 from src.citation_api import USE_ENHANCED_VALIDATOR
-from src.app_final_vue import (
-    extract_citations_from_file,
-    extract_citations_from_text,
-    verify_citation,
-)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Create Flask application
 app = Flask(__name__, static_folder="static/vue")

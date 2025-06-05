@@ -6,8 +6,6 @@ that can identify valid citations with high accuracy without requiring API calls
 """
 
 import os
-import sys
-import json
 import logging
 import sqlite3
 import re

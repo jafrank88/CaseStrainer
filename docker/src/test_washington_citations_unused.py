@@ -3,7 +3,6 @@
 Script to test citation verification on Washington state cases
 """
 import json
-import sys
 import time
 import re
 from citation_verification import CitationVerifier
@@ -182,7 +181,7 @@ def test_citation_verification(citations):
     failures = sum(1 for r in results if not r.get("found") and r.get("citation"))
     no_citations = sum(1 for r in results if not r.get("citation"))
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Total cases: {len(results)}")
     print(f"  Successfully verified: {successes}")
     print(f"  Failed to verify: {failures}")

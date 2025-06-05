@@ -4,15 +4,12 @@ Script to download briefs from the Washington Courts website and process them th
 to identify unconfirmed citations.
 """
 import os
-import sys
 import requests
 import time
 import json
-import re
 import traceback
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from concurrent.futures import ThreadPoolExecutor
 import argparse
 
 # Number of briefs to process
@@ -349,7 +346,7 @@ def main():
     total_unconfirmed = sum(
         len(citations) for citations in all_unconfirmed_citations.values()
     )
-    print(f"\n=== SUMMARY ===")
+    print("\n=== SUMMARY ===")
     print(f"Processed {brief_count} briefs")
     print(
         f"Found {total_unconfirmed} unconfirmed citations in {len(all_unconfirmed_citations)} briefs"

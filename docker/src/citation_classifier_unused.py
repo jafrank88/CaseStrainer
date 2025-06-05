@@ -19,7 +19,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
-from sklearn.pipeline import Pipeline
 
 # Path to the citation database and model files
 DOWNLOAD_DIR = "downloaded_briefs"
@@ -155,7 +154,7 @@ def train_citation_classifier():
     vectorizer = TfidfVectorizer(
         analyzer="char_wb", ngram_range=(2, 5), max_features=200
     )
-    text_features = vectorizer.fit_transform(texts)
+    vectorizer.fit_transform(texts)
 
     # Convert DataFrame to numpy array
     feature_array = features_df.to_numpy()

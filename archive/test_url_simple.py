@@ -7,7 +7,6 @@ This script tests the functionality of processing a simple text URL
 """
 
 import os
-import sys
 import requests
 import logging
 import json

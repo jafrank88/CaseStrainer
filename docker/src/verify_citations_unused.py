@@ -3,8 +3,6 @@ Simple script to test citation verification with our landmark cases database.
 """
 
 import json
-import sys
-import os
 import re
 
 # Import the landmark cases database

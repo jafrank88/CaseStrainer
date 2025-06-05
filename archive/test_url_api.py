@@ -6,7 +6,6 @@ Test script for URL processing in CaseStrainer API
 This script tests the functionality of the /api/analyze endpoint with URL input
 """
 
-import os
 import sys
 import requests
 import json

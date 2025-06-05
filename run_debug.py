@@ -160,7 +160,7 @@ def main():
         log("=" * 80)
 
         # Basic system info
-        log(f"\nSystem Information:")
+        log("\nSystem Information:")
         log(f"Python: {sys.version}")
         log(f"Working Directory: {os.getcwd()}")
         log(f"Python Path: {sys.path}")
@@ -201,7 +201,7 @@ def main():
                 # Start the server
                 log("\n" + "=" * 40)
                 log("Starting Flask development server...")
-                log(f"Local:   http://127.0.0.1:5000/")
+                log("Local:   http://127.0.0.1:5000/")
                 log(f"Network: http://{os.environ.get('HOSTNAME', 'localhost')}:5000/")
                 log("=" * 40 + "\n")
 

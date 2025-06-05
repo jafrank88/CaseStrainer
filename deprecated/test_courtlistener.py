@@ -9,7 +9,6 @@ It requires the COURTLISTENER_API_KEY environment variable to be set.
 
 import os
 import sys
-import json
 import logging
 import requests
 from dotenv import load_dotenv

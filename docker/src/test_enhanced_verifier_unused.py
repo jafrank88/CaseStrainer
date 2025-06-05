@@ -6,7 +6,6 @@ to ensure it correctly distinguishes between real cases, hallucinations, and typ
 """
 
 import sys
-import json
 import os
 import traceback
 

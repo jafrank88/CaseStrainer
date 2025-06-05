@@ -8,7 +8,6 @@ This module integrates the simplified Enhanced Validator with the production app
 """
 
 import os
-import sys
 import json
 import random
 import re
@@ -16,7 +15,6 @@ import logging
 import time
 import uuid
 import traceback
-from datetime import datetime
 from werkzeug.utils import secure_filename
 from flask import (
     Blueprint,
@@ -24,7 +22,6 @@ from flask import (
     request,
     jsonify,
     make_response,
-    send_from_directory,
 )
 import requests
 from bs4 import BeautifulSoup
@@ -488,7 +485,7 @@ def check_courtlistener_api(citation_text):
             return None
 
         # Construct the API URL with more specific parameters
-        api_url = f"https://www.courtlistener.com/api/rest/v4/citations/"
+        api_url = "https://www.courtlistener.com/api/rest/v4/citations/"
         params = {
             "citation": citation,
             "reporter": components.get("reporter", ""),

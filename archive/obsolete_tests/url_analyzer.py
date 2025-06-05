@@ -4,7 +4,7 @@ import uuid
 import json
 import logging
 import requests
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from bs4 import BeautifulSoup
 from flask_session import Session

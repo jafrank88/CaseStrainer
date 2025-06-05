@@ -6,7 +6,7 @@ This module provides functionality to group multiple citations that refer to the
 """
 
 import re
-from typing import List, Dict, Any, Set, Tuple
+from typing import List, Dict, Any
 
 
 def normalize_case_name(case_name: str) -> str:

@@ -1,6 +1,5 @@
 import requests
 import json
-import sys
 
 
 def test_verify_citation():
@@ -37,7 +36,7 @@ def test_verify_citation():
                 try:
                     error_data = response.json()
                     print(json.dumps(error_data, indent=2))
-                except:
+                except (ValueError, requests.exceptions.JSONDecodeError):
                     print(f"Response: {response.text}")
 
         except requests.exceptions.RequestException as e:

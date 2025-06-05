@@ -10,9 +10,6 @@ import sys
 import json
 import logging
 import requests
-import re
-from pathlib import Path
-from urllib.parse import urlparse
 
 # Configure logging
 logging.basicConfig(

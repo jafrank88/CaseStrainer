@@ -4,7 +4,6 @@ import time
 import uuid
 import threading
 import requests
-import tempfile
 import re
 from werkzeug.utils import secure_filename
 from flask import (
@@ -14,7 +13,6 @@ from flask import (
     render_template,
     send_from_directory,
     Response,
-    session,
 )
 from flask_cors import CORS
 from PyPDF2 import PdfReader
@@ -92,7 +90,7 @@ def extract_text_from_file(file_path):
                     try:
                         with open("extracted_pdf_text.txt", "w", encoding="utf-8") as f:
                             f.write(text)
-                        print(f"Extracted PDF text saved to extracted_pdf_text.txt")
+                        print("Extracted PDF text saved to extracted_pdf_text.txt")
                     except Exception as e:
                         print(f"Error saving extracted text to file: {e}")
 
@@ -207,7 +205,7 @@ def extract_citations(text):
             with open("extracted_citations.txt", "w", encoding="utf-8") as f:
                 for i, citation in enumerate(citations):
                     f.write(f"{i+1}. {citation}\n")
-            print(f"Extracted citations saved to extracted_citations.txt")
+            print("Extracted citations saved to extracted_citations.txt")
         except Exception as e:
             print(f"Error saving extracted citations to file: {e}")
 
@@ -242,7 +240,7 @@ def query_courtlistener_api(citation, api_key):
         if response.status_code == 200:
             try:
                 response_json = response.json()
-                print(f"Response is valid JSON")
+                print("Response is valid JSON")
                 print(
                     f"Response keys: {list(response_json.keys()) if isinstance(response_json, dict) else 'Not a dictionary'}"
                 )
@@ -251,7 +249,7 @@ def query_courtlistener_api(citation, api_key):
                 # Log the full response to a file for inspection
                 with open("api_response.json", "w") as f:
                     json.dump(response_json, f, indent=2)
-                print(f"Full response saved to api_response.json")
+                print("Full response saved to api_response.json")
 
                 return response_json
             except json.JSONDecodeError as e:
@@ -474,7 +472,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                     "status": "progress",
                     "current": 0,
                     "total": len(citations),
-                    "message": f"Sending document text to CourtListener API for citation analysis...",
+                    "message": "Sending document text to CourtListener API for citation analysis...",
                 }
             )
 
@@ -494,7 +492,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         "status": "progress",
                         "current": 0,
                         "total": len(citations),
-                        "message": f"Received API response with citation data",
+                        "message": "Received API response with citation data",
                         "api_response": api_response,  # Include the raw API response
                     }
                 )
@@ -508,7 +506,7 @@ def run_analysis(analysis_id, brief_text=None, file_path=None, api_key=None):
                         "status": "progress",
                         "current": 0,
                         "total": len(citations),
-                        "message": f"Error receiving API response",
+                        "message": "Error receiving API response",
                     }
                 )
 

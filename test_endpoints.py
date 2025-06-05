@@ -1,6 +1,5 @@
 import requests
 import json
-import sys
 import time
 from urllib.parse import urljoin
 
@@ -127,7 +126,6 @@ def run_tests():
         if status is None:
             print(f"  ❌ Error: {response}")
             results["errors"] += 1
-            test_result = "ERROR"
         else:
             expected_status = test.get("expected_status", 200)
             status_ok = status == expected_status
@@ -138,12 +136,10 @@ def run_tests():
             )
 
             if not status_ok:
-                print(f"  ❌ Unexpected status code")
+                print("  ❌ Unexpected status code")
                 results["failed"] += 1
-                test_result = "FAIL"
             else:
                 results["passed"] += 1
-                test_result = "PASS"
 
             # Print response (truncated if too long)
             response_str = (

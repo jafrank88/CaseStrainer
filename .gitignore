@@ -1,6 +1,36 @@
 # Nginx log files
 nginx-1.27.5/logs/*.log
 
+# IDE specific files (safe to ignore)
+.vscode/*
+!.vscode/settings.json
+.idea/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Local development
+# Ignore local env files with sensitive data
+.env
+!.env.example
+.env.local
+.venv/
+venv/
+env/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build files (if you don't need to track built files)
+/dist
+/build
+
 # TEMPORARY: All files visible - Original .gitignore rules are commented out below
 # To restore the original .gitignore, uncomment the sections below and remove this header
 

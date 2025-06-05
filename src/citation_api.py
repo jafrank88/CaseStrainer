@@ -20,7 +20,6 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 
 # Add the project root to the Python path
-import os
 import sys
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -500,11 +499,10 @@ def analyze():
                 if isinstance(extracted_result, tuple) and len(extracted_result) == 2:
                     # If it's a tuple with debug info, extract just the citations data
                     extracted_data, extract_debug = extracted_result
-                    logger.debug(f"Extracted citations with debug info")
+                    logger.debug("Extracted citations with debug info")
                 else:
                     # If not a tuple, use the result as is
                     extracted_data = extracted_result
-                    extract_debug = {}
 
                 # Extract confirmed and possible citations
                 if isinstance(extracted_data, dict):

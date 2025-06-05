@@ -6,7 +6,6 @@ Test script for the URL tab functionality in CaseStrainer
 This script tests both the fetch_url and analyze endpoints to simulate the URL tab workflow
 """
 
-import os
 import sys
 import requests
 import json

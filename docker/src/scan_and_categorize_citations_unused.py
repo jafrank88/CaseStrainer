@@ -7,10 +7,8 @@ with additional metadata for the Citation Tester tool.
 """
 
 import json
-import os
 import re
 import random
-import traceback
 from datetime import datetime
 
 # Import functions from app_final.py if available
@@ -235,7 +233,7 @@ def categorize_citation(citation):
     Adds metadata to help with testing and verification.
     """
     citation_text = citation["citation_text"]
-    case_name = citation.get("case_name", "")
+    citation.get("case_name", "")
 
     # Analyze the citation format
     format_type, is_valid_format, is_valid_volume, details = analyze_citation_format(
@@ -335,7 +333,7 @@ def scan_and_categorize_citations():
     save_unconfirmed_citations(enhanced_citations)
 
     # Print statistics
-    print(f"\nCitation Format Statistics:")
+    print("\nCitation Format Statistics:")
     print(f"Total citations: {total_citations}")
     print(
         f"Valid formats: {valid_format_count} ({valid_format_count/total_citations*100:.1f}%)"
@@ -417,7 +415,7 @@ def create_test_api_request(enhanced_citations, max_citations=10):
     try:
         with open("enhanced_test_api_request.json", "w") as f:
             json.dump(api_request, f, indent=2)
-        print(f"Enhanced test API request saved to enhanced_test_api_request.json")
+        print("Enhanced test API request saved to enhanced_test_api_request.json")
 
         # Also create a PowerShell command to test the API
         ps_command = "$headers = @{ 'Content-Type' = 'application/json' }; "
@@ -429,7 +427,7 @@ def create_test_api_request(enhanced_citations, max_citations=10):
 
         with open("enhanced_test_api.ps1", "w") as f:
             f.write(ps_command)
-        print(f"Enhanced PowerShell test script saved to enhanced_test_api.ps1")
+        print("Enhanced PowerShell test script saved to enhanced_test_api.ps1")
 
         return True
     except Exception as e:

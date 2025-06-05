@@ -58,7 +58,7 @@ def test_analyze_brief(file_path):
 
                     # Check if analysis is complete
                     if status_result.get("completed", False):
-                        print(f"Analysis completed!")
+                        print("Analysis completed!")
 
                         # Save the results to a file
                         results_file = f"{os.path.splitext(file_path)[0]}_results.json"

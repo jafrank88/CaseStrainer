@@ -67,7 +67,7 @@ try:
 
     # Run the app
     log("\nStarting Flask development server...")
-    log(f"Server will be available at: http://0.0.0.0:5000/")
+    log("Server will be available at: http://0.0.0.0:5000/")
     log("Press Ctrl+C to stop the server")
 
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False, threaded=True)

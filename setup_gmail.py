@@ -3,7 +3,6 @@ Helper script to set up Gmail SMTP configuration for CaseStrainer.
 """
 
 import os
-import sys
 from getpass import getpass
 
 

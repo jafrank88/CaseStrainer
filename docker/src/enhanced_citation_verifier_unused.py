@@ -6,16 +6,10 @@ to verify citations, distinguishing between real cases not in CourtListener,
 hallucinations, and typographical errors.
 """
 
-import os
 import re
-import json
 import requests
-import urllib.parse
 import traceback
 from bs4 import BeautifulSoup
-from datetime import datetime
-import time
-import random
 
 # Import functions from app_final.py if available
 try:

@@ -5,8 +5,6 @@ This script checks if the multitool_confirmed_citations table exists and contain
 and creates a simple API endpoint to test access to the data.
 """
 
-import os
-import sys
 import json
 import sqlite3
 from flask import Flask, jsonify

@@ -386,7 +386,7 @@ class SCOTUSPDFCitationExtractor:
             response = requests.post(url, headers=headers, data=data)
             response.raise_for_status()
             logger.info(
-                f"Successfully validated citations with CourtListener citation-lookup API"
+                "Successfully validated citations with CourtListener citation-lookup API"
             )
             return response.json()
         except requests.exceptions.RequestException as e:

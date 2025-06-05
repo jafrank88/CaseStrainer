@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -35,7 +34,7 @@ def consolidate_nginx():
             if nginx_new.exists():
                 shutil.rmtree(str(nginx_new))
             shutil.move(str(nginx_current), str(nginx_new))
-            print(f"Renamed nginx-1.24.0 to nginx")
+            print("Renamed nginx-1.24.0 to nginx")
         except Exception as e:
             print(f"Error renaming nginx-1.24.0: {e}")
 

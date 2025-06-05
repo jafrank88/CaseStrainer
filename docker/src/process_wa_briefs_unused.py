@@ -13,8 +13,6 @@ import argparse
 import sqlite3
 from tqdm import tqdm
 import PyPDF2
-import requests
-from datetime import datetime
 import random
 
 # Configure logging
@@ -125,13 +123,13 @@ def verify_citation_with_courtlistener(citation):
                 "case_name": f"Case related to {citation['citation_text']}",
                 "source": "CourtListener",
                 "url": f"https://www.courtlistener.com/opinion/{random.randint(1000000, 9999999)}/",
-                "explanation": f"Citation found in CourtListener database.",
+                "explanation": "Citation found in CourtListener database.",
             }
         else:
             return {
                 "found": False,
                 "confidence": round(random.uniform(0.1, 0.4), 2),
-                "explanation": f"Citation not found in CourtListener database.",
+                "explanation": "Citation not found in CourtListener database.",
             }
     except Exception as e:
         logger.error(f"Error verifying citation with CourtListener: {str(e)}")
@@ -168,7 +166,7 @@ def verify_citation_with_multitool(citation):
             return {
                 "found": False,
                 "confidence": round(random.uniform(0.1, 0.3), 2),
-                "explanation": f"Citation not found in any alternative sources.",
+                "explanation": "Citation not found in any alternative sources.",
             }
     except Exception as e:
         logger.error(f"Error verifying citation with multitool: {str(e)}")
@@ -450,7 +448,7 @@ def main():
         args.briefs_dir, args.metadata_file
     )
 
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Found {len(multitool_citations)} citations verified with multitool")
     print(f"Found {len(unconfirmed_citations)} unconfirmed citations")
 

@@ -5,43 +5,20 @@ This module provides the API endpoints needed by the Vue.js frontend
 for the Multitool Confirmed and Unconfirmed Citations tabs.
 """
 
-import os
-import re
-import sqlite3
-import threading
-import traceback
-from datetime import datetime, timedelta, timezone
-from functools import wraps
-from typing import Dict, List, Optional, Union, Any, Tuple
-import importlib.util
-import logging
-import sys
+from datetime import datetime, timezone
 import json
-from pathlib import Path
 from flask import (
     Blueprint,
     jsonify,
     request,
     current_app,
-    make_response,
-    send_from_directory,
-    redirect,
-    url_for,
-    session,
-    flash,
-    render_template,
-    send_file,
-    abort,
-    Response,
-    g,
 )
 
 # Create a Blueprint for Vue.js API endpoints
 vue_api = Blueprint("vue_api", __name__)
 
-from flask_mail import Message, Mail
-from werkzeug.utils import secure_filename
-from citation_utils import extract_citations_from_text, verify_citation
+from flask_mail import Message
+from citation_utils import verify_citation
 
 # Import configuration
 from config import get_config_value
@@ -572,9 +549,7 @@ def verify_citation():
         current_app.logger.info(f"[verify_citation] Validating citation: {citation}")
 
         # Check if this is a standard Federal Reporter citation
-        import re
 
-        fed_reporter_pattern = r"\d+\s+F\.?\s*(?:2d|3d|4th)?\s*\d+"
 
         try:
             current_app.logger.info(

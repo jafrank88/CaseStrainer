@@ -2,7 +2,6 @@
 Add a sample citation to the citation database for testing.
 """
 
-import os
 import sqlite3
 from citation_correction_engine import CitationCorrectionEngine
 

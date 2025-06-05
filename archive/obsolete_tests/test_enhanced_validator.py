@@ -7,12 +7,10 @@ It helps verify that the Enhanced Validator is working correctly with real-world
 
 import os
 import re
-import json
 import time
 import random
 import requests
 import logging
-from datetime import datetime
 
 # Configure logging
 logging.basicConfig(

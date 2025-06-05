@@ -8,11 +8,7 @@ This module provides a simplified version of the Enhanced Citation Validator
 that doesn't require the problematic modules.
 """
 
-import os
-import sys
-import json
 import random
-import re
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)

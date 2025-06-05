@@ -8,7 +8,6 @@ import flask
 from flask import Blueprint, request, jsonify
 
 # Import centralized logging configuration
-from logging_config import configure_logging as configure_logging_config
 
 # Configure logging
 logger = logging.getLogger(__name__)

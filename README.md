@@ -1,75 +1,212 @@
 # CaseStrainer
 
-A web application for extracting and validating legal citations from documents.
+A web application for extracting, analyzing, and validating legal citations from legal documents.
 
-## Features
+## ✨ Features
+
+### Modern Web Interface
+
+- Built with Vue 3 Composition API and Vite
+- Responsive design for all devices
+- Real-time citation verification
+
+### Document Processing
 
 - Extract citations from PDF, DOCX, and text files
-- Validate citations against CourtListener API
-- Support for multiple users
-- Real-time citation verification
-- Modern Vue.js frontend
+- Process multiple document formats
+- Clean and normalize extracted text
 
-## Requirements
+### Citation Analysis
 
-- Python 3.8 or higher
-- Windows 10 or higher
-- Internet connection for API access
+- Validate citations against CourtListener API v4
+- Cross-reference with legal databases
+- Generate citation networks
 
-## Installation
+### User Experience
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/CaseStrainer.git
-cd CaseStrainer
-```
+- Intuitive drag-and-drop interface
+- Real-time feedback and progress tracking
+- Exportable results in multiple formats
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## 🚀 Getting Started
 
-## Environment Variables
+### Prerequisites
 
-CaseStrainer uses environment variables for configuration. You can set them up in two ways:
+- **Python 3.8+** with pip
+- **Node.js 16+** (LTS recommended)
+- **Windows 10/11** or **Windows Server 2019/2022**
+- **Nginx 1.27.5** (included in repository)
+- **Git** for version control
 
-### Option 1: Using the Setup Script (Recommended)
+### Installation
 
-Run the interactive setup script:
+1. **Clone the repository**
 
-```bash
-scripts\setup_env.bat
-```
-
-This will guide you through the process of creating a `.env` file with the required configuration.
-
-### Option 2: Manual Setup
-
-1. Copy the example environment file:
    ```bash
+   git clone https://github.com/yourusername/CaseStrainer.git
+   cd CaseStrainer
+   ```
+
+2. **Set up Python environment**
+
+   ```bash
+   # Create and activate virtual environment
+   python -m venv venv
+   .\venv\Scripts\activate
+   
+   # Install Python dependencies
+   pip install -r requirements.txt
+   ```
+
+3. **Set up Vue.js frontend**
+
+   ```bash
+   # Navigate to frontend directory
+   cd casestrainer-vue-new
+   
+   # Install Node.js dependencies
+   npm install
+   
+   # Build for production
+   npm run build
+   
+   # Return to project root
+   cd ..
+   ```
+
+4. **Configure environment**
+
+   ```bash
+   # Copy example environment file
    copy .env.example .env
    ```
 
-2. Edit the `.env` file and update the following variables:
-   - `COURTLISTENER_API_KEY`: Your CourtListener API key (required for citation validation). Note: Only v4 of the CourtListener API is supported. The application will automatically use the v4 endpoints.
-   - `LANGSEARCH_API_KEY`: Your LangSearch API key (if using LangSearch features)
-   - `SECRET_KEY`: A secret key for Flask session encryption
-   - Other settings can be left as default for local development
+   Edit `.env` and set your configuration:
 
-### Important Security Notes
-- Never commit the `.env` file to version control (it's already in `.gitignore`)
-- Keep your API keys secure and never share them publicly
-- The setup script generates a secure random `SECRET_KEY` for you
+   ```ini
+   FLASK_APP=app_vue.py
+   FLASK_ENV=production
+   SECRET_KEY=your-secret-key-here
+   COURTLISTENER_API_KEY=your-api-key
+   ```
 
-### Verifying Your Configuration
+## 🚀 Quick Start
 
-After setting up your environment, you can verify your configuration by running:
+### Development Mode
 
-```bash
-scripts\test_env.bat
+1. **Start the development server**
+
+   ```bash
+   # In one terminal (backend)
+   flask run --debug
+   
+   # In another terminal (frontend)
+   cd casestrainer-vue-new
+   npm run dev
+   ```
+
+2. **Access the application**
+   - Frontend: `http://localhost:3000`
+   - API: `http://localhost:5000/api`
+
+### Production Deployment
+
+1. **Build the frontend**
+
+   ```bash
+   cd casestrainer-vue-new
+   npm run build
+   cd ..
+   ```
+
+2. **Start the production server**
+
+   ```bash
+   # Using the production script (includes Nginx)
+   .\start_casestrainer.bat
+   ```
+
+3. **Access the application**
+   - Main URL: `https://your-domain.com/casestrainer`
+   - API: `https://your-domain.com/casestrainer/api`
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Key environment variables (set in `.env`):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `FLASK_APP` | Yes | Set to `app_vue.py` |
+| `FLASK_ENV` | Yes | `development` or `production` |
+| `SECRET_KEY` | Yes | Secret key for session encryption |
+| `COURTLISTENER_API_KEY` | Yes | API key for CourtListener v4 |
+| `DATABASE_URL` | No | Database connection string (default: SQLite) |
+| `UPLOAD_FOLDER` | No | Path for file uploads (default: `./uploads`) |
+| `MAX_CONTENT_LENGTH` | No | Max file upload size (default: 16MB) |
+
+### Setting Up API Keys
+
+1. **CourtListener API**
+   - Get your API key from [CourtListener](https://www.courtlistener.com/api/)
+   - Only v4 of the API is supported
+
+2. **Other Services**
+   - LangSearch (optional): Set `LANGSEARCH_API_KEY`
+   - Other integrations: Refer to respective documentation
+
+## 🛠 Development
+
+### Project Structure
+
+```text
+CaseStrainer/
+├── casestrainer-vue-new/  # Vue 3 frontend
+│   ├── src/               # Source files
+│   ├── public/            # Static files
+│   └── package.json       # Frontend dependencies
+├── app/                   # Flask application
+├── static/                # Static files (served by Flask)
+├── templates/             # Server-side templates
+├── migrations/            # Database migrations
+├── scripts/               # Utility scripts
+└── tests/                 # Test suite
 ```
 
-This will check that all required environment variables are properly set and display their values (without showing sensitive information).
+### Common Tasks
+
+```bash
+# Run tests
+pytest
+
+# Lint code
+flake8 .
+
+# Format code
+black .
+
+# Update dependencies
+pip freeze > requirements.txt
+```
+
+## 📚 Documentation
+
+- [Deployment Guide](./DEPLOYMENT.md) - Production deployment instructions
+- [API Documentation](./docs/API.md) - API endpoints and usage
+- [Frontend Guide](./casestrainer-vue-new/README.md) - Vue.js development guide
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Getting Started
 

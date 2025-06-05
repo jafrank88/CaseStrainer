@@ -6,8 +6,6 @@ This creates a dataset of 100+ unconfirmed citations that can be used to test th
 import os
 import json
 import random
-import string
-from datetime import datetime, timedelta
 
 # Directory to save generated citations
 DOWNLOAD_DIR = os.path.join(

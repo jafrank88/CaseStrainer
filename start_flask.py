@@ -3,8 +3,7 @@ import sys
 import subprocess
 import time
 import threading
-from pathlib import Path
-from typing import Optional, Callable, Any, List
+from typing import Callable, Any
 
 
 class TimeoutError(Exception):
@@ -123,7 +122,7 @@ def start_flask_app(timeout: int = 30) -> None:
         while time.time() - start_time < timeout:
             if check_port_in_use(5000, timeout=2):
                 print("\nFlask application started successfully!")
-                print(f"Access the application at: http://localhost:5000")
+                print("Access the application at: http://localhost:5000")
                 print("Press Ctrl+C to stop the application\n")
 
                 # Stream the output

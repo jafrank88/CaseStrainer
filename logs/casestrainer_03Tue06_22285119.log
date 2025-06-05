@@ -1,0 +1,6 @@
+Tue 06/03/2025 22:28:51.25 [SUCCESS] Production environment configured 
+Tue 06/03/2025 22:28:51.27 [INFO] Starting backend service 
+Tue 06/03/2025 22:28:51.41 [SUCCESS] Nginx configuration test passed 
+Tue 06/03/2025 22:28:51.45 [INFO] Stopping frontend service 
+Tue 06/03/2025 22:28:52.13 [INFO] Starting frontend service 
+Tue 06/03/2025 22:28:52.15 [ERROR] Failed to start frontend 

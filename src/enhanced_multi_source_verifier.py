@@ -303,7 +303,6 @@ class EnhancedMultiSourceVerifier:
                         logger.warning(f"Error adding column {col_name}: {e}")
 
             # Always use citation_text as the column name for consistency
-            citation_col = "citation_text"
 
             # Prepare the data for insertion/update
             case_name = result.get("case_name", "")
@@ -1958,7 +1957,6 @@ class EnhancedMultiSourceVerifier:
             add_verification_step("cache", False, f"Cache error: {str(e)}")
 
         # Try database lookup with multiple strategies
-        db_verified = False
         try:
             # Try exact match first
             db_result = self._check_database(normalized_citation)
@@ -1990,14 +1988,12 @@ class EnhancedMultiSourceVerifier:
                 False,
                 "Citation not found in database - trying other sources",
             )
-            db_verified = False
 
         except Exception as e:
             logger.warning(f"Database lookup failed: {str(e)}")
             add_verification_step(
                 "database", False, f"Database error: {str(e)} - trying other sources"
             )
-            db_verified = False
 
         # Try CourtListener API if available
         if self.courtlistener_api_key:
@@ -2030,11 +2026,11 @@ class EnhancedMultiSourceVerifier:
                         f"CourtListener verification did not find citation: {normalized_citation}"
                     )
                     add_verification_step(
-                        "courtlistener", False, f"Citation not found in CourtListener"
+                        "courtlistener", False, "Citation not found in CourtListener"
                     )
             except requests.exceptions.RequestException as e:
                 logger.warning(f"CourtListener API request failed: {str(e)}")
-                add_verification_step("courtlistener", False, f"API request failed")
+                add_verification_step("courtlistener", False, "API request failed")
             except json.JSONDecodeError as e:
                 logger.warning(f"Failed to parse CourtListener API response: {str(e)}")
                 add_verification_step(
@@ -2045,7 +2041,7 @@ class EnhancedMultiSourceVerifier:
                     f"Unexpected error in CourtListener verification: {str(e)}",
                     exc_info=True,
                 )
-                add_verification_step("courtlistener", False, f"Verification error")
+                add_verification_step("courtlistener", False, "Verification error")
 
         # Try LangSearch API if available
         if self.langsearch_api_key:
@@ -2091,7 +2087,7 @@ class EnhancedMultiSourceVerifier:
                     f"Unexpected error in LangSearch verification: {str(e)}",
                     exc_info=True,
                 )
-                add_verification_step("langsearch", False, f"Verification error")
+                add_verification_step("langsearch", False, "Verification error")
 
         # Try fuzzy matching as last resort
         try:
@@ -2103,7 +2099,7 @@ class EnhancedMultiSourceVerifier:
                 add_verification_step("fuzzy", False, "No fuzzy match found")
         except Exception as e:
             logger.warning(f"Fuzzy matching failed: {str(e)}")
-            add_verification_step("fuzzy", False, f"Fuzzy matching error")
+            add_verification_step("fuzzy", False, "Fuzzy matching error")
 
         # Add any metadata we have from the citation
         if "metadata" not in result:

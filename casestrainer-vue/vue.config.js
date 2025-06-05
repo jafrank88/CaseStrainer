@@ -1,9 +1,14 @@
 module.exports = {
+  // Set base URL for production
+  publicPath: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/',
+  
   devServer: {
+    port: process.env.VUE_APP_DEV_PORT || 3000,
+    host: '0.0.0.0',
     proxy: {
       // For development - proxy /api to backend
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',  // Changed to match your Flask backend port
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/casestrainer/api'  // Add casestrainer prefix for development
@@ -27,7 +32,7 @@ module.exports = {
     },
     allowedHosts: 'all',
     host: '0.0.0.0',
-    port: 8080,
+    port: 3000,  // Changed from 8080 to 3000 to avoid conflicts
     client: {
       webSocketURL: 'auto://0.0.0.0:0/ws'
     },

@@ -35,7 +35,6 @@ def extract_with_textract():
         import pip
 
         pip.main(["install", "textract"])
-        import textract
 
         print("Textract installed successfully")
         return True

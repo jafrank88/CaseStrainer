@@ -11,7 +11,6 @@ in the production environment.
 import os
 import sys
 import argparse
-import importlib.util
 import traceback
 
 # Parse command line arguments

@@ -13,7 +13,6 @@ import re
 import logging
 import time
 import random
-from datetime import datetime
 import PyPDF2
 
 # Configure logging
@@ -499,7 +498,7 @@ def main():
     )
     logger.info(f"Found {len(all_unconfirmed_citations)} unconfirmed citations")
 
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Found {len(all_multitool_citations)} citations verified with multitool")
     print(f"Found {len(all_unconfirmed_citations)} unconfirmed citations")
 

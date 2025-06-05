@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src"
 
 def list_routes():
     try:
-        from flask import Flask, jsonify
         from src.app_final import create_app
 
         print("Creating app instance...")

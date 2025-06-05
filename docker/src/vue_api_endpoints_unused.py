@@ -7,10 +7,8 @@ for the Multitool Confirmed and Unconfirmed Citations tabs.
 
 from flask import Blueprint, jsonify, request
 import os
-import json
 import sqlite3
 import importlib.util
-import sys
 from datetime import datetime, timedelta
 
 # Create a Blueprint for the Vue.js API endpoints

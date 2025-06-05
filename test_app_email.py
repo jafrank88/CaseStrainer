@@ -4,7 +4,7 @@ Test email functionality using the application's configuration.
 
 import os
 import sys
-from flask import Flask, current_app
+from flask import Flask
 from flask_mail import Mail, Message
 
 # Add the project root to Python path
@@ -21,7 +21,6 @@ from src.config import (
     MAIL_PASSWORD,
     MAIL_DEFAULT_SENDER,
     MAIL_RECIPIENT,
-    MAIL_DEBUG,
 )
 
 

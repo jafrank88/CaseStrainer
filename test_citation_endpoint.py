@@ -36,7 +36,7 @@ def test_citation():
     data = {"citation": citation}
 
     print("=" * 50)
-    print(f"TESTING CITATION VERIFICATION ENDPOINT")
+    print("TESTING CITATION VERIFICATION ENDPOINT")
     print("=" * 50)
     print(f"Target URL: {url}")
     print(f"Citation: {citation}")
@@ -50,7 +50,7 @@ def test_citation():
         response = requests.post(url, json=data, headers=headers, timeout=30)
 
         # Print response details
-        print(f"\nRESPONSE RECEIVED")
+        print("\nRESPONSE RECEIVED")
         print("-" * 50)
         print(f"Status Code: {response.status_code}")
         print(f"Response Headers: {dict(response.headers)}")

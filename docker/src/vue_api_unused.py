@@ -3,10 +3,8 @@ API endpoints for the Vue.js frontend.
 This module provides the API endpoints needed by the Vue.js frontend.
 """
 
-from flask import Blueprint, request, jsonify, redirect, current_app
+from flask import Blueprint, request, jsonify, current_app
 import os
-import json
-import sqlite3
 from werkzeug.utils import secure_filename
 import logging
 

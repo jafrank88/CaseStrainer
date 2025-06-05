@@ -6,7 +6,6 @@ to D:\CaseStrainer\downloaded_briefs, extracts citations, and adds them to the C
 """
 
 import os
-import sys
 import json
 import logging
 import sqlite3
@@ -15,7 +14,6 @@ import re
 import uuid
 import shutil
 from datetime import datetime
-from pathlib import Path
 import importlib.util
 from tqdm import tqdm
 
@@ -321,7 +319,7 @@ def process_brief(brief_path):
     try:
         # Extract court and case information from the file path
         path_parts = brief_path.split(os.sep)
-        court_id = path_parts[-2] if len(path_parts) > 1 else "Unknown"
+        path_parts[-2] if len(path_parts) > 1 else "Unknown"
         file_name = os.path.basename(brief_path)
 
         # Create a file link for the brief
@@ -404,8 +402,8 @@ def save_unverified_citations(unverified_citations):
         # Also save a report with statistics
         report_path = os.path.join(RESULTS_DIR, "citation_processing_report.txt")
         with open(report_path, "w", encoding="utf-8") as f:
-            f.write(f"Citation Processing Report\n")
-            f.write(f"=========================\n\n")
+            f.write("Citation Processing Report\n")
+            f.write("=========================\n\n")
             f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write(f"Total unverified citations: {len(unverified_citations)}\n\n")
 
@@ -415,7 +413,7 @@ def save_unverified_citations(unverified_citations):
                 error = citation["verification_result"].get("error", "Unknown error")
                 error_counts[error] = error_counts.get(error, 0) + 1
 
-            f.write(f"Error breakdown:\n")
+            f.write("Error breakdown:\n")
             for error, count in error_counts.items():
                 f.write(f"  - {error}: {count}\n")
 

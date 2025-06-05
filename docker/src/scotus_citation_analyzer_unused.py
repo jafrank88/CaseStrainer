@@ -6,7 +6,6 @@ extracts citations, verifies them, and records unverified citations with context
 """
 
 import os
-import sys
 import json
 import requests
 import traceback
@@ -15,7 +14,7 @@ import random
 import re
 import csv
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse, parse_qs
+from urllib.parse import urljoin, urlparse
 import PyPDF2
 
 # Try to import eyecite for citation extraction

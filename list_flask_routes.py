@@ -1,6 +1,5 @@
 import sys
 import os
-from flask import Flask, url_for
 
 
 def list_routes(app):

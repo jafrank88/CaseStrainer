@@ -2,8 +2,6 @@
 
 import json
 import requests
-import os
-import sys
 
 # Import eyecite for citation extraction
 try:

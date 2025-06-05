@@ -112,9 +112,9 @@ if !ERRORLEVEL! == 0 (
 )
 
 REM Step 1.5: Build the Vue.js frontend if source files are newer than dist
-pushd casestrainer-vue
+pushd casestrainer-vue-new
 if not exist "package.json" (
-    echo ERROR: package.json not found in casestrainer-vue. Cannot build frontend.
+    echo ERROR: package.json not found in casestrainer-vue-new. Cannot build frontend.
     popd
     goto vue_build_fail
 )
@@ -128,7 +128,7 @@ REM Find newest file in src and dist, suppress 'File Not Found' errors
 set "NEWESTSRC="
 for /f "delims=" %%F in ('dir /b /s /a-d src 2^>nul') do set "NEWESTSRC=%%F"
 if not defined NEWESTSRC (
-    echo ERROR: No source files found in casestrainer-vue\src. Cannot build frontend.
+    echo ERROR: No source files found in casestrainer-vue-new\src. Cannot build frontend.
     popd
     goto vue_build_fail
 )

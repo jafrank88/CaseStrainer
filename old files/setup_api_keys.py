@@ -14,7 +14,6 @@ The script will prompt for API keys and test them to ensure they work correctly.
 """
 
 import os
-import sys
 import json
 import argparse
 from pathlib import Path

@@ -1,41 +1,61 @@
 # CaseStrainer Deployment Guide
 
----
 ## Quick Start for New Contributors
 
-- **Use `commit_push_and_deploy.bat` for standard deployments** - Handles git operations and starts the application
-- **Use `start_casestrainer.bat` for development/restarts** - Just starts the application
-- **Build the Vue.js frontend with `build_and_deploy_vue.bat`** - Only needed for frontend changes
-- **All API endpoints use `/casestrainer/api/` prefix** - Configured in Nginx and Flask
-- **Copy `.env.example` to `.env` and fill in your secrets** - Never commit real secrets!
-- **Install pre-commit hooks** for code quality:
+- **Use only `start_casestrainer.bat` to start/restart the backend and Nginx**
+- **Build the Vue 3 frontend with `build_and_deploy_vue.bat`**
+- **All API endpoints must use the `/casestrainer/api/` prefix**
+- **Copy `.env.example` to `.env` and fill in your secrets**
+  - Never commit real secrets!
+  - `.env` is already in `.gitignore`
+- **Install pre-commit hooks** for code quality and security:
+
   ```bash
   pip install pre-commit
   pre-commit install
   pre-commit run --all-files
   ```
-- **Check logs in the `logs/` directory** if issues arise
+
+- **Check logs** in the `logs/` directory if issues arise
 - **Nginx logs** are in `nginx-1.27.5/logs/`
 
----
+## Overview
 
-This document provides comprehensive instructions for deploying and maintaining the CaseStrainer application with its Vue.js frontend.
+This document provides comprehensive deployment instructions for the CaseStrainer application, including both the Flask backend and Vue 3 frontend. The application is designed to run on Windows with Nginx as a reverse proxy.
+
+> **IMPORTANT**: The Vue 3 frontend is now the default interface, located in the `casestrainer-vue-new` directory. The legacy jQuery interface has been removed.
 
 ## Deployment Architecture
 
 CaseStrainer uses a multi-tier architecture:
 
-1. **Frontend**: Vue.js application served by Flask
-2. **Backend**: Flask application with RESTful API endpoints
-3. **Proxy**: Windows Nginx (v1.27.5) for external HTTPS access
+1. **Frontend Build**: The Vue.js application is built into static files located in `casestrainer-vue-new/dist/`
+2. **Flask Serving**: The Flask application serves these static files and handles API requests
+3. **Nginx Proxy**: External requests are proxied through Nginx for HTTPS termination and load balancing
 4. **Database**: SQLite database for citation storage
 5. **SSL/TLS**: Managed by Nginx with Let's Encrypt certificates
 
+### Directory Structure
+
+```text
+CaseStrainer/
+├── casestrainer-vue-new/    # Vue 3 frontend source
+│   ├── src/                 # Vue source files
+│   ├── public/              # Static assets
+│   └── package.json         # Frontend dependencies
+├── src/                     # Python backend
+│   ├── app_final_vue.py     # Main Flask application
+│   └── ...
+├── nginx-1.27.5/           # Nginx installation
+└── logs/                    # Application logs
+```
+
 ### Access Points
-- **Main Application**: https://wolf.law.uw.edu/casestrainer/
-- **API Endpoint**: https://wolf.law.uw.edu/casestrainer/api/analyze (proxied to http://localhost:5000/api/analyze)
-- **Local Development**: http://localhost:5000/
-  - Local API: http://localhost:5000/api/...
+
+- **Main Application**: `https://wolf.law.uw.edu/casestrainer/`
+- **API Endpoint**: `https://wolf.law.uw.edu/casestrainer/api/analyze` (proxied to `http://localhost:5000/api/analyze`)
+- **Local Development**: `http://localhost:5000/`
+  - Local API: `http://localhost:5000/api/...`
 
 ## System Requirements
 
@@ -62,27 +82,30 @@ For local development without Nginx:
 ```
 
 This will:
+
 - Stop any running Python processes on port 5000
 - Install/update Python dependencies
-- Start the Flask development server on http://localhost:5000/
+- Start the Flask development server on [http://localhost:5000/](http://localhost:5000/)
 
 ### 2. Production Deployment with Nginx
 
 For production deployment with HTTPS:
 
 1. Run the deployment script:
+
    ```powershell
    .\commit_push_and_deploy.bat
    ```
-   
+
    This will:
+
    - Commit and push changes to git
    - Stop any running Nginx instances
    - Start the Flask application on port 5000
    - Start Nginx with the proper configuration
 
 2. Verify the deployment:
-   - Access the application at https://wolf.law.uw.edu/casestrainer/
+   - Access the application at `https://wolf.law.uw.edu/casestrainer/`
    - Check Nginx logs at `nginx-1.27.5/logs/casestrainer_error.log`
    - Check application logs in the `logs/` directory
 
@@ -103,20 +126,25 @@ tasklist | findstr nginx
 
 ## Access URLs
 
-- **External access** (through Nginx proxy): https://wolf.law.uw.edu/casestrainer/
-- **Local access** (direct): http://127.0.0.1:5000/
+- **External access** (through Nginx proxy): `https://wolf.law.uw.edu/casestrainer/`
+- **Local access** (direct): `http://127.0.0.1:5000/`
 
 ## Frontend Deployment
 
-See `docs/DEPLOYMENT_VUE.md` for instructions on building and deploying the Vue.js frontend.
+See [Vue.js Deployment Guide](docs/DEPLOYMENT_VUE.md) for instructions on building and deploying the Vue.js frontend.
 
 ## Troubleshooting
-- If you see a 502 Bad Gateway error, check that the Flask application is running on port 5000 and Nginx is properly configured.
-- If you see path or 404 errors, ensure the Nginx proxy and frontend are using the `/casestrainer` prefix and API endpoints are under `/casestrainer/api/`.
+
+Common issues and solutions:
+
+- **502 Bad Gateway**: Check that the Flask application is running on port 5000 and Nginx is properly configured.
+- **404 Not Found**: Ensure the Nginx proxy and frontend are using the `/casestrainer` prefix and API endpoints are under `/casestrainer/api/`.
+- **405 Method Not Allowed**: Verify that the correct HTTP method is being used for each endpoint.
 
 ## API Configuration
 
 ### Base Path
+
 All API endpoints use the `/casestrainer/api/` prefix. Example endpoints:
 
 - **File Analysis**: `POST /casestrainer/api/analyze`
@@ -124,27 +152,30 @@ All API endpoints use the `/casestrainer/api/` prefix. Example endpoints:
 - **URL Analysis**: `POST /casestrainer/api/analyze`
 
 ### Important Notes
-1. **Frontend Configuration**:
-   - Must use absolute paths with the `/casestrainer` prefix
-   - API requests should be made to `/casestrainer/api/*`
 
-2. **Backend Configuration**:
-   - Flask routes are registered with the `/api` prefix in `app_final_vue.py`
-   - Nginx handles the `/casestrainer` prefix
+## Frontend Configuration
 
-3. **Troubleshooting**:
-   - 404 errors: Check path prefixes in both frontend and backend
-   - 405 Method Not Allowed: Verify the HTTP method matches the endpoint
-   - 502 Bad Gateway: Ensure Flask is running on port 5000
+- Must use absolute paths with the `/casestrainer` prefix
+- API requests should be made to `/casestrainer/api/*`
+
+## Backend Configuration
+
+- Flask routes are registered with the `/api` prefix in `app_final_vue.py`
+- Nginx handles the `/casestrainer` prefix
+
+## Troubleshooting Common Issues
+
+- **404 errors**: Check path prefixes in both frontend and backend
+- **405 Method Not Allowed**: Verify the HTTP method matches the endpoint
+- **502 Bad Gateway**: Ensure Flask is running on port 5000
 
 ### Startup Script
 
 Always use `start_casestrainer.bat` to start or restart the application. All other batch files are archived and unsupported.
-- For SSL/HTTPS issues, verify your Nginx SSL configuration matches the documented paths and certificates.
 
 ## Configuration Files
 
-### 1. Application Configuration
+### Application Configuration
 
 The application uses a `config.json` file in the project root for configuration:
 
@@ -170,7 +201,7 @@ server {
     # SSL configuration
     ssl_certificate D:/CaseStrainer/ssl/WolfCertBundle.crt;
     ssl_certificate_key D:/CaseStrainer/ssl/wolf.law.uw.edu.key;
-    
+
     # Proxy configuration for /casestrainer/
     location /casestrainer/ {
         proxy_pass http://127.0.0.1:5000;
@@ -181,23 +212,27 @@ server {
 ```
 
 ### Key Settings
+
 - **SSL Certificates**: Located at `D:/CaseStrainer/ssl/`
 - **Proxy Target**: `http://127.0.0.1:5000`
 - **URL Prefix**: `/casestrainer`
 - **Headers**: `X-Forwarded-Prefix` is set for proper URL generation
 
-### Important Notes
+### Nginx Configuration Notes
+
 1. **No Trailing Slash**: The `proxy_pass` directive should NOT have a trailing slash
 2. **Required Headers**: `X-Forwarded-Prefix` is essential for proper URL generation
 3. **Hostnames**: All possible hostnames are included in `server_name`
 
 ## Troubleshooting
 
+
 ### Common Issues
 
-#### 1. 502 Bad Gateway
+#### 502 Bad Gateway
 - **Cause**: Flask application not running or not accessible on port 5000
 - **Solution**:
+
   ```powershell
   # Check if Flask is running
   netstat -ano | findstr :5000
@@ -206,14 +241,16 @@ server {
   python src/app_final_vue.py --host=0.0.0.0 --port=5000
   ```
 
-#### 2. 404 Not Found
+#### 404 Not Found
+
 - **Cause**: Incorrect URL path or Nginx configuration
 - **Solution**:
   - Verify the URL includes `/casestrainer/` prefix
   - Check Nginx configuration for proper `proxy_pass` settings
   - Ensure Flask routes are correctly prefixed with `/api`
 
-#### 3. 405 Method Not Allowed
+#### 405 Method Not Allowed
+
 - **Cause**: Incorrect HTTP method used for the endpoint
 - **Solution**:
   - Check the API documentation for the correct HTTP method
@@ -222,35 +259,46 @@ server {
 ### Log Files
 
 1. **Nginx Error Log**:
-   ```
+
+   ```plaintext
    nginx-1.27.5/logs/casestrainer_error.log
    ```
 
 2. **Application Logs**:
-   ```
+
+   ```plaintext
    logs/casestrainer.log
    ```
 
 3. **Windows Event Log**:
+
    - Check for system-level errors related to Nginx or Python
+
+## Service Management
 
 ### Restarting Services
 
-1. **Full Restart**:
-   ```powershell
-   # Stop all services
-   taskkill /F /IM nginx.exe
-   taskkill /F /IM python.exe
-   
-   # Start services
-   .\commit_push_and_deploy.bat
-   ```
+#### Full Restart
 
-2. **Nginx Only**:
-   ```powershell
-   taskkill /F /IM nginx.exe
-   Start-Process -FilePath ".\nginx-1.27.5\nginx.exe" -NoNewWindow
-   ```
+```powershell
+# Stop all services
+taskkill /F /IM nginx.exe
+taskkill /F /IM python.exe
+
+# Start services
+.\commit_push_and_deploy.bat
+```
+
+#### Nginx Only
+
+```powershell
+# Stop Nginx
+taskkill /F /IM nginx.exe
+
+# Start Nginx
+Start-Process -FilePath ".\nginx-1.27.5\nginx.exe" -NoNewWindow
+```
+
 
 ### Application Errors
 

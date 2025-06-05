@@ -1,6 +1,5 @@
 import shutil
 import os
-import glob
 
 
 def copy_vue_static():

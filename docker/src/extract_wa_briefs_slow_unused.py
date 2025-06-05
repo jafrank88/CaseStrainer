@@ -12,11 +12,9 @@ import sys
 import json
 import requests
 import re
-import traceback
 import time
 import random
 import logging
-from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 

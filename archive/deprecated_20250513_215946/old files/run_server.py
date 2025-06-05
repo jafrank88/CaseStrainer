@@ -4,8 +4,6 @@ Script to run the CaseStrainer web application using Waitress.
 This allows multiple users to use the site simultaneously.
 """
 
-import os
-import sys
 import argparse
 from waitress import serve
 from app import app

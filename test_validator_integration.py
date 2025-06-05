@@ -11,13 +11,12 @@ This script tests the core functionality of the enhanced validator, including:
 
 import os
 import sys
-import json
 import logging
 import unittest
 import tempfile
 import shutil
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any
 
 # Configure logging
 logging.basicConfig(

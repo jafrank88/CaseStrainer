@@ -14,7 +14,7 @@ import os
 import random
 import re
 import sys
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 # Try to import scientific computing libraries
 try:
@@ -340,7 +340,6 @@ def calculate_similarity(text1: str, text2: str) -> float:
     if text1 == text2:
         return 1.0
 
-    similarity_method = "simple"
 
     if SCIENTIFIC_LIBS_AVAILABLE:
         # Use TF-IDF and cosine similarity
@@ -353,7 +352,6 @@ def calculate_similarity(text1: str, text2: str) -> float:
 
             # Calculate cosine similarity
             similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-            similarity_method = "tfidf"
 
             # Ensure the similarity is within bounds
             similarity = max(0.0, min(similarity, 1.0))
@@ -714,7 +712,7 @@ def analyze_brief(
             norm = citation.strip().lower()
 
             # Remove all spaces
-            no_spaces = re.sub(r"\s+", "", norm)
+            re.sub(r"\s+", "", norm)
 
             # For WestLaw citations (e.g., 2018 WL 3037217)
             wl_match = re.search(r"(\d{4})(?:\s*W\.?\s*L\.?\s*)(\d+)", norm)
@@ -742,7 +740,7 @@ def analyze_brief(
         total_unique = len(unique_citations)
 
         print(f"\nFound {total_unique} unique citations in the document")
-        print(f"Starting citation verification process...\n")
+        print("Starting citation verification process...\n")
 
         for i, citation in enumerate(unique_citations, 1):
             print(f"Checking citation {i}/{total_unique}: {citation}")
@@ -757,7 +755,7 @@ def analyze_brief(
 
                 if is_westlaw:
                     print(
-                        f"  ! This is a WestLaw (WL) citation which cannot be reliably verified with CourtListener"
+                        "  ! This is a WestLaw (WL) citation which cannot be reliably verified with CourtListener"
                     )
                     exists = False
                     case_data = None
@@ -767,7 +765,7 @@ def analyze_brief(
                     exists, case_data = search_citation(citation)
 
                     if exists:
-                        print(f"  ✓ Case found in CourtListener")
+                        print("  ✓ Case found in CourtListener")
                         # Generate summary from CourtListener data
                         from courtlistener_integration import get_case_details
 
@@ -802,7 +800,7 @@ def analyze_brief(
                         ):
                             insufficient_data = True
                             print(
-                                f"  ! Warning: Case data is insufficient for verification"
+                                "  ! Warning: Case data is insufficient for verification"
                             )
 
                         # Create result
@@ -823,17 +821,17 @@ def analyze_brief(
                         print(f"Citation: {citation}")
                         if insufficient_data:
                             print(
-                                f"Status: ⚠ POTENTIALLY HALLUCINATED (insufficient data)"
+                                "Status: ⚠ POTENTIALLY HALLUCINATED (insufficient data)"
                             )
-                            print(f"Confidence: Medium")
+                            print("Confidence: Medium")
                         else:
-                            print(f"Status: ✓ VERIFIED (found in CourtListener)")
-                            print(f"Confidence: High")
+                            print("Status: ✓ VERIFIED (found in CourtListener)")
+                            print("Confidence: High")
                         print("-------------------------------------------\n")
 
                         # Generate multiple summaries for display
                         try:
-                            print(f"  Generating additional summaries for display...")
+                            print("  Generating additional summaries for display...")
                             summaries = generate_multiple_summaries(
                                 citation, num_iterations
                             )
@@ -875,7 +873,7 @@ def analyze_brief(
                                 """
 
                         # Add summaries section to the HTML
-                        html_result += f"""
+                        html_result += """
                         <div class="summaries-container">
                             <h4>Generated Summaries:</h4>
                             <div class="summaries-accordion">
@@ -921,16 +919,16 @@ def analyze_brief(
                         continue
                     else:
                         print(
-                            f"  ✗ Case not found in CourtListener, trying LangSearch..."
+                            "  ✗ Case not found in CourtListener, trying LangSearch..."
                         )
                 else:
-                    print(f"  ! CourtListener not available, trying LangSearch...")
+                    print("  ! CourtListener not available, trying LangSearch...")
 
                 # If not found in CourtListener, use LangSearch to generate multiple summaries and compare them
                 if "LANGSEARCH_AVAILABLE" in globals() and LANGSEARCH_AVAILABLE:
                     try:
                         print(
-                            f"  Using LangSearch to generate multiple summaries for comparison..."
+                            "  Using LangSearch to generate multiple summaries for comparison..."
                         )
 
                         # Generate multiple summaries using LangSearch
@@ -979,13 +977,13 @@ def analyze_brief(
                         # Print result immediately
                         print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
                         print(f"Citation: {citation}")
-                        print(f"Status: ✓ VERIFIED (found via LangSearch)")
-                        print(f"Confidence: Medium")
+                        print("Status: ✓ VERIFIED (found via LangSearch)")
+                        print("Confidence: Medium")
                         print("-------------------------------------------\n")
 
                         # Generate multiple summaries for display
                         try:
-                            print(f"  Generating additional summaries for display...")
+                            print("  Generating additional summaries for display...")
                             summaries = generate_multiple_summaries(
                                 citation, num_iterations
                             )
@@ -1048,11 +1046,11 @@ def analyze_brief(
                         continue
                     except Exception as e:
                         print(f"  ! LangSearch check failed: {str(e)}")
-                        print(f"  Falling back to summary comparison method...")
+                        print("  Falling back to summary comparison method...")
 
                 # For WestLaw citations, mark as unable to verify
                 if is_westlaw:
-                    print(f"  WestLaw citations cannot be reliably verified")
+                    print("  WestLaw citations cannot be reliably verified")
 
                     # Create a result indicating the citation cannot be verified
                     result = {
@@ -1071,9 +1069,9 @@ def analyze_brief(
                     # Print result immediately
                     print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
                     print(f"Citation: {citation}")
-                    print(f"Status: ! UNABLE TO VERIFY (WestLaw citation)")
+                    print("Status: ! UNABLE TO VERIFY (WestLaw citation)")
                     print(
-                        f"Note: WestLaw citations require access to the WestLaw database"
+                        "Note: WestLaw citations require access to the WestLaw database"
                     )
                     print("-------------------------------------------\n")
 
@@ -1102,7 +1100,7 @@ def analyze_brief(
                 print(f"Citation: {citation}")
 
                 if result.get("is_hallucinated", False):
-                    print(f"Status: ⚠ POTENTIALLY HALLUCINATED")
+                    print("Status: ⚠ POTENTIALLY HALLUCINATED")
                     print(f"Confidence: {result.get('confidence', 0.0):.2f}")
                     print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
 
@@ -1137,7 +1135,7 @@ def analyze_brief(
                     </div>
                     """
                 else:
-                    print(f"Status: ✓ LIKELY VALID")
+                    print("Status: ✓ LIKELY VALID")
                     print(f"Confidence: {result.get('confidence', 0.0):.2f}")
                     print(f"Similarity Score: {result.get('similarity_score', 'N/A')}")
 
@@ -1183,7 +1181,7 @@ def analyze_brief(
                 results.append(result)
             except Exception as e:
                 print(f"Error checking citation '{citation}': {str(e)}")
-                print(f"Continuing with next citation...")
+                print("Continuing with next citation...")
                 errors.append({"citation": citation, "error": str(e)})
                 # Add a placeholder result to maintain citation count
                 result = {
@@ -1202,7 +1200,7 @@ def analyze_brief(
                 # Print result immediately
                 print(f"\n--- RESULT FOR CITATION {i}/{total_unique} ---")
                 print(f"Citation: {citation}")
-                print(f"Status: ! ERROR CHECKING CITATION")
+                print("Status: ! ERROR CHECKING CITATION")
                 print(f"Error: {str(e)}")
                 print("-------------------------------------------\n")
 
@@ -1374,7 +1372,7 @@ def main():
             return 1
 
         # Print summary to console
-        print(f"\nCaseStrainer Analysis Results:")
+        print("\nCaseStrainer Analysis Results:")
         print(f"Total citations found: {results['total_citations']}")
         print(
             f"Potentially hallucinated citations: {results['hallucinated_citations']}"

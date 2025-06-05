@@ -1,10 +1,8 @@
 import os
-import json
 import time
 import uuid
 import threading
 from flask import Flask, request, jsonify, render_template, send_from_directory
-from pathlib import Path
 
 # Create Flask app
 app = Flask(__name__)

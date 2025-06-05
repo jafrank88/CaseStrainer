@@ -2,8 +2,6 @@
 
 import json
 import requests
-import os
-import sys
 
 # Load API key from config.json
 try:

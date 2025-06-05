@@ -3,7 +3,6 @@ Helper script to set up email configuration for CaseStrainer.
 """
 
 import os
-import sys
 from getpass import getpass
 
 

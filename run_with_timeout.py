@@ -1,8 +1,6 @@
 import subprocess
 import sys
-import time
 import threading
-import os
 
 
 def run_with_timeout(command, timeout_seconds=60):

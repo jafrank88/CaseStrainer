@@ -6,13 +6,10 @@ by finding similar verified citations and applying intelligent correction rules.
 """
 
 import os
-import sys
-import json
 import logging
 import sqlite3
 import re
 from datetime import datetime
-from difflib import SequenceMatcher
 import Levenshtein
 
 # Configure logging

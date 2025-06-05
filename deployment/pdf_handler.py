@@ -1,16 +1,10 @@
 import os
 import sys
-import io
 import tempfile
 import shutil
 import subprocess
-import traceback
 import PyPDF2
-from io import StringIO
-from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
 
 
 def extract_text_from_pdf(file_path):

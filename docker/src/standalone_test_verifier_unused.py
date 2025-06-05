@@ -6,7 +6,6 @@ to ensure it correctly distinguishes between real cases, hallucinations, and typ
 """
 
 import sys
-import json
 import os
 import traceback
 
@@ -17,9 +16,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from enhanced_citation_verifier import MultiSourceVerifier
-except ImportError as e:
+except ImportError:
     print(
-        f"Warning: enhanced_citation_verifier module not found. Enhanced verification will not be available."
+        "Warning: enhanced_citation_verifier module not found. Enhanced verification will not be available."
     )
     # Try to import from simple_citation_verifier instead
     try:
@@ -29,7 +28,7 @@ except ImportError as e:
 
         print("Using SimpleCitationVerifier as a fallback")
     except ImportError:
-        print(f"Error: Could not import any citation verifier module")
+        print("Error: Could not import any citation verifier module")
         traceback.print_exc()
         sys.exit(1)
 

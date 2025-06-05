@@ -11,12 +11,10 @@ import json
 import os
 import sys
 import tempfile
-import argparse
 import time
-from pathlib import Path
 
 # Third-party imports
-from flask import Flask, jsonify, render_template, request, send_from_directory, session
+from flask import Flask, jsonify, render_template, request, send_from_directory
 from flask_cors import CORS
 import uuid
 import threading
@@ -322,7 +320,7 @@ def analyze():
                         norm = citation.strip().lower()
 
                         # Remove all spaces
-                        no_spaces = re.sub(r"\s+", "", norm)
+                        re.sub(r"\s+", "", norm)
 
                         # For WestLaw citations (e.g., 2018 WL 3037217)
                         wl_match = re.search(r"(\d{4})(?:\s*W\.?\s*L\.?\s*)(\d+)", norm)
@@ -436,7 +434,6 @@ def analyze():
                     thread.start()
 
                     # Process each citation and send results as they become available
-                    results = []
                     hallucinated_count = 0
 
                     # Keep-alive timer

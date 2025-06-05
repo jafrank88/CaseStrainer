@@ -11,10 +11,8 @@ by finding similar verified citations and providing "did you mean" alternatives.
 import re
 import json
 import os
-import difflib
 import requests
 from fuzzywuzzy import fuzz
-from collections import defaultdict
 
 # Path to the citation database
 DOWNLOAD_DIR = "downloaded_briefs"

@@ -10,13 +10,10 @@ where even verified citations might contain problematic references.
 """
 
 import os
-import sys
 import json
 import time
-import random
 import requests
 import traceback
-from datetime import datetime
 from bs4 import BeautifulSoup
 
 # Import functions from analyze_more_briefs.py

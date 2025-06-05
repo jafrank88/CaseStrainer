@@ -48,7 +48,7 @@ def test_analyze_text(text):
         response = requests.post(f"{BASE_URL}/analyze", json={"text": text})
         response.raise_for_status()
         result = response.json()
-        logger.info(f"Analysis result for text input:")
+        logger.info("Analysis result for text input:")
         logger.info(f"Status: {result.get('status')}")
         logger.info(f"Analysis ID: {result.get('analysis_id')}")
         return result.get("analysis_id")

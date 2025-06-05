@@ -58,7 +58,15 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory('/casestrainer/'),
-  routes
-})
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // Always scroll to top when navigating
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  }
+});
 
-export default router
+export default router;

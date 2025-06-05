@@ -23,7 +23,7 @@ def main():
             print(f"File exists at absolute path: {absolute_path}")
             pdf_path = absolute_path
         else:
-            print(f"File does not exist at absolute path either.")
+            print("File does not exist at absolute path either.")
             print("Checking Downloads folder...")
             downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
             print(f"Downloads path: {downloads_path}")

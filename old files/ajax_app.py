@@ -1,6 +1,5 @@
 from flask import Flask, request, render_template_string, jsonify
 import os
-import json
 import time
 import uuid
 import threading

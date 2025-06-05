@@ -8,13 +8,10 @@ This script enhances the CaseStrainer database by:
 """
 
 import os
-import sys
-import json
 import logging
 import sqlite3
 import re
 import PyPDF2
-from pathlib import Path
 from datetime import datetime
 import shutil
 from tqdm import tqdm
@@ -348,7 +345,7 @@ def copy_briefs_to_web_directory():
                 if not os.path.exists(d_web_path):
                     shutil.copy2(file_path, d_web_path)
 
-            logger.info(f"Copied briefs to D: drive web directory")
+            logger.info("Copied briefs to D: drive web directory")
 
         return True
 

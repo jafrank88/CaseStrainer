@@ -9,12 +9,9 @@ including citation validation, text analysis, and file uploads.
 import os
 import sys
 import json
-import time
 import logging
 import unittest
 import requests
-from pathlib import Path
-from typing import Dict, Any, Optional, List, Union
 
 # Configure logging
 logging.basicConfig(

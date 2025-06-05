@@ -4,7 +4,6 @@ Simple script to check Flask app initialization and routes.
 
 import os
 import sys
-from flask import Flask
 
 
 def print_environment():

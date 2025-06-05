@@ -1,6 +1,5 @@
 import requests
 import json
-import sys
 
 
 def test_endpoint():
@@ -22,7 +21,7 @@ def test_endpoint():
     print("TESTING CITATION VERIFICATION ENDPOINT")
     print("=" * 80)
     print(f"URL: {url}")
-    print(f"Method: POST")
+    print("Method: POST")
     print(f"Headers: {json.dumps(headers, indent=2)}")
     print(f"Request data: {json.dumps(data, indent=2)}")
     print("-" * 80)

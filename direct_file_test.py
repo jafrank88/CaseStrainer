@@ -1,6 +1,4 @@
 import sys
-import os
-import json
 import logging
 from pathlib import Path
 
@@ -67,7 +65,6 @@ def main():
     # Try to import the specific function we need
     try:
         log("\nTrying to import get_config_value from src.config...")
-        from src.config import get_config_value
 
         log("✅ Successfully imported get_config_value from src.config")
     except Exception as e:

@@ -4,7 +4,6 @@ Copy LangSearch API key from config.json to .env file.
 """
 
 import json
-import os
 from pathlib import Path
 
 

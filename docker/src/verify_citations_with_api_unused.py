@@ -5,14 +5,10 @@ This script verifies citations using the CourtListener API with proper authentic
 and cleans up the unverified citations file to contain only truly unverified citations.
 """
 
-import os
-import sys
 import json
 import requests
 import traceback
 import time
-import random
-import re
 
 # Constants
 UNVERIFIED_CITATIONS_FILE = "fresh_unverified_citations.json"

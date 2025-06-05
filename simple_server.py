@@ -1,6 +1,5 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import socket
-import os
 
 
 def get_local_ip():

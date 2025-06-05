@@ -10,7 +10,6 @@ for the Enhanced Citation Validator to work correctly.
 
 import os
 import sys
-import importlib.util
 
 # Add the current directory to the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +21,7 @@ if current_dir not in sys.path:
 def ensure_module_imported(module_name):
     try:
         # Try to import the module
-        module = __import__(module_name)
+        __import__(module_name)
         print(f"✓ Successfully imported {module_name}")
         return True
     except ImportError as e:

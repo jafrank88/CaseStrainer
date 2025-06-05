@@ -33734,3 +33734,123 @@ static                                             OPTIONS,HEAD,GET     /<path:f
 2025-06-03 17:21:41,182 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (HEAD, GET, OPTIONS)
 2025-06-03 17:21:41,183 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
 2025-06-03 17:21:41,264 | INFO | waitress | Serving on http://0.0.0.0:5001
+2025-06-03 20:44:23,874 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749008663873
+2025-06-03 20:44:23,875 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749008663873
+2025-06-03 20:44:23,878 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-03 20:44:24,765 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-03 20:44:24,766 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749008664766
+2025-06-03 20:44:24,770 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-03 20:44:24,771 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-03 20:44:24,773 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, OPTIONS, HEAD)
+2025-06-03 20:44:24,774 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-03 20:44:24,867 | INFO | waitress | Serving on http://0.0.0.0:5001
+2025-06-03 21:22:08,090 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749010928090
+2025-06-03 21:22:08,092 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749010928090
+2025-06-03 21:22:08,093 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-03 21:22:08,532 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-03 21:22:08,533 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749010928533
+2025-06-03 21:22:08,536 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-03 21:22:08,537 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (OPTIONS, POST)
+2025-06-03 21:22:08,538 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (OPTIONS, GET, HEAD)
+2025-06-03 21:22:08,540 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-03 21:22:08,622 | INFO | waitress | Serving on http://0.0.0.0:5001
+2025-06-03 21:33:58,128 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749011638128
+2025-06-03 21:33:58,130 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749011638128
+2025-06-03 21:33:58,131 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-03 21:33:58,849 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-03 21:33:58,850 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749011638850
+2025-06-03 21:33:58,853 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-03 21:33:58,855 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (OPTIONS, POST)
+2025-06-03 21:33:58,856 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (OPTIONS, HEAD, GET)
+2025-06-03 21:33:58,858 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-03 21:33:58,955 | INFO | waitress | Serving on http://0.0.0.0:5001
+2025-06-03 22:28:53,182 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749014933182
+2025-06-03 22:28:53,183 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749014933182
+2025-06-03 22:28:53,184 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-03 22:28:53,616 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-03 22:28:53,618 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749014933618
+2025-06-03 22:28:53,621 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-03 22:28:53,622 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-03 22:28:53,624 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (HEAD, GET, OPTIONS)
+2025-06-03 22:28:53,626 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-03 22:28:53,711 | INFO | waitress | Serving on http://0.0.0.0:5001
+2025-06-04 13:49:46,749 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749070186749
+2025-06-04 13:49:46,750 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749070186749
+2025-06-04 13:49:46,751 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 13:49:47,188 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 13:49:47,189 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749070187189
+2025-06-04 13:49:47,193 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 13:49:47,195 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-04 13:49:47,196 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (HEAD, OPTIONS, GET)
+2025-06-04 13:49:47,197 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 13:49:47,284 | INFO | waitress | Serving on http://0.0.0.0:5002
+2025-06-04 15:12:46,692 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749075166692
+2025-06-04 15:12:46,693 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749075166692
+2025-06-04 15:12:46,695 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 15:12:47,134 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 15:12:47,135 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749075167135
+2025-06-04 15:12:47,138 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 15:12:47,140 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-04 15:12:47,141 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, OPTIONS, HEAD)
+2025-06-04 15:12:47,143 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 15:12:47,220 | INFO | waitress | Serving on http://0.0.0.0:5002
+2025-06-04 15:50:38,459 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749077438459
+2025-06-04 15:50:38,460 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749077438459
+2025-06-04 15:50:38,461 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 15:50:39,831 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 15:50:39,832 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749077439832
+2025-06-04 15:50:39,835 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 15:50:39,836 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-04 15:50:39,837 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (HEAD, OPTIONS, GET)
+2025-06-04 15:50:39,838 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 15:50:39,919 | INFO | waitress | Serving on http://127.0.0.1:5002
+2025-06-04 16:05:52,226 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749078352226
+2025-06-04 16:05:52,228 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749078352226
+2025-06-04 16:05:52,229 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 16:05:53,027 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 16:05:53,028 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749078353028
+2025-06-04 16:05:53,032 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 16:05:53,033 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-04 16:05:53,034 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, OPTIONS, HEAD)
+2025-06-04 16:05:53,036 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 16:05:53,129 | INFO | waitress | Serving on http://127.0.0.1:5002
+2025-06-04 16:27:36,410 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749079656410
+2025-06-04 16:27:36,412 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749079656410
+2025-06-04 16:27:36,413 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 16:27:37,247 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 16:27:37,248 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749079657248
+2025-06-04 16:27:37,251 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 16:27:37,252 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (POST, OPTIONS)
+2025-06-04 16:27:37,253 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, HEAD, OPTIONS)
+2025-06-04 16:27:37,255 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 16:27:37,342 | INFO | waitress | Serving on http://127.0.0.1:5002
+2025-06-04 16:45:02,231 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749080702231
+2025-06-04 16:45:02,233 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749080702231
+2025-06-04 16:45:02,234 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 16:45:03,050 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 16:45:03,051 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749080703051
+2025-06-04 16:45:03,055 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 16:45:03,056 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (OPTIONS, POST)
+2025-06-04 16:45:03,057 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (OPTIONS, HEAD, GET)
+2025-06-04 16:45:03,058 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 16:45:03,140 | INFO | waitress | Serving on http://127.0.0.1:5002
+2025-06-04 16:53:42,413 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749081222413
+2025-06-04 16:53:42,415 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749081222413
+2025-06-04 16:53:42,416 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 16:53:43,209 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 16:53:43,211 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749081223211
+2025-06-04 16:53:43,214 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 16:53:43,215 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (OPTIONS, POST)
+2025-06-04 16:53:43,217 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, OPTIONS, HEAD)
+2025-06-04 16:53:43,218 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 16:53:43,299 | INFO | waitress | Serving on http://127.0.0.1:5002
+2025-06-04 16:54:47,808 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749081287808
+2025-06-04 16:54:47,809 | INFO | src.enhanced_validator_production | Created new enhanced_validator_bp with name: enhanced_validator_1749081287808
+2025-06-04 16:54:47,810 | INFO | src.enhanced_validator_production | Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02
+2025-06-04 16:54:49,157 | INFO | src.enhanced_validator_production | Registering enhanced_validator blueprint with URL prefix: /api/enhanced
+2025-06-04 16:54:49,158 | INFO | src.enhanced_validator_production | Creating enhanced validator blueprint with name: enhanced_validator_1749081289158
+2025-06-04 16:54:49,161 | INFO | src.enhanced_validator_production | Registered enhanced validator routes:
+2025-06-04 16:54:49,162 | INFO | src.enhanced_validator_production |   enhanced_validator.enhanced_analyze_endpoint: /api/enhanced/analyze (OPTIONS, POST)
+2025-06-04 16:54:49,163 | INFO | src.enhanced_validator_production |   enhanced_validator.static: /api/enhanced/static/<path:filename> (GET, OPTIONS, HEAD)
+2025-06-04 16:54:49,164 | INFO | src.enhanced_validator_production | Enhanced validator registered successfully
+2025-06-04 16:54:49,258 | INFO | waitress | Serving on http://127.0.0.1:5002

@@ -31,11 +31,11 @@ if not exist uploads mkdir uploads
 if not exist casestrainer_sessions mkdir casestrainer_sessions
 
 REM Check if Vue frontend is built
-if not exist casestrainer-vue\dist (
+if not exist casestrainer-vue-new\dist (
     echo.
     echo WARNING: Vue.js frontend build not found!
     echo The CaseStrainer web interface will NOT work until the Vue frontend is built.
-    echo To build the frontend, open a terminal in the 'casestrainer-vue' directory and run:
+    echo To build the frontend, open a terminal in the 'casestrainer-vue-new' directory and run:
     echo     npm install
     echo     npm run build
     echo After building, restart this batch file.

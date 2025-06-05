@@ -1,20 +1,12 @@
 # Standard library imports
 import argparse
-import json
 import logging
 import os
-import sqlite3
 import sys
 import threading
-import time
 import traceback
 import socket
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-
-# Third-party imports
-import requests
-from bs4 import BeautifulSoup
+from datetime import datetime, timezone
 
 # Add project root to Python path only once
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,22 +14,9 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Third-party imports
-from flask import (
-    Flask,
-    jsonify,
-    request,
-    send_from_directory,
-    session,
-    redirect,
-    url_for,
-    send_file,
-)
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_mail import Mail
-from flask_session import Session
-from werkzeug.middleware.proxy_fix import ProxyFix
-from werkzeug.utils import secure_filename
-from concurrent.futures import ThreadPoolExecutor
 
 # Local application imports
 try:
@@ -59,18 +38,7 @@ except ImportError:
     # Fallback for direct execution
     from config import (
         configure_logging,
-        MAIL_SERVER,
-        MAIL_PORT,
-        MAIL_USE_TLS,
-        MAIL_USE_SSL,
-        MAIL_USERNAME,
-        MAIL_PASSWORD,
-        MAIL_DEFAULT_SENDER,
-        MAIL_DEBUG,
-        UPLOAD_FOLDER,
     )
-    from vue_api_endpoints import vue_api
-    from citation_utils import extract_citations_from_text, verify_citation
 
 # Define allowed file extensions
 ALLOWED_EXTENSIONS = {"txt", "pdf", "doc", "docx", "rtf"}
@@ -132,10 +100,10 @@ def create_app():
     app = Flask(
         __name__,
         static_folder=os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "../casestrainer-vue/dist"
+            os.path.dirname(os.path.abspath(__file__)), "../casestrainer-vue-new/dist"
         ),
         template_folder=os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "../casestrainer-vue/dist"
+            os.path.dirname(os.path.abspath(__file__)), "../casestrainer-vue-new/dist"
         ),
         static_url_path="",
     )
@@ -181,7 +149,7 @@ def create_app():
         return response
 
     # Initialize Flask-Mail
-    mail = Mail()
+    Mail()
 
     # Load configuration from config.py
     from src.config import (
@@ -277,7 +245,7 @@ def create_app():
     def get_vue_dist_path():
         """Get the path to the Vue.js distribution directory."""
         return os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "../casestrainer-vue/dist")
+            os.path.join(os.path.dirname(__file__), "../casestrainer-vue-new/dist")
         )
 
     # Serve Vue.js frontend

@@ -14,9 +14,6 @@ import re
 import traceback
 import time
 import random
-from datetime import datetime
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 
 # Import the fixed multi-source verifier
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

@@ -291,7 +291,7 @@ def generate_visualizations(type_stats, flat_citations):
     plt.savefig(f"reports/visualizations/likelihood_distribution_{timestamp}.png")
     plt.close()
 
-    print(f"Visualizations generated in reports/visualizations/")
+    print("Visualizations generated in reports/visualizations/")
 
 
 def main():

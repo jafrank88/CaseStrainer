@@ -7,16 +7,17 @@
 - **Use only `start_casestrainer.bat` to start/restart the backend and Nginx.**
 - **Build the Vue.js frontend with `build_and_deploy_vue.bat`.**
 - **All API endpoints must use the `/casestrainer/api/` prefix.**
-- **Copy `.env.example` to `.env` and fill in your secrets. Never commit real secrets!**
-- **.env is already in .gitignore.**
-- **Install pre-commit hooks for secret scanning and linting:**
+- **Copy `.env.example` to `.env` and fill in your secrets.**
+  - Never commit real secrets!
+  - `.env` is already in `.gitignore`
+- **Install pre-commit hooks** for code quality and security:
   ```bash
   pip install pre-commit
   pre-commit install
   pre-commit run --all-files
   ```
-- **See this file and `../DEPLOYMENT.md` for troubleshooting and rollback.**
-- **Check logs in the `logs/` directory if issues arise.**
+- **Check logs** in the `logs/` directory if issues arise
+- **Nginx logs** are in `nginx-1.27.5/logs/`
 
 ---
 
@@ -26,19 +27,38 @@ This guide provides comprehensive instructions for deploying the Vue.js version 
 
 The Vue.js version of CaseStrainer represents a complete modernization of the application with:
 
-- A modern, responsive user interface built with Vue.js
+- A modern, responsive user interface built with Vue 3 and Composition API
 - Clear separation between frontend and backend (API-driven architecture)
 - Improved maintainability and extensibility
 - Support for all existing features plus planned enhancements
+- Located in the `casestrainer-vue-new/` directory
 
 **IMPORTANT: The Vue.js frontend and backend API are now working correctly and deployed at https://wolf.law.uw.edu/casestrainer/**
 
+### Frontend Structure
+
+```
+casestrainer-vue-new/
+├── src/                # Vue source files
+│   ├── assets/         # Static assets
+│   ├── components/     # Vue components
+│   ├── router/         # Vue Router configuration
+│   ├── store/          # Pinia store modules
+│   ├── views/          # Page components
+│   ├── App.vue         # Root Vue component
+│   └── main.js         # Application entry point
+├── public/             # Static files
+└── package.json        # Dependencies and scripts
+```
+
 ## Prerequisites
 
-- Python 3.8+ with pip
-- Node.js 14+ and npm 6+ (for building the Vue.js frontend)
-- Docker (for the Nginx proxy container)
-- Git (for version control)
+- **Python 3.8+** with pip
+- **Node.js 16+** and npm 8+ (LTS recommended)
+- **Windows Nginx 1.27.5** (included in repository)
+- **Git** for version control
+- **Port 5000** available for Flask
+- **Ports 80/443** available for Nginx (production)
 
 ## Files and Components
 

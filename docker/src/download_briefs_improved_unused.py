@@ -6,7 +6,6 @@ and saves them with unique filenames based on the docket number and brief type.
 """
 
 import os
-import sys
 import json
 import requests
 import traceback
@@ -14,7 +13,7 @@ import time
 import random
 import csv
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse, parse_qs
+from urllib.parse import urljoin, urlparse
 
 # Constants
 BRIEFS_DIR = "downloaded_briefs"

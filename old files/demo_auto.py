@@ -7,7 +7,6 @@ and runs automatically without user input.
 """
 
 # Standard library imports
-import json
 import re
 import sys
 
