@@ -1,6 +1,0 @@
-Wed 06/04/2025 11:18:07.97 [INFO] Stopping all services 
-Wed 06/04/2025 11:18:07.99 [INFO] Stopping backend service 
-Wed 06/04/2025 11:18:08.00 [INFO] Stopping frontend service 
-Wed 06/04/2025 11:18:08.02 [INFO] Stopping Nginx 
-Wed 06/04/2025 11:18:08.12 [INFO] All services stopped 
-Wed 06/04/2025 11:18:16.20 [INFO] Starting Nginx 

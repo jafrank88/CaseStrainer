@@ -1,7 +1,0 @@
-2025-06-02 10:12:28,652 - __main__ - INFO - ================================================================================
-2025-06-02 10:12:28,653 - __main__ - INFO - Python Version: 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]
-2025-06-02 10:12:28,747 - __main__ - INFO - Platform: Windows-2022Server-10.0.20348-SP0
-2025-06-02 10:12:28,748 - __main__ - INFO - Current Working Directory: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
-2025-06-02 10:12:28,748 - __main__ - INFO - Python Path: ['C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\src', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\win32', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\win32\\lib', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\.venv\\Lib\\site-packages\\Pythonwin']
-2025-06-02 10:12:28,750 - __main__ - INFO - ================================================================================
-2025-06-02 10:12:28,751 - __main__ - INFO - Attempting to import app_final_vue...

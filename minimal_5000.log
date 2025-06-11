@@ -1,9 +1,0 @@
-2025-06-03 10:26:03,138 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://10.158.120.151:5000
-2025-06-03 10:26:03,139 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2025-06-03 10:31:01,811 - werkzeug - INFO - 127.0.0.1 - - [03/Jun/2025 10:31:01] "[33mGET /casestrainer/ HTTP/1.1[0m" 404 -
-2025-06-03 10:31:01,856 - werkzeug - INFO - 127.0.0.1 - - [03/Jun/2025 10:31:01] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-2025-06-03 10:31:08,141 - run_minimal_5000 - INFO - Root endpoint was called
-2025-06-03 10:31:08,142 - werkzeug - INFO - 127.0.0.1 - - [03/Jun/2025 10:31:08] "GET / HTTP/1.1" 200 -

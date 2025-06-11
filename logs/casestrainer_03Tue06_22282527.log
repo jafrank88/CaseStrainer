@@ -1,9 +1,0 @@
-Tue 06/03/2025 22:28:34.14 [INFO] User selected menu option: 10 
-Tue 06/03/2025 22:28:34.15 [INFO] Starting Production Restart Workflow 
-Tue 06/03/2025 22:28:44.13 [INFO] Stopping all services 
-Tue 06/03/2025 22:28:45.16 [INFO] Stopping frontend service 
-Tue 06/03/2025 22:28:46.16 [INFO] Stopping Nginx 
-Tue 06/03/2025 22:28:48.19 [SUCCESS] Nginx stopped 
-Tue 06/03/2025 22:28:48.20 [INFO] All services stopped 
-Tue 06/03/2025 22:28:51.15 [SUCCESS] All services stopped 
-Tue 06/03/2025 22:28:51.17 [INFO] Switching to production environment 

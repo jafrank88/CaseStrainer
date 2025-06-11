@@ -1,251 +1,175 @@
-# Legacy Vue.js frontend (kept for reference)
-casestrainer-vue/
-!casestrainer-vue/DEPRECATED.md
+# CaseStrainer .gitignore - Optimized for Vue.js migration
+# Last updated: 2025-06-10
 
-# Nginx log files
-nginx-1.27.5/logs/*.log
+# --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
+node_modules/
+*.tsbuildinfo
+*.pem
+*.crt
+*.key
+docker/ssl/
+# -------------------------------------------------------------------------------
 
-# IDE specific files (safe to ignore)
+#----------------------------------------------
+# DIRECTORIES TO EXCLUDE
+#----------------------------------------------
+
+# Development and runtime directories
+archive/
+__pycache__/
+.cache/
+citation_cache/
+results/
+uploads/
+wa_briefs/
+downloaded_briefs/
+sample_briefs/
+reports/
+word_addin/
+
+# Python build directories
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+
+# Environment directories
+.venv/
+env/
+venv/
+ENV/
+
+# IDE directories
+.idea/
 .vscode/*
 !.vscode/settings.json
-.idea/
 
-# Testing
-.pytest_cache/
-.mypy_cache/
+# Test directories - with specific exceptions
+tests/
+test/
+!tests/test_courtlistener_api.py
+!tests/test_api.py
+!tests/test_enhanced_validator.py
+!tests/test_citation_verification.py
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-# Local development
-# Track .env file but ignore sensitive local overrides
-!.env
-!.env.*
-!.env.*.local
-!*.example
-.env.local
-.env.*.local
-.venv/
-venv/
-env/
-
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Build files (if you don't need to track built files)
-/dist
-/build
-
-# TEMPORARY: All files visible - Original .gitignore rules are commented out below
-# To restore the original .gitignore, uncomment the sections below and remove this header
-
-# Original .gitignore content (commented out):
-# # CaseStrainer .gitignore - Optimized for Vue.js migration
-# # Last updated: 2025-05-22
-#
-# # --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
-# node_modules/
-# *.tsbuildinfo
-# *.pem
-# *.crt
-# *.key
-# docker/ssl/
-# # -------------------------------------------------------------------------------
-#
-# #----------------------------------------------
-# # DIRECTORIES TO EXCLUDE
-# # Allow src/version.txt for dynamic versioning
-# !src/version.txt
-# #----------------------------------------------
-#
-# # Development and runtime directories
-# archive/
-# __pycache__/
-# .cache/
-# citation_cache/
-# results/
-# uploads/
-# wa_briefs/
-# downloaded_briefs/
-# sample_briefs/
-# reports/
-# word_addin/
-# deprecated_scripts/
-# "old files"/
-
-# # Allow archived_batch_files to be included
-# !archived_batch_files/
-
-# # Python build directories
-# build/
-# develop-eggs/
-# dist/
-# downloads/
-# eggs/
-# .eggs/
-# lib/
-# lib64/
-# parts/
-# sdist/
-# var/
-# wheels/
-# *.egg-info/
-
-# # Environment directories
-# .venv/
-# env/
-# venv/
-# ENV/
-
-# # IDE directories
-# .idea/
-# .vscode/
-
-# # Test directories - with specific exceptions
-# tests/
-# test/
-# !test/test_courtlistener_api.py
-# !src/test_api.py
-
-# # Large external libraries
-# python-hyperscan/
-# hyperscan/
-# vcpkg/
+# Large external libraries
+python-hyperscan/
+hyperscan/
+vcpkg/
 
 #----------------------------------------------
 # FILES TO EXCLUDE
 #----------------------------------------------
 
-# # Log files
-# # Allow the logs directory structure but ignore .log files
-# logs/
-# !logs/.gitkeep
-# *.log
+# Log files
+logs/*.log
+*.log
+!logs/.gitkeep
 
-# # Test data files
-# test_*.txt
-# *_test.txt
-# comprehensive_test.txt
-# comprehensive_test_citations.txt
-# test_citations_fixed.txt
-# specific_gaps_test.txt
-# courtlistener_gaps_test.txt
-# extracted_pdf_text.txt
-# extracted_text.txt
-# avianca_extracted_text.txt
+# Test data files
+test_*.txt
+*_test.txt
+comprehensive_test.txt
+comprehensive_test_citations.txt
+test_citations_fixed.txt
+specific_gaps_test.txt
+courtlistener_gaps_test.txt
+extracted_pdf_text.txt
+extracted_text.txt
+avianca_extracted_text.txt
 
-# # Python cache files
-# *.py[cod]
-# *$py.class
-# *.so
-# *.pyc
-# *.pyo
-# *.pyd
+# Python cache files
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+*.pyo
+*.pyd
 
-# # Database files - with exceptions
-# *.db
-# citations.db
+# Database files - with exceptions
+*.db
+!example_citations.db
 
-# # Backup files
-# *.bak
+# Backup files
+*.bak
+*.backup
 
-# # Environment and IDE files
-# .env
-# *.swp
-# *.swo
-# *.sublime-workspace
-# *.sublime-project
+# Environment and IDE files
+.env
+.env.*
+!.env.example
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
 
-# # Batch files - with exceptions for essential scripts
-# *.bat
-# !scripts/*.bat
-# !start_*.bat
-# !restart_*.bat
-# !commit_push_and_deploy.bat
-# !deploy_*.bat
+# Temporary files
+*.tmp
+*.temp
+*~
+.Python
 
-# # JSON files - with exceptions for configuration
-# verification_results.json
-# unverified_citations.json
-# verified_citations.json
-# citations.json
-# truly_unverified_citations.json
-# data/citations/verified_citations.json
+# System files
+.DS_Store
+Thumbs.db
 
-# # Configuration files - with exceptions
-# config/*.conf
+#----------------------------------------------
+# EXCEPTIONS - FILES TO INCLUDE
+#----------------------------------------------
 
-# # Debug files
-# debug_*.py
-# debug_*.log
+# Documentation
+!README.md
+!DEPLOYMENT.md
+!DEPLOYMENT_VUE.md
+!BATCH_FILES.md
+!API_SETUP.md
 
-# # Temporary files
-# *.tmp
-# *.temp
-# *~
-# .Python
+# Configuration files
+!requirements.txt
+!requirements-test.txt
+!config.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!vite.config.js
+!vite.config.ts
+!nginx.conf
+!nginx-*.conf
+!docker-compose.yml
+!Dockerfile
 
-# # System files
-# .DS_Store
-# Thumbs.db
+# Essential scripts
+!scripts/*.bat
+!scripts/*.ps1
+!start_*.bat
+!restart_*.bat
+!commit_push_and_deploy.bat
+!deploy_*.bat
+!launch*.bat
+!launch*.ps1
 
-# # Binary and media files
-# *.png
-# *.csv
-# *.txt
-# cmake.msi
+# Vue.js specific
+!casestrainer-vue-new/src/
+!casestrainer-vue-new/public/
+!casestrainer-vue-new/index.html
+!casestrainer-vue-new/package.json
+!casestrainer-vue-new/vite.config.js
+!casestrainer-vue-new/tsconfig.json
 
-# #----------------------------------------------
-# # EXCEPTIONS - FILES TO INCLUDE
-# #----------------------------------------------
-# 
-# # Documentation
-# !README.txt
-# !DEPLOYMENT.md
-# !DEPLOYMENT_VUE.md
-# !BATCH_FILES.md
-# 
-# # Configuration files
-# !requirements.txt
-# !config.json
-# !package.json
-# !package-lock.json
-# !tsconfig.json
-# !config/template_*.conf
-# 
-# # Example data
-# !example_citations.db
-# 
-# # Essential deployment scripts
-# # Primary deployment scripts
-# !scripts/start_for_nginx.bat
-# !start_casestrainer_new.bat
-# # Build scripts
-# !scripts/build_and_deploy_vue.bat
-# # Fallback/comprehensive script
-# !scripts/start_casestrainer.bat
-# 
-# # Docker and Nginx configuration
-# !docker/nginx.conf
-# !nginx/sites-available/casestrainer.conf
-# !docker/docker-compose.yml
-# !docker/Dockerfile
-# 
-# # Future Vue.js deployment scripts (when implemented)
-# # !start_vue.bat
-# # !install_vue_dependencies.bat
-# # !update_nginx_config.bat
+# Test files that should be tracked
+!tests/conftest.py
+!tests/test_*.py
+!src/test_*.py
 
-
-# # Allow Vue.js build output for troubleshooting
-# !casestrainer-vue/dist/
-# !casestrainer-vue/dist/index.html
-# !casestrainer-vue/dist/js/
-# !casestrainer-vue/dist/js/*
-# !casestrainer-vue/dist/css/
-# !casestrainer-vue/dist/css/*
-# Remove redundant entries
-# The following sections were redundant and have been consolidated above
-vcpkg
+# Allow specific log files for debugging
+!logs/app_startup_*.log
+!logs/casestrainer_*.log

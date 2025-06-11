@@ -1,8 +1,0 @@
-README.md
-setup.py
-src/casestrainer.egg-info/PKG-INFO
-src/casestrainer.egg-info/SOURCES.txt
-src/casestrainer.egg-info/dependency_links.txt
-src/casestrainer.egg-info/requires.txt
-src/casestrainer.egg-info/top_level.txt
-tests/test_enhanced_validator.py

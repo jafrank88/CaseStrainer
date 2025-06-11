@@ -1,6 +1,0 @@
-2025-05-29 12:48:03,543 - src.vue_api_endpoints - INFO - Starting Vue API endpoints. Logging to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\vue_api_20250529_124803.log
-2025-05-29 12:48:04,219 - enhanced_verifier - INFO - Successfully imported original MultiSourceVerifier
-2025-05-29 12:48:06,690 - citation_classifier - INFO - No existing model found
-2025-05-29 12:48:06,744 - src.vue_api_endpoints - INFO - Citation correction engine initialized successfully
-2025-05-29 12:48:07,222 - werkzeug - WARNING -  * Debugger is active!
-2025-05-29 12:48:07,227 - werkzeug - INFO -  * Debugger PIN: 738-247-000
