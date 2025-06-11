@@ -2,6 +2,17 @@
 
 A web application for extracting, analyzing, and validating legal citations from legal documents.
 
+## 📁 Project Structure
+
+- `casestrainer-vue-new/` - Current Vue.js frontend (Vite + Vue 3)
+  - Uses modern tooling and best practices
+  - Active development happens here
+- `casestrainer-vue/` - Legacy Vue.js frontend (deprecated)
+  - Kept for reference only
+  - See [DEPRECATED.md](casestrainer-vue/DEPRECATED.md) for more info
+- `api/` - Backend API server
+- `docs/` - Documentation
+
 ## ✨ Features
 
 ### Modern Web Interface
@@ -354,6 +365,113 @@ The application will be available at:
 - Network: http://your-ip-address:5000
 
 ## Development vs Production
+
+CaseStrainer provides PowerShell-based launchers for both development and production environments:
+
+### Development Environment
+- **Ports**:
+  - Backend: 5001
+  - Frontend: 5173
+- **Features**:
+  - Hot module replacement (HMR)
+  - Debug logging
+  - Detailed error messages
+  - Source maps for debugging
+  - Automatic process management
+
+To start in development mode:
+```powershell
+# Using PowerShell (recommended)
+.\launch.ps1
+
+# Or using the batch file (legacy)
+start_development.bat
+```
+
+### Production Environment
+- **Ports**:
+  - Backend: 5000
+  - Frontend: 80/443 (via Nginx)
+- **Features**:
+  - Optimized builds
+  - Minified assets
+  - Production-grade security
+  - Process monitoring
+  - Automatic health checks
+
+To start in production mode:
+```powershell
+# Using PowerShell (recommended)
+.\launch-production.ps1
+
+# Or using the batch file (legacy)
+start_casestrainer.bat
+```
+
+### Key Differences
+
+| Feature          | Development (`launch.ps1`) | Production (`launch-production.ps1`) |
+|-----------------|---------------------------|-------------------------------------|
+| Backend Server  | Flask dev server          | Waitress WSGI server               |
+| Debug Mode      | Enabled                   | Disabled                           |
+| Logging         | Verbose                  | Production-optimized               |
+| Ports           | 5001 (BE), 5173 (FE)     | 5000 (BE), 80/443 (FE)             |
+| Process Manager | PowerShell               | Systemd/PM2 (in production)        |
+
+
+### Environment Variables
+
+Key environment variables:
+- `NODE_ENV`: Set to 'development' or 'production'
+- `VITE_API_BASE_URL`: Base URL for API requests
+- `FLASK_ENV`: Flask environment ('development' or 'production')
+- `FLASK_DEBUG`: Enable/disable Flask debug mode
+
+### Configuration Files
+- `.env.development`: Development environment variables
+- `.env.production`: Production environment variables (not committed to version control)
+- `vite.config.js`: Development server and build configuration
+- `nginx.conf`: Production web server configuration
+
+### Switching Between Environments
+
+1. **Development to Production**:
+   ```powershell
+   # Stop development servers (Ctrl+C in the terminal)
+   # Build frontend for production
+   cd casestrainer-vue-new
+   npm run build
+   
+   # Start production environment
+   cd ..
+   .\launch-production.ps1
+   ```
+
+2. **Production to Development**:
+   ```powershell
+   # Stop production servers (Ctrl+C in the terminal)
+   # Start development environment
+   .\launch.ps1
+   ```
+
+### Advanced Usage
+
+#### Custom Ports
+You can modify the ports in the respective launcher scripts or use environment variables:
+
+```powershell
+# Launch development environment on custom ports
+$env:FLASK_RUN_PORT=5002
+$env:VITE_DEV_SERVER_PORT=3000
+.\launch.ps1
+```
+
+#### Process Management
+Both launchers include process management features:
+- Automatic cleanup on exit
+- Port conflict detection
+- Process monitoring
+- Graceful shutdown
 
 ### Development Mode
 - Uses Flask's built-in development server

@@ -1,0 +1,10 @@
+2025-06-10 21:16:19,758 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 21:16:19,763 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 21:16:19,763 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 21:16:19,763 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 21:16:19,769 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 21:16:19,769 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 21:16:19,774 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 21:16:19,774 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 21:16:19,774 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 21:16:19,780 - src.app_final_vue - INFO - Application initialization completed successfully

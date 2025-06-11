@@ -1,0 +1,55 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: ===================================================
+:: CaseStrainer Development Start Script
+:: ===================================================
+:: This script starts the CaseStrainer application in development mode
+:: ===================================================
+
+:: Configuration
+set "SCRIPT_DIR=%~dp0"
+set "LOG_DIR=%SCRIPT_DIR%logs"
+set "FLASK_APP=src/app_final_vue.py"
+set "FLASK_ENV=development"
+set "FLASK_DEBUG=1"
+set "FLASK_RUN_PORT=5001"
+set "FLASK_RUN_HOST=0.0.0.0"
+
+:: Create log directory if it doesn't exist
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+
+:: Set log file with timestamp
+for /f "tokens=2 delims==. " %%a in ('wmic OS Get localdatetime /value') do set "dt=%%a"
+set "TIMESTAMP=%dt:~0,4%-%dt:~4,2%-%dt:~6,2%_%dt:~8,2%-%dt:~10,2%-%dt:~12,2%"
+set "LOG_FILE=%LOG_DIR%\casestrainer_dev_%TIMESTAMP%.log"
+
+echo [%TIME%] Starting CaseStrainer in DEVELOPMENT mode...
+echo [%TIME%] Backend will be available at: http://%FLASK_RUN_HOST%:%FLASK_RUN_PORT%
+echo [%TIME%] Log file: %LOG_FILE%
+
+:: Start the Flask development server
+start "CaseStrainer Backend" cmd /k "set FLASK_APP=%FLASK_APP% && set FLASK_ENV=%FLASK_ENV% && set FLASK_DEBUG=%FLASK_DEBUG% && python -m flask run --host=%FLASK_RUN_HOST% --port=%FLASK_RUN_PORT% & echo. & echo Backend process ended. Press any key to close... & pause"
+
+:: Start the frontend development server
+if exist "%SCRIPT_DIR%casestrainer-vue-new" (
+    cd /d "%SCRIPT_DIR%casestrainer-vue-new"
+    echo [%TIME%] Starting frontend development server...
+    start "CaseStrainer Frontend" cmd /k "npm run dev & pause"
+) else (
+    echo [%TIME%] WARNING: Frontend directory not found at %SCRIPT_DIR%casestrainer-vue-new
+)
+
+echo.
+echo =============================================
+echo   Development Environment Started!
+echo =============================================
+echo   Backend:  http://%FLASK_RUN_HOST%:%FLASK_RUN_PORT%
+echo   Frontend: http://localhost:5173
+echo   Logs:     %LOG_FILE%
+echo =============================================
+
+timeout /t 5 >nul
+start "" "http://localhost:5173"
+
+endlocal

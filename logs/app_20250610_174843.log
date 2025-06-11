@@ -1,0 +1,16 @@
+2025-06-10 17:48:43,682 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 17:48:43,686 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 17:48:43,687 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 17:48:43,687 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 17:48:43,692 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 17:48:43,692 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 17:48:43,697 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 17:48:43,697 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 17:48:43,697 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 17:48:43,703 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 17:49:12,316 - src.app_final_vue - ERROR - Error in analyze_document: 'citation'
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 569, in analyze_document_endpoint
+    verify_citation(citation["citation"], citation.get("context", ""))
+                    ~~~~~~~~^^^^^^^^^^^^
+KeyError: 'citation'

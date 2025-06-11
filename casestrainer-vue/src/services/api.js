@@ -1,12 +1,17 @@
 import axios from 'axios';
 
+// Determine the base URL based on environment
+const isProduction = import.meta.env.PROD;
+const baseURL = isProduction ? '' : 'http://localhost:5000/casestrainer/api';
+
 // Create an axios instance with default config
 const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL || '') + '/casestrainer/api',
+  baseURL,
   timeout: 60000, // 60 seconds
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
   withCredentials: true
 });
@@ -14,6 +19,10 @@ const api = axios.create({
 // Add a request interceptor to log requests (for debugging)
 api.interceptors.request.use(
   config => {
+    // Remove /casestrainer/api prefix from URL if it's already in baseURL
+    if (!isProduction && config.url.startsWith('/casestrainer/api')) {
+      config.url = config.url.replace('/casestrainer/api', '');
+    }
     console.log('API Request:', config.method.toUpperCase(), config.url);
     return config;
   },
@@ -52,7 +61,7 @@ api.interceptors.response.use(
 // API methods
 export default {
   analyzeText(text) {
-    return api.post('/analyze', { text });
+    return api.post('/enhanced/analyze', { text });
   },
   
   // Add other API methods here as needed

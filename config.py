@@ -41,78 +41,89 @@ def get_config_value(key, default=None):
 
 class Config:
     """Base configuration class"""
-
+    # Application settings
     DEBUG = False
     TESTING = False
-    SECRET_KEY = "dev-key-for-casestrainer"
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key-for-casestrainer')
+    
+    # Session settings
     SESSION_TYPE = "filesystem"
     SESSION_PERMANENT = False
     PERMANENT_SESSION_LIFETIME = 1800  # 30 minutes
-    UPLOAD_FOLDER = "uploads"
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload size
-
-    # API Keys and External Services
-    COURTLISTENER_API_KEY = os.environ.get("COURTLISTENER_API_KEY", "")
-    COURTLISTENER_API_URL = "https://www.courtlistener.com/api/rest/v4/"
-
-    # Database Configuration
-    DATABASE_FILE = "citations.db"
-
-    # File Upload Configuration
-    UPLOAD_FOLDER = "uploads"
-    ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt"}
-
-    # Application Settings
+    
+    # Server settings
+    HOST = '0.0.0.0'
+    PORT = int(os.environ.get('PORT', 5000))
+    
+    # Application settings
+    ENV = os.environ.get('FLASK_ENV', 'production')
     APP_NAME = "CaseStrainer"
     APP_VERSION = "4.0.0"
+    
+    # Static files
+    STATIC_FOLDER = '../static/vue'
+    
+    # Logging
+    LOG_LEVEL = 'INFO'
+    
+    # Upload settings
+    UPLOAD_FOLDER = os.path.abspath("uploads")
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload size
+    
+    # API settings
+    API_PREFIX = '/api'
+    COURTLISTENER_API_KEY = os.environ.get('COURTLISTENER_API_KEY', '')
+    COURTLISTENER_API_URL = 'https://www.courtlistener.com/api/rest/v4/'
+    
+    # Database settings
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///citations.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # CORS settings
+    CORS_HEADERS = 'Content-Type'
+    
+    # Application root
+    APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT', '/casestrainer')
 
-    # Feature Flags
-    ENHANCED_VALIDATOR_ENABLED = True
-    ENHANCED_VALIDATOR_MODEL_PATH = None
-    ML_CLASSIFIER_AVAILABLE = False
-    ML_CLASSIFIER_MODEL_PATH = None
-    CORRECTION_ENGINE_AVAILABLE = False
-    CORRECTION_ENGINE_MODEL_PATH = None
 
-    # Email Configuration
-    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
-    MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
-    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() in [
-        "true",
-        "1",
-        "t",
-        "y",
-        "yes",
-    ]
-    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", "false").lower() in [
-        "true",
-        "1",
-        "t",
-        "y",
-        "yes",
-    ]
-    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
-    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "noreply@example.com")
-    MAIL_RECIPIENT = os.environ.get("MAIL_RECIPIENT", "admin@example.com")
-    MAIL_DEBUG = os.environ.get("MAIL_DEBUG", "false").lower() in [
-        "true",
-        "1",
-        "t",
-        "y",
-        "yes",
-    ]
+class DefaultConfig(Config):
+    """Default configuration that can be overridden by environment variables"""
+    pass
 
+
+class DevelopmentConfig(Config):
+    """Development configuration"""
+    DEBUG = True
+    LOG_LEVEL = 'DEBUG'
+    
+    # Development server settings
+    HOST = '127.0.0.1'
+    PORT = 5000
+    
+    # Enable more verbose logging
+    SQLALCHEMY_ECHO = False
+    
+    # Disable caching in development
+    SEND_FILE_MAX_AGE_DEFAULT = 0
+
+
+class ProductionConfig(Config):
+    """Production configuration"""
     # Security
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-for-casestrainer")
-
-    # Session Configuration
-    SESSION_TYPE = "filesystem"
-    SESSION_PERMANENT = False
-    PERMANENT_SESSION_LIFETIME = 1800  # 30 minutes
-
-    # File Upload Limits
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max upload size
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Production server settings
+    HOST = '0.0.0.0'
+    PORT = 5000
+    
+    # Enable protection against common attacks
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'dev-password-salt')
+    
+    # Logging
+    LOG_LEVEL = 'WARNING'
 
 
 def configure_logging():

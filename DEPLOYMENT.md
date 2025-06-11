@@ -1,23 +1,148 @@
 # CaseStrainer Deployment Guide
 
+# CaseStrainer Deployment Guide
+
+## Environment Variables Setup
+
+### Required Configuration
+
+1. **Create a `.env` file**:
+   ```bash
+   cp .env.template .env
+   ```
+
+2. **Configure the `.env` file**:
+   - Set `COURTLISTENER_API_KEY` with your CourtListener API key
+   - Configure database settings
+   - Set up email settings for notifications
+   - Adjust other settings as needed
+
+### Obtaining a CourtListener API Key
+
+1. Go to [CourtListener API Registration](https://www.courtlistener.com/api/rest-info/)
+2. Sign up for an account if you don't have one
+3. Generate a new API key from your account settings
+4. Copy the API key to your `.env` file:
+   ```
+   COURTLISTENER_API_KEY=your-api-key-here
+   ```
+
+### Environment Variables Reference
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `COURTLISTENER_API_KEY` | Yes | API key for CourtListener | `abc123...` |
+| `FLASK_ENV` | No | Application environment | `production` |
+| `SECRET_KEY` | Yes | Flask secret key | `your-secret-key` |
+| `DATABASE_URI` | Yes | Database connection string | `sqlite:///instance/casestrainer.db` |
+| `MAIL_SERVER` | Yes | SMTP server | `smtp.uw.edu` |
+| `MAIL_PORT` | Yes | SMTP port | `587` |
+| `MAIL_USE_TLS` | Yes | Use TLS | `True` |
+| `MAIL_USERNAME` | Yes | SMTP username | `your-netid` |
+| `MAIL_PASSWORD` | Yes | SMTP password | `your-password` |
+| `MAIL_DEFAULT_SENDER` | Yes | Default sender email | `your-email@uw.edu` |
+
 ## Quick Start for New Contributors
 
-- **Use only `start_casestrainer.bat` to start/restart the backend and Nginx**
-- **Build the Vue 3 frontend with `build_and_deploy_vue.bat`**
-- **All API endpoints must use the `/casestrainer/api/` prefix**
-- **Copy `.env.example` to `.env` and fill in your secrets**
-  - Never commit real secrets!
-  - `.env` is already in `.gitignore`
-- **Install pre-commit hooks** for code quality and security:
+### Core Scripts
 
-  ```bash
-  pip install pre-commit
-  pre-commit install
-  pre-commit run --all-files
-  ```
+- **`start_casestrainer.bat`** - Main script to start both backend and Nginx
+- **`debug_flask.bat`** - Start Flask in debug mode for development
+- **`build_frontend.bat`** - Build the Vue.js frontend
+- **`run_tests.bat`** - Run the test suite
+- **`update_nginx_config.bat`** - Update Nginx configuration
+- **`commit_push_and_deploy.bat`** - Helper for deployment workflow
 
-- **Check logs** in the `logs/` directory if issues arise
-- **Nginx logs** are in `nginx-1.27.5/logs/`
+### First-Time Setup
+
+1. Clone the repository
+
+2. Create and activate a Python virtual environment:
+
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Copy `.env.example` to `.env` and configure your environment variables
+
+5. Build the frontend:
+
+   ```bash
+   build_frontend.bat
+   ```
+
+6. Start the application:
+
+   ```bash
+   start_casestrainer.bat
+   ```
+
+### Development Workflow
+
+- **For backend development**: Use `debug_flask.bat`
+- **For frontend development**: Use `build_frontend.bat` after making changes
+- **For testing**: Use `run_tests.bat`
+
+### Logs
+
+- Application logs: `logs/`
+- Nginx logs: `nginx-1.27.5/logs/`
+
+## Production Server Options
+
+### Option 1: Waitress (Recommended for Windows)
+
+Waitress is a pure-Python WSGI server that works well on Windows:
+
+1. Install Waitress:
+
+   ```bash
+   pip install waitress
+   ```
+
+2. Run the application:
+
+   ```bash
+   waitress-serve --port=5000 --call 'wsgi:application'
+   ```
+
+### Option 2: Gunicorn (Recommended for Linux/Unix)
+
+Gunicorn is a robust WSGI server (already included in requirements.txt):
+
+1. Install Gunicorn (if not already installed):
+
+   ```bash
+   pip install gunicorn
+   ```
+
+2. Run the application:
+
+   ```bash
+   gunicorn --bind 0.0.0.0:5000 wsgi:application
+   ```
+
+### Running Behind Nginx
+
+Both servers should be run behind Nginx in production. Example Nginx configuration:
+
+```nginx
+location /casestrainer/ {
+    proxy_pass http://127.0.0.1:5000/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Prefix /casestrainer;
+}
+```
 
 ## Overview
 
@@ -211,7 +336,9 @@ server {
 }
 ```
 
-### Key Settings
+## Nginx Configuration
+
+### Nginx Key Settings
 
 - **SSL Certificates**: Located at `D:/CaseStrainer/ssl/`
 - **Proxy Target**: `http://127.0.0.1:5000`
@@ -226,10 +353,10 @@ server {
 
 ## Troubleshooting
 
-
 ### Common Issues
 
 #### 502 Bad Gateway
+
 - **Cause**: Flask application not running or not accessible on port 5000
 - **Solution**:
 
@@ -299,7 +426,6 @@ taskkill /F /IM nginx.exe
 Start-Process -FilePath ".\nginx-1.27.5\nginx.exe" -NoNewWindow
 ```
 
-
 ### Application Errors
 
 For application errors:
@@ -315,7 +441,8 @@ To make changes to the Vue.js frontend:
 1. Navigate to the `casestrainer-vue` directory
 2. Make your changes to the Vue.js code
 3. Build and deploy the frontend:
-   ```
+
+   ```bash
    .\scripts\build_and_deploy_vue.bat
    ```
 

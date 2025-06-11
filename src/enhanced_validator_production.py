@@ -1,11 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+class ValidationTimeoutError(Exception):
+    """Exception raised when validation operation times out."""
+    pass
 import json
 import logging
 import os
+import re
+import tempfile
+import time
+import uuid
+import traceback
+from src.file_utils import extract_text_from_file
+from src.citation_extractor import CitationExtractor
+
+# Configure logging first
+logger = logging.getLogger(__name__)
+
+# Check if markdown is available
+try:
+    import markdown
+    from bs4 import BeautifulSoup
+    import html
+    MARKDOWN_AVAILABLE = True
+    logger.info("Markdown and BeautifulSoup packages successfully imported")
+except ImportError as e:
+    MARKDOWN_AVAILABLE = False
+    logger.warning(f"markdown or BeautifulSoup not available, markdown processing will be skipped. Error: {str(e)}")
+
+# Check if eyecite is available
+try:
+    from eyecite.tokenizers import AhocorasickTokenizer
+    EYECITE_AVAILABLE = True
+except ImportError:
+    EYECITE_AVAILABLE = False
+    logger.warning("eyecite not available, falling back to regex citation extraction")
 import sys
+import time
+import requests
 import flask
 from flask import Blueprint, request, jsonify
+from urllib.parse import urlparse
 
 # Import centralized logging configuration
 
@@ -18,7 +54,6 @@ logger = logging.getLogger(__name__)
 
 # Create a function to get a new blueprint with a unique name
 def create_enhanced_validator_blueprint():
-    import time
 
     # Generate a unique name for the blueprint
     blueprint_name = f"enhanced_validator_{int(time.time() * 1000)}"
@@ -37,17 +72,12 @@ def get_enhanced_validator_blueprint():
 
 
 # Create the initial blueprint instance with a consistent name
-if "enhanced_validator_bp" not in globals():
-    enhanced_validator_bp = get_enhanced_validator_blueprint()
-    logger.info(
-        f"Created new enhanced_validator_bp with name: {enhanced_validator_bp.name}"
-    )
-else:
-    logger.info(
-        f"Using existing enhanced_validator_bp with name: {enhanced_validator_bp.name}"
-    )
+enhanced_validator_bp = get_enhanced_validator_blueprint()
+logger.info(
+    f"Created or using enhanced_validator_bp with name: {enhanced_validator_bp.name}"
+)
 
-logger.info("Loading enhanced_validator_production.py v0.4.7 - Modified 2025-06-02")
+logger.info("Loading enhanced_validator_production.py v0.4.9 - Modified 2025-06-10")
 
 """
 Enhanced Citation Validator for Production
@@ -69,8 +99,6 @@ from src.citation_processor import CitationProcessor
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
     configure_logging()
-
-logger = logging.getLogger(__name__)
 
 # Initialize the citation processor
 citation_processor = CitationProcessor()
@@ -137,222 +165,203 @@ def normalize_citation_text(citation_text):
     return normalized
 
 
-def enhanced_analyze(data=None):
-    """
-    Enhanced citation analysis function that handles both file uploads and direct text input.
-
-    Can be called with a data dictionary or will use the current Flask request.
-
-    Expected data format (dict or JSON):
-    {
-        "text": "text to analyze",  # Either text or file is required
-        "file": "file_content",      # Optional, alternative to text (raw file content)
-        "filename": "document.pdf",  # Optional, used for logging
-        "options": {
-            "batch_process": True,   # Whether to process all citations in a single batch
-            "return_debug": False    # Whether to include debug information in the response
-        }
+def enhanced_analyze(data, analysis_id=None):
+    """Enhanced citation analysis with detailed logging."""
+    # Initialize timing and result structure
+    start_time = time.time()
+    result = {
+        "analysis_id": analysis_id or str(uuid.uuid4()),
+        "status": "success",
+        "citations": [],
+        "warnings": [],
+        "errors": [],
+        "processing_time": 0,
+        "file_info": {},
+        "validation_results": {}
     }
-
-    Args:
-        data (dict, optional): Input data. If None, will be extracted from the Flask request.
-
-    Returns:
-        Flask Response: JSON response with citation analysis results
-    """
+    
     try:
-        # Log the incoming request for debugging
-        logger.info("Starting enhanced_analyze")
-
-        request_data = {}
-
-        # If data is provided, use it directly
-        if data is not None:
-            request_data = data
-        # Otherwise, try to get it from the request
-        elif request:
-            if request.is_json:
-                request_data = request.get_json() or {}
-            elif request.form:
-                request_data = dict(request.form)
-                # Handle file uploads
-                if "file" in request.files and request.files["file"].filename:
-                    file = request.files["file"]
-                    request_data["file"] = file.read().decode("utf-8")
-                    if "filename" not in request_data:
-                        request_data["filename"] = file.filename
-
-                # Convert string values to proper types
-                if "options" in request_data and isinstance(
-                    request_data["options"], str
-                ):
-                    try:
-                        request_data["options"] = json.loads(request_data["options"])
-                    except (json.JSONDecodeError, TypeError):
-                        request_data["options"] = {}
-
-        # Ensure options is a dictionary
-        if "options" not in request_data or not isinstance(
-            request_data["options"], dict
-        ):
-            request_data["options"] = {}
-
-        # Set default options
-        default_options = {"batch_process": True, "return_debug": False}
-
-        # Merge with provided options
-        request_data["options"] = {**default_options, **request_data.get("options", {})}
-
-        logger.debug(
-            f"Processing data: {json.dumps(request_data, default=str, indent=2)}"
-        )
-
-        # Check for required fields
-        if not request_data or (
-            "text" not in request_data and "file" not in request_data
-        ):
-            logger.error("No text or file provided in request")
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": "Either 'text' or 'file' must be provided",
-                    }
-                ),
-                400,
-            )
-
-        # Get options
-        options = request_data["options"]
-        batch_process = options["batch_process"]
-        return_debug = options["return_debug"]
-
-        text = ""
-
-        # Handle file upload if present
-        if "file" in request_data:
-            # Get file content
-            file_content = request_data["file"]
-            if not file_content:
-                return (
-                    jsonify({"success": False, "error": "No file content provided"}),
-                    400,
-                )
-
-            # Use file content as text
-            text = file_content
-            logger.info(
-                f"Processing file upload: {request_data.get('filename', 'unnamed')} with {len(text)} characters"
-            )
-        else:
-            # Handle direct text input
-            text = request_data.get("text", "")
-            if not isinstance(text, str) or not text.strip():
-                return jsonify({"success": False, "error": "Invalid text format"}), 400
-
-        # Limit text size to prevent memory issues (10MB limit)
-        max_size = 10 * 1024 * 1024  # 10MB
-        if len(text) > max_size:
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": f"Text too large. Maximum size is {max_size} bytes.",
-                        "size": len(text),
-                        "max_size": max_size,
-                    }
-                ),
-                400,
-            )
-
-        logger.info(f"Processing text with {len(text)} characters")
-
-        try:
-            # Analyze the text
-            analysis = analyze_text(
-                text, batch_process=batch_process, return_debug=return_debug
-            )
-        except Exception as e:
-            logger.error(f"Error in analyze_text: {str(e)}")
-            logger.exception("Detailed error:")
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": "Error analyzing text",
-                        "details": str(e),
-                    }
-                ),
-                500,
-            )
-
-        # Transform the response to match frontend expectations
-        transformed_citations = []
-        for item in analysis.get("citations", []):
-            # Handle both old and new response formats
-            if isinstance(item, dict):
-                citation = item.get("citation", {})
-                validation = item.get("validation", {})
-
-                # Create a clean citation object with all necessary fields
-                transformed = {
-                    "citation": citation.get("citation_text", ""),
-                    "case_name": citation.get("case_name", ""),
-                    "verified": validation.get("verified", False),
-                    "validation_method": validation.get("validation_method", ""),
-                    "url": validation.get("details", {}).get("url", ""),
-                    "metadata": citation.get("metadata", {}),
-                }
-                transformed_citations.append(transformed)
-            else:
-                # If the item is already in the correct format, use it as is
-                transformed_citations.append(item)
-
-        # Create the response object
-        response = {
-            "success": True,
-            "citations": transformed_citations,
-            "total": len(transformed_citations),
-            "verified": sum(
-                1 for c in transformed_citations if c.get("verified", False)
-            ),
-            "landmark_cases": analysis.get("landmark_cases", []),
-            "statistics": analysis.get(
-                "statistics",
-                {
-                    "total_citations": len(transformed_citations),
-                    "verified_citations": sum(
-                        1 for c in transformed_citations if c.get("verified", False)
-                    ),
-                    "processing_time": analysis.get("processing_time", 0),
-                },
-            ),
+        # Log request data (excluding file content)
+        request_data = {
+            "has_file": "file" in data,
+            "filename": data.get("filename", "No filename"),
+            "file_size": len(data.get("file", b"")) if "file" in data else 0,
+            "text_length": len(data.get("text", "")) if "text" in data else 0
         }
-
-        # Include debug info if requested and available
-        if return_debug and "debug_info" in analysis and analysis["debug_info"]:
-            response["debug_info"] = analysis["debug_info"]
-
-        logger.info(f"Analysis complete. Found {len(transformed_citations)} citations.")
-        return jsonify(response)
-
-    except ValueError as e:
-        logger.error(f"ValueError in enhanced_analyze: {str(e)}")
-        return jsonify({"success": False, "error": str(e)}), 400
-
+        logger.info(f"[Analysis {result['analysis_id']}] Received request data: {json.dumps(request_data, indent=2)}")
+        
+        # If no data provided, try to get it from the request
+        if data is None:
+            if request.is_json:
+                data = request.get_json() or {}
+            else:
+                # Handle form data (e.g., file uploads)
+                data = request.form.to_dict()
+                
+                # Handle file upload
+                if 'file' in request.files:
+                    file = request.files['file']
+                    if file.filename != '':
+                        # Read file content but don't log it
+                        data['file'] = file.read()
+                        data['filename'] = file.filename
+                        file_size = len(data['file'])
+                        logger.info(f"[Analysis {result['analysis_id']}] Received file upload: {file.filename} ({file_size/1024:.1f}KB)")
+        
+        # Get text from either direct input or file
+        text = data.get('text', '')
+        
+        # If no text but file is provided, extract text from file
+        if not text and 'file' in data and data['file']:
+            file_content = data['file']
+            filename = data.get('filename', 'uploaded_file')
+            
+            # Log file processing start with more details (excluding binary content)
+            file_info = {
+                'filename': filename,
+                'size_kb': len(file_content)/1024,
+                'is_binary': not isinstance(file_content, str),
+                'options': data.get('options', {})
+            }
+            logger.info(f"[Analysis {result['analysis_id']}] Starting text extraction: {json.dumps(file_info, default=str)}")
+            
+            # Save to a temporary file for processing
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as temp_file:
+                temp_file.write(file_content if isinstance(file_content, bytes) else file_content.encode('utf-8'))
+                temp_path = temp_file.name
+                logger.debug(f"[Analysis {result['analysis_id']}] Created temporary file: {temp_path}")
+            
+            try:
+                # Get conversion options
+                options = data.get('options', {})
+                convert_pdf_to_md = options.get('convert_pdf_to_md', True)
+                logger.info(f"[Analysis {result['analysis_id']}] Extracting text with convert_pdf_to_md={convert_pdf_to_md}")
+                
+                # Log the file type and extension being used
+                file_type = options.get('file_type', 'application/octet-stream')
+                file_ext = options.get('file_ext', os.path.splitext(filename)[1].lstrip('.'))
+                logger.debug(f"[Analysis {result['analysis_id']}] File type: {file_type}, Extension: {file_ext}")
+                
+                # Extract text using the shared utility function
+                extract_start = time.time()
+                logger.debug(f"[Analysis {result['analysis_id']}] Starting text extraction from {temp_path}")
+                
+                text = extract_text_from_file(
+                    temp_path, 
+                    convert_pdf_to_md=convert_pdf_to_md,
+                    file_type=file_type,
+                    file_ext=file_ext
+                )
+                
+                extract_time = time.time() - extract_start
+                logger.info(f"[Analysis {result['analysis_id']}] Text extraction completed in {extract_time:.2f}s")
+                logger.debug(f"[Analysis {result['analysis_id']}] Extracted text length: {len(text)} characters")
+                
+                # Log a sample of the extracted text (first 200 chars, sanitized)
+                if text:
+                    sample_text = text[:200].replace('\n', ' ').replace('\r', '')
+                    # Remove any non-printable characters
+                    sample_text = ''.join(c for c in sample_text if c.isprintable())
+                    logger.debug(f"[Analysis {result['analysis_id']}] Text sample: {sample_text}...")
+                
+                extract_time = time.time() - extract_start
+                logger.info(f"[Analysis {result['analysis_id']}] Extracted {len(text)} characters in {extract_time:.2f}s")
+                
+            except Exception as e:
+                error_msg = f"Error extracting text from file: {str(e)}"
+                logger.error(f"[Analysis {result['analysis_id']}] {error_msg}", exc_info=True)
+                logger.error(f"[Analysis {result['analysis_id']}] Detailed error during PDF extraction. Consider using alternative libraries like PyPDF2 or pdfminer.six for better encoding handling.", exc_info=True)
+                return jsonify({
+                    'status': 'error',
+                    'message': error_msg,
+                    'error_type': type(e).__name__,
+                    'analysis_id': result['analysis_id']
+                }), 500
+                
+            finally:
+                # Clean up the temporary file
+                try:
+                    if os.path.exists(temp_path):
+                        os.unlink(temp_path)
+                        logger.debug(f"[Analysis {result['analysis_id']}] Deleted temporary file: {temp_path}")
+                except Exception as e:
+                    logger.warning(f"[Analysis {result['analysis_id']}] Error deleting temp file {temp_path}: {str(e)}")
+        
+        # Check if we have text to analyze
+        if not text:
+            error_msg = "No text content provided or could be extracted for analysis"
+            logger.warning(f"[Analysis {result['analysis_id']}] {error_msg}")
+            return jsonify({
+                'status': 'error',
+                'message': error_msg,
+                'citations': [],
+                'stats': {
+                    'total_citations': 0,
+                    'validated_citations': 0,
+                    'processing_time': time.time() - start_time
+                },
+                'analysis_id': result['analysis_id']
+            })
+        
+        # Get analysis options
+        options = data.get('options', {})
+        batch_process = options.get('batch_process', True)
+        return_debug = options.get('return_debug', False)
+        
+        # Log analysis parameters
+        logger.info(f"[Analysis {result['analysis_id']}] Starting analysis with batch_process={batch_process}, return_debug={return_debug}")
+        logger.debug(f"[Analysis {result['analysis_id']}] First 500 chars of text: {text[:500]}...")
+        
+        # Analyze the text
+        analysis_start = time.time()
+        result = analyze_text(text, batch_process=batch_process, return_debug=return_debug)
+        analysis_time = time.time() - analysis_start
+        
+        # Add metadata
+        result['analysis_id'] = result['analysis_id']
+        result['processing_time'] = time.time() - start_time
+        
+        # Log completion
+        logger.info(f"[Analysis {result['analysis_id']}] Analysis completed in {result['processing_time']:.2f}s")
+        logger.info(f"[Analysis {result['analysis_id']}] Found {len(result.get('citations', []))} citations")
+        
+        # Log performance metrics
+        if 'stats' in result:
+            logger.info(
+                f"[Analysis {result['analysis_id']}] Stats: {json.dumps(result['stats'], indent=2)}"
+            )
+        
+        return jsonify(result)
+    except FileNotFoundError as e:
+        error_msg = f"File handling error in enhanced_analyze: {str(e)}"
+        logger.error(f"[Analysis {result['analysis_id']}] {error_msg}", exc_info=True)
+        return jsonify({
+            'status': 'error',
+            'message': error_msg,
+            'error_type': type(e).__name__,
+            'analysis_id': result['analysis_id'],
+            'processing_time': time.time() - start_time
+        }), 500
+    except ImportError as e:
+        error_msg = f"Import error in enhanced_analyze: {str(e)}"
+        logger.error(f"[Analysis {result['analysis_id']}] {error_msg}", exc_info=True)
+        return jsonify({
+            'status': 'error',
+            'message': error_msg,
+            'error_type': type(e).__name__,
+            'analysis_id': result['analysis_id'],
+            'processing_time': time.time() - start_time
+        }), 500
     except Exception as e:
-        logger.error(f"Error in enhanced_analyze: {str(e)}")
-        logger.exception("Detailed error:")
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": "An internal server error occurred",
-                    "details": str(e),
-                }
-            ),
-            500,
-        )
+        error_msg = f"Unexpected error in enhanced_analyze: {str(e)}"
+        logger.error(f"[Analysis {result['analysis_id']}] {error_msg}", exc_info=True)
+        return jsonify({
+            'status': 'error',
+            'message': error_msg,
+            'error_type': type(e).__name__,
+            'analysis_id': result['analysis_id'],
+            'processing_time': time.time() - start_time
+        }), 500
 
 
 # File upload configuration
@@ -392,7 +401,7 @@ def preprocess_markdown(text):
 
     try:
         # Convert markdown to HTML
-        html_content = markdown(text)
+        html_content = markdown.markdown(text)
 
         # Parse HTML and extract text
         soup = BeautifulSoup(html_content, "html.parser")
@@ -657,7 +666,7 @@ def validate_citations_batch(citations, api_key=None):
 
 
 def analyze_text(
-    text: str, batch_process: bool = False, return_debug: bool = True
+    text: str, batch_process: bool = False, return_debug: bool = True, analysis_id: str = None
 ) -> dict:
     """
     Analyze text for legal citations using the enhanced citation processor.
@@ -666,10 +675,13 @@ def analyze_text(
         text (str): The text to analyze for citations
         batch_process (bool): If True, process all citations together in a single batch
         return_debug (bool): If True, include debug information in the response
+        analysis_id (str, optional): Unique identifier for the analysis
 
     Returns:
         dict: Analysis results with citations and metadata
     """
+    if analysis_id is None:
+        analysis_id = str(uuid.uuid4())
     debug_info = {
         "input_length": len(text),
         "extraction_time": None,
@@ -681,10 +693,13 @@ def analyze_text(
     time.time()
 
     try:
-        # Extract citations
+        # Extract citations with analysis_id for better logging
         extract_start = time.time()
         extract_result = extract_citations(
-            text, return_debug=True, batch_process=batch_process
+            text, 
+            return_debug=True, 
+            batch_process=batch_process,
+            analysis_id=analysis_id  # Pass analysis_id for consistent logging
         )
 
         # Handle the return value from extract_citations
@@ -810,14 +825,59 @@ def analyze_text(
             f"Validated {len(validated_citations)} citations in {validate_time:.2f} seconds"
         )
 
-        # Prepare response
+        # Transform citations to match frontend expectations
+        transformed_citations = []
+        for citation in validated_citations:
+            transformed_citation = {
+                "text": citation.get("citation", ""),
+                "verified": citation.get("verified", False),
+                "source": citation.get("validation_method", "extracted"),
+                "correction": citation.get("correction", ""),
+                "url": citation.get("url", ""),
+                "case_name": citation.get("case_name", ""),
+                "confidence": citation.get("confidence", 0.5),
+                "name_match": citation.get("name_match", False)
+            }
+            transformed_citations.append(transformed_citation)
+
+        # Count verified citations
+        verified_count = len([c for c in validated_citations if c.get("verified", False)])
+        
+        # Prepare response with frontend-expected format
+        analysis_id = str(uuid.uuid4())
         response = {
             "status": "success",
-            "citations": validated_citations,
-            "citation_count": len(validated_citations),
+            "results": {
+                "valid": verified_count > 0,
+                "message": f"Found {len(validated_citations)} citations ({verified_count} verified)",
+                "citations": transformed_citations,
+                "metadata": {
+                    "analysis_id": analysis_id,
+                    "file_name": "uploaded_document.pdf",
+                    "statistics": {
+                        "total_citations": len(validated_citations),
+                        "verified_citations": verified_count,
+                        "extraction_time": extract_time,
+                        "validation_time": validate_time,
+                        "total_processing_time": extract_time + validate_time
+                    }
+                }
+            },
+            "total": len(validated_citations),
+            "verified": verified_count,
+            "analysis_id": analysis_id,
+            "statistics": {
+                "total_citations": len(validated_citations),
+                "verified_citations": verified_count,
+                "extraction_time": extract_time,
+                "validation_time": validate_time,
+                "total_processing_time": extract_time + validate_time
+            },
             "debug": debug_info if return_debug else None,
         }
 
+        # Log the response summary (without full citations to avoid log spam)
+        log_step(f"Returning {len(validated_citations)} citations in response")
         return response
 
     except Exception as e:
@@ -831,531 +891,40 @@ def analyze_text(
         }
 
 
-def extract_citations(text, return_debug=False, batch_process=False):
-    """
-    Extract legal citations from text using regex patterns and other methods.
+def extract_citations(text, return_debug=False, batch_process=False, analysis_id=None):
+    """Extract citations from text using the unified CitationExtractor."""
+    print("\n=== CITATION EXTRACTION DEBUG (using CitationExtractor) ===")
+    print(f"Starting citation extraction from text of length: {len(text)}")
+    if not text or not text.strip():
+         print("ERROR: Empty or whitespace–only text provided")
+         return { "confirmed_citations": [], "possible_citations": [], "warnings": [], "errors": [], "batch_processed": batch_process }
+    extractor = CitationExtractor(use_eyecite=True, use_regex=True, context_window=0, deduplicate=True)
+    # (Optionally, if you want debug info printed, pass debug=True and log the debug dict.)
+    # (For now, we're returning a dict (or a tuple (dict, debug dict) if return_debug=True) that mimics the old output.)
+    debug_info = extractor.extract(text, return_context=False, debug=return_debug)
+    if return_debug:
+         return (debug_info, debug_info)
+    else:
+         # (Convert the "citations" list (of dicts) into a "confirmed_citations" list (of dicts) (with "text" and "type" keys) and "possible_citations" (empty) and "warnings" (from debug_info) and "errors" (from debug_info) and "batch_processed" (from the input flag).)
+         confirmed = [{"text": d["citation"], "type": d.get("method", "unknown"), "confidence": d.get("confidence", "unknown")} for d in debug_info["citations"]]
+         return { "confirmed_citations": confirmed, "possible_citations": [], "warnings": debug_info["warnings"], "errors": debug_info["errors"], "batch_processed": batch_process }
 
-    Args:
-        text (str): The text to extract citations from
-        return_debug (bool): If True, returns debug information along with citations
-        batch_process (bool): If True, process all citations together in a single batch
-
-    Returns:
-        list: List of extracted citations with metadata
-        or tuple: (citations, debug_info) if return_debug is True
-    """
-    """
-    Extract legal citations from text using eyecite and regex patterns.
-
-    Args:
-        text (str): The text to extract citations from
-        return_debug (bool): If True, returns debug information along with citations
-        batch_process (bool): If True, process all citations together in a single batch
-
-    Returns:
-        list: List of extracted citations with metadata
-        or tuple: (citations, debug_info) if return_debug is True
-    """
-    start_time = time.time()
-    debug_info = {
-        "start_time": start_time,
-        "steps": [],
-        "stats": {
-            "total_citations": 0,
-            "blacklisted": 0,
-            "eyecite_citations": 0,
-            "regex_citations": 0,
-            "validation_errors": 0,
-            "case_name_cleaned": 0,
-            "pin_cites_handled": 0,
-        },
-        "warnings": [],
-        "errors": [],
-    }
-
-    def log_step(message, level="info"):
-        """Helper to log a processing step with timing info."""
-        elapsed = time.time() - start_time
-        step_info = {"time": round(elapsed, 2), "message": message, "level": level}
-        debug_info["steps"].append(step_info)
-        log_msg = f"[EXTRACT] {message} (after {elapsed:.2f}s)"
-
-        if level == "debug":
-            logger.debug(log_msg)
-        elif level == "info":
-            logger.info(log_msg)
-        elif level == "warning":
-            logger.warning(log_msg)
-            debug_info["warnings"].append(message)
-        elif level == "error":
-            logger.error(log_msg)
-            debug_info.setdefault("errors", []).append(message)
-
-    # Define default blacklist patterns
-    default_blacklist = {
-        "exact": ["id.", "id.", "id.,"],
-        "regex": [
-            r"\b(?:doc\.?|document)\s*[#:]?\s*\d+",
-            r"\b(?:no\.?|number)\s+\d+",
-            r"\b(?:see|see also|cf\.?|e\.g\.?|i\.e\.?|etc\.?|et seq\.?|supra|infra|id\.?)\b",
-            r"\b\d+\s*(?:U\.?\s*S\.?C\.?|U\.?\s*S\.?\s*Code)\s*§?\s*\d+",
-            r"\b\d+\s*C\.?F\.?R\.?\s*§?\s*\d+",
-        ],
-    }
-
-    # Get the path to the blacklist file
-    blacklist_path = os.path.join(
-        os.path.dirname(__file__), "..", "data", "blacklist.json"
-    )
-
-    def load_blacklist():
-        """Load blacklist patterns from JSON file or use defaults if not found."""
-        # First try to load from file
-        if os.path.exists(blacklist_path):
-            try:
-                with open(blacklist_path, "r", encoding="utf-8") as f:
-                    custom_blacklist = json.load(f)
-                    # Validate the structure
-                    if isinstance(custom_blacklist, dict) and all(
-                        k in custom_blacklist for k in ["exact", "regex"]
-                    ):
-                        log_step(
-                            f"Loaded custom blacklist from {blacklist_path}", "info"
-                        )
-                        return custom_blacklist
-                    else:
-                        log_step("Invalid blacklist format, using default", "warning")
-            except Exception as e:
-                log_step(f"Error loading blacklist: {str(e)}", "warning")
-
-        # If we get here, use the default blacklist
-        log_step("Using default blacklist patterns", "info")
-        return default_blacklist
-
-    # Load the blacklist (will use defaults if file not found)
-    blacklist = load_blacklist()
-
-    # Log blacklist stats for debugging
-    log_step(
-        f"Loaded {len(blacklist.get('exact', []))} exact and {len(blacklist.get('regex', []))} regex blacklist patterns",
-        "debug",
-    )
-
-    def is_blacklisted(citation_text):
-        """Check if a citation matches any blacklist patterns."""
-        if not citation_text or not isinstance(citation_text, str):
-            return False
-
-        # Normalize the citation text for better matching
-        normalized = citation_text.lower().strip()
-
-        # Check exact matches (case-insensitive)
-        if any(
-            normalized == item.lower().strip() for item in blacklist.get("exact", [])
-        ):
-            debug_info["stats"]["blacklisted"] += 1
-            log_step(f"Blacklisted (exact match): {citation_text}", "debug")
-            return True
-
-        # Check regex patterns
-        for pattern in blacklist.get("regex", []):
-            try:
-                if re.search(pattern, citation_text, re.IGNORECASE):
-                    debug_info["stats"]["blacklisted"] += 1
-                    log_step(
-                        f"Blacklisted (regex match): {citation_text} matched {pattern}",
-                        "debug",
-                    )
-                    return True
-            except re.error as e:
-                log_step(
-                    f"Invalid regex pattern in blacklist: {pattern} - {str(e)}",
-                    "warning",
-                )
-                continue
-
-        # Check common false positives
-        false_positives = [
-            r"^\d+$",  # Just a number
-            r"^[A-Za-z\.]+$",  # Just letters and dots
-            r"^\d+\s+[A-Za-z\.]+$",  # Just volume and reporter
-            r"^[A-Za-z]+\s+v\.\s+[A-Za-z]+$",  # Just case name with v.
-            r"^[A-Za-z]+\s+v\s+[A-Za-z]+$",  # Just case name with v
-        ]
-
-        for pattern in false_positives:
-            if re.fullmatch(pattern, normalized):
-                log_step(f"Filtered out false positive: {citation_text}", "debug")
-                return True
-
-        return False
-
-    # Initialize results
-    results = {
-        "confirmed_citations": [],
-        "possible_citations": [],
-        "warnings": [],
-        "errors": [],
-        "batch_processed": batch_process,
-    }
-
-    # Track unique citations to avoid duplicates
-    seen_citations = set()
-
-    # Preprocess text if it contains markdown
-    original_text = text
-    if MARKDOWN_AVAILABLE and any(char in text for char in ["*", "_", "`", "#"]):
-        log_step("Detected markdown formatting, preprocessing text")
-        text = preprocess_markdown(text)
-        if text != original_text:
-            log_step("Finished preprocessing markdown")
-
-    # Normalize citation text before processing
-    normalized_text = normalize_citation_text(text)
-    if normalized_text != text:
-        log_step("Normalized citation text before processing")
-        text = normalized_text
-
-    # Try to use eyecite if available
-    eyecite_available = False
-    try:
-        from citation_processor import CitationProcessor
-
-        log_step("Initialized CitationProcessor for text cleaning")
-
-        # Clean the text using eyecite's cleaner with default cleaning steps
-        cleaned_text = CitationProcessor().clean_text(
-            text, steps=["all_whitespace", "inline_whitespace", "underscores"]
-        )
-        if cleaned_text != text:
-            log_step(
-                f"Text was cleaned. Original length: {len(text)}, Cleaned length: {len(cleaned_text)}"
-            )
-            text = cleaned_text
-        else:
-            log_step("No cleaning needed for the input text")
-
-        eyecite_available = True
-        log_step("Successfully initialized eyecite for citation extraction")
-    except ImportError as e:
-        log_step(
-            f"eyecite not available: {str(e)}, falling back to regex patterns",
-            "warning",
-        )
-
-    if eyecite_available:
-        log_step(f"Starting citation extraction with eyecite on text: {text[:200]}...")
+def sanitize_text_for_logging(text, max_length=200):
+    """Sanitize text for logging by removing non-printable characters and limiting length."""
+    if not text:
+        return ""
+    # Convert to string if bytes
+    if isinstance(text, bytes):
         try:
-            tokenizer = AhocorasickTokenizer()
-            citations = get_citations(text, tokenizer=tokenizer)
-            log_step(f"eyecite found {len(citations)} potential citations")
-
-            # Debug: Log raw eyecite output
-            log_step(f"Raw eyecite output: {[str(c) for c in citations]}", "debug")
-
-            if not citations:
-                log_step(
-                    "No citations found with eyecite. Text might not contain recognizable citation patterns.",
-                    "warning",
-                )
-            else:
-                # Process each citation found by eyecite
-                for i, citation in enumerate(citations, 1):
-                    try:
-                        citation_text = citation.matched_text().strip()
-                        if not citation_text:
-                            continue
-
-                        # Debug specific citation
-                        if "534 F.3d 1290" in citation_text:
-                            log_step(f"Found target citation: {citation_text}", "debug")
-                            log_step(f"Citation type: {type(citation)}", "debug")
-                            log_step(
-                                f"Citation metadata: {getattr(citation, 'metadata', 'No metadata')}",
-                                "debug",
-                            )
-
-                        # Skip blacklisted citations
-                        is_black = is_blacklisted(citation_text)
-                        if is_black:
-                            log_step(
-                                f"Skipping blacklisted citation: {citation_text}",
-                                "debug",
-                            )
-                            continue
-
-                        # Create a complete citation object with all required fields
-                        citation_obj = {
-                            "citation_text": citation_text,
-                            "source": "eyecite",
-                            "metadata": {
-                                "extraction_method": "eyecite",
-                                "has_pin_cite": False,
-                                "pin_cite": None,
-                                "parenthetical": None,
-                                "year": None,
-                                "court": None,
-                            },
-                            "validation_status": "valid",  # Mark as valid by default
-                            "is_valid": True,  # Explicitly mark as valid
-                            "case_name": None,  # Will be filled in by validation if needed
-                            "backdrop": None,  # Required field for the frontend
-                        }
-
-                        # Add to confirmed citations
-                        results["confirmed_citations"].append(citation_obj)
-                        debug_info["stats"]["eyecite_citations"] += 1
-
-                        if "534 F.3d 1290" in citation_text:
-                            log_step(
-                                f"Successfully added citation to results: {citation_text}",
-                                "debug",
-                            )
-                            log_step(f"Citation object: {citation_obj}", "debug")
-
-                        if i % 100 == 0 or i == len(citations):
-                            log_step(f"Processed {i}/{len(citations)} citations")
-
-                    except Exception as e:
-                        log_step(f"Error processing citation {i}: {str(e)}", "error")
-                        debug_info["stats"]["validation_errors"] += 1
-                        continue
-
-                log_step(
-                    f"Extracted {len(results['confirmed_citations'])} unique citations using eyecite"
-                )
-
-        except Exception as e:
-            log_step(f"Error in eyecite extraction: {str(e)}", "error")
-            debug_info["errors"].append(f"eyecite extraction failed: {str(e)}")
-
-        # If we have confirmed citations, return them directly
-        if results["confirmed_citations"]:
-            log_step(
-                f"Found {len(results['confirmed_citations'])} citations with eyecite, skipping regex fallback"
-            )
-
-            # Ensure all required fields are present in the response
-            for citation in results["confirmed_citations"]:
-                if "validation_status" not in citation:
-                    citation["validation_status"] = "valid"
-                if "is_valid" not in citation:
-                    citation["is_valid"] = True
-                if "case_name" not in citation:
-                    citation["case_name"] = None
-                if "backdrop" not in citation:
-                    citation["backdrop"] = None
-
-            if return_debug:
-                return results["confirmed_citations"], debug_info
-            return results["confirmed_citations"]
-
-    try:
-        # Fall back to regex patterns if no citations found with eyecite
-        if not results["confirmed_citations"] or not eyecite_available:
-            log_step(
-                f"No citations found with eyecite, falling back to regex patterns. Found {len(results['confirmed_citations'])} citations so far."
-            )
-            log_step(f"Text being processed with regex patterns: {text[:200]}...")
-
-            # If we have citations in possible_citations, log why they weren't confirmed
-            if results["possible_citations"]:
-                log_step(
-                    f"Found {len(results['possible_citations'])} possible citations that weren't confirmed"
-                )
-                for i, cite in enumerate(results["possible_citations"][:3]):
-                    log_step(
-                        f"Possible citation {i+1}: {cite.get('citation_text', 'No text')}"
-                    )
-                    log_step(f"  Source: {cite.get('source', 'unknown')}")
-                    log_step(f"  Metadata: {cite.get('metadata', {})}")
-
-            # Load citation patterns
-            try:
-                from citation_patterns import (
-                    CITATION_PATTERNS,
-                    COMMON_CITATION_FORMATS,
-                    LEGAL_REPORTERS,
-                )
-
-                # Initialize with empty values if not found
-                CITATION_PATTERNS = CITATION_PATTERNS or {}
-                COMMON_CITATION_FORMATS = COMMON_CITATION_FORMATS or {}
-                LEGAL_REPORTERS = LEGAL_REPORTERS or {}
-
-                eyecite_citations = set(
-                    c["citation_text"] for c in results["confirmed_citations"]
-                )
-
-                # Process LEXIS patterns first
-                lexis_patterns = {
-                    k: v for k, v in CITATION_PATTERNS.items() if k.startswith("lexis_")
-                }
-                other_patterns = {
-                    k: v
-                    for k, v in CITATION_PATTERNS.items()
-                    if not k.startswith("lexis_")
-                }
-
-                def process_patterns(patterns, pattern_type="regex"):
-                    nonlocal seen_citations
-                    for pattern_name, pattern in patterns.items():
-                        try:
-                            matches = list(re.finditer(pattern, text, re.IGNORECASE))
-                            log_step(
-                                f"Processing {len(matches)} matches for pattern {pattern_name}",
-                                "debug",
-                            )
-
-                            for match in matches:
-                                citation_text = match.group(0).strip()
-                                if not citation_text or is_blacklisted(citation_text):
-                                    log_step(
-                                        f"Skipping blacklisted or empty citation: {citation_text}",
-                                        "debug",
-                                    )
-                                    continue
-
-                                # Clean up the citation text
-                                citation_text = re.sub(
-                                    r"\s+", " ", citation_text
-                                ).strip()
-                                citation_text = re.sub(r",\s+", ", ", citation_text)
-
-                                # Skip duplicates from eyecite or previously seen regex citations
-                                if (
-                                    citation_text in eyecite_citations
-                                    or citation_text in seen_citations
-                                ):
-                                    log_step(
-                                        f"Skipping duplicate citation: {citation_text}",
-                                        "debug",
-                                    )
-                                    continue
-
-                                # Only add to seen_citations if it's a regex citation
-                                seen_citations.add(citation_text)
-
-                                # Try to extract case name if possible
-                                case_name = None
-                                if " v. " in citation_text:
-                                    case_name = citation_text.split(",")[0].strip()
-                                    case_name = clean_case_name(case_name)
-
-                                    # Handle U.S. v. format
-                                    if (
-                                        "U.S. v. " in case_name
-                                        and "U.S." not in case_name
-                                    ):
-                                        case_parts = case_name.split(" v. ")
-                                        if len(case_parts) == 2:
-                                            case_name = f"U.S. v. {case_parts[1]}"
-
-                                # For regex citations, ensure proper formatting of Federal Reporter citations
-                                if "F." in citation_text and "F. " not in citation_text:
-                                    # Handle cases like "534 F.3d 1290" to ensure proper spacing
-                                    citation_text = re.sub(
-                                        r"(\d+)\s+(F\.)(\d+[a-z]*\s+\d+)",
-                                        r"\1 \2\3",
-                                        citation_text,
-                                    )
-                                    log_step(
-                                        f"Formatted Federal Reporter citation: {citation_text}",
-                                        "debug",
-                                    )
-
-                                citation_obj = {
-                                    "case_name": case_name or citation_text,
-                                    "backdrop": None,
-                                    "citation_text": citation_text,
-                                    "source": f"{pattern_type}_{pattern_name}",
-                                    "metadata": {
-                                        "extraction_method": pattern_type,
-                                        "pattern_used": pattern_name,
-                                        "has_pin_cite": bool(
-                                            re.search(r",\s*\d+\s*$", citation_text)
-                                        ),
-                                    },
-                                    "validation_status": "pending",
-                                }
-
-                                if pattern_type == "lexis":
-                                    results["possible_citations"].append(citation_obj)
-                                else:
-                                    results["confirmed_citations"].append(citation_obj)
-
-                                debug_info["stats"]["regex_citations"] += 1
-
-                        except re.error as e:
-                            log_step(
-                                f"Invalid regex pattern {pattern_name}: {str(e)}",
-                                "warning",
-                            )
-                            continue
-                        except Exception as e:
-                            log_step(
-                                f"Error processing pattern {pattern_name}: {str(e)}",
-                                "error",
-                            )
-                            continue
-
-                # Process LEXIS patterns
-                if lexis_patterns:
-                    log_step(f"Processing {len(lexis_patterns)} LEXIS patterns")
-                    process_patterns(lexis_patterns, "lexis")
-
-                    # Process other patterns
-                    if other_patterns:
-                        log_step(f"Processing {len(other_patterns)} other patterns")
-                        process_patterns(other_patterns, "regex")
-
-                    log_step(
-                        f"Extracted {len(results['confirmed_citations'])} citations using regex patterns"
-                    )
-
-            except ImportError as e:
-                log_step(f"Citation patterns module not found: {str(e)}", "error")
-                debug_info["errors"].append(
-                    f"Failed to import citation patterns: {str(e)}"
-                )
-            except Exception as e:
-                log_step(f"Error in regex extraction: {str(e)}", "error")
-                debug_info["errors"].append(f"Regex extraction error: {str(e)}")
-
-        # Update stats
-        debug_info["stats"]["unique_citations"] = len(seen_citations)
-        debug_info["stats"]["total_citations"] = len(
-            results["confirmed_citations"]
-        ) + len(results["possible_citations"])
-        debug_info["stats"]["processing_time"] = time.time() - start_time
-
-        log_step(f"Extraction complete. Found {len(seen_citations)} unique citations")
-
-        if return_debug:
-            debug_info["end_time"] = time.time()
-            debug_info["stats"]["processing_time"] = debug_info["end_time"] - start_time
-            return results, debug_info
-
-        return results
-
-    except Exception as e:
-        log_step(f"Fatal error in extract_citations: {str(e)}", "error")
-        if return_debug:
-            debug_info["end_time"] = time.time()
-            debug_info["stats"]["processing_time"] = debug_info["end_time"] - start_time
-            debug_info["errors"].append(f"Fatal error: {str(e)}")
-            return {
-                "confirmed_citations": [],
-                "possible_citations": [],
-                "warnings": [],
-                "errors": [],
-            }, debug_info
-        return {
-            "confirmed_citations": [],
-            "possible_citations": [],
-            "warnings": [],
-            "errors": [],
-        }
+            text = text.decode('utf-8', errors='replace')
+        except Exception:
+            return "[Binary data]"
+    # Remove non-printable characters
+    text = ''.join(c for c in text if c.isprintable())
+    # Limit length and add ellipsis
+    if len(text) > max_length:
+        text = text[:max_length] + "..."
+    return text
 
 
 # The regex pattern processing has been moved into the main function
@@ -1500,7 +1069,7 @@ def validate_with_timeout(citation):
         citation_text = citation.get("citation_text", "")
         try:
             # Try to get the validation result as a dictionary
-            result = validate_citation(citation_text)
+            result = citation_processor.validate_citation(citation_text)
 
             # Create a debug info dictionary
             debug_info = {
@@ -1592,10 +1161,6 @@ def validate_with_timeout(citation):
             "error": str(e),
             "traceback": traceback.format_exc(),
         }
-    if return_debug:
-        return validated_citations, debug_info
-    return validated_citations
-
     # --- FILTER OUT ARTIFACTS AND NON-CITATIONS ---
     def is_artifact_or_invalid(citation_obj):
         citation_val = citation_obj.get("citation_text", "")
@@ -1642,7 +1207,11 @@ def validate_with_timeout(citation):
             return False
 
         # Remove if not matching a valid citation format
-        from .enhanced_validator_production import is_valid_citation_format
+        try:
+            from .enhanced_validator_production import is_valid_citation_format
+        except ImportError:
+            def is_valid_citation_format(text):
+                return True
 
         # For Caraway v. Caraway format, be more lenient
         if "Caraway" in text and "v." in text and not is_valid_citation_format(text):
@@ -1684,9 +1253,20 @@ def generate_analysis_id():
 
 # Function to extract text from a URL
 def extract_text_from_url(url):
-    """Extract text from a URL."""
-    logger.info(f"Extracting text from URL: {url}")
+    """
+    Extract text from a URL and find citations in the content.
+    
+    Args:
+        url (str): The URL to extract text from
+        
+    Returns:
+        dict: Dictionary containing extracted text and citations
+    """
+    logger.info(f"Extracting text and citations from URL: {url}")
     try:
+        # Import the combined citation extractor
+        from eyecite_handler import extract_and_combine_citations
+        
         # Validate URL
         parsed_url = urlparse(url)
         if not parsed_url.scheme or not parsed_url.netloc:
@@ -1696,32 +1276,95 @@ def extract_text_from_url(url):
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-
-        # Parse HTML content
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # Remove script and style elements
-        for script in soup(["script", "style"]):
-            script.decompose()
-
-        # Get text content
-        text = soup.get_text(separator="\n", strip=True)
-
-        # Clean up text
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = "\n".join(chunk for chunk in chunks if chunk)
+        
+        # Check if it's a PDF URL
+        if url.lower().endswith('.pdf'):
+            # Handle PDF files
+            try:
+                # Download the PDF content
+                response = requests.get(url, headers=headers, timeout=30, stream=True)
+                response.raise_for_status()
+                
+                # Save to a temporary file
+                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        temp_file.write(chunk)
+                    temp_file_path = temp_file.name
+                
+                try:
+                    # Extract text with PDF to markdown conversion
+                    from file_utils import extract_text_from_file
+                    text = extract_text_from_file(
+                        temp_file_path,
+                        convert_pdf_to_md=True  # Enable PDF to markdown conversion
+                    )
+                    
+                    logger.info(f"Successfully extracted {len(text)} characters from PDF with markdown conversion")
+                    return {"text": text, "citations": []}
+                finally:
+                    # Clean up the temporary file
+                    try:
+                        os.unlink(temp_file_path)
+                    except Exception as e:
+                        logger.warning(f"Error cleaning up temporary file: {e}")
+            except Exception as e:
+                logger.error(f"Error processing PDF from URL: {e}")
+                raise Exception(f"Failed to process PDF from URL: {str(e)}")
+        else:
+            # Handle HTML content
+            response = requests.get(url, headers=headers, timeout=30)
+            response.raise_for_status()
+            
+            # Parse HTML content
+            soup = BeautifulSoup(response.text, "html.parser")
+            
+            # Remove script and style elements
+            for script in soup(["script", "style"]):
+                script.decompose()
+            
+            # Get text content
+            text = soup.get_text(separator="\n", strip=True)
+            log_step(f"Extracted {len(text)} characters from URL content")
+            
+            # Clean up text
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  ") if phrase.strip())
+            text = "\n".join(chunks)
+            
+            # Log a sample of the extracted text for debugging
+            sample_text = text[:500].replace('\n', ' ').replace('\r', '')
+            log_step(f"Sample extracted text: {sample_text}...")
 
         logger.info(f"Successfully extracted {len(text)} characters from URL")
-        return text
+        
+        # Extract citations from the text
+        citations = extract_and_combine_citations(text)
+        
+        return {
+            "text": text,
+            "citations": citations,
+            "url": url,
+            "status": "success",
+            "characters_processed": len(text),
+            "citations_found": len(citations)
+        }
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Error fetching URL: {str(e)}")
-        raise ValueError(f"Error fetching URL: {str(e)}")
+        error_msg = f"Error fetching URL: {str(e)}"
+        logger.error(error_msg)
+        return {
+            "status": "error",
+            "error": error_msg,
+            "url": url
+        }
     except Exception as e:
-        logger.error(f"Error extracting text from URL: {str(e)}")
+        error_msg = f"Error processing URL: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return {
+            "status": "error",
+            "error": error_msg,
+            "url": url
+        }
 
 
 # Function to print registered routes for debugging
@@ -1875,100 +1518,40 @@ enhanced_validator_bp.route("/analyze", methods=["POST", "OPTIONS"])(
     enhanced_analyze_endpoint
 )
 
+# Ensure the endpoint is accessible under the correct prefix
+def ensure_correct_endpoint(app):
+    """Ensure the analyze endpoint is accessible under the correct prefix."""
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint.startswith('enhanced_validator') and '/analyze' in str(rule):
+            logger.info(f"Found analyze endpoint: {rule}")
+            return
+    logger.warning("Analyze endpoint not found, adding manually")
+    app.add_url_rule('/api/enhanced/analyze', view_func=enhanced_analyze_endpoint, methods=['POST', 'OPTIONS'])
 
-# Function to register the blueprint with the Flask app
+# Update the registration function to ensure the endpoint is accessible
 def register_enhanced_validator(app):
-    """
-    Register the enhanced validator blueprint with the Flask application.
-
-    Args:
-        app: The Flask application instance
-
-    Returns:
-        The Flask application with the enhanced validator blueprint registered
-    """
-    # Use a consistent name for the blueprint
-    blueprint_name = "enhanced_validator"
-
-    # Check if already registered
-    if blueprint_name in app.blueprints:
-        logger.info(f"{blueprint_name} already registered, skipping")
-        return app
-
+    """Register the enhanced validator blueprint with the Flask application."""
     try:
-        # Get the URL prefix from the app config or use a default that matches the frontend
-        url_prefix = app.config.get("ENHANCED_VALIDATOR_URL_PREFIX", "/api/enhanced")
+        # Check if blueprint is already registered
+        if 'enhanced_validator' in app.blueprints:
+            logger.info("Enhanced validator blueprint already registered, skipping")
+            return app
 
-        # Ensure the URL prefix starts with a slash and remove any trailing slashes
-        url_prefix = url_prefix.strip().rstrip("/")
-        if not url_prefix.startswith("/"):
-            url_prefix = f"/{url_prefix}"
-
-        logger.info(
-            "Registering %s blueprint with URL prefix: %s", blueprint_name, url_prefix
-        )
-
-        # Get or create the blueprint
-        current_bp = get_enhanced_validator_blueprint()
-        current_bp.name = blueprint_name  # Ensure consistent naming
-
-        # Create a fresh endpoint function instance for this blueprint
-        endpoint_function = create_enhanced_analyze_endpoint()
-
-        # Add the route to the blueprint
-        current_bp.route("/analyze", methods=["POST", "OPTIONS"])(endpoint_function)
-
-        # Add CORS headers to all responses
-        @current_bp.after_request
-        def add_cors_headers(response):
-            response.headers.add("Access-Control-Allow-Origin", "*")
-            response.headers.add(
-                "Access-Control-Allow-Headers", "Content-Type,Authorization"
-            )
-            response.headers.add(
-                "Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"
-            )
-            return response
-
-        # Register the blueprint with the app and URL prefix
-        app.register_blueprint(current_bp, url_prefix=url_prefix, name=current_bp.name)
-
-        # Log the registered routes for debugging
-        if hasattr(app, "url_map") and hasattr(app.url_map, "iter_rules"):
-            logger.info("Registered enhanced validator routes:")
-            for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
-                if "enhanced_validator" in str(rule.endpoint):
-                    logger.info(
-                        f"  {rule.endpoint}: {rule.rule} ({', '.join(rule.methods)})"
-                    )
-
+        # Create and register the blueprint
+        enhanced_validator_bp = create_enhanced_validator_blueprint()
+        app.register_blueprint(enhanced_validator_bp, url_prefix="/api/enhanced")
+        
+        # Ensure the endpoint is accessible
+        ensure_correct_endpoint(app)
+        
+        logger.info("Registered enhanced validator routes:")
+        for rule in app.url_map.iter_rules():
+            if rule.endpoint.startswith('enhanced_validator.'):
+                methods = ','.join(rule.methods - {'OPTIONS', 'HEAD'}) if hasattr(rule, 'methods') else 'GET'
+                logger.info(f"  {rule.endpoint}: {rule} - {methods}")
+        
         logger.info("Enhanced validator registered successfully")
         return app
-
     except Exception as e:
         logger.error(f"Failed to register enhanced validator: {e}")
-        logger.exception("Error details:")
-
-        # Try to register with a default prefix if the configured one fails
-        try:
-            logger.info("Attempting to register with default URL prefix")
-            default_bp = get_enhanced_validator_blueprint()
-            endpoint_function = create_enhanced_analyze_endpoint()
-            default_bp.route("/analyze", methods=["POST", "OPTIONS"])(endpoint_function)
-            app.register_blueprint(
-                default_bp, url_prefix="/enhanced-validator", name=default_bp.name
-            )
-            logger.info("Successfully registered with default URL prefix")
-            return app
-        except Exception as default_e:
-            logger.error(f"Failed to register with default URL prefix: {default_e}")
-            logger.exception("Error details:")
-            raise
-            return app
-        except Exception as fallback_error:
-            logger.error(f"Fallback registration failed: {str(fallback_error)}")
-            logger.exception("Fallback error details:")
-            raise
-
-
-# ... (rest of the code remains the same)
+        raise

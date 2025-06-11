@@ -1,0 +1,22 @@
+{
+  "citations": [
+    {
+      "citation": "534 F.3d 1290",
+      "caseName": "United States v. Caraway",
+      "status": "found",
+      "details": "This is a mock response for testing purposes"
+    },
+    {
+      "citation": "410 U.S. 113",
+      "caseName": "Roe v. Wade",
+      "status": "found",
+      "details": "This is a mock response for testing purposes"
+    },
+    {
+      "citation": "347 U.S. 483",
+      "caseName": "Brown v. Board of Education",
+      "status": "found",
+      "details": "This is a mock response for testing purposes"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ import csv
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import PyPDF2
+from src.citation_extractor import CitationExtractor
 
 # Try to import eyecite for citation extraction
 try:
@@ -204,56 +205,123 @@ def download_brief(brief_info):
 
 
 def extract_text_from_pdf(pdf_path):
-    """Extract text from a PDF file."""
-    print(f"Extracting text from PDF: {pdf_path}")
-
+    """Extract text from a PDF file with proper sanitization."""
+    print(f"\n=== PDF EXTRACTION DEBUG ===")
+    print(f"Starting PDF extraction from: {pdf_path}")
+    
+    def sanitize_text_for_logging(text, max_length=200):
+        """Sanitize text for logging by removing non-printable characters and limiting length."""
+        if not text:
+            return ""
+        # Convert to string if bytes
+        if isinstance(text, bytes):
+            try:
+                text = text.decode('utf-8', errors='replace')
+            except Exception:
+                return "[Binary data]"
+        # Remove non-printable characters
+        text = ''.join(c for c in text if c.isprintable())
+        # Limit length and add ellipsis
+        if len(text) > max_length:
+            text = text[:max_length] + "..."
+        return text
+    
+    def sanitize_bytes_for_logging(bytes_data, max_length=200):
+        """Sanitize bytes for logging by converting to hex representation."""
+        if not bytes_data:
+            return ""
+        # Convert bytes to hex representation
+        hex_str = bytes_data.hex()
+        # Add spaces between bytes for readability
+        hex_str = ' '.join(hex_str[i:i+2] for i in range(0, len(hex_str), 2))
+        # Limit length and add ellipsis
+        if len(hex_str) > max_length:
+            hex_str = hex_str[:max_length] + "..."
+        return hex_str
+    
     try:
+        # Check if file exists and is readable
+        if not os.path.exists(pdf_path):
+            error_msg = f"PDF file does not exist: {pdf_path}"
+            print(f"ERROR: {error_msg}")
+            return ""
+            
+        # Get file size
+        file_size = os.path.getsize(pdf_path)
+        print(f"PDF file size: {file_size/1024:.1f}KB")
+        
+        if file_size == 0:
+            error_msg = f"PDF file is empty: {pdf_path}"
+            print(f"ERROR: {error_msg}")
+            return ""
+            
+        # Validate PDF header
+        with open(pdf_path, 'rb') as f:
+            header = f.read(5)
+            # Log sanitized header bytes
+            print(f"PDF header (hex): {sanitize_bytes_for_logging(header)}")
+            if not header.startswith(b'%PDF-'):
+                error_msg = "Invalid PDF file: Missing PDF header"
+                print(f"ERROR: {error_msg}")
+                return ""
+        
+        # Extract text using PyPDF2
         text = ""
         with open(pdf_path, "rb") as f:
             pdf_reader = PyPDF2.PdfReader(f)
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text() + "\n"
-
+            num_pages = len(pdf_reader.pages)
+            print(f"PDF has {num_pages} pages")
+            
+            for page_num in range(num_pages):
+                try:
+                    page = pdf_reader.pages[page_num]
+                    page_text = page.extract_text()
+                    
+                    if not page_text:
+                        print(f"Warning: No text extracted from page {page_num+1}")
+                        continue
+                        
+                    # Sanitize page text before logging
+                    sanitized_sample = sanitize_text_for_logging(page_text)
+                    print(f"Extracted {len(page_text)} characters from page {page_num+1}")
+                    if sanitized_sample:
+                        print(f"Sample from page {page_num+1}: {sanitized_sample}")
+                        
+                    text += page_text + "\n"
+                    
+                except Exception as page_error:
+                    print(f"Error extracting text from page {page_num+1}: {str(page_error)}")
+                    continue
+        
+        if not text.strip():
+            error_msg = "No text could be extracted from the PDF"
+            print(f"ERROR: {error_msg}")
+            return ""
+            
+        # Sanitize final text before logging
+        sanitized_sample = sanitize_text_for_logging(text)
+        print(f"Successfully extracted {len(text)} characters")
+        if sanitized_sample:
+            print(f"Sample of extracted text: {sanitized_sample}")
+            
         return text
 
     except Exception as e:
-        print(f"Error extracting text from PDF: {e}")
+        error_msg = f"Error extracting text from PDF: {str(e)}"
+        print(f"ERROR: {error_msg}")
         traceback.print_exc()
         return ""
 
 
 def extract_citations(text):
-    """Extract citations from text."""
-    print("Extracting citations from text...")
-
-    if USE_EYECITE:
-        try:
-            # Use eyecite to extract citations
-            citations = get_citations(text, tokenizer=HyperscanTokenizer())
-
-            # Extract citation strings
-            citation_strings = []
-            for citation in citations:
-                citation_strings.append(citation.corrected_citation())
-
-            return citation_strings
-
-        except Exception as e:
-            print(f"Error extracting citations with eyecite: {e}")
-            traceback.print_exc()
-
-    # Fallback to regex patterns
-    print("Using regex patterns to extract citations...")
-    citations = []
-
-    for pattern_name, pattern in CITATION_PATTERNS.items():
-        matches = re.finditer(pattern, text)
-        for match in matches:
-            citation = match.group(0)
-            if citation not in citations:
-                citations.append(citation)
-
+    """Extract citations from text using the unified CitationExtractor."""
+    print("Extracting citations from text (using CitationExtractor)...")
+    if not text or not text.strip():
+         print("ERROR: Empty or whitespace–only text provided")
+         return []
+    extractor = CitationExtractor(use_eyecite=USE_EYECITE, use_regex=True, context_window=0, deduplicate=True)
+    citations = [d['citation'] for d in extractor.extract(text, return_context=False, debug=False)]
+    print(f"Extraction complete. Found {len(citations)} citations.")
     return citations
 
 

@@ -122,3 +122,5 @@
 204.76.203.219 - - [04/Jun/2025:11:56:59 -0700] "GET / HTTP/1.1" 301 169 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46"
 79.124.8.120 - - [04/Jun/2025:12:10:42 -0700] "GET / HTTP/1.1" 301 169 "http://128.208.154.3:80/" "Mozilla/5.0"
 185.73.23.151 - - [04/Jun/2025:12:16:54 -0700] "GET / HTTP/1.1" 301 169 "-" "Mozilla/5.0 zgrab/2.0 http://cdn-measurements.softsec.rub.de/"
+204.76.203.219 - - [05/Jun/2025:21:19:01 -0700] "GET / HTTP/1.1" 301 169 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46"
+204.76.203.206 - - [05/Jun/2025:21:20:04 -0700] "GET / HTTP/1.1" 301 169 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46"

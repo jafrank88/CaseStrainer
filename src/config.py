@@ -14,7 +14,7 @@ except ImportError:
 load_dotenv()
 
 # Load config.json once
-CONFIG_JSON_PATH = os.path.join(os.path.dirname(__file__), "..", "config.json")
+CONFIG_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
 try:
     with open(CONFIG_JSON_PATH, "r") as f:
         CONFIG_JSON = json.load(f)

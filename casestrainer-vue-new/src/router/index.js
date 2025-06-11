@@ -1,10 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+// Import views directly
+const HomeView = () => import('@/views/HomeView.vue');
+const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
+const NotFound = () => import('@/views/NotFound.vue');
+
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
+    component: HomeView,
     meta: {
       title: 'CaseStrainer - Legal Citation Validator',
       metaTags: [
@@ -30,7 +35,7 @@ const routes = [
   {
     path: '/enhanced-validator',
     name: 'EnhancedValidator',
-    component: () => import('@/views/EnhancedValidator.vue'),
+    component: EnhancedValidator,
     meta: {
       title: 'Enhanced Validator | CaseStrainer',
       metaTags: [
@@ -45,7 +50,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/views/NotFound.vue'),
+    component: NotFound,
     meta: {
       title: '404 - Page Not Found | CaseStrainer'
     }

@@ -1,0 +1,5 @@
+npm error Missing script: "dev"
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: C:\Users\jafrank\AppData\Local\npm-cache\_logs\2025-06-05T16_12_51_740Z-debug-0.log

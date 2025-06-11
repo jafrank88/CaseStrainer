@@ -245,6 +245,94 @@ def process_pdf_url(url):
         return []
 
 
+def extract_and_combine_citations(text):
+    """
+    Extract citations using both eyecite and regex, then combine and deduplicate results.
+    
+    Args:
+        text (str): Text to extract citations from
+        
+    Returns:
+        list: List of unique citation dictionaries with metadata
+    """
+    print("Starting combined citation extraction...")
+    
+    # Normalize whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # 1. Extract with eyecite
+    eyecite_results = []
+    try:
+        citations = get_citations(text)
+        resolve_citations(citations)
+        
+        for citation in citations:
+            citation_info = {
+                "citation_text": str(citation),
+                "case_name": (
+                    f"{getattr(citation, 'plaintiff', '')} v. {getattr(citation, 'defendant', '')}"
+                    if hasattr(citation, 'plaintiff') and hasattr(citation, 'defendant')
+                    else "Unknown"
+                ),
+                "reporter": getattr(citation, 'reporter', ''),
+                "volume": getattr(citation, 'volume', ''),
+                "page": getattr(citation, 'page', ''),
+                "year": getattr(citation, 'year', ''),
+                "court": getattr(citation, 'court', ''),
+                "source": "eyecite"
+            }
+            eyecite_results.append(citation_info)
+    except Exception as e:
+        print(f"Error in eyecite extraction: {str(e)}")
+    
+    # 2. Extract with regex
+    regex_results = []
+    try:
+        citation_patterns = [
+            r"\b\d+\s+U\.?\s*S\.?\s+\d+\b",  # U.S. Reports
+            r"\b\d+\s+S\.?\s*Ct\.?\s+\d+\b",  # Supreme Court Reporter
+            r"\b\d+\s+L\.?\s*Ed\.?\s*(?:2d|3d)?\s+\d+\b",  # Lawyers Edition
+            r"\b\d+\s+U\.?\s*S\.?\s+C\.?\s+\d+\b",  # U.S. Court of Appeals
+            r"\b\d+\s+F\.?\s*(?:2d|3d|4th)?\s+\d+\b",  # Federal Reporter
+            r"\b\d+\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+\d+\b",  # Federal Supplement
+            r"\b\d+\s+W\.?\s*L\.?\s+\d+\b",  # Westlaw
+            r"\b\d+\s+W\.?\s*n\.?\s*2d\s+\d+\b",  # Washington Reports 2d
+            r"\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b",  # Pacific Reporter
+        ]
+        
+        for pattern in citation_patterns:
+            matches = re.finditer(pattern, text)
+            for match in matches:
+                citation_text = re.sub(r'\s+', ' ', match.group()).strip()
+                regex_results.append({
+                    "citation_text": citation_text,
+                    "case_name": "Extracted by regex",
+                    "source": "regex"
+                })
+    except Exception as e:
+        print(f"Error in regex extraction: {str(e)}")
+    
+    # 3. Combine and deduplicate results
+    unique_citations = {}
+    
+    # Add eyecite results first (preferred)
+    for citation in eyecite_results:
+        key = citation["citation_text"].lower().strip()
+        unique_citations[key] = citation
+    
+    # Add regex results if not already found by eyecite
+    for citation in regex_results:
+        key = citation["citation_text"].lower().strip()
+        if key not in unique_citations:
+            unique_citations[key] = citation
+    
+    # Convert back to list
+    combined_results = list(unique_citations.values())
+    
+    print(f"Found {len(combined_results)} unique citations ({len(eyecite_results)} from eyecite, {len(regex_results)} from regex)")
+    return combined_results
+
+
 if __name__ == "__main__":
     import sys
 

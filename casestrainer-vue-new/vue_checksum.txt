@@ -1,0 +1,3 @@
+SHA256 hash of all_vue_files.tmp:
+c5cb6f1fe728a2ecda5ee48fedc7ccc07da0064ebb514e14396030f78b39a581
+CertUtil: -hashfile command completed successfully.

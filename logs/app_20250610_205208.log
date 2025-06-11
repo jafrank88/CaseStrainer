@@ -1,0 +1,13 @@
+2025-06-10 20:52:08,902 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:52:08,907 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:52:08,907 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:52:08,908 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:52:08,914 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:52:08,914 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:52:08,919 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:52:08,919 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:52:08,919 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:52:08,925 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:52:31,049 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Saved uploaded file to C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\temp_uploads\gov.uscourts.wyd.64014.141.0_1.pdf
+2025-06-10 20:52:31,604 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully extracted text from file
+2025-06-10 20:52:32,522 - src.app_final_vue - DEBUG - [ANALYZE_DOCUMENT] Deleted temporary file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\temp_uploads\gov.uscourts.wyd.64014.141.0_1.pdf

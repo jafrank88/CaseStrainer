@@ -8,8 +8,12 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 // Track active requests
 const activeRequests = new Set();
 
+// Get base URL from environment variables
+const baseURL = import.meta.env.VITE_API_BASE_URL || '';
+
 // Create axios instance with default config
 const api = axios.create({
+  baseURL,
   timeout: DEFAULT_TIMEOUT,
   withCredentials: true,
   headers: {
@@ -24,6 +28,11 @@ api.interceptors.request.use(
     // Add request to active requests
     const requestId = `${config.method?.toUpperCase()}:${config.url}`;
     activeRequests.add(requestId);
+    
+    // Don't set Content-Type header for FormData - let the browser set it with the correct boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     
     // Add auth token if available
     // const token = localStorage.getItem('auth_token');

@@ -1,375 +1,128 @@
 <template>
   <div class="enhanced-validator container-fluid py-3">
-    <div class="row g-3">
-      <!-- Main Content Area -->
+    <div class="row">
       <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary text-white py-3">
-            <div class="d-flex flex-column">
-              <h5 class="mb-3">
-                <i class="bi bi-search me-2"></i>Citation Validator
-              </h5>
-              <div class="d-flex flex-wrap gap-2">
-                <button 
-                  class="btn d-flex align-items-center" 
-                  :class="activeTab === 'single' ? 'btn-light' : 'btn-outline-light'"
-                  @click="activeTab = 'single'"
-                >
-                  <i class="bi bi-quote me-1"></i>
-                  <span>Single Citation</span>
-                </button>
-                <button 
-                  class="btn d-flex align-items-center" 
-                  :class="activeTab === 'document' ? 'btn-light' : 'btn-outline-light'"
-                  @click="activeTab = 'document'"
-                >
-                  <i class="bi bi-upload me-1"></i>
-                  <span>Upload Document</span>
-                </button>
-                <button 
-                  class="btn d-flex align-items-center" 
-                  :class="activeTab === 'text' ? 'btn-light' : 'btn-outline-light'"
-                  @click="activeTab = 'text'"
-                >
-                  <i class="bi bi-text-paragraph me-1"></i>
-                  <span>Paste Text</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="card-body p-3">
-            <!-- Error Alert -->
-            <div v-if="error" class="alert alert-danger d-flex align-items-center py-2 mb-3" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <div class="small">{{ error }}</div>
-            </div>
+        <h2 class="mb-4">Citation Validator</h2>
+        
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-4" role="tablist">
+          <li v-for="tab in tabs" :key="tab.id" class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              :class="{ active: activeTab === tab.id }"
+              @click="activeTab = tab.id"
+              type="button"
+              role="tab"
+              :aria-selected="activeTab === tab.id"
+            >
+              {{ tab.label }}
+            </button>
+          </li>
+        </ul>
 
-            <!-- Single Citation Input -->
-            <div v-if="activeTab === 'single'">
-              <div class="mb-4">
-                <label for="citationInput" class="form-label fw-semibold">Enter a legal citation to validate</label>
-                <div class="input-group">
-                  <input 
-                    type="text" 
-                    id="citationInput" 
-                    class="form-control form-control-lg" 
-                    v-model="citationText"
-                    placeholder="e.g., 123 U.S. 456 (2023)"
-                    @keyup.enter="validateCitation"
-                    :disabled="isLoading"
-                  >
-                  <button 
-                    class="btn btn-primary position-relative" 
-                    type="button" 
-                    @click="validateCitation"
-                    :disabled="!citationText || showLoading || hasActiveRequest"
-                  >
-                    <span v-if="showLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    {{ showLoading ? 'Validating...' : 'Validate' }}
-                    <span v-if="hasActiveRequest" class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                      <span class="visually-hidden">Active request</span>
-                    </span>
-                  </button>
-                </div>
-                <div class="form-text text-muted mt-1">
-                  Example formats: 123 U.S. 456 (2023), 456 F.3d 123, 123 S. Ct. 456
-                </div>
+        <!-- Tab Content -->
+        <div class="tab-content p-3 border border-top-0 rounded-bottom">
+          <!-- Single Citation Tab -->
+          <div v-if="activeTab === 'single'" class="tab-pane fade show active">
+            <div class="mb-3">
+              <label for="citationInput" class="form-label">Enter Citation</label>
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="citationInput"
+                  v-model="citationInput"
+                  placeholder="e.g., 410 U.S. 113 (1973)"
+                  @keyup.enter="validateCitation(citationInput)"
+                >
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  @click="validateCitation(citationInput)"
+                  :disabled="!citationInput.trim() || isLoading"
+                >
+                  <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  {{ isLoading ? 'Validating...' : 'Validate' }}
+                </button>
               </div>
-              
-              <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                  <div class="form-check form-switch">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      id="useEnhanced" 
-                      v-model="useEnhanced"
-                      :disabled="isLoading"
-                    >
-                    <label class="form-check-label" for="useEnhanced">
-                      <i class="bi bi-shield-check me-1"></i>Enhanced Validation
-                    </label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check form-switch">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      id="useML" 
-                      v-model="useML"
-                      :disabled="isLoading"
-                    >
-                    <label class="form-check-label" for="useML">
-                      <i class="bi bi-robot me-1"></i>ML Analysis
-                    </label>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-check form-switch">
-                    <input 
-                      class="form-check-input" 
-                      type="checkbox" 
-                      id="useCorrection" 
-                      v-model="useCorrection"
-                      :disabled="isLoading"
-                    >
-                    <label class="form-check-label" for="useCorrection">
-                      <i class="bi bi-lightbulb me-1"></i>Suggest Corrections
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Results Tabs -->
-              <div v-if="(validationResult || mlResult || correctionResult)" class="mt-3">
-                <ul class="nav nav-tabs nav-fill" id="resultsTabs" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button 
-                      class="nav-link py-1 px-2" 
-                      :class="{ 'active': activeResultTab === 'validation' }"
-                      @click="activeResultTab = 'validation'"
-                    >
-                      <i class="bi bi-check2-circle me-1"></i>
-                      Validation
-                    </button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button 
-                      class="nav-link py-1 px-2" 
-                      :class="{ 'active': activeResultTab === 'analysis' }"
-                      @click="activeResultTab = 'analysis'"
-                    >
-                      <i class="bi bi-graph-up me-1"></i>
-                      Analysis
-                    </button>
-                  </li>
-                  <li 
-                    v-if="correctionResult && correctionResult.suggestions && correctionResult.suggestions.length > 0"
-                    class="nav-item" 
-                    role="presentation"
-                  >
-                    <button 
-                      class="nav-link py-1 px-2" 
-                      :class="{ 'active': activeResultTab === 'suggestions' }"
-                      @click="activeResultTab = 'suggestions'"
-                    >
-                      <i class="bi bi-lightbulb me-1"></i>
-                      Suggestions
-                      <span class="badge bg-primary ms-1">
-                        {{ correctionResult.suggestions.length }}
-                      </span>
-                    </button>
-                  </li>
-                </ul>
-                
-                <div class="border border-top-0 p-3 bg-white">
-                  <!-- Validation Tab -->
-                  <div v-if="activeResultTab === 'validation' && validationResult" class="small">
-                    <div class="d-flex align-items-center mb-3">
-                      <i :class="['bi', 'me-2', validationResult.valid ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger']"></i>
-                      <div>
-                        <h6 class="mb-0">{{ validationResult.valid ? 'Valid Citation' : 'Invalid Citation' }}</h6>
-                        <small class="text-muted">{{ validationResult.message || 'Citation validation results' }}</small>
-                      </div>
-                    </div>
-                    
-                    <div class="row g-2 small">
-                      <div class="col-6">
-                        <div class="text-muted">Type</div>
-                        <div>{{ validationResult.details?.type || 'N/A' }}</div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-muted">Reporter</div>
-                        <div>{{ validationResult.details?.reporter || 'N/A' }}</div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-muted">Volume</div>
-                        <div>{{ validationResult.details?.volume || 'N/A' }}</div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-muted">Page</div>
-                        <div>{{ validationResult.details?.page || 'N/A' }}</div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-muted">Year</div>
-                        <div>{{ validationResult.details?.year || 'N/A' }}</div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-muted">Court</div>
-                        <div>{{ validationResult.details?.court || 'N/A' }}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Analysis Tab -->
-                  <div v-else-if="activeResultTab === 'analysis' && mlResult" class="small">
-                    <div class="mb-3">
-                      <h6 class="mb-2">Confidence Scores</h6>
-                      <div v-for="(score, key) in mlResult.confidenceScores" :key="key" class="mb-2">
-                        <div class="d-flex justify-content-between mb-1">
-                          <span class="text-capitalize">{{ key.replace(/([A-Z])/g, ' $1').trim() }}</span>
-                          <span class="fw-medium">{{ Math.round(score * 100) }}%</span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                          <div 
-                            class="progress-bar" 
-                            :class="getProgressBarClass(score)"
-                            role="progressbar" 
-                            :style="{ width: `${score * 100}%` }" 
-                            :aria-valuenow="score * 100" 
-                            aria-valuemin="0" 
-                            aria-valuemax="100"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-if="mlResult.explanation">
-                      <h6 class="mb-2">Explanation</h6>
-                      <p class="mb-0">{{ mlResult.explanation }}</p>
-                    </div>
-                  </div>
-                  
-                  <!-- Suggestions Tab -->
-                  <div v-else-if="activeResultTab === 'suggestions' && correctionResult?.suggestions" class="small">
-                    <div class="list-group list-group-flush">
-                      <div 
-                        v-for="(suggestion, index) in correctionResult.suggestions" 
-                        :key="index"
-                        class="list-group-item border-0 px-0 py-2"
-                      >
-                        <div class="d-flex justify-content-between align-items-start">
-                          <div>
-                            <h6 class="mb-1">Suggestion {{ index + 1 }}</h6>
-                            <p class="mb-1">{{ suggestion.text }}</p>
-                            <small class="text-muted">Confidence: {{ Math.round(suggestion.confidence * 100) }}%</small>
-                          </div>
-                          <button 
-                            class="btn btn-sm btn-outline-primary" 
-                            @click="applySuggestion(suggestion)"
-                          >
-                            Apply
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div v-else class="text-muted text-center py-4">
-                    <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
-                    No results available for the selected tab.
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Document/Text Analysis Results -->
-              <div v-if="(activeTab === 'document' || activeTab === 'text') && (documentAnalysisResult || textAnalysisResult)" class="mt-3">
-                <div class="card border-0 shadow-sm">
-                  <div class="card-header bg-light py-2">
-                    <h6 class="mb-0">
-                      <i class="bi bi-clipboard2-data me-2"></i>
-                      {{ activeTab === 'document' ? 'Document' : 'Text' }} Analysis Results
-                    </h6>
-                  </div>
-                  <div class="card-body p-0">
-                    <CitationResults 
-                      :results="activeTab === 'document' ? documentAnalysisResult : textAnalysisResult"
-                      :loading="isAnalyzing"
-                      @citation-click="handleCitationClick"
-                    />
-                  </div>
-                </div>
-          </div>
-        </div>
-            
-            <!-- Document Upload Tab -->
-            <div v-else-if="activeTab === 'document'">
-              <FileUpload 
-                @results="handleDocumentResults" 
-                @error="handleDocumentError"
-                :api-base-url="apiBaseUrl"
-              />
-              <!-- Document/Text Analysis Results will be shown in the dedicated section below -->
-            </div>
-            
-            <!-- Text Paste Tab -->
-            <div v-else-if="activeTab === 'text'">
-              <TextPaste 
-                @results="handleTextResults" 
-                @error="handleTextError"
-                :api-base-url="apiBaseUrl"
-              />
-              <!-- Text Analysis Results will be shown in the dedicated section below -->
             </div>
           </div>
-        </div>
-      </div>
-      
-      <!-- Results Sidebar -->
-      <div v-if="activeTab !== 'document' && activeTab !== 'text'" class="col-md-4 mt-4 mt-md-0">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>About Citation Validation</h5>
-          </div>
-          <div class="card-body">
-            <h6 class="fw-semibold">What can I validate?</h6>
-            <p class="small">
-              Our validator supports various legal citation formats including:
-            </p>
-            <ul class="small">
-              <li>U.S. Supreme Court (e.g., 123 U.S. 456)</li>
-              <li>Federal Courts (e.g., 456 F.3d 123)</li>
-              <li>State Courts (e.g., 123 N.E.2d 456)</li>
-              <li>Law Review Articles (e.g., 123 Harv. L. Rev. 456)</li>
-            </ul>
-            
-            <h6 class="fw-semibold mt-4">Enhanced Validation</h6>
-            <p class="small">
-              When enabled, our system performs additional checks against legal databases to verify:
-            </p>
-            <ul class="small">
-              <li>Case existence and correct citation format</li>
-              <li>Parallel citations</li>
-              <li>Subsequent history and negative treatment</li>
-              <li>Statutory validity</li>
-            </ul>
-            
-            <div class="alert alert-warning small mt-4">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <strong>Note:</strong> This tool is for informational purposes only and should not be considered legal advice.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Results Display for Document and Text Analysis -->
-    <div v-if="(activeTab === 'document' || activeTab === 'text') && (documentAnalysisResult || textAnalysisResult)" 
-         class="row mt-4">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i :class="['bi', activeTab === 'document' ? 'bi-file-earmark-text' : 'bi-text-paragraph', 'me-2']"></i>
-              {{ activeTab === 'document' ? 'Document Analysis Results' : 'Text Analysis Results' }}
-            </h5>
-            <div class="btn-group">
-              <button class="btn btn-sm btn-outline-secondary" @click="copyAllResults">
-                <i class="bi bi-clipboard me-1"></i>Copy All
-              </button>
-              <button class="btn btn-sm btn-outline-secondary" @click="downloadResults">
-                <i class="bi bi-download me-1"></i>Download
-              </button>
-            </div>
-          </div>
-          <div class="card-body p-0">
-            <CitationResults 
-              :results="activeTab === 'document' ? documentAnalysisResult : textAnalysisResult"
-              @apply-correction="applyCorrectionFromResults"
-              class="border-0"
+
+          <!-- Document Upload Tab -->
+          <div v-else-if="activeTab === 'document'" class="tab-pane fade show active">
+            <FileUpload
+              @results="handleDocumentResults"
+              @error="handleDocumentError"
+              :is-loading="isLoading"
+              @loading="isLoading = $event"
             />
           </div>
+
+          <!-- Text Paste Tab -->
+          <div v-else-if="activeTab === 'text'" class="tab-pane fade show active">
+            <TextPaste
+              @results="handleTextResults"
+              @error="handleTextError"
+              :is-loading="isLoading"
+              @loading="isLoading = $event"
+            />
+          </div>
+
+          <!-- URL Upload Tab -->
+          <div v-else-if="activeTab === 'url'" class="tab-pane fade show active">
+            <UrlUpload
+              @results="handleUrlResults"
+              @error="handleUrlError"
+              :is-loading="isLoading"
+              @loading="isLoading = $event"
+            />
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div v-if="(activeTab === 'single' && validationResult) || 
+                  (activeTab === 'document' && documentAnalysisResult) ||
+                  (activeTab === 'text' && textAnalysisResult) ||
+                  (activeTab === 'url' && urlAnalysisResult)" 
+             class="mt-4 results-section">
+          <CitationResults
+            :result="activeTab === 'single' ? validationResult : 
+                     activeTab === 'document' ? documentAnalysisResult :
+                     activeTab === 'text' ? textAnalysisResult :
+                     urlAnalysisResult"
+            :active-tab="activeTab"
+            @apply-correction="applyCorrection"
+            @copy-results="copyResults"
+            @download-results="downloadResults"
+          />
+        </div>
+
+        <!-- Recent Validations -->
+        <div v-if="recentValidations.length > 0" class="mt-5">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Recent Validations</h5>
+            <button class="btn btn-sm btn-outline-danger" @click="clearRecentValidations">
+              Clear All
+            </button>
+          </div>
+          <ul class="list-group">
+            <li v-for="item in recentValidations" :key="item.id" class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <span class="fw-bold">{{ item.citation }}</span>
+                <span class="badge ms-2" :class="item.valid ? 'bg-success' : 'bg-danger'">
+                  {{ item.valid ? 'Valid' : 'Invalid' }}
+                </span>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-secondary me-1" @click="copyToClipboard(item.citation, 'Citation copied!')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" @click="removeRecentValidation(item.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -379,12 +132,15 @@
 <script>
 import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { usePost } from '@/composables/useApi';
-import { useLoadingState } from '@/utils/loading';
+import { useApi } from '@/composables/useApi';
+import { useLoadingState } from '@/composables/useLoadingState';
+import api from '@/api/api';
+import citationsApi from '@/api/citations';  // Import the citations API module
 
 // Components
 import FileUpload from '@/components/FileUpload.vue';
 import TextPaste from '@/components/TextPaste.vue';
+import UrlUpload from '@/components/UrlUpload.vue';
 import CitationResults from '@/components/CitationResults.vue';
 
 export default {
@@ -392,619 +148,75 @@ export default {
   components: {
     FileUpload,
     TextPaste,
+    UrlUpload,
     CitationResults
   },
   setup() {
+    // ===== REACTIVE STATE =====
+    // Router and route
     const route = useRoute();
     const router = useRouter();
     
-    // Tabs configuration
+    // UI State
     const tabs = [
       { id: 'single', label: 'Single Citation' },
       { id: 'document', label: 'Upload Document' },
-      { id: 'text', label: 'Paste Text' }
+      { id: 'text', label: 'Paste Text' },
+      { id: 'url', label: 'URL Upload' }
     ];
     
-    // State for active tab and UI toggles
     const activeTab = ref('single');
     const activeResultTab = ref('validation');
     const showBasicValidation = ref(true);
     const showMLAnalysis = ref(true);
     const showCorrections = ref(true);
     
-    // Single Citation State
-    const citationText = ref('');
-    const validationResult = ref(null);
-    const mlResult = ref(null);
-    const correctionResult = ref(null);
+    // Feature Toggles
     const useEnhanced = ref(true);
     const useML = ref(true);
     const useCorrection = ref(true);
     
-    // API call with loading and error states
-    const { 
-      execute: executePostRequest, 
-      isLoading, 
-      error, 
-      cancel: cancelValidation 
-    } = usePost('/casestrainer/api/verify_citation', {
-      loadingMessage: 'Validating citation...',
-    });
-    
-    // Wrap the post request to handle success/error
-    const validateCitationApi = async (data) => {
-      try {
-        const response = await executePostRequest({
-          data: data,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        handleValidationSuccess(response);
-        return response;
-      } catch (err) {
-        handleValidationError(err);
-        throw err;
-      }
-    };
-    
-    // Helper functions for validation display
-    const getValidationIcon = (isValid) => {
-      return isValid ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
-    };
-    
-    const getValidationColor = (isValid) => {
-      return isValid ? 'success' : 'danger';
-    };
-    
-    const getValidationLabel = (isValid) => {
-      return isValid ? 'Valid' : 'Invalid';
-    };
-    
-    const getCorrectionIcon = (correction) => {
-      if (!correction) return '';
-      return correction.suggested_correction ? 'bi-lightbulb' : 'bi-check';
-    };
-    
-    const getCorrectionColor = (correction) => {
-      if (!correction) return 'secondary';
-      return correction.suggested_correction ? 'warning' : 'success';
-    };
-    
-    const getCorrectionLabel = (correction) => {
-      if (!correction) return 'No correction';
-      return correction.suggested_correction ? 'Suggested' : 'Correct';
-    };
-    
-    const getMLLabel = (mlResult) => {
-      if (!mlResult) return 'N/A';
-      return mlResult.prediction || 'Unknown';
-    };
-    
-    const getMLColor = (mlResult) => {
-      if (!mlResult) return 'secondary';
-      return mlResult.confidence > 0.7 ? 'success' : 'warning';
-    };
-    
-    const getMLIcon = (mlResult) => {
-      if (!mlResult) return 'bi-question-circle';
-      return mlResult.confidence > 0.7 ? 'bi-check-circle' : 'bi-exclamation-circle';
-    };
-    
-    // Track if we have an active validation request
-    const hasActiveRequest = ref(false);
-    
-    // Cancel any pending requests when component unmounts
-    onUnmounted(() => {
-      if (hasActiveRequest.value) {
-        cancelValidation();
-      }
-    });
-    
-    // Global loading state
-    const { isLoading: isGlobalLoading } = useLoadingState();
-    
-    // Computed property to show loading state
-    const showLoading = computed(() => isLoading.value || isGlobalLoading.value);
-    
-    // Document Upload State
+    // Data State
+    const citationInput = ref('');  // For single citation input
+    const citationText = ref('');    // For text paste content
+    const validationResult = ref(null);
+    const mlResult = ref(null);
+    const correctionResult = ref(null);
     const documentAnalysisResult = ref(null);
-    
-    // Text Paste State
     const textAnalysisResult = ref(null);
-    
-    // Recent validations history
+    const urlAnalysisResult = ref(null);
     const recentValidations = ref([]);
+    const suggestions = ref([]);     // For storing correction suggestions
+    const error = ref(null);         // For error messages
     
-    // Load recent validations from local storage
-    const loadRecentValidations = () => {
-      try {
-        const saved = localStorage.getItem('recentValidations');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            // Ensure we have valid data
-            recentValidations.value = parsed
-              .filter(item => item && item.citation && typeof item.isValid === 'boolean')
-              .slice(0, 10); // Only keep up to 10 items
-            
-            // Update localStorage with cleaned data if needed
-            if (recentValidations.value.length !== parsed.length) {
-              localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error loading recent validations:', err);
-        // Clear invalid data
-        try {
-          localStorage.removeItem('recentValidations');
-        } catch (e) {
-          console.error('Failed to clear invalid recent validations:', e);
-        }
-        recentValidations.value = [];
-      }
-    };
-    
-    // Handle route changes
-    const handleRouteChange = () => {
-      // Handle tab parameter
-      if (route.query.tab) {
-        const validTabs = ['single', 'document', 'text', 'url'];
-        if (validTabs.includes(route.query.tab)) {
-          activeTab.value = route.query.tab;
-        }
-      }
-      
-      // Handle citation parameter
-      if (route.query.citation) {
-        citationText.value = route.query.citation;
-        activeTab.value = 'single';
-        // Auto-validate if citation is provided
-        if (citationText.value.trim()) {
-          validateCitation();
-        }
-      }
-    };
-    
-    // Watch for route changes
-    watch(() => route.query, (newQuery, oldQuery) => {
-      if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
-        handleRouteChange();
-      }
+    // API State
+    const { 
+      execute: executeApi, 
+      data: apiData,
+      isLoading,
+      error: apiError,
+      status: apiStatus,
+      cancel: cancelValidation
+    } = useApi({
+      loadingMessage: 'Validating citation...',
+      showLoading: true
     });
     
-    // Initial setup
-    onMounted(() => {
-      // Load recent validations first
-      loadRecentValidations();
-      
-      // Then handle route parameters
-      nextTick(handleRouteChange);
-    });
-    
-    // Helper function to get alert class based on validity
-    const getAlertClass = (isValid) => {
-      if (isValid === undefined || isValid === null) return 'alert-info';
-      return isValid ? 'alert-success' : 'alert-danger';
-    };
-    
-    // Helper function to get confidence class for badges and progress bars
-    const getConfidenceClass = (confidence) => {
-      if (confidence >= 0.8) return 'bg-success';
-      if (confidence >= 0.5) return 'bg-warning';
-      return 'bg-danger';
-    };
-    
-    // Helper function to get progress bar color based on value
-    const getProgressBarClass = (value) => {
-      if (value >= 0.8) return 'bg-success';
-      if (value >= 0.5) return 'bg-info';
-      if (value >= 0.3) return 'bg-warning';
-      return 'bg-danger';
-    };
-    
-    // Format citation for display
-    const formatCitation = (citation) => {
-      if (!citation) return '';
-      // Add any formatting logic here
-      return citation;
-    };
-    
-    // Process validation response from API
-    const processValidationResponse = (response) => {
-      const data = response.data || response; // Handle both Axios response and direct data
-      
-      // Reset all result states
-      validationResult.value = null;
-      mlResult.value = null;
-      correctionResult.value = null;
-      
-      // Set validation results
-      if (data.validation) {
-        validationResult.value = {
-          valid: data.validation.is_valid,
-          message: data.validation.message,
-          details: data.validation.details || {}
-        };
-      }
-      
-      // Set ML results if available
-      if (data.ml_analysis) {
-        mlResult.value = {
-          prediction: data.ml_analysis.prediction,
-          confidence: data.ml_analysis.confidence,
-          is_valid: data.ml_analysis.is_valid,
-          details: data.ml_analysis.explanation
-        };
-      }
-      
-      // Set correction suggestions if available
-      if (data.corrections?.suggestions?.length) {
-        correctionResult.value = {
-          suggestions: data.corrections.suggestions.map((suggestion, index) => ({
-            id: `suggestion-${index}`,
-            corrected_text: suggestion.corrected_text,
-            explanation: suggestion.explanation || 'No explanation provided',
-            confidence: suggestion.confidence || 0
-          }))
-        };
-      }
-    };
-    
-    // Handle successful validation response
-    function handleValidationSuccess(response) {
-      processValidationResponse(response);
-      
-      // Add to recent validations
-      addToRecentValidations(citationText.value.trim(), response.data.validation.is_valid);
-      
-      // Reset active request flag
-      hasActiveRequest.value = false;
-    }
-    
-    // Handle validation error
-    function handleValidationError(err) {
-      console.error('Error validating citation:', err);
-      error.value = err.message || 'Failed to validate citation. Please try again.';
-      hasActiveRequest.value = false;
-    }
-    
-    // Validation Methods
-    const validateCitation = async () => {
-      if (!citationText.value.trim() || hasActiveRequest.value) return;
-      
-      // Reset states
-      error.value = null;
-      validationResult.value = null;
-      mlResult.value = null;
-      correctionResult.value = null;
-      
-      // Reset UI states
-      showBasicValidation.value = true;
-      showMLAnalysis.value = true;
-      showCorrections.value = true;
-      
-      // Set active request flag
-      hasActiveRequest.value = true;
-      
-      try {
-        // Make the API call using the API utility
-        await validateCitationApi({
-          citation: citationText.value.trim(),
-          enhanced: useEnhanced.value,
-          use_ml: useML.value,
-          suggest_corrections: useCorrection.value
-        });
-      } catch (err) {
-        // Error is already handled by the error handler
-        console.error('Unexpected error in validateCitation:', err);
-      }
-    };
-    
-    // Apply correction to citation input
-    const applyCorrection = (correctedText) => {
-      if (correctedText) {
-        citationText.value = correctedText;
-        // Optionally re-validate with the corrected text
-        validateCitation();
-      }
-    };
-    
-    // Apply correction from results component
-    const applyCorrectionFromResults = (citation) => {
-      if (citation) {
-        citationText.value = citation;
-        activeTab.value = 'single';
-        // Small delay to ensure tab is active before validating
-        setTimeout(validateCitation, 100);
-      }
-    };
-    
-    // Copy results to clipboard
-    const copyResults = () => {
-      const results = [];
-      
-      if (validationResult.value) {
-        results.push('=== VALIDATION ===');
-        results.push(`Status: ${validationResult.value.valid ? 'Valid' : 'Invalid'}`);
-        if (validationResult.value.message) {
-          results.push(`Message: ${validationResult.value.message}`);
-        }
-      }
-      
-      if (mlResult.value) {
-        results.push('\n=== ML ANALYSIS ===');
-        results.push(`Prediction: ${mlResult.value.prediction || 'N/A'}`);
-        results.push(`Confidence: ${(mlResult.value.confidence * 100).toFixed(2)}%`);
-        if (mlResult.value.details) {
-          results.push(`Details: ${mlResult.value.details}`);
-        }
-      }
-      
-      if (correctionResult.value?.suggestions?.length) {
-        results.push('\n=== SUGGESTED CORRECTIONS ===');
-        correctionResult.value.suggestions.forEach((suggestion, index) => {
-          results.push(`\nSuggestion ${index + 1}: ${suggestion.corrected_text}`);
-          results.push(`   ${suggestion.explanation}`);
-        });
-      }
-      
-      const textToCopy = results.join('\n');
-      
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        // Show success message (you might want to use a toast notification here)
-        console.log('Results copied to clipboard');
-      }).catch(err => {
-        console.error('Failed to copy results:', err);
-      });
-    };
-    
-    // Download results as a text file
-    const downloadResults = () => {
-      const results = [];
-      
-      results.push('CaseStrainer - Citation Validation Results\n');
-      results.push(`Citation: ${citationText.value}\n`);
-      results.push(`Validated on: ${new Date().toLocaleString()}\n`);
-      
-      if (validationResult.value) {
-        results.push('\n=== VALIDATION ===');
-        results.push(`Status: ${validationResult.value.valid ? 'Valid' : 'Invalid'}`);
-        if (validationResult.value.message) {
-          results.push(`Message: ${validationResult.value.message}`);
-        }
-        
-        if (validationResult.value.details && Object.keys(validationResult.value.details).length > 0) {
-          results.push('\nDetails:');
-          Object.entries(validationResult.value.details).forEach(([key, value]) => {
-            results.push(`- ${key.replace(/([A-Z])/g, ' $1').trim()}: ${value}`);
-          });
-        }
-      }
-      
-      if (mlResult.value) {
-        results.push('\n=== ML ANALYSIS ===');
-        results.push(`Prediction: ${mlResult.value.prediction || 'N/A'}`);
-        results.push(`Confidence: ${(mlResult.value.confidence * 100).toFixed(2)}%`);
-        if (mlResult.value.details) {
-          results.push(`\nAnalysis:\n${mlResult.value.details}`);
-        }
-      }
-      
-      if (correctionResult.value?.suggestions?.length) {
-        results.push('\n=== SUGGESTED CORRECTIONS ===');
-        correctionResult.value.suggestions.forEach((suggestion, index) => {
-          results.push(`\nSuggestion ${index + 1}:`);
-          results.push(`- Corrected Text: ${suggestion.corrected_text}`);
-          results.push(`- Explanation: ${suggestion.explanation}`);
-          if (suggestion.confidence) {
-            results.push(`- Confidence: ${(suggestion.confidence * 100).toFixed(2)}%`);
-          }
-        });
-      }
-      
-      const blob = new Blob([results.join('\n')], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `casestrainer-results-${new Date().toISOString().slice(0, 10)}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-    
-    // Copy all results from document/text analysis
-    const copyAllResults = () => {
-      const results = activeTab.value === 'document' ? documentAnalysisResult : textAnalysisResult;
-      if (!results) return;
-      
-      const textToCopy = JSON.stringify(results, null, 2);
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        console.log('All results copied to clipboard');
-      }).catch(err => {
-        console.error('Failed to copy results:', err);
-      });
-    };
-    
-    // Handle document analysis results
-    const handleDocumentResults = (results) => {
-      console.log('Document analysis results:', results);
-      documentAnalysisResult.value = results;
-      // Scroll to results
-      setTimeout(() => {
-        const resultsElement = document.querySelector('.results-section');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    };
-    
-    // Handle document analysis errors
-    const handleDocumentError = (error) => {
-      console.error('Document analysis error:', error);
-      documentAnalysisResult.value = { 
-        error: error.message || 'An error occurred while analyzing the document',
-        timestamp: new Date().toISOString()
-      };
-    };
-    
-    // Handle text analysis results
-    const handleTextResults = (results) => {
-      console.log('Text analysis results:', results);
-      textAnalysisResult.value = results;
-      // Scroll to results
-      setTimeout(() => {
-        const resultsElement = document.querySelector('.results-section');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    };
-    
-    // Handle file upload results
-    const handleFileUploaded = (results) => {
-      documentAnalysisResult.value = results;
-      isLoading.value = false;
-      error.value = null;
-      
-      // Scroll to results after a short delay to ensure DOM is updated
-      setTimeout(() => {
-        const resultsElement = document.querySelector('.analysis-results');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    };
-    
-    // Handle text submission results
-    const handleTextSubmitted = (results) => {
-      textAnalysisResult.value = results;
-      isLoading.value = false;
-      error.value = null;
-      
-      // Scroll to results after a short delay to ensure DOM is updated
-      setTimeout(() => {
-        const resultsElement = document.querySelector('.analysis-results');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    };
-    
-    // Handle general errors
-    const handleError = (error, context = 'validation') => {
-      console.error(`Error during ${context}:`, error);
-      error.value = error.message || `An error occurred during ${context}. Please try again.`;
-      isLoading.value = false;
-      
-      // Clear any existing results
-      if (context === 'document') {
-        documentAnalysisResult.value = null;
-      } else if (context === 'text') {
-        textAnalysisResult.value = null;
-      } else {
-        validationResult.value = null;
-        mlResult.value = null;
-        correctionResult.value = null;
-      }
-    };
-    
-    // Handle text analysis errors
-    const handleTextError = (error) => {
-      console.error('Text analysis error:', error);
-      textAnalysisResult.value = { 
-        error: error.message || 'An error occurred while analyzing the text',
-        timestamp: new Date().toISOString()
-      };
-      isLoading.value = false;
-    };
-    
-    // Add to recent validations history
-    const addToRecentValidations = (citation, isValid) => {
-      if (!citation) return;
-      
-      // Don't add duplicates in a row
-      if (recentValidations.value[0]?.citation === citation) {
-        return;
-      }
-      
-      // Add to the beginning of the array
-      recentValidations.value.unshift({
-        id: Date.now(),
-        citation,
-        isValid,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Keep only the last 10 validations
-      if (recentValidations.value.length > 10) {
-        recentValidations.value = recentValidations.value.slice(0, 10);
-      }
-      
-      // Save to local storage
-      try {
-        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-      } catch (err) {
-        console.error('Failed to save recent validations to localStorage:', err);
-      }
-    };
-    
-    // Load a recent validation by index
-    const loadRecentValidation = (index) => {
-      if (recentValidations.value && recentValidations.value[index]) {
-        const validation = recentValidations.value[index];
-        validationResult.value = validation.result;
-        citationText.value = validation.citation || '';
-        activeTab.value = 'single';
-        
-        // Scroll to the top of the results
-        setTimeout(() => {
-          const resultsElement = document.querySelector('.analysis-results');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      }
-    };
-    
-    // Clear recent validations
-    const clearRecent = () => {
-      recentValidations.value = [];
-      // Optionally clear from localStorage as well
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('recentValidations');
-      }
-    };
-    
-    // Remove a specific validation from recent validations by index
-    const removeRecentValidation = (index) => {
-      if (recentValidations.value && recentValidations.value[index]) {
-        // Remove the validation at the specified index
-        recentValidations.value.splice(index, 1);
-        
-        // Update localStorage
-        try {
-          localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-        } catch (err) {
-          console.error('Failed to update recent validations in localStorage:', err);
-        }
-      }
-    };
-    
-    // Format date for display
-    const formatDate = (dateString) => {
+    const hasActiveRequest = ref(false);
+    const { isLoading: isGlobalLoading } = useLoadingState();
+    const showLoading = computed(() => isLoading.value || isGlobalLoading.value || hasActiveRequest.value);
+    const apiBaseUrl = ref(import.meta.env.VITE_API_BASE_URL || '');
+
+    // ===== HELPER FUNCTIONS =====
+    // Formatting Helpers
+    function formatDate(dateString) {
       if (!dateString) return '';
-      
       try {
         const date = new Date(dateString);
-        if (isNaN(date.getTime())) return '';
-        
         return new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
           month: 'short',
           day: 'numeric',
-          year: 'numeric',
           hour: '2-digit',
           minute: '2-digit',
           hour12: true
@@ -1013,43 +225,617 @@ export default {
         console.error('Error formatting date:', e);
         return dateString || '';
       }
+    }
+    
+    function formatCitation(citation) {
+      if (!citation) return '';
+      return citation.replace(/\s+/g, ' ').trim();
+    }
+    
+    // UI Helpers
+    function getAlertClass(isValid) {
+      if (isValid === undefined || isValid === null) return 'alert-info';
+      return isValid ? 'alert-success' : 'alert-danger';
+    }
+    
+    function getConfidenceClass(confidence) {
+      if (confidence >= 0.8) return 'bg-success';
+      if (confidence >= 0.5) return 'bg-warning';
+      return 'bg-danger';
+    }
+    
+    function getProgressBarClass(value) {
+      if (value >= 0.8) return 'bg-success';
+      if (value >= 0.5) return 'bg-info';
+      if (value >= 0.3) return 'bg-warning';
+      return 'bg-danger';
+    }
+    
+    function getValidationIcon(isValid) {
+      if (isValid === undefined || isValid === null) return 'bi-question-circle';
+      return isValid ? 'bi-check-circle' : 'bi-x-circle';
+    }
+    
+    function getValidationColor(isValid) {
+      if (isValid === undefined || isValid === null) return 'text-info';
+      return isValid ? 'text-success' : 'text-danger';
+    }
+    
+    function getValidationLabel(isValid) {
+      if (isValid === undefined || isValid === null) return 'Unknown';
+      return isValid ? 'Valid' : 'Invalid';
+    }
+    
+    function getCorrectionIcon(correction) {
+      if (!correction) return 'bi-question-circle';
+      return correction.confidence > 0.7 ? 'bi-lightbulb' : 'bi-lightbulb-off';
+    }
+    
+    function getCorrectionColor(correction) {
+      if (!correction) return 'text-muted';
+      return correction.confidence > 0.7 ? 'text-warning' : 'text-muted';
+    }
+    
+    function getCorrectionLabel(correction) {
+      if (!correction) return 'No suggestions';
+      return correction.confidence > 0.7 ? 'Suggested' : 'Low confidence';
+    }
+    
+    function getMLLabel(mlResult) {
+      if (!mlResult) return 'N/A';
+      return mlResult.prediction || 'Unknown';
+    }
+    
+    function getMLColor(mlResult) {
+      if (!mlResult) return 'text-muted';
+      return mlResult.confidence > 0.7 ? 'text-success' : 
+             mlResult.confidence > 0.4 ? 'text-warning' : 'text-danger';
+    }
+    
+    function getMLIcon(mlResult) {
+      if (!mlResult) return 'bi-question-circle';
+      return mlResult.confidence > 0.7 ? 'bi-check-circle' : 
+             mlResult.confidence > 0.4 ? 'bi-exclamation-circle' : 'bi-x-circle';
+    }
+    
+    // ===== CORE FUNCTIONS =====
+    // Clear all results and reset form
+    function clearResults() {
+      validationResult.value = null;
+      mlResult.value = null;
+      correctionResult.value = null;
+      documentAnalysisResult.value = null;
+      textAnalysisResult.value = null;
+      urlAnalysisResult.value = null;
+      error.value = null;
+      citationText.value = '';
+    }
+    
+    // Process validation response from API
+    function processValidationResponse(response) {
+      try {
+        console.log('Processing validation response:', response);
+        
+        // Reset states
+        validationResult.value = null;
+        mlResult.value = null;
+        correctionResult.value = null;
+        error.value = null;
+        
+        // Extract data from response
+        const data = response?.data || response || {};
+        console.log('Response data:', data);
+        
+        // Process and set validation result
+        if (data.verified !== undefined) {
+          validationResult.value = {
+            valid: data.verified,
+            message: data.message || (data.verified ? 'Citation is valid' : 'Citation is invalid'),
+            details: data.details || {},
+            timestamp: new Date().toISOString()
+          };
+        }
+        
+        // Handle errors
+        if (data.error) {
+          error.value = data.error;
+          return;
+        }
+        
+        // Process ML results if available
+        if (data.ml_analysis) {
+          mlResult.value = {
+            prediction: data.ml_analysis.prediction,
+            confidence: data.ml_analysis.confidence,
+            details: data.ml_analysis.details,
+            timestamp: new Date().toISOString()
+          };
+        }
+        
+        // Process correction suggestions if available
+        if (data.corrections?.suggestions?.length) {
+          correctionResult.value = {
+            suggestions: data.corrections.suggestions.map((suggestion, index) => ({
+              id: index,
+              original: data.citation,
+              corrected_text: suggestion.text,
+              explanation: suggestion.reason,
+              confidence: suggestion.confidence || 0.8,
+              timestamp: new Date().toISOString()
+            }))
+          };
+        }
+      } catch (err) {
+        console.error('Error processing validation response:', err);
+        error.value = 'Failed to process validation response. Please try again.';
+      }
+    }
+    
+    // ... [rest of the functions] ...
+    
+    // ===== HELPER FUNCTIONS =====
+    const loadRecentValidations = () => {
+      try {
+        const saved = localStorage.getItem('recentValidations');
+        if (saved) {
+          recentValidations.value = JSON.parse(saved);
+        }
+      } catch (err) {
+        console.error('Error loading recent validations:', err);
+      }
+    };
+
+    const handleValidationSuccess = (data) => {
+      validationResult.value = data;
+      error.value = null;
+    };
+
+    const validateCitation = async (citation) => {
+      if (!citation?.trim()) {
+        error.value = 'Please enter a citation to validate';
+        return;
+      }
+
+      isLoading.value = true;
+      error.value = null;
+
+      try {
+        const response = await citationsApi.validateCitation(citation.trim());
+        handleValidationSuccess(response.data);
+      } catch (err) {
+        error.value = err.response?.data?.message || 'Failed to validate citation';
+        console.error('Validation error:', err);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    // ===== API HANDLER FUNCTIONS =====
+    const handleDocumentResults = (results) => {
+      try {
+        documentAnalysisResult.value = {
+          ...results,
+          timestamp: new Date().toISOString()
+        };
+        isLoading.value = false;
+        error.value = null;
+        
+        // Add to recent validations
+        addToRecentValidations(documentAnalysisResult.value);
+        
+        // Scroll to results
+        nextTick(() => {
+          const resultsElement = document.querySelector('.results-section');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      } catch (err) {
+        console.error('Error handling document results:', err);
+        error.value = 'Failed to process document results';
+        isLoading.value = false;
+      }
+    };
+
+    const handleTextResults = (results) => {
+      try {
+        textAnalysisResult.value = {
+          ...results,
+          timestamp: new Date().toISOString()
+        };
+        isLoading.value = false;
+        error.value = null;
+        
+        // Add to recent validations
+        addToRecentValidations(textAnalysisResult.value);
+        
+        // Scroll to results
+        nextTick(() => {
+          const resultsElement = document.querySelector('.results-section');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      } catch (err) {
+        console.error('Error handling text results:', err);
+        error.value = 'Failed to process text results';
+        isLoading.value = false;
+      }
+    };
+
+    const handleUrlResults = (results) => {
+      try {
+        urlAnalysisResult.value = {
+          ...results,
+          timestamp: new Date().toISOString()
+        };
+        isLoading.value = false;
+        error.value = null;
+        
+        // Add to recent validations
+        addToRecentValidations(urlAnalysisResult.value);
+        
+        // Scroll to results
+        nextTick(() => {
+          const resultsElement = document.querySelector('.results-section');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      } catch (err) {
+        console.error('Error handling URL results:', err);
+        error.value = 'Failed to process URL results';
+        isLoading.value = false;
+      }
+    };
+
+    const handleDocumentError = (error) => {
+      console.error('Document analysis error:', error);
+      
+      // Ensure error is an object with the expected properties
+      const errorObj = typeof error === 'string' ? { message: error } : error;
+      
+      documentAnalysisResult.value = {
+        error: errorObj.message || 'An error occurred while analyzing the document',
+        details: errorObj.details || null,
+        status: errorObj.status || 500,
+        timestamp: new Date().toISOString()
+      };
+      
+      isLoading.value = false;
+      error.value = documentAnalysisResult.value.error;
+      
+      // Scroll to results to show error
+      nextTick(() => {
+        const resultsElement = document.querySelector('.results-section');
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    };
+
+    const handleTextError = (error) => {
+      console.error('Text analysis error:', error);
+      textAnalysisResult.value = {
+        error: error.message || 'An error occurred while analyzing the text',
+        timestamp: new Date().toISOString()
+      };
+      isLoading.value = false;
+      error.value = 'Failed to analyze text. Please try again.';
+    };
+
+    const handleUrlError = (error) => {
+      console.error('URL analysis error:', error);
+      urlAnalysisResult.value = {
+        error: error.message || 'An error occurred while analyzing the URL',
+        timestamp: new Date().toISOString()
+      };
+      isLoading.value = false;
+      error.value = 'Failed to analyze URL. Please check the URL and try again.';
+    };
+
+    const addToRecentValidations = (result) => {
+      try {
+        if (!result) return;
+        
+        // Create a simplified version of the result for recent validations
+        const recent = {
+          id: Date.now(),
+          citation: result.citation || 'Untitled',
+          valid: result.valid,
+          confidence: result.confidence,
+          timestamp: result.timestamp || new Date().toISOString(),
+          type: result.type || 'citation'
+        };
+        
+        // Add to the beginning of the array (most recent first)
+        recentValidations.value = [recent, ...recentValidations.value].slice(0, 10); // Keep only the 10 most recent
+        
+        // Save to localStorage
+        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
+      } catch (err) {
+        console.error('Error adding to recent validations:', err);
+      }
+    };
+
+    const clearRecentValidations = () => {
+      try {
+        recentValidations.value = [];
+        localStorage.removeItem('recentValidations');
+      } catch (err) {
+        console.error('Error clearing recent validations:', err);
+      }
+    };
+
+    const removeRecentValidation = (id) => {
+      try {
+        recentValidations.value = recentValidations.value.filter(item => item.id !== id);
+        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
+      } catch (err) {
+        console.error('Error removing recent validation:', err);
+      }
+    };
+
+    /**
+     * Copies the given text to the clipboard
+     * @param {string} text - The text to copy
+     * @param {string} successMessage - Optional success message to show
+     * @returns {Promise<boolean>} - Whether the copy was successful
+     */
+    const copyToClipboard = async (text, successMessage = 'Copied to clipboard!') => {
+      try {
+        await navigator.clipboard.writeText(text);
+        if (successMessage) {
+          // You might want to show a toast notification here
+          console.log(successMessage);
+        }
+        return true;
+      } catch (err) {
+        console.error('Failed to copy text:', err);
+        // Fallback for older browsers
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          if (successMessage) {
+            console.log(successMessage);
+          }
+          return true;
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr);
+          return false;
+        }
+      }
+    };
+
+    // ===== HELPER FUNCTIONS CONTINUED =====
+    const copyResults = async () => {
+      try {
+        // Get the current results based on the active tab
+        let resultsToCopy = '';
+        
+        if (activeTab.value === 'document' && documentAnalysisResult.value) {
+          resultsToCopy = formatResultsForCopy(documentAnalysisResult.value);
+        } else if (activeTab.value === 'text' && textAnalysisResult.value) {
+          resultsToCopy = formatResultsForCopy(textAnalysisResult.value);
+        } else if (activeTab.value === 'url' && urlAnalysisResult.value) {
+          resultsToCopy = formatResultsForCopy(urlAnalysisResult.value);
+        } else if (activeTab.value === 'single' && validationResult.value) {
+          resultsToCopy = formatResultsForCopy(validationResult.value);
+        }
+        
+        if (resultsToCopy) {
+          await navigator.clipboard.writeText(resultsToCopy);
+          // You might want to show a success message here
+          console.log('Results copied to clipboard');
+        }
+      } catch (err) {
+        console.error('Failed to copy results:', err);
+        error.value = 'Failed to copy results to clipboard';
+      }
+    };
+
+    const downloadResults = () => {
+      try {
+        let resultsToDownload = '';
+        let filename = 'validation-results.txt';
+        
+        if (activeTab.value === 'document' && documentAnalysisResult.value) {
+          resultsToDownload = formatResultsForCopy(documentAnalysisResult.value);
+          filename = 'document-validation.txt';
+        } else if (activeTab.value === 'text' && textAnalysisResult.value) {
+          resultsToDownload = formatResultsForCopy(textAnalysisResult.value);
+          filename = 'text-validation.txt';
+        } else if (activeTab.value === 'url' && urlAnalysisResult.value) {
+          resultsToDownload = formatResultsForCopy(urlAnalysisResult.value);
+          filename = 'url-validation.txt';
+        } else if (activeTab.value === 'single' && validationResult.value) {
+          resultsToDownload = formatResultsForCopy(validationResult.value);
+          filename = 'citation-validation.txt';
+        }
+        
+        if (resultsToDownload) {
+          const blob = new Blob([resultsToDownload], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      } catch (err) {
+        console.error('Failed to download results:', err);
+        error.value = 'Failed to download results';
+      }
+    };
+
+    const formatResultsForCopy = (results) => {
+      // Format the results as text for copying/downloading
+      if (!results) return '';
+      
+      let formatted = `Validation Results\n`;
+      formatted += `Generated: ${new Date().toLocaleString()}\n\n`;
+      
+      if (results.citation) {
+        formatted += `Citation: ${results.citation}\n`;
+      }
+      
+      if (results.valid !== undefined) {
+        formatted += `Valid: ${results.valid ? 'Yes' : 'No'}\n`;
+      }
+      
+      if (results.confidence) {
+        formatted += `Confidence: ${(results.confidence * 100).toFixed(1)}%\n`;
+      }
+      
+      if (results.suggestions && results.suggestions.length > 0) {
+        formatted += '\nSuggestions:\n';
+        results.suggestions.forEach((suggestion, index) => {
+          formatted += `${index + 1}. ${suggestion.text}\n`;
+          if (suggestion.reason) {
+            formatted += `   Reason: ${suggestion.reason}\n`;
+          }
+          if (suggestion.confidence) {
+            formatted += `   Confidence: ${(suggestion.confidence * 100).toFixed(1)}%\n`;
+          }
+          formatted += '\n';
+        });
+      }
+      
+      return formatted;
+    };
+
+    const applyCorrection = (correction) => {
+      if (!correction) return;
+      
+      // Update the current citation with the corrected text
+      if (activeTab.value === 'single') {
+        citationInput.value = correction.corrected_text;
+      }
+      
+      // If there are any suggestions, update them as well
+      if (suggestions.value) {
+        suggestions.value = suggestions.value.map(s => 
+          s.id === correction.id ? { ...s, applied: true } : s
+        );
+      }
+      
+      // Show success message
+      // You can add a toast or notification here if needed
+      console.log('Correction applied:', correction);
+    };
+
+    const applyCorrectionFromResults = (results) => {
+      if (!results || !results.suggestions || results.suggestions.length === 0) {
+        return false;
+      }
+      
+      // Get the first suggestion with high confidence
+      const highConfidenceSuggestion = results.suggestions.find(
+        s => s.confidence && s.confidence > 0.7
+      );
+      
+      if (highConfidenceSuggestion) {
+        applyCorrection(highConfidenceSuggestion);
+        return true;
+      }
+      
+      return false;
+    };
+
+    const handleRouteChange = () => {
+      const { tab } = route.query;
+      if (tab && tabs.some(t => t.id === tab)) {
+        activeTab.value = tab;
+      }
+      
+      // Auto-validate if there's a citation in the URL
+      const { citation } = route.query;
+      if (citation && typeof citation === 'string') {
+        citationInput.value = citation;
+        validateCitation(citation);
+      }
     };
     
+    // Watch for route changes
+    watch(() => route.query, handleRouteChange);
+    
+    // ===== LIFECYCLE HOOKS =====
+    onMounted(() => {
+      loadRecentValidations();
+      nextTick(handleRouteChange);
+    });
+    
+    onUnmounted(() => {
+      if (hasActiveRequest.value) {
+        cancelValidation();
+      }
+    });
+    
+    // Watch for route changes
+    watch(() => route.query, (newQuery, oldQuery) => {
+      if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
+        handleRouteChange();
+      }
+    });
+    
+    // ===== RETURN STATEMENT =====
     return {
       // State
       activeTab,
       activeResultTab,
-      showBasicValidation,
-      showMLAnalysis,
-      showCorrections,
+      citationInput,
       citationText,
       validationResult,
       mlResult,
       correctionResult,
+      documentAnalysisResult,
+      textAnalysisResult,
+      urlAnalysisResult,
+      recentValidations,
+      suggestions,
+      error,
+      isLoading: showLoading,
+      hasActiveRequest,
       useEnhanced,
       useML,
       useCorrection,
-      documentAnalysisResult,
-      textAnalysisResult,
-      recentValidations,
-      error,
-      
-      // Computed properties
-      showLoading,
-      hasActiveRequest,
+      showBasicValidation,
+      showMLAnalysis,
+      showCorrections,
+      apiBaseUrl,
+      tabs,
       
       // Methods
+      clearResults,
       validateCitation,
       applyCorrection,
-      applyCorrectionFromResults,
       copyResults,
+      downloadResults,
+      handleDocumentResults,
+      handleTextResults,
+      handleUrlResults,
+      handleDocumentError,
+      handleTextError,
+      handleUrlError,
+      applyCorrectionFromResults,
+      loadRecentValidations,
+      clearRecentValidations,
+      removeRecentValidation,
+      copyToClipboard,
+      formatDate,
+      
+      // Helper functions
       getAlertClass,
       getConfidenceClass,
       getProgressBarClass,
       formatCitation,
-      addToRecentValidations,
-      clearRecentValidations: clearRecent,
-      removeRecentValidation,
       getValidationIcon,
       getValidationColor,
       getValidationLabel,
@@ -1065,318 +851,5 @@ export default {
 </script>
 
 <style scoped>
-.enhanced-validator {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.tabs-container {
-  margin-top: 20px;
-}
-
-.tabs {
-  display: flex;
-  border-bottom: 1px solid #dee2e6;
-  margin-bottom: 20px;
-}
-
-.tab {
-  padding: 10px 20px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  font-weight: 500;
-  color: #6c757d;
-  transition: all 0.3s ease;
-}
-
-.tab:hover {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
-}
-
-.tab.active {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
-  font-weight: 600;
-}
-
-.tab-pane {
-  padding: 20px 0;
-}
-
-.alert {
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border: 1px solid transparent;
-  border-radius: 0.25rem;
-}
-
-.alert-success {
-  color: #0f5132;
-  background-color: #d1e7dd;
-  border-color: #badbcc;
-}
-
-.alert-danger {
-  color: #842029;
-  background-color: #f8d7da;
-  border-color: #f5c2c7;
-}
-
-.alert-warning {
-  color: #664d03;
-  background-color: #fff3cd;
-  border-color: #ffecb5;
-}
-
-.alert-info {
-  color: #055160;
-  background-color: #cff4fc;
-  border-color: #b6effb;
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid #ced4da;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-control:focus {
-  color: #212529;
-  background-color: #fff;
-  border-color: #86b7fe;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.btn {
-  display: inline-block;
-  font-weight: 400;
-  line-height: 1.5;
-  color: #212529;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: middle;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  background-color: transparent;
-  border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  border-radius: 0.25rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-.btn-primary:hover {
-  color: #fff;
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
-}
-
-.btn:disabled, .btn[disabled] {
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  word-wrap: break-word;
-  background-color: #fff;
-  background-clip: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 0.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.card-header {
-  padding: 0.5rem 1rem;
-  margin-bottom: 0;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-header:first-child {
-  border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
-}
-
-.card-body {
-  flex: 1 1 auto;
-  padding: 1rem 1rem;
-}
-
-.bg-primary {
-  background-color: #0d6efd !important;
-  color: white;
-}
-
-.text-white {
-  color: white !important;
-}
-
-.mb-0 {
-  margin-bottom: 0 !important;
-}
-
-.mb-3 {
-  margin-bottom: 1rem !important;
-}
-
-.mt-4 {
-  margin-top: 1.5rem !important;
-}
-
-.form-label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-check {
-  display: block;
-  min-height: 1.5rem;
-  padding-left: 1.5em;
-  margin-bottom: 0.125rem;
-}
-
-.form-check .form-check-input {
-  float: left;
-  margin-left: -1.5em;
-}
-
-.form-check-input {
-  width: 1em;
-  height: 1em;
-  margin-top: 0.25em;
-  vertical-align: top;
-  background-color: #fff;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  -webkit-print-color-adjust: exact;
-  color-adjust: exact;
-}
-
-.form-check-input[type=checkbox] {
-  border-radius: 0.25em;
-}
-
-.form-check-input:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-.form-switch .form-check-input {
-  width: 2em;
-  margin-left: -2.5em;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
-  background-position: left center;
-  border-radius: 2em;
-  transition: background-position 0.15s ease-in-out;
-}
-
-.form-switch .form-check-input:checked {
-  background-position: right center;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-}
-
-.list-group {
-  display: flex;
-  flex-direction: column;
-  padding-left: 0;
-  margin-bottom: 0;
-  border-radius: 0.25rem;
-}
-
-.list-group-item {
-  position: relative;
-  display: block;
-  padding: 0.5rem 1rem;
-  color: #212529;
-  text-decoration: none;
-  background-color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.list-group-item:first-child {
-  border-top-left-radius: inherit;
-  border-top-right-radius: inherit;
-}
-
-.list-group-item:last-child {
-  border-bottom-right-radius: inherit;
-  border-bottom-left-radius: inherit;
-}
-
-.list-group-item + .list-group-item {
-  border-top-width: 0;
-}
-
-.list-group-item + .list-group-item {
-  margin-top: -1px;
-}
-
-.spinner-border {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  vertical-align: -0.125em;
-  border: 0.2em solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  -webkit-animation: 0.75s linear infinite spinner-border;
-  animation: 0.75s linear infinite spinner-border;
-}
-
-@keyframes spinner-border {
-  to { transform: rotate(360deg); }
-}
-
-@-webkit-keyframes spinner-border {
-  to { -webkit-transform: rotate(360deg); }
-}
-
-.me-2 {
-  margin-right: 0.5rem !important;
-}
-
-pre {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  overflow: auto;
-  -ms-overflow-style: scrollbar;
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 0.25rem;
-  font-size: 0.875em;
-  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
+/* Your existing styles here */
 </style>

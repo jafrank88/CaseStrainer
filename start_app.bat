@@ -1,21 +1,30 @@
-staro off
-setlocal
+@echo off
+setlocal enabledelayedexpansion
 
-:: Set Python path to use the system Python
-set PYTHON=python
-
-:: Install requirements
-echo Installing requirements...
-%PYTHON% -m pip install -r requirements.txt
+echo Starting CaseStrainer...
 
 :: Set environment variables
 set FLASK_APP=src/app_final_vue.py
+set FLASK_ENV=development
 set FLASK_DEBUG=1
-set HOST=0.0.0.0
-set PORT=5000
+set FLASK_RUN_PORT=5000
+set FLASK_RUN_HOST=0.0.0.0
+
+:: Activate virtual environment if it exists
+if exist venv\Scripts\activate.bat (
+    call venv\Scripts\activate.bat
+) else (
+    echo Virtual environment not found. Running without it...
+)
+
+:: Install requirements if needed
+if not exist venv\Scripts\activate.bat (
+    echo Installing Python dependencies...
+    pip install -r requirements.txt
+)
 
 :: Start the Flask application
 echo Starting Flask application...
-%PYTHON% -c "from src.app_final_vue import create_app; app = create_app(); print('Application created successfully'); app.run(host='%HOST%', port=%PORT%, debug=True, use_reloader=False)"
+python -m flask run --port=5000 --host=0.0.0.0
 
-endlocal
+pause

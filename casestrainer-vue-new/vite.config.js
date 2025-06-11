@@ -1,152 +1,74 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'url';
 
-// Optional: Add other common imports that might have been missing
-// import { resolve } from 'path';
-// import legacy from '@vitejs/plugin-legacy';
-// import { visualizer } from 'rollup-plugin-visualizer';
-
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  // Load environment variables based on the current mode
-  const env = loadEnv(mode, process.cwd(), '');
+export default defineConfig({
+  plugins: [vue()],
   
-  return {
-    plugins: [
-      vue(),
-      // Optional: Legacy browser support
-      // legacy({
-      //   targets: ['defaults', 'not IE 11']
-      // }),
-      // Optional: Bundle analyzer
-      // visualizer({
-      //   filename: 'dist/stats.html',
-      //   open: true,
-      //   gzipSize: true
-      // })
-    ],
-    
-    // Base public path when served in production
-    base: env.VITE_APP_ENV === 'production' ? '/casestrainer/' : '/',
-    
-    // Development server configuration
-    server: {
-      port: 5000, // Using port 5000 to match firewall settings
-      strictPort: true,
-      host: '127.0.0.1', // Bind to IPv4
-      allowedHosts: [
-        'localhost',
-        '127.0.0.1',
-        'wolf.law.uw.edu'
-      ],
-      proxy: {
-        // Proxy API requests to the backend server during development
-        '/api': {
-          target: 'http://localhost:5001',
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path.replace(/^\/api/, '/api'),
-          ws: true,
-          configure: (proxy, _options) => {
-            proxy.on('error', (err, _req, _res) => {
-              console.log('proxy error', err);
-            });
-            proxy.on('proxyReq', (proxyReq, req, _res) => {
-              console.log('Sending Request to the Target:', req.method, req.url);
-            });
-          }
-        },
-      },
+  // Base public path - use /casestrainer/ in both development and production
+  base: '/casestrainer/',
+  
+  // Development server configuration
+  server: {
+    port: 5173,
+    strictPort: true,
+    host: '0.0.0.0',
+    hmr: {
+      host: 'localhost',
+      protocol: 'ws'
     },
-    
-    // Preview server configuration (for production builds)
-    preview: {
-      port: parseInt(process.env.PROD_FRONTEND_PORT) || 5000,
-      host: '127.0.0.1',
-      strictPort: true,
-      proxy: {
-        '/api': {
-          target: `http://localhost:${process.env.PROD_BACKEND_PORT || 5002}`,
-          changeOrigin: true,
-          secure: false,
-          ws: true
+    watch: {
+      usePolling: true
+    },
+    proxy: {
+      // Proxy API requests to the backend server
+      '/casestrainer/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path,  // Don't rewrite the path, keep /casestrainer prefix
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
         }
       }
-    },
-    
-    // Build configuration
-    build: {
-      outDir: 'dist',
-      assetsDir: 'assets',
-      sourcemap: env.VITE_APP_ENV !== 'production',
-      minify: env.VITE_APP_ENV === 'production' ? 'terser' : false,
-      chunkSizeWarningLimit: 1600,
-      // Optional: Rollup options
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ['vue', 'vue-router'],
-            // Add other manual chunks as needed
-          }
-        }
-      }
-    },
-    
-    // Resolve aliases
-    resolve: {
-      alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url)),
-        // Optional: Additional aliases
-        // '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
-        // '@views': fileURLToPath(new URL('./src/views', import.meta.url)),
-        // '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
-      },
-    },
-    
-    // CSS configuration
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `@import "@/styles/variables.scss";`
-        }
-      },
-      // CSS modules configuration
-      modules: {
-        localsConvention: 'camelCase'
-      }
-    },
-    
-    // Optimization dependencies
-    optimizeDeps: {
-      include: ['vue', 'vue-router'],
-      // exclude: ['some-dep']
-    },
-    
-    // Environment variables to expose to the client
-    define: {
-      'import.meta.env.VITE_APP_NAME': JSON.stringify(env.VITE_APP_NAME || 'CaseStrainer'),
-      'import.meta.env.VITE_APP_ENV': JSON.stringify(env.VITE_APP_ENV || 'development'),
-      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
-        env.VITE_APP_ENV === 'production' 
-          ? '/casestrainer/api' 
-          : '/api'
-      ),
-      'import.meta.env.DEV_FRONTEND_PORT': JSON.stringify(process.env.DEV_FRONTEND_PORT || '5000'),
-      'import.meta.env.DEV_BACKEND_PORT': JSON.stringify(process.env.DEV_BACKEND_PORT || '5001'),
-      // Optional: Global constants
-      // __VUE_OPTIONS_API__: true,
-      // __VUE_PROD_DEVTOOLS__: false,
-    },
-    
-    // ESBuild configuration
-    esbuild: {
-      drop: env.VITE_APP_ENV === 'production' ? ['console', 'debugger'] : []
-    },
-    
-    // Worker configuration
-    worker: {
-      format: 'es'
     }
-  };
+  },
+  
+  // Resolver configuration
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'vue': 'vue/dist/vue.esm-bundler.js'
+    },
+    extensions: ['.js', '.vue', '.json']
+  },
+  
+  // Build configuration
+  build: {
+    sourcemap: process.env.NODE_ENV !== 'production',
+    minify: process.env.NODE_ENV === 'production' ? 'terser' : false,
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia', 'axios']
+        }
+      }
+    }
+  },
+  
+  // Environment variables
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/casestrainer/api'),  // Set base URL to /casestrainer/api
+    'import.meta.env.VITE_APP_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    'import.meta.env.VITE_COURTLISTENER_API_KEY': JSON.stringify(process.env.COURTLISTENER_API_KEY || '***REDACTED_COURTLISTENER_KEY***')
+  }
 });

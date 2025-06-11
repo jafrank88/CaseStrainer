@@ -4,7 +4,7 @@ services:
   casestrainer:
     build: .
     expose:
-      - "5000"
+      - "5001"
     volumes:
       - ./uploads:/app/uploads
       - ./templates:/app/templates
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    command: ["python", "src/app_final_vue.py", "--host", "0.0.0.0", "--port", "5000", "--use-waitress"]
+    command: ["python", "src/app_final_vue.py", "--host", "0.0.0.0", "--port", "5001", "--use-waitress"]
 
   nginx:
     image: nginx:alpine

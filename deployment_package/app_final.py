@@ -287,6 +287,7 @@ def allowed_file(filename):
 # Function to extract text from different file types
 from file_utils import extract_text_from_file
 
+def extract_text_from_file(file_path):
     """Extract text from a file based on its extension."""
     print(f"Extracting text from file: {file_path}")
     

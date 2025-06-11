@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(uploadProgress, uploadProgressBar);
             
             // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            fetch(`${basePath}/api/enhanced/analyze`, {
                 method: 'POST',
                 body: formData
             })
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(pasteProgress, pasteProgressBar);
             
             // Submit the form
-            fetch(`${basePath}/api/analyze`, {
+            fetch(`${basePath}/api/enhanced/analyze`, {
                 method: 'POST',
                 body: formData
             })
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const textFormData = new FormData();
                     textFormData.append('text', data.text);
                     
-                    return fetch(`${basePath}/api/analyze`, {
+                    return fetch(`${basePath}/api/enhanced/analyze`, {
                         method: 'POST',
                         body: textFormData
                     });

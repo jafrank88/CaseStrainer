@@ -3,6 +3,8 @@ import traceback
 import time
 import logging
 import sys
+from typing import List, Dict, Any, Optional
+from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -326,27 +328,24 @@ def extract_citations_from_file(filepath, logger=logger):
         )
         start_time = time.time()
         text = ""
+        
         if filepath.endswith(".pdf"):
-            logger.info("Detected PDF file, using PyPDF2 for extraction")
-            import PyPDF2
-
-            with open(filepath, "rb") as file:
-                try:
-                    reader = PyPDF2.PdfReader(file)
-                    logger.info(f"PDF has {len(reader.pages)} pages")
-                    text = ""
-                    for i, page in enumerate(reader.pages):
-                        logger.info(
-                            f"Extracting text from page {i+1}/{len(reader.pages)}"
-                        )
-                        page_text = page.extract_text()
-                        text += page_text
-                        logger.info(
-                            f"Page {i+1} extracted: {len(page_text)} characters"
-                        )
-                except Exception as pdf_error:
-                    logger.error(f"Error reading PDF: {str(pdf_error)}")
-                    raise
+            logger.info("Detected PDF file, using PDFHandler for extraction")
+            # Initialize PDFHandler with preferred method as pdfminer and fallback enabled
+            handler = PDFHandler(PDFExtractionConfig(
+                preferred_method=PDFExtractionMethod.PDFMINER,
+                use_fallback=True,
+                timeout=30,  # 30 second timeout
+                clean_text=True
+            ))
+            text = handler.extract_text(filepath)
+            
+            if text.startswith("Error:"):
+                logger.error(f"PDF extraction failed: {text}")
+                raise Exception(text)
+                
+            logger.info(f"Successfully extracted {len(text)} characters from PDF")
+            
         elif filepath.endswith((".doc", ".docx")):
             logger.info("Detected Word document, using python-docx for extraction")
             import docx
@@ -375,6 +374,7 @@ def extract_citations_from_file(filepath, logger=logger):
                     logger.info(
                         f"Read {len(text)} characters from text file using latin-1 encoding"
                     )
+                    
         extraction_time = time.time() - start_time
         logger.info(
             f"File content extraction completed in {extraction_time:.2f} seconds"
@@ -704,21 +704,15 @@ def extract_citations_from_text(text, logger=logger):
 def extract_all_citations(text, logger=logger):
     """Extract citations from text using both eyecite and regex, deduplicate, and return full metadata."""
     try:
-        logger.info(
-            f"[DEBUG] Starting extract_all_citations with text of length {len(text)}"
-        )
+        logger.info(f"[DEBUG] Starting extract_all_citations with text of length {len(text)}")
         # Ensure text is a string before slicing
         if not isinstance(text, str):
-            logger.warning(
-                f"[DEBUG] Text is not a string (type: {type(text)}); attempting to convert to string for logging."
-            )
+            logger.warning(f"[DEBUG] Text is not a string (type: {type(text)}); attempting to convert to string for logging.")
             logger.warning(f"[DEBUG] Text value: {repr(text)}")
             try:
                 text = str(text)
             except Exception as conversion_error:
-                logger.error(
-                    f"[DEBUG] Failed to convert text to string: {conversion_error}"
-                )
+                logger.error(f"[DEBUG] Failed to convert text to string: {conversion_error}")
                 text = ""
         logger.info(f"[DEBUG] Text sample: {text[:300]}...")
         start_time = time.time()
@@ -731,13 +725,9 @@ def extract_all_citations(text, logger=logger):
             logger.info("Attempting to initialize AhocorasickTokenizer")
             tokenizer_start = time.time()
             tokenizer = AhocorasickTokenizer()
-            logger.info(
-                f"AhocorasickTokenizer initialized in {time.time() - tokenizer_start:.2f} seconds"
-            )
+            logger.info(f"AhocorasickTokenizer initialized in {time.time() - tokenizer_start:.2f} seconds")
         except Exception as tokenizer_error:
-            logger.warning(
-                f"Failed to initialize AhocorasickTokenizer: {str(tokenizer_error)}"
-            )
+            logger.warning(f"Failed to initialize AhocorasickTokenizer: {str(tokenizer_error)}")
             logger.warning("Will fall back to default tokenizer")
             tokenizer = None
         logger.info("Starting citation extraction with eyecite")
@@ -755,10 +745,32 @@ def extract_all_citations(text, logger=logger):
         # --- REGEX Citation Extraction ---
         import re
 
-        regex_pattern = (
-            r"\b\d+\s+[A-Za-z\.]+\s+\d+\b"  # Simple baseline, can be improved
-        )
-        regex_citations = [m.group(0) for m in re.finditer(regex_pattern, text)]
+        # More specific patterns for different citation types
+        regex_patterns = [
+            # Federal Reporter with series (e.g., 534 F.3d 1290, 534 F. 3d 1290)
+            r"\b(\d+)\s+F\.(?:\s*(\d+)(?:st|nd|rd|th|d))?\s+(\d+)\b(?:\s*\([^)]*\))?",
+            # U.S. Reports (e.g., 410 U.S. 113)
+            r"\b(\d+)\s+U\.?\s*S\.?\s+(\d+)\b(?:\s*\([^)]*\))?",
+            # Supreme Court Reporter (e.g., 100 S. Ct. 1234)
+            r"\b(\d+)\s+S\.?\s*Ct\.?\s+(\d+)\b(?:\s*\([^)]*\))?",
+            # Federal Supplement (e.g., 456 F. Supp. 2d 789)
+            r"\b(\d+)\s+F\.?\s*Supp\.?(?:\s*(\d+)(?:st|nd|rd|th|d))?\s+(\d+)\b(?:\s*\([^)]*\))?",
+            # Westlaw (e.g., 2020 WL 1234567)
+            r"\b(\d{4})\s+WL\s+(\d+)\b",
+            # Lawyers Edition (e.g., 98 L. Ed. 2d 720)
+            r"\b(\d+)\s+L\.?\s*Ed\.?(?:\s*(\d+)(?:st|nd|rd|th|d))?\s+(\d+)\b(?:\s*\([^)]*\))?"
+        ]
+
+        regex_citations = []
+        for pattern in regex_patterns:
+            matches = re.finditer(pattern, text)
+            for match in matches:
+                citation_text = match.group(0).strip()
+                # Normalize spacing in Federal Reporter citations
+                if "F." in citation_text:
+                    citation_text = re.sub(r"(\d+)\s+F\.(\d+)(?:st|nd|rd|th|d)\s+(\d+)", r"\1 F.\2d \3", citation_text)
+                regex_citations.append(citation_text)
+
         logger.info(f"Found {len(regex_citations)} citations in the text (regex)")
 
         # --- Normalization and Deduplication ---

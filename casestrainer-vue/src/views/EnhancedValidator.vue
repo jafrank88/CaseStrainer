@@ -153,6 +153,7 @@
 <script>
 import { getCurrentInstance } from 'vue';
 import axios from 'axios';
+import api from '@/api/api';  // Import the configured API instance
 
 // Components
 import FileUpload from '@/components/FileUpload.vue';
@@ -185,23 +186,26 @@ export default {
       useEnhanced: true,
       useML: true,
       useCorrection: true,
+      isValidating: false,
       
       // Document Upload
       documentAnalysisResult: null,
       
       // Text Paste
       textAnalysisResult: null,
+      pastedText: '',
+      isAnalyzingText: false,
       
       // URL Check
-      urlInput: '',
+      urlInput: 'http://localhost:5000/casestrainer/enhanced-validator',
       urlAnalysisResult: null,
       isAnalyzingUrl: false,
       
+      // General
       dropZoneActive: false,
       isCheckingCitations: false,
-      isValidating: false,
-      isCorrecting: false,
-      isGettingContext: false,
+      apiBaseUrl: '/casestrainer/api',
+      error: null,
       results: {
         validation_results: [],
         totalCitations: 0,
@@ -214,7 +218,9 @@ export default {
       },
       documentResults: null,
       textResults: null,
-      urlResults: null
+      urlResults: null,
+      citationCache: new Map(), // Cache for verified citations
+      citationCacheKey: 'citation_verification_cache',
     };
   },
 
@@ -532,26 +538,209 @@ export default {
     handleDocumentResults(results) {
       console.log('Document analysis results:', results);
       this.documentAnalysisResult = results;
-      // You can process the results further if needed
+      this.activeTab = 'document'; // Switch to document tab to show results
     },
     
     // Handle document analysis errors from FileUpload component
     handleDocumentError(error) {
       console.error('Document analysis error:', error);
-      this.documentAnalysisResult = { error };
+      this.documentAnalysisResult = { 
+        error: error.message || 'Failed to process document',
+        details: error.details || 'An unexpected error occurred',
+        status: error.status || 500
+      };
+      this.activeTab = 'document'; // Ensure we're on the document tab to show error
     },
     
     // Handle text analysis results from TextPaste component
     handleTextResults(results) {
       console.log('Text analysis results:', results);
       this.textAnalysisResult = results;
-      // You can process the results further if needed
+      this.activeTab = 'text'; // Switch to text tab to show results
     },
     
     // Handle text analysis errors from TextPaste component
     handleTextError(error) {
       console.error('Text analysis error:', error);
-      this.textAnalysisResult = { error };
+      this.textAnalysisResult = { 
+        error: error.message || 'Failed to analyze text',
+        details: error.details || 'An unexpected error occurred',
+        status: error.status || 500
+      };
+      this.activeTab = 'text'; // Ensure we're on the text tab to show error
+    },
+    
+    // Load citation cache from localStorage
+    loadCitationCache() {
+      try {
+        const cachedData = localStorage.getItem(this.citationCacheKey);
+        if (cachedData) {
+          const parsedCache = JSON.parse(cachedData);
+          this.citationCache = new Map(Object.entries(parsedCache));
+          console.log('[EnhancedValidator] Loaded citation cache:', this.citationCache.size, 'entries');
+        }
+      } catch (error) {
+        console.warn('[EnhancedValidator] Error loading citation cache:', error);
+        this.citationCache = new Map();
+      }
+    },
+
+    // Save citation cache to localStorage
+    saveCitationCache() {
+      try {
+        const cacheObject = Object.fromEntries(this.citationCache);
+        localStorage.setItem(this.citationCacheKey, JSON.stringify(cacheObject));
+        console.log('[EnhancedValidator] Saved citation cache:', this.citationCache.size, 'entries');
+      } catch (error) {
+        console.warn('[EnhancedValidator] Error saving citation cache:', error);
+      }
+    },
+
+    // Check if a citation is in the cache
+    getCachedCitation(citationText) {
+      const normalizedCitation = this.normalizeCitation(citationText);
+      return this.citationCache.get(normalizedCitation);
+    },
+
+    // Add a citation to the cache
+    cacheCitation(citationText, verificationResult) {
+      const normalizedCitation = this.normalizeCitation(citationText);
+      if (verificationResult.verified && verificationResult.verified_by === 'CourtListener') {
+        this.citationCache.set(normalizedCitation, verificationResult);
+        this.saveCitationCache();
+      }
+    },
+
+    // Normalize citation text for consistent caching
+    normalizeCitation(citationText) {
+      return citationText
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+    },
+
+    // Modify validateCitation to use cache
+    async validateCitation(citation) {
+      console.group('validateCitation - Start');
+      console.log('Input citation:', citation || this.citationText);
+      
+      const citationToValidate = citation || this.citationText;
+      
+      if (!citationToValidate?.trim()) {
+        const errorObj = {
+          error: 'No citation provided',
+          details: 'Please enter a citation to validate',
+          status: 400
+        };
+        console.warn('Validation failed - no citation provided');
+        this.validationResult = errorObj;
+        console.groupEnd();
+        return;
+      }
+
+      // Check cache first
+      const cachedResult = this.getCachedCitation(citationToValidate);
+      if (cachedResult) {
+        console.log('[EnhancedValidator] Using cached verification result for:', citationToValidate);
+        this.validationResult = cachedResult;
+        console.groupEnd();
+        return;
+      }
+
+      this.isValidating = true;
+      this.validationResult = null;
+      this.correctionResult = null;
+      this.error = null;
+
+      try {
+        const requestData = { 
+          citation: citationToValidate.trim(),
+          use_enhanced: this.useEnhanced,
+          use_ml: this.useML
+        };
+        
+        console.log('Sending request to /casestrainer/api/verify-citation with data:', requestData);
+
+        const startTime = performance.now();
+        const response = await api.post('/casestrainer/api/verify-citation', requestData);
+        const endTime = performance.now();
+        
+        console.log(`API Response (${(endTime - startTime).toFixed(2)}ms):`, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          data: response.data
+        });
+
+        if (!response.data) {
+          throw new Error('Empty response from server');
+        }
+
+        // Process the validation result
+        const validationResult = {
+          ...response.data,
+          metadata: {
+            ...(response.data.metadata || {}),
+            citation: citationToValidate,
+            processedAt: new Date().toISOString(),
+            validatedWith: [
+              this.useEnhanced && 'enhanced',
+              this.useML && 'ml',
+              this.useCorrection && 'corrections'
+            ].filter(Boolean).join(', '),
+            responseTime: `${(endTime - startTime).toFixed(2)}ms`
+          }
+        };
+        
+        // Cache CourtListener verifications
+        if (validationResult.verified && validationResult.verified_by === 'CourtListener') {
+          this.cacheCitation(citationToValidate, validationResult);
+        }
+        
+        console.log('Processed validation result:', validationResult);
+        this.validationResult = validationResult;
+
+        // Get correction suggestions if enabled
+        if (this.useCorrection) {
+          await this.getCorrectionSuggestions();
+        }
+
+      } catch (error) {
+        console.error('Citation validation error:', error);
+        const errorResponse = error.response || {};
+        const errorMessage = errorResponse.data?.message || error.message || 'Failed to validate citation';
+        const errorDetails = errorResponse.data?.details || errorResponse.statusText || 'An unexpected error occurred';
+        
+        this.error = errorMessage;
+        this.validationResult = {
+          error: errorMessage,
+          details: errorDetails,
+          status: errorResponse.status || 500,
+          code: error.code,
+          metadata: {
+            citation: citationToValidate,
+            processedAt: new Date().toISOString(),
+            validatedWith: 'none'
+          }
+        };
+      } finally {
+        this.isValidating = false;
+        console.groupEnd();
+      }
+    },
+    
+    // Get correction suggestions for a citation
+    async getCorrectionSuggestions() {
+      if (!this.citationText) return;
+
+      try {
+        const response = await api.post('/suggest_corrections', { citation: this.citationText });
+        this.correctionResult = response.data;
+      } catch (error) {
+        console.error('Error getting correction suggestions:', error);
+        // Don't show error to user for suggestions - it's a non-critical feature
+        this.correctionResult = { suggestions: [] };
+      }
     },
     
     /**
@@ -572,7 +761,6 @@ export default {
         verified_by: 'none',
         contexts: [],
         context: '',
-        content: 'No citation content available',
         details: {},
         metadata: {
           url: '',
@@ -633,62 +821,7 @@ export default {
           console.warn('[EnhancedValidator] Empty API response');
           return this.getEmptyResultsObject();
         }
-        
-        // If this is a correction suggestion response, handle it specially
-        if (apiResponse.suggestions && Array.isArray(apiResponse.suggestions)) {
-          console.log('[EnhancedValidator] Processing correction suggestions response');
-          const transformedResults = this.getEmptyResultsObject();
-          
-          // Ensure all suggestions have required fields
-          const processedSuggestions = apiResponse.suggestions.map(suggestion => ({
-            corrected_citation: suggestion.corrected_citation || suggestion.citation || 'Unknown',
-            similarity: typeof suggestion.similarity === 'number' ? suggestion.similarity : 0,
-            explanation: suggestion.explanation || 'No explanation provided',
-            correction_type: suggestion.correction_type || 'unknown',
-            ...suggestion // Spread any additional properties
-          }));
-          
-          // Create a citation object with all required fields
-          const citation = {
-            id: `citation-${Date.now()}`,
-            citation: apiResponse.citation || this.citationText || 'Unknown',
-            citation_text: apiResponse.citation || this.citationText || 'Unknown',
-            case_name: 'Citation Correction Suggestions',
-            verified: false,
-            status: 'unverified',
-            validation_method: 'Correction Engine',
-            confidence: 0.0,
-            source: 'correction_engine',
-            verified_by: 'Correction Engine',
-            contexts: [],
-            context: '',
-            details: {},
-            metadata: {
-              correction_suggestions: true,
-              timestamp: new Date().toISOString(),
-              source: 'correction_engine',
-              verified: false
-            },
-            url: '',
-            error: apiResponse.error || null,
-            verification_steps: [],
-            sources: {},
-            // Add the processed suggestions array
-            suggestions: processedSuggestions,
-            // Add empty content property to prevent errors
-            content: ''
-          };
-          
-          transformedResults.validation_results = [citation];
-          transformedResults.total_citations = 1;
-          transformedResults.citations_count = 1;
-          transformedResults.unverified_count = 1;
-          transformedResults.citations = [citation]; // Add to citations array for backward compatibility
-          
-          console.log('[EnhancedValidator] Transformed correction suggestions:', transformedResults);
-          return transformedResults;
-        }
-        
+
         // Handle regular validation results
         if (!apiResponse.validation_results) {
           console.warn('[EnhancedValidator] No validation_results in API response');
@@ -702,9 +835,18 @@ export default {
           unverified_count: 0,
           metadata: {}
         };
+
+        // Sort citations to prioritize CourtListener verifications
+        const sortedCitations = [...apiResponse.validation_results].sort((a, b) => {
+          const aIsCL = (a.verified_by === 'CourtListener' || a.source === 'courtlistener');
+          const bIsCL = (b.verified_by === 'CourtListener' || b.source === 'courtlistener');
+          if (aIsCL && !bIsCL) return -1;
+          if (!aIsCL && bIsCL) return 1;
+          return 0;
+        });
         
         // Process each validation result
-        apiResponse.validation_results.forEach((result, index) => {
+        sortedCitations.forEach((result, index) => {
           const validation = result.validation || result;
           const isCourtListener = (validation.source === 'courtlistener') || 
                                String(validation.verified_by || '').toLowerCase().includes('courtlistener');
@@ -712,20 +854,26 @@ export default {
           // Safely get citation text with fallbacks
           const citationText = validation.citation || this.citationText || 'Unknown';
           
+          // Check cache for CourtListener verifications
+          const cachedResult = this.getCachedCitation(citationText);
+          if (cachedResult && cachedResult.verified_by === 'CourtListener') {
+            console.log('[EnhancedValidator] Using cached CourtListener verification for:', citationText);
+            validation.verified = true;
+            validation.verified_by = 'CourtListener';
+            validation.source = 'courtlistener';
+          }
+          
+          // Determine verification status - ensure it's a boolean
+          const isVerified = Boolean(validation.verified || validation.valid);
+          
           // Create the citation object with all required fields for CitationResults
           const citation = {
             id: `citation-${Date.now()}-${index}`,
             citation: citationText,
             citation_text: validation.citation_text || citationText,
-            // Try to get case name from multiple possible locations in the response
-            case_name: validation.case_name || 
-                      validation.details?.case_name || 
-                      validation.metadata?.case_name || 
-                      (validation.details?.title ? validation.details.title.replace(/<[^>]+>/g, '') : null) ||
-                      (validation.contexts?.[0]?.case_name ? validation.contexts[0].case_name : null) ||
-                      'Unknown Case',
-            verified: !!validation.verified,
-            status: validation.verified ? 'verified' : 'unverified',
+            case_name: validation.case_name || citationText,
+            verified: isVerified,
+            status: isVerified ? 'verified' : 'unverified',
             validation_method: validation.validation_method || (isCourtListener ? 'CourtListener' : 'Local Validation'),
             confidence: parseFloat(validation.confidence) || 0.0,
             source: validation.source || 'unknown',
@@ -733,16 +881,14 @@ export default {
             contexts: Array.isArray(validation.contexts) ? validation.contexts : [],
             context: (Array.isArray(validation.contexts) && validation.contexts[0]?.text) ? 
                     validation.contexts[0].text : '',
-            content: validation.content || 
-                   (Array.isArray(validation.contexts) && validation.contexts[0]?.text) || 
-                   validation.context || 
-                   '',
+            content: validation.content || (Array.isArray(validation.contexts) && validation.contexts[0]?.text) || 
+                   validation.citation_text || citationText,
             details: validation.details || {},
             metadata: {
               ...(validation.metadata || {}),
               url: validation.details?.url || validation.url || '',
               source: validation.source || 'unknown',
-              verified: !!validation.verified,
+              verified: isVerified,
               timestamp: validation.timestamp || new Date().toISOString()
             },
             url: validation.details?.url || validation.url || '',
@@ -752,25 +898,12 @@ export default {
             suggestions: Array.isArray(validation.suggestions) ? validation.suggestions : []
           };
           
-          // Ensure case_name is properly formatted
-          if (citation.case_name) {
-            // Clean up any HTML tags and extra whitespace
-            citation.case_name = citation.case_name
-              .replace(/<[^>]+>/g, '') // Remove HTML tags
-              .replace(/\s+/g, ' ')    // Replace multiple spaces with single space
-              .trim();
-            
-            // If case_name is just a citation number, mark as unknown
-            if (/^\d+\s+[A-Za-z0-9.]+\s+\d+$/.test(citation.case_name)) {
-              citation.case_name = 'Unknown Case';
-            }
-          }
-          
           // Log verification status for debugging
           console.log(`[transformApiResponse] Citation ${citation.citation} - ` +
                      `verified: ${citation.verified}, ` +
                      `status: ${citation.status}, ` +
-                     `metadata.verified: ${citation.metadata.verified}`);
+                     `metadata.verified: ${citation.metadata.verified}, ` +
+                     `verified_by: ${citation.verified_by}`);
           
           // Update counts
           if (citation.verified) {
@@ -795,303 +928,7 @@ export default {
       }
     },
     
-    async analyzeUrl() {
-      if (!this.urlInput) {
-        this.urlAnalysisResult = {
-          error: 'No URL provided',
-          details: 'Please enter a URL to analyze',
-          status: 400,
-          citations: [],
-          metadata: {},
-          eyecite_processed: false
-        };
-        return;
-      }
-      
-      // Basic URL validation
-      try {
-        new URL(this.urlInput);
-      } catch (e) {
-        this.urlAnalysisResult = {
-          error: 'Invalid URL',
-          details: 'Please enter a valid URL (e.g., https://example.com)',
-          status: 400,
-          citations: [],
-          metadata: {},
-          eyecite_processed: false
-        };
-        return;
-      }
-      
-      this.isAnalyzingUrl = true;
-      this.urlAnalysisResult = { 
-        citations: [], 
-        metadata: {}, 
-        eyecite_processed: false, 
-        error: null 
-      };
 
-      try {
-        const response = await axios.post('/casestrainer/api/analyze', 
-          { url: this.urlInput },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            timeout: 300000 // 5 minutes timeout
-          }
-        );
-        
-        if (response && response.data && typeof response.data === 'object') {
-          const processedCitations = Array.isArray(response.data.citations)
-            ? response.data.citations.map(citation => ({
-                ...citation,
-                id: citation.id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                url: citation?.url || this.urlInput,
-                contexts: Array.isArray(citation.contexts) ? citation.contexts : [],
-                verified: citation.verified || false,
-                verification_status: citation.verification_status || 
-                                  (citation.verified ? 'confirmed_by_courtlistener' : 'unverified'),
-                validation_method: citation.validation_method || 'url_analysis'
-              }))
-            : [];
-            
-          this.urlAnalysisResult = {
-            ...response.data,
-            citations: processedCitations,
-            validation_results: processedCitations,
-            metadata: {
-              ...(response.data.metadata || {}),
-              url: this.urlInput,
-              processedAt: new Date().toISOString(),
-              citationCount: processedCitations.length
-            },
-            eyecite_processed: response.data.eyecite_processed || false,
-            error: response.data.error || null
-          };
-        } else {
-          throw new Error('Invalid response format from server');
-        }
-      } catch (error) {
-        console.error('URL analysis error:', error);
-        const errorResponse = error.response || {};
-        this.urlAnalysisResult = {
-          error: errorResponse.data?.message || error.message || 'Failed to analyze URL',
-          details: errorResponse.data?.details || errorResponse.statusText || 'An error occurred while analyzing the URL',
-          status: errorResponse.status || 500,
-          code: error.code,
-          citations: [],
-          metadata: {
-            url: this.urlInput,
-            processedAt: new Date().toISOString()
-          },
-          eyecite_processed: false
-        };
-      } finally {
-        this.isAnalyzingUrl = false;
-      }
-    },
-    async validateCitation() {
-      // Input validation and store citation in local constant
-      const citationToValidate = this.citationText?.trim() || '';
-      
-      if (!citationToValidate) {
-        this.validationResult = {
-          error: 'No citation provided',
-          details: 'Please enter a citation to validate',
-          status: 400,
-          verified: false,
-          citation: ''
-        };
-        this.$toast.warning('Please enter a citation to validate');
-        return;
-      }
-
-      this.isValidating = true;
-      this.validationResult = null;
-      this.mlResult = null;
-      this.correctionResult = null;
-      this.citationContext = '';
-      this.fileLink = '';
-      
-      try {
-        // Enhanced validation
-        if (this.useEnhanced) {
-          console.log('[EnhancedValidator] Sending request to validate citation:', citationToValidate);
-          const response = await axios.post(
-            '/casestrainer/api/verify-citation',
-            { citation: citationToValidate },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-              },
-              timeout: 30000 // 30 seconds timeout
-            }
-          );
-          
-          if (response?.data) {
-            console.log('[EnhancedValidator] Received API response:', response.data);
-            
-            // The verify-citation endpoint returns a single citation result
-            // Create a validation results object that matches the expected format
-            const validationResult = {
-              ...response.data,
-              // Ensure we have all required fields
-              citation: response.data.citation || citationToValidate,
-              verified: response.data.verified || false,
-              status: response.data.verified ? 'verified' : 'unverified',
-              metadata: response.data.metadata || {}
-            };
-            
-            console.log('[EnhancedValidator] Received validation result:', validationResult);
-            
-            // Update the validation result
-            this.validationResult = validationResult;
-            
-            // Update the results for the ReusableResults component
-            this.results = {
-              validation_results: [validationResult],
-              total_citations: 1,
-              verified_count: validationResult.verified ? 1 : 0,
-              unverified_count: validationResult.verified ? 0 : 1,
-              citations_count: 1,
-              unconfirmedCount: validationResult.verified ? 0 : 1,
-              confirmed_count: validationResult.verified ? 1 : 0,
-              metadata: validationResult.metadata || {}
-            };
-            
-            // Log successful validation
-            console.log('[EnhancedValidator] Processed validation result:', this.validationResult);
-            
-            // Get context if verified
-            if (this.validationResult.verified) {
-              await this.getCitationContext();
-            }
-            } else if (response.data.error) {
-              // Handle API-level errors
-              console.error('[EnhancedValidator] API returned error:', response.data.error);
-              this.validationResult = {
-                error: response.data.error,
-                details: response.data.message || 'Failed to validate citation',
-                status: response.status || 500,
-                citation: citationToValidate,
-                verified: false,
-                source: 'api_error',
-                metadata: {
-                  error: response.data.error,
-                  status: response.status || 500,
-                  timestamp: new Date().toISOString()
-                }
-              };
-              
-              currentApp.logger.error('API Error:', this.validationResult);
-            } else {
-              // Handle empty or unexpected response format
-              this.validationResult = {
-                error: 'No validation results',
-                details: 'The citation could not be validated. The response format was unexpected.',
-                status: 404,
-                citation: citationToValidate,
-                verified: false,
-                source: 'validation_error',
-                metadata: {
-                  response_data: response.data,
-                  timestamp: new Date().toISOString()
-                }
-              };
-              
-              currentApp.logger.warn('Unexpected API response format:', response.data);
-            }
-          }
-        }
-        
-        // ML classification (if enabled)
-        if (this.useML) {
-          try {
-            const mlResponse = await axios.post(
-              '/casestrainer/api/classify-citation',
-              { citation: citationToValidate },
-              {
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 30000 // 30 seconds timeout
-              }
-            );
-            if (mlResponse?.data) {
-              this.mlResult = {
-                ...mlResponse.data,
-                processed_at: new Date().toISOString()
-              };
-            }
-          } catch (mlError) {
-            console.warn('ML classification failed:', mlError);
-            // Non-fatal error, continue with other operations
-          }
-        }
-        
-        // Correction suggestions (if enabled)
-        if (this.useCorrection) {
-          try {
-            const correctionResponse = await axios.post(
-              '/casestrainer/api/suggest-citation-corrections',
-              { citation: citationToValidate },
-              {
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 30000 // 30 seconds timeout
-              }
-            );
-            
-            if (correctionResponse?.data) {
-              // Only set correction result if we have suggestions or an error
-              if (correctionResponse.data.suggestions?.length > 0 || correctionResponse.data.error) {
-                this.correctionResult = {
-                  ...correctionResponse.data,
-                  processed_at: new Date().toISOString()
-                };
-              } else if (correctionResponse.data.warning) {
-                // Show warning to the user if the correction engine is not available
-                this.$toast.warning(correctionResponse.data.warning, {
-                  position: 'top-right',
-                  timeout: 8000,
-                  closeOnClick: true,
-                  pauseOnFocusLoss: true,
-                  pauseOnHover: true
-                });
-              }
-            }
-          } catch (corrError) {
-            console.warn('Correction suggestion failed:', corrError);
-            // Show error to the user
-            this.$toast.error('Failed to get correction suggestions. ' + (corrError.response?.data?.error || corrError.message || ''), {
-              position: 'top-right',
-              timeout: 10000,
-              closeOnClick: true,
-              pauseOnFocusLoss: true,
-              pauseOnHover: true
-            });
-            // Non-fatal error, continue with other operations
-          }
-        }
-        
-      } catch (error) {
-        console.error('Citation validation error:', error);
-        const errorResponse = error.response || {};
-        this.validationResult = {
-          error: errorResponse.data?.message || error.message || 'Failed to validate citation',
-          details: errorResponse.data?.details || errorResponse.statusText || 'An unexpected error occurred',
-          status: errorResponse.status || 500,
-          code: error.code,
-          citation: citationToValidate,
-          verified: false,
-          processed_at: new Date().toISOString()
-        };
-      } finally {
-        this.isValidating = false;
-      }
-    },
-    
     /**
      * Fetches additional context for a validated citation
      * @returns {Promise<void>}
@@ -1188,82 +1025,242 @@ export default {
           citation: citationText,
           timestamp: new Date().toISOString()
         };
-        
       } catch (error) {
         // This should only catch unexpected errors in the retry logic
         console.error('Unexpected error in getCitationContext:', error);
         this.contextResult = {
-          error: 'Unexpected error retrieving context',
+          error: 'Unexpected error',
           details: error.message || 'An unexpected error occurred',
-          status: error.response?.status || 500,
+          status: 500,
           citation: citationText,
           timestamp: new Date().toISOString()
         };
-      } finally {
-        // Ensure any loading states are reset
-        if (this.validationResult) {
-          this.validationResult.context_retrieval_complete = true;
-        }
       }
     },
     
-    applySuggestion(suggestion) {
-      this.citationText = suggestion;
-      this.validateCitation();
-    },
+    // Analyze URL for citations
+    async analyzeUrl() {
+      console.group('analyzeUrl - Start');
+      console.log('Input URL:', this.urlInput);
     
-    getBadgeClass(validationMethod) {
-      // Return appropriate Bootstrap badge classes based on validation method
-      switch(validationMethod) {
-        case 'Landmark':
-          return 'bg-primary';
-        case 'CourtListener':
-          return 'bg-success';
-        case 'Multitool':
-          return 'bg-info';
-        case 'Other':
-          return 'bg-secondary';
-        default:
-          return 'bg-dark';
-      }
-    },
-    
-    async analyzeDocument() {
-      const fileInput = this.$refs.documentUpload;
-      if (!fileInput.files || fileInput.files.length === 0) {
-        this.documentAnalysisResult = {
-          error: 'No file selected',
-          details: 'Please select a file to upload',
-          status: 400
-        };
-        return;
-      }
+    if (!this.urlInput) {
+      const errorObj = { 
+        error: 'No URL provided', 
+        details: 'Please enter a URL to analyze',
+        status: 400 
+      };
+      console.warn('URL analysis failed - no URL provided');
+      this.urlAnalysisResult = errorObj;
+      console.groupEnd();
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(this.urlInput);
+    } catch (e) {
+      const errorObj = { 
+        error: 'Invalid URL', 
+        details: 'Please enter a valid URL (e.g., https://example.com)',
+        status: 400 
+      };
+      console.warn('URL validation failed:', e.message);
+      this.urlAnalysisResult = errorObj;
+      console.groupEnd();
+      return;
+    }
+
+    this.isAnalyzingUrl = true;
+    this.urlAnalysisResult = null;
+    this.error = null;
+
+    try {
+      const requestData = { url: this.urlInput };
+      const requestConfig = {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Forwarded-Prefix': '/casestrainer'
+        },
+        timeout: 300000, // 5 minutes timeout
+        withCredentials: true
+      };
       
-      const file = fileInput.files[0];
-      this.isAnalyzing = true;
-      this.documentAnalysisResult = null;
+      console.log('Sending request to /analyze with data:', {
+        url: `${this.apiBaseUrl}/analyze`,
+        data: requestData,
+        config: requestConfig
+      });
+      
+      const startTime = performance.now();
+      const response = await axios.post(
+        `${this.apiBaseUrl}/analyze`,
+        requestData,
+        requestConfig
+      );
+      const endTime = performance.now();
+      
+      console.log(`URL Analysis Response (${(endTime - startTime).toFixed(2)}ms):`, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        data: response.data
+      });
+
+      if (!response.data) {
+        throw new Error('Empty response from server');
+      }
+
+      // Process the response data
+      const processedCitations = Array.isArray(response.data.citations)
+        ? response.data.citations.map(citation => ({
+            ...citation,
+            id: citation.id || `url-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            url: citation?.url || this.urlInput,
+            contexts: Array.isArray(citation.contexts) ? citation.contexts : [],
+            verified: citation.verified || false,
+            verification_status: citation.verification_status || 
+                             (citation.verified ? 'confirmed_by_courtlistener' : 'unverified'),
+            validation_method: citation.validation_method || 'url_analysis',
+            source: citation.source || 'url_analysis',
+            metadata: {
+              ...(citation.metadata || {}),
+              url: citation?.url || this.urlInput,
+              processedAt: new Date().toISOString()
+            }
+          }))
+        : [];
+        
+      this.urlAnalysisResult = {
+        ...response.data,
+        citations: processedCitations,
+        validation_results: processedCitations,
+        metadata: {
+          ...(response.data.metadata || {}),
+          url: this.urlInput,
+          processedAt: new Date().toISOString(),
+          citationCount: processedCitations.length,
+          source: 'url_analysis',
+          responseTime: `${(endTime - startTime).toFixed(2)}ms`
+        },
+        eyecite_processed: response.data.eyecite_processed || false,
+        error: response.data.error || null
+      };
+      
+      // Update the active tab to show URL results
+      console.log(`Processed ${processedCitations.length} citations from URL`);
+      this.activeTab = 'url';
+      
+    } catch (error) {
+      console.error('URL analysis error:', error);
+      const errorResponse = error.response || {};
+      const errorMessage = errorResponse.data?.message || error.message || 'Failed to analyze URL';
+      const errorDetails = errorResponse.data?.details || errorResponse.statusText || 'An error occurred while analyzing the URL';
+      
+      console.error('URL analysis failed with error:', {
+        error: errorMessage,
+        details: errorDetails,
+        status: errorResponse.status || 500,
+        url: this.urlInput,
+        timestamp: new Date().toISOString()
+      });
+      
+      this.error = errorMessage;
+      this.urlAnalysisResult = {
+        error: errorMessage,
+        details: errorDetails,
+        status: errorResponse.status || 500,
+        url: this.urlInput,
+        processedAt: new Date().toISOString()
+      };
+      
+      // Set validation result for the error case
+      this.validationResult = {
+        error: 'URL Analysis Failed',
+        details: errorDetails,
+        status: errorResponse.status || 500,
+        verified: false,
+        source: 'url_analysis_error',
+        metadata: {
+          error: errorMessage,
+          url: this.urlInput,
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+    } finally {
+      this.isAnalyzingUrl = false;
+      console.groupEnd();
+    }
+},
+
+// Analyze uploaded document for citations
+async analyzeDocument() {
+  const fileInput = this.$refs.documentUpload;
+  if (!fileInput.files || fileInput.files.length === 0) {
+    this.documentAnalysisResult = {
+      error: 'No file selected',
+      details: 'Please select a file to upload',
+      status: 400,
+      citations: [],
+      validation_results: [],
+      metadata: {}
+    };
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  this.isAnalyzingDocument = true;
+  this.documentAnalysisResult = null;
+  this.error = null;
       
       // Validate file type and size
-      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const validTypes = [
+        'application/pdf', 
+        'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+        'text/rtf',
+        'application/rtf'
+      ];
+      
       const maxSize = 10 * 1024 * 1024; // 10MB
       
-      if (!validTypes.includes(file.type)) {
+      if (!validTypes.some(type => file.type.includes(type.replace('application/', '').split('.')[0]))) {
         this.documentAnalysisResult = {
           error: 'Invalid file type',
-          details: 'Please upload a PDF or Word document',
-          status: 400
+          details: 'Please upload a PDF, Word document, or text file',
+          status: 400,
+          citations: [],
+          validation_results: [],
+          metadata: {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            error: 'invalid_file_type'
+          }
         };
-        this.isAnalyzing = false;
+        this.isAnalyzingDocument = false;
+        this.activeTab = 'document';
         return;
       }
       
       if (file.size > maxSize) {
         this.documentAnalysisResult = {
           error: 'File too large',
-          details: 'Maximum file size is 10MB',
-          status: 400
+          details: `File size (${(file.size / (1024 * 1024)).toFixed(2)} MB) exceeds maximum allowed (10 MB)`,
+          status: 400,
+          citations: [],
+          validation_results: [],
+          metadata: {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            error: 'file_too_large'
+          }
         };
-        this.isAnalyzing = false;
+        this.isAnalyzingDocument = false;
+        this.activeTab = 'document';
         return;
       }
       
@@ -1271,112 +1268,124 @@ export default {
       formData.append('file', file);
       
       try {
-        const response = await axios.post('/casestrainer/api/analyze', formData, {
-          headers: { 
-            'Content-Type': 'multipart/form-data',
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          timeout: 300000 // 5 minutes timeout
-        });
-        
-        // Process successful response
-        this.documentAnalysisResult = {
-          ...response.data,
-          metadata: {
-            ...response.data.metadata,
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type,
-            processedAt: new Date().toISOString()
-          },
-          error: response.data.error || null
-        };
-        
-      } catch (error) {
-        // Enhanced error handling
-        const errorResponse = error.response || {};
-        this.documentAnalysisResult = {
-          error: errorResponse.data?.message || error.message || 'Failed to process document',
-          details: errorResponse.data?.details || errorResponse.statusText,
-          status: errorResponse.status || 500,
-          code: error.code,
-          metadata: {
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type
-          }
-        };
-        console.error('Document analysis error:', error);
-      } finally {
-        this.isAnalyzing = false;
-      }
-    },
-    // Enhanced text analysis with better error handling and response processing
-    async analyzeText() {
-      if (!this.pastedText) {
-        this.textAnalysisResult = {
-          error: 'No text provided',
-          details: 'Please enter or paste some text to analyze',
-          status: 400
-        };
-        return;
-      }
-      
-      // Validate input length
-      if (this.pastedText.length > 10000) {
-        this.textAnalysisResult = {
-          error: 'Text too long',
-          details: 'Maximum text length is 10,000 characters',
-          status: 400
-        };
-        return;
-      }
-      
-      this.isAnalyzing = true;
-      this.textAnalysisResult = null;
-      
-      try {
-        const response = await axios.post('/casestrainer/api/analyze', 
-          { text: this.pastedText },
+        const response = await axios.post(
+          `${this.apiBaseUrl}/analyze`, 
+          formData, 
           {
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
+            headers: { 
+              'Content-Type': 'multipart/form-data',
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-Forwarded-Prefix': '/casestrainer'
             },
-            timeout: 300000 // 5 minutes timeout
+            timeout: 300000, // 5 minutes timeout
+            withCredentials: true
           }
         );
         
         // Process successful response
-        this.textAnalysisResult = {
+        const processedCitations = Array.isArray(response.data?.citations)
+          ? response.data.citations.map(citation => ({
+              ...citation,
+              id: citation.id || `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              verified: citation.verified || false,
+              validation_method: citation.validation_method || 'document_analysis',
+              contexts: Array.isArray(citation.contexts) ? citation.contexts : [],
+              source: citation.source || 'document_analysis',
+              metadata: {
+                ...(citation.metadata || {}),
+                fileName: file.name,
+                fileType: file.type,
+                processedAt: new Date().toISOString()
+              }
+            }))
+          : [];
+        
+        this.documentAnalysisResult = {
           ...response.data,
+          citations: processedCitations,
+          validation_results: processedCitations,
           metadata: {
-            ...response.data.metadata,
-            textLength: this.pastedText.length,
+            ...(response.data.metadata || {}),
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
             processedAt: new Date().toISOString(),
-            citationCount: response.data.citations?.length || 0
+            citationCount: processedCitations.length,
+            source: 'document_analysis'
           },
           error: response.data.error || null
         };
         
+        // Update the active tab to show document results
+        this.activeTab = 'document';
+        
       } catch (error) {
         // Enhanced error handling
         const errorResponse = error.response || {};
-        this.textAnalysisResult = {
-          error: errorResponse.data?.message || error.message || 'Failed to analyze text',
-          details: errorResponse.data?.details || errorResponse.statusText,
+        const errorMessage = errorResponse.data?.message || error.message || 'Failed to process document';
+        const errorDetails = errorResponse.data?.details || errorResponse.statusText || 'An unexpected error occurred';
+        
+        this.error = errorMessage;
+        this.documentAnalysisResult = {
+          error: errorMessage,
+          details: errorDetails,
           status: errorResponse.status || 500,
           code: error.code,
+          citations: [],
+          validation_results: [],
           metadata: {
-            textLength: this.pastedText.length,
-            processedAt: new Date().toISOString()
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            processedAt: new Date().toISOString(),
+            error: true
           }
         };
-        console.error('Text analysis error:', error);
+        
+        console.error('Document analysis error:', error);
+        // Ensure we're on the document tab to show the error
+        this.activeTab = 'document';
       } finally {
-        this.isAnalyzing = false;
+        this.isAnalyzingDocument = false;
+      }
+    },
+    // Apply a suggested correction to the citation input
+    applySuggestion(suggestion) {
+      if (suggestion && suggestion.corrected_citation) {
+        this.citationText = suggestion.corrected_citation;
+        // Small delay to ensure the input updates before validating
+        this.$nextTick(() => {
+          this.validateCitation();
+        });
+      }
+    },
+    
+    // Get badge class based on validation method
+    getBadgeClass(validationMethod) {
+      const method = (validationMethod || '').toLowerCase();
+      
+      if (method.includes('courtlistener') || method.includes('enhanced')) {
+        return 'bg-success';
+      } else if (method.includes('ml') || method.includes('machine learning')) {
+        return 'bg-info';
+      } else if (method.includes('local') || method.includes('basic')) {
+        return 'bg-secondary';
+      } else if (method.includes('error') || method.includes('failed')) {
+        return 'bg-danger';
+      } else {
+        return 'bg-primary';
       }
     }
+  },
+  
+  // Lifecycle hooks
+  created() {
+    // Set default URL if in development or local environment
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      this.urlInput = 'http://localhost:5000/casestrainer/enhanced-validator';
+    }
+    // Load citation cache from localStorage on component creation
+    this.loadCitationCache();
   }
 };
 </script>

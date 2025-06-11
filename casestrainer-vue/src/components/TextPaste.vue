@@ -125,9 +125,9 @@ export default {
       
       try {
         // Add to debug info
-        this.debugInfo += `Request to /api/analyze: [Text data]\n`; // Only for backend logging
+        this.debugInfo += `Request to /api/enhanced/analyze: [Text data]\n`; // Only for backend logging
         
-        const response = await axios.post('/api/analyze', { text: this.text, debugInfo: this.debugInfo });
+        const response = await axios.post('/api/enhanced/analyze', { text: this.text, debugInfo: this.debugInfo });
         
         // Add to debug info
         this.debugInfo += `Response received: Processing data...\n`;

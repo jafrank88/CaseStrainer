@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: casestrainer-vue
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - casestrainer-network
+
+  # Uncomment and configure this if you need a backend service
+  # backend:
+  #   build: ../path-to-backend
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - ../path-to-backend:/app
+  #   environment:
+  #     - FLASK_ENV=development
+  #   networks:
+  #     - casestrainer-network
+
+networks:
+  casestrainer-network:
+    driver: bridge

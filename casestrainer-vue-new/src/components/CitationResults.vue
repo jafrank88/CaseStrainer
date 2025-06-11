@@ -22,6 +22,9 @@
           <span class="badge bg-success me-2">
             Valid: {{ validCount }}
           </span>
+          <span class="badge bg-warning text-dark me-2" v-if="results.citations.some(c => c.confidence < 0.7)">
+            Low Confidence: {{ results.citations.filter(c => c.confidence < 0.7).length }}
+          </span>
           <span class="badge bg-danger">
             Invalid: {{ invalidCount }}
           </span>
@@ -39,7 +42,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(citation, index) in results.citations" :key="index" class="align-middle">
+            <tr v-for="(citation, index) in sortedCitations" :key="index" class="align-middle">
               <td>
                 <div class="d-flex align-items-center">
                   <span class="citation-text">{{ citation.text }}</span>
@@ -81,9 +84,9 @@
       
       <!-- Expanded Details Panels -->
       <div 
-        v-for="(citation, index) in results.citations" 
+        v-for="(citation, index) in sortedCitations" 
         :key="'detail-' + index"
-        v-show="expandedDetails === index"
+        v-show="expandedCitation === index"
         class="card mb-3"
       >
         <div class="card-header">
@@ -99,16 +102,42 @@
                   <span :class="['badge', getStatusBadgeClass(citation)]">
                     {{ getStatusText(citation) }}
                   </span>
+                  <span v-if="citation.confidence < 0.7" class="ms-2 badge bg-warning text-dark">
+                    Low Confidence ({{ Math.round(citation.confidence * 100) }}%)
+                  </span>
                 </dd>
                 
-                <dt class="col-sm-4">Type</dt>
-                <dd class="col-sm-8">{{ citation.type || 'N/A' }}</dd>
+                <dt class="col-sm-4">Source</dt>
+                <dd class="col-sm-8">
+                  <span class="text-capitalize">{{ citation.source || 'N/A' }}</span>
+                  <a v-if="citation.url" :href="citation.url" target="_blank" class="ms-2">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                </dd>
                 
-                <dt class="col-sm-4">Court</dt>
-                <dd class="col-sm-8">{{ citation.court || 'N/A' }}</dd>
+                <dt class="col-sm-4">Case Name</dt>
+                <dd class="col-sm-8">{{ citation.case_name || 'N/A' }}</dd>
                 
-                <dt class="col-sm-4">Year</dt>
-                <dd class="col-sm-8">{{ citation.year || 'N/A' }}</dd>
+                <dt class="col-sm-4">Confidence</dt>
+                <dd class="col-sm-8">
+                  <div class="progress" style="height: 20px;">
+                    <div 
+                      class="progress-bar" 
+                      :class="{
+                        'bg-success': citation.confidence >= 0.7,
+                        'bg-warning': citation.confidence >= 0.4 && citation.confidence < 0.7,
+                        'bg-danger': citation.confidence < 0.4
+                      }"
+                      role="progressbar" 
+                      :style="{ width: (citation.confidence * 100) + '%' }"
+                      :aria-valuenow="citation.confidence * 100"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      {{ Math.round(citation.confidence * 100) }}%
+                    </div>
+                  </div>
+                </dd>
               </dl>
             </div>
             
@@ -119,9 +148,9 @@
                 <dd class="col-sm-8">
                   <i 
                     class="bi" 
-                    :class="citation.valid ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'"
+                    :class="(citation.valid || citation.verified) ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'"
                   ></i>
-                  {{ citation.valid ? 'Yes' : 'No' }}
+                  {{ (citation.valid || citation.verified) ? 'Yes' : 'No' }}
                 </dd>
                 
                 <dt class="col-sm-4">Confidence</dt>
@@ -222,30 +251,53 @@ export default {
   },
   emits: ['new-analysis', 'apply-correction'],
   setup(props, { emit }) {
-    const expandedDetails = ref(null);
+    const expandedCitation = ref(null);
     
     const validCount = computed(() => {
-      return props.results.citations 
-        ? props.results.citations.filter(c => c.valid).length 
-        : 0;
+      return props.results.citations.filter(c => c.valid || c.verified).length;
     });
     
     const invalidCount = computed(() => {
-      return props.results.citations 
-        ? props.results.citations.filter(c => !c.valid).length 
-        : 0;
+      return props.results.citations.filter(c => !(c.valid || c.verified)).length;
     });
     
-    const getStatusText = (citation) => {
-      if (citation.valid) return 'Valid';
-      if (citation.correction) return 'Needs Correction';
-      return 'Invalid';
-    };
+    const lowConfidenceCount = computed(() => {
+      return props.results?.citations?.filter(c => c.confidence >= 0.4 && c.confidence < 0.7).length || 0;
+    });
     
-    const getStatusBadgeClass = (citation) => {
-      if (citation.valid) return 'bg-success';
-      if (citation.correction) return 'bg-warning text-dark';
-      return 'bg-danger';
+    const showResults = computed(() => {
+      return props.results && props.results.citations && props.results.citations.length > 0;
+    });
+    
+    const sortedCitations = computed(() => {
+      if (!props.results?.citations) return [];
+      // Sort by confidence (highest first) and then by validation status
+      return [...props.results.citations].sort((a, b) => {
+        // First sort by confidence (descending)
+        if (b.confidence !== a.confidence) {
+          return b.confidence - a.confidence;
+        }
+        // Then by validation status (valid first)
+        if ((a.valid || a.verified) !== (b.valid || b.verified)) {
+          return (a.valid || a.verified) ? -1 : 1;
+        }
+        return 0;
+      });
+    });
+    
+    function getStatusText(citation) {
+      if (citation.valid === true || citation.verified === true) return 'Valid';
+      if (citation.valid === false || citation.verified === false) return 'Unverified';
+      return 'Unknown';
+    }
+    
+    function getStatusBadgeClass(citation) {
+      if (citation.valid === true || citation.verified === true) {
+        return citation.confidence < 0.7 ? 'bg-warning text-dark' : 'bg-success';
+      } else if (citation.valid === false || citation.verified === false) {
+        return 'bg-warning text-dark';
+      }
+      return 'bg-secondary';
     };
     
     const toggleDetails = (index) => {
@@ -273,12 +325,17 @@ export default {
     };
     
     return {
-      expandedDetails,
+      expandedCitation,
       validCount,
       invalidCount,
+      lowConfidenceCount,
+      showResults,
+      sortedCitations,
       getStatusText,
       getStatusBadgeClass,
-      toggleDetails,
+      toggleDetails: (index) => {
+        expandedCitation.value = expandedCitation.value === index ? null : index;
+      },
       startNewAnalysis,
       applyCorrection,
       downloadResults,

@@ -54,7 +54,7 @@ except ImportError:
         logger.error(f"Failed to import DispatcherMiddleware: {e}")
         sys.exit(1)
 
-from src.app_final_vue import create_app
+from src.app_final_vue import create_app, get_wsgi_application
 
 
 def get_server_info():
@@ -66,6 +66,62 @@ def get_server_info():
     except Exception as e:
         logger.error(f"Error getting server info: {e}")
         return {"hostname": "unknown", "ip_address": "unknown"}
+
+
+def run_production_server():
+    """Run the production server using Waitress."""
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler('wsgi.log'),
+            logging.StreamHandler()
+        ]
+    )
+    logger = logging.getLogger('wsgi')
+    
+    # Create the WSGI application
+    app = create_app()
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    
+    # Get configuration
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', '5000'))
+    threads = int(os.getenv('WAITRESS_THREADS', '4'))
+    
+    # SSL configuration
+    ssl_cert = os.getenv('SSL_CERT')
+    ssl_key = os.getenv('SSL_KEY')
+    
+    logger.info(f"Starting CaseStrainer on {host}:{port}")
+    logger.info(f"Environment: {app.config['ENV']}")
+    logger.info(f"Debug mode: {app.config['DEBUG']}")
+    
+    # Configure Waitress
+    waitress_options = {
+        'host': host,
+        'port': port,
+        'threads': threads,
+        'url_scheme': 'https' if ssl_cert and ssl_key else 'http',
+        'ident': 'CaseStrainer',
+        'channel_timeout': 30,
+        'connection_limit': 1000,
+        'max_request_header_size': 262144,  # 256KB
+        'max_request_body_size': 1073741824,  # 1GB
+        'clear_untrusted_proxy_headers': True
+    }
+    
+    # Add SSL if configured
+    if ssl_cert and ssl_key:
+        waitress_options.update({
+            'ssl_certificate': ssl_cert,
+            'ssl_key': ssl_key
+        })
+        logger.info("SSL enabled")
+    
+    # Start the server
+    serve(app, **waitress_options)
 
 
 def main():
@@ -145,7 +201,7 @@ def main():
         logger.info(
             f"Starting Waitress server with DispatcherMiddleware on http://{args.host}:{args.port}{args.url_prefix}"
         )
-        serve(application, host=args.host, port=args.port, threads=args.threads)
+        run_production_server()
 
     except Exception as e:
         logger.error(f"Error starting server: {e}")

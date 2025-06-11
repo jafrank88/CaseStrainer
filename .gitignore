@@ -1,3 +1,7 @@
+# Legacy Vue.js frontend (kept for reference)
+casestrainer-vue/
+!casestrainer-vue/DEPRECATED.md
+
 # Nginx log files
 nginx-1.27.5/logs/*.log
 
@@ -14,10 +18,13 @@ nginx-1.27.5/logs/*.log
 .ipynb_checkpoints
 
 # Local development
-# Ignore local env files with sensitive data
-.env
-!.env.example
+# Track .env file but ignore sensitive local overrides
+!.env
+!.env.*
+!.env.*.local
+!*.example
 .env.local
+.env.*.local
 .venv/
 venv/
 env/

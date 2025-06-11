@@ -1,0 +1,48 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.6.0 -- C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer
+plugins: cov-6.1.1
+collecting ... collected 2 items
+
+tests/test_smoke.py::TestSmoke::test_environment PASSED                  [ 50%]
+tests/test_smoke.py::TestSmoke::test_imports FAILED                      [100%]
+
+================================== FAILURES ===================================
+___________________________ TestSmoke.test_imports ____________________________
+
+self = <test_smoke.TestSmoke testMethod=test_imports>
+
+    def test_imports(self):
+        """Test that required modules can be imported."""
+        try:
+            # Try importing main application modules
+>           from src.citation_validator import CitationValidator
+E           ModuleNotFoundError: No module named 'src.citation_validator'
+
+tests\test_smoke.py:16: ModuleNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+self = <test_smoke.TestSmoke testMethod=test_imports>
+
+    def test_imports(self):
+        """Test that required modules can be imported."""
+        try:
+            # Try importing main application modules
+            from src.citation_validator import CitationValidator
+            from src.courtlistener_api import CourtListenerAPI
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    
+            # If we get here, imports worked
+            self.assertTrue(True)
+        except ImportError as e:
+>           self.fail(f"Failed to import required module: {e}")
+E           AssertionError: Failed to import required module: No module named 'src.citation_validator'
+
+tests\test_smoke.py:23: AssertionError
+---------------------------- Captured stdout call -----------------------------
+Database file path: citations.db
+=========================== short test summary info ===========================
+FAILED tests/test_smoke.py::TestSmoke::test_imports - AssertionError: Failed ...
+========================= 1 failed, 1 passed in 0.55s =========================

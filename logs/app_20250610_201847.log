@@ -1,0 +1,145 @@
+2025-06-10 20:18:47,876 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:18:47,881 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:18:47,881 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:18:47,881 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:18:47,887 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:18:47,887 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:18:47,892 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:18:47,892 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:18:47,892 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:18:47,898 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:21:33,660 - src.app_final_vue - INFO - Endpoint /analyze-document accessed
+2025-06-10 20:21:33,660 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Received request to /analyze-document
+2025-06-10 20:21:33,660 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Request method: POST
+2025-06-10 20:21:33,660 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Content-Type: multipart/form-data; boundary=d95512756898ca915e6b6dd0ac34cb28
+2025-06-10 20:21:33,660 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '255', 'Content-Type': 'multipart/form-data; boundary=d95512756898ca915e6b6dd0ac34cb28'}
+2025-06-10 20:21:33,661 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Full URL: http://localhost:5000/casestrainer/api/analyze-document
+2025-06-10 20:21:33,661 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Path: /casestrainer/api/analyze-document
+2025-06-10 20:21:33,662 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Files: ['file']
+2025-06-10 20:21:33,662 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] File info - filename: test.txt, content_type: text/plain
+2025-06-10 20:21:33,662 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Parsed form data
+2025-06-10 20:21:33,667 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully extracted text from file
+2025-06-10 20:21:33,667 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Document analysis request: {
+  "has_file": true,
+  "filename": "test.txt",
+  "file_size": 85,
+  "has_text": true,
+  "text_length": 104,
+  "options": {
+    "convert_pdf_to_md": true,
+    "is_binary": false
+  }
+}
+2025-06-10 20:21:34,891 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully imported enhanced_analyze function
+2025-06-10 20:21:34,976 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully processed document analysis
+2025-06-10 20:21:36,998 - src.app_final_vue - INFO - === New Request ===
+2025-06-10 20:21:36,998 - src.app_final_vue - INFO - Method: POST
+2025-06-10 20:21:36,998 - src.app_final_vue - INFO - Path: /casestrainer/api/verify-citation
+2025-06-10 20:21:36,998 - src.app_final_vue - INFO - Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': 'application/json', 'Connection': 'keep-alive', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '56'}
+2025-06-10 20:21:36,999 - src.app_final_vue - INFO - Content-Type: application/json; charset=utf-8
+2025-06-10 20:21:36,999 - src.app_final_vue - INFO - Mimetype: application/json
+2025-06-10 20:21:36,999 - src.app_final_vue - INFO - Raw data: b'{"text": "Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)"}'
+2025-06-10 20:21:36,999 - src.app_final_vue - INFO - Request args: ImmutableMultiDict([])
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Request form: ImmutableMultiDict([])
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Request JSON: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Processing JSON request
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Successfully parsed JSON data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Extracted citation: , case_name: 
+2025-06-10 20:21:37,001 - src.app_final_vue - INFO - Final parsed data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:21:37,002 - src.app_final_vue - ERROR - No citation provided in request
+2025-06-10 20:21:37,002 - src.app_final_vue - ERROR - [verify_citation] Unexpected error in verify_citation: name 'headers' is not defined
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 597, in handle_verify_citation
+    return jsonify(default_error_response), 400, headers
+                                                 ^^^^^^^
+NameError: name 'headers' is not defined
+2025-06-10 20:24:24,674 - src.app_final_vue - INFO - Endpoint /analyze-document accessed
+2025-06-10 20:24:24,674 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Received request to /analyze-document
+2025-06-10 20:24:24,674 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Request method: POST
+2025-06-10 20:24:24,674 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Content-Type: multipart/form-data; boundary=dfb4e4d614522e3180c28dd3c6de9d58
+2025-06-10 20:24:24,674 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '255', 'Content-Type': 'multipart/form-data; boundary=dfb4e4d614522e3180c28dd3c6de9d58'}
+2025-06-10 20:24:24,675 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Full URL: http://localhost:5000/casestrainer/api/analyze-document
+2025-06-10 20:24:24,675 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Path: /casestrainer/api/analyze-document
+2025-06-10 20:24:24,676 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Files: ['file']
+2025-06-10 20:24:24,676 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] File info - filename: test.txt, content_type: text/plain
+2025-06-10 20:24:24,676 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Parsed form data
+2025-06-10 20:24:24,680 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully extracted text from file
+2025-06-10 20:24:24,680 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Document analysis request: {
+  "has_file": true,
+  "filename": "test.txt",
+  "file_size": 85,
+  "has_text": true,
+  "text_length": 104,
+  "options": {
+    "convert_pdf_to_md": true,
+    "is_binary": false
+  }
+}
+2025-06-10 20:24:24,680 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully imported enhanced_analyze function
+2025-06-10 20:24:24,761 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully processed document analysis
+2025-06-10 20:24:26,780 - src.app_final_vue - INFO - === New Request ===
+2025-06-10 20:24:26,780 - src.app_final_vue - INFO - Method: POST
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Path: /casestrainer/api/verify-citation
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': 'application/json', 'Connection': 'keep-alive', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '56'}
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Content-Type: application/json; charset=utf-8
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Mimetype: application/json
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Raw data: b'{"text": "Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)"}'
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Request args: ImmutableMultiDict([])
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Request form: ImmutableMultiDict([])
+2025-06-10 20:24:26,781 - src.app_final_vue - INFO - Request JSON: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:24:26,782 - src.app_final_vue - INFO - Processing JSON request
+2025-06-10 20:24:26,782 - src.app_final_vue - INFO - Successfully parsed JSON data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:24:26,782 - src.app_final_vue - INFO - Extracted citation: , case_name: 
+2025-06-10 20:24:26,782 - src.app_final_vue - INFO - Final parsed data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:24:26,782 - src.app_final_vue - ERROR - No citation provided in request
+2025-06-10 20:24:26,782 - src.app_final_vue - ERROR - [verify_citation] Unexpected error in verify_citation: name 'headers' is not defined
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 597, in handle_verify_citation
+    return jsonify(default_error_response), 400, headers
+                                                 ^^^^^^^
+NameError: name 'headers' is not defined
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - Endpoint /analyze-document accessed
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Received request to /analyze-document
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Request method: POST
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Content-Type: multipart/form-data; boundary=6d5234f6ce93592d6511ff242444b180
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '255', 'Content-Type': 'multipart/form-data; boundary=6d5234f6ce93592d6511ff242444b180'}
+2025-06-10 20:25:27,816 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Full URL: http://localhost:5000/casestrainer/api/analyze-document
+2025-06-10 20:25:27,817 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Path: /casestrainer/api/analyze-document
+2025-06-10 20:25:27,818 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Files: ['file']
+2025-06-10 20:25:27,818 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] File info - filename: test.txt, content_type: text/plain
+2025-06-10 20:25:27,818 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Parsed form data
+2025-06-10 20:25:27,822 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully extracted text from file
+2025-06-10 20:25:27,822 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Document analysis request: {
+  "has_file": true,
+  "filename": "test.txt",
+  "file_size": 85,
+  "has_text": true,
+  "text_length": 104,
+  "options": {
+    "convert_pdf_to_md": true,
+    "is_binary": false
+  }
+}
+2025-06-10 20:25:27,822 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully imported enhanced_analyze function
+2025-06-10 20:25:27,901 - src.app_final_vue - INFO - [ANALYZE_DOCUMENT] Successfully processed document analysis
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - === New Request ===
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Method: POST
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Path: /casestrainer/api/verify-citation
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Headers: {'Host': 'localhost:5000', 'User-Agent': 'python-requests/2.32.3', 'Accept-Encoding': 'gzip, deflate', 'Accept': 'application/json', 'Connection': 'keep-alive', 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': '56'}
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Content-Type: application/json; charset=utf-8
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Mimetype: application/json
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Raw data: b'{"text": "Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)"}'
+2025-06-10 20:25:30,301 - src.app_final_vue - INFO - Request args: ImmutableMultiDict([])
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Request form: ImmutableMultiDict([])
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Request JSON: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Processing JSON request
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Successfully parsed JSON data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Extracted citation: , case_name: 
+2025-06-10 20:25:30,302 - src.app_final_vue - INFO - Final parsed data: {'text': 'Smith v. Jones, 123 F.3d 456 (9th Cir. 2020)'}
+2025-06-10 20:25:30,302 - src.app_final_vue - ERROR - No citation provided in request
+2025-06-10 20:25:30,302 - src.app_final_vue - ERROR - [verify_citation] Unexpected error in verify_citation: name 'headers' is not defined
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 597, in handle_verify_citation
+    return jsonify(default_error_response), 400, headers
+                                                 ^^^^^^^
+NameError: name 'headers' is not defined

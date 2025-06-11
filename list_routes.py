@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src"
 
 def list_routes():
     try:
-        from src.app_final import create_app
+        from src.app_final_vue import create_app
 
         print("Creating app instance...")
         app = create_app()

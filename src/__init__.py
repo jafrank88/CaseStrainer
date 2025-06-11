@@ -7,7 +7,7 @@ from .config import configure_logging
 
 configure_logging()
 
-__version__ = "0.4.8"
+__version__ = "0.4.9"
 
 # Explicitly export configure_logging
 __all__ = ["configure_logging"]

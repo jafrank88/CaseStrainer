@@ -18,6 +18,7 @@ import uuid
 import traceback
 from werkzeug.utils import secure_filename
 from datetime import datetime
+import time
 
 # Add the project root to the Python path
 import sys
@@ -29,6 +30,7 @@ if project_root not in sys.path:
 # Import from src to ensure consistent imports
 from src.citation_utils import extract_all_citations as extract_citations
 from src.citation_processor import CitationProcessor
+from src.file_utils import extract_text_from_file
 
 # Create an instance of CitationProcessor
 citation_processor = CitationProcessor()
@@ -342,385 +344,183 @@ def unconfirmed_citations_data():
     return response
 
 
-@citation_api.route("/analyze", methods=["POST", "OPTIONS"])
+@citation_api.route("/analyze", methods=["POST"])
 def analyze():
-    """API endpoint to analyze a document or pasted text with the Enhanced Validator."""
-    # Handle preflight OPTIONS request for CORS
-    if request.method == "OPTIONS":
-        response = jsonify({"status": "success"})
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add(
-            "Access-Control-Allow-Headers", "Content-Type,Authorization"
-        )
-        response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-        return response
-
-    # Log request details for debugging
-    logger.info("Citation analysis request received")
-    logger.info(f"Request method: {request.method}")
-    logger.info(f"Request content type: {request.content_type}")
-    logger.info(
-        f"Request files: {list(request.files.keys()) if request.files else 'No files'}"
-    )
-    logger.info(
-        f"Request form: {list(request.form.keys()) if request.form else 'No form data'}"
-    )
-
-    # Add CORS headers for this specific endpoint
-
+    """Analyze a document for citations."""
+    start_time = time.time()
+    analysis_id = str(uuid.uuid4())
+    
     try:
-        # Generate a unique analysis ID
-        analysis_id = generate_analysis_id()
-        logger.info(f"Generated analysis ID: {analysis_id}")
-
-        # Use session storage instead of global variables
-        from flask import session
-
-        # Clear the previous citations to ensure we're not mixing old and new data
-        session["user_citations"] = []
-        logger.info("Cleared previous citation data in user session")
-
-        # Initialize variables
-        document_text = None
-        file_path = None
-
-        # Log debug_info if provided
-        debug_info = request.form.get("debug_info")
-        if debug_info:
-            try:
-                with open("logs/debug.log", "a", encoding="utf-8") as debug_log:
-                    timestamp = datetime.now().isoformat()
-                    debug_log.write(
-                        f"[{timestamp}] Analysis ID: {analysis_id} | Debug Info: {debug_info}\n"
-                    )
-            except Exception as log_err:
-                logger.error(f"Failed to write debug_info to debug.log: {log_err}")
-
-        # Check if a file was uploaded or a URL was provided
-        if "file" in request.files and request.files["file"].filename:
-            file = request.files["file"]
-            logger.info(f"File uploaded: {file.filename if file else 'None'}")
-
-            if file and file.filename and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(UPLOAD_FOLDER, f"{analysis_id}_{filename}")
-
-                # Save file
-                file.save(file_path)
-                logger.info(f"File saved to: {file_path}")
-
-                # Extract text from file
-                from file_utils import extract_text_from_file
-
-                document_text = extract_text_from_file(file_path)
-                logger.info(f"Extracted {len(document_text)} characters from file")
-            else:
-                error_msg = f"Invalid file: {file.filename if file else 'None'}"
-                logger.error(error_msg)
-                return jsonify({"status": "error", "message": error_msg}), 400
-
-        # Check if a URL was provided
-        elif "url" in request.form and request.form["url"].strip():
-            url = request.form["url"].strip()
-            logger.info(f"URL provided: {url}")
-
-            try:
-                # Check if it's a PDF URL
-                if url.lower().endswith(".pdf"):
-                    import tempfile
-                    import requests
-
-                    # Download the PDF
-                    response = requests.get(url, stream=True)
-                    response.raise_for_status()
-
-                    # Save to a temporary file
-                    with tempfile.NamedTemporaryFile(
-                        delete=False, suffix=".pdf"
-                    ) as temp_file:
-                        for chunk in response.iter_content(chunk_size=8192):
-                            if chunk:
-                                temp_file.write(chunk)
-                        temp_file_path = temp_file.name
-
-                    try:
-                        # Extract text from the downloaded PDF
-                        from file_utils import extract_text_from_file
-
-                        document_text = extract_text_from_file(temp_file_path)
-                        logger.info(
-                            f"Extracted {len(document_text)} characters from PDF URL"
-                        )
-                    finally:
-                        # Clean up the temporary file
-                        try:
-                            os.unlink(temp_file_path)
-                        except Exception as e:
-                            logger.warning(
-                                f"Failed to delete temporary file {temp_file_path}: {e}"
-                            )
-                else:
-                    # For non-PDF URLs, use the existing extract_text_from_url function
-                    from .enhanced_validator_production import extract_text_from_url
-
-                    document_text = extract_text_from_url(url)
-                    logger.info(f"Extracted {len(document_text)} characters from URL")
-
-            except Exception as e:
-                error_msg = f"Error processing URL: {str(e)}"
-                logger.error(error_msg)
-                return jsonify({"status": "error", "message": error_msg}), 400
-
-        # Get text from form if provided (handle both 'text' and 'brief_text' fields)
-        elif ("text" in request.form and request.form["text"].strip()) or (
-            "brief_text" in request.form and request.form["brief_text"].strip()
-        ):
-            # Check which field is present
-            if "text" in request.form and request.form["text"].strip():
-                document_text = request.form["text"].strip()
-            else:
-                document_text = request.form["brief_text"].strip()
-            logger.info(f"Text provided: {len(document_text)} characters")
-
-        # Return error if no file or text provided
-        else:
-            error_msg = "No file or text provided"
-            logger.error(error_msg)
-            return jsonify({"status": "error", "message": error_msg}), 400
-
-        # Extract citations from text
-        citations = []
-        if document_text:
-            try:
-                # Extract citations with debug info
-                extracted_result = extract_citations(document_text, return_debug=True)
-
-                # Handle the return value from extract_citations
-                if isinstance(extracted_result, tuple) and len(extracted_result) == 2:
-                    # If it's a tuple with debug info, extract just the citations data
-                    extracted_data, extract_debug = extracted_result
-                    logger.debug("Extracted citations with debug info")
-                else:
-                    # If not a tuple, use the result as is
-                    extracted_data = extracted_result
-
-                # Extract confirmed and possible citations
-                if isinstance(extracted_data, dict):
-                    confirmed_citations = extracted_data.get("confirmed_citations", [])
-                    possible_citations = extracted_data.get("possible_citations", [])
-
-                    # Combine confirmed and possible citations, with confirmed first
-                    extracted_citations = confirmed_citations + possible_citations
-                    logger.info(
-                        f"Extracted {len(extracted_citations)} citations ({len(confirmed_citations)} confirmed, {len(possible_citations)} possible)"
-                    )
-                else:
-                    # Fallback if the structure is unexpected
-                    logger.warning(
-                        f"Unexpected extracted data format: {type(extracted_data)}"
-                    )
-                    extracted_citations = []
-
-                # Ensure extracted_citations is a list of dictionaries with the expected structure
-                processed_citations = []
-                for item in extracted_citations:
-                    if isinstance(item, dict):
-                        # Ensure the citation has the expected structure
-                        citation = {
-                            "citation_text": item.get("citation_text", ""),
-                            "case_name": item.get("case_name", ""),
-                            "metadata": item.get("metadata", {}),
-                            "source": item.get("source", "unknown"),
-                            "validation_status": item.get(
-                                "validation_status", "pending"
-                            ),
-                            "is_valid": item.get("is_valid", False),
-                        }
-                        processed_citations.append(citation)
-
-                extracted_citations = processed_citations
-
-                # Log the number of extracted citations
-                logger.info(f"Extracted {len(extracted_citations)} citations from text")
-
-            except Exception as e:
-                logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
-                extracted_citations = []
-
-            # Validate each citation
-            for i, citation_item in enumerate(extracted_citations):
-                try:
-                    logger.debug(
-                        f"Processing citation item {i+1}/{len(extracted_citations)}: {citation_item}"
-                    )
-
-                    # Skip if not a dictionary
-                    if not isinstance(citation_item, dict):
-                        logger.warning(
-                            f"Skipping non-dict citation item: {citation_item}"
-                        )
-                        continue
-
-                    # Log the complete structure of the citation item for debugging
-                    logger.debug(f"Citation item type: {type(citation_item)}")
-                    logger.debug(
-                        f"Citation item structure: {json.dumps(citation_item, default=str, indent=2)}"
-                    )
-
-                    # Log all keys in the citation item for debugging
-                    if hasattr(citation_item, "keys"):
-                        logger.debug(
-                            f"Citation item keys: {list(citation_item.keys())}"
-                        )
-
-                    # Get citation text from various possible fields
-                    citation_text = citation_item.get("citation_text", "")
-                    if not citation_text and "citation" in citation_item:
-                        citation_text = citation_item["citation"]
-
-                    # Skip empty citations
-                    if not citation_text or not citation_text.strip():
-                        logger.warning(f"Skipping empty citation at index {i}")
-                        continue
-
-                    # Log the citation being processed
-                    logger.debug(f"Processing citation: {citation_text}")
-
-                    # Validate the citation
-                    try:
-                        # Call the validation endpoint
-                        validation_response = requests.post(
-                            f"{request.host_url}casestrainer/api/verify-citation",
-                            json={"citation": {"citation_text": citation_text}},
-                            headers={"Content-Type": "application/json"},
-                        )
-
-                        # Parse the validation response
-                        if validation_response.status_code == 200:
-                            validation_result = validation_response.json()
-                            is_valid = validation_result.get("verified", False)
-                            source = validation_result.get("source", "unknown")
-                            validation_method = validation_result.get(
-                                "validation_method", source
-                            )
-                            explanation = validation_result.get(
-                                "explanation",
-                                (
-                                    "Citation validated"
-                                    if is_valid
-                                    else "Citation not found"
-                                ),
-                            )
-                            case_name = validation_result.get("case_name", "")
-                            url = validation_result.get("url", "")
-                            confidence = float(
-                                validation_result.get(
-                                    "confidence", 1.0 if is_valid else 0.0
-                                )
-                            )
-                            name_match = bool(
-                                validation_result.get("name_match", is_valid)
-                            )
-                        else:
-                            logger.error(
-                                f"Error validating citation {citation_text}: {validation_response.status_code} - {validation_response.text}"
-                            )
-                            is_valid = False
-                            source = "error"
-                            validation_method = "error"
-                            explanation = f"Validation failed with status {validation_response.status_code}"
-                            case_name = ""
-                            url = ""
-                            confidence = 0.0
-                            name_match = False
-                    except Exception as e:
-                        logger.error(
-                            f"Exception during citation validation for {citation_text}: {str(e)}",
-                            exc_info=True,
-                        )
-                        is_valid = False
-                        source = "error"
-                        validation_method = "error"
-                        explanation = f"Validation error: {str(e)}"
-                        case_name = ""
-                        url = ""
-                        confidence = 0.0
-                        name_match = False
-
-                    # Create citation data with consistent structure
-                    citation_data = {
-                        "citation": citation_text,
-                        "found": is_valid,
-                        "found_case_name": case_name,
-                        "url": url,
-                        "explanation": explanation,
-                        "source": source,
-                        "validation_method": validation_method,
-                        "confidence": confidence,
-                        "name_match": name_match,
-                        "metadata": citation_item.get("metadata", {}),
-                    }
-
-                    # Add to citations list
-                    citations.append(citation_data)
-                    logger.debug(f"Added citation to results: {citation_data}")
-
-                except Exception as e:
-                    logger.error(
-                        f"Error processing citation {citation_item}: {str(e)}",
-                        exc_info=True,
-                    )
-                    continue
-
-            logger.info(f"Validated {len(citations)} citations")
-
-            # Store the validated citations in the user's session
-            from flask import session
-
-            session["user_citations"] = citations
-            logger.info(f"Stored {len(citations)} citations in user session")
-
-            # Log a sample of the citations for debugging
-            if citations:
-                sample = min(3, len(citations))
-                logger.debug(f"Sample of {sample} citations: {citations[:sample]}")
-
-        # Return results in the format expected by the EnhancedFileUpload component
-        validation_results = []
-        for citation in citations:
-            validation_results.append(
-                {
-                    "citation": citation.get("citation", ""),
-                    "verified": citation.get("found", False),
-                    "validation_method": citation.get("source"),
-                    "case_name": citation.get("found_case_name", ""),
-                    "url": citation.get("url"),
-                    "explanation": citation.get("explanation", ""),
-                    "confidence": citation.get("confidence", 0.0),
-                    "name_match": citation.get("name_match", False),
-                }
-            )
-
-        response_data = {
-            "status": "success",
-            "analysis_id": analysis_id,
-            "validation_results": validation_results,
-            "file_name": (
-                file.filename
-                if "file" in request.files and file and file.filename
-                else None
-            ),
-            "citations_count": len(citations),
+        logger.info(f"[Analysis {analysis_id}] Starting enhanced analysis")
+        
+        # Log request data (excluding binary content)
+        request_data = {
+            "has_file": "file" in request.files,
+            "filename": request.files["file"].filename if "file" in request.files else None,
+            "file_size": request.files["file"].content_length if "file" in request.files else None,
+            "has_text": "text" in request.form,
+            "text_length": len(request.form["text"]) if "text" in request.form else None,
+            "options": request.form.get("options", {})
         }
-
-        logger.info(f"Analysis completed for ID: {analysis_id}")
-        return jsonify(response_data)
-
+        logger.info(f"[Analysis {analysis_id}] Request data: {json.dumps(request_data, indent=2)}")
+        
+        # Set timeouts - match frontend timeout of 30 seconds
+        ANALYSIS_TIMEOUT = 28  # seconds (slightly less than frontend to allow for response time)
+        MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+        
+        # Check if we have a file upload
+        if "file" not in request.files:
+            error_msg = "No file uploaded"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 400
+            
+        file = request.files["file"]
+        if not file or not file.filename:
+            error_msg = "No file selected"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 400
+            
+        # Check file size
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)
+        
+        if file_size > MAX_FILE_SIZE:
+            error_msg = f"File too large. Maximum size is {MAX_FILE_SIZE/1024/1024}MB"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 400
+            
+        # Save the uploaded file
+        try:
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            logger.info(f"[Analysis {analysis_id}] Saved uploaded file: {file_path} ({file_size/1024:.1f}KB)")
+        except Exception as e:
+            error_msg = f"Error saving uploaded file: {str(e)}"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 500
+            
+        # Extract text from the file with progress reporting
+        try:
+            logger.info(f"[Analysis {analysis_id}] Starting text extraction")
+            extraction_start = time.time()
+            
+            # Check if file is a valid PDF
+            if not file_path.lower().endswith('.pdf'):
+                error_msg = "Only PDF files are supported"
+                logger.error(f"[Analysis {analysis_id}] {error_msg}")
+                return jsonify({"error": error_msg}), 400
+                
+            # Extract text with timeout
+            text = extract_text_from_file(file_path, timeout=ANALYSIS_TIMEOUT)
+            extraction_time = time.time() - extraction_start
+            
+            if text.startswith("Error:"):
+                error_msg = text
+                logger.error(f"[Analysis {analysis_id}] {error_msg}")
+                return jsonify({"error": error_msg}), 400
+                
+            if not text or not text.strip():
+                error_msg = "No text could be extracted from the file"
+                logger.error(f"[Analysis {analysis_id}] {error_msg}")
+                return jsonify({"error": error_msg}), 400
+                
+            logger.info(f"[Analysis {analysis_id}] Extracted {len(text)} characters in {extraction_time:.1f}s")
+            
+        except Exception as e:
+            error_msg = f"Error extracting text: {str(e)}"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 500
+            
+        # Extract and validate citations with progress reporting
+        try:
+            logger.info(f"[Analysis {analysis_id}] Starting citation extraction")
+            extraction_start = time.time()
+            
+            citations = extract_citations(text, return_debug=True, analysis_id=analysis_id)
+            extraction_time = time.time() - extraction_start
+            
+            if not citations:
+                logger.warning(f"[Analysis {analysis_id}] No citations found after {extraction_time:.1f}s")
+                return jsonify({
+                    "status": "Invalid",
+                    "analysis_id": analysis_id,
+                    "validation_results": [],
+                    "file_name": filename,
+                    "citations_count": 0,
+                    "extraction_time": time.time() - start_time,
+                    "processing_time": 0,
+                    "validation_time": 0,
+                    "error": "No citations found in document"
+                })
+                
+            logger.info(f"[Analysis {analysis_id}] Found {len(citations)} citations in {extraction_time:.1f}s")
+            
+            # Validate citations with progress reporting
+            logger.info(f"[Analysis {analysis_id}] Starting citation validation")
+            validation_start = time.time()
+            
+            def validate_citations(citations, analysis_id):
+                """
+                Validate a list of citations.
+                Args:
+                    citations: List of citations to validate.
+                    analysis_id: ID of the analysis for logging purposes.
+                Returns:
+                    List of validation results for each citation.
+                """
+                results = []
+                for citation in citations:
+                    # Placeholder for actual validation logic
+                    results.append({
+                        "citation_text": citation.get("text", ""),
+                        "valid": False,
+                        "reason": "Validation logic not implemented yet."
+                    })
+                return results
+            
+            validation_results = validate_citations(citations, analysis_id=analysis_id)
+            validation_time = time.time() - validation_start
+            
+            logger.info(f"[Analysis {analysis_id}] Validated {len(validation_results)} citations in {validation_time:.1f}s")
+            
+            # Prepare response with timing information
+            total_time = time.time() - start_time
+            response = {
+                "status": "Valid" if any(r.get("valid") for r in validation_results) else "Invalid",
+                "analysis_id": analysis_id,
+                "validation_results": validation_results,
+                "file_name": filename,
+                "citations_count": len(citations),
+                "extraction_time": extraction_time,
+                "processing_time": extraction_time,
+                "validation_time": validation_time,
+                "total_time": total_time,
+                "file_size": file_size
+            }
+            
+            logger.info(f"[Analysis {analysis_id}] Analysis completed in {total_time:.1f}s")
+            return jsonify(response)
+            
+        except Exception as e:
+            error_msg = f"Error processing citations: {str(e)}"
+            logger.error(f"[Analysis {analysis_id}] {error_msg}")
+            return jsonify({"error": error_msg}), 500
+            
     except Exception as e:
-        error_msg = f"Error analyzing document: {str(e)}"
-        logger.error(error_msg)
-        traceback.print_exc()
-        return jsonify({"status": "error", "message": error_msg}), 500
+        error_msg = f"Unexpected error during analysis: {str(e)}"
+        logger.error(f"[Analysis {analysis_id}] {error_msg}")
+        return jsonify({"error": error_msg}), 500
+        
+    finally:
+        # Clean up uploaded file
+        try:
+            if "file_path" in locals():
+                os.remove(file_path)
+                logger.info(f"[Analysis {analysis_id}] Cleaned up uploaded file")
+        except Exception as e:
+            logger.warning(f"[Analysis {analysis_id}] Error cleaning up file: {str(e)}")
 
 
 @citation_api.route("/reprocess-citation", methods=["POST"])

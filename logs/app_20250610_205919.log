@@ -1,0 +1,41 @@
+2025-06-10 20:59:19,510 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:59:19,514 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:59:19,515 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:59:19,515 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:59:19,520 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:59:19,521 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:59:19,525 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:59:19,525 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:59:19,525 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:59:19,531 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 21:00:04,848 - src.app_final_vue - ERROR - [ANALYZE_DOCUMENT] Unexpected error: name 'logging' is not defined
+2025-06-10 21:00:04,851 - src.app_final_vue - ERROR - Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 1015, in analyze_document
+    logging.info(f"Saved uploaded file to: {temp_file_path}")
+    ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 1040, in analyze_document
+    logging.error(f"Error processing file: {str(e)}")
+    ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 1052, in analyze_document
+    logging.info(f"Cleaned up temporary file: {temp_file_path}")
+    ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 1054, in analyze_document
+    logging.warning(f"Error cleaning up temporary file: {str(e)}")
+    ^^^^^^^
+NameError: name 'logging' is not defined. Did you forget to import 'logging'?
+

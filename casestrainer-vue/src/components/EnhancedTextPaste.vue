@@ -114,7 +114,27 @@ export default {
         const jsonString = JSON.stringify(response.data, null, 2);
         this.debugInfo += `Success: ${jsonString.substring(0, 500)}${jsonString.length > 500 ? '... [truncated]' : ''}\n`;
         
-        this.textAnalysisResult = response.data;
+        // Transform the response to match the expected format
+        if (response.data && Array.isArray(response.data.citations)) {
+          this.textAnalysisResult = {
+            validation_results: response.data.citations.map(citation => ({
+              ...citation,
+              verified: citation.valid || false,
+              validation_method: citation.source || 'unknown',
+              citation: citation.text || 'Unknown citation',
+              url: citation.url || '',
+              contexts: citation.contexts || []
+            })),
+            metadata: {
+              ...response.data.metadata,
+              processedAt: new Date().toISOString(),
+              citationCount: response.data.citations.length
+            },
+            error: null
+          };
+        } else {
+          throw new Error('Invalid response format from server');
+        }
       } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
         console.error('Analysis Error:', error);
@@ -127,7 +147,15 @@ export default {
           this.debugInfo += `Data: ${JSON.stringify(error.response.data, null, 2)}\n`;
         }
         
-        alert(this.error);
+        // Set error state for the UI
+        this.textAnalysisResult = {
+          validation_results: [],
+          metadata: {
+            processedAt: new Date().toISOString(),
+            citationCount: 0
+          },
+          error: errorMessage
+        };
       } finally {
         this.isAnalyzing = false;
       }

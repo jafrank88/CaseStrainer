@@ -86,9 +86,9 @@ export default {
         formData.append('debug_info', this.debugInfo);
         
         // Add to debug info
-        this.debugInfo += `Request to /api/analyze: [File data]\n`; // Only for backend logging
+        this.debugInfo += `Request to /api/analyze-document: [File data]\n`; // Only for backend logging
         
-        const response = await axios.post('/api/analyze', formData, {
+        const response = await axios.post('/api/analyze-document', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

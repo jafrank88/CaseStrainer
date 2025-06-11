@@ -1,0 +1,30 @@
+2025-06-10 21:42:10,758 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 21:42:10,763 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 21:42:10,763 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 21:42:10,763 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 21:42:10,769 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 21:42:10,769 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 21:42:10,774 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 21:42:10,774 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 21:42:10,774 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 21:42:10,780 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 21:42:35,137 - src.app_final_vue - INFO - [ANALYZE] Received POST request to /api/analyze
+2025-06-10 21:42:35,137 - src.app_final_vue - INFO - [ANALYZE] Headers: {'Host': 'localhost:5000', 'Connection': 'close', 'Content-Length': '24', 'Sec-Ch-Ua-Platform': '"Windows"', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0', 'Accept': 'application/json', 'Sec-Ch-Ua': '"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"', 'Content-Type': 'application/json', 'X-Api-Key': '***REDACTED_COURTLISTENER_KEY***', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/casestrainer/enhanced-validator?citation=534+F.3d+1290&tab=single', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - [ANALYZE] Form data: No form data
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - [ANALYZE] Files: No files
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - [ANALYZE] Routing to handle_verify_citation
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - === New Request ===
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - Method: POST
+2025-06-10 21:42:35,139 - src.app_final_vue - INFO - Path: /casestrainer/api/analyze
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Headers: {'Host': 'localhost:5000', 'Connection': 'close', 'Content-Length': '24', 'Sec-Ch-Ua-Platform': '"Windows"', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0', 'Accept': 'application/json', 'Sec-Ch-Ua': '"Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"', 'Content-Type': 'application/json', 'X-Api-Key': '***REDACTED_COURTLISTENER_KEY***', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/casestrainer/enhanced-validator?citation=534+F.3d+1290&tab=single', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Content-Type: application/json
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Mimetype: application/json
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Raw data: b'{"text":"534 F.3d 1290"}'
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Request args: ImmutableMultiDict([])
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Request form: ImmutableMultiDict([])
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Request JSON: {'text': '534 F.3d 1290'}
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Processing JSON request
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Successfully parsed JSON data: {'text': '534 F.3d 1290'}
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Extracted citation: , case_name: 
+2025-06-10 21:42:35,140 - src.app_final_vue - INFO - Final parsed data: {'text': '534 F.3d 1290'}
+2025-06-10 21:42:35,140 - src.app_final_vue - ERROR - No citation provided in request

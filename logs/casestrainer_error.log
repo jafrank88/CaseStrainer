@@ -53850,3 +53850,720 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 2025/06/04 12:16:54 [debug] 10860#15300: *22 free: 00000000
 2025/06/04 12:16:54 [debug] 10860#15300: *22 free: 031A5E90, unused: 4
 2025/06/04 12:16:54 [debug] 10860#15300: *22 free: 031A5C80, unused: 128
+2025/06/05 21:16:52 [debug] 11004#9672: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 11004#9672: select add event fd:640 ev:768
+2025/06/05 21:16:52 [debug] 15736#16712: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 15736#16712: select add event fd:640 ev:768
+2025/06/05 21:16:52 [debug] 4780#15160: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 4780#15160: select add event fd:640 ev:768
+2025/06/05 21:16:52 [debug] 16556#2940: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 16556#2940: select add event fd:640 ev:768
+2025/06/05 21:16:52 [debug] 5296#15952: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 5296#15952: select add event fd:640 ev:768
+2025/06/05 21:16:52 [debug] 5960#10068: select add event fd:636 ev:768
+2025/06/05 21:16:52 [debug] 5960#10068: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 16428#15252: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 16428#15252: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 2708#2944: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 2708#2944: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 12036#16900: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 12036#16900: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 14276#10740: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 14276#10740: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 1956#12000: select add event fd:632 ev:768
+2025/06/05 21:16:53 [debug] 1956#12000: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 8536#8876: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 8536#8876: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 7828#11296: select add event fd:632 ev:768
+2025/06/05 21:16:53 [debug] 7828#11296: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 10164#6232: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 10164#6232: select add event fd:640 ev:768
+2025/06/05 21:16:53 [debug] 2668#2580: select add event fd:632 ev:768
+2025/06/05 21:16:53 [debug] 2668#2580: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 14944#7288: select add event fd:636 ev:768
+2025/06/05 21:16:53 [debug] 14944#7288: select add event fd:640 ev:768
+2025/06/05 21:17:07 [debug] 11004#9672: post event 03336980
+2025/06/05 21:17:07 [debug] 11004#9672: delete posted event 03336980
+2025/06/05 21:17:07 [debug] 11004#9672: accept on 0.0.0.0:443, ready: 1
+2025/06/05 21:17:07 [debug] 11004#9672: malloc: 03302B78:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 accept: 128.208.154.3:60757 fd:688
+2025/06/05 21:17:07 [debug] 11004#9672: *1 event timer add: 688: 60000:1131797860
+2025/06/05 21:17:07 [debug] 11004#9672: *1 reusable connection: 1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 select add event fd:688 ev:768
+2025/06/05 21:17:07 [debug] 11004#9672: accept() not ready (10035: A non-blocking socket operation could not be completed immediately)
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http check ssl handshake
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http recv(): 1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 https ssl handshake: 0x16
+2025/06/05 21:17:07 [debug] 11004#9672: *1 tcp_nodelay
+2025/06/05 21:17:07 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 ssl get session: 2D3EC4B6:32
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL server name: "wolf.law.uw.edu"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL ALPN supported by client: h2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL ALPN supported by client: http/1.1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL ALPN selected: h2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL certificate status callback
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_do_handshake: -1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_get_error: 2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL handshake handler: 0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 ssl new session: 816A3C0A:32:159
+2025/06/05 21:17:07 [debug] 11004#9672: *1 ssl new session: C17C7CCA:32:159
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_do_handshake: 1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 select del event fd:688 ev:768
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL: TLSv1.3, cipher: "TLS_AES_128_GCM_SHA256 TLSv1.3 Kx=any Au=any Enc=AESGCM(128) Mac=AEAD"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 init http2 connection
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03302548:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 032EE990:4096
+2025/06/05 21:17:07 [debug] 11004#9672: *1 add cleanup: 03302C6C
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03302758:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 send SETTINGS frame
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 send WINDOW_UPDATE frame sid:0, window:2147418112
+2025/06/05 21:17:07 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 read handler
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_read: 70
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_read: 501
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_read: -1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_get_error: 2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 preface verified
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame type:4 f:0 l:24 sid:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 SETTINGS frame
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 setting 1:65536
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 setting 2:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 setting 4:6291456
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 setting 6:262144
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame complete pos:0336EA39 end:0336EC3B
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame type:8 f:0 l:4 sid:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 WINDOW_UPDATE frame sid:0 window:15663105
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame complete pos:0336EA46 end:0336EC3B
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame type:1 f:25 l:492 sid:1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 HEADERS frame sid:1 depends on 0 excl:1 weight:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 0330ED50:1024
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 0335E940:4096
+2025/06/05 21:17:07 [debug] 11004#9672: *1 event timer del: 688: 1131797860
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed header: 2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: ":method: GET"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:12
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: ":authority: wolf.law.uw.edu"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03302860:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 0335F948:4096
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 57 free:4096
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: ":authority: wolf.law.uw.edu"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed header: 7
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: ":scheme: https"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 4
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http uri: "/casestrainer/"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http args: ""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http exten: ""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: ":path: /casestrainer/"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 24
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:7
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "cache-control: max-age=0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 54 free:4039
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "cache-control: max-age=0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:7
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:57
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 107 free:3985
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03302968:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:11
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 raw string, len:2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-ch-ua-mobile: ?0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 50 free:3878
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-ch-ua-mobile: ?0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:13
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:8
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-ch-ua-platform: "Windows""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 59 free:3828
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-ch-ua-platform: "Windows""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:18
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 raw string, len:1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "upgrade-insecure-requests: 1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 58 free:3769
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "upgrade-insecure-requests: 1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 58
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:95
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 167 free:3711
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 19
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:101
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 173 free:3544
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:8
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-fetch-site: same-origin"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 57 free:3371
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-fetch-site: same-origin"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:6
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-fetch-mode: navigate"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 54 free:3314
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-fetch-mode: navigate"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 raw string, len:2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-fetch-user: ?1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 48 free:3260
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-fetch-user: ?1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:6
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "sec-fetch-dest: document"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 54 free:3212
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "sec-fetch-dest: document"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 16
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:18
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "accept-encoding: gzip, deflate, br, zstd"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 70 free:3158
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "accept-encoding: gzip, deflate, br, zstd"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 get indexed name: 17
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:11
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "accept-language: en-US,en;q=0.9"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 61 free:3088
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "accept-language: en-US,en;q=0.9"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:6
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 encoded string, len:5
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table add: "priority: u=0, i"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 table account: 46 free:3027
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 header: "priority: u=0, i"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 request line: "GET /casestrainer/ HTTP/2.0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 rewrite phase: 1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 test location: "/50x.html"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 test location: "/casestrainer/"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 using configuration "/casestrainer/"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http cl:-1 max:1048576
+2025/06/05 21:17:07 [debug] 11004#9672: *1 rewrite phase: 3
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post rewrite phase: 4
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 5
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 6
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 7
+2025/06/05 21:17:07 [debug] 11004#9672: *1 access phase: 8
+2025/06/05 21:17:07 [debug] 11004#9672: *1 access phase: 9
+2025/06/05 21:17:07 [debug] 11004#9672: *1 access phase: 10
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post access phase: 11
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 12
+2025/06/05 21:17:07 [debug] 11004#9672: *1 generic phase: 13
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03360950:4096
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http init upstream, client timer: 0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post event 032EEB98
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http map started
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http map: "" "close"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "Host"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script var: "wolf.law.uw.edu"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "X-Real-IP"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script var: "128.208.154.3"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "X-Forwarded-For"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script var: "128.208.154.3"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "X-Forwarded-Proto"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script var: "https"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "X-Forwarded-Prefix"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "/casestrainer"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: "Connection"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script var: "close"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "cache-control: max-age=0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua-mobile: ?0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua-platform: "Windows""
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "upgrade-insecure-requests: 1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-fetch-site: same-origin"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-fetch-mode: navigate"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-fetch-user: ?1"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "sec-fetch-dest: document"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "accept-encoding: gzip, deflate, br, zstd"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "accept-language: en-US,en;q=0.9"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header: "priority: u=0, i"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http proxy header:
+"GET /casestrainer/ HTTP/1.1
+Host: wolf.law.uw.edu
+X-Real-IP: 128.208.154.3
+X-Forwarded-For: 128.208.154.3
+X-Forwarded-Proto: https
+X-Forwarded-Prefix: /casestrainer
+Connection: close
+cache-control: max-age=0
+sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+sec-fetch-site: same-origin
+sec-fetch-mode: navigate
+sec-fetch-user: ?1
+sec-fetch-dest: document
+accept-encoding: gzip, deflate, br, zstd
+accept-language: en-US,en;q=0.9
+priority: u=0, i
+
+"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http cleanup add: 0335F928
+2025/06/05 21:17:07 [debug] 11004#9672: *1 get rr peer, try: 2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 get rr peer, current: 037DE5C8 -1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 stream socket 716
+2025/06/05 21:17:07 [debug] 11004#9672: *1 connect to [::1]:5000, fd:716 #4
+2025/06/05 21:17:07 [debug] 11004#9672: *1 select add event fd:716 ev:768
+2025/06/05 21:17:07 [debug] 11004#9672: *1 select add event fd:716 ev:16
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http upstream connect: -2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 032FB410:128
+2025/06/05 21:17:07 [debug] 11004#9672: *1 event timer add: 716: 60000:1131797883
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http finalize request: -4, "/casestrainer/?" a:1, c:2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http request count:2 blk:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame complete pos:0336EC3B end:0336EC3B
+2025/06/05 21:17:07 [debug] 11004#9672: *1 select add event fd:688 ev:768
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame out: 032EEAA4 sid:0 bl:0 len:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame out: 032EEA30 sid:0 bl:0 len:4
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame out: 032EE9B8 sid:0 bl:0 len:18
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03301E10:256
+2025/06/05 21:17:07 [debug] 11004#9672: *1 malloc: 03366EB0:16384
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL buf copy: 27
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL buf copy: 13
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL buf copy: 9
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL to write: 49
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_write: 49
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame sent: 032EE9B8 sid:0 bl:0 len:18
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame sent: 032EEA30 sid:0 bl:0 len:4
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame sent: 032EEAA4 sid:0 bl:0 len:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 delete posted event 032EEB98
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http run request: "/casestrainer/?"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http upstream check client, write event:0, "/casestrainer/"
+2025/06/05 21:17:07 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 read handler
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_read: 9
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_read: -1
+2025/06/05 21:17:07 [debug] 11004#9672: *1 SSL_get_error: 2
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame type:4 f:1 l:0 sid:0
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 SETTINGS frame
+2025/06/05 21:17:07 [debug] 11004#9672: *1 http2 frame complete pos:0336EA09 end:0336EA09
+2025/06/05 21:17:09 [debug] 11004#9672: *1 post event 0334AB18
+2025/06/05 21:17:09 [debug] 11004#9672: *1 delete posted event 0334AB18
+2025/06/05 21:17:09 [debug] 11004#9672: *1 http upstream request: "/casestrainer/?"
+2025/06/05 21:17:09 [debug] 11004#9672: *1 http upstream send request handler
+2025/06/05 21:17:09 [debug] 11004#9672: *1 http upstream send request
+2025/06/05 21:17:09 [error] 11004#9672: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://[::1]:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:17:09 [debug] 11004#9672: *1 http next upstream, 2
+2025/06/05 21:17:09 [debug] 11004#9672: *1 free rr peer 2 4
+2025/06/05 21:17:09 [warn] 11004#9672: *1 upstream server temporarily disabled while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://[::1]:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:17:09 [debug] 11004#9672: *1 free rr peer failed: 037DE5C8 0
+2025/06/05 21:17:09 [debug] 11004#9672: *1 close http upstream connection: 716
+2025/06/05 21:17:09 [debug] 11004#9672: *1 free: 032FB410, unused: 88
+2025/06/05 21:17:09 [debug] 11004#9672: *1 event timer del: 716: 1131797883
+2025/06/05 21:17:09 [debug] 11004#9672: *1 select del event fd:716 ev:768
+2025/06/05 21:17:09 [debug] 11004#9672: *1 select del event fd:716 ev:16
+2025/06/05 21:17:09 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:17:09 [debug] 11004#9672: *1 get rr peer, try: 1
+2025/06/05 21:17:09 [debug] 11004#9672: *1 get rr peer, current: 037DE640 1
+2025/06/05 21:17:09 [debug] 11004#9672: *1 stream socket 716
+2025/06/05 21:17:09 [debug] 11004#9672: *1 connect to 127.0.0.1:5000, fd:716 #5
+2025/06/05 21:17:09 [debug] 11004#9672: *1 select add event fd:716 ev:768
+2025/06/05 21:17:09 [debug] 11004#9672: *1 select add event fd:716 ev:16
+2025/06/05 21:17:09 [debug] 11004#9672: *1 http upstream connect: -2
+2025/06/05 21:17:09 [debug] 11004#9672: *1 malloc: 032FB960:128
+2025/06/05 21:17:09 [debug] 11004#9672: *1 event timer add: 716: 60000:1131799887
+2025/06/05 21:17:11 [debug] 11004#9672: *1 post event 0334AB18
+2025/06/05 21:17:11 [debug] 11004#9672: *1 delete posted event 0334AB18
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http upstream request: "/casestrainer/?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http upstream send request handler
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http upstream send request
+2025/06/05 21:17:11 [error] 11004#9672: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://127.0.0.1:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http next upstream, 2
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free rr peer 1 4
+2025/06/05 21:17:11 [warn] 11004#9672: *1 upstream server temporarily disabled while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://127.0.0.1:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free rr peer failed: 037DE640 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 finalize http upstream request: 502
+2025/06/05 21:17:11 [debug] 11004#9672: *1 finalize http proxy request
+2025/06/05 21:17:11 [debug] 11004#9672: *1 close http upstream connection: 716
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 032FB960, unused: 88
+2025/06/05 21:17:11 [debug] 11004#9672: *1 event timer del: 716: 1131799887
+2025/06/05 21:17:11 [debug] 11004#9672: *1 select del event fd:716 ev:768
+2025/06/05 21:17:11 [debug] 11004#9672: *1 select del event fd:716 ev:16
+2025/06/05 21:17:11 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http finalize request: 502, "/casestrainer/?" a:1, c:1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http special response: 502, "/casestrainer/?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 internal redirect: "/50x.html?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 rewrite phase: 1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 test location: "/50x.html"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 using configuration "=/50x.html"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http cl:-1 max:1048576
+2025/06/05 21:17:11 [debug] 11004#9672: *1 rewrite phase: 3
+2025/06/05 21:17:11 [debug] 11004#9672: *1 post rewrite phase: 4
+2025/06/05 21:17:11 [debug] 11004#9672: *1 generic phase: 5
+2025/06/05 21:17:11 [debug] 11004#9672: *1 generic phase: 6
+2025/06/05 21:17:11 [debug] 11004#9672: *1 generic phase: 7
+2025/06/05 21:17:11 [debug] 11004#9672: *1 access phase: 8
+2025/06/05 21:17:11 [debug] 11004#9672: *1 access phase: 9
+2025/06/05 21:17:11 [debug] 11004#9672: *1 access phase: 10
+2025/06/05 21:17:11 [debug] 11004#9672: *1 post access phase: 11
+2025/06/05 21:17:11 [debug] 11004#9672: *1 generic phase: 12
+2025/06/05 21:17:11 [debug] 11004#9672: *1 generic phase: 13
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 14
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 15
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 16
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 17
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 18
+2025/06/05 21:17:11 [debug] 11004#9672: *1 content phase: 19
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http filename: "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer/html/50x.html"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 add cleanup: 0335F934
+2025/06/05 21:17:11 [error] 11004#9672: *1 CreateFile() "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer/html/50x.html" failed (3: The system cannot find the path specified), client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://127.0.0.1:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http finalize request: 404, "/50x.html?" a:1, c:2
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http special response: 404, "/50x.html?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 header filter
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 table size update: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: ":status: 404"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: "server: nginx/1.27.5"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: "date: Fri, 06 Jun 2025 04:17:11 GMT"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: "content-type: text/html"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: "content-length: 555"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 output header: "strict-transport-security: max-age=63072000"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2:1 create HEADERS frame 033610C0: len:83 fin:0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http cleanup add: 03361168
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 frame out: 033610C0 sid:1 bl:1 len:83
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 9
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 83
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2:1 HEADERS frame 033610C0 was sent
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 frame sent: 033610C0 sid:1 bl:1 len:83
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http output filter "/50x.html?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http copy filter: "/50x.html?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http postpone filter "/50x.html?" 0336125C
+2025/06/05 21:17:11 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F78118, size: 100 file: 0, size: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F77A88, size: 53 file: 0, size: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F77B28, size: 402 file: 0, size: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http write filter: l:1 f:0 s:555
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http write filter limit 2097152
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 send chain: 03361274
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2:1 windows: conn:15728640 stream:6291456
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2:1 create DATA frame 033610C0: len:555 flags:1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 frame out: 033610C0 sid:1 bl:0 len:555
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 9
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 100
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 53
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL buf copy: 402
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL to write: 656
+2025/06/05 21:17:11 [debug] 11004#9672: *1 SSL_write: 656
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2:1 DATA frame 033610C0 was sent
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 frame sent: 033610C0 sid:1 bl:0 len:555
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http write filter 00000000
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http copy filter: 0 "/50x.html?"
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http finalize request: 0, "/50x.html?" a:1, c:2
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http request count:2 blk:0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http finalize request: -4, "/50x.html?" a:1, c:1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http request count:1 blk:0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 close stream 1, queued 0, processing 1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http close request
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http log handler
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 0335E940, unused: 0
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 03360950, unused: 1465
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 0330ED50, unused: 260
+2025/06/05 21:17:11 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:17:11 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:17:11 [debug] 11004#9672: *1 http2 handle connection handler
+2025/06/05 21:17:11 [debug] 11004#9672: *1 event timer add: 688: 300000:1132041890
+2025/06/05 21:17:11 [debug] 11004#9672: *1 reusable connection: 1
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 032EE990, unused: 3356
+2025/06/05 21:17:11 [debug] 11004#9672: *1 free: 03366EB0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:19:14 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 idle handler
+2025/06/05 21:19:14 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 032EE990:4096
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 read handler
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL_read: 43
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL_read: 17
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL_read: -1
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL_get_error: 2
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame type:1 f:25 l:34 sid:3
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 HEADERS frame sid:3 depends on 0 excl:1 weight:256
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 03311198:1024
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 0335E940:4096
+2025/06/05 21:19:14 [debug] 11004#9672: *1 event timer del: 688: 1132041890
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 2
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: ":method: GET"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 76
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: ":authority: wolf.law.uw.edu"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 7
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: ":scheme: https"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed name: 4
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 encoded string, len:10
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http uri: "/casestrainer/"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http args: ""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http exten: ""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: ":path: /casestrainer/"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 75
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "cache-control: max-age=0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 74
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 73
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-ch-ua-mobile: ?0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 72
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-ch-ua-platform: "Windows""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 71
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "upgrade-insecure-requests: 1"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 70
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 69
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 68
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-fetch-site: same-origin"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 67
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-fetch-mode: navigate"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 66
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-fetch-user: ?1"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 65
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "sec-fetch-dest: document"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 64
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "accept-encoding: gzip, deflate, br, zstd"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 63
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "accept-language: en-US,en;q=0.9"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 get indexed header: 62
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 header: "priority: u=0, i"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 request line: "GET /casestrainer/ HTTP/2.0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 rewrite phase: 1
+2025/06/05 21:19:14 [debug] 11004#9672: *1 test location: "/50x.html"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 test location: "/casestrainer/"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 using configuration "/casestrainer/"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http cl:-1 max:1048576
+2025/06/05 21:19:14 [debug] 11004#9672: *1 rewrite phase: 3
+2025/06/05 21:19:14 [debug] 11004#9672: *1 post rewrite phase: 4
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 5
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 6
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 7
+2025/06/05 21:19:14 [debug] 11004#9672: *1 access phase: 8
+2025/06/05 21:19:14 [debug] 11004#9672: *1 access phase: 9
+2025/06/05 21:19:14 [debug] 11004#9672: *1 access phase: 10
+2025/06/05 21:19:14 [debug] 11004#9672: *1 post access phase: 11
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 12
+2025/06/05 21:19:14 [debug] 11004#9672: *1 generic phase: 13
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 0336C4E0:4096
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http init upstream, client timer: 0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 post event 032EEA38
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http map started
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http map: "" "close"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "Host"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script var: "wolf.law.uw.edu"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "X-Real-IP"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script var: "128.208.154.3"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "X-Forwarded-For"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script var: "128.208.154.3"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "X-Forwarded-Proto"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script var: "https"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "X-Forwarded-Prefix"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "/casestrainer"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: "Connection"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script var: "close"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http script copy: ""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "cache-control: max-age=0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua-mobile: ?0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-ch-ua-platform: "Windows""
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "upgrade-insecure-requests: 1"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-fetch-site: same-origin"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-fetch-mode: navigate"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-fetch-user: ?1"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "sec-fetch-dest: document"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "accept-encoding: gzip, deflate, br, zstd"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "accept-language: en-US,en;q=0.9"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header: "priority: u=0, i"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http proxy header:
+"GET /casestrainer/ HTTP/1.1
+Host: wolf.law.uw.edu
+X-Real-IP: 128.208.154.3
+X-Forwarded-For: 128.208.154.3
+X-Forwarded-Proto: https
+X-Forwarded-Prefix: /casestrainer
+Connection: close
+cache-control: max-age=0
+sec-ch-ua: "Microsoft Edge";v="137", "Chromium";v="137", "Not/A)Brand";v="24"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+sec-fetch-site: same-origin
+sec-fetch-mode: navigate
+sec-fetch-user: ?1
+sec-fetch-dest: document
+accept-encoding: gzip, deflate, br, zstd
+accept-language: en-US,en;q=0.9
+priority: u=0, i
+
+"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http cleanup add: 0335F928
+2025/06/05 21:19:14 [debug] 11004#9672: *1 get rr peer, try: 2
+2025/06/05 21:19:14 [debug] 11004#9672: *1 get rr peer, current: 037DE640 1
+2025/06/05 21:19:14 [debug] 11004#9672: *1 stream socket 700
+2025/06/05 21:19:14 [debug] 11004#9672: *1 connect to 127.0.0.1:5000, fd:700 #7
+2025/06/05 21:19:14 [debug] 11004#9672: *1 select add event fd:700 ev:768
+2025/06/05 21:19:14 [debug] 11004#9672: *1 select add event fd:700 ev:16
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http upstream connect: -2
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 032FAA80:128
+2025/06/05 21:19:14 [debug] 11004#9672: *1 event timer add: 700: 60000:1131925359
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http finalize request: -4, "/casestrainer/?" a:1, c:2
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http request count:2 blk:0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame complete pos:0336EA2B end:0336EA3C
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame type:6 f:0 l:8 sid:0
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 PING frame
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame complete pos:0336EA3C end:0336EA3C
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame out: 032EEB14 sid:0 bl:0 len:8
+2025/06/05 21:19:14 [debug] 11004#9672: *1 malloc: 03366EB0:16384
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL buf copy: 17
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL to write: 17
+2025/06/05 21:19:14 [debug] 11004#9672: *1 SSL_write: 17
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http2 frame sent: 032EEB14 sid:0 bl:0 len:8
+2025/06/05 21:19:14 [debug] 11004#9672: *1 delete posted event 032EEA38
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http run request: "/casestrainer/?"
+2025/06/05 21:19:14 [debug] 11004#9672: *1 http upstream check client, write event:0, "/casestrainer/"
+2025/06/05 21:19:16 [debug] 11004#9672: *1 post event 0334AB18
+2025/06/05 21:19:16 [debug] 11004#9672: *1 delete posted event 0334AB18
+2025/06/05 21:19:16 [debug] 11004#9672: *1 http upstream request: "/casestrainer/?"
+2025/06/05 21:19:16 [debug] 11004#9672: *1 http upstream send request handler
+2025/06/05 21:19:16 [debug] 11004#9672: *1 http upstream send request
+2025/06/05 21:19:16 [error] 11004#9672: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://127.0.0.1:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:19:16 [debug] 11004#9672: *1 http next upstream, 2
+2025/06/05 21:19:16 [debug] 11004#9672: *1 free rr peer 2 4
+2025/06/05 21:19:16 [warn] 11004#9672: *1 upstream server temporarily disabled while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://127.0.0.1:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:19:16 [debug] 11004#9672: *1 free rr peer failed: 037DE640 0
+2025/06/05 21:19:16 [debug] 11004#9672: *1 close http upstream connection: 700
+2025/06/05 21:19:16 [debug] 11004#9672: *1 free: 032FAA80, unused: 88
+2025/06/05 21:19:16 [debug] 11004#9672: *1 event timer del: 700: 1131925359
+2025/06/05 21:19:16 [debug] 11004#9672: *1 select del event fd:700 ev:768
+2025/06/05 21:19:16 [debug] 11004#9672: *1 select del event fd:700 ev:16
+2025/06/05 21:19:16 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:19:16 [debug] 11004#9672: *1 get rr peer, try: 1
+2025/06/05 21:19:16 [debug] 11004#9672: *1 get rr peer, current: 037DE5C8 -1
+2025/06/05 21:19:16 [debug] 11004#9672: *1 stream socket 700
+2025/06/05 21:19:16 [debug] 11004#9672: *1 connect to [::1]:5000, fd:700 #8
+2025/06/05 21:19:16 [debug] 11004#9672: *1 select add event fd:700 ev:768
+2025/06/05 21:19:16 [debug] 11004#9672: *1 select add event fd:700 ev:16
+2025/06/05 21:19:16 [debug] 11004#9672: *1 http upstream connect: -2
+2025/06/05 21:19:16 [debug] 11004#9672: *1 malloc: 032FBAF8:128
+2025/06/05 21:19:16 [debug] 11004#9672: *1 event timer add: 700: 60000:1131927362
+2025/06/05 21:19:18 [debug] 11004#9672: *1 post event 0334AB18
+2025/06/05 21:19:18 [debug] 11004#9672: *1 delete posted event 0334AB18
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http upstream request: "/casestrainer/?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http upstream send request handler
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http upstream send request
+2025/06/05 21:19:18 [error] 11004#9672: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://[::1]:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http next upstream, 2
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free rr peer 1 4
+2025/06/05 21:19:18 [warn] 11004#9672: *1 upstream server temporarily disabled while connecting to upstream, client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://[::1]:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free rr peer failed: 037DE5C8 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 finalize http upstream request: 502
+2025/06/05 21:19:18 [debug] 11004#9672: *1 finalize http proxy request
+2025/06/05 21:19:18 [debug] 11004#9672: *1 close http upstream connection: 700
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 032FBAF8, unused: 88
+2025/06/05 21:19:18 [debug] 11004#9672: *1 event timer del: 700: 1131927362
+2025/06/05 21:19:18 [debug] 11004#9672: *1 select del event fd:700 ev:768
+2025/06/05 21:19:18 [debug] 11004#9672: *1 select del event fd:700 ev:16
+2025/06/05 21:19:18 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http finalize request: 502, "/casestrainer/?" a:1, c:1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http special response: 502, "/casestrainer/?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 internal redirect: "/50x.html?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 rewrite phase: 1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 test location: "/50x.html"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 using configuration "=/50x.html"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http cl:-1 max:1048576
+2025/06/05 21:19:18 [debug] 11004#9672: *1 rewrite phase: 3
+2025/06/05 21:19:18 [debug] 11004#9672: *1 post rewrite phase: 4
+2025/06/05 21:19:18 [debug] 11004#9672: *1 generic phase: 5
+2025/06/05 21:19:18 [debug] 11004#9672: *1 generic phase: 6
+2025/06/05 21:19:18 [debug] 11004#9672: *1 generic phase: 7
+2025/06/05 21:19:18 [debug] 11004#9672: *1 access phase: 8
+2025/06/05 21:19:18 [debug] 11004#9672: *1 access phase: 9
+2025/06/05 21:19:18 [debug] 11004#9672: *1 access phase: 10
+2025/06/05 21:19:18 [debug] 11004#9672: *1 post access phase: 11
+2025/06/05 21:19:18 [debug] 11004#9672: *1 generic phase: 12
+2025/06/05 21:19:18 [debug] 11004#9672: *1 generic phase: 13
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 14
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 15
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 16
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 17
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 18
+2025/06/05 21:19:18 [debug] 11004#9672: *1 content phase: 19
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http filename: "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer/html/50x.html"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 add cleanup: 0335F934
+2025/06/05 21:19:18 [error] 11004#9672: *1 CreateFile() "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer/html/50x.html" failed (3: The system cannot find the path specified), client: 128.208.154.3, server: wolf.law.uw.edu, request: "GET /casestrainer/ HTTP/2.0", upstream: "http://[::1]:5000/casestrainer/", host: "wolf.law.uw.edu"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http finalize request: 404, "/50x.html?" a:1, c:2
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http special response: 404, "/50x.html?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 header filter
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: ":status: 404"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: "server: nginx/1.27.5"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: "date: Fri, 06 Jun 2025 04:19:18 GMT"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: "content-type: text/html"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: "content-length: 555"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 output header: "strict-transport-security: max-age=63072000"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2:3 create HEADERS frame 0336CC48: len:82 fin:0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http cleanup add: 0336CCF0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame out: 0336CC48 sid:3 bl:1 len:82
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 9
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 82
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2:3 HEADERS frame 0336CC48 was sent
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame sent: 0336CC48 sid:3 bl:1 len:82
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http output filter "/50x.html?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http copy filter: "/50x.html?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http postpone filter "/50x.html?" 0336CDE4
+2025/06/05 21:19:18 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F78118, size: 100 file: 0, size: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F77A88, size: 53 file: 0, size: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 write new buf t:0 f:0 00000000, pos 00F77B28, size: 402 file: 0, size: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http write filter: l:1 f:0 s:555
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http write filter limit 2097152
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 send chain: 0336CDFC
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2:3 windows: conn:15728085 stream:6291456
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2:3 create DATA frame 0336CC48: len:555 flags:1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame out: 0336CC48 sid:3 bl:0 len:555
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 9
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 100
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 53
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL buf copy: 402
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL to write: 655
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL_write: 655
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2:3 DATA frame 0336CC48 was sent
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame sent: 0336CC48 sid:3 bl:0 len:555
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http write filter 00000000
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http copy filter: 0 "/50x.html?"
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http finalize request: 0, "/50x.html?" a:1, c:2
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http request count:2 blk:0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http finalize request: -4, "/50x.html?" a:1, c:1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http request count:1 blk:0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 close stream 3, queued 0, processing 1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http close request
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http log handler
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 0335E940, unused: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 0336C4E0, unused: 1473
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 03311198, unused: 302
+2025/06/05 21:19:18 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:19:18 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 handle connection handler
+2025/06/05 21:19:18 [debug] 11004#9672: *1 event timer add: 688: 300000:1132169365
+2025/06/05 21:19:18 [debug] 11004#9672: *1 reusable connection: 1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 032EE990, unused: 3592
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 03366EB0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 post event 03336A20
+2025/06/05 21:19:18 [debug] 11004#9672: *1 delete posted event 03336A20
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 idle handler
+2025/06/05 21:19:18 [debug] 11004#9672: *1 reusable connection: 0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 malloc: 032EE990:4096
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 read handler
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL_read: 13
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL_read: -1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 SSL_get_error: 2
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame type:8 f:0 l:4 sid:0
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 WINDOW_UPDATE frame sid:0 window:1110
+2025/06/05 21:19:18 [debug] 11004#9672: *1 http2 frame complete pos:0336EA0D end:0336EA0D
+2025/06/05 21:19:18 [debug] 11004#9672: *1 reusable connection: 1
+2025/06/05 21:19:18 [debug] 11004#9672: *1 free: 032EE990, unused: 4056

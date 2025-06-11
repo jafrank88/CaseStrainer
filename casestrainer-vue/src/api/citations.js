@@ -69,7 +69,7 @@ export default {
   
   // Single citation verification
   verifyCitation(citation, caseName) {
-    return api.post(`/verify-citation`, { 
+    return api.post(`/casestrainer/api/verify-citation`, { 
       citation: citation,
       case_name: caseName || ''
     });

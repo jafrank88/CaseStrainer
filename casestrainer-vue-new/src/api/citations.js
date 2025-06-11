@@ -7,7 +7,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   validateCitation(citation) {
-    return api.post('/verify_citation', { citation: citation });
+    return api.post('/casestrainer/api/verify-citation', { citation: citation });
   },
 
   /**

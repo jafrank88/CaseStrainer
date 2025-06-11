@@ -125,22 +125,58 @@ export default {
         return;
       }
       
+      // Check file size (max 10MB)
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.value.size > MAX_FILE_SIZE) {
+        error.value = `File is too large. Maximum size is ${formatFileSize(MAX_FILE_SIZE)}.`;
+        return;
+      }
+      
       isUploading.value = true;
       uploadProgress.value = 0;
       error.value = null;
       results.value = null;
       
-      const formData = new FormData();
-      formData.append('file', file.value);
-      
       try {
-        // Import and use the API utility
-        const api = (await import('@/utils/api')).default;
+        console.log('Preparing to upload file:', file.value.name);
         
-        // For file uploads, we need to use axios directly but with our configured instance
+        // Create FormData for file upload
+        const formData = new FormData();
+        
+        // Append the file with the correct field name and filename
+        formData.append('file', file.value, file.value.name);
+        formData.append('citation', 'document_analysis');
+        formData.append('extract_citations', 'true');
+        formData.append('validate_citations', 'true');
+        
+        // Get file extension
+        const fileExt = file.value.name.split('.').pop().toLowerCase();
+        
+        // Add options as JSON string
+        const options = {
+          is_binary: true,
+          file_type: file.value.type || `application/${fileExt}`,
+          file_ext: fileExt,
+          filename: file.value.name
+        };
+        
+        console.log('File options:', options);
+        formData.append('options', JSON.stringify(options));
+        
+        // Log form data contents for debugging
+        for (let [key, value] of formData.entries()) {
+          console.log(key, value);
+        }
+        
+        // Import and use the API utility
+        const api = (await import('@/api/api')).default;
+        
+        console.log('Sending request to enhanced validator endpoint');
+        
+        // Send the request with form data to the correct endpoint
         const response = await api.post('/analyze-document', formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data'
           },
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
@@ -150,13 +186,95 @@ export default {
           },
         });
         
+        console.log('Upload successful, response:', response);
+        
         uploadProgress.value = 100;
-        results.value = response;
-        emit('results', results.value);
+        
+        // Log the raw response for debugging
+        console.log('Raw API Response:', response.data);
+        
+        // Handle the response data
+        const responseData = response.data || {};
+        let transformedResults = {
+          valid: false,
+          message: 'No results found',
+          citations: [],
+          metadata: {}
+        };
+        
+        try {
+          // Extract citations from the response (check both root and results.citations)
+          const results = responseData.results || {};
+          const citations = results.citations || responseData.citations || [];
+          const totalCitations = results.total || responseData.total || 0;
+          const verifiedCitations = results.verified || responseData.verified || 0;
+          const message = results.message || `Found ${totalCitations} citations (${verifiedCitations} verified)`;
+          
+          // Transform the results
+          transformedResults = {
+            valid: results.valid || verifiedCitations > 0,
+            message: message,
+            citations: citations.map(citation => ({
+              text: citation.text || 'Unknown citation',
+              valid: citation.verified || false,
+              source: citation.source || 'unknown',
+              correction: citation.correction || '',
+              url: citation.url || '',
+              case_name: citation.case_name || '',
+              confidence: citation.confidence || 0,
+              name_match: citation.name_match || false
+            })),
+            metadata: {
+              analysis_id: responseData.analysis_id || (results.metadata && results.metadata.analysis_id) || '',
+              file_name: file?.value?.name || (results.metadata && results.metadata.file_name) || '',
+              statistics: (results.metadata && results.metadata.statistics) || responseData.statistics || {}
+            }
+          };
+        } catch (transformError) {
+          console.error('Error transforming response:', transformError);
+          throw new Error('Failed to process server response');
+        }
+        
+        // Update the component state
+        results.value = transformedResults;
+        emit('results', transformedResults);
       } catch (err) {
         console.error('File upload error:', err);
-        error.value = err.response?.data?.message || 'Failed to analyze document';
-        emit('error', error.value);
+        
+        // Create a properly formatted error object
+        const errorObj = {
+          message: 'Failed to analyze document',
+          details: null,
+          status: 500
+        };
+
+        if (err.response) {
+          // Handle HTTP errors (4xx, 5xx)
+          errorObj.status = err.response.status;
+          if (err.response.data) {
+            if (typeof err.response.data === 'string' && err.response.data.includes('Error:')) {
+              errorObj.message = err.response.data;
+            } else if (err.response.status === 413) {
+              errorObj.message = 'File is too large. Please upload a smaller file.';
+            } else if (err.response.status === 415) {
+              errorObj.message = 'Unsupported file type. Please upload a supported document format.';
+            } else if (err.response.status === 400) {
+              errorObj.message = 'Invalid request. Please check the file and try again.';
+            } else if (err.response.data.message) {
+              errorObj.message = err.response.data.message;
+            }
+            errorObj.details = err.response.data;
+          }
+        } else if (err.request) {
+          // The request was made but no response was received
+          errorObj.message = 'No response from server. Please check your connection and try again.';
+        } else if (err.message) {
+          // Something happened in setting up the request
+          errorObj.message = `Request error: ${err.message}`;
+        }
+        
+        error.value = errorObj.message;
+        emit('error', errorObj);  // Emit the full error object
       } finally {
         isUploading.value = false;
       }

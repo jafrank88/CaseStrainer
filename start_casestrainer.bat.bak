@@ -1,0 +1,283 @@
+@echo off
+setlocal enabledelayedexpansion
+
+REM ===================================================
+REM CaseStrainer Production Startup Script
+REM USAGE: Double-click or run from the CaseStrainer root directory.
+REM LOG: All output is logged to casestrainer_deploy.log
+REM REQUIREMENTS: Node.js, npm, Python 3.x, git, Docker, PowerShell
+REM TROUBLESHOOTING: Check casestrainer_deploy.log for errors.
+REM Exit code 0 = success, nonzero = failure.
+REM ===================================================
+
+set "SCRIPT_DIR=%~dp0"
+cd /d "%SCRIPT_DIR%"
+
+set "LOG_DIR=logs"
+set "LOGFILE=%LOG_DIR%\casestrainer_%DATE:/=-%_%TIME::=-%.log"
+set "ENV_FILE=.env.production"
+set "NGINX_DIR=%~dp0nginx-1.27.5"
+set "NGINX_CONF=%NGINX_DIR%\conf\nginx.conf"
+
+REM Create logs directory if it doesn't exist
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+
+REM === Tool Checks ===
+where python >nul 2>&1 || (echo [ERROR] Python is not installed! | tee -a %LOGFILE% & exit /b 1)
+where powershell >nul 2>&1 || (echo [WARNING] PowerShell is not installed! Some features may be limited. | tee -a %LOGFILE%)
+
+REM === Log Start ===
+echo =================================================== >> %LOGFILE%
+echo [%DATE% %TIME%] Starting CaseStrainer >> %LOGFILE%
+
+REM === Check if running as administrator ===
+net session >nul 2>&1
+if %ERRORLEVEL% neq 0 (
+    echo [WARNING] Not running as administrator. Some operations might fail.
+    echo [WARNING] For full functionality, please run this script as administrator.
+)
+    call .venv\Scripts\activate
+    
+    echo Installing required Python packages...
+    python -m pip install --upgrade pip
+    python -m pip install -r requirements.txt
+)
+
+REM === Set Environment Variables ===
+if exist "%ENV_FILE%" (
+    echo Loading environment variables from %ENV_FILE%
+    for /f "usebackq tokens=*" %%i in ("%ENV_FILE%") do (
+        for /f "tokens=1* delims==" %%a in ("%%i") do (
+            if not "%%a"=="" if not "%%a"=="#" if not "%%a"=="" set "%%a=%%b"
+        )
+    )
+) else (
+    echo Warning: %ENV_FILE% not found. Using default settings. >> "%LOGFILE%"
+)
+
+REM === Activate Python venv ===
+call C:\Users\jafrank\venv_casestrainer\Scripts\activate.bat
+
+REM Set required environment variables if not already set
+if "%FLASK_APP%"=="" set FLASK_APP=src/app_final_vue.py
+if "%FLASK_ENV%"=="" set FLASK_ENV=production
+if "%SECRET_KEY%"=="" set SECRET_KEY=insecure-secret-key-change-in-production
+
+echo Environment: %FLASK_ENV% >> "%LOGFILE%"
+
+REM === Directory Creation ===
+if not exist logs mkdir logs
+if not exist uploads mkdir uploads
+if not exist casestrainer_sessions mkdir casestrainer_sessions
+
+REM === Vue Build Check and Auto-Build with Checksum ===
+echo Checking Vue.js source for changes...
+pushd casestrainer-vue-new
+
+REM === Clear Vue/Node build cache ===
+if exist node_modules\.cache (
+    echo Deleting node_modules\.cache ...
+    rmdir /s /q node_modules\.cache
+)
+
+REM === Convert all .vue files to UTF-8 (without BOM) ===
+powershell -Command "Get-ChildItem -Recurse -Filter *.vue | ForEach-Object { $c = Get-Content $_.FullName; [System.IO.File]::WriteAllLines($_.FullName, $c, (New-Object System.Text.UTF8Encoding($false))) }"
+
+REM === Find duplicate EnhancedValidator.vue files ===
+dir /s /b EnhancedValidator.vue
+
+REM Navigate to Vue project directory
+pushd "casestrainer-vue-new"
+
+echo ===== Building Vue Frontend =====
+
+REM Install dependencies if needed
+if not exist "node_modules" (
+    echo Installing npm dependencies...
+    call npm install
+    if errorlevel 1 (
+        echo ERROR: npm install failed. Please check npm logs.
+        pause
+        popd
+        exit /b 1
+    )
+)
+
+REM Always build the Vue app in production mode
+echo Building Vue frontend for production...
+call npm run build
+if errorlevel 1 (
+    echo ERROR: npm run build failed. Please check npm logs.
+    pause
+    popd
+    exit /b 1
+)
+
+popd
+
+echo Vue frontend built successfully.
+
+REM === Log Cleanup (Optional) ===
+if exist logs\deploy.log del logs\deploy.log
+if exist logs\deploy_error.log del logs\deploy_error.log
+
+set NGINX_DIR=%~dp0nginx-1.27.5
+set PROD_CONF=%NGINX_DIR%\conf\nginx.conf
+set TEST_CONF=%NGINX_DIR%\conf\nginx_test.conf
+set FLASK_APP=src/app_final_vue.py
+REM === Configuration ===
+set HOST=0.0.0.0
+set PORT=5000
+set THREADS=10
+set USE_WAITRESS=True
+set DEBUG_MODE=False
+
+REM Check for debug flag
+if "%1"=="--debug" (
+    set DEBUG_MODE=True
+    shift
+)
+
+REM === Stop any existing Nginx instances ===
+echo [%TIME%] Stopping any running Nginx instances...
+tasklist | find /i "nginx.exe" >nul 2>&1
+if %errorlevel%==0 (
+    echo Stopping existing Nginx instances...
+    taskkill /f /im nginx.exe >nul 2>&1
+    timeout /t 2 >nul
+)
+
+REM === Stop any existing Python backend processes ===
+echo [%TIME%] Stopping any running backend processes...
+for /f "tokens=2" %%i in ('tasklist ^| findstr /i "python.exe"') do (
+    tasklist /fi "PID eq %%i" /fo csv | findstr /i "app.py" >nul
+    if !errorlevel! equ 0 (
+        echo Stopping backend process with PID: %%i
+        taskkill /f /pid %%i >nul 2>&1
+    )
+)
+
+REM === Create required directories ===
+echo [%TIME%] Setting up directories...
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+if not exist "uploads" mkdir "uploads"
+if not exist "casestrainer_sessions" mkdir "casestrainer_sessions"
+
+REM === Check if port 5000 is available ===
+echo [%TIME%] Checking if port 5000 is available...
+netstat -ano | findstr :5000 >nul 2>&1
+if %errorLevel% equ 0 (
+    echo WARNING: Port 5000 is already in use.
+    echo Stopping any processes using port 5000...
+    
+    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5000') do (
+        echo Killing process with PID: %%a
+        taskkill /f /pid %%a >nul 2>&1
+    )
+    
+    timeout /t 2 /nobreak >nul
+)
+
+REM === Install/update dependencies ===
+echo [%TIME%] Installing/updating Python dependencies...
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+REM === Start the backend ===
+echo [%TIME%] Starting backend...
+set "PYTHONPATH=%CD%\src;%PYTHONPATH%"
+
+if "%DEBUG_MODE%"=="True" (
+    echo [INFO] Starting in DEBUG mode...
+    set FLASK_APP=src/app_final_vue.py
+    set FLASK_ENV=development
+    set FLASK_DEBUG=1
+    start "CaseStrainer Backend (Debug)" cmd /k "python -m flask run --host=%HOST% --port=%PORT% & echo. & echo Backend process ended. Press any key to close... & pause"
+) else (
+    echo [INFO] Starting in PRODUCTION mode...
+    if "%USE_WAITRESS%"=="True" (
+        start "CaseStrainer Backend" cmd /k "python -m waitress --host=%HOST% --port=%PORT% --threads=%THREADS% src.app_final_vue:app & echo. & echo Backend process ended. Press any key to close... & pause"
+    ) else (
+        start "CaseStrainer Backend" cmd /k "python -m waitress --host=%HOST% --port=%PORT% --threads=%THREADS% src.app_final_vue:app & echo. & echo Backend process ended. Press any key to close... & pause"
+    )
+)
+
+REM === Start Nginx ===
+echo [%TIME%] Starting Nginx...
+
+if not exist "%NGINX_DIR%\nginx.exe" (
+    echo [ERROR] Nginx executable not found at: %NGINX_DIR%\nginx.exe
+    pause
+    exit /b 1
+)
+
+if not exist "%NGINX_CONF%" (
+    echo [ERROR] Nginx config file not found at: %NGINX_CONF%
+    pause
+    exit /b 1
+)
+
+echo [INFO] Using Nginx from: %NGINX_DIR%\nginx.exe
+echo [INFO] Using config file: %NGINX_CONF%
+
+REM Test Nginx configuration
+"%NGINX_DIR%\nginx.exe" -t -c "%NGINX_CONF%" -p "%NGINX_DIR%"
+if %errorlevel% neq 0 (
+    echo [ERROR] Nginx configuration test failed. Please check the configuration.
+    pause
+    exit /b 1
+)
+
+REM Start Nginx
+start "Nginx" cmd /k "cd /d "%NGINX_DIR%" && nginx.exe -c "%NGINX_CONF%" -p "%NGINX_DIR%" & echo. & echo Nginx process ended. Press any key to close. & pause"
+
+REM === Verify services ===
+timeout /t 2 /nobreak >nul
+
+echo.
+echo =============================================
+echo   CaseStrainer Services Started!
+echo =============================================
+echo.
+echo [INFO] Backend is running on http://%HOST%:%PORT%
+echo [INFO] External access: https://wolf.law.uw.edu/casestrainer/
+echo [INFO] Local access: http://localhost:5000
+echo.
+echo [INFO] Logs are available in the 'logs' directory
+echo.
+
+REM === Check services status ===
+echo [%TIME%] Verifying services...
+
+echo.
+echo === Nginx Status ===
+tasklist | find /i "nginx.exe" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] Nginx is running
+) else (
+    echo [ERROR] Nginx failed to start!
+)
+
+echo.
+echo === Backend Status ===
+tasklist | find /i "python.exe" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo [OK] Backend is running
+) else (
+    echo [ERROR] Backend failed to start!
+)
+
+echo.
+echo =============================================
+echo   Startup Complete!
+echo =============================================
+echo.
+echo If you encounter any issues, please check:
+echo 1. Nginx error log: %NGINX_DIR%\logs\error.log
+echo 2. Application log: %LOG_DIR%\casestrainer_*.log
+echo.
+
+REM Keep the window open
+pause
+
+endlocal

@@ -1,0 +1,17 @@
+2025-06-10 20:48:34,449 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:48:34,455 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:48:34,455 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:48:34,455 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:48:34,461 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:48:34,461 - src.app_final_vue - INFO - Starting application creation
+2025-06-10 20:48:34,466 - src.app_final_vue - INFO - Registered API blueprint
+2025-06-10 20:48:34,466 - src.app_final_vue - INFO - Application initialized in development mode
+2025-06-10 20:48:34,466 - src.app_final_vue - INFO - Configuring CORS with origins: ['http://localhost:5173', 'http://127.0.0.1:5173', 'https://wolf.law.uw.edu']
+2025-06-10 20:48:34,472 - src.app_final_vue - INFO - Application initialization completed successfully
+2025-06-10 20:49:00,456 - src.app_final_vue - ERROR - [ANALYZE_DOCUMENT] Unexpected error: name 'secure_filename' is not defined
+2025-06-10 20:49:00,457 - src.app_final_vue - ERROR - Traceback (most recent call last):
+  File "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\vue_api_endpoints.py", line 1011, in analyze_document
+    filename = secure_filename(file.filename)
+               ^^^^^^^^^^^^^^^
+NameError: name 'secure_filename' is not defined
+

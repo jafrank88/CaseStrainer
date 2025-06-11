@@ -1,0 +1,3 @@
+SHA256 hash of hash_temp.txt:
+942fd17c36a96c49332245f3dd48cb5c7795e0f7305e7b90ba9b95284562785e
+CertUtil: -hashfile command completed successfully.

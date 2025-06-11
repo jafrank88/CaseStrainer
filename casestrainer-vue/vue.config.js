@@ -3,45 +3,27 @@ module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/',
   
   devServer: {
-    port: process.env.VUE_APP_DEV_PORT || 3000,
+    port: 5173,  // Use port 5173 consistently
     host: '0.0.0.0',
     proxy: {
       // For development - proxy /api to backend
       '/api': {
-        target: 'http://localhost:5001',  // Changed to match your Flask backend port
+        target: 'http://localhost:5000',  // Use port 5000 consistently
         changeOrigin: true,
         pathRewrite: {
-          '^/api': '/casestrainer/api'  // Add casestrainer prefix for development
-        },
-        logLevel: 'debug',
-        secure: false,
-        headers: {
-          'X-Forwarded-Prefix': '/casestrainer'
-        }
-      },
-      // For production-like URLs in development
-      '/casestrainer/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        pathRewrite: {
-          '^/casestrainer/api': '/casestrainer/api'  // Keep the full path
+          '^/api': '/api'  // Keep the path as is
         },
         logLevel: 'debug',
         secure: false
       }
     },
     allowedHosts: 'all',
-    host: '0.0.0.0',
-    port: 3000,  // Changed from 8080 to 3000 to avoid conflicts
     client: {
       webSocketURL: 'auto://0.0.0.0:0/ws'
     },
     hot: true,
     open: true
   },
-  publicPath: '/',
-  // For production build with Nginx
-  // publicPath: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/',
   
   // Configure webpack dev server to handle history mode routing
   configureWebpack: {

@@ -99,258 +99,65 @@
         </div>
       </div>
 
-      <!-- Summary Bar -->
-      <div class="alert" :class="summaryAlertClass">
-        <div class="d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">
-              <i class="fas" :class="summaryIcon"></i>
-              Found {{ totalCitations }} Citations
-              <span v-if="verifiedCount > 0" class="ms-2">
-                <span class="badge bg-success">{{ verifiedCount }} Verified</span>
-              </span>
-              <span v-if="unverifiedCount > 0" class="ms-2">
-                <span class="badge bg-warning text-dark">{{ unverifiedCount }} Unverified</span>
-              </span>
-              <span v-if="unlikelyCount > 0" class="ms-2">
-                <span class="badge bg-danger">{{ unlikelyCount }} Unlikely</span>
-              </span>
-            </h5>
-          </div>
-        </div>
+      <!-- Summary Alert -->
+      <div class="alert" :class="summaryAlertClass" role="alert">
+        <h5 class="alert-heading mb-0">
+          <i class="fas" :class="summaryIcon"></i>
+          Found {{ totalCitations }} Citations
+          <span v-if="courtListenerCount > 0" class="ms-2">
+            <span class="badge bg-success">{{ courtListenerCount }} CourtListener Verified</span>
+          </span>
+          <span v-if="otherVerifiedCount > 0" class="ms-2">
+            <span class="badge bg-info">{{ otherVerifiedCount }} Other Verified</span>
+          </span>
+          <span v-if="unverifiedCount > 0" class="ms-2">
+            <span class="badge bg-warning text-dark">{{ unverifiedCount }} Unverified</span>
+          </span>
+        </h5>
       </div>
 
-      <!-- Tabs Navigation -->
-      <ul class="nav nav-tabs mb-4" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button 
-            class="nav-link" 
-            :class="{ active: activeTab === 'verified' }" 
-            @click="activeTab = 'verified'"
-            type="button"
-          >
-            <i class="fas fa-check-circle me-2"></i>
-            Verified
-            <span class="badge bg-success ms-2">{{ verifiedCount }}</span>
-          </button>
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link" 
+             :class="{ active: activeTab === 'courtlistener' }"
+             @click="activeTab = 'courtlistener'"
+             href="#">
+            CourtListener Verified
+            <span v-if="courtListenerCount > 0" class="badge bg-success ms-1">{{ courtListenerCount }}</span>
+          </a>
         </li>
-        <li class="nav-item" role="presentation">
-          <button 
-            class="nav-link" 
-            :class="{ active: activeTab === 'unverified' }" 
-            @click="activeTab = 'unverified'"
-            type="button"
-          >
-            <i class="fas fa-question-circle me-2"></i>
+        <li class="nav-item">
+          <a class="nav-link" 
+             :class="{ active: activeTab === 'other' }"
+             @click="activeTab = 'other'"
+             href="#">
+            Other Verified
+            <span v-if="otherVerifiedCount > 0" class="badge bg-info ms-1">{{ otherVerifiedCount }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" 
+             :class="{ active: activeTab === 'unverified' }"
+             @click="activeTab = 'unverified'"
+             href="#">
             Unverified
-            <span class="badge bg-warning text-dark ms-2">{{ unverifiedCount }}</span>
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button 
-            class="nav-link" 
-            :class="{ active: activeTab === 'unlikely' }" 
-            @click="activeTab = 'unlikely'"
-            type="button"
-          >
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Unlikely
-            <span v-if="unlikelyCount > 0" class="badge bg-danger ms-2">{{ unlikelyCount }}</span>
-          </button>
+            <span v-if="unverifiedCount > 0" class="badge bg-warning text-dark ms-1">{{ unverifiedCount }}</span>
+          </a>
         </li>
       </ul>
 
       <!-- Tab Content -->
-      <div class="tab-content mt-3">
-        <!-- Citations Found Tab -->
-        <div class="tab-pane fade" :class="{ show: activeTab === 'citations', active: activeTab === 'citations' }">
-          <div v-if="allCitations.length > 0" class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Verified By</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in allCitations" :key="'citation-'+index">
-                  <td>{{ formatCitation(citation) }}</td>
-                  <td>
-                    <span class="badge" :class="getStatusBadgeClass(citation)">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                  <td>
-                    <template v-if="citation.validation_method">
-                      <span class="badge" :class="getBadgeClass(citation.validation_method)">
-                        {{ citation.validation_method }}
-                      </span>
-                    </template>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary" @click="showCitationDetails(citation)">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary ms-1" @click="showCitationSuggestions(citation)">
-                      <i class="fas fa-info-circle"></i> Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else class="alert alert-info">
-            No citations found in this document.
-          </div>
+      <div class="tab-content">
+        <div v-if="activeTabContent.length === 0" class="alert alert-info">
+          No citations found in this category.
         </div>
-
-        <!-- Unlikely Citations Tab -->
-        <div class="tab-pane fade" :class="{ show: activeTab === 'unlikely', active: activeTab === 'unlikely' }">
-          <div v-if="unlikelyCitations.length > 0" class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Reason</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in unlikelyCitations" :key="'unlikely-'+index">
-                  <td>{{ formatCitation(citation) }}</td>
-                  <td>{{ citation.reason || 'Not a valid citation' }}</td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary" @click="showCitationDetails(citation)">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else class="alert alert-info">
-            No unlikely citations found.
-          </div>
-        </div>
-
-        <!-- Verified Citations Tab -->
-        <div v-show="activeTab === 'verified'" class="tab-pane fade">
-          <div v-if="verifiedCitations.length > 0" class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Validation Method</th>
-                  <th>Case Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in verifiedCitations" :key="'verified-'+index">
-                  <td>
-                    <button class="btn btn-sm btn-outline-secondary" @click="showCitationContext(citation)">
-                      <i class="fas fa-eye"></i> View
-                    </button>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-info" @click="showCitationDetails(citation)">
-                      <i class="fas fa-info-circle"></i> Details
-                    </button>
-                  </td>
-                  <td>
-                    <span class="badge" :class="getBadgeClass(citation.validation_method)">
-                      {{ citation.validation_method || 'Unknown' }}
-                    </span>
-                  </td>
-                  <td>{{ citation.case_name || 'N/A' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else class="alert alert-info">
-            No verified citations found.
-          </div>
-        </div>
-
-        <!-- Unverified Citations Tab -->
-        <div v-show="activeTab === 'unverified'" class="tab-pane fade">
-          <div v-if="unverifiedCitations.length > 0" class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Validation Method</th>
-                  <th>Case Name</th>
-                  <th>Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in unverifiedCitations" :key="'unverified-'+index">
-                  <td v-html="formatCitation(citation.citation || citation.citation_text)"></td>
-                  <td>
-                    <span class="badge bg-warning text-dark">
-                      <i class="fas fa-exclamation-triangle me-1"></i>
-                      Unverified
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge" :class="getBadgeClass(citation.validation_method)">
-                      {{ citation.validation_method || 'Unknown' }}
-                    </span>
-                  </td>
-                  <td>{{ citation.case_name || 'N/A' }}</td>
-                  <td>
-                    <span v-if="citation.metadata?.explanation" class="text-danger small">
-                      <i class="fas fa-info-circle me-1"></i>
-                      {{ citation.metadata.explanation }}
-                    </span>
-                    <span v-else>-</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else class="alert alert-info">
-            No unverified citations found.
-          </div>
-        </div>
-
-        <!-- Unlikely Citations Tab -->
-        <div v-show="activeTab === 'unlikely'" class="tab-pane fade">
-          <div v-if="unlikelyCitations.length > 0" class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>Citation Text</th>
-                  <th>Reason</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in unlikelyCitations" :key="'unlikely-'+index">
-                  <td>{{ citation.citation || citation.citation_text || citation.text || 'N/A' }}</td>
-                  <td>
-                    <span class="badge bg-danger">
-                      {{ citation.metadata?.invalid_reason || 'Invalid format' }}
-                    </span>
-                  </td>
-                  <td>
-                    <div v-if="citation.metadata" class="small text-muted">
-                      <div v-for="(value, key) in citation.metadata" :key="key">
-                        <strong>{{ key }}:</strong> {{ value }}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-else class="alert alert-info">
-            No unlikely citations detected.
-          </div>
+        <div v-else>
+          <citation-table 
+            :citations="activeTabContent"
+            :show-verification-status="true"
+            :show-metadata="true"
+          />
         </div>
       </div>
     </div>
@@ -432,8 +239,13 @@
 import * as bootstrap from 'bootstrap';
 import { formatCitation } from '@/utils/citationFormatter';
 import { Modal } from 'bootstrap';
+import CitationTable from '@/components/CitationTable.vue';
 
 export default {
+  name: 'CitationResults',
+  components: {
+    CitationTable
+  },
   methods: {
     /**
      * Validates the structure of citation data
@@ -819,11 +631,8 @@ export default {
     getStatusBadgeClass(citation) {
       if (!citation) return 'bg-secondary';
       
-      // Check verified status from root level or metadata
-      const isVerified = citation.verified === true || 
-                      (citation.metadata && citation.metadata.verified === true) ||
-                      citation.status === 'verified';
-      
+      // Check verified status - ensure it's a boolean
+      const isVerified = Boolean(citation.verified);
       const isUnlikely = citation.status === 'unlikely' || (citation.metadata && citation.metadata.is_unlikely);
       const isError = citation.status === 'error' || (citation.metadata && citation.metadata.error);
       
@@ -846,10 +655,8 @@ export default {
     getStatusText(citation) {
       if (!citation) return 'Unverified';
       
-      // Check verified status from root level or metadata
-      const isVerified = citation.verified === true || 
-                      (citation.metadata && citation.metadata.verified === true) ||
-                      citation.status === 'verified';
+      // Check verified status - ensure it's a boolean
+      const isVerified = Boolean(citation.verified);
       
       if (isVerified) {
         return 'Verified';
@@ -881,15 +688,6 @@ export default {
     }
   },
 
-  name: 'CitationResults',
-  /**
-   * The citation validation results to display
-   * @type {Object}
-   * @property {Array} validation_results - Array of citation validation results
-   * @property {number} total_citations - Total number of citations
-   * @property {number} verified_count - Number of verified citations
-   * @property {number} unverified_count - Number of unverified citations
-   */
   props: {
     results: {
       type: Object,
@@ -919,7 +717,7 @@ export default {
     console.log('[CitationResults] Initializing with results:', this.results);
     
     return {
-      activeTab: 'citations',
+      activeTab: 'courtlistener',
       selectedCitation: null,
       detailsModal: null,
       suggestionsModal: null,
@@ -1038,63 +836,81 @@ export default {
         c.status === 'unlikely' || (c.metadata && c.metadata.is_unlikely)
       ).length;
     },
-    // Get all verified citations
+    // Get all verified citations, prioritizing CourtListener verifications
     verifiedCitations() {
-      return this.safeCitations.filter(c => {
-        // A citation is considered verified if:
-        // 1. The root verified property is explicitly true, OR
-        // 2. The status is 'verified' AND metadata.verified is true
-        const isVerified = 
-          c.verified === true || 
-          (c.status === 'verified' && c.metadata?.verified === true);
-          
-        console.log(`[CitationResults] Citation ${c.citation} - ` +
-                   `verified: ${c.verified}, ` +
-                   `status: ${c.status}, ` +
-                   `metadata.verified: ${c.metadata?.verified}, ` +
-                   `isVerified: ${isVerified}`);
-        
-        return isVerified;
-      });
+      return this.safeCitations
+        .filter(c => c.verified)
+        .sort((a, b) => {
+          const aIsCL = a.verified_by === 'CourtListener' || a.source === 'courtlistener';
+          const bIsCL = b.verified_by === 'CourtListener' || b.source === 'courtlistener';
+          if (aIsCL && !bIsCL) return -1;
+          if (!aIsCL && bIsCL) return 1;
+          return 0;
+        });
     },
-    // Legacy properties for backward compatibility
+    // Get all unverified citations
+    unverifiedCitations() {
+      return this.safeCitations.filter(c => !c.verified);
+    },
+    // Get CourtListener-verified citations
     courtListenerCitations() {
       return this.safeCitations.filter(c => 
-        c.status === 'verified' && c.validation_method === 'CourtListener'
+        c.verified && (c.verified_by === 'CourtListener' || c.source === 'courtlistener')
       );
     },
-    elsewhereCitations() {
+    // Get other verified citations (non-CourtListener)
+    otherVerifiedCitations() {
       return this.safeCitations.filter(c => 
-        c.status === 'verified' && c.validation_method !== 'CourtListener'
+        c.verified && c.verified_by !== 'CourtListener' && c.source !== 'courtlistener'
       );
     },
-    notFoundCitations() {
-      return this.safeCitations.filter(c => c.status === 'not_found');
+    // Get the content for the active tab
+    activeTabContent() {
+      switch (this.activeTab) {
+        case 'courtlistener':
+          return this.courtListenerCitations;
+        case 'other':
+          return this.otherVerifiedCitations;
+        case 'unverified':
+          return this.unverifiedCitations;
+        default:
+          return this.courtListenerCitations; // Default to CourtListener tab
+      }
     },
+    // Counts for each category
     courtListenerCount() {
-      return this.confirmedByCL;
+      return this.courtListenerCitations.length;
     },
-    elsewhereCount() {
-      return this.confirmedByLS;
+    otherVerifiedCount() {
+      return this.otherVerifiedCitations.length;
     },
-    notFoundCount() {
-      return this.unverifiedCount;
+    unverifiedCount() {
+      return this.unverifiedCitations.length;
     },
-    // Get appropriate badge class based on status
+    totalCitations() {
+      return this.safeCitations.length;
+    },
+    // Update summary alert class to reflect CourtListener verifications
     summaryAlertClass() {
-      if (this.unverifiedCount > 0 || this.unlikelyCount > 0) {
+      if (this.courtListenerCount > 0) {
+        return 'alert-success';
+      } else if (this.otherVerifiedCount > 0) {
+        return 'alert-info';
+      } else if (this.unverifiedCount > 0) {
         return 'alert-warning';
       }
-      return 'alert-success';
+      return 'alert-secondary';
     },
-    // Get appropriate icon based on status
+    // Update summary icon to reflect CourtListener verifications
     summaryIcon() {
-      if (this.unlikelyCount > 0) {
-        return 'fa-exclamation-triangle text-warning';
+      if (this.courtListenerCount > 0) {
+        return 'fa-check-circle text-success';
+      } else if (this.otherVerifiedCount > 0) {
+        return 'fa-info-circle text-info';
       } else if (this.unverifiedCount > 0) {
         return 'fa-question-circle text-warning';
       }
-      return 'fa-check-circle text-success';
+      return 'fa-exclamation-circle text-secondary';
     },
   },
 
