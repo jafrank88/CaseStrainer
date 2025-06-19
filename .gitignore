@@ -173,3 +173,14 @@ Thumbs.db
 # Allow specific log files for debugging
 !logs/app_startup_*.log
 !logs/casestrainer_*.log
+
+# Exclude deprecated and old scripts
+deprecated_scripts/
+archived/
+archived_batch_files/
+temp-vue*/
+temp-vue-app/
+temp-vue-fix/
+temp/
+temp_logs/
+test_logs/
