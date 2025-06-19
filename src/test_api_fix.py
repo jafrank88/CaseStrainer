@@ -56,7 +56,7 @@ if __name__ == "__main__":
     # Test 2: JSON request with json parameter
     test_endpoint(
         "POST",
-        f"{base_url}/verify-citation",
+        f"{base_url}/analyze",
         headers={"Content-Type": "application/json"},
         json_data={"text": "410 U.S. 113"},
         description="JSON request with json parameter"
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # Test 3: JSON request with data parameter
     test_endpoint(
         "POST",
-        f"{base_url}/verify-citation",
+        f"{base_url}/analyze",
         headers={"Content-Type": "application/json"},
         data=json.dumps({"text": "410 U.S. 113"}),
         description="JSON request with data parameter"
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     # Test 4: Form data
     test_endpoint(
         "POST",
-        f"{base_url}/verify-citation",
+        f"{base_url}/analyze",
         data={"text": "410 U.S. 113"},
         description="Form data request"
     )
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # Test 5: Minimal valid request
     test_endpoint(
         "POST",
-        f"{base_url}/verify-citation",
+        f"{base_url}/analyze",
         headers={"Content-Type": "application/json"},
         json_data={"citation": "410 U.S. 113", "case_name": "Roe v. Wade"},
         description="Minimal valid request"

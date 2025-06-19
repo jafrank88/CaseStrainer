@@ -1,0 +1,73 @@
+/* Office UI Fabric Core styles */
+@import 'https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css';
+
+/* Base styles */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Layout */
+#content-main {
+    padding: 15px;
+}
+
+.padding {
+    padding: 15px;
+}
+
+/* Buttons */
+.ms-Button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #f3f2f1;
+    color: #323130;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.ms-Button:hover {
+    background-color: #e1dfdd;
+}
+
+.ms-Button:active {
+    background-color: #c8c6c4;
+}
+
+.ms-Button:last-child {
+    margin-bottom: 0;
+}
+
+/* Button states */
+.ms-Button:disabled {
+    background-color: #f3f2f1;
+    color: #a19f9d;
+    cursor: not-allowed;
+}
+
+/* Button icons (if needed) */
+.ms-Button-icon {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 400px) {
+    .padding {
+        padding: 10px;
+    }
+    
+    .ms-Button {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+} 

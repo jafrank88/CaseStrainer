@@ -152,7 +152,13 @@ def test_citation_context(citation):
             logger.info(f"Context retrieved: {context_length} characters")
             return result
         else:
-            logger.error(f"Context API error: {response.status_code} - {response.text}")
+            # Safely log the API error to avoid Unicode encoding errors
+            try:
+                logger.error(f"Context API error: {response.status_code} - {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(f"Context API error: {response.status_code} - {safe_text}")
             return None
 
     except Exception as e:
@@ -175,9 +181,17 @@ def test_citation_classification(citation):
             logger.info(f"Classification confidence: {result.get('confidence', 0)}")
             return result
         else:
-            logger.error(
-                f"Classification API error: {response.status_code} - {response.text}"
-            )
+            # Safely log the classification API error to avoid Unicode encoding errors
+            try:
+                logger.error(
+                    f"Classification API error: {response.status_code} - {response.text}"
+                )
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(
+                    f"Classification API error: {response.status_code} - {safe_text}"
+                )
             return None
 
     except Exception as e:
@@ -201,9 +215,17 @@ def test_citation_suggestions(citation):
             logger.info(f"Suggestions received: {suggestion_count}")
             return result
         else:
-            logger.error(
-                f"Suggestions API error: {response.status_code} - {response.text}"
-            )
+            # Safely log the suggestions API error to avoid Unicode encoding errors
+            try:
+                logger.error(
+                    f"Suggestions API error: {response.status_code} - {response.text}"
+                )
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(
+                    f"Suggestions API error: {response.status_code} - {safe_text}"
+                )
             return None
 
     except Exception as e:

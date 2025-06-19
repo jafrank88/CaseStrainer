@@ -354,7 +354,7 @@ def test_verify_citation_api():
     try:
         # Test with a known citation
         response = make_api_request(
-            "/verify-citation", method="POST", data={"citation": TEST_CITATION}
+            "/analyze", method="POST", data={"citation": TEST_CITATION}
         )
         print(f"Verified citation: {TEST_CITATION}")
         print(f"Status: {response.get('status', 'N/A')}")

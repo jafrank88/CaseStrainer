@@ -54,7 +54,7 @@ A web application for extracting, analyzing, and validating legal citations from
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/CaseStrainer.git
+   git clone https://github.com/jafrank88/CaseStrainer.git
    cd CaseStrainer
    ```
 
@@ -529,4 +529,29 @@ The application can be configured through environment variables:
 
 ## Support
 
-For issues and feature requests, please create an issue in the GitHub repository. 
+For issues and feature requests, please create an issue in the GitHub repository.
+
+## Citation Extraction and Verification (2024+)
+
+**All citation extraction and verification should now use the [CourtListener citation-lookup API](https://www.courtlistener.com/api/rest/v4/citation-lookup/) by sending the full text blob.**
+
+- Do NOT use local extraction functions like `extract_all_citations` or `extract_citations_from_text`—these are deprecated and will raise errors.
+- For any input (pasted text, file upload, URL), extract the text, then send it to the CourtListener API as the `text` parameter.
+- The API will return a list of all found citations with metadata.
+
+**Example (Python):**
+```python
+import requests
+headers = {"Authorization": f"Token <your-token-here>"}
+data = {"text": your_full_text_blob}
+response = requests.post(
+    "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+    headers=headers,
+    data=data
+)
+citations = response.json()  # List of citation objects
+```
+
+## Deprecated Functions
+- `extract_all_citations` (Python): Deprecated. Use the CourtListener API instead.
+- `extract_citations_from_text` (Python): Deprecated. Use the CourtListener API instead. 

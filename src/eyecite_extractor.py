@@ -13,6 +13,7 @@ import requests
 import traceback
 import time
 import random
+import warnings
 
 # Import eyecite for citation extraction
 try:
@@ -134,7 +135,10 @@ def extract_text_from_pdf(pdf_path):
 
 
 def extract_citations_with_eyecite(text):
-    """Extract citations using eyecite."""
+    """
+    DEPRECATED: Use extract_all_citations from citation_utils instead.
+    """
+    warnings.warn("extract_citations_with_eyecite is deprecated. Use extract_all_citations from citation_utils instead.", DeprecationWarning)
     print("Extracting citations using eyecite")
 
     try:

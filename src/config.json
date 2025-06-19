@@ -24,5 +24,8 @@
         "MAX_CONTENT_LENGTH": 16777216,
         "UPLOAD_FOLDER_PERMISSIONS": 755,
         "SESSION_FOLDER_PERMISSIONS": 755
-    }
+    },
+    "environment": "development",
+    "debug": true,
+    "database_path": "data/citations.db"
 } 

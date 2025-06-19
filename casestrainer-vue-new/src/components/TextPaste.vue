@@ -14,7 +14,7 @@
           <textarea
             id="textInput"
             class="form-control"
-            v-model="pastedText"
+            v-model="text"
             rows="10"
             placeholder="Paste your legal document text here..."
             :disabled="isAnalyzing"
@@ -34,13 +34,14 @@
         <button 
           class="btn btn-primary" 
           @click="analyzeText"
-          :disabled="!pastedText || isAnalyzing"
+          :disabled="!text || isAnalyzing"
         >
           <span v-if="isAnalyzing" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Text' }}
         </button>
         
-        <div v-if="results" class="mt-4">
+        <div v-if="false" class="mt-4">
+          <pre>{{ results }}</pre>
           <h5>Analysis Results</h5>
           <div :class="['alert', getAlertClass(results.valid)]">
             <p><strong>Status:</strong> {{ results.valid ? 'Valid' : 'Invalid' }}</p>
@@ -48,6 +49,10 @@
             
             <div v-if="results.citations && results.citations.length > 0">
               <h6>Found {{ results.citations.length }} citations:</h6>
+              <!-- Retry All Button -->
+              <button v-if="retryCitations.length > 0" class="btn btn-warning mb-2" @click="retryAllCitations" :disabled="isAnalyzing">
+                Retry All Failed
+              </button>
               <div class="table-responsive">
                 <table class="table table-striped table-hover mt-2">
                   <thead>
@@ -55,19 +60,20 @@
                       <th>Citation</th>
                       <th>Status</th>
                       <th v-if="includeContext">Context</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(citation, index) in results.citations" :key="index">
                       <td>
-                        <strong>{{ citation.text }}</strong>
+                        <strong>{{ citation.citation }}</strong>
                         <div v-if="citation.correction" class="text-muted small">
                           Suggested: {{ citation.correction }}
                         </div>
                       </td>
                       <td>
-                        <span :class="['badge', citation.valid ? 'bg-success' : 'bg-danger']">
-                          {{ citation.valid ? 'Valid' : 'Invalid' }}
+                        <span :class="['badge', getStatusBadgeClass(citation)]">
+                          {{ getStatusText(citation) }}
                         </span>
                       </td>
                       <td v-if="includeContext">
@@ -75,6 +81,11 @@
                           {{ citation.context }}
                         </div>
                         <div v-else class="text-muted small">No context available</div>
+                      </td>
+                      <td>
+                        <button v-if="citation.status === 'retry'" class="btn btn-sm btn-warning" @click="retrySingleCitation(citation)">
+                          Retry
+                        </button>
                       </td>
                     </tr>
                   </tbody>
@@ -88,6 +99,7 @@
             
             <div v-if="results.summary" class="mt-3">
               <h6>Summary:</h6>
+              <!--
               <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total Citations
@@ -102,6 +114,7 @@
                   <span class="badge bg-danger rounded-pill">{{ results.summary.invalid || 0 }}</span>
                 </li>
               </ul>
+              -->
             </div>
           </div>
         </div>
@@ -111,49 +124,77 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
+import { useAnalysisService } from '@/services/analysisService';
 
 export default {
   name: 'TextPaste',
-  emits: ['results', 'error'],
+  emits: ['results', 'error', 'loading', 'progress'],
   setup(props, { emit }) {
-    const pastedText = ref('');
+    const text = ref('');
     const isAnalyzing = ref(false);
     const error = ref(null);
     const results = ref(null);
-    const includeContext = ref(true);
+    const includeContext = ref(false);
     
-    // Base path for API requests
-    const basePath = import.meta.env.VITE_API_BASE_URL || '';
+    const {
+      analyzeContent,
+      cleanup,
+      validators,
+      textUtils
+    } = useAnalysisService();
     
     const analyzeText = async () => {
-      if (!pastedText.value.trim()) {
-        error.value = 'Please enter some text to analyze';
+      if (!text.value) {
+        error.value = 'Please enter text to analyze';
         return;
       }
       
-      isAnalyzing.value = true;
-      error.value = null;
-      results.value = null;
-      
       try {
-        // Import and use the API utility
-        const api = (await import('@/utils/api')).default;
-        const response = await api.post('/analyze-text', {
-          text: pastedText.value,
-          includeContext: includeContext.value
-        });
+        // Validate text
+        validators.validateText(text.value);
         
-        results.value = response;
-        emit('results', results.value);
+        // Clean text
+        const cleanedText = textUtils.cleanText(text.value);
+        
+        isAnalyzing.value = true;
+        error.value = null;
+        results.value = null;
+        emit('loading', true);
+        
+        try {
+          const processedResults = await analyzeContent(
+            { text: cleanedText },
+            'text',
+            { 
+              preserve_formatting: true,
+              onProgress: (progress) => {
+                // Emit progress updates to parent component
+                emit('progress', progress);
+              }
+            }
+          );
+          
+          results.value = processedResults;
+          emit('results', processedResults);
+          
+        } catch (err) {
+          error.value = err.message;
+          emit('error', err);
+        }
+        
       } catch (err) {
-        console.error('Text analysis error:', err);
-        error.value = err.response?.data?.message || 'Failed to analyze text';
-        emit('error', error.value);
+        error.value = err.message;
+        emit('error', { message: err.message, status: 400 });
       } finally {
         isAnalyzing.value = false;
+        emit('loading', false);
       }
     };
+    
+    onUnmounted(() => {
+      cleanup();
+    });
     
     const getAlertClass = (isValid) => {
       return {
@@ -163,14 +204,95 @@ export default {
       };
     };
     
+    // Computed: retry citations
+    const retryCitations = computed(() => {
+      if (!results.value || !results.value.citations) return [];
+      return results.value.citations.filter(c => c.status === 'retry');
+    });
+
+    // Retry all failed citations
+    const retryAllCitations = () => {
+      if (retryCitations.value.length === 0) return;
+      text.value = retryCitations.value.map(c => c.citation).join('\n');
+      analyzeText();
+    };
+
+    // Retry a single citation
+    const retrySingleCitation = (citation) => {
+      text.value = citation.citation;
+      analyzeText();
+    };
+    
+    const getStatusBadgeClass = (citation) => {
+      if (citation.valid || citation.verified || citation.data?.valid || citation.data?.found || citation.exists) {
+        return 'bg-success';
+      } else if (isValidCitationFormat(citation)) {
+        return 'bg-warning text-dark';
+      }
+      return 'bg-danger';
+    };
+
+    const getStatusText = (citation) => {
+      if (citation.valid || citation.verified || citation.data?.valid || citation.data?.found || citation.exists) {
+        return 'Verified';
+      } else if (isValidCitationFormat(citation)) {
+        return 'Valid but Not Verified';
+      }
+      return 'Invalid';
+    };
+    
+    const isValidCitationFormat = (citation) => {
+      const citationText = citation.citation || citation.text || citation.citation_text || 'Unknown Citation';
+      
+      // Check if it's clearly invalid (like "Filed", "Page", etc.)
+      const invalidPatterns = [
+        /^filed\s+\d+$/i,
+        /^page\s+\d+$/i,
+        /^docket\s+\d+$/i,
+        /^\d+\s+filed\s+\d+$/i,
+        /^\d+\s+page\s+\d+$/i,
+        /^\d+\s+docket\s+\d+$/i
+      ];
+      
+      for (const pattern of invalidPatterns) {
+        if (pattern.test(citationText)) {
+          return false;
+        }
+      }
+      
+      // Check if it looks like a valid legal citation format
+      const validPatterns = [
+        /\d+\s+[A-Z]\.\s*\d+/i,  // e.g., "534 F.3d 1290"
+        /\d+\s+[A-Z]{2,}\.\s*\d+/i,  // e.g., "123 Wash. 456"
+        /\d+\s+WL\s+\d+/i,  // Westlaw citations
+        /\d+\s+U\.S\.\s+\d+/i,  // Supreme Court
+        /\d+\s+S\.\s*Ct\.\s+\d+/i,  // Supreme Court
+        /\d+\s+[A-Z]\.\s*App\.\s*\d+/i,  // Appellate courts
+      ];
+      
+      for (const pattern of validPatterns) {
+        if (pattern.test(citationText)) {
+          return true;
+        }
+      }
+      
+      return false;
+    };
+    
     return {
-      pastedText,
+      text,
       isAnalyzing,
       error,
       results,
       includeContext,
       analyzeText,
-      getAlertClass
+      getAlertClass,
+      retryCitations,
+      retryAllCitations,
+      retrySingleCitation,
+      getStatusBadgeClass,
+      getStatusText,
+      isValidCitationFormat
     };
   }
 };
@@ -181,102 +303,40 @@ export default {
   width: 100%;
 }
 
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.form-check-input:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
 .form-control {
   min-height: 150px;
+  font-family: monospace;
+  resize: vertical;
 }
 
-.context-preview {
-  max-height: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  font-size: 0.9em;
-  color: #495057;
-  background-color: #f8f9fa;
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.table {
-  width: 100%;
-  margin-bottom: 1rem;
-  color: #212529;
-  vertical-align: top;
-  border-color: #dee2e6;
-}
-
-.table th,
-.table td {
-  padding: 0.75rem;
-  vertical-align: top;
-  border-top: 1px solid #dee2e6;
-}
-
-.table thead th {
-  vertical-align: bottom;
-  border-bottom: 2px solid #dee2e6;
-  background-color: #f8f9fa;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-  --bs-table-accent-bg: rgba(0, 0, 0, 0.02);
-  color: var(--bs-table-striped-color);
-}
-
-.table-hover > tbody > tr:hover > * {
-  --bs-table-accent-bg: rgba(0, 0, 0, 0.075);
-  color: var(--bs-table-hover-color);
-}
-
-.table-responsive {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.form-control:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .card {
+    margin-bottom: 1rem;
   }
   
-  .table > :not(caption) > * > * {
-    padding: 0.5rem;
+  .btn {
+    width: 100%;
+    margin-top: 0.5rem;
   }
   
   .form-control {
     font-size: 16px; /* Prevent zoom on mobile */
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .table {
-    color: #dee2e6;
-    border-color: #495057;
-  }
-  
-  .table thead th {
-    background-color: #343a40;
-    border-bottom-color: #6c757d;
-  }
-  
-  .table-striped > tbody > tr:nth-of-type(odd) > * {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
-  }
-  
-  .table-hover > tbody > tr:hover > * {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.075);
-  }
-  
-  .context-preview {
-    background-color: #2c3034;
-    color: #e9ecef;
   }
 }
 </style>

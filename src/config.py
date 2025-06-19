@@ -67,10 +67,10 @@ CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
     os.path.join(os.path.dirname(__file__), "..", "models", "correction_engine"),
 )
 
-UPLOAD_FOLDER: str = get_config_value("UPLOAD_FOLDER", "uploads")
-ALLOWED_EXTENSIONS = set(
-    get_config_value("ALLOWED_EXTENSIONS", ["txt", "pdf", "docx", "doc"])
-)
+# Upload settings
+UPLOAD_FOLDER = os.path.abspath("uploads")
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
+MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
 # Email configuration for UW SMTP
 MAIL_SERVER: str = get_config_value("MAIL_SERVER", "smtp.uw.edu")
@@ -155,7 +155,13 @@ def configure_logging(log_level: int = logging.INFO) -> None:
                         msg = f"{Fore.YELLOW}{msg}{Style.RESET_ALL}"
                     elif record.levelno == logging.INFO:
                         msg = f"{Fore.CYAN}{msg}{Style.RESET_ALL}"
-                self.stream.write(msg + self.terminator)
+                # Safely write the message to handle Unicode characters
+                try:
+                    self.stream.write(msg + self.terminator)
+                except UnicodeEncodeError:
+                    # If Unicode fails, write a safe version
+                    safe_msg = msg.encode('cp1252', errors='replace').decode('cp1252')
+                    self.stream.write(safe_msg + self.terminator)
                 self.flush()
             except Exception:
                 self.handleError(record)

@@ -14,14 +14,11 @@ import time
 import sqlite3
 import datetime
 import importlib.util
+from typing import Dict, Any, Optional, List
+from src.citation_format_utils import apply_washington_spacing_rules
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger("enhanced_verifier")
+logger = logging.getLogger(__name__)
 
 
 class EnhancedMultiSourceVerifier:
@@ -78,8 +75,9 @@ class EnhancedMultiSourceVerifier:
 
         This method normalizes citations by:
         1. Removing extra whitespace
-        2. Standardizing Washington citations (Wash. -> Wn.)
-        3. Preserving reporter series (e.g., P.3d, F.4th)
+        2. Applying Washington citation spacing rules
+        3. Standardizing Washington citations (Wash. -> Wn.)
+        4. Preserving reporter series (e.g., P.3d, F.4th)
 
         Args:
             citation (str): The citation to normalize
@@ -92,6 +90,9 @@ class EnhancedMultiSourceVerifier:
 
         # Replace multiple spaces with a single space and trim
         normalized = re.sub(r"\s+", " ", citation.strip())
+
+        # Apply Washington citation spacing rules
+        normalized = apply_washington_spacing_rules(normalized)
 
         # Normalize Washington citations
         normalized = re.sub(r"Wash\.\s*App\.", "Wn. App.", normalized)
@@ -608,7 +609,13 @@ class EnhancedMultiSourceVerifier:
                     )
                 except json.JSONDecodeError as e:
                     error_msg = f"Failed to parse JSON response: {str(e)}"
-                    logger.error(f"{error_msg}. Response text: {response.text[:500]}")
+                    # Safely log the response text to avoid Unicode encoding errors
+                    try:
+                        logger.error(f"{error_msg}. Response text: {response.text[:500]}")
+                    except UnicodeEncodeError:
+                        # If Unicode fails, log a safe version
+                        safe_text = response.text[:500].encode('cp1252', errors='replace').decode('cp1252')
+                        logger.error(f"{error_msg}. Response text (safe): {safe_text}")
                     return {
                         "verified": False,
                         "citation": clean_citation,
@@ -685,7 +692,13 @@ class EnhancedMultiSourceVerifier:
                         error_msg = error_body.get("detail", error_msg)
                     except:
                         error_text = e.response.text[:500]
-                        logger.debug(f"Error response (non-JSON): {error_text}")
+                        # Safely log the error text to avoid Unicode encoding errors
+                        try:
+                            logger.debug(f"Error response (non-JSON): {error_text}")
+                        except UnicodeEncodeError:
+                            # If Unicode fails, log a safe version
+                            safe_text = error_text.encode('cp1252', errors='replace').decode('cp1252')
+                            logger.debug(f"Error response (non-JSON, safe): {safe_text}")
                         error_msg = f"{error_msg}: {error_text}"
 
                 return {
@@ -1891,6 +1904,7 @@ class EnhancedMultiSourceVerifier:
             return {
                 "citation": cite,
                 "verified": False,
+                "status": 404,
                 "sources": {},
                 "verified_by": None,
                 "confidence": 0.0,
@@ -1902,6 +1916,7 @@ class EnhancedMultiSourceVerifier:
                 "context": "",
                 "parallel_citations": [],
                 "error": "",
+                "error_message": "Citation not found",
                 "warning": "",
                 "verification_steps": [],
                 "metadata": {},
@@ -1914,7 +1929,8 @@ class EnhancedMultiSourceVerifier:
                 status, message = result
                 result = create_default_result(citation)
                 result["verified"] = status
-                result["error"] = message if not status else ""
+                result["status"] = 200 if status else 404
+                result["error_message"] = "" if status else (message or "Citation not found")
                 return result
             elif not isinstance(result, dict):
                 return create_default_result(str(citation) if citation else "")
@@ -1924,6 +1940,14 @@ class EnhancedMultiSourceVerifier:
             for key in default:
                 if key not in result:
                     result[key] = default[key]
+            # Harmonize status and verified fields
+            found = result.get("verified", False)
+            result["status"] = 200 if found else 404
+            result["verified"] = bool(found)
+            if not found and not result.get("error_message"):
+                result["error_message"] = "Citation not found"
+            elif found:
+                result["error_message"] = ""
             return result
 
         # Input validation and initialization
@@ -1964,6 +1988,10 @@ class EnhancedMultiSourceVerifier:
                 add_verification_step(
                     "database_exact", True, "Found exact match in database"
                 )
+                
+                # Save to unverified cache since this is not CourtListener
+                self._save_to_unverified_cache(normalized_citation, db_result)
+                
                 return ensure_dict_result(db_result, normalized_citation)
 
             # Try with components if available
@@ -1980,6 +2008,10 @@ class EnhancedMultiSourceVerifier:
                         add_verification_step(
                             "database_components", True, "Found match using components"
                         )
+                        
+                        # Save to unverified cache since this is not CourtListener
+                        self._save_to_unverified_cache(normalized_citation, db_result)
+                        
                         return ensure_dict_result(db_result, normalized_citation)
 
             # If we get here, database lookup was unsuccessful but that's expected
@@ -2063,6 +2095,10 @@ class EnhancedMultiSourceVerifier:
                     self._save_to_database(
                         normalized_citation, ls_result
                     )  # Save to database for future use
+                    
+                    # Save to unverified cache since this is not CourtListener
+                    self._save_to_unverified_cache(normalized_citation, ls_result)
+                    
                     return ensure_dict_result(ls_result, normalized_citation)
                 else:
                     error_msg = (
@@ -2094,6 +2130,10 @@ class EnhancedMultiSourceVerifier:
             fuzzy_result = self._verify_with_fuzzy_matching(normalized_citation)
             if fuzzy_result and fuzzy_result.get("verified"):
                 add_verification_step("fuzzy", True, "Found fuzzy match")
+                
+                # Save to unverified cache since this is not CourtListener
+                self._save_to_unverified_cache(normalized_citation, fuzzy_result)
+                
                 return ensure_dict_result(fuzzy_result, normalized_citation)
             else:
                 add_verification_step("fuzzy", False, "No fuzzy match found")
@@ -2138,6 +2178,84 @@ class EnhancedMultiSourceVerifier:
             time.sleep(1.0)  # 1 second delay to handle 60 citations per minute
 
         return results
+
+    def _save_to_unverified_cache(self, citation, result):
+        """
+        Save citations verified by non-CourtListener sources to the unverified citation cache.
+        This allows tracking of citations that are verified but not by the primary CourtListener source.
+        
+        Args:
+            citation (str): The citation text
+            result (dict): Verification result with verified_by field
+        """
+        try:
+            # Only save if verified_by is present and not CourtListener
+            verified_by = result.get("verified_by", "")
+            if not verified_by or verified_by == "CourtListener":
+                return
+            
+            # Load existing unverified citations
+            unverified_cache_path = "data/citations/unverified_citations_with_sources.json"
+            os.makedirs(os.path.dirname(unverified_cache_path), exist_ok=True)
+            
+            existing_citations = []
+            if os.path.exists(unverified_cache_path):
+                try:
+                    with open(unverified_cache_path, 'r', encoding='utf-8') as f:
+                        existing_citations = json.load(f)
+                except (json.JSONDecodeError, FileNotFoundError):
+                    existing_citations = []
+            
+            # Create entry for this citation
+            citation_entry = {
+                "citation": citation,
+                "source": verified_by,
+                "verified_by": verified_by,
+                "timestamp": datetime.datetime.utcnow().isoformat(),
+                "status": "verified_non_courtlistener",
+                "summary": result.get("explanation", f"Verified by {verified_by}"),
+                "case_name": result.get("case_name", ""),
+                "confidence": result.get("confidence", 0.0),
+                "url": result.get("url", ""),
+                "details": result.get("details", {})
+            }
+            
+            # Check if citation already exists
+            existing_index = None
+            for i, existing in enumerate(existing_citations):
+                if existing.get("citation") == citation:
+                    existing_index = i
+                    break
+            
+            if existing_index is not None:
+                # Update existing entry
+                existing_citations[existing_index] = citation_entry
+                logger.debug(f"Updated existing entry in unverified cache for: {citation}")
+            else:
+                # Add new entry
+                existing_citations.append(citation_entry)
+                logger.debug(f"Added new entry to unverified cache for: {citation}")
+            
+            # Save back to file
+            with open(unverified_cache_path, 'w', encoding='utf-8') as f:
+                json.dump(existing_citations, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Saved non-CourtListener verified citation to unverified cache: {citation} (verified by {verified_by})")
+            
+        except Exception as e:
+            logger.error(f"Error saving to unverified cache for citation '{citation}': {e}")
+
+    def _save_to_cache(self, citation, result):
+        """Save the verification result to the cache."""
+        cache_file = os.path.join(
+            self.cache_dir,
+            f"{self._normalize_citation(citation).replace(' ', '_')}.json",
+        )
+        try:
+            with open(cache_file, "w") as f:
+                json.dump(result, f, indent=2)
+        except Exception as e:
+            logger.error(f"Error saving cache for citation '{citation}': {e}")
 
 
 def main():

@@ -5,7 +5,8 @@
       <div class="container">
         <router-link class="navbar-brand" to="/">
           <i class="bi bi-journal-check me-2"></i>
-          CaseStrainer
+          <span class="d-none d-sm-inline">CaseStrainer</span>
+          <span class="d-inline d-sm-none">CS</span>
         </router-link>
         <button 
           class="navbar-toggler" 
@@ -22,30 +23,44 @@
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
               <router-link class="nav-link" to="/">
-                <i class="bi bi-house-door me-1"></i> Home
+                <i class="bi bi-house-door me-1"></i> 
+                <span class="d-none d-md-inline">Home</span>
               </router-link>
             </li>
             <li class="nav-item">
               <router-link class="nav-link" to="/enhanced-validator">
-                <i class="bi bi-shield-check me-1"></i> Enhanced Validator
+                <i class="bi bi-shield-check me-1"></i> 
+                <span class="d-none d-md-inline">Enhanced Validator</span>
+                <span class="d-inline d-md-none">Validator</span>
               </router-link>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/api/" target="_blank">
+            <li class="nav-item d-none d-lg-block">
+              <router-link class="nav-link" to="/browser-extension">
+                <i class="bi bi-puzzle me-1"></i> Browser Extension
+              </router-link>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <router-link class="nav-link" to="/word-plugin">
+                <i class="bi bi-file-earmark-word me-1"></i> Word Plug-in
+              </router-link>
+            </li>
+            <li class="nav-item d-none d-lg-block">
+              <a class="nav-link" href="/casestrainer/api-docs" target="_blank">
                 <i class="bi bi-code-slash me-1"></i> API Docs
               </a>
             </li>
           </ul>
-          <div class="d-flex">
-            <span class="navbar-text text-light me-3">
+          <div class="d-flex align-items-center">
+            <span class="navbar-text text-light me-2 d-none d-sm-inline">
               v{{ appVersion }}
             </span>
             <a 
-              href="https://github.com/yourusername/casestrainer" 
+              href="https://github.com/jafrank88/casestrainer" 
               target="_blank" 
               class="btn btn-outline-light btn-sm"
             >
-              <i class="bi bi-github me-1"></i> GitHub
+              <i class="bi bi-github me-1"></i>
+              <span class="d-none d-sm-inline">GitHub</span>
             </a>
           </div>
         </div>
@@ -53,7 +68,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container py-4">
+    <main class="container-fluid container-lg py-3 py-md-4">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -64,27 +79,27 @@
     <!-- Footer -->
     <footer class="bg-light py-4 mt-5">
       <div class="container">
-        <div class="row">
-          <div class="col-md-6">
+        <div class="row g-4">
+          <div class="col-12 col-md-6">
             <h5>About CaseStrainer</h5>
             <p class="text-muted">
               A powerful tool for legal professionals to validate, analyze, and manage legal citations.
             </p>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <h5>Quick Links</h5>
             <ul class="list-unstyled">
               <li><router-link to="/" class="text-decoration-none">Home</router-link></li>
               <li><router-link to="/enhanced-validator" class="text-decoration-none">Enhanced Validator</router-link></li>
-              <li><a href="/api/" target="_blank" class="text-decoration-none">API Documentation</a></li>
+              <li><a href="/casestrainer/api-docs" target="_blank" class="text-decoration-none">API Documentation</a></li>
             </ul>
           </div>
-          <div class="col-md-3">
+          <div class="col-6 col-md-3">
             <h5>Resources</h5>
             <ul class="list-unstyled">
               <li><a href="#" class="text-decoration-none">Documentation</a></li>
               <li><a href="#" class="text-decoration-none">GitHub Repository</a></li>
-              <li><a href="#" class="text-decoration-none">Report an Issue</a></li>
+              <li><a href="mailto:jafrank@uw.edu" class="footer-link">Report an issue</a></li>
             </ul>
           </div>
         </div>
@@ -110,7 +125,7 @@ export default {
   name: 'App',
   data() {
     return {
-      appVersion: import.meta.env.VITE_APP_VERSION || '0.4.8',
+      appVersion: import.meta.env.VITE_APP_VERSION || '0.5.0',
       currentYear: new Date().getFullYear()
     }
   }
@@ -161,6 +176,9 @@ main {
   padding: 0.5rem 1rem !important;
   border-radius: 0.25rem;
   transition: all 0.2s ease-in-out;
+  min-height: 44px; /* Touch target minimum */
+  display: flex;
+  align-items: center;
 }
 
 .nav-link:hover, .nav-link:focus {
@@ -183,124 +201,168 @@ main {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px; /* Touch target minimum */
+  min-width: 44px; /* Touch target minimum */
 }
 
 .btn-sm {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
+  min-height: 36px; /* Smaller touch target for small buttons */
+  min-width: 36px;
 }
 
-/* Cards */
-.card {
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  font-weight: 600;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* Forms */
-.form-control, .form-select {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  border: 1px solid #dee2e6;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.form-control:focus, .form-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Animations */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* Responsive adjustments */
+/* Mobile-specific improvements */
 @media (max-width: 768px) {
-  .navbar-brand {
-    font-size: 1.25rem;
+  /* Typography */
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.125rem; }
+  h5 { font-size: 1rem; }
+  
+  /* Spacing */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
   
+  /* Navigation */
+  .navbar-nav {
+    margin-top: 1rem;
+  }
+  
+  .nav-link {
+    padding: 0.75rem 1rem !important;
+    border-radius: 0.375rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Buttons */
   .btn {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
     width: 100%;
     margin-bottom: 0.5rem;
   }
   
+  .btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Cards */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Tables */
+  .table-responsive {
+    border: 0;
+    margin: 0 -1rem;
+  }
+  
+  /* Footer */
+  footer {
+    text-align: center;
+  }
+  
+  footer .col-6 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Tablet improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
   .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .btn {
+    min-height: 40px;
+  }
+}
+
+/* Large screen improvements */
+@media (min-width: 1025px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for touch devices */
+  .btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  .nav-link {
+    min-height: 48px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn:hover, .nav-link:hover {
+    transform: none;
   }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bs-body-bg: #1a1a1a;
-    --bs-body-color: #f8f9fa;
-    --bs-border-color: #495057;
-  }
-  
-  body {
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-  }
-  
-  .card {
-    background-color: #2d2d2d;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
-  }
-  
-  .card-header {
-    background-color: #252525;
-    border-bottom-color: #3a3a3a;
-  }
-  
-  .form-control, .form-select {
-    background-color: #2d2d2d;
-    border-color: #3a3a3a;
-    color: #f8f9fa;
-  }
-  
-  .form-control:focus, .form-select:focus {
-    background-color: #2d2d2d;
-    color: #f8f9fa;
+    --light-color: #2c3034;
+    --dark-color: #e9ecef;
   }
   
   .bg-light {
-    background-color: #252525 !important;
+    background-color: var(--light-color) !important;
+    color: var(--dark-color);
   }
   
   .text-muted {
     color: #adb5bd !important;
   }
-  
-  .navbar-dark .navbar-nav .nav-link {
-    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Transitions */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+/* Utility classes */
+.hover-shadow {
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.hover-shadow:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
   
-  .navbar-dark .navbar-nav .nav-link:hover, 
-  .navbar-dark .navbar-nav .nav-link:focus {
-    color: white;
+  html {
+    scroll-behavior: auto;
   }
 }
 </style>

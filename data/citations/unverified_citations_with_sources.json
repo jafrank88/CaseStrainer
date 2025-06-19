@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "citation": "123 F.2d 456",
+    "source": "LangSearch",
+    "timestamp": "2025-06-19T01:56:48.225234",
+    "status": "verified_non_courtlistener",
+    "summary": "Updated verification by LangSearch API",
+    "case_name": "Updated Test Case v. Test Defendant",
+    "confidence": 0.9,
+    "url": "https://example.com/updated-case",
+    "details": {
+      "source": "LangSearch",
+      "updated": true
+    }
+  }
+]

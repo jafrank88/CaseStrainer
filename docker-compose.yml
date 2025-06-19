@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: casestrainer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
   casestrainer:
     build: .
     expose:
@@ -17,9 +28,12 @@ services:
       - FLASK_SESSION_TYPE=filesystem
       - FLASK_SESSION_FILE_DIR=/app/casestrainer_sessions
       - FLASK_SECRET_KEY=dev-key-change-in-production
+      - REDIS_URL=redis://redis:6379/0
     restart: unless-stopped
     networks:
       - app-network
+    depends_on:
+      - redis
     command: ["python", "src/app_final_vue.py", "--host", "0.0.0.0", "--port", "5001", "--use-waitress"]
 
   nginx:
@@ -45,6 +59,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  redis_data:
 
 networks:
   app-network:

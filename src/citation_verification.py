@@ -21,7 +21,10 @@ import urllib.parse
 from typing import Optional, Dict, Any
 import traceback
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+import functools
+import threading
+import hashlib
 
 # Import rate limiter
 from utils.rate_limiter import courtlistener_limiter
@@ -43,9 +46,11 @@ LANGSEARCH_AVAILABLE = True
 GOOGLE_SCHOLAR_AVAILABLE = True
 
 # Configuration
-MAX_RETRIES = 5
-TIMEOUT_SECONDS = 30
+MAX_RETRIES = 3  # Reduced from 5 to prevent long waits
+TIMEOUT_SECONDS = 15  # Reduced from 30 to fail faster
 RATE_LIMIT_WAIT = 5  # seconds to wait when rate limited
+MIN_RETRY_DELAY = 1  # minimum seconds between retries
+MAX_RETRY_DELAY = 10  # maximum seconds between retries
 
 # Configure logging
 logging.basicConfig(
@@ -62,59 +67,216 @@ class CitationVerifier:
     """Class for verifying legal citations using multiple methods."""
 
     def __init__(self, api_key=None, langsearch_api_key=None, debug_mode=True):
-        """Initialize the CitationVerifier with API keys and debug mode."""
+        """Initialize the CitationVerifier with API keys and cache settings."""
         self.api_key = api_key or os.environ.get("COURTLISTENER_API_KEY")
-        self.langsearch_api_key = langsearch_api_key or os.environ.get(
-            "LANGSEARCH_API_KEY"
-        )
+        self.langsearch_api_key = langsearch_api_key or os.environ.get("LANGSEARCH_API_KEY")
         self.debug_mode = debug_mode
-        """Initialize the CitationVerifier with API keys."""
-        self.api_key = api_key or os.environ.get("COURTLISTENER_API_KEY")
-        self.langsearch_api_key = langsearch_api_key or os.environ.get(
-            "LANGSEARCH_API_KEY"
-        )
-
-        # Add more detailed logging for API key
-        if self.api_key:
-            print(
-                f"DEBUG: Using CourtListener API key: {self.api_key[:6]}... (length: {len(self.api_key)})"
-            )
-            logging.info(
-                f"DEBUG: Using CourtListener API key: {self.api_key[:6]}... (length: {len(self.api_key)})"
-            )
+        
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
+        if debug_mode:
+            self.logger.setLevel(logging.DEBUG)
         else:
-            print("WARNING: No CourtListener API key provided!")
-            logging.warning("WARNING: No CourtListener API key provided!")
-
+            self.logger.setLevel(logging.INFO)
+            
+        # Initialize cache settings with better Windows compatibility
+        # Try multiple locations in order of preference
+        cache_locations = [
+            os.path.join(os.path.expanduser("~"), ".casestrainer_cache"),  # User home directory
+            os.path.join(os.getcwd(), "cache"),  # Current working directory
+            os.path.join(os.path.dirname(__file__), "..", "cache"),  # Project root cache
+            os.path.join(os.path.dirname(__file__), "citation_cache"),  # Original location (fallback)
+        ]
+        
+        self._cache_dir = None
+        for location in cache_locations:
+            try:
+                if not os.path.exists(location):
+                    os.makedirs(location, exist_ok=True)
+                # Test write access with a more robust test
+                test_file = os.path.join(location, f".test_{os.getpid()}")
+                with open(test_file, "w") as f:
+                    f.write("test")
+                os.remove(test_file)
+                self._cache_dir = location
+                self.logger.info(f"Using cache directory: {self._cache_dir}")
+                break
+            except (PermissionError, OSError) as e:
+                self.logger.debug(f"Could not use cache location {location}: {e}")
+                continue
+        
+        if self._cache_dir is None:
+            self.logger.warning("Could not create writable cache directory. File caching disabled.")
+            self._cache_dir = None
+        
+        self._cache_lock = threading.Lock()
+        
+        # Cache TTLs (in seconds)
+        self._file_cache_ttl = 30 * 24 * 3600  # 30 days for file cache
+        self._lru_cache_ttl = 24 * 3600  # 24 hours for in-memory cache
+        self._negative_cache_ttl = 7 * 24 * 3600  # 7 days for negative results
+        
+        # Initialize LRU cache for in-memory caching
+        self._lru_cache = {}
+        self._lru_cache_lock = threading.Lock()
+        
+        # Load existing cache entries into memory
+        self._load_existing_cache()
+        
         self.headers = {
             "Authorization": f"Token {self.api_key}" if self.api_key else "",
             "Content-Type": "application/json",
         }
-
-        # Log the full headers (without the full token)
-        headers_log = self.headers.copy()
-        if "Authorization" in headers_log and headers_log["Authorization"]:
-            auth_parts = headers_log["Authorization"].split(" ")
-            if len(auth_parts) > 1:
-                headers_log["Authorization"] = f"{auth_parts[0]} {auth_parts[1][:6]}..."
-
-        print(f"DEBUG: Request headers: {headers_log}")
-        logging.info(f"DEBUG: Request headers: {headers_log}")
-
-        logging.info(
+        
+        self.logger.info(
             f"Initialized CitationVerifier with API key: {self.api_key[:6]}... (length: {len(self.api_key) if self.api_key else 0})"
         )
-        print(
-            f"Initialized CitationVerifier with API key: {self.api_key[:6]}... (length: {len(self.api_key) if self.api_key else 0})"
-        )
+        
+    def _get_cache_path(self, citation: str) -> str:
+        """Get the cache file path for a citation."""
+        if self._cache_dir is None:
+            return None
+        # Normalize citation for filename
+        normalized = citation.lower().replace(" ", "_").replace(".", "_")
+        # Use MD5 hash to avoid filename length issues
+        hash_key = hashlib.md5(normalized.encode()).hexdigest()
+        return os.path.join(self._cache_dir, f"{hash_key}.json")
+        
+    def _load_existing_cache(self):
+        """Load existing cache entries into memory."""
+        if self._cache_dir is None:
+            self.logger.info("File caching disabled, skipping cache load")
+            return
+            
+        try:
+            cache_files = [f for f in os.listdir(self._cache_dir) if f.endswith('.json')]
+            loaded_count = 0
+            for cache_file in cache_files:
+                try:
+                    with open(os.path.join(self._cache_dir, cache_file), "r") as f:
+                        data = json.load(f)
+                        if data.get("timestamp", 0) > time.time() - self._file_cache_ttl:
+                            citation = data.get("citation")
+                            if citation:
+                                with self._lru_cache_lock:
+                                    self._lru_cache[citation] = {
+                                        "result": data.get("result"),
+                                        "timestamp": time.time()
+                                    }
+                                loaded_count += 1
+                except Exception as e:
+                    self.logger.warning(f"Error loading cache file {cache_file}: {e}")
+            self.logger.info(f"Loaded {loaded_count} cache entries into memory")
+        except Exception as e:
+            self.logger.error(f"Error loading existing cache: {e}")
+            
+    def _get_from_cache(self, citation: str) -> Optional[Dict[str, Any]]:
+        """Get a citation result from cache (both memory and file)."""
+        # Try LRU cache first
+        with self._lru_cache_lock:
+            cached = self._lru_cache.get(citation)
+            if cached and cached.get("timestamp", 0) > time.time() - self._lru_cache_ttl:
+                self.logger.debug(f"Cache hit in memory for citation: {citation}")
+                return cached.get("result")
+                
+        # Try file cache (only if enabled)
+        if self._cache_dir is not None:
+            cache_path = self._get_cache_path(citation)
+            if cache_path and os.path.exists(cache_path):
+                try:
+                    with open(cache_path, "r") as f:
+                        data = json.load(f)
+                        # Check if cache is still valid
+                        ttl = self._negative_cache_ttl if not data.get("result", {}).get("verified", True) else self._file_cache_ttl
+                        if data.get("timestamp", 0) > time.time() - ttl:
+                            # Update LRU cache
+                            with self._lru_cache_lock:
+                                self._lru_cache[citation] = {
+                                    "result": data.get("result"),
+                                    "timestamp": time.time()
+                                }
+                            self.logger.debug(f"Cache hit in file for citation: {citation}")
+                            return data.get("result")
+                        else:
+                            self.logger.debug(f"Cache expired for citation: {citation}")
+                            # Clean up expired cache file
+                            try:
+                                os.remove(cache_path)
+                            except Exception as e:
+                                self.logger.warning(f"Error removing expired cache file: {e}")
+                except Exception as e:
+                    self.logger.warning(f"Error reading cache file: {e}")
+        return None
+        
+    def _save_to_cache(self, citation: str, result: Dict[str, Any]):
+        """Save a citation result to both memory and file cache."""
+        if not citation or not isinstance(citation, str):
+            self.logger.error("Invalid citation provided to _save_to_cache")
+            return
+            
+        # Determine TTL based on verification status
+        ttl = self._negative_cache_ttl if not result.get("verified", True) else self._file_cache_ttl
+        
+        # Save to LRU cache
+        with self._lru_cache_lock:
+            self._lru_cache[citation] = {
+                "result": result,
+                "timestamp": time.time()
+            }
+            
+        # Save to file cache (only if enabled)
+        if self._cache_dir is not None:
+            cache_path = self._get_cache_path(citation)
+            if cache_path:
+                try:
+                    with open(cache_path, "w") as f:
+                        json.dump({
+                            "citation": citation,
+                            "result": result,
+                            "timestamp": time.time(),
+                            "ttl": ttl
+                        }, f, indent=2)
+                    self.logger.debug(f"Saved to cache: {citation}")
+                except Exception as e:
+                    self.logger.error(f"Error writing cache file: {e}")
+            else:
+                self.logger.debug(f"File caching disabled, only saved to memory cache: {citation}")
+        else:
+            self.logger.debug(f"File caching disabled, only saved to memory cache: {citation}")
+            
+    def cleanup_cache(self, max_age_days: int = 30):
+        """Clean up old cache entries."""
+        if self._cache_dir is None:
+            self.logger.info("File caching disabled, skipping cache cleanup")
+            return
+            
+        try:
+            cutoff_time = time.time() - (max_age_days * 24 * 3600)
+            cleaned_count = 0
+            for cache_file in os.listdir(self._cache_dir):
+                if not cache_file.endswith('.json'):
+                    continue
+                try:
+                    file_path = os.path.join(self._cache_dir, cache_file)
+                    with open(file_path, "r") as f:
+                        data = json.load(f)
+                        if data.get("timestamp", 0) < cutoff_time:
+                            os.remove(file_path)
+                            cleaned_count += 1
+                except Exception as e:
+                    self.logger.warning(f"Error cleaning up cache file {cache_file}: {e}")
+            self.logger.info(f"Cleaned up {cleaned_count} old cache entries")
+        except Exception as e:
+            self.logger.error(f"Error cleaning up cache: {e}")
 
-    def verify_citation(self, citation: str, context: str = None) -> Dict[str, Any]:
+    def verify_citation(self, citation: str, context: str = None, extracted_case_name: str = None) -> Dict[str, Any]:
         """
         Verify a citation using multiple methods with fallback.
 
         Args:
             citation: The legal citation to verify
             context: Optional context around the citation (text before and after)
+            extracted_case_name: The case name extracted from the document (local)
 
         Returns:
             Dict with verification results including whether the citation is valid and its source.
@@ -139,12 +301,15 @@ class CitationVerifier:
                 "citation": citation,
                 "found": False,
                 "source": None,
-                "case_name": None,
+                "case_name_verified": None,
+                "case_name_extracted": extracted_case_name if extracted_case_name else '',
                 "url": None,
                 "details": {},
                 "explanation": None,
                 "is_westlaw": is_westlaw,
                 "sources_checked": [],
+                "name_similarity": None,
+                "highlight": False,
             }
 
             # First, try to verify using the CourtListener Citation Lookup API
@@ -164,6 +329,18 @@ class CitationVerifier:
                         f"[DEBUG] Citation verified by CourtListener API: {citation}"
                     )
                     api_result["sources_checked"] = result["sources_checked"]
+                    # Add extracted case name
+                    api_result["case_name_extracted"] = extracted_case_name if extracted_case_name else ''
+                    # Rename case_name to case_name_verified
+                    api_result["case_name_verified"] = api_result.get("case_name")
+                    # Compute similarity and highlight
+                    from src.citation_grouping import calculate_similarity
+                    sim = calculate_similarity(
+                        extracted_case_name or "",
+                        api_result.get("case_name") or ""
+                    )
+                    api_result["name_similarity"] = sim
+                    api_result["highlight"] = sim == 0.0
                     return api_result
                 else:
                     print(f"DEBUG: Citation not found in CourtListener API: {citation}")
@@ -376,22 +553,15 @@ class CitationVerifier:
                 logging.info(
                     f"[DEBUG] Extracted year from Westlaw citation: {result['details']['year']}"
                 )
-
-            # Extract the WL number
             wl_match = re.search(r"WL\s+(\d+)", citation)
             if wl_match:
                 result["details"]["wl_number"] = wl_match.group(1)
                 logging.info(
                     f"[DEBUG] Extracted WL number: {result['details']['wl_number']}"
                 )
-
-            # Mark as identified but not verified
             result["found"] = False
             result["is_westlaw"] = True
             result["source"] = "citation_pattern"
-            result["case_name"] = "Westlaw Citation"
-
-            # Add explanation for Westlaw citations
             result["explanation"] = (
                 "Westlaw citations require subscription access and cannot be verified through public APIs. This citation was recognized by its format, but not confirmed in any public legal database."
             )
@@ -422,13 +592,15 @@ class CitationVerifier:
                         f"Citation could not be verified through available APIs ({', '.join(result['sources_checked'])}). This may be due to database limitations, an uncommon citation format, or the citation not existing in public legal databases."
                     )
             # If we extracted a case name from context, use it for unverified citations
-            if result.get("extracted_case_name") and not result.get("case_name"):
-                result["case_name"] = result["extracted_case_name"]
-                logging.info(
-                    f"[DEBUG] Using extracted case name for unverified citation: {result['case_name']}"
-                )
+            if result.get("case_name_extracted") and not result.get("case_name_verified"):
+                pass
             # Always attach the sources_checked for transparency
             result["sources_checked"] = result["sources_checked"] + fallback_sources
+
+        # After all extraction and verification logic, ensure extracted case name is only from context
+        if not extracted_case_name:
+            result["case_name_extracted"] = ''
+        # Do NOT fill from verified case name or database
 
         # Final defensive return: always log and guarantee a dictionary
         logging.info(
@@ -490,7 +662,8 @@ class CitationVerifier:
             "url": None,
             "details": {},
             "explanation": None,
-            "status": None,
+            "status": 404,  # Default to not found
+            "verified": False,
             "error_message": None,
         }
         
@@ -499,10 +672,19 @@ class CitationVerifier:
         if not cleaned_citation:
             result["error_message"] = "No valid citation found in the provided text"
             result["explanation"] = "The provided text does not appear to contain a valid legal citation"
+            result["status"] = 404
+            result["verified"] = False
             return result
             
         # Use the existing verification method with the cleaned citation
-        return self.verify_with_courtlistener_citation_api(cleaned_citation)
+        verified_result = self.verify_with_courtlistener_citation_api(cleaned_citation)
+        # Harmonize status and verified fields
+        found = verified_result.get("found", False) or verified_result.get("valid", False)
+        verified_result["status"] = 200 if found else 404
+        verified_result["verified"] = bool(found)
+        if not found and not verified_result.get("error_message"):
+            verified_result["error_message"] = "Citation not found"
+        return verified_result
         
     def _clean_citation_text(self, text: str) -> str:
         """
@@ -527,7 +709,7 @@ class CitationVerifier:
                 cleaned = cleaned[len(prefix):].strip(" .,;:")
                 
         # Remove any surrounding quotes or brackets
-        cleaned = cleaned.strip('"\'\[\](){}')
+        cleaned = cleaned.strip(r'"\'\[\](){}')
         
         # If the text is empty after cleaning, return None
         if not cleaned:
@@ -546,6 +728,12 @@ class CitationVerifier:
         print("\n=== COURTLISTENER CITATION VERIFICATION DEBUG ===")
         print(f"Verifying citation: {citation}")
         
+        # Check cache first
+        cached_result = self._get_from_cache(citation)
+        if cached_result:
+            print("Cache hit for citation:", citation)
+            return cached_result
+            
         # Initialize result dictionary with default values
         result = {
             "citation": citation,
@@ -578,133 +766,143 @@ class CitationVerifier:
         
         print(f"API Key: {self.api_key[:6]}... (length: {len(self.api_key)})")
         
-        try:
-            # Format citation for API request
-            print("\nFormatting citation for API request...")
-            formatted_citation = self._format_citation_for_courtlistener(citation)
-            print(f"Formatted citation: {formatted_citation}")
-            
-            # Prepare the request
-            data = {"text": formatted_citation}
-            print(f"Request data: {json.dumps(data, indent=2)}")
-            
-            # Make the request
-            print("\nSending request to CourtListener API...")
-            print(f"URL: {COURTLISTENER_CITATION_API}")
-            print("Headers:", {k: v if k != 'Authorization' else 'Token [REDACTED]' for k, v in self.headers.items()})
-            
-            response = requests.post(
-                COURTLISTENER_CITATION_API,
-                headers=self.headers,
-                json=data,
-                timeout=TIMEOUT_SECONDS
-            )
-            
-            print(f"\nResponse status code: {response.status_code}")
-            print("Response headers:", dict(response.headers))
-            
-            # Handle the response based on status code
-            if response.status_code == 200:
+        # Format citation for API request
+        print("\nFormatting citation for API request...")
+        formatted_citation = self._format_citation_for_courtlistener(citation)
+        print(f"Formatted citation: {formatted_citation}")
+        
+        # Prepare the request
+        data = {"text": formatted_citation}
+        print(f"Request data: {json.dumps(data, indent=2)}")
+        
+        # Make the request with retries
+        for attempt in range(MAX_RETRIES):
+            try:
+                print(f"\nAttempt {attempt + 1}/{MAX_RETRIES}")
+                print("Sending request to CourtListener API...")
+                print(f"URL: {COURTLISTENER_CITATION_API}")
+                print("Headers:", {k: v if k != 'Authorization' else 'Token [REDACTED]' for k, v in self.headers.items()})
+                
+                response = requests.post(
+                    COURTLISTENER_CITATION_API,
+                    headers=self.headers,
+                    json=data,
+                    timeout=TIMEOUT_SECONDS
+                )
+                
+                print(f"\nResponse status code: {response.status_code}")
+                print("Response headers:", dict(response.headers))
+                # Safely print response text, handling Unicode characters
                 try:
-                    response_data = response.json()
-                    print("\nResponse data:")
-                    print(json.dumps(response_data, indent=2))
-                    
-                    # Check if we have any citation results
-                    if isinstance(response_data, list) and len(response_data) > 0:
-                        # Get the first citation result
-                        citation_result = response_data[0]
-                        print(f"\nProcessing citation result: {json.dumps(citation_result, indent=2)}")
+                    print("Raw response text:", response.text)
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print("Raw response text (safe):", safe_text)
+                
+                if response.status_code == 200:
+                    try:
+                        data = response.json()
+                        print(f"API response data: {json.dumps(data, indent=2)}")
                         
-                        # Check if citation was found and has clusters
-                        if citation_result.get("status") == 200 and "clusters" in citation_result:
-                            clusters = citation_result["clusters"]
-                            print(f"Found {len(clusters)} clusters")
+                        # Check if the response contains actual citation data
+                        # The API returns a list of citation details, each with clusters
+                        if isinstance(data, list) and len(data) > 0:
+                            # Check if any of the citation details have clusters
+                            has_clusters = False
+                            for citation_detail in data:
+                                clusters = citation_detail.get("clusters", [])
+                                if clusters and len(clusters) > 0:
+                                    has_clusters = True
+                                    break
                             
-                            if clusters and len(clusters) > 0:
-                                # Get the first cluster (most relevant)
-                                cluster = clusters[0]
-                                print("\nProcessing first cluster:")
-                                print(json.dumps(cluster, indent=2))
-                                
-                                # Extract case information
-                                case_name = cluster.get("case_name")
-                                cluster_id = cluster.get("id")
-                                normalized_citation = citation_result.get("normalized_citations", [citation])[0]
-                                
-                                print(f"\nExtracted information:")
-                                print(f"- Case name: {case_name}")
-                                print(f"- Cluster ID: {cluster_id}")
-                                print(f"- Normalized citation: {normalized_citation}")
-                                
-                                # Build the citation URL
-                                citation_url = f"https://www.courtlistener.com/opinion/{cluster_id}/" if cluster_id else None
-                                print(f"- Citation URL: {citation_url}")
-                                
-                                # Update the result with case information
-                                result.update({
-                                    "found": True,
-                                    "valid": True,
-                                    "case_name": case_name,
-                                    "url": citation_url,
-                                    "explanation": f"Citation found in CourtListener: {normalized_citation}",
-                                    "details": {
-                                        "cluster_id": cluster_id,
-                                        "court": cluster.get("court"),
-                                        "docket_number": cluster.get("docket_number"),
-                                        "date_filed": cluster.get("date_filed"),
-                                        "citation_count": cluster.get("citation_count"),
-                                        "precedential_status": cluster.get("precedential_status"),
-                                        "citation_parts": self._extract_citation_parts(normalized_citation or citation)
-                                    }
-                                })
-                                print("\nVerification successful!")
+                            if has_clusters:
+                                result["found"] = True
+                                result["valid"] = True
+                                result["details"] = data
+                                # Extract case name from the first cluster if available
+                                for citation_detail in data:
+                                    clusters = citation_detail.get("clusters", [])
+                                    if clusters:
+                                        first_cluster = clusters[0]
+                                        if "case_name" in first_cluster:
+                                            result["case_name"] = first_cluster["case_name"]
+                                        if "absolute_url" in first_cluster:
+                                            result["url"] = f"https://www.courtlistener.com{first_cluster['absolute_url']}"
+                                        break
+                                result["explanation"] = "Citation found in CourtListener database"
                             else:
-                                print("\nNo clusters found in citation result")
-                                result["explanation"] = "Citation found but no clusters available"
+                                # No clusters found - citation not actually found
+                                result["found"] = False
+                                result["valid"] = False
+                                result["details"] = data
+                                result["explanation"] = "Citation not found in CourtListener database"
                         else:
-                            print(f"\nCitation result status: {citation_result.get('status')}")
-                            print("Citation result:", json.dumps(citation_result, indent=2))
-                            result["explanation"] = "Citation found but no valid clusters"
-                    else:
-                        print("\nNo citation results found in response")
-                        result["explanation"] = "No citation results found"
+                            # Empty or invalid response
+                            result["found"] = False
+                            result["valid"] = False
+                            result["details"] = data
+                            result["explanation"] = "No citation data returned from CourtListener"
+                        
+                        return result
+                    except json.JSONDecodeError as e:
+                        print(f"Error decoding JSON response: {e}")
+                        if attempt < MAX_RETRIES - 1:
+                            continue
+                        result["error_message"] = f"Invalid JSON response: {str(e)}"
+                        return result
                     
-                except json.JSONDecodeError as e:
-                    print(f"\nError decoding JSON response: {str(e)}")
-                    print("Response text:", response.text)
-                    result["error_message"] = f"Invalid JSON response: {str(e)}"
-                    result["status"] = 500
+                elif response.status_code == 429:  # Rate limited
+                    retry_after = int(response.headers.get("Retry-After", RATE_LIMIT_WAIT))
+                    print(f"Rate limited. Waiting {retry_after} seconds...")
+                    if attempt < MAX_RETRIES - 1:
+                        time.sleep(retry_after)
+                        continue
+                    result["error_message"] = "Rate limited by CourtListener API"
+                    return result
                     
-            elif response.status_code == 404:
-                print("\nCitation not found in CourtListener database")
-                result["explanation"] = "Citation not found in CourtListener database."
-                result["error_message"] = f"Citation not found: '{citation}'"
+                elif response.status_code >= 500:  # Server error
+                    if attempt < MAX_RETRIES - 1:
+                        delay = min(MAX_RETRY_DELAY, MIN_RETRY_DELAY * (2 ** attempt))
+                        print(f"Server error. Retrying in {delay} seconds...")
+                        time.sleep(delay)
+                        continue
+                    result["error_message"] = f"Server error: {response.status_code}"
+                    return result
+                    
+                else:
+                    result["error_message"] = f"Unexpected status code: {response.status_code}"
+                    return result
                 
-            elif 500 <= response.status_code < 600:
-                print(f"\nServer error: {response.status_code}")
-                print("Response text:", response.text)
-                result["error_message"] = f"Server error (status {response.status_code}). Please try again later."
-                
-            else:
-                print(f"\nUnexpected status code: {response.status_code}")
-                print("Response text:", response.text)
-                result["error_message"] = f"Unexpected status code: {response.status_code}"
-                
-        except requests.exceptions.RequestException as e:
-            print(f"\nRequest error: {str(e)}")
-            result["error_message"] = f"Request error: {str(e)}"
-            result["status"] = 500
+            except requests.Timeout:
+                print(f"Request timed out on attempt {attempt + 1}/{MAX_RETRIES}")
+                if attempt < MAX_RETRIES - 1:
+                    delay = min(MAX_RETRY_DELAY, MIN_RETRY_DELAY * (2 ** attempt))
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    continue
+                result["error_message"] = f"Request timed out after {TIMEOUT_SECONDS} seconds"
+                return result
             
-        except Exception as e:
-            print(f"\nUnexpected error: {str(e)}")
-            print("Stack trace:")
-            traceback.print_exc()
-            result["error_message"] = f"Unexpected error: {str(e)}"
-            result["status"] = 500
+            except requests.RequestException as e:
+                print(f"Request error: {str(e)}")
+                if attempt < MAX_RETRIES - 1:
+                    delay = min(MAX_RETRY_DELAY, MIN_RETRY_DELAY * (2 ** attempt))
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                    continue
+                result["error_message"] = f"Request error: {str(e)}"
+                return result
             
-        print("\nFinal verification result:")
-        print(json.dumps(result, indent=2))
+            except Exception as e:
+                print(f"Unexpected error: {str(e)}")
+                print("Stack trace:")
+                traceback.print_exc()
+                result["error_message"] = f"Unexpected error: {str(e)}"
+                return result
+        
+        # If we get here, all retries failed
+        result["error_message"] = f"All {MAX_RETRIES} attempts failed"
         return result
 
     def verify_with_courtlistener_search_api(self, citation: str) -> Dict[str, Any]:
@@ -757,6 +955,15 @@ class CitationVerifier:
                         params=search_params,
                         timeout=TIMEOUT_SECONDS,
                     )
+
+                    print(f"Search API response status: {response.status_code}")
+                    # Safely print response text, handling Unicode characters
+                    try:
+                        print("Raw response text:", response.text)
+                    except UnicodeEncodeError:
+                        # If Unicode fails, print a safe version
+                        safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                        print("Raw response text (safe):", safe_text)
 
                     # Handle rate limiting
                     if response.status_code == 429:
@@ -840,36 +1047,41 @@ class CitationVerifier:
         Returns:
             Dict with volume, reporter, and page
         """
-        # Common patterns for citations
+        # Common patterns for citations - order matters for specificity
         patterns = [
-            # Standard pattern: 123 U.S. 456
+            # Regional reporters with series indicators (MUST come first)
+            r"(\d+)\s+(N\.E\.2d|N\.E\.3d|N\.W\.2d|S\.E\.2d|S\.W\.2d|S\.W\.3d|A\.2d|A\.3d|P\.2d|P\.3d|So\.2d|So\.3d)\s+(\d+)",
+            # Regional reporters without series indicators
+            r"(\d+)\s+(N\.E\.|N\.W\.|S\.E\.|S\.W\.|A\.|P\.|So\.)\s+(\d+)",
+            # Federal reporters with series indicators
+            r"(\d+)\s+(F\.2d|F\.3d|F\.4th)\s+(\d+)",
+            # Federal reporters without series indicators
+            r"(\d+)\s+(F\.)\s+(\d+)",
+            # Federal Supplement with series indicators
+            r"(\d+)\s+(F\.\s*Supp\.\s*2d|F\.\s*Supp\.\s*3d)\s+(\d+)",
+            # Federal Supplement without series indicators
+            r"(\d+)\s+(F\.\s*Supp\.)\s+(\d+)",
+            # U.S. Reports
+            r"(\d+)\s+(U\.S\.)\s+(\d+)",
+            # Supreme Court Reporter
+            r"(\d+)\s+(S\.\s*Ct\.)\s+(\d+)",
+            # Lawyers Edition with series indicators
+            r"(\d+)\s+(L\.\s*Ed\.\s*2d)\s+(\d+)",
+            # Lawyers Edition without series indicators
+            r"(\d+)\s+(L\.\s*Ed\.)\s+(\d+)",
+            # Standard pattern: 123 U.S. 456 (fallback)
             r"(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)",
-            # Pattern for Federal Reporter: 534 F.3d 1290 or 534 F. 3d 1290
-            r"(\d+)\s+([A-Z])\.?\s*(\d*[a-z]*)\s+(\d+)",
         ]
 
         for pattern in patterns:
             match = re.search(pattern, citation)
             if match:
                 if len(match.groups()) == 3:
-                    # Standard pattern match (e.g., "123 U.S. 456")
+                    # Standard pattern match (e.g., "123 U.S. 456", "123 N.E.2d 456")
                     return {
                         "volume": match.group(1),
                         "reporter": match.group(2).strip(),
                         "page": match.group(3),
-                    }
-                elif len(match.groups()) == 4:
-                    # Federal Reporter pattern (e.g., "534 F.3d 1290" or "534 F. 3d 1290")
-                    reporter_abbr = match.group(2)
-                    series = match.group(3)
-                    return {
-                        "volume": match.group(1),
-                        "reporter": (
-                            f"{reporter_abbr}.{series}"
-                            if series
-                            else f"{reporter_abbr}."
-                        ),
-                        "page": match.group(4),
                     }
 
         # If no pattern matches, return empty dict

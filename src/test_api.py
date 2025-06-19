@@ -24,7 +24,7 @@ def test_verify_citation(citation_text, case_name=None):
     print(
         f"Testing /casestrainer/api/verify-citation endpoint with citation: {citation_text}"
     )
-    api_url = "http://127.0.0.1:5000/casestrainer/api/verify-citation"
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
     payload = {"citation": citation_text}
     if case_name:
         payload["case_name"] = case_name
@@ -37,7 +37,13 @@ def test_verify_citation(citation_text, case_name=None):
             print(f"Response JSON: {json.dumps(result, indent=2)}")
         except Exception as e:
             print(f"Error parsing JSON: {e}")
-            print(f"Raw response: {response.text}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
     except Exception as e:
         print(f"Request failed: {e}")
 
@@ -107,10 +113,22 @@ def test_analyze_text(citation_text):
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON response: {e}")
-            logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            # Safely log the raw response text to avoid Unicode encoding errors
+            try:
+                logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text[:1000].encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(f"Raw response (first 1000 chars, safe): {safe_text}")
         except Exception as e:
             logger.exception(f"Unexpected error processing response: {e}")
-            logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            # Safely log the raw response text to avoid Unicode encoding errors
+            try:
+                logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text[:1000].encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(f"Raw response (first 1000 chars, safe): {safe_text}")
 
     except requests.exceptions.RequestException as e:
         logger.exception(f"Request failed: {e}")
@@ -135,7 +153,13 @@ def test_analyze_url(url):
             return result
         except Exception as e:
             print(f"Error parsing JSON: {e}")
-            print(f"Raw response: {response.text}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
     except Exception as e:
         print(f"Request failed: {e}")
     return None
@@ -165,7 +189,13 @@ def test_analyze_file(file_path):
             return result
         except Exception as e:
             print(f"Error parsing JSON: {e}")
-            print(f"Raw response: {response.text}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
     except Exception as e:
         print(f"File operation or request failed: {e}")
     return None
@@ -273,7 +303,13 @@ def test_analyze_brief(file_path):
                 )
 
         except json.JSONDecodeError:
-            print(f"Invalid JSON response: {response.text}")
+            # Safely print the invalid JSON response to avoid Unicode encoding errors
+            try:
+                print(f"Invalid JSON response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Invalid JSON response (safe): {safe_text}")
 
 
 if __name__ == "__main__":

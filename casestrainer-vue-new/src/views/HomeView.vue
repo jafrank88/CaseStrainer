@@ -3,8 +3,8 @@
     <!-- Page Header -->
     <div class="bg-primary text-white py-3 mb-4">
       <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+          <div class="mb-3 mb-md-0">
             <h1 class="h3 mb-0">CaseStrainer</h1>
             <p class="mb-0 small">Legal Citation Validation & Analysis</p>
           </div>
@@ -18,7 +18,7 @@
     <!-- Quick Validator Section -->
     <div class="container mb-4">
       <div class="card shadow-sm">
-        <div class="card-body p-3">
+        <div class="card-body p-3 p-md-4">
           <h2 class="h5 mb-3">Quick Citation Validator</h2>
           <div class="input-group">
             <input 
@@ -35,6 +35,7 @@
               title="Validate Citation"
             >
               <i class="bi bi-search"></i>
+              <span class="d-none d-sm-inline ms-1">Validate</span>
             </button>
           </div>
         </div>
@@ -43,10 +44,10 @@
 
     <!-- Action Cards Section -->
     <div class="container mb-5">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all" @click="navigateTo('upload')" style="cursor: pointer;">
-            <div class="card-body text-center p-4">
+      <div class="row g-3 g-md-4">
+        <div class="col-12 col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all action-card" @click="navigateTo('upload')" style="cursor: pointer;">
+            <div class="card-body text-center p-3 p-md-4">
               <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 d-inline-flex mb-3">
                 <i class="bi bi-upload fs-2"></i>
               </div>
@@ -56,9 +57,9 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all" @click="navigateTo('paste')" style="cursor: pointer;">
-            <div class="card-body text-center p-4">
+        <div class="col-12 col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all action-card" @click="navigateTo('paste')" style="cursor: pointer;">
+            <div class="card-body text-center p-3 p-md-4">
               <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 d-inline-flex mb-3">
                 <i class="bi bi-clipboard-text fs-2"></i>
               </div>
@@ -68,9 +69,9 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all" @click="navigateTo('url')" style="cursor: pointer;">
-            <div class="card-body text-center p-4">
+        <div class="col-12 col-md-4">
+          <div class="card h-100 border-0 shadow-sm hover-shadow transition-all action-card" @click="navigateTo('url')" style="cursor: pointer;">
+            <div class="card-body text-center p-3 p-md-4">
               <div class="bg-info bg-opacity-10 text-info rounded-circle p-3 d-inline-flex mb-3">
                 <i class="bi bi-link-45deg fs-2"></i>
               </div>
@@ -205,85 +206,6 @@
           <router-link to="/enhanced-validator" class="btn btn-primary btn-lg">
             <i class="bi bi-shield-check me-2"></i> Try Enhanced Validator Now
           </router-link>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Testimonials -->
-    <section class="testimonials py-5 bg-light">
-      <div class="container">
-        <div class="text-center mb-5">
-          <span class="badge bg-primary-soft text-primary mb-3">Testimonials</span>
-          <h2 class="fw-bold mb-3">Trusted by Legal Professionals</h2>
-          <p class="text-muted">See what our users are saying about CaseStrainer</p>
-        </div>
-        
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-3" width="50" height="50" alt="User">
-                  <div>
-                    <h5 class="mb-0">Sarah Johnson</h5>
-                    <small class="text-muted">Attorney at Law</small>
-                  </div>
-                </div>
-                <p class="mb-0">"CaseStrainer has revolutionized how we validate citations in our firm. The accuracy and speed are unmatched."</p>
-                <div class="text-warning mt-2">
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-3" width="50" height="50" alt="User">
-                  <div>
-                    <h5 class="mb-0">Michael Chen</h5>
-                    <small class="text-muted">Legal Researcher</small>
-                  </div>
-                </div>
-                <p class="mb-0">"The citation network visualization is a game-changer. It helps me understand case relationships at a glance."</p>
-                <div class="text-warning mt-2">
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-half"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-3" width="50" height="50" alt="User">
-                  <div>
-                    <h5 class="mb-0">Emily Rodriguez</h5>
-                    <small class="text-muted">Law Professor</small>
-                  </div>
-                </div>
-                <p class="mb-0">"I use CaseStrainer in my legal research classes. It's an invaluable teaching tool for students learning citation formats."</p>
-                <div class="text-warning mt-2">
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star-fill"></i>
-                  <i class="bi bi-star"></i>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -451,15 +373,6 @@ export default {
   font-weight: bold;
 }
 
-/* Testimonials */
-.testimonials .card {
-  transition: transform 0.3s ease;
-}
-
-.testimonials .card:hover {
-  transform: translateY(-5px);
-}
-
 /* CTA Section */
 .cta {
   background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
@@ -505,6 +418,119 @@ export default {
     width: 100%;
     margin-bottom: 1rem;
   }
+  
+  /* Mobile-specific improvements */
+  .action-card {
+    min-height: 200px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .action-card:active {
+    transform: scale(0.98);
+  }
+  
+  .action-card:hover {
+    transform: none;
+  }
+  
+  /* Typography */
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  
+  /* Spacing */
+  .card-body {
+    padding: 1rem;
+  }
+  
+  /* Buttons */
+  .btn {
+    min-height: 44px;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Input groups */
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .input-group .form-control {
+    border-radius: 0.375rem 0.375rem 0 0;
+    margin-bottom: 0;
+  }
+  
+  .input-group .btn {
+    border-radius: 0 0 0.375rem 0.375rem;
+    width: 100%;
+  }
+  
+  /* Feature icons */
+  .feature-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  /* Step cards */
+  .step-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .step-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .action-card {
+    min-height: 180px;
+  }
+  
+  .btn {
+    min-height: 40px;
+  }
+  
+  .feature-icon {
+    width: 65px;
+    height: 65px;
+  }
+}
+
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+  .action-card {
+    min-height: 200px;
+  }
+  
+  .action-card:hover {
+    transform: none;
+  }
+  
+  .step-card:hover {
+    transform: none;
+  }
+  
+  .btn {
+    min-height: 48px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .action-card,
+  .step-card,
+  .hero-image {
+    transition: none;
+    animation: none;
+  }
+  
+  .action-card:active {
+    transform: none;
+  }
 }
 
 /* Dark mode support */
@@ -512,11 +538,6 @@ export default {
   .step-card {
     background-color: #2d2d2d;
     border-color: #3a3a3a;
-  }
-  
-  .testimonials .card {
-    background-color: #2d2d2d;
-    border: 1px solid #3a3a3a;
   }
   
   .bg-light {

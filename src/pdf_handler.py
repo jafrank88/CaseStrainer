@@ -31,6 +31,7 @@ class PDFExtractionMethod(Enum):
 class PDFExtractionConfig:
     """Configuration for PDF extraction."""
     timeout: int = 25
+    quick_test_timeout: int = 5
     max_text_length: int = 200
     preferred_method: PDFExtractionMethod = PDFExtractionMethod.PYPDF2
     use_fallback: bool = True
@@ -45,14 +46,13 @@ class PDFHandler:
     def __init__(self, config: Optional[PDFExtractionConfig] = None):
         """Initialize PDF handler with optional configuration."""
         self.config = config or PDFExtractionConfig()
-        self._setup_logging()
+        self.logger = logging.getLogger(__name__)
         self._known_problematic_files = {
             "999562 Plaintiff Opening Brief.pdf": "Known problematic file requiring special handling"
         }
         
     def _setup_logging(self):
         """Set up logging configuration."""
-        self.logger = logging.getLogger("PDFHandler")
         if not self.logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
@@ -220,6 +220,7 @@ class PDFHandler:
             self.logger.info(f"Successfully extracted {len(text)} characters with pdfminer")
             if sanitized_sample:
                 self.logger.debug(f"Sample of extracted text: {sanitized_sample}")
+            self.logger.debug("Raw extracted text (sample): %s", text[:1000] if text else "None")
             return text, None
             
         except Exception as e:
@@ -363,36 +364,76 @@ class PDFHandler:
                 return f"Error: {header_msg}"
             self.logger.info(header_msg)
             
-            # Try preferred method first
-            if self.config.preferred_method == PDFExtractionMethod.PYPDF2:
-                text, error = self._extract_with_pypdf2(file_path, start_time)
-            elif self.config.preferred_method == PDFExtractionMethod.PDFMINER:
-                text, error = self._extract_with_pdfminer(file_path, start_time)
-            elif self.config.preferred_method == PDFExtractionMethod.PDFTOTEXT:
-                text, error = self._extract_with_pdftotext(file_path, start_time)
-            else:
-                text, error = None, "Invalid preferred extraction method"
+            # Try multiple extraction methods with a quick test to select the fastest for large files
+            if file_size > 5 * 1024 * 1024:  # For files >5MB, test methods quickly
+                self.logger.info("Large file detected, testing extraction methods for fastest result...")
+                methods = [
+                    (self._extract_with_pdfminer, "pdfminer"),
+                    (self._extract_with_pypdf2, "PyPDF2"),
+                    (self._extract_with_pdftotext, "pdftotext")
+                ]
+                best_method = None
+                best_time = float('inf')
+                original_timeout = self.config.timeout
+                self.config.timeout = self.config.quick_test_timeout  # Short timeout for testing
                 
-            # If preferred method fails and fallback is enabled, try other methods
-            if (not text and self.config.use_fallback and 
-                self.config.preferred_method != PDFExtractionMethod.PDFMINER):
-                self.logger.info("Falling back to pdfminer...")
-                text, error = self._extract_with_pdfminer(file_path, start_time)
+                for method_func, method_name in methods:
+                    test_start_time = time.time()
+                    text, error = method_func(file_path, test_start_time)
+                    test_time = time.time() - test_start_time
+                    if text and test_time < best_time:
+                        best_method = (method_func, method_name)
+                        best_time = test_time
+                    elif error:
+                        self.logger.warning(f"Quick test with {method_name} failed: {error}")
                 
-            if not text and self.config.use_fallback:
-                self.logger.info("Falling back to pdftotext...")
-                text, error = self._extract_with_pdftotext(file_path, start_time)
+                self.config.timeout = original_timeout  # Restore original timeout
                 
-            if not text:
-                error_msg = f"PDF extraction failed with all methods: {error}"
+                if best_method:
+                    method_func, method_name = best_method
+                    self.logger.info(f"Selected {method_name} as fastest method based on quick test")
+                    text, error = method_func(file_path, start_time)
+                    if text:
+                        # Clean text if enabled
+                        if self.config.clean_text:
+                            text = clean_extracted_text(text)
+                        return text
+                    else:
+                        self.logger.error(f"Full extraction with {method_name} failed: {error}")
+                        return f"Error: {error or 'Failed to extract text with selected method'}"
+                else:
+                    self.logger.warning("No method succeeded in quick test, falling back to pdfminer.six")
+            
+            # Default extraction with pdfminer.six for smaller files or if quick test fails
+            self.logger.info("Extracting text with pdfminer.six...")
+            text = pdfminer_extract_text(file_path)
+            
+            if not text or not text.strip():
+                error_msg = "No text content extracted from PDF"
                 self.logger.error(error_msg)
                 return f"Error: {error_msg}"
                 
+            # Log success
+            text_length = len(text)
+            self.logger.info(f"Successfully extracted {text_length} characters")
+            if text_length > 0:
+                sample = text[:500].replace('\n', ' ').strip()
+                self.logger.info(f"Text sample (first 500 chars): {sample}")
+            
             # Clean text if enabled
-            if self.config.clean_text:
+            if self.config.clean_text and file_size <= 10 * 1024 * 1024:  # Skip for very large files
+                self.logger.info("Cleaning extracted text...")
                 text = clean_extracted_text(text)
+            elif file_size > 10 * 1024 * 1024:
+                self.logger.info("Skipping text cleaning for very large file to improve performance")
                 
             return text
+                
+        except Exception as e:
+            error_msg = f"PDFMiner extraction failed: {str(e)}"
+            self.logger.error(error_msg)
+            self.logger.error("Stack trace:", exc_info=True)
+            return f"Error: {error_msg}"
             
         except Exception as e:
             error_msg = f"Unexpected error in PDF extraction: {str(e)}"
@@ -435,14 +476,14 @@ def clean_extracted_text(text: str) -> str:
             r"(\d+)\s*[Ll]\.?\s*[Ee][Dd]\.?\s*(\d+)", r"\1 L.Ed. \2", text
         )  # Fix L.Ed. spacing
         text = re.sub(
-            r"(\d+)\s*[Ff]\.?\s*(?:2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)", r"\1 F. \2", text
-        )  # Fix F. spacing
+            r"(\d+)\s*[Ff]\.?\s*(2[Dd]|3[Dd]|4[Tt][Hh])?\s*(\d+)", r"\1 F.\2 \3", text
+        )  # Fix F. spacing and preserve series
 
         # Fix line breaks within citations
         text = re.sub(r"(\d+)\s*U\.?\s*S\.?\s*\n\s*(\d+)", r"\1 U.S. \2", text)
         text = re.sub(r"(\d+)\s*S\.?\s*Ct\.?\s*\n\s*(\d+)", r"\1 S.Ct. \2", text)
         text = re.sub(r"(\d+)\s*L\.?\s*Ed\.?\s*\n\s*(\d+)", r"\1 L.Ed. \2", text)
-        text = re.sub(r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*\n\s*(\d+)", r"\1 F. \2", text)
+        text = re.sub(r"(\d+)\s*F\.?\s*(2d|3d|4th)?\s*\n\s*(\d+)", r"\1 F.\2 \3", text)
 
         # Fix page breaks within citations
         text = re.sub(
@@ -450,14 +491,14 @@ def clean_extracted_text(text: str) -> str:
         )  # Fix page break markers
         text = re.sub(r"(\d+)\s*S\.?\s*Ct\.?\s*-\s*(\d+)", r"\1 S.Ct. \2", text)
         text = re.sub(r"(\d+)\s*L\.?\s*Ed\.?\s*-\s*(\d+)", r"\1 L.Ed. \2", text)
-        text = re.sub(r"(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*-\s*(\d+)", r"\1 F. \2", text)
+        text = re.sub(r"(\d+)\s*F\.?\s*(2d|3d|4th)?\s*-\s*(\d+)", r"\1 F.\2 \3", text)
 
         # Fix common OCR errors in numbers - using simpler patterns
         text = re.sub(r"[Oo](\d)", r"0\1", text)  # Fix O/0 confusion
-        text = re.sub(r"(\d)[Oo]", r"\10", text)  # Fix O/0 confusion at end of numbers
+        text = re.sub(r"(\d)[Oo]", r"\g<1>0", text)  # Fix O/0 confusion at end of numbers
         text = re.sub(r"[lI](\d)", r"1\1", text)  # Fix l/I/1 confusion
         text = re.sub(
-            r"(\d)[lI]", r"\11", text
+            r"(\d)[lI]", r"\g<1>1", text
         )  # Fix l/I/1 confusion at end of numbers
 
         # Fix spacing in abbreviations

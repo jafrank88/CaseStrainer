@@ -7,7 +7,22 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   validateCitation(citation) {
-    return api.post('/casestrainer/api/verify-citation', { citation: citation });
+    return api.post('/analyze', { 
+      text: citation,
+      options: {
+        batch_process: false,
+        return_debug: false
+      }
+    });
+  },
+
+  /**
+   * Poll for task results
+   * @param {string} taskId - The task ID to poll for
+   * @returns {Promise} - API response
+   */
+  pollTaskResults(taskId) {
+    return api.get(`/task_status/${taskId}`);
   },
 
   /**

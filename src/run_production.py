@@ -68,7 +68,7 @@ def get_server_info():
         return {"hostname": "unknown", "ip_address": "unknown"}
 
 
-def run_production_server():
+def run_production_server(application):
     """Run the production server using Waitress."""
     # Configure logging
     logging.basicConfig(
@@ -81,10 +81,6 @@ def run_production_server():
     )
     logger = logging.getLogger('wsgi')
     
-    # Create the WSGI application
-    app = create_app()
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-    
     # Get configuration
     host = os.getenv('HOST', '0.0.0.0')
     port = int(os.getenv('PORT', '5000'))
@@ -95,8 +91,8 @@ def run_production_server():
     ssl_key = os.getenv('SSL_KEY')
     
     logger.info(f"Starting CaseStrainer on {host}:{port}")
-    logger.info(f"Environment: {app.config['ENV']}")
-    logger.info(f"Debug mode: {app.config['DEBUG']}")
+    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
+    logger.info(f"Debug mode: {os.getenv('FLASK_DEBUG', 'False').lower() == 'true'}")
     
     # Configure Waitress
     waitress_options = {
@@ -120,8 +116,8 @@ def run_production_server():
         })
         logger.info("SSL enabled")
     
-    # Start the server
-    serve(app, **waitress_options)
+    # Start the server with the wrapped application
+    serve(application, **waitress_options)
 
 
 def main():
@@ -201,7 +197,7 @@ def main():
         logger.info(
             f"Starting Waitress server with DispatcherMiddleware on http://{args.host}:{args.port}{args.url_prefix}"
         )
-        run_production_server()
+        run_production_server(application)
 
     except Exception as e:
         logger.error(f"Error starting server: {e}")

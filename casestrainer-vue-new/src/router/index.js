@@ -1,9 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+// Base path for the application
+const BASE_PATH = '/casestrainer/';
+
 // Import views directly
 const HomeView = () => import('@/views/HomeView.vue');
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
 const NotFound = () => import('@/views/NotFound.vue');
+const BrowserExtension = () => import('@/views/BrowserExtension.vue');
+const WordPlugin = () => import('@/views/WordPlugin.vue');
+const ApiDocs = () => import('@/views/ApiDocs.vue');
 
 const routes = [
   {
@@ -46,6 +52,39 @@ const routes = [
       ]
     }
   },
+  {
+    path: '/browser-extension',
+    name: 'BrowserExtension',
+    component: BrowserExtension,
+    meta: {
+      title: 'Browser Extension | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'Install the CaseStrainer browser extension to validate citations directly on the web.' }
+      ]
+    }
+  },
+  {
+    path: '/word-plugin',
+    name: 'WordPlugin',
+    component: WordPlugin,
+    meta: {
+      title: 'Word Plug-in | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'Use the CaseStrainer Word plug-in to validate citations directly in your documents.' }
+      ]
+    }
+  },
+  {
+    path: '/api-docs',
+    name: 'ApiDocs',
+    component: ApiDocs,
+    meta: {
+      title: 'API Documentation | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'API documentation for CaseStrainer.' }
+      ]
+    }
+  },
   // Catch-all route for 404s
   {
     path: '/:pathMatch(.*)*',
@@ -58,7 +97,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/casestrainer/'),
+  history: createWebHistory(BASE_PATH),
   routes,
   scrollBehavior(to, from, savedPosition) {
     // Return saved position when using back/forward buttons

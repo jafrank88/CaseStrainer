@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressInterval = startProgressPolling(urlProgress, urlProgressBar);
             
             // First fetch the URL content
-            fetch(apiUrl('/api/fetch_url'), {
+            fetch(apiUrl('/api/analyze'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

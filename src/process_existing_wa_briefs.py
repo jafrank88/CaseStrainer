@@ -16,6 +16,7 @@ import shutil
 from datetime import datetime
 import importlib.util
 from tqdm import tqdm
+import requests
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")
@@ -333,18 +334,32 @@ def process_brief(brief_path):
             logger.error(f"Failed to extract text from {brief_path}")
             return None
 
-        # Extract citations with context from the text
-        with open(extraction_result["text_path"], "r", encoding="utf-8") as f:
-            text = f.read()
+        # Extract text from the brief
+        brief_text = extraction_result["text_path"]
+        if not brief_text:
+            logger.error(f"No text extracted from brief: {brief_path}")
+            return None
 
-        citation_data = extract_citations_with_context(text)
-        logger.info(f"Extracted {len(citation_data)} citations from {brief_path}")
+        # --- NEW: Send text to CourtListener citation-lookup API ---
+        api_key = COURTLISTENER_API_KEY if 'COURTLISTENER_API_KEY' in globals() else os.environ.get('COURTLISTENER_API_KEY')
+        headers = {"Authorization": f"Token {api_key}"} if api_key else {}
+        response = requests.post(
+            "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+            headers=headers,
+            data={"text": brief_text}
+        )
+        try:
+            citations = response.json()
+        except Exception as e:
+            logger.error(f"Error parsing CourtListener response: {e}")
+            return None
+        logger.info(f"CourtListener returned {len(citations)} citations.")
 
         # Verify each citation
         verified_citations = []
         unverified_citations = []
 
-        for citation_item in citation_data:
+        for citation_item in citations:
             verification_result = verify_citation(citation_item["citation"])
 
             # Add the citation to the database with context and file link
@@ -380,7 +395,7 @@ def process_brief(brief_path):
             "brief_path": brief_path,
             "extraction_result": extraction_result,
             "citations": {
-                "total": len(citation_data),
+                "total": len(citations),
                 "verified": verified_citations,
                 "unverified": unverified_citations,
             },

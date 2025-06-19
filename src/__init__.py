@@ -7,7 +7,7 @@ from .config import configure_logging
 
 configure_logging()
 
-__version__ = "0.4.9"
+__version__ = "0.5.0"
 
 # Explicitly export configure_logging
 __all__ = ["configure_logging"]
@@ -51,10 +51,6 @@ def _lazy_import():
         search_citation,
         setup_courtlistener_api,
     )
-    from .enhanced_validator_production import (
-        enhanced_validator_bp,
-        register_enhanced_validator as register_enhanced_validator_func,
-    )
 
     return {
         "citation_api": citation_api,
@@ -70,8 +66,6 @@ def _lazy_import():
         "generate_case_summary_from_courtlistener": generate_case_summary_from_courtlistener,
         "search_citation": search_citation,
         "setup_courtlistener_api": setup_courtlistener_api,
-        "enhanced_validator_bp": enhanced_validator_bp,
-        "register_enhanced_validator": register_enhanced_validator_func,
     }
 
 

@@ -57,8 +57,8 @@ class RateLimiter:
         self.calls.append(time.time())
 
 # Create a rate limiter for CourtListener API (180 calls per minute)
-# Using 170 as a safety buffer to stay under the limit
-courtlistener_limiter = RateLimiter(max_calls=170, period=60)  # 170 calls per minute to be safe
+# Using 175 as a safety buffer to stay under the limit (increased from 170)
+courtlistener_limiter = RateLimiter(max_calls=175, period=60)  # 175 calls per minute to be safe
 
 def rate_limited(max_calls: int, period: float) -> Callable:
     """

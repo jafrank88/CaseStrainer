@@ -1,11 +1,41 @@
 import re
 
 
+def apply_washington_spacing_rules(citation: str) -> str:
+    """
+    Apply Washington citation spacing rules according to the Washington style sheet.
+    
+    Rules:
+    - Washington Reports: "Wn.2d" (no space between Wn. and 2d)
+    - Washington Appellate Reports: "Wn. App." (space between Wn. and App.)
+    
+    Args:
+        citation: The citation text to format
+        
+    Returns:
+        str: The citation with proper Washington spacing
+    """
+    # Handle Washington Reports: ensure no space between Wn. and 2d
+    # Pattern matches: Wn. 2d, Wn.2d, Wash. 2d, Wash.2d -> Wn.2d
+    citation = re.sub(r'Wn\.\s*2d', 'Wn.2d', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wash\.\s*2d', 'Wn.2d', citation, flags=re.IGNORECASE)
+    
+    # Handle Washington Appellate Reports: ensure space between Wn. and App.
+    # Pattern matches: Wn.App., Wn. App., Wash.App., Wash. App. -> Wn. App.
+    citation = re.sub(r'Wn\.\s*App\.', 'Wn. App.', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wash\.\s*App\.', 'Wn. App.', citation, flags=re.IGNORECASE)
+    
+    return citation
+
+
 def washington_state_to_bluebook(citation: str) -> str:
     """
     Converts Washington state court citation format to Bluebook format.
     Handles both Supreme Court (Wn.2d) and Court of Appeals (Wn. App.)
     """
+    # Apply Washington spacing rules first
+    citation = apply_washington_spacing_rules(citation)
+    
     # Supreme Court: Wn.2d -> Wash. 2d
     citation = re.sub(r"Wn\.2d", "Wash. 2d", citation)
     # Court of Appeals: Wn. App. -> Wash. App.
@@ -45,6 +75,9 @@ def normalize_washington_synonyms(citation: str) -> str:
     """
     Normalize Washington synonyms for deduplication (Wn.2d <-> Wash. 2d, Wn. App. <-> Wash. App.)
     """
+    # Apply Washington spacing rules first
+    citation = apply_washington_spacing_rules(citation)
+    
     citation = citation.replace("Wn.2d", "Wash. 2d")
     citation = citation.replace("Wn. App.", "Wash. App.")
     return citation
@@ -65,6 +98,22 @@ def normalize_for_deduplication(citation: str, state: str) -> str:
 
 # Example test cases
 if __name__ == "__main__":
+    print("=== Washington Spacing Rules ===")
+    spacing_examples = [
+        "123 Wn. 2d 456",
+        "123 Wn.2d 456", 
+        "123 Wash. 2d 456",
+        "123 Wash.2d 456",
+        "45 Wn.App. 678",
+        "45 Wn. App. 678",
+        "45 Wash.App. 678",
+        "45 Wash. App. 678",
+    ]
+    for ex in spacing_examples:
+        print("Original:   ", ex)
+        print("Formatted:  ", apply_washington_spacing_rules(ex))
+        print()
+
     print("=== Washington Normalization ===")
     wa_examples = [
         "Smith v. Jones, 123 Wn.2d 456 (2015)",

@@ -46,6 +46,18 @@ def configure_logging(app):
     log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
     app.logger.setLevel(log_level)
 
+    # Allow dynamic log level adjustment for performance optimization
+    def set_performance_mode(enabled=True):
+        """Adjust logging level for performance-critical operations."""
+        if enabled:
+            app.logger.setLevel(logging.WARNING)  # Reduce logging during high-load operations
+            app.logger.info("Performance mode enabled: Logging level set to WARNING")
+        else:
+            app.logger.setLevel(log_level)  # Restore original log level
+            app.logger.info(f"Performance mode disabled: Logging level restored to {log_level}")
+
+    app.set_performance_mode = set_performance_mode
+
     # Formatter
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(request_id)s - %(message)s",

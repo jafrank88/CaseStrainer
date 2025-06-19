@@ -11,16 +11,23 @@ import sqlite3
 import re
 from datetime import datetime
 import Levenshtein
+import sys
+from typing import List, Dict, Any, Optional
+from difflib import SequenceMatcher
+from src.citation_format_utils import apply_washington_spacing_rules
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,  # More verbose logging
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("citation_correction.log")],
-)
-logger = logging.getLogger("citation_correction")
-logger.setLevel(logging.DEBUG)
+# Add the project root to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
+from src.config import configure_logging
+
+# Configure logging if not already configured
+if not logging.getLogger().hasHandlers():
+    configure_logging()
+
+logger = logging.getLogger(__name__)
 
 class CitationCorrectionEngine:
     """
@@ -198,6 +205,9 @@ class CitationCorrectionEngine:
             # Remove any leading or trailing punctuation
             normalized = normalized.strip(" .,;:")
 
+            # Apply Washington citation spacing rules first
+            normalized = apply_washington_spacing_rules(normalized)
+
             # Handle common citation formats
             # Federal Reporter format (e.g., 123 F.3d 456 or 123 F.2d 456)
             fed_reporter = re.match(r"^(\d+)\s+([A-Za-z\.\d]+)\s+(\d+)$", normalized)
@@ -252,9 +262,10 @@ class CitationCorrectionEngine:
             )  # F.2d, F.3d
 
             # Standardize spacing around periods in reporter abbreviations
+            # Only remove spaces after periods if the next character is a lowercase letter
             normalized = re.sub(
-                r"\.\s+", ".", normalized
-            )  # Remove spaces after periods
+                r"\.\s+(?=[a-z])", ".", normalized
+            )  # Remove spaces after periods only before lowercase letters
 
             return normalized.strip()
 
@@ -671,6 +682,9 @@ class CitationCorrectionEngine:
     def _apply_correction_rules(self, citation):
         """Apply correction rules to fix common citation errors."""
         corrected = citation
+
+        # Apply Washington citation spacing rules first
+        corrected = apply_washington_spacing_rules(corrected)
 
         # Rule 1: Fix spacing issues
         corrected = re.sub(

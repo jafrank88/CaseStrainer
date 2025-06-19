@@ -2,24 +2,57 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Color variables for light mode */
+  --background: #f8f9fa;
+  --foreground: #222;
+  --card-bg: #fff;
+  --border: #d1d5db;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success: #22c55e;
+  --warning: #facc15;
+  --danger: #ef4444;
+  --table-header: #222;
+  --table-bg: #fff;
+  --table-row-alt: #f1f5f9;
+  --badge-bg: #e5e7eb;
+  --badge-fg: #222;
+  --table-header-fg: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #18181b;
+    --foreground: #f3f4f6;
+    --card-bg: #23272f;
+    --border: #374151;
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --success: #4ade80;
+    --warning: #fde68a;
+    --danger: #f87171;
+    --table-header: #23272f;
+    --table-bg: #23272f;
+    --table-row-alt: #18181b;
+    --badge-bg: #374151;
+    --badge-fg: #f3f4f6;
+    --table-header-fg: #f3f4f6;
+  }
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--primary);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--primary-hover);
 }
 
 body {
@@ -28,6 +61,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 h1 {
@@ -37,25 +72,30 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--card-bg);
+  color: var(--foreground);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: var(--primary);
+  background: var(--primary-hover);
+  color: var(--background);
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.card {
-  padding: 2em;
+.card, .results-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--foreground);
 }
 
 #app {
@@ -65,15 +105,52 @@ button:focus-visible {
   text-align: center;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--table-bg);
+  color: var(--foreground);
 }
+th, td {
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  background: var(--table-header);
+  color: var(--table-header-fg, #fff);
+}
+tr:nth-child(even) {
+  background: var(--table-row-alt);
+}
+
+.badge, .status-badge {
+  background: var(--badge-bg);
+  color: var(--badge-fg);
+  border-radius: 6px;
+  padding: 0.2em 0.7em;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Status badge colors */
+.status-badge {
+  font-weight: 600;
+  padding: 0.2em 0.7em;
+  border-radius: 6px;
+  display: inline-block;
+}
+.status-badge.Verified {
+  background: var(--success);
+  color: #fff;
+}
+.status-badge.Warning,
+.status-badge.Valid\ but\ Not\ Verified {
+  background: var(--warning);
+  color: #222;
+}
+.status-badge.Invalid {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Remove old color overrides for light mode */

@@ -270,45 +270,18 @@ document.addEventListener('DOMContentLoaded', function() {
             urlProgressBar.textContent = isPdf ? 'Processing PDF...' : 'Fetching URL...';
             
             // First fetch the URL content
-            fetch(`${basePath}/api/fetch_url`, {
+            fetch(`${basePath}/api/analyze`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ type: 'url', url: url })
             })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success' && data.text) {
-                    urlProgressBar.textContent = 'Analyzing content...';
-                    
-                    // For PDFs, eyecite should have already processed the citations
-                    if (isPdf && data.eyecite_processed) {
-                        console.log('PDF processed with eyecite, skipping analyze step');
-                        return { status: 'success', citations_count: data.citations_count || 0 };
-                    }
-                    
-                    // Now analyze the fetched text
-                    const textFormData = new FormData();
-                    textFormData.append('text', data.text);
-                    
-                    return fetch(`${basePath}/api/analyze`, {
-                        method: 'POST',
-                        body: textFormData
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to fetch URL content');
-                }
             })
             .then(data => {
                 console.log('Analysis results:', data);

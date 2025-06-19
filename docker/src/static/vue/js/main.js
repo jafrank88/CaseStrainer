@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressContainer = setupProgressTracking(this);
             
             console.log('Fetching URL content:', url);
-            fetch(`${basePath}/api/fetch_url`, {
+            fetch(`${basePath}/api/analyze`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

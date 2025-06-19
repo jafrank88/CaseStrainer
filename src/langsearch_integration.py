@@ -96,7 +96,13 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 print(
                     f"Error testing LangSearch API connection: Status code {response.status_code}"
                 )
-                print(f"Response: {response.text}")
+                # Safely print the response text to avoid Unicode encoding errors
+                try:
+                    print(f"Response: {response.text}")
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print(f"Response (safe): {safe_text}")
                 return False
         except requests.exceptions.RequestException as e:
             print(f"Error testing LangSearch API connection: {str(e)}")
@@ -216,12 +222,24 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                         f"Failed to generate summary due to rate limits: {response.text}"
                     )
             elif response.status_code == 401:  # Unauthorized
-                print(f"Authentication error: {response.text}")
+                # Safely print the authentication error to avoid Unicode encoding errors
+                try:
+                    print(f"Authentication error: {response.text}")
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print(f"Authentication error (safe): {safe_text}")
                 raise ValueError(
                     f"LangSearch API authentication failed: {response.text}"
                 )
             elif response.status_code == 400:  # Bad Request
-                print(f"Invalid request: {response.text}")
+                # Safely print the invalid request error to avoid Unicode encoding errors
+                try:
+                    print(f"Invalid request: {response.text}")
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print(f"Invalid request (safe): {safe_text}")
                 raise ValueError(f"Invalid request to LangSearch API: {response.text}")
             else:
                 last_error = (

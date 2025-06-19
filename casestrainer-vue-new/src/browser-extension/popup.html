@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CaseStrainer Citation Validator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="icons/icon48.png" alt="CaseStrainer Logo" class="logo">
+      <h1>CaseStrainer</h1>
+    </header>
+    
+    <div class="status-section">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Ready</span>
+      </div>
+      <button id="validatePage" class="primary-button">Validate Page</button>
+    </div>
+
+    <div class="results-section">
+      <h2>Citation Results</h2>
+      <div id="citationResults" class="results-container">
+        <div class="empty-state">
+          <p>No citations validated yet</p>
+          <p class="hint">Click "Validate Page" to start</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h2>Settings</h2>
+      <div class="setting-item">
+        <label for="autoValidate">Auto-validate on page load</label>
+        <input type="checkbox" id="autoValidate">
+      </div>
+      <div class="setting-item">
+        <label for="highlightCitations">Highlight citations</label>
+        <input type="checkbox" id="highlightCitations" checked>
+      </div>
+      <div class="setting-item">
+        <label for="apiEndpoint">API Endpoint</label>
+        <input type="text" id="apiEndpoint" value="http://localhost:5000/api/enhanced/analyze">
+      </div>
+    </div>
+
+    <footer>
+      <button id="openOptions" class="secondary-button">Advanced Settings</button>
+      <span class="version">v1.0.0</span>
+    </footer>
+  </div>
+  <script src="popup.js" type="module"></script>
+</body>
+</html> 

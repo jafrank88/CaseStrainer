@@ -12,13 +12,6 @@ from flask_session import Session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 
-# Import blueprints and modules
-from .enhanced_validator_production import (
-    enhanced_validator_bp as enhanced_validator_production_bp,
-    register_enhanced_validator as register_enhanced_validator_func,
-)
-from .citation_api import citation_api
-
 # Import API blueprint if exists
 try:
     from vue_api import api_blueprint
@@ -61,22 +54,8 @@ def create_app():
     Session(app)
 
     # Register blueprints
-    app.register_blueprint(
-        enhanced_validator_production_bp, url_prefix="/casestrainer/enhanced-validator"
-    )
-    app.register_blueprint(citation_api, url_prefix="/casestrainer/api")
     if api_blueprint:
         app.register_blueprint(api_blueprint, url_prefix="/casestrainer/api")
-    try:
-        if register_enhanced_validator_func and callable(
-            register_enhanced_validator_func
-        ):
-            app = register_enhanced_validator_func(app)
-            print("Successfully registered enhanced validator")
-        else:
-            print("Enhanced validator function is not callable")
-    except Exception as e:
-        print(f"Enhanced validator registration failed: {e}")
 
     # --- Vue.js Frontend Static Serving ---
     @app.route("/casestrainer/")

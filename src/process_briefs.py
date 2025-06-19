@@ -35,11 +35,7 @@ DIV3_BRIEFS_URL = "https://www.courts.wa.gov/appellate_trial_courts/coaBriefs/in
 def download_brief(brief_url, output_path):
     """Download a brief from the Washington Courts website."""
     try:
-        try:
         response = requests.get(brief_url, stream=True, timeout=30)
-    except requests.Timeout:
-        print(f"Timeout occurred while downloading {brief_url}")
-        return None
         response.raise_for_status()
         
         with open(output_path, 'wb') as f:
@@ -48,6 +44,9 @@ def download_brief(brief_url, output_path):
         
         print(f"Downloaded: {os.path.basename(output_path)}")
         return output_path
+    except requests.Timeout:
+        print(f"Timeout occurred while downloading {brief_url}")
+        return None
     except Exception as e:
         print(f"Error downloading {brief_url}: {e}")
         return None
@@ -117,14 +116,26 @@ def process_brief(file_path):
             
             # Check response status
             if response.status_code != 200:
-                print(f"Error from API: {response.status_code} - {response.text}")
+                # Safely print the API error to avoid Unicode encoding errors
+                try:
+                    print(f"Error from API: {response.status_code} - {response.text}")
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print(f"Error from API: {response.status_code} - {safe_text}")
                 return None
             
             # Get the analysis ID from the response
             try:
                 result = response.json()
             except json.JSONDecodeError:
-                print(f"Invalid JSON response: {response.text}")
+                # Safely print the invalid JSON response to avoid Unicode encoding errors
+                try:
+                    print(f"Invalid JSON response: {response.text}")
+                except UnicodeEncodeError:
+                    # If Unicode fails, print a safe version
+                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    print(f"Invalid JSON response (safe): {safe_text}")
                 return None
                 
             if result.get('status') != 'success':
@@ -148,7 +159,13 @@ def process_brief(file_path):
                 try:
                     status_result = status_response.json()
                 except json.JSONDecodeError:
-                    print(f"Invalid JSON in status response: {status_response.text}")
+                    # Safely print the invalid JSON response to avoid Unicode encoding errors
+                    try:
+                        print(f"Invalid JSON in status response: {status_response.text}")
+                    except UnicodeEncodeError:
+                        # If Unicode fails, print a safe version
+                        safe_text = status_response.text.encode('cp1252', errors='replace').decode('cp1252')
+                        print(f"Invalid JSON in status response (safe): {safe_text}")
                     attempts += 1
                     continue
                 

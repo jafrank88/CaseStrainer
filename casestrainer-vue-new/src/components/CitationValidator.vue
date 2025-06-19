@@ -14,6 +14,7 @@
           class="form-control"
           :disabled="loading"
         >
+        <small class="form-text text-muted">For analyzing a block of text, please use the 'Paste Text' feature.</small>
       </div>
       
       <button type="submit" class="btn btn-primary" :disabled="loading">
@@ -69,12 +70,15 @@ export default {
       
       try {
         await citationsStore.validateCitation(citation.value);
+        const currentCitation = citationsStore.currentCitation;
+        console.log('Raw API Response:', currentCitation);
         result.value = {
           citation: citation.value,
-          isValid: citationsStore.currentCitation?.isValid || false,
-          message: citationsStore.currentCitation?.message || '',
-          metadata: citationsStore.currentCitation?.metadata || null
+          isValid: currentCitation && currentCitation.clusters && currentCitation.clusters.length > 0 || false,
+          message: currentCitation?.error_message || '',
+          metadata: currentCitation || null
         };
+        console.log('Processed Result:', result.value);
       } catch (err) {
         error.value = err.message || 'An error occurred while validating the citation';
         console.error('Validation error:', err);

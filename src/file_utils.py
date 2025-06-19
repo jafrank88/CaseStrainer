@@ -197,6 +197,8 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         if file_ext == '.pdf':
             print("\nProcessing PDF file...")
             try:
+                extraction_start = time.time()
+                print("Starting PDF extraction timing...")
                 # Validate PDF header
                 with open(file_path, 'rb') as f:
                     header = f.read(5)
@@ -213,11 +215,14 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                             print(f"PDF version: {version}")
                         except UnicodeDecodeError:
                             print("Could not decode PDF version number")
-                
                 # Extract text using PyPDF2 first
                 print("Attempting extraction with PyPDF2...")
                 text = extract_text_from_pdf(file_path)
-                
+                extraction_end = time.time()
+                elapsed = extraction_end - extraction_start
+                print(f"PDF extraction took {elapsed:.2f} seconds")
+                if elapsed > 25:
+                    print("WARNING: PDF extraction exceeded 25 seconds!")
                 if text and isinstance(text, str):
                     if text.startswith("Error:"):
                         print(f"PDF extraction failed: {text}")
@@ -229,14 +234,82 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                     error_msg = f"PDF extraction returned invalid result: {type(text)}"
                     print(f"ERROR: {error_msg}")
                     return f"Error: {error_msg}"
-                    
             except Exception as e:
                 error_msg = f"Error processing PDF file: {str(e)}"
                 print(f"ERROR: {error_msg}")
                 print("Stack trace:")
                 traceback.print_exc()
                 return f"Error: {error_msg}"
-        
+        # Handle DOCX files
+        elif file_ext == '.docx':
+            print("\nProcessing DOCX file...")
+            try:
+                from docx import Document
+                doc = Document(file_path)
+                text = '\n'.join([para.text for para in doc.paragraphs])
+                print(f"Successfully extracted {len(text)} characters from DOCX")
+                return text
+            except ImportError:
+                error_msg = "python-docx is not installed. Please install it to process DOCX files."
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+            except Exception as e:
+                error_msg = f"Error processing DOCX file: {str(e)}"
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+        # Handle DOC files
+        elif file_ext == '.doc':
+            print("\nProcessing DOC file...")
+            try:
+                import textract
+                text = textract.process(file_path).decode('utf-8')
+                print(f"Successfully extracted {len(text)} characters from DOC")
+                return text
+            except ImportError:
+                error_msg = "textract is not installed. Please install it to process DOC files."
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+            except Exception as e:
+                error_msg = f"Error processing DOC file: {str(e)}"
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+        # Handle RTF files
+        elif file_ext == '.rtf':
+            print("\nProcessing RTF file...")
+            try:
+                from striprtf.striprtf import rtf_to_text
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    rtf_content = f.read()
+                text = rtf_to_text(rtf_content)
+                print(f"Successfully extracted {len(text)} characters from RTF")
+                return text
+            except ImportError:
+                error_msg = "striprtf is not installed. Please install it to process RTF files."
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+            except Exception as e:
+                error_msg = f"Error processing RTF file: {str(e)}"
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+        # Handle HTML files
+        elif file_ext in ['.html', '.htm']:
+            print("\nProcessing HTML file...")
+            try:
+                from bs4 import BeautifulSoup
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    html_content = f.read()
+                soup = BeautifulSoup(html_content, 'html.parser')
+                text = soup.get_text(separator='\n')
+                print(f"Successfully extracted {len(text)} characters from HTML")
+                return text
+            except ImportError:
+                error_msg = "BeautifulSoup4 is not installed. Please install it to process HTML files."
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
+            except Exception as e:
+                error_msg = f"Error processing HTML file: {str(e)}"
+                print(f"ERROR: {error_msg}")
+                return f"Error: {error_msg}"
         # Handle other binary files
         elif file_ext in BINARY_EXTS:
             error_msg = f"Binary file type {file_ext} not supported for text extraction"
@@ -244,11 +317,10 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
             return f"Error: {error_msg}"
         
         # Handle plain text files
-        else:
-            print("\nProcessing text file...")
+        elif file_ext in ['.txt', '.md', '.markdown']:
+            print("\nProcessing text or markdown file...")
             # Common text file encodings to try (in order of likelihood)
             ENCODINGS = ['utf-8', 'latin-1', 'iso-8859-1', 'windows-1252', 'ascii']
-            
             # Try different encodings
             for encoding in ENCODINGS:
                 try:
@@ -263,7 +335,6 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                 except UnicodeDecodeError:
                     print(f"Failed to decode with {encoding} encoding")
                     continue
-            
             # If all else fails, try with errors='replace' to at least get some content
             try:
                 print("Attempting to read with utf-8 encoding and replacement characters...")

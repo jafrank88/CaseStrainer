@@ -14,6 +14,53 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
+# Configure logging first, before any other imports
+def setup_logging():
+    """Configure logging for the application."""
+    try:
+        # Create logs directory if it doesn't exist
+        logs_dir = Path(project_root) / "logs"
+        logs_dir.mkdir(exist_ok=True)
+        
+        # Create a timestamp for the log file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = logs_dir / f"app_{timestamp}.log"
+        
+        # Configure basic logging first
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[
+                logging.StreamHandler(),
+                logging.FileHandler(log_file, encoding="utf-8")
+            ]
+        )
+        
+        # Get logger for this module
+        logger = logging.getLogger(__name__)
+        logger.propagate = False  # Prevent propagation to avoid duplicate logs
+        
+        logger.info("=== Logging Configuration ===")
+        logger.info(f"Log file: {log_file}")
+        logger.info(f"Python version: {sys.version}")
+        logger.info(f"Working directory: {os.getcwd()}")
+        
+        return logger
+        
+    except Exception as e:
+        # Fallback basic logging if configuration fails
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
+        )
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Failed to configure logging: {e}. Using basic logging configuration.")
+        return logger
+
+# Initialize logger before any other imports
+logger = setup_logging()
+
 # Third-party imports
 from flask import Flask, request, jsonify, send_from_directory, redirect, Blueprint, current_app, make_response
 from flask_cors import CORS
@@ -35,22 +82,36 @@ try:
         MAIL_DEBUG,
         UPLOAD_FOLDER,
     )
-    from src.vue_api_endpoints import vue_api
-    from src.citation_utils import extract_citations_from_text, verify_citation
-except ImportError:
+    logger.info("Successfully imported config module")
+except ImportError as e:
+    logger.error(f"Failed to import config module: {e}")
     # Fallback for direct execution
     from config import configure_logging
+
+# Import vue_api after logging is configured
+try:
+    from src.vue_api_endpoints import vue_api
+    logger.info("Successfully imported vue_api blueprint")
+except ImportError as e:
+    logger.error(f"Failed to import vue_api blueprint: {e}")
+    raise
+
+try:
+    from src.citation_utils import extract_all_citations, verify_citation
+    logger.info("Successfully imported citation utilities")
+except ImportError as e:
+    logger.error(f"Failed to import citation utilities: {e}")
+    raise
 
 # Define allowed file extensions
 ALLOWED_EXTENSIONS = {"txt", "pdf", "doc", "docx", "rtf"}
 ALLOWED_EXTENSIONS_LIST = list(ALLOWED_EXTENSIONS)
 
-# Global flag for enhanced validator
-ENHANCED_VALIDATOR_AVAILABLE = False
+# Global flag for enhanced validator - now always true since it's integrated into vue_api
+ENHANCED_VALIDATOR_AVAILABLE = True
 
 # Import other modules lazily to avoid circular imports
 citation_api = None
-register_enhanced_validator_func = None
 
 # Initialize mail
 mail = Mail()
@@ -68,48 +129,20 @@ analysis_results = {}
 # Thread-local storage for API keys
 thread_local = threading.local()
 
-# Configure logging
-def setup_logging():
-    """Configure logging for the application."""
-    try:
-        # Create logs directory if it doesn't exist
-        logs_dir = Path(project_root) / "logs"
-        logs_dir.mkdir(exist_ok=True)
-        
-        # Create a timestamp for the log file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = logs_dir / f"app_{timestamp}.log"
-        
-        # Configure logging
-        configure_logging()
-        logger = logging.getLogger(__name__)
-        logger.propagate = False  # Prevent propagation to avoid duplicate logs
-        
-        # Add file handler if not already added
-        if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
-            file_handler = logging.FileHandler(log_file, encoding="utf-8")
-            file_handler.setFormatter(logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            ))
-            logger.addHandler(file_handler)
-        
-        return logger
-    except Exception as e:
-        # Fallback basic logging if configuration fails
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
-        )
-        logger = logging.getLogger(__name__)
-        logger.warning(f"Failed to configure logging: {e}. Using basic logging configuration.")
-        return logger
+# Singleton instance of the Flask application
+_app_instance = None
 
-# Initialize logger
-logger = setup_logging()
+print("Python executable:", sys.executable)
 
 def create_app():
     """Create and configure the Flask application."""
+    global _app_instance
+    
+    # Return existing instance if it exists
+    if _app_instance is not None:
+        logger.info("Returning existing Flask application instance")
+        return _app_instance
+        
     logger.info("Starting application creation")
 
     # Configure the Flask application
@@ -117,161 +150,45 @@ def create_app():
         __name__,
         static_folder=str(Path(project_root) / "casestrainer-vue-new" / "dist"),
         template_folder=str(Path(project_root) / "casestrainer-vue-new" / "dist"),
-        static_url_path="",
+        static_url_path="/casestrainer"
     )
 
     # Set environment based on FLASK_ENV
-    app.config['ENV'] = os.getenv('FLASK_ENV', 'development')
+    app.config['ENV'] = os.getenv('FLASK_ENV', 'production')
     app.config['DEBUG'] = app.config['ENV'] == 'development'
     
     # Register blueprints with consistent prefixes
     app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
     
-    logger.info("Registered API blueprint")
-    logger.info(f"Application initialized in {app.config['ENV']} mode")
-
     # Configure CORS
-    is_production = app.config['ENV'] == 'production'
-    default_origins = [
-        "http://localhost:5173", 
-        "http://127.0.0.1:5173",
-        "https://wolf.law.uw.edu"
-    ]
-    
-    cors_origins = (
-        ["https://wolf.law.uw.edu"] if is_production
-        else os.getenv("CORS_ORIGINS", ",".join(default_origins)).split(",")
-    )
-    cors_origins = [origin.strip() for origin in cors_origins if origin.strip()]
-    
-    logger.info(f"Configuring CORS with origins: {cors_origins}")
-    
-    CORS(
-        app,
-        resources={r"/*": {
-            "origins": cors_origins,
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
-            "allow_headers": [
-                "Content-Type", 
-                "Authorization", 
-                "X-Requested-With", 
-                "x-requested-with",
-                "Origin", 
-                "Accept"
-            ],
-            "supports_credentials": True,
-            "expose_headers": ["Content-Disposition", "Content-Type"],
-            "max_age": 86400
-        }},
-        supports_credentials=True,
-        automatic_options=True
-    )
+    cors_origins = os.getenv('CORS_ORIGINS', 'https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080').split(',')
+    CORS(app, 
+         resources={r"/*": {"origins": cors_origins}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+         expose_headers=["Content-Disposition", "Content-Type"])
 
-    # Add security headers middleware
-    @app.after_request
-    def add_security_headers(response):
-        """Add security headers to all responses."""
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        response.headers['X-XSS-Protection'] = '1; mode=block'
-        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        
-        # Handle CORS headers
-        if 'Origin' in request.headers:
-            origin = request.headers['Origin']
-            if origin in cors_origins:
-                response.headers['Access-Control-Allow-Origin'] = origin
-                response.headers['Access-Control-Allow-Credentials'] = 'true'
-        
-        return response
+    # Add robust SPA fallback for Vue.js frontend
+    @app.route('/casestrainer/', defaults={'path': ''})
+    @app.route('/casestrainer/<path:path>')
+    def serve_vue_app(path):
+        vue_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'casestrainer-vue-new', 'dist'))
+        file_path = os.path.join(vue_dist_dir, path)
+        if path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return send_from_directory(vue_dist_dir, path)
+        else:
+            # Serve index.html for unknown routes (SPA fallback)
+            return send_from_directory(vue_dist_dir, 'index.html')
 
-    # Add health check endpoint
-    @app.route('/api/health')
-    def health_check():
-        """Health check endpoint"""
-        try:
-            return jsonify({
-                'status': 'ok',
-                'environment': app.config['ENV'],
-                'version': '1.0.0',
-                'service': 'CaseStrainer API',
-                'timestamp': datetime.now(timezone.utc).isoformat()
-            })
-        except Exception as e:
-            logger.error(f"Health check error: {str(e)}")
-            return jsonify({
-                'status': 'error',
-                'message': str(e),
-                'service': 'CaseStrainer API',
-                'timestamp': datetime.now(timezone.utc).isoformat()
-            }), 500
-
-    # Add error handlers
-    @app.errorhandler(404)
-    def not_found_error(error):
-        """Handle 404 errors."""
-        return jsonify({
-            "status": "error",
-            "message": "Not found",
-            "error": str(error)
-        }), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        """Handle 500 errors."""
-        logger.error(f"Internal server error: {error}")
-        return jsonify({
-            "status": "error",
-            "message": "Internal server error",
-            "error": "An unexpected error occurred"
-        }), 500
-
-    # Add static file routes
-    @app.route("/")
-    def root_redirect():
-        """Redirect root to the Vue app."""
-        return redirect("/casestrainer/")
-
-    @app.route("/casestrainer/")
-    @app.route("/casestrainer")
-    def serve_vue_app():
-        """Serve the Vue.js application."""
-        return send_from_directory(app.static_folder, "index.html")
-
-    @app.route("/js/<path:filename>")
-    def serve_js(filename):
-        """Serve JavaScript files."""
-        return send_from_directory(Path(app.static_folder) / "js", filename)
-
-    @app.route("/css/<path:filename>")
-    def serve_css(filename):
-        """Serve CSS files."""
-        return send_from_directory(Path(app.static_folder) / "css", filename)
-
-    @app.route("/img/<path:filename>")
-    def serve_img(filename):
-        """Serve image files."""
-        return send_from_directory(Path(app.static_folder) / "img", filename)
-
-    @app.route("/casestrainer/<path:path>")
-    def serve_vue_path(path):
-        """Serve Vue.js application paths."""
-        try:
-            return send_from_directory(app.static_folder, path)
-        except Exception as e:
-            logger.error(f"Error serving path {path}: {e}")
-            return send_from_directory(app.static_folder, "index.html")
-
+    # Store the instance
+    _app_instance = app
     logger.info("Application initialization completed successfully")
     return app
-
-# Create the Flask application
-app = create_app()
 
 # WSGI application for production servers
 def get_wsgi_application():
     """WSGI server entry point for production servers."""
-    return app
+    return create_app()
 
 # Main execution block
 if __name__ == "__main__":
@@ -300,13 +217,13 @@ if __name__ == "__main__":
             try:
                 from waitress import serve
                 logger.info("Starting with Waitress WSGI server")
-                serve(app, host=args.host, port=args.port, threads=10)
+                serve(create_app(), host=args.host, port=args.port, threads=10)
             except ImportError:
                 logger.warning("Waitress not installed. Using Flask dev server.")
-                app.run(host=args.host, port=args.port, debug=args.debug)
+                create_app().run(host=args.host, port=args.port, debug=args.debug)
         else:
             logger.info("Starting with Flask development server")
-            app.run(host=args.host, port=args.port, debug=args.debug)
+            create_app().run(host=args.host, port=args.port, debug=args.debug)
     except Exception as e:
         logger.critical("Fatal error in main:", exc_info=True)
         print(f"\nFATAL ERROR: {e}")

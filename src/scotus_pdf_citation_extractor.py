@@ -139,7 +139,10 @@ class SCOTUSPDFCitationExtractor:
                     logger.info(
                         "Successfully extracted text using enhanced pdfminer settings"
                     )
-                    return self.clean_extracted_text(text)
+                    logger.info(f"[RAW PDF TEXT SAMPLE] {text[:1000]}")
+                    cleaned = self.clean_extracted_text(text)
+                    logger.info(f"[CLEANED PDF TEXT SAMPLE] {cleaned[:1000]}")
+                    return cleaned
             except Exception as e:
                 logger.error(f"Enhanced pdfminer extraction failed: {str(e)}")
 
@@ -171,7 +174,10 @@ class SCOTUSPDFCitationExtractor:
                 if page_text:
                     all_text += page_text + "\n"
 
-            return self.clean_extracted_text(all_text)
+            logger.info(f"[RAW PDF TEXT SAMPLE] {all_text[:1000]}")
+            cleaned = self.clean_extracted_text(all_text)
+            logger.info(f"[CLEANED PDF TEXT SAMPLE] {cleaned[:1000]}")
+            return cleaned
 
         except Exception as e:
             logger.error(f"Error extracting text from PDF: {str(e)}")
@@ -476,9 +482,7 @@ class SCOTUSPDFCitationExtractor:
                 f"Error validating citations with CourtListener citation-lookup: {str(e)}"
             )
 
-    def extract_citations_from_url(
-        self, url: str, verify_citations: bool = True
-    ) -> dict:
+    def extract_citations_from_url(self, url: str, verify_citations: bool = True) -> dict:
         """Extract and verify citations from a PDF at the given URL or local file path.
 
         Args:
@@ -528,16 +532,26 @@ class SCOTUSPDFCitationExtractor:
                 result.add_error(error_msg)
                 return result.to_dict()
 
-            # Extract citations
-            logger.info("[extract_citations_from_url] Finding citations")
-            if EYECITE_AVAILABLE:
-                citations = self.find_citations_with_eyecite(text)
-            else:
-                citations = list(self.find_citations_with_regex(text))
+            # Extract text from the URL (PDF, HTML, etc.)
+            text = self.extract_text_from_url(url)
+            if not text:
+                logger.error(f"No text extracted from URL: {url}")
+                return {}
 
-            logger.info(
-                f"[extract_citations_from_url] Found {len(citations)} citations"
+            # --- NEW: Send text to CourtListener citation-lookup API ---
+            api_key = COURTLISTENER_API_KEY if 'COURTLISTENER_API_KEY' in globals() else os.environ.get('COURTLISTENER_API_KEY')
+            headers = {"Authorization": f"Token {api_key}"} if api_key else {}
+            response = requests.post(
+                "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+                headers=headers,
+                data={"text": text}
             )
+            try:
+                citations = response.json()
+            except Exception as e:
+                logger.error(f"Error parsing CourtListener response: {e}")
+                return {}
+            logger.info(f"CourtListener returned {len(citations)} citations.")
 
             # Add citations to result
             result.add_data("citations", citations)

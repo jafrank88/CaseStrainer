@@ -14,7 +14,7 @@ This guide provides instructions for deploying CaseStrainer in a production envi
 
 1. **Clone the repository**
    ```
-   git clone https://github.com/yourusername/CaseStrainer.git
+   git clone https://github.com/jafrank88/CaseStrainer.git
    cd CaseStrainer
    ```
 

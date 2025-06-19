@@ -30,6 +30,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.config import get_config_value, configure_logging
+from src.extract_case_name import extract_case_name_from_text, find_shared_case_name_for_citations
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
@@ -94,13 +95,13 @@ class CitationProcessor:
             session.headers.update(
                 {
                     "Authorization": f"Token {self.api_key}",
-                    "User-Agent": "CaseStrainer/1.0 (https://github.com/yourusername/casestrainer; your@email.com)",
+                    "User-Agent": "CaseStrainer/1.0 (https://github.com/jafrank88/casestrainer; your@email.com)",
                 }
             )
         else:
             session.headers.update(
                 {
-                    "User-Agent": "CaseStrainer/1.0 (https://github.com/yourusername/casestrainer; your@email.com)"
+                    "User-Agent": "CaseStrainer/1.0 (https://github.com/jafrank88/casestrainer; your@email.com)"
                 }
             )
 
@@ -177,14 +178,15 @@ class CitationProcessor:
 
         return cleaned.strip()
 
-    def extract_citations(self, text: str) -> List[CitationBase]:
+    def extract_citations(self, text: str, extract_case_names: bool = True) -> List[Dict[str, Any]]:
         """Extract citations from text using eyecite.
 
         Args:
             text: The text to extract citations from
+            extract_case_names: Whether to extract case names from context
 
         Returns:
-            List of extracted citation objects
+            List of extracted citation dictionaries with metadata
         """
         try:
             # Clean the text
@@ -199,7 +201,55 @@ class CitationProcessor:
 
             # Resolve citations to group duplicates
             resolved_citations = resolve_citations(citations)
-            return list(resolved_citations)
+            
+            # Convert to enhanced format with case names
+            enhanced_citations = []
+            for citation in resolved_citations:
+                citation_str = str(citation)
+                
+                # Extract the actual citation text (not the full eyecite object)
+                if hasattr(citation, 'citation'):
+                    # For eyecite citations, get the actual citation text
+                    if hasattr(citation.citation, 'groups'):
+                        # This is a FullCaseCitation object, extract the text
+                        volume = citation.citation.groups.get('volume', '')
+                        reporter = citation.citation.groups.get('reporter', '')
+                        page = citation.citation.groups.get('page', '')
+                        actual_citation_text = f"{volume} {reporter} {page}".strip()
+                    else:
+                        actual_citation_text = str(citation.citation)
+                else:
+                    actual_citation_text = citation_str
+                
+                # Create citation object with position info for shared case name detection
+                citation_obj = {
+                    'citation': actual_citation_text,
+                    'start_index': getattr(citation, 'start', None),
+                    'end_index': getattr(citation, 'end', None),
+                }
+                enhanced_citations.append(citation_obj)
+            
+            # Extract case names with shared case name detection
+            if extract_case_names:
+                # First, try to find shared case names for all citations
+                shared_case_names = find_shared_case_name_for_citations(text, enhanced_citations)
+                
+                # Now extract individual case names, using shared names when available
+                for citation_obj in enhanced_citations:
+                    citation_text = citation_obj['citation']
+                    
+                    # Check if this citation has a shared case name
+                    if citation_text in shared_case_names:
+                        case_name = shared_case_names[citation_text]
+                    else:
+                        # Extract individual case name
+                        case_name = extract_case_name_from_text(text, citation_text, enhanced_citations)
+                    
+                    citation_obj['case_name'] = case_name
+                    citation_obj['raw'] = citation_str  # Add the raw citation string
+            
+            logger.info(f"Extracted {len(enhanced_citations)} citations with case names")
+            return enhanced_citations
 
         except Exception as e:
             logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
@@ -216,7 +266,7 @@ class CitationProcessor:
             # Simple pattern matching for common citation formats
             patterns = [
                 (r"(\d+)\s+U\.?\s*S\.?\s+(\d+)", "U.S. Reports"),
-                (r"(\d+)\s+F\.?(?:\s*\d*[a-z]*)?\s+\d+", "Federal Reporter"),
+                (r"(\d+)\s+F\.?(:?\s*\d*[a-z]*)?\s+\d+", "Federal Reporter"),
                 (r"(\d+)\s+S\.?\s*Ct\.?\s+\d+", "Supreme Court Reporter"),
                 (r"(\d+)\s+L\.?\s*Ed\.?\s*\d+", "Lawyers Edition"),
             ]
@@ -226,6 +276,7 @@ class CitationProcessor:
                     return {
                         "citation": citation_str,
                         "valid": True,
+                        "verified": False,
                         "results": [
                             {
                                 "source": "local_validation",
@@ -234,13 +285,15 @@ class CitationProcessor:
                             }
                         ],
                         "cached": False,
-                        "error": None,
+                        "error": "Not verified in database",
+                        "source": "local_validation",
                     }
 
             # If no patterns matched
             return {
                 "citation": citation_str,
                 "valid": False,
+                "verified": False,
                 "results": [],
                 "cached": False,
                 "error": "Local validation failed - citation format not recognized",
@@ -259,6 +312,7 @@ class CitationProcessor:
                     else citation_text
                 ),
                 "valid": False,
+                "verified": False,
                 "results": [],
                 "cached": False,
                 "error": f"Local validation error: {str(e)}",
@@ -420,7 +474,7 @@ class CitationProcessor:
 
             # Add a small delay between batches to be nice to the API
             if i + batch_size < total:
-                time.sleep(0.5)
+                time.sleep(0.2)  # Reduced from 0.5 for better performance
 
         logger.info(f"Completed processing {len(results)} citations")
         return results

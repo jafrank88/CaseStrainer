@@ -19,6 +19,7 @@ import traceback
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import time
+import requests
 
 # Add the project root to the Python path
 import sys
@@ -368,9 +369,86 @@ def analyze():
         ANALYSIS_TIMEOUT = 28  # seconds (slightly less than frontend to allow for response time)
         MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
         
+        # Check if we have pasted text
+        if "text" in request.form or (request.is_json and "text" in (request.get_json(silent=True) or {})):
+            if request.is_json:
+                text = request.get_json(silent=True).get("text", "")
+            else:
+                text = request.form.get("text", "")
+            if not text.strip():
+                error_msg = "No text provided"
+                logger.error(f"[Analysis {analysis_id}] {error_msg}")
+                return jsonify({"error": error_msg}), 400
+
+            logger.info(f"[Analysis {analysis_id}] Processing pasted text ({len(text)} characters)")
+            # Extract and validate citations (reuse your existing logic)
+            try:
+                logger.info(f"[Analysis {analysis_id}] Starting citation extraction (text input)")
+                extraction_start = time.time()
+                extraction_result = extract_citations(text, return_debug=True, analysis_id=analysis_id)
+                extraction_time = time.time() - extraction_start
+
+                # Handle the tuple return value from extract_citations
+                if isinstance(extraction_result, tuple) and len(extraction_result) == 2:
+                    citations, debug_info = extraction_result
+                    if isinstance(citations, dict) and "confirmed_citations" in citations:
+                        citations = citations["confirmed_citations"]
+                else:
+                    citations = extraction_result if isinstance(extraction_result, list) else []
+                    debug_info = {}
+
+                if not citations:
+                    logger.warning(f"[Analysis {analysis_id}] No citations found after {extraction_time:.1f}s")
+                    return jsonify({
+                        "status": "Invalid",
+                        "analysis_id": analysis_id,
+                        "validation_results": [],
+                        "file_name": None,
+                        "citations_count": 0,
+                        "extraction_time": time.time() - start_time,
+                        "processing_time": 0,
+                        "validation_time": 0,
+                        "error": "No citations found in document"
+                    })
+
+                logger.info(f"[Analysis {analysis_id}] Found {len(citations)} citations in {extraction_time:.1f}s")
+
+                # Validate citations with progress reporting
+                logger.info(f"[Analysis {analysis_id}] Starting citation validation (text input)")
+                validation_start = time.time()
+                validation_results = validate_citations(citations, analysis_id=analysis_id)
+                validation_time = time.time() - validation_start
+
+                logger.info(f"[Analysis {analysis_id}] Validated {len(validation_results)} citations in {validation_time:.1f}s")
+
+                # Prepare response with timing information
+                total_time = time.time() - start_time
+                response = {
+                    "status": "Valid" if any(r.get("valid") for r in validation_results) else "Invalid",
+                    "analysis_id": analysis_id,
+                    "validation_results": validation_results,
+                    "citations": validation_results,  # Include both for compatibility
+                    "file_name": None,
+                    "citations_count": len(citations),
+                    "extraction_time": extraction_time,
+                    "processing_time": extraction_time,
+                    "validation_time": validation_time,
+                    "total_time": total_time,
+                    "file_size": None,
+                    "debug_info": debug_info if debug_info else None
+                }
+
+                logger.info(f"[Analysis {analysis_id}] Analysis completed in {total_time:.1f}s (text input)")
+                return jsonify(response)
+
+            except Exception as e:
+                error_msg = f"Error processing citations: {str(e)}"
+                logger.error(f"[Analysis {analysis_id}] {error_msg}")
+                return jsonify({"error": error_msg}), 500
+
         # Check if we have a file upload
         if "file" not in request.files:
-            error_msg = "No file uploaded"
+            error_msg = "No file uploaded or text provided"
             logger.error(f"[Analysis {analysis_id}] {error_msg}")
             return jsonify({"error": error_msg}), 400
             
@@ -438,8 +516,19 @@ def analyze():
             logger.info(f"[Analysis {analysis_id}] Starting citation extraction")
             extraction_start = time.time()
             
-            citations = extract_citations(text, return_debug=True, analysis_id=analysis_id)
+            # Extract citations and handle the tuple return value
+            extraction_result = extract_citations(text, return_debug=True, analysis_id=analysis_id)
             extraction_time = time.time() - extraction_start
+            
+            # Handle the tuple return value from extract_citations
+            if isinstance(extraction_result, tuple) and len(extraction_result) == 2:
+                citations, debug_info = extraction_result
+                # If citations is a dict with confirmed_citations, use that
+                if isinstance(citations, dict) and "confirmed_citations" in citations:
+                    citations = citations["confirmed_citations"]
+            else:
+                citations = extraction_result if isinstance(extraction_result, list) else []
+                debug_info = {}
             
             if not citations:
                 logger.warning(f"[Analysis {analysis_id}] No citations found after {extraction_time:.1f}s")
@@ -472,12 +561,106 @@ def analyze():
                 """
                 results = []
                 for citation in citations:
-                    # Placeholder for actual validation logic
-                    results.append({
-                        "citation_text": citation.get("text", ""),
-                        "valid": False,
-                        "reason": "Validation logic not implemented yet."
-                    })
+                    try:
+                        # Get citation text from either format
+                        citation_text = citation.get("text", citation.get("citation", ""))
+                        if not citation_text:
+                            continue
+                            
+                        # Check if citation was verified by CourtListener
+                        is_verified = False
+                        case_name = "Unknown Case"
+                        confidence = 0.0
+                        metadata = {}
+                        details = {}
+                        
+                        # Check CourtListener verification
+                        if isinstance(citation, dict):
+                            # Check for clusters (CourtListener API response)
+                            if "clusters" in citation:
+                                clusters = citation.get("clusters", [])
+                                if clusters:
+                                    cluster = clusters[0]  # Use first cluster
+                                    is_verified = True
+                                    case_name = cluster.get("case_name", "Unknown Case")
+                                    confidence = 0.9  # High confidence for CourtListener matches
+                                    metadata = {
+                                        "case_name": case_name,
+                                        "court": cluster.get("court", ""),
+                                        "date_filed": cluster.get("date_filed", ""),
+                                        "judges": cluster.get("judges", ""),
+                                        "docket": cluster.get("docket", ""),
+                                        "precedential_status": cluster.get("precedential_status", ""),
+                                        "citation_count": cluster.get("citation_count", 0),
+                                        "verified": True,
+                                        "url": cluster.get("url", "")
+                                    }
+                                    details = {
+                                        "court": cluster.get("court", ""),
+                                        "date_filed": cluster.get("date_filed", ""),
+                                        "precedential_status": cluster.get("precedential_status", ""),
+                                        "judges": cluster.get("judges", "")
+                                    }
+                                    # Add clusters to the citation object
+                                    citation["verified"] = True
+                                    citation["clusters"] = clusters
+                            # Check for direct verification fields
+                            elif citation.get("verified") or citation.get("valid"):
+                                is_verified = True
+                                case_name = citation.get("case_name", "Unknown Case")
+                                confidence = citation.get("confidence", 0.9)
+                                metadata = {
+                                    "case_name": case_name,
+                                    "court": citation.get("court", ""),
+                                    "date_filed": citation.get("date_filed", ""),
+                                    "verified": True,
+                                    "url": citation.get("url", "")
+                                }
+                                details = {
+                                    "court": citation.get("court", ""),
+                                    "date_filed": citation.get("date_filed", ""),
+                                    "precedential_status": citation.get("precedential_status", "")
+                                }
+                            # Check for normalized citations (eyecite format)
+                            elif "normalized_citations" in citation:
+                                is_verified = True
+                                case_name = citation.get("case_name", "Unknown Case")
+                                confidence = 0.8  # Medium confidence for eyecite matches
+                                metadata = {
+                                    "case_name": case_name,
+                                    "normalized_citations": citation.get("normalized_citations", []),
+                                    "source": "eyecite",
+                                    "verified": True
+                                }
+                                details = {
+                                    "source": "eyecite",
+                                    "normalized_citations": citation.get("normalized_citations", [])
+                                }
+                        
+                        # Create validation result with consistent field names
+                        found = is_verified
+                        result = {
+                            "citation": citation_text,  # Use consistent field name
+                            "text": citation_text,      # Include both for compatibility
+                            "valid": found,
+                            "verified": found,
+                            "case_name": case_name,
+                            "confidence": confidence,
+                            "method": "CourtListener API" if found and "clusters" in citation else "eyecite",
+                            "metadata": metadata,
+                            "details": details,
+                            "source": "CourtListener" if found and "clusters" in citation else "eyecite",
+                            "status": 200 if found else 404,
+                            "error_message": "" if found else citation.get("error", "Citation not found"),
+                            "clusters": citation.get("clusters", []) if found and "clusters" in citation else []
+                        }
+                        
+                        results.append(result)
+                        logger.info(f"[Analysis {analysis_id}] Citation {citation_text} validated: {found} (confidence: {confidence})")
+                        
+                    except Exception as e:
+                        logger.error(f"[Analysis {analysis_id}] Error validating citation: {str(e)}")
+                        continue
                 return results
             
             validation_results = validate_citations(citations, analysis_id=analysis_id)
@@ -491,13 +674,15 @@ def analyze():
                 "status": "Valid" if any(r.get("valid") for r in validation_results) else "Invalid",
                 "analysis_id": analysis_id,
                 "validation_results": validation_results,
+                "citations": validation_results,  # Include both for compatibility
                 "file_name": filename,
                 "citations_count": len(citations),
                 "extraction_time": extraction_time,
                 "processing_time": extraction_time,
                 "validation_time": validation_time,
                 "total_time": total_time,
-                "file_size": file_size
+                "file_size": file_size,
+                "debug_info": debug_info if debug_info else None
             }
             
             logger.info(f"[Analysis {analysis_id}] Analysis completed in {total_time:.1f}s")
@@ -582,3 +767,17 @@ def reprocess_citation():
             ),
             500,
         )
+
+
+@citation_api.route('/fetch_url', methods=['POST'])
+def fetch_url():
+    data = request.get_json()
+    url = data.get('url')
+    if not url:
+        return jsonify({'error': 'No URL provided'}), 400
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        return jsonify({'text': resp.text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

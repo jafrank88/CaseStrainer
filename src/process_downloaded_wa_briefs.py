@@ -12,6 +12,7 @@ import re
 import logging
 import time
 import random
+import requests
 
 import PyPDF2
 
@@ -341,64 +342,36 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
     logger.info(f"Updated citation JSON files: {citation_file} and {database_file}")
 
 
-def process_brief(brief_info, processed_briefs, multi_source_verifier):
+def process_brief(brief_path):
     """Process a brief to extract and verify citations."""
     try:
-        brief_path = brief_info["path"]
-        source_document = os.path.basename(brief_path)
+        # Extract text from the brief
+        brief_text = extract_text_from_pdf(brief_path)
+        if not brief_text:
+            logger.error(f"No text extracted from brief: {brief_path}")
+            return None
 
-        # Check if brief has already been processed
-        if brief_path in processed_briefs:
-            logger.info(f"Brief already processed: {brief_path}")
-            return [], []
-
-        # Extract text from the PDF
-        text = extract_text_from_pdf(brief_path)
-        if not text:
-            logger.warning(f"Failed to extract text from {brief_path}")
-            return [], []
-
-        # Extract citations from the text
-        citations = extract_citations(text)
-        logger.info(f"Extracted {len(citations)} citations from {brief_path}")
-
-        # Verify each citation
-        multitool_citations = []
-        unconfirmed_citations = []
-
-        for citation in citations:
-            # Verify the citation
-            result = verify_citation(citation, multi_source_verifier)
-
-            # Add citation text and source document to the result
-            result["citation_text"] = citation["citation_text"]
-            result["source_document"] = source_document
-
-            # Save to database
-            save_citation_to_db(result, source_document)
-
-            # Categorize the citation
-            if result["found"]:
-                if result.get("source", "") != "CourtListener":
-                    multitool_citations.append(result)
-            else:
-                unconfirmed_citations.append(result)
-
-            # Add a small delay between citations
-            time.sleep(1.0)  # 1 second delay to handle 60 citations per minute
-
-        # Add the brief to the list of processed briefs
-        processed_briefs.append(brief_path)
-        save_processed_briefs(processed_briefs)
-
-        logger.info(
-            f"Processed brief {brief_path}: {len(multitool_citations)} multitool citations, {len(unconfirmed_citations)} unconfirmed citations"
+        # --- NEW: Send text to CourtListener citation-lookup API ---
+        api_key = COURTLISTENER_API_KEY if 'COURTLISTENER_API_KEY' in globals() else os.environ.get('COURTLISTENER_API_KEY')
+        headers = {"Authorization": f"Token {api_key}"} if api_key else {}
+        response = requests.post(
+            "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+            headers=headers,
+            data={"text": brief_text}
         )
-        return multitool_citations, unconfirmed_citations
+        try:
+            citations = response.json()
+        except Exception as e:
+            logger.error(f"Error parsing CourtListener response: {e}")
+            return None
+        logger.info(f"CourtListener returned {len(citations)} citations.")
+
+        # --- process citations as needed ...
+        return citations
 
     except Exception as e:
-        logger.error(f"Error processing brief {brief_info['path']}: {e}")
-        return [], []
+        logger.error(f"Error processing brief {brief_path}: {e}")
+        return None
 
 
 def main():
@@ -411,20 +384,6 @@ def main():
     # Load processed briefs
     processed_briefs = load_processed_briefs()
     logger.info(f"Loaded {len(processed_briefs)} previously processed briefs")
-
-    # Initialize the multi-source verifier
-    api_keys = {}
-    try:
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            api_keys["courtlistener"] = config.get("courtlistener_api_key")
-            logger.info(
-                f"Loaded CourtListener API key from config.json: {api_keys['courtlistener'][:5]}..."
-            )
-    except Exception as e:
-        logger.warning(f"Error loading API keys from config.json: {e}")
-
-    multi_source_verifier = MultiSourceVerifier(api_keys)
 
     # Load briefs metadata
     metadata_path = os.path.join(BRIEFS_DIR, "briefs_metadata.json")
@@ -475,9 +434,7 @@ def main():
     for i, brief in enumerate(new_briefs):
         logger.info(f"Processing brief {i+1}/{len(new_briefs)}: {brief['path']}")
 
-        multitool_citations, unconfirmed_citations = process_brief(
-            brief, processed_briefs, multi_source_verifier
-        )
+        multitool_citations, unconfirmed_citations = process_brief(brief["path"])
 
         all_multitool_citations.extend(multitool_citations)
         all_unconfirmed_citations.extend(unconfirmed_citations)
