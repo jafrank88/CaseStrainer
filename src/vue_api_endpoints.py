@@ -44,7 +44,15 @@ from file_utils import extract_text_from_file
 from citation_utils import deduplicate_citations
 from enhanced_validator_production import make_error_response
 import tempfile
-from citation_verification import CitationVerifier
+# Use EnhancedMultiSourceVerifier for multi-source citation verification
+# try:
+#     from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+#     CitationVerifier = EnhancedMultiSourceVerifier  # Alias for compatibility
+#     logger.info("Using EnhancedMultiSourceVerifier for multi-source citation verification")
+# except ImportError as e:
+#     logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
+#     logger.warning("Falling back to CitationVerifier")
+#     from citation_verification import CitationVerifier
 from rq import Queue
 from redis import Redis
 from rq import get_current_job
@@ -100,6 +108,16 @@ logger = configure_logging()
 logger.info("=== Backend Startup ===")
 logger.info("Importing required modules...")
 
+# Use EnhancedMultiSourceVerifier for multi-source citation verification
+try:
+    from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    CitationVerifier = EnhancedMultiSourceVerifier  # Alias for compatibility
+    logger.info("Using EnhancedMultiSourceVerifier for multi-source citation verification")
+except ImportError as e:
+    logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
+    logger.warning("Falling back to CitationVerifier")
+    from citation_verification import CitationVerifier
+
 try:
     # Create Blueprint instead of Flask app
     logger.info("Creating Flask Blueprint...")
@@ -126,6 +144,9 @@ try:
     COURTLISTENER_CITATIONS_PER_MINUTE = 150  # citations per minute for timeout calculation (increased from 90)
     DEFAULT_TIMEOUT = 300  # 5 minutes default timeout
     
+    WORKER_ENV = os.environ.get("CASTRAINER_ENV", "production").lower()
+    WORKER_LABEL = ""  # Remove misleading [DEV] labels
+    
     logger.info("Global variables initialized successfully")
     
 except Exception as e:
@@ -139,27 +160,93 @@ def health_check():
     try:
         worker_status = "unknown"
         queue_size = 0
+        server_stats = {}
         
         if not RQ_AVAILABLE:
             try:
                 worker_status = "running" if worker_thread.is_alive() and worker_running else "stopped"
                 queue_size = task_queue.qsize()
-            except:
+                # Get server stats if available
+                if 'get_server_stats' in globals():
+                    server_stats = get_server_stats()
+            except Exception as e:
                 worker_status = "error"
+                logger.error(f"Error getting worker status: {e}")
         
-        return jsonify({
+        # Get current timestamp
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        response_data = {
             'status': 'healthy',
             'timestamp': time.time(),
+            'current_time': current_time,
             'active_requests': len(active_requests),
             'worker_status': worker_status,
             'queue_size': queue_size,
-            'rq_available': RQ_AVAILABLE
-        })
+            'rq_available': RQ_AVAILABLE,
+            'server_stats': server_stats
+        }
+        
+        # Add restart tracking info
+        if server_stats:
+            response_data.update({
+                'uptime': server_stats.get('uptime', 'unknown'),
+                'uptime_seconds': server_stats.get('uptime_seconds', 0),
+                'restart_count': server_stats.get('restart_count', 0),
+                'worker_alive': server_stats.get('worker_alive', False)
+            })
+        
+        return jsonify(response_data)
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         return jsonify({
             'status': 'unhealthy',
-            'error': str(e)
+            'error': str(e),
+            'timestamp': time.time(),
+            'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }), 500
+
+@vue_api.route('/server_stats', methods=['GET'])
+def server_stats():
+    """Detailed server statistics and restart tracking endpoint."""
+    try:
+        stats = {
+            'timestamp': time.time(),
+            'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'active_requests': len(active_requests),
+            'rq_available': RQ_AVAILABLE
+        }
+        
+        if not RQ_AVAILABLE and 'get_server_stats' in globals():
+            try:
+                server_stats = get_server_stats()
+                stats.update(server_stats)
+                
+                # Add detailed worker info
+                stats['worker_thread_alive'] = worker_thread.is_alive() if worker_thread else False
+                stats['worker_running'] = worker_running
+                stats['queue_size'] = task_queue.qsize() if task_queue else 0
+                
+                # Calculate uptime in different formats
+                uptime_seconds = stats.get('uptime_seconds', 0)
+                stats['uptime_hours'] = round(uptime_seconds / 3600, 2)
+                stats['uptime_days'] = round(uptime_seconds / 86400, 2)
+                
+                # Add stability indicators
+                stats['stability_score'] = 'excellent' if uptime_seconds > 3600 else 'good' if uptime_seconds > 300 else 'starting'
+                stats['needs_restart'] = uptime_seconds > 86400  # Flag if running more than 24 hours
+                
+            except Exception as e:
+                logger.error(f"Error getting server stats: {e}")
+                stats['error'] = str(e)
+        
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"Server stats failed: {str(e)}")
+        return jsonify({
+            'error': str(e),
+            'timestamp': time.time(),
+            'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }), 500
 
 # Add error handlers
@@ -223,29 +310,93 @@ if not RQ_AVAILABLE:
     worker_thread = None
     worker_running = False
     
+    # Restart tracking
+    server_start_time = time.time()
+    restart_count = 0
+    
+    def get_timestamp():
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def get_uptime():
+        uptime_seconds = time.time() - server_start_time
+        hours = int(uptime_seconds // 3600)
+        minutes = int((uptime_seconds % 3600) // 60)
+        seconds = int(uptime_seconds % 60)
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    
     def worker_loop():
         global worker_running
         worker_running = True
-        print("[WORKER] Thread-based worker started")  # Immediate output
-        logger.info("[WORKER] Thread-based worker started")
+        timestamp = get_timestamp()
+        uptime = get_uptime()
+        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Thread-based worker started (uptime: {uptime})")  # Immediate output
+        logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker started (uptime: {uptime})")
+        
+        # Initialize the verifier for database expansion
+        try:
+            from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+            logger.info(f"{WORKER_LABEL} [WORKER] Initialized EnhancedMultiSourceVerifier for database expansion")
+        except Exception as e:
+            logger.error(f"{WORKER_LABEL} [WORKER] Failed to initialize verifier for database expansion: {e}")
+            verifier = None
+        
+        # Track when we last expanded the database to avoid too frequent calls
+        last_expansion_time = 0
+        expansion_interval = 300  # 5 minutes between expansion attempts
         
         while worker_running:
             try:
                 # Get next task from queue (with timeout)
                 try:
                     task = task_queue.get(timeout=1.0)
-                    print(f"[WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()})")  # Immediate output
-                    logger.info(f"[WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()})")
+                    timestamp = get_timestamp()
+                    uptime = get_uptime()
+                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()}) (uptime: {uptime})")  # Immediate output
+                    logger.info(f"{WORKER_LABEL} [WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()}) (uptime: {uptime})")
                 except python_queue.Empty:
+                    # Check if we should expand the database (only if enough time has passed)
+                    current_time = time.time()
+                    if (verifier and 
+                        current_time - last_expansion_time > expansion_interval and 
+                        task_queue.qsize() == 0):
+                        
+                        try:
+                            timestamp = get_timestamp()
+                            uptime = get_uptime()
+                            print(f"{WORKER_LABEL} [{timestamp}] [WORKER] No tasks in queue, expanding database... (uptime: {uptime})")
+                            logger.info(f"{WORKER_LABEL} [WORKER] No tasks in queue, expanding database... (uptime: {uptime})")
+                            
+                            # Try to expand database with up to 5 new verifications
+                            expanded_count = verifier.expand_database_from_unverified(limit=5)
+                            
+                            if expanded_count > 0:
+                                timestamp = get_timestamp()
+                                uptime = get_uptime()
+                                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Expanded database with {expanded_count} new verifications (uptime: {uptime})")
+                                logger.info(f"{WORKER_LABEL} [WORKER] Expanded database with {expanded_count} new verifications (uptime: {uptime})")
+                            
+                            last_expansion_time = current_time
+                            
+                        except Exception as e:
+                            timestamp = get_timestamp()
+                            uptime = get_uptime()
+                            print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Database expansion failed: {e} (uptime: {uptime})")
+                            logger.error(f"{WORKER_LABEL} [WORKER] Database expansion failed: {e} (uptime: {uptime})")
+                    
                     # Log every 30 seconds that we're still alive
                     if int(time.time()) % 30 == 0:
-                        print("[WORKER] No tasks in queue, waiting...")  # Immediate output
-                        logger.debug("[WORKER] No tasks in queue, waiting...")
+                        timestamp = get_timestamp()
+                        uptime = get_uptime()
+                        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] No tasks in queue, waiting... (uptime: {uptime})")  # Immediate output
+                        logger.debug(f"{WORKER_LABEL} [WORKER] No tasks in queue, waiting... (uptime: {uptime})")
                     continue
                 
                 task_id, task_type, task_data = task
-                print(f"[WORKER] Processing task {task_id} of type {task_type}")  # Immediate output
-                logger.info(f"[WORKER] Processing task {task_id} of type {task_type}")
+                timestamp = get_timestamp()
+                uptime = get_uptime()
+                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Processing task {task_id} of type {task_type} (uptime: {uptime})")  # Immediate output
+                logger.info(f"{WORKER_LABEL} [WORKER] Processing task {task_id} of type {task_type} (uptime: {uptime})")
                 
                 # Update task status to processing
                 if task_id in active_requests:
@@ -254,7 +405,9 @@ if not RQ_AVAILABLE:
                 
                 try:
                     # Process the task using the same function
-                    print(f"[WORKER] Calling process_citation_task for {task_id}")  # Immediate output
+                    timestamp = get_timestamp()
+                    uptime = get_uptime()
+                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Calling process_citation_task for {task_id} (uptime: {uptime})")  # Immediate output
                     result = process_citation_task(task_id, task_type, task_data)
                     
                     # Update task status with results
@@ -268,12 +421,16 @@ if not RQ_AVAILABLE:
                             'verified_citations': result.get('verified_citations', 0)
                         })
                     
-                    print(f"[WORKER] Task {task_id} completed successfully")  # Immediate output
-                    logger.info(f"[WORKER] Task {task_id} completed successfully")
+                    timestamp = get_timestamp()
+                    uptime = get_uptime()
+                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Task {task_id} completed successfully (uptime: {uptime})")  # Immediate output
+                    logger.info(f"{WORKER_LABEL} [WORKER] Task {task_id} completed successfully (uptime: {uptime})")
                     
                 except Exception as e:
-                    print(f"[WORKER] Error processing task {task_id}: {e}")  # Immediate output
-                    logger.error(f"[WORKER] Error processing task {task_id}: {e}")
+                    timestamp = get_timestamp()
+                    uptime = get_uptime()
+                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Error processing task {task_id}: {e} (uptime: {uptime})")  # Immediate output
+                    logger.error(f"{WORKER_LABEL} [WORKER] Error processing task {task_id}: {e} (uptime: {uptime})")
                     if task_id in active_requests:
                         active_requests[task_id].update({
                             'status': 'failed',
@@ -286,31 +443,48 @@ if not RQ_AVAILABLE:
                     task_queue.task_done()
                     
             except Exception as e:
-                print(f"[WORKER] Worker loop error: {e}")  # Immediate output
-                logger.error(f"[WORKER] Worker loop error: {e}")
+                timestamp = get_timestamp()
+                uptime = get_uptime()
+                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Worker loop error: {e} (uptime: {uptime})")  # Immediate output
+                logger.error(f"{WORKER_LABEL} [WORKER] Worker loop error: {e} (uptime: {uptime})")
                 time.sleep(1)
         
-        print("[WORKER] Thread-based worker stopped")  # Immediate output
-        logger.info("[WORKER] Thread-based worker stopped")
+        timestamp = get_timestamp()
+        uptime = get_uptime()
+        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Thread-based worker stopped (uptime: {uptime})")  # Immediate output
+        logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker stopped (uptime: {uptime})")
     
     # Start worker thread
     worker_thread = threading.Thread(target=worker_loop, daemon=True)
     worker_thread.start()
-    logger.info("[WORKER] Thread-based worker started")
+    timestamp = get_timestamp()
+    uptime = get_uptime()
+    logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker started (uptime: {uptime})")
 
     # Add a function to check if worker is running
     def is_worker_running():
         return worker_thread.is_alive() and worker_running
+    
+    # Add restart tracking function
+    def get_server_stats():
+        return {
+            'start_time': server_start_time,
+            'uptime': get_uptime(),
+            'uptime_seconds': time.time() - server_start_time,
+            'restart_count': restart_count,
+            'worker_alive': is_worker_running()
+        }
 
 def process_citation_task(task_id, task_type, task_data):
-    import time
     import logging
+    logger = logging.getLogger(__name__)
+    import time
     import os
     import tempfile
     import json
     from datetime import datetime
     
-    print(f"[PROCESS] Starting process_citation_task for {task_id} of type {task_type}")  # Immediate output
+    print(f"{WORKER_LABEL} [PROCESS] Starting process_citation_task for {task_id} of type {task_type}")  # Immediate output
     
     # Initialize RQ connection for job updates
     try:
@@ -322,14 +496,14 @@ def process_citation_task(task_id, task_type, task_data):
         rq_queue = Queue('casestrainer', connection=redis_conn)
         job = rq_queue.fetch_job(task_id)
     except Exception as e:
-        logger.warning(f"Could not connect to Redis for job updates: {e}")
+        logger.warning(f"{WORKER_LABEL} [PROCESS] Could not connect to Redis for job updates: {e}")
         job = None
     
     logger = logging.getLogger(__name__)
     
     try:
-        print(f"[PROCESS] Task {task_id} of type {task_type} - starting processing")  # Immediate output
-        logger.info(f"[RQ WORKER] Starting task {task_id} of type {task_type}")
+        print(f"{WORKER_LABEL} [PROCESS] Task {task_id} of type {task_type} - starting processing")  # Immediate output
+        logger.info(f"{WORKER_LABEL} [RQ WORKER] Starting task {task_id} of type {task_type}")
         
         # Initialize progress tracking
         if job:
@@ -340,9 +514,9 @@ def process_citation_task(task_id, task_type, task_data):
         
         if task_type == 'file':
             file_path = task_data.get('file_path')
-            logger.info(f"[RQ WORKER] Task {task_id} file_path: {file_path}")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} file_path: {file_path}")
             if not file_path or not os.path.exists(file_path):
-                logger.error(f"[RQ WORKER] File not found: {file_path}")
+                logger.error(f"{WORKER_LABEL} [RQ WORKER] File not found: {file_path}")
                 raise ValueError(f"File not found: {file_path}")
             
             # Update progress: File validation
@@ -360,7 +534,7 @@ def process_citation_task(task_id, task_type, task_data):
             text_result = extract_text_from_file(file_path)
             if isinstance(text_result, dict):
                 if not text_result.get('success', True):
-                    logger.error(f"[RQ WORKER] File extraction error: {text_result.get('error')}")
+                    logger.error(f"{WORKER_LABEL} [RQ WORKER] File extraction error: {text_result.get('error')}")
                     return {'status': 'error', 'error': text_result.get('error', 'Failed to extract text from file')}
                 text = text_result.get('text', '')
             else:
@@ -383,9 +557,9 @@ def process_citation_task(task_id, task_type, task_data):
             
         elif task_type == 'text':
             text = task_data.get('text')
-            logger.info(f"[RQ WORKER] Task {task_id} processing text input")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} processing text input")
             if not text:
-                logger.error(f"[RQ WORKER] No text provided for task {task_id}")
+                logger.error(f"{WORKER_LABEL} [RQ WORKER] No text provided for task {task_id}")
                 raise ValueError("No text provided")
             
             # Update progress: Text validation
@@ -412,9 +586,9 @@ def process_citation_task(task_id, task_type, task_data):
             
         elif task_type == 'url':
             url = task_data.get('url')
-            logger.info(f"[RQ WORKER] Task {task_id} processing url input: {url}")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} processing url input: {url}")
             if not url:
-                logger.error(f"[RQ WORKER] No URL provided for task {task_id}")
+                logger.error(f"{WORKER_LABEL} [RQ WORKER] No URL provided for task {task_id}")
                 raise ValueError("No URL provided")
             
             # Update progress: URL validation
@@ -435,17 +609,17 @@ def process_citation_task(task_id, task_type, task_data):
                 job.meta['current_step'] = 'Content download'
                 job.save_meta()
             
-            logger.info(f"[RQ WORKER] Task {task_id} starting URL text extraction...")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} starting URL text extraction...")
             text_result = extract_text_from_url(url)
-            logger.info(f"[RQ WORKER] Task {task_id} URL text extraction result: {text_result.get('status')}")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} URL text extraction result: {text_result.get('status')}")
             
             if text_result.get('status') != 'success' or not text_result.get('text'):
                 error_msg = f"Failed to extract text from URL: {text_result.get('error', 'Unknown error')}"
-                logger.error(f"[RQ WORKER] Task {task_id} {error_msg}")
+                logger.error(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} {error_msg}")
                 raise ValueError(error_msg)
             
             text = text_result['text']
-            logger.info(f"[RQ WORKER] Task {task_id} extracted {len(text)} characters from URL")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} extracted {len(text)} characters from URL")
             
             # Update progress: Text extraction complete
             if job:
@@ -454,7 +628,7 @@ def process_citation_task(task_id, task_type, task_data):
                 job.meta['current_step'] = 'Citation extraction'
                 job.save_meta()
             
-            logger.info(f"[RQ WORKER] Task {task_id} starting citation extraction from text...")
+            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} starting citation extraction from text...")
             processor = CitationProcessor()
             citations = processor.extract_citations(text, extract_case_names=True)
             verifier = CitationVerifier()
@@ -467,7 +641,7 @@ def process_citation_task(task_id, task_type, task_data):
                 results.append(result)
             return {'citations': results, 'status': 'success'}
         else:
-            logger.error(f"[RQ WORKER] Unknown task type: {task_type}")
+            logger.error(f"{WORKER_LABEL} [RQ WORKER] Unknown task type: {task_type}")
             raise ValueError(f"Unknown task type: {task_type}")
             
         # Final progress update
@@ -477,10 +651,10 @@ def process_citation_task(task_id, task_type, task_data):
             job.meta['current_step'] = 'Complete'
             job.save_meta()
             
-        logger.info(f"[RQ WORKER] Task {task_id} completed successfully")
+        logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} completed successfully")
         return result_data
     except Exception as e:
-        logger.error(f"[RQ WORKER] Error processing task {task_id}: {e}")
+        logger.error(f"{WORKER_LABEL} [RQ WORKER] Error processing task {task_id}: {e}")
         
         # Update progress on error
         if job:
@@ -520,10 +694,10 @@ def analyze():
 
     try:
         # Log request details for debugging
-        current_app.logger.info(f"[ANALYZE] Received {request.method} request to /api/analyze")
-        current_app.logger.info(f"[ANALYZE] Headers: {dict(request.headers)}")
-        current_app.logger.info(f"[ANALYZE] Form data: {request.form.to_dict() if request.form else 'No form data'}")
-        current_app.logger.info(f"[ANALYZE] Files: {list(request.files.keys()) if request.files else 'No files'}")
+        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Received {request.method} request to /api/analyze")
+        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Headers: {dict(request.headers)}")
+        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Form data: {request.form.to_dict() if request.form else 'No form data'}")
+        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Files: {list(request.files.keys()) if request.files else 'No files'}")
         
         # Handle OPTIONS request for CORS preflight
         if request.method == 'OPTIONS':
@@ -549,7 +723,7 @@ def analyze():
 
         # Initialize task ID for asynchronous processing
         task_id = str(uuid.uuid4())
-        current_app.logger.info(f"[ANALYZE] Assigned task ID: {task_id}")
+        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Assigned task ID: {task_id}")
 
         # Handle file upload
         if 'file' in request.files or 'file' in request.form or (request.is_json and 'file' in data):
@@ -598,12 +772,12 @@ def analyze():
                 # Enqueue task
                 if RQ_AVAILABLE and queue:
                     queue.enqueue(process_citation_task, task_id, 'file', task['data'])
-                    current_app.logger.info(f"[ANALYZE] Added file task {task_id} to RQ")
+                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added file task {task_id} to RQ")
                 else:
                     # Use fallback threading queue
-                    current_app.logger.info(f"[ANALYZE] Adding file task {task_id} to threading queue (queue size: {task_queue.qsize()})")
+                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding file task {task_id} to threading queue (queue size: {task_queue.qsize()})")
                     task_queue.put((task_id, 'file', task['data']))
-                    current_app.logger.info(f"[ANALYZE] Added file task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
+                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added file task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
                 
                 # Return immediate response with task ID
                 return jsonify({
@@ -671,12 +845,12 @@ def analyze():
             # Enqueue task
             if RQ_AVAILABLE and queue:
                 queue.enqueue(process_citation_task, task_id, 'text', task['data'])
-                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to RQ")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added text task {task_id} to RQ")
             else:
                 # Use fallback threading queue
-                current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {task_queue.qsize()})")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding text task {task_id} to threading queue (queue size: {task_queue.qsize()})")
                 task_queue.put((task_id, 'text', task['data']))
-                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added text task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
             
             # Return immediate response with task ID
             return jsonify({
@@ -729,12 +903,12 @@ def analyze():
             if RQ_AVAILABLE and queue:
                 # URL tasks can take longer due to web scraping, so use a longer timeout
                 queue.enqueue(process_citation_task, task_id, 'url', task['data'], job_timeout=600)  # 10 minutes
-                current_app.logger.info(f"[ANALYZE] Added URL task {task_id} to RQ with 10-minute timeout")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to RQ with 10-minute timeout")
             else:
                 # Use fallback threading queue
-                current_app.logger.info(f"[ANALYZE] Adding URL task {task_id} to threading queue (queue size: {task_queue.qsize()})")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding URL task {task_id} to threading queue (queue size: {task_queue.qsize()})")
                 task_queue.put((task_id, 'url', task['data']))
-                current_app.logger.info(f"[ANALYZE] Added URL task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
             
             # Return immediate response with task ID
             return jsonify({
@@ -757,7 +931,7 @@ def analyze():
             )
 
     except Exception as e:
-        current_app.logger.error(f"[ANALYZE] Error: {str(e)}", exc_info=True)
+        current_app.logger.error(f"{WORKER_LABEL} [ANALYZE] Error: {str(e)}", exc_info=True)
         return make_error_response(
             "server_error",
             f"Server error: {str(e)}",
@@ -772,11 +946,11 @@ def task_status(task_id):
     Returns the current status and any available results.
     """
     try:
-        current_app.logger.info(f"[TASK_STATUS] Checking status for task {task_id}")
+        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Checking status for task {task_id}")
         
         # Check if task exists in active_requests
         if task_id not in active_requests:
-            current_app.logger.warning(f"[TASK_STATUS] Task {task_id} not found")
+            current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} not found")
             return make_error_response(
                 "task_not_found",
                 f"Task {task_id} not found",
@@ -784,7 +958,7 @@ def task_status(task_id):
             )
             
         task_status = active_requests[task_id]
-        current_app.logger.info(f"[TASK_STATUS] Task {task_id} status: {task_status['status']}")
+        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} status: {task_status['status']}")
         
         # Check RQ job metadata for progress updates
         try:
@@ -815,9 +989,9 @@ def task_status(task_id):
                     'current_step': current_step
                 })
                 
-                current_app.logger.info(f"[TASK_STATUS] Task {task_id} progress: {progress}% - {status_message}")
+                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} progress: {progress}% - {status_message}")
         except Exception as e:
-            current_app.logger.warning(f"[TASK_STATUS] Could not get RQ progress for task {task_id}: {e}")
+            current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Could not get RQ progress for task {task_id}: {e}")
         
         # Check if RQ worker has completed and written results to file
         if task_status['status'] == 'queued':
@@ -837,7 +1011,7 @@ def task_status(task_id):
                             'total_citations': result_data.get('total_citations', 0),
                             'verified_citations': result_data.get('verified_citations', 0)
                         })
-                        current_app.logger.info(f"[TASK_STATUS] Task {task_id} completed, loaded from result file")
+                        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} completed, loaded from result file")
                     elif result_data.get('status') == 'failed':
                         active_requests[task_id].update({
                             'status': 'failed',
@@ -845,17 +1019,17 @@ def task_status(task_id):
                             'end_time': result_data.get('end_time'),
                             'progress': result_data.get('progress', 0)
                         })
-                        current_app.logger.error(f"[TASK_STATUS] Task {task_id} failed: {result_data.get('error')}")
+                        current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} failed: {result_data.get('error')}")
                     
                     # Clean up the result file
                     try:
                         os.remove(result_file)
-                        current_app.logger.info(f"[TASK_STATUS] Cleaned up result file for task {task_id}")
+                        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Cleaned up result file for task {task_id}")
                     except Exception as e:
-                        current_app.logger.warning(f"[TASK_STATUS] Failed to clean up result file for task {task_id}: {e}")
+                        current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Failed to clean up result file for task {task_id}: {e}")
                         
                 except Exception as e:
-                    current_app.logger.error(f"[TASK_STATUS] Error reading result file for task {task_id}: {e}")
+                    current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Error reading result file for task {task_id}: {e}")
         
         # Get updated task status
         task_status = active_requests[task_id]
@@ -894,7 +1068,7 @@ def task_status(task_id):
         })
         
     except Exception as e:
-        current_app.logger.error(f"[TASK_STATUS] Error checking task status: {str(e)}", exc_info=True)
+        current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Error checking task status: {str(e)}", exc_info=True)
         return make_error_response(
             "server_error",
             f"Error checking task status: {str(e)}",
