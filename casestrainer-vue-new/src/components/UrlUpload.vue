@@ -6,7 +6,7 @@
       </div>
       <div class="card-body">
         <div v-if="error" class="alert alert-danger">
-          <strong>Error:</strong> {{ error.message }}
+          <strong>Error:</strong> {{ error }}
         </div>
         
         <div class="mb-3">
@@ -34,49 +34,56 @@
           <div class="form-text">Enter a valid URL to a web page containing legal citations</div>
         </div>
         
-        <div v-if="false" class="mt-4">
-          <h5>Analysis Results</h5>
-          <div :class="['alert', getAlertClass(results.valid)]">
-            <p><strong>Status:</strong> {{ results.valid ? 'Valid' : 'Invalid' }}</p>
-            <p v-if="results.message">{{ results.message }}</p>
-            <div v-if="results.citations && results.citations.length > 0">
-              <h6>Found {{ results.citations.length }} citations:</h6>
-              <div class="table-responsive">
-                <table class="table table-striped table-hover mt-2">
-                  <thead>
-                    <tr>
-                      <th>Citation</th>
-                      <th>Status</th>
-                      <th>Source</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(citation, index) in results.citations" :key="index">
-                      <td>
-                        <strong>{{ citation.citation }}</strong>
-                        <div v-if="citation.correction" class="text-muted small">
-                          Suggested: {{ citation.correction }}
-                        </div>
-                      </td>
-                      <td>
-                        <span :class="['badge', getStatusBadgeClass(citation)]">
-                          {{ getStatusText(citation) }}
-                        </span>
-                      </td>
-                      <td>
-                        <a v-if="citation.url" :href="citation.url" target="_blank" class="text-decoration-none">
-                          <i class="bi bi-box-arrow-up-right me-1"></i>View Source
-                        </a>
-                        <span v-else class="text-muted">N/A</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+        <!-- Results/No Results/No Input Message -->
+        <div class="mt-4">
+          <div v-if="results && results.citations && results.citations.length > 0">
+            <h5>Analysis Results</h5>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover mt-2">
+                <thead>
+                  <tr>
+                    <th>Citation</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(citation, index) in results.citations" :key="index">
+                    <td>
+                      <strong>{{ citation.citation }}</strong>
+                      <div v-if="citation.correction" class="text-muted small">
+                        Suggested: {{ citation.correction }}
+                      </div>
+                      <div v-if="citation.case_name_mismatch" class="alert alert-warning p-1 mt-1 mb-0">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span>Case name differs. Extracted: <b>{{ citation.extracted_case_name }}</b>, Source: <b>{{ citation.case_name }}</b></span>
+                        <div v-if="citation.note" class="small text-muted">{{ citation.note }}</div>
+                      </div>
+                      <div v-else-if="citation.case_name && citation.extracted_case_name && citation.case_name !== citation.extracted_case_name" class="text-muted small">
+                        <span>Extracted: <b>{{ citation.extracted_case_name }}</b>, Source: <b>{{ citation.case_name }}</b></span>
+                      </div>
+                    </td>
+                    <td>
+                      <span v-if="citation.verified" class="badge bg-success">Verified</span>
+                      <span v-else-if="citation.url" class="badge bg-info text-dark">Citation found, but not verified</span>
+                      <span v-else class="badge bg-secondary">Not Verified</span>
+                    </td>
+                    <td>
+                      <a v-if="citation.url" :href="citation.url" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-box-arrow-up-right me-1"></i>View Source
+                      </a>
+                      <span v-else class="text-muted">N/A</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div v-else class="alert alert-info">
-              No citations found in the provided URL content.
-            </div>
+          </div>
+          <div v-else-if="results && (!results.citations || results.citations.length === 0) && !error" class="alert alert-info">
+            Analysis complete. No citations were found in the provided document.
+          </div>
+          <div v-else-if="!results && !isAnalyzing && !error" class="alert alert-secondary">
+            No results to display. Please enter a URL and wait for analysis.
           </div>
         </div>
       </div>
@@ -87,6 +94,8 @@
 <script>
 import { ref, computed, onUnmounted } from 'vue';
 import { useAnalysisService } from '@/services/analysisService';
+
+let pollInterval = null;
 
 export default {
   name: 'UrlUpload',

@@ -7,12 +7,10 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   validateCitation(citation) {
+    // Send single citations through the paste text pipeline for consistency
     return api.post('/analyze', { 
       text: citation,
-      options: {
-        batch_process: false,
-        return_debug: false
-      }
+      type: 'text'
     });
   },
 

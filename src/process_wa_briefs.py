@@ -9,6 +9,7 @@ import os
 import re
 import PyPDF2
 import random
+import logging
 
 # Configure logging
 logging.basicConfig(

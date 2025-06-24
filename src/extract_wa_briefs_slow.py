@@ -16,6 +16,7 @@ import random
 import logging
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Configure logging
 logging.basicConfig(
@@ -24,32 +25,6 @@ logging.basicConfig(
     handlers=[logging.FileHandler("wa_briefs_extraction.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger("wa_briefs_extractor")
-
-# Try to import from fixed_multi_source_verifier
-try:
-    from fixed_multi_source_verifier import MultiSourceVerifier
-
-    logger.info(
-        "Successfully imported MultiSourceVerifier from fixed_multi_source_verifier"
-    )
-except ImportError:
-    try:
-        from multi_source_verifier import MultiSourceVerifier
-
-        logger.info(
-            "Successfully imported MultiSourceVerifier from multi_source_verifier"
-        )
-    except ImportError:
-        logger.error(
-            "Error importing MultiSourceVerifier, trying to import from app_final_vue"
-        )
-        try:
-            from app_final_vue import check_case_with_ai
-
-            logger.info("Successfully imported check_case_with_ai from app_final_vue")
-        except ImportError:
-            logger.error("Error importing verification functions. Cannot proceed.")
-            sys.exit(1)
 
 # Try to import citation extraction function
 try:
@@ -71,9 +46,6 @@ try:
         )
 except Exception as e:
     logger.warning(f"Error loading API keys from config.json: {e}")
-
-# Initialize the multi-source verifier
-multi_source_verifier = MultiSourceVerifier(api_keys)
 
 # Constants
 BRIEFS_DIR = "wa_briefs"
@@ -291,7 +263,7 @@ def process_brief(brief_url, processed_briefs):
 
             # Try to verify the citation
             try:
-                result = multi_source_verifier.verify_citation(citation)
+                result = verify_citation(citation)
 
                 # If the citation is not verified, add it to the list
                 if not result["found"]:

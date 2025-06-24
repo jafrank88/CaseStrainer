@@ -14,28 +14,7 @@ import time
 import random
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
-# Try to import from fixed_multi_source_verifier
-try:
-    from fixed_multi_source_verifier import MultiSourceVerifier
-
-    print("Successfully imported MultiSourceVerifier from fixed_multi_source_verifier")
-except ImportError:
-    try:
-        from multi_source_verifier import MultiSourceVerifier
-
-        print("Successfully imported MultiSourceVerifier from multi_source_verifier")
-    except ImportError:
-        print(
-            "Error importing MultiSourceVerifier, trying to import from app_final_vue"
-        )
-        try:
-            from app_final_vue import check_case_with_ai
-
-            print("Successfully imported check_case_with_ai from app_final_vue")
-        except ImportError:
-            print("Error importing verification functions. Cannot proceed.")
-            sys.exit(1)
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Try to import citation extraction function
 try:
@@ -44,19 +23,6 @@ try:
     print("Successfully imported extract_citations from app_final_vue")
 except ImportError:
     print("Error importing extract_citations. Cannot proceed.")
-    sys.exit(1)
-
-# Initialize the verifier with API keys from config.json
-api_keys = {}
-try:
-    with open("config.json", "r") as f:
-        config = json.load(f)
-        api_keys["courtlistener"] = config.get("courtlistener_api_key")
-
-    multi_source_verifier = MultiSourceVerifier(api_keys)
-    print("Successfully initialized MultiSourceVerifier with API keys")
-except Exception as e:
-    print(f"Error initializing MultiSourceVerifier: {e}")
     sys.exit(1)
 
 # Constants
@@ -264,7 +230,7 @@ def process_brief(brief_url, processed_briefs):
                 continue
 
             # Verify the citation
-            result = multi_source_verifier.verify_citation(citation_text)
+            result = verify_citation(citation_text)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):

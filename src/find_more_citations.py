@@ -23,6 +23,9 @@ try:
 except ImportError:
     print("Warning: Could not import verification functions from app_final_vue.py")
 
+# Updated: Use the unified verify_citation from enhanced_multi_source_verifier
+from src.enhanced_multi_source_verifier import verify_citation
+
 # List of court reporter abbreviations for generating citations
 REPORTERS = [
     # Federal Reporters
@@ -344,36 +347,6 @@ def save_unconfirmed_citations(
         return True
     except Exception as e:
         print(f"Error saving unconfirmed citations: {e}")
-        return False
-
-
-def verify_citation(citation_text, case_name=None):
-    """
-    Verify a citation using the CaseStrainer verification system.
-    Returns True if the citation is confirmed, False if unconfirmed.
-    """
-    try:
-        # First check if it's a landmark case
-        landmark_info = is_landmark_case(citation_text)
-        if landmark_info:
-            print(
-                f"CONFIRMED: Found landmark case: {landmark_info['name']} ({citation_text})"
-            )
-            return True
-
-        # Try web search
-        web_result = search_citation_on_web(citation_text, case_name)
-        if web_result.get("found", False):
-            print(f"CONFIRMED: Web search confirmed citation: {citation_text}")
-            return True
-
-        # If web search doesn't find it, it's unconfirmed
-        print(f"UNCONFIRMED: Citation not found: {citation_text}")
-        return False
-
-    except Exception as e:
-        print(f"Error verifying citation {citation_text}: {e}")
-        traceback.print_exc()
         return False
 
 

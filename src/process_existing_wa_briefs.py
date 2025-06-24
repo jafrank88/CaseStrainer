@@ -17,6 +17,7 @@ from datetime import datetime
 import importlib.util
 from tqdm import tqdm
 import requests
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")
@@ -135,58 +136,6 @@ def extract_citations_with_context(text):
                 )
 
     return citation_data
-
-
-def verify_citation(citation):
-    """
-    Verify a citation using the CaseStrainer verification system.
-    First tries to use the enhanced multi-source verifier, then falls back to the original.
-    """
-    try:
-        # First try to import the EnhancedMultiSourceVerifier
-        try:
-            spec = importlib.util.spec_from_file_location(
-                "enhanced_multi_source_verifier",
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "enhanced_multi_source_verifier.py",
-                ),
-            )
-            verifier_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(verifier_module)
-
-            # Create a verifier instance
-            verifier = verifier_module.EnhancedMultiSourceVerifier()
-            logger.info("Using EnhancedMultiSourceVerifier for citation verification")
-        except Exception as e:
-            logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
-            logger.warning("Falling back to original MultiSourceVerifier")
-
-            # Fall back to the original MultiSourceVerifier
-            spec = importlib.util.spec_from_file_location(
-                "multi_source_verifier",
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "fixed_multi_source_verifier.py",
-                ),
-            )
-            verifier_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(verifier_module)
-
-            # Create a verifier instance
-            verifier = verifier_module.MultiSourceVerifier()
-
-        # Verify the citation
-        result = verifier.verify_citation(citation)
-
-        logger.info("Verified citation: %s", citation)
-        logger.info("Verification result: %s", result)
-
-        return result
-
-    except Exception as e:
-        logger.error("Error verifying citation %s: %s", citation, e)
-        return {"verified": False, "error": str(e)}
 
 
 def add_to_database(citation_data, source, verification_result, file_link=None):
@@ -360,7 +309,7 @@ def process_brief(brief_path):
         unverified_citations = []
 
         for citation_item in citations:
-            verification_result = verify_citation(citation_item["citation"])
+            verification_result = verify_citation(citation_item["citation"], context=citation_item["context"], extracted_case_name=citation_item["citation"])
 
             # Add the citation to the database with context and file link
             add_to_database(

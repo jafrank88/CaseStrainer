@@ -1,0 +1,27 @@
+{
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "databases": {
+      "rq_queue": 0,
+      "citation_cache": 1,
+      "url_cache": 2,
+      "session_data": 3
+    }
+  },
+  "citation_cache": {
+    "ttl": 2592000,
+    "max_size": "100MB",
+    "compression": true
+  },
+  "url_cache": {
+    "ttl": 604800,
+    "max_size": "500MB",
+    "compression": true
+  },
+  "database_cache": {
+    "file": "src/citations.db",
+    "indexes": true,
+    "vacuum_interval": 86400
+  }
+} 

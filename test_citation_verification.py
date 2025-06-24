@@ -1,81 +1,83 @@
 #!/usr/bin/env python3
 """
-Test script for verifying CourtListener API integration.
+Test script to verify citation 399 P.3d 1195 using the enhanced multi-source verifier.
 """
 
-import os
 import sys
-import json
-import logging
-from citation_verification import CitationVerifier
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+
+def test_citation_verification():
+    """Test the citation verification for 399 P.3d 1195."""
+    
+    print("Testing Enhanced Multi-Source Citation Verification")
+    print("=" * 60)
+    
+    # Initialize the verifier
+    verifier = EnhancedMultiSourceVerifier()
+    
+    # Test citation
+    citation = "399 P.3d 1195"
+    case_name = "Doe v. Thurston County"
+    
+    print(f"Citation: {citation}")
+    print(f"Case Name: {case_name}")
+    print("-" * 60)
+    
+    # Test API verification (this will try multiple sources)
+    print("Testing API verification (multiple sources)...")
+    api_result = verifier._verify_with_api(citation)
+    
+    print(f"API Result:")
+    print(f"  Verified: {api_result.get('verified', False)}")
+    print(f"  Source: {api_result.get('source', 'Unknown')}")
+    print(f"  Case Name: {api_result.get('case_name', 'N/A')}")
+    print(f"  URL: {api_result.get('url', 'N/A')}")
+    if api_result.get('error'):
+        print(f"  Error: {api_result.get('error')}")
+    if api_result.get('details'):
+        print(f"  Details: {api_result.get('details')}")
+    
+    print("-" * 60)
+    
+    # Test individual sources
+    sources = [
+        ("Google Scholar", verifier._try_google_scholar),
+        ("Justia", verifier._try_justia),
+        ("Leagle", verifier._try_leagle),
+        ("FindLaw", verifier._try_findlaw),
+        ("CaseText", verifier._try_casetext),
     ]
-)
-logger = logging.getLogger(__name__)
-
-def load_config():
-    """Load configuration from config.json."""
-    try:
-        config_path = os.path.join(os.path.dirname(__file__), 'config.json')
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading config file: {e}")
-        return {}
-
-def test_citation_verification(citation, api_key):
-    """Test citation verification with the given citation."""
-    print(f"\n{'='*80}")
-    print(f"Testing citation: {citation}")
-    print("-" * 80)
     
-    if not api_key:
-        print("ERROR: No API key provided. Please check your config.json file.")
-        return None
+    print("Testing individual sources:")
+    for source_name, verify_method in sources:
+        try:
+            result = verify_method(citation)
+            status = "✓ FOUND" if result.get('verified', False) else "✗ NOT FOUND"
+            print(f"  {source_name}: {status}")
+            if result.get('verified', False):
+                print(f"    URL: {result.get('url', 'N/A')}")
+        except Exception as e:
+            print(f"  {source_name}: ERROR - {e}")
     
-    print(f"Using API key: {api_key[:6]}...")
+    print("-" * 60)
     
-    # Initialize the verifier with the API key from config
-    verifier = CitationVerifier(api_key=api_key, debug_mode=True)
+    # Test full verification process
+    print("Testing full verification process...")
+    full_result = verifier.verify_citation(citation, use_api=True, use_cache=False)
     
-    # Verify the citation
-    result = verifier.verify_with_courtlistener_citation_api(citation)
+    print(f"Full Result:")
+    print(f"  Verified: {full_result.get('verified', False)}")
+    print(f"  Source: {full_result.get('source', 'Unknown')}")
+    print(f"  Case Name: {full_result.get('case_name', 'N/A')}")
+    print(f"  URL: {full_result.get('url', 'N/A')}")
+    if full_result.get('error'):
+        print(f"  Error: {full_result.get('error')}")
     
-    # Print the result
-    print("\nVerification Result:")
-    print("-" * 80)
-    for key, value in result.items():
-        if isinstance(value, dict):
-            print(f"{key}:")
-            for k, v in value.items():
-                print(f"  {k}: {v}")
-        else:
-            print(f"{key}: {value}")
-    
-    return result
+    print("=" * 60)
+    print("Test completed!")
 
 if __name__ == "__main__":
-    # Test with some sample citations
-    # Load configuration
-    config = load_config()
-    # Try both possible key names for backward compatibility
-    api_key = config.get('COURTLISTENER_API_KEY') or config.get('courtlistener_api_key')
-    
-    if not api_key:
-        print("ERROR: No COURT_LISTENER_API_KEY found in config.json")
-        sys.exit(1)
-
-    test_citations = [
-        "534 F.3d 1290",  # Federal Reporter 3rd
-        "410 U.S. 113",   # US Supreme Court
-        "123 F. Supp. 2d 456",  # Federal Supplement
-    ]
-    
-    for citation in test_citations:
-        test_citation_verification(citation, api_key)
+    test_citation_verification()

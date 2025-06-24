@@ -25,13 +25,13 @@ except ImportError:
     print("Error: eyecite not installed. Please install it with 'pip install eyecite'")
     sys.exit(1)
 
-# Import the fixed multi-source verifier
+# Import the enhanced multi-source verifier
 try:
-    from fixed_multi_source_verifier import MultiSourceVerifier
+    from src.enhanced_multi_source_verifier import MultiSourceVerifier
 
     print("Successfully imported MultiSourceVerifier")
 except ImportError:
-    print("Error: fixed_multi_source_verifier not found")
+    print("Error: enhanced_multi_source_verifier not found")
     sys.exit(1)
 
 # Constants
@@ -212,7 +212,7 @@ def process_brief(brief_url, processed_briefs, multi_source_verifier):
                 continue
 
             # Verify the citation
-            result = multi_source_verifier.verify_citation(citation_text)
+            result = multi_source_verifier.verify_citation(citation_text, use_database=True)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):

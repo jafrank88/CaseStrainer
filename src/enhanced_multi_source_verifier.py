@@ -14,8 +14,12 @@ import time
 import sqlite3
 import datetime
 import importlib.util
+import concurrent.futures
 from typing import Dict, Any, Optional, List
 from src.citation_format_utils import apply_washington_spacing_rules
+from urllib.parse import quote
+from bs4 import BeautifulSoup
+import redis
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -28,35 +32,34 @@ class EnhancedMultiSourceVerifier:
     """
 
     def __init__(self):
-        """Initialize the verifier with API keys and configuration."""
+        """Initialize the enhanced multi-source verifier."""
+        self.cache = None
         self.config = self._load_config()
-        self.courtlistener_api_key = self.config.get("courtlistener_api_key", "")
-        self.langsearch_api_key = self.config.get("langsearch_api_key", "")
-        self.cache_dir = "citation_cache"
-        self.db_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "citations.db"
-        )
-
-        # Create cache directory if it doesn't exist
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
-
-        # Import the original MultiSourceVerifier
+        
+        # Initialize cache if Redis is available
         try:
-            spec = importlib.util.spec_from_file_location(
-                "multi_source_verifier",
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "fixed_multi_source_verifier.py",
-                ),
+            redis_host = self.config.get("redis_host", "localhost")
+            redis_port = self.config.get("redis_port", 6379)
+            redis_db = self.config.get("redis_db", 0)
+            self.cache = redis.Redis(
+                host=redis_host, port=redis_port, db=redis_db, decode_responses=True
             )
-            verifier_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(verifier_module)
-            self.original_verifier = verifier_module.MultiSourceVerifier()
-            logger.info("Successfully imported original MultiSourceVerifier")
+            # Test the connection
+            self.cache.ping()
+            logger.info("Redis cache initialized successfully")
         except Exception as e:
-            logger.error(f"Error importing original MultiSourceVerifier: {e}")
-            self.original_verifier = None
+            logger.warning(f"Redis cache not available: {e}")
+            self.cache = None
+
+        # Load API keys and configuration
+        self.courtlistener_api_key = self.config.get("courtlistener_api_key")
+        self.langsearch_api_key = self.config.get("langsearch_api_key")
+        
+        # Database configuration
+        self.db_path = self.config.get("database_path", "data/citations.db")
+        
+        # Initialize database connection
+        self._init_database()
 
     def _load_config(self):
         """Load configuration from config.json."""
@@ -70,14 +73,78 @@ class EnhancedMultiSourceVerifier:
             logger.error(f"Error loading config: {e}")
             return {}
 
+    def _init_database(self):
+        """Initialize SQLite database with proper schema."""
+        try:
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                # Check if citations table exists
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='citations'")
+                table_exists = cursor.fetchone() is not None
+                
+                if not table_exists:
+                    # Create citations table with the existing schema
+                    cursor.execute('''
+                        CREATE TABLE citations (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            citation_text TEXT UNIQUE NOT NULL,
+                            case_name TEXT,
+                            year INTEGER,
+                            parallel_citations TEXT,
+                            verification_result TEXT,
+                            found BOOLEAN DEFAULT FALSE,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    ''')
+                else:
+                    # Table exists, check if we need to add new columns
+                    cursor.execute("PRAGMA table_info(citations)")
+                    existing_columns = [col[1] for col in cursor.fetchall()]
+                    
+                    # Add missing columns if they don't exist
+                    try:
+                        if 'parallel_citations' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN parallel_citations TEXT')
+                    except:
+                        pass  # Column might already exist
+                        
+                    try:
+                        if 'verification_result' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN verification_result TEXT')
+                    except:
+                        pass  # Column might already exist
+                        
+                    try:
+                        if 'found' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN found BOOLEAN DEFAULT FALSE')
+                    except:
+                        pass  # Column might already exist
+                        
+                    try:
+                        if 'updated_at' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
+                    except:
+                        pass  # Column might already exist
+                
+                conn.commit()
+                logger.info("SQLite database initialized")
+        except Exception as e:
+            logger.error(f"Database initialization failed: {e}")
+
     def _normalize_citation(self, citation):
         """Normalize citation format for better matching.
 
         This method normalizes citations by:
         1. Removing extra whitespace
         2. Applying Washington citation spacing rules
-        3. Standardizing Washington citations (Wash. -> Wn.)
+        3. Standardizing Washington citations (Wn. -> Wash.)
         4. Preserving reporter series (e.g., P.3d, F.4th)
+        5. Handling international citations
+        6. Standardizing regional reporters
+        7. Handling edge cases and variations
 
         Args:
             citation (str): The citation to normalize
@@ -94,14 +161,54 @@ class EnhancedMultiSourceVerifier:
         # Apply Washington citation spacing rules
         normalized = apply_washington_spacing_rules(normalized)
 
-        # Normalize Washington citations
-        normalized = re.sub(r"Wash\.\s*App\.", "Wn. App.", normalized)
-        normalized = re.sub(r"Wash\.", "Wn.", normalized)
+        # Normalize Washington citations (Wn. -> Wash.)
+        normalized = re.sub(r"Wn\.\s*App\.", "Wash. App.", normalized)
+        normalized = re.sub(r"Wn\.", "Wash.", normalized)
+
+        # Standardize regional reporters
+        normalized = re.sub(r"Cal\.\s*App\.", "Cal. App.", normalized)
+        normalized = re.sub(r"Cal\.\s*Rptr\.", "Cal. Rptr.", normalized)
+        normalized = re.sub(r"N\.Y\.\s*App\.", "N.Y. App.", normalized)
+        normalized = re.sub(r"Tex\.\s*App\.", "Tex. App.", normalized)
+        normalized = re.sub(r"Fla\.\s*App\.", "Fla. App.", normalized)
+        normalized = re.sub(r"Ill\.\s*App\.", "Ill. App.", normalized)
+        normalized = re.sub(r"Ohio\s*App\.", "Ohio App.", normalized)
+        normalized = re.sub(r"Mich\.\s*App\.", "Mich. App.", normalized)
+        normalized = re.sub(r"Pa\.\s*Super\.", "Pa. Super.", normalized)
+        normalized = re.sub(r"Mass\.\s*App\.", "Mass. App.", normalized)
+
+        # Handle international citations
+        normalized = re.sub(r"UKSC", "UKSC", normalized)  # UK Supreme Court
+        normalized = re.sub(r"EWCA\s+Civ", "EWCA Civ", normalized)  # England and Wales Court of Appeal
+        normalized = re.sub(r"EWHC", "EWHC", normalized)  # England and Wales High Court
+        normalized = re.sub(r"SCC", "SCC", normalized)  # Supreme Court of Canada
+        normalized = re.sub(r"FCA", "FCA", normalized)  # Federal Court of Appeal (Canada)
+        normalized = re.sub(r"FC", "FC", normalized)  # Federal Court (Canada)
+        normalized = re.sub(r"HCA", "HCA", normalized)  # High Court of Australia
+        normalized = re.sub(r"FCA", "FCA", normalized)  # Federal Court of Australia
+
+        # Handle special characters and edge cases
+        normalized = re.sub(r"[\u2013\u2014]", "-", normalized)  # Replace em/en dashes with hyphens
+        normalized = re.sub(r"[\u2018\u2019]", "'", normalized)  # Replace smart quotes
+        normalized = re.sub(r"[\u201C\u201D]", '"', normalized)  # Replace smart quotes
+        normalized = re.sub(r"[\u00A0]", " ", normalized)  # Replace non-breaking spaces
 
         # Clean up common formatting issues
         normalized = re.sub(r"\s*,\s*", ", ", normalized)  # Standardize commas
         normalized = re.sub(r"\s+v\.?\s+", " v. ", normalized)  # Standardize v.
         normalized = re.sub(r"\s+&\.?\s+", " & ", normalized)  # Standardize &
+        normalized = re.sub(r"\s+vs\.?\s+", " v. ", normalized)  # Standardize vs.
+        normalized = re.sub(r"\s+versus\s+", " v. ", normalized)  # Standardize versus
+
+        # Handle parentheses and brackets
+        normalized = re.sub(r"\(\s*", "(", normalized)  # Remove space after opening parenthesis
+        normalized = re.sub(r"\s*\)", ")", normalized)  # Remove space before closing parenthesis
+        normalized = re.sub(r"\[\s*", "[", normalized)  # Remove space after opening bracket
+        normalized = re.sub(r"\s*\]", "]", normalized)  # Remove space before closing bracket
+
+        # Handle periods and abbreviations
+        normalized = re.sub(r"\.\s*\.", "..", normalized)  # Fix double periods
+        normalized = re.sub(r"\.\s*\.\s*\.", "...", normalized)  # Fix triple periods
 
         return normalized
 
@@ -113,6 +220,10 @@ class EnhancedMultiSourceVerifier:
         - Pinpoint: 123 Wn.2d 456, 459
         - Parallel: 123 Wn.2d 456, 789 P.2d 123
         - Short form: Id. at 459
+        - International: [2020] UKSC 1, [2019] SCC 1
+        - Regional: 123 Cal. App. 4th 456, 123 N.Y. App. Div. 456
+        - Federal: 123 F.3d 456, 123 F.Supp.2d 456
+        - State: 123 P.3d 456, 123 A.3d 456
 
         Args:
             citation (str): The citation to parse
@@ -143,6 +254,30 @@ class EnhancedMultiSourceVerifier:
                     components["pinpoint"] = pinpoint_match.group(1)
                 return components
 
+            # Handle international citations with brackets [2020] UKSC 1
+            international_match = re.search(r"\[(\d{4})\]\s+([A-Z]{2,4})\s+(\d+)", citation)
+            if international_match:
+                components["year"] = international_match.group(1)
+                components["reporter"] = international_match.group(2)
+                components["page"] = international_match.group(3)
+                # Determine court based on international reporter
+                reporter = components["reporter"].upper()
+                if reporter == "UKSC":
+                    components["court"] = "UK Supreme Court"
+                elif reporter == "EWCA":
+                    components["court"] = "England and Wales Court of Appeal"
+                elif reporter == "EWHC":
+                    components["court"] = "England and Wales High Court"
+                elif reporter == "SCC":
+                    components["court"] = "Supreme Court of Canada"
+                elif reporter == "FCA":
+                    components["court"] = "Federal Court of Appeal (Canada)"
+                elif reporter == "FC":
+                    components["court"] = "Federal Court (Canada)"
+                elif reporter == "HCA":
+                    components["court"] = "High Court of Australia"
+                return components
+
             # Handle parallel citations (e.g., "123 Wn.2d 456, 789 P.2d 123")
             if "," in citation:
                 parts = [p.strip() for p in citation.split(",")]
@@ -152,40 +287,90 @@ class EnhancedMultiSourceVerifier:
                     ]
                     citation = parts[0]  # Process the first citation normally
 
-            # Extract volume, reporter, and page
-            # Handle formats like: 123 Wn.2d 456, 123 Wn App 456, 123 F.3d 456, 123 F.Supp.2d 456
-            volume_reporter_page = re.search(
-                r"(\d+)\s+([A-Za-z\.\s]+?)(?:\s+(\d+))?(?:\s*,\s*(\d+))?", citation
-            )
+            # Enhanced volume, reporter, and page extraction
+            # Handle various formats including regional reporters
+            patterns = [
+                # Standard format: 123 Wn.2d 456
+                r"(\d+)\s+([A-Za-z\.\s]+?)(?:\s+(\d+))?(?:\s*,\s*(\d+))?",
+                # Federal format: 123 F.3d 456
+                r"(\d+)\s+(F\.\d+[a-z]?)\s+(\d+)",
+                # Regional format: 123 Cal. App. 4th 456
+                r"(\d+)\s+([A-Za-z\.\s]+?)\s+(\d+[a-z]+)\s+(\d+)",
+                # State format: 123 P.3d 456
+                r"(\d+)\s+([A-Z]\.\d+[a-z]?)\s+(\d+)",
+            ]
 
-            if volume_reporter_page:
-                components["volume"] = volume_reporter_page.group(1)
-                components["reporter"] = volume_reporter_page.group(2).strip()
+            for pattern in patterns:
+                volume_reporter_page = re.search(pattern, citation)
+                if volume_reporter_page:
+                    components["volume"] = volume_reporter_page.group(1)
+                    components["reporter"] = volume_reporter_page.group(2).strip()
 
-                # Handle both main page and pinpoint (e.g., "123 Wn.2d 456, 459")
-                if volume_reporter_page.group(4):  # Has pinpoint
-                    components["page"] = volume_reporter_page.group(3)
-                    components["pinpoint"] = volume_reporter_page.group(4)
-                elif volume_reporter_page.group(3):  # Just page number
-                    components["page"] = volume_reporter_page.group(3)
+                    # Handle both main page and pinpoint (e.g., "123 Wn.2d 456, 459")
+                    if len(volume_reporter_page.groups()) >= 4 and volume_reporter_page.group(4):  # Has pinpoint
+                        components["page"] = volume_reporter_page.group(3)
+                        components["pinpoint"] = volume_reporter_page.group(4)
+                    elif len(volume_reporter_page.groups()) >= 3 and volume_reporter_page.group(3):  # Just page number
+                        components["page"] = volume_reporter_page.group(3)
+                    break
 
             # Extract year if present (e.g., "(1999)" or ", 1999")
             year_match = re.search(r"\((\d{4})\)|,\s*(\d{4})\b", citation)
             if year_match:
                 components["year"] = year_match.group(1) or year_match.group(2)
 
-            # Determine court based on reporter
+            # Enhanced court determination based on reporter
             reporter = components["reporter"].lower()
+            
+            # Washington courts
             if "wn. app" in reporter or "wash. app" in reporter:
                 components["court"] = "Washington Court of Appeals"
             elif "wn." in reporter or "wash." in reporter:
                 components["court"] = "Washington Supreme Court"
+            
+            # Federal courts
             elif "u.s." in reporter:
                 components["court"] = "United States Supreme Court"
             elif "f.supp" in reporter:
                 components["court"] = "United States District Court"
             elif "f." in reporter:
                 components["court"] = "United States Court of Appeals"
+            
+            # Regional courts
+            elif "cal. app" in reporter:
+                components["court"] = "California Court of Appeal"
+            elif "cal. rptr" in reporter:
+                components["court"] = "California Reporter"
+            elif "n.y. app" in reporter:
+                components["court"] = "New York Appellate Division"
+            elif "tex. app" in reporter:
+                components["court"] = "Texas Court of Appeals"
+            elif "fla. app" in reporter:
+                components["court"] = "Florida Court of Appeal"
+            elif "ill. app" in reporter:
+                components["court"] = "Illinois Appellate Court"
+            elif "ohio app" in reporter:
+                components["court"] = "Ohio Court of Appeals"
+            elif "mich. app" in reporter:
+                components["court"] = "Michigan Court of Appeals"
+            elif "pa. super" in reporter:
+                components["court"] = "Pennsylvania Superior Court"
+            elif "mass. app" in reporter:
+                components["court"] = "Massachusetts Appeals Court"
+            
+            # State courts by reporter
+            elif "p." in reporter and "d" in reporter:
+                components["court"] = "Pacific Reporter"
+            elif "a." in reporter and "d" in reporter:
+                components["court"] = "Atlantic Reporter"
+            elif "s." in reporter and "e" in reporter:
+                components["court"] = "Southeast Reporter"
+            elif "s." in reporter and "w" in reporter:
+                components["court"] = "Southwest Reporter"
+            elif "n." in reporter and "e" in reporter:
+                components["court"] = "Northeast Reporter"
+            elif "n." in reporter and "w" in reporter:
+                components["court"] = "Northwest Reporter"
 
             # Clean up reporter abbreviation
             components["reporter"] = (
@@ -227,11 +412,11 @@ class EnhancedMultiSourceVerifier:
 
     def _save_to_database(self, citation, result):
         """
-        Save the verification result to the database, including parallel citations.
+        Save the verification result to the database, including parallel citations and year metadata.
 
         Args:
             citation (str): The original citation
-            result (dict): Verification result with optional parallel_citations list
+            result (dict): Verification result with optional parallel_citations list and metadata
         """
         if not citation or not isinstance(citation, str):
             logger.error("Invalid citation provided to _save_to_database")
@@ -256,6 +441,10 @@ class EnhancedMultiSourceVerifier:
                     source_document TEXT,
                     url TEXT,
                     context TEXT,
+                    year TEXT,
+                    date_filed TEXT,
+                    court TEXT,
+                    docket_number TEXT,
                     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """
@@ -270,6 +459,7 @@ class EnhancedMultiSourceVerifier:
                     citation TEXT NOT NULL,
                     reporter TEXT,
                     category TEXT,
+                    year TEXT,
                     date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (citation_id) REFERENCES citations(id) ON DELETE CASCADE,
                     UNIQUE(citation_id, citation)
@@ -283,12 +473,17 @@ class EnhancedMultiSourceVerifier:
 
             # Add any missing columns with proper error handling
             columns_to_add = [
+                ("case_name", "TEXT"),
                 ("found", "BOOLEAN"),
                 ("explanation", "TEXT"),
                 ("source", "TEXT"),
                 ("source_document", "TEXT"),
                 ("url", "TEXT"),
                 ("context", "TEXT"),
+                ("year", "TEXT"),
+                ("date_filed", "TEXT"),
+                ("court", "TEXT"),
+                ("docket_number", "TEXT"),
             ]
 
             for col_name, col_type in columns_to_add:
@@ -303,7 +498,34 @@ class EnhancedMultiSourceVerifier:
                     except sqlite3.Error as e:
                         logger.warning(f"Error adding column {col_name}: {e}")
 
-            # Always use citation_text as the column name for consistency
+            # Extract year from various sources
+            year = ""
+            date_filed = result.get("date_filed", "")
+            
+            # Try to extract year from date_filed first
+            if date_filed:
+                try:
+                    # Handle various date formats
+                    if isinstance(date_filed, str):
+                        # Try to extract year from ISO format (YYYY-MM-DD)
+                        year_match = re.search(r'(\d{4})', date_filed)
+                        if year_match:
+                            year = year_match.group(1)
+                except Exception as e:
+                    logger.warning(f"Error extracting year from date_filed '{date_filed}': {e}")
+            
+            # If no year from date_filed, try metadata
+            if not year:
+                metadata = result.get("metadata", {})
+                if metadata.get("year"):
+                    year = str(metadata["year"])
+                elif metadata.get("date_filed"):
+                    try:
+                        year_match = re.search(r'(\d{4})', str(metadata["date_filed"]))
+                        if year_match:
+                            year = year_match.group(1)
+                    except Exception as e:
+                        logger.warning(f"Error extracting year from metadata: {e}")
 
             # Prepare the data for insertion/update
             case_name = result.get("case_name", "")
@@ -312,6 +534,8 @@ class EnhancedMultiSourceVerifier:
             source = result.get("source", "")
             url = result.get("absolute_url", result.get("url", ""))
             source_doc = result.get("source_document", "")
+            court = result.get("court", "")
+            docket_number = result.get("docket_number", "")
             parallel_cites = result.get("parallel_citations", [])
 
             try:
@@ -320,8 +544,8 @@ class EnhancedMultiSourceVerifier:
                     """
                     INSERT INTO citations (
                         citation_text, case_name, found, explanation, 
-                        source, url, source_document, context
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        source, url, source_document, context, year, date_filed, court, docket_number
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(citation_text) DO UPDATE SET
                         case_name = excluded.case_name,
                         found = excluded.found,
@@ -329,7 +553,11 @@ class EnhancedMultiSourceVerifier:
                         source = excluded.source,
                         url = excluded.url,
                         source_document = excluded.source_document,
-                        context = excluded.context
+                        context = excluded.context,
+                        year = excluded.year,
+                        date_filed = excluded.date_filed,
+                        court = excluded.court,
+                        docket_number = excluded.docket_number
                     RETURNING id
                 """,
                     (
@@ -340,7 +568,11 @@ class EnhancedMultiSourceVerifier:
                         source,
                         url,
                         source_doc,
-                        result.get("context", ""),  # Include context if available
+                        result.get("context", ""),
+                        year,
+                        date_filed,
+                        court,
+                        docket_number,
                     ),
                 )
 
@@ -372,6 +604,18 @@ class EnhancedMultiSourceVerifier:
                         if not cite:
                             continue
 
+                        # Extract year from parallel citation if available
+                        parallel_year = ""
+                        if parallel.get("year"):
+                            parallel_year = str(parallel["year"])
+                        elif parallel.get("date_filed"):
+                            try:
+                                year_match = re.search(r'(\d{4})', str(parallel["date_filed"]))
+                                if year_match:
+                                    parallel_year = year_match.group(1)
+                            except Exception as e:
+                                logger.warning(f"Error extracting year from parallel citation: {e}")
+
                         # Remove from existing_parallels set to track what needs to be deleted
                         if cite in existing_parallels:
                             existing_parallels.remove(cite)
@@ -380,17 +624,19 @@ class EnhancedMultiSourceVerifier:
                         cursor.execute(
                             """
                             INSERT INTO parallel_citations (
-                                citation_id, citation, reporter, category
-                            ) VALUES (?, ?, ?, ?)
+                                citation_id, citation, reporter, category, year
+                            ) VALUES (?, ?, ?, ?, ?)
                             ON CONFLICT(citation_id, citation) DO UPDATE SET
                                 reporter = excluded.reporter,
-                                category = excluded.category
+                                category = excluded.category,
+                                year = excluded.year
                         """,
                             (
                                 citation_id,
                                 cite,
                                 parallel.get("reporter", ""),
                                 parallel.get("category", ""),
+                                parallel_year,
                             ),
                         )
 
@@ -409,7 +655,7 @@ class EnhancedMultiSourceVerifier:
                 # Commit the transaction
                 conn.commit()
                 logger.debug(
-                    f"Successfully saved verification result for citation '{citation}' to database"
+                    f"Successfully saved verification result for citation '{citation}' to database with year '{year}' and {len(parallel_cites)} parallel citations"
                 )
                 return True
 
@@ -947,10 +1193,13 @@ class EnhancedMultiSourceVerifier:
         if not result_components:
             return False
 
-        # Compare key components
+        # Compare key components - ensure both values are strings before comparison
         for key in ["volume", "reporter", "page"]:
             if components.get(key) and result_components.get(key):
-                if str(components[key]).lower() != str(result_components[key]).lower():
+                # Convert both values to strings to avoid type comparison errors
+                comp_val = str(components[key]).lower()
+                result_val = str(result_components[key]).lower()
+                if comp_val != result_val:
                     return False
 
         return True
@@ -1090,6 +1339,17 @@ class EnhancedMultiSourceVerifier:
                     date_filed = citation_data[date_field]
                     break
 
+            # Extract year from date_filed
+            year = ""
+            if date_filed:
+                try:
+                    if isinstance(date_filed, str):
+                        year_match = re.search(r'(\d{4})', date_filed)
+                        if year_match:
+                            year = year_match.group(1)
+                except Exception as e:
+                    logger.warning(f"Error extracting year from date_filed '{date_filed}': {e}")
+
             # Format the result with all available metadata
             processed = {
                 "verified": True,
@@ -1114,6 +1374,11 @@ class EnhancedMultiSourceVerifier:
                 },
             }
 
+            # Add year to both top-level and metadata if available
+            if year:
+                processed["year"] = year
+                processed["metadata"]["year"] = year
+
             # Add any additional fields that might be useful
             for field in [
                 "precedential_status",
@@ -1125,7 +1390,7 @@ class EnhancedMultiSourceVerifier:
                     processed["metadata"][field] = citation_data[field]
 
             logger.info(
-                f"Successfully processed CourtListener result for {original_citation}"
+                f"Successfully processed CourtListener result for {original_citation} with year '{year}'"
             )
             return processed
 
@@ -1211,18 +1476,21 @@ class EnhancedMultiSourceVerifier:
     def verify_citation(
         self,
         citation,
+        extracted_case_name=None,  # Add parameter for extracted case name
         use_cache=True,
-        use_database=True,
+        use_database=False,  # Changed default to False - database only for archiving
         use_api=True,
         force_refresh=False,
     ):
         """
-        Verify a citation using multiple sources with fallback strategies.
+        Verify a citation using external APIs and cache only.
+        Database is used only for archiving results, not for verification.
 
         Args:
             citation (str): The citation to verify
+            extracted_case_name (str, optional): The case name extracted from the document
             use_cache (bool): Whether to check the cache first
-            use_database (bool): Whether to check the database
+            use_database (bool): Whether to save results to database (archiving only)
             use_api (bool): Whether to use external APIs
             force_refresh (bool): If True, bypass cache and force a fresh verification
 
@@ -1274,89 +1542,85 @@ class EnhancedMultiSourceVerifier:
                         {"step": "cache", "status": "error", "error": str(e)}
                     )
 
-            # 2. Check database if enabled and not forcing refresh
-            db_result = None
-            if use_database and not force_refresh:
-                try:
-                    db_result = self._verify_with_database(normalized)
-                    if db_result and db_result.get("verified", False):
-                        verification_steps.append(
-                            {"step": "database", "status": "verified"}
-                        )
-
-                        # Update cache with database result
-                        if self.cache:
-                            result_to_cache = {
-                                **db_result,
-                                "verification_steps": verification_steps,
-                                "cached": False,
-                            }
-                            self.cache.set(
-                                cache_key, result_to_cache, timeout=86400
-                            )  # 24 hours
-
-                        return result_to_cache
-
-                    verification_steps.append(
-                        {"step": "database", "status": "not_found"}
-                    )
-                except Exception as e:
-                    logger.error(
-                        f"Database verification failed: {str(e)}", exc_info=True
-                    )
-                    verification_steps.append(
-                        {"step": "database", "status": "error", "error": str(e)}
-                    )
-
-            # 3. Try external API if enabled
+            # 2. Try external API if enabled (skip database verification)
             api_result = None
             if use_api:
                 try:
                     api_result = self._verify_with_api(normalized)
-                    if api_result and api_result.get("verified", False):
-                        verification_steps.append({"step": "api", "status": "verified"})
+                    verified_case_name = api_result.get("case_name", "")
+                    found_url = api_result.get("url", "")
+                    case_name_similarity = None
+                    case_name_mismatch = False
+                    note = None
 
-                        # Save to database for future use
-                        if use_database:
-                            try:
-                                self._save_to_database(normalized, api_result)
-                                verification_steps.append(
-                                    {"step": "database_save", "status": "success"}
-                                )
-                            except Exception as e:
-                                logger.error(
-                                    f"Failed to save to database: {str(e)}",
-                                    exc_info=True,
-                                )
-                                verification_steps.append(
-                                    {
-                                        "step": "database_save",
-                                        "status": "error",
-                                        "error": str(e),
-                                    }
-                                )
+                    # Always include the URL if found
+                    if found_url:
+                        api_result["url"] = found_url
 
-                        # Update cache with API result
-                        if self.cache:
-                            result_to_cache = {
-                                **api_result,
-                                "verification_steps": verification_steps,
-                                "cached": False,
-                            }
-                            self.cache.set(
-                                cache_key, result_to_cache, timeout=86400
-                            )  # 24 hours
+                    # If we have both an extracted and a found case name, compare them
+                    if extracted_case_name and verified_case_name:
+                        case_name_similarity = self._calculate_case_name_similarity(
+                            extracted_case_name, verified_case_name
+                        )
+                        threshold = 0.7
+                        case_name_mismatch = case_name_similarity < threshold
+                        if case_name_mismatch:
+                            api_result["verified"] = False
+                            note = f"Case name differs: extracted='{extracted_case_name}', source='{verified_case_name}' (similarity: {case_name_similarity:.2f})"
+                        else:
+                            api_result["verified"] = True
+                    elif verified_case_name:
+                        # No extracted name, but we have a source name
+                        api_result["verified"] = True
+                    elif found_url:
+                        # No case name, but a dedicated case page was found
+                        api_result["verified"] = True
+                    else:
+                        api_result["verified"] = False
 
-                        return result_to_cache
+                    api_result["case_name_similarity"] = case_name_similarity
+                    api_result["case_name_mismatch"] = case_name_mismatch
+                    api_result["extracted_case_name"] = extracted_case_name
+                    if note:
+                        api_result["note"] = note
 
-                    verification_steps.append({"step": "api", "status": "not_found"})
+                    # Save to database for archiving (not verification)
+                    if use_database:
+                        try:
+                            self._save_to_database(normalized, api_result)
+                            verification_steps.append(
+                                {"step": "database_archive", "status": "success"}
+                            )
+                        except Exception as e:
+                            logger.error(
+                                f"Failed to save to database: {str(e)}",
+                                exc_info=True,
+                            )
+                            verification_steps.append(
+                                {
+                                    "step": "database_archive",
+                                    "status": "error",
+                                    "error": str(e),
+                                }
+                            )
+                    # Update cache with API result
+                    result_to_cache = {
+                        **api_result,
+                        "verification_steps": verification_steps,
+                        "cached": False,
+                    }
+                    if self.cache:
+                        self.cache.set(
+                            cache_key, json.dumps(result_to_cache), ex=86400
+                        )  # 24 hours
+                    return result_to_cache
                 except Exception as e:
                     logger.error(f"API verification failed: {str(e)}", exc_info=True)
                     verification_steps.append(
                         {"step": "api", "status": "error", "error": str(e)}
                     )
 
-            # 4. If we get here, no verification method succeeded
+            # 3. If we get here, no verification method succeeded
             result = {
                 "verified": False,
                 "source": "None",
@@ -1371,7 +1635,7 @@ class EnhancedMultiSourceVerifier:
             if self.cache:
                 try:
                     self.cache.set(
-                        cache_key, {**result, "cached": False}, timeout=3600
+                        cache_key, json.dumps({**result, "cached": False}), ex=3600
                     )  # 1 hour for negative results
                 except Exception as e:
                     logger.warning(f"Failed to cache negative result: {str(e)}")
@@ -1670,13 +1934,34 @@ class EnhancedMultiSourceVerifier:
                     ):  # Skip id and any already set fields
                         result[key] = value
 
+            # Extract year from various sources
+            year = ""
+            if match_dict.get("year"):
+                year = str(match_dict["year"])
+            elif match_dict.get("date_filed"):
+                try:
+                    year_match = re.search(r'(\d{4})', str(match_dict["date_filed"]))
+                    if year_match:
+                        year = year_match.group(1)
+                except Exception as e:
+                    logger.warning(f"Error extracting year from date_filed: {e}")
+
+            # Add year to result and metadata
+            if year:
+                result["year"] = year
+                if "metadata" not in result:
+                    result["metadata"] = {}
+                result["metadata"]["year"] = year
+
             # Add parallel citations if available
             if "id" in match_dict:
                 try:
-                    cursor = self.conn.cursor()
+                    # Create a new connection for parallel citations query
+                    conn = sqlite3.connect(self.db_path)
+                    cursor = conn.cursor()
                     cursor.execute(
                         """
-                        SELECT citation, reporter, category 
+                        SELECT citation, reporter, category, year 
                         FROM parallel_citations 
                         WHERE citation_id = ?
                     """,
@@ -1685,18 +1970,27 @@ class EnhancedMultiSourceVerifier:
 
                     parallel_cites = []
                     for row in cursor.fetchall():
-                        parallel_cites.append(
-                            {"citation": row[0], "reporter": row[1], "category": row[2]}
-                        )
+                        parallel_cite = {
+                            "citation": row[0], 
+                            "reporter": row[1], 
+                            "category": row[2]
+                        }
+                        # Add year if available
+                        if row[3]:
+                            parallel_cite["year"] = str(row[3])
+                        parallel_cites.append(parallel_cite)
 
                     if parallel_cites:
                         result["parallel_citations"] = parallel_cites
+                        logger.debug(f"Found {len(parallel_cites)} parallel citations for citation ID {match_dict['id']}")
+                    
+                    conn.close()
                 except Exception as e:
                     logger.warning(f"Error fetching parallel citations: {e}")
 
             logger.info(
                 f"Database match found (type: {match_type}) for citation: {original_citation} -> "
-                f"{citation_value} (matched on: {matched_column or 'N/A'})"
+                f"{citation_value} (matched on: {matched_column or 'N/A'}) with year '{year}'"
             )
             return result
 
@@ -1768,528 +2062,1219 @@ class EnhancedMultiSourceVerifier:
                 "timestamp": datetime.datetime.utcnow().isoformat(),
             }
 
-        finally:
-            try:
-                if "conn" in locals():
-                    conn.close()
-            except Exception as e:
-                logger.error(f"Error closing database connection: {str(e)}")
-
     # Landmark cases functionality has been removed as it's no longer maintained
 
     def _verify_with_fuzzy_matching(self, citation):
-        """Verify a citation using fuzzy matching against known patterns."""
+        """Verify citation using fuzzy matching against database."""
         try:
-            # Define known citation patterns
-            patterns = [
-                # Washington Reports
-                r"(\d+)\s+Wn\.\s*(?:App\.)?\s*(\d+)",
-                r"(\d+)\s+Wash\.\s*(?:App\.)?\s*(\d+)",
-                # Pacific Reporter
-                r"(\d+)\s+P\.\s*(\d+)",
-                r"(\d+)\s+P\.\s*\d+d\s*(\d+)",
-                r"(\d+)\s+P\.\s*\d+th\s*(\d+)",
-                # United States Reports
-                r"(\d+)\s+U\.S\.\s*(\d+)",
-                # Supreme Court Reporter
-                r"(\d+)\s+S\.\s*Ct\.\s*(\d+)",
-                # Federal Reporter
-                r"(\d+)\s+F\.\s*(\d+)",
-                r"(\d+)\s+F\.\s*\d+d\s*(\d+)",
-                r"(\d+)\s+F\.\s*\d+th\s*(\d+)",
-                r"(\d+)\s+F\.\s*Supp\.\s*(\d+)",
-                r"(\d+)\s+F\.\s*Supp\.\s*\d+d\s*(\d+)",
-            ]
-
-            # Check if the citation matches any known pattern
-            for pattern in patterns:
-                match = re.search(pattern, citation)
-                if match:
-                    return {
-                        "verified": True,
-                        "source": "Fuzzy Matching",
-                        "match_type": "pattern",
-                        "pattern": pattern,
-                        "volume": match.group(1),
-                        "page": match.group(2),
-                    }
-
-            return {
-                "verified": False,
-                "source": "Fuzzy Matching",
-                "error": "Citation does not match any known pattern",
-            }
-
+            # This is a placeholder for fuzzy matching implementation
+            # Could be implemented with fuzzy string matching against known citations
+            return {"verified": False, "error": "Fuzzy matching not implemented"}
         except Exception as e:
-            logger.error(
-                f"Error verifying citation '{citation}' with fuzzy matching: {e}"
-            )
-            return {"verified": False, "source": "Fuzzy Matching", "error": str(e)}
+            logger.error(f"Error in fuzzy matching: {e}")
+            return {"verified": False, "error": str(e)}
 
-    def _verify_with_original_verifier(self, citation):
-        """Verify a citation using the original MultiSourceVerifier."""
-        if not self.original_verifier:
-            return {
-                "verified": False,
-                "source": "Original Verifier",
-                "error": "Original verifier not available",
-            }
-
-        try:
-            result = self.original_verifier.verify_citation(citation)
-            return {
-                "verified": result.get("verified", False),
-                "source": "Original Verifier",
-                "original_result": result,
-            }
-
-        except Exception as e:
-            logger.error(
-                f"Error verifying citation '{citation}' with original verifier: {e}"
-            )
-            return {"verified": False, "source": "Original Verifier", "error": str(e)}
-
-    def _get_parallel_citations_from_db(self, citation_id):
-        """Retrieve parallel citations from the database for a given citation ID."""
-        conn = None
-        try:
-            conn = sqlite3.connect(self.db_path)
-            # Set row_factory to sqlite3.Row to access columns by name
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
-
-            cursor.execute(
-                """
-                SELECT citation, reporter, category 
-                FROM parallel_citations 
-                WHERE citation_id = ?
-                """,
-                (citation_id,),
-            )
-
-            # Convert Row objects to dictionaries before returning
-            rows = cursor.fetchall()
-            return [dict(row) for row in rows]
-
-        except Exception as e:
-            logger.error(f"Error fetching parallel citations: {e}")
-            return []
-        finally:
-            if conn:
-                conn.close()
-
-    def verify_citation(self, citation):
+    def _verify_with_web_search(self, citation: str) -> dict:
         """
-        Verify a citation using multiple sources and techniques.
-        Returns a comprehensive verification result with parallel citations.
-
-        This method tries multiple strategies to verify a citation:
-        1. Check cache for exact match
-        2. Check database for exact match
-        3. Try normalized version of the citation
-        4. Extract components and search by volume/reporter/page
-        5. Try CourtListener API if available
-        6. Fall back to fuzzy matching
-
-        Args:
-            citation (str): The citation to verify
-
-        Returns:
-            dict: Verification result with parallel citations if available.
-                 Always contains 'verified' (bool), 'citation' (str), and 'error' (str) keys.
-        """
-
-        def create_default_result(cite):
-            """Create a result dictionary with all required fields."""
-            return {
-                "citation": cite,
-                "verified": False,
-                "status": 404,
-                "sources": {},
-                "verified_by": None,
-                "confidence": 0.0,
-                "case_name": "",
-                "date_filed": "",
-                "docket_number": "",
-                "court": "",
-                "url": "",
-                "context": "",
-                "parallel_citations": [],
-                "error": "",
-                "error_message": "Citation not found",
-                "warning": "",
-                "verification_steps": [],
-                "metadata": {},
-            }
-
-        def ensure_dict_result(result, citation):
-            """Ensure the result is a dictionary with all required fields."""
-            if isinstance(result, tuple):
-                # Handle tuple return type (status, message)
-                status, message = result
-                result = create_default_result(citation)
-                result["verified"] = status
-                result["status"] = 200 if status else 404
-                result["error_message"] = "" if status else (message or "Citation not found")
-                return result
-            elif not isinstance(result, dict):
-                return create_default_result(str(citation) if citation else "")
-
-            # Ensure all required fields exist
-            default = create_default_result(result.get("citation", citation))
-            for key in default:
-                if key not in result:
-                    result[key] = default[key]
-            # Harmonize status and verified fields
-            found = result.get("verified", False)
-            result["status"] = 200 if found else 404
-            result["verified"] = bool(found)
-            if not found and not result.get("error_message"):
-                result["error_message"] = "Citation not found"
-            elif found:
-                result["error_message"] = ""
-            return result
-
-        # Input validation and initialization
-        if not citation or not str(citation).strip():
-            return ensure_dict_result((False, "No citation provided"), "")
-
-        original_citation = str(citation).strip()
-        normalized_citation = self._normalize_citation(original_citation)
-        result = create_default_result(normalized_citation)
-
-        # Track verification steps for debugging
-        def add_verification_step(method, success, message=""):
-            result["verification_steps"].append(
-                {
-                    "method": method,
-                    "success": success,
-                    "message": message,
-                    "timestamp": datetime.datetime.utcnow().isoformat(),
-                }
-            )
-
-        # Try cache first
-        try:
-            cached_result = self._check_cache(normalized_citation)
-            if cached_result:
-                add_verification_step("cache", True, "Found in cache")
-                return ensure_dict_result(cached_result, normalized_citation)
-            add_verification_step("cache", False, "Not found in cache")
-        except Exception as e:
-            logger.warning(f"Cache check failed: {e}")
-            add_verification_step("cache", False, f"Cache error: {str(e)}")
-
-        # Try database lookup with multiple strategies
-        try:
-            # Try exact match first
-            db_result = self._check_database(normalized_citation)
-            if db_result and db_result.get("verified"):
-                add_verification_step(
-                    "database_exact", True, "Found exact match in database"
-                )
-                
-                # Save to unverified cache since this is not CourtListener
-                self._save_to_unverified_cache(normalized_citation, db_result)
-                
-                return ensure_dict_result(db_result, normalized_citation)
-
-            # Try with components if available
-            components = self._extract_citation_components(normalized_citation)
-            if (
-                components.get("volume")
-                and components.get("reporter")
-                and components.get("page")
-            ):
-                component_query = f"{components['volume']} {components['reporter']} {components['page']}"
-                if component_query != normalized_citation:
-                    db_result = self._check_database(component_query)
-                    if db_result and db_result.get("verified"):
-                        add_verification_step(
-                            "database_components", True, "Found match using components"
-                        )
-                        
-                        # Save to unverified cache since this is not CourtListener
-                        self._save_to_unverified_cache(normalized_citation, db_result)
-                        
-                        return ensure_dict_result(db_result, normalized_citation)
-
-            # If we get here, database lookup was unsuccessful but that's expected
-            add_verification_step(
-                "database",
-                False,
-                "Citation not found in database - trying other sources",
-            )
-
-        except Exception as e:
-            logger.warning(f"Database lookup failed: {str(e)}")
-            add_verification_step(
-                "database", False, f"Database error: {str(e)} - trying other sources"
-            )
-
-        # Try CourtListener API if available
-        if self.courtlistener_api_key:
-            try:
-                logger.debug(
-                    f"Attempting to verify with CourtListener API: {normalized_citation}"
-                )
-                cl_result = self._verify_with_courtlistener(normalized_citation)
-
-                if cl_result and cl_result.get("verified", False):
-                    add_verification_step(
-                        "courtlistener", True, "Verified with CourtListener"
-                    )
-                    # Cache the result for future use
-                    logger.debug(
-                        f"Caching CourtListener result for: {normalized_citation}"
-                    )
-                    self._save_to_cache(normalized_citation, cl_result)
-                    self._save_to_database(
-                        normalized_citation, cl_result
-                    )  # Save to database for future use
-                    return ensure_dict_result(cl_result, normalized_citation)
-                else:
-                    error_msg = (
-                        cl_result.get("error", "Citation not found")
-                        if cl_result
-                        else "No result from CourtListener"
-                    )
-                    logger.debug(
-                        f"CourtListener verification did not find citation: {normalized_citation}"
-                    )
-                    add_verification_step(
-                        "courtlistener", False, "Citation not found in CourtListener"
-                    )
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"CourtListener API request failed: {str(e)}")
-                add_verification_step("courtlistener", False, "API request failed")
-            except json.JSONDecodeError as e:
-                logger.warning(f"Failed to parse CourtListener API response: {str(e)}")
-                add_verification_step(
-                    "courtlistener", False, "Invalid API response format"
-                )
-            except Exception as e:
-                logger.warning(
-                    f"Unexpected error in CourtListener verification: {str(e)}",
-                    exc_info=True,
-                )
-                add_verification_step("courtlistener", False, "Verification error")
-
-        # Try LangSearch API if available
-        if self.langsearch_api_key:
-            try:
-                logger.debug(
-                    f"Attempting to verify with LangSearch API: {normalized_citation}"
-                )
-                ls_result = self._verify_with_langsearch(normalized_citation)
-
-                if ls_result and ls_result.get("verified", False):
-                    add_verification_step(
-                        "langsearch", True, "Verified with LangSearch"
-                    )
-                    # Cache the result for future use
-                    logger.debug(
-                        f"Caching LangSearch result for: {normalized_citation}"
-                    )
-                    self._save_to_cache(normalized_citation, ls_result)
-                    self._save_to_database(
-                        normalized_citation, ls_result
-                    )  # Save to database for future use
-                    
-                    # Save to unverified cache since this is not CourtListener
-                    self._save_to_unverified_cache(normalized_citation, ls_result)
-                    
-                    return ensure_dict_result(ls_result, normalized_citation)
-                else:
-                    error_msg = (
-                        ls_result.get("error", "Citation not found")
-                        if ls_result
-                        else "No result from LangSearch"
-                    )
-                    logger.debug(
-                        f"LangSearch verification did not find citation: {normalized_citation}"
-                    )
-                    add_verification_step("langsearch", False, f"{error_msg}")
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"LangSearch API request failed: {str(e)}")
-                add_verification_step("langsearch", False, "API request failed")
-            except json.JSONDecodeError as e:
-                logger.warning(f"Failed to parse LangSearch API response: {str(e)}")
-                add_verification_step(
-                    "langsearch", False, "Invalid API response format"
-                )
-            except Exception as e:
-                logger.warning(
-                    f"Unexpected error in LangSearch verification: {str(e)}",
-                    exc_info=True,
-                )
-                add_verification_step("langsearch", False, "Verification error")
-
-        # Try fuzzy matching as last resort
-        try:
-            fuzzy_result = self._verify_with_fuzzy_matching(normalized_citation)
-            if fuzzy_result and fuzzy_result.get("verified"):
-                add_verification_step("fuzzy", True, "Found fuzzy match")
-                
-                # Save to unverified cache since this is not CourtListener
-                self._save_to_unverified_cache(normalized_citation, fuzzy_result)
-                
-                return ensure_dict_result(fuzzy_result, normalized_citation)
-            else:
-                add_verification_step("fuzzy", False, "No fuzzy match found")
-        except Exception as e:
-            logger.warning(f"Fuzzy matching failed: {str(e)}")
-            add_verification_step("fuzzy", False, "Fuzzy matching error")
-
-        # Add any metadata we have from the citation
-        if "metadata" not in result:
-            result["metadata"] = {}
-
-        # Add case name if available from components
-        components = self._extract_citation_components(normalized_citation)
-        if components and components.get("case_name"):
-            result["metadata"]["case_name"] = components["case_name"]
-
-        # Add timestamp
-        result["timestamp"] = datetime.datetime.utcnow().isoformat()
-
-        # Save to cache and database if verified
-        if result.get("verified", False):
-            try:
-                self._save_to_cache(normalized_citation, result)
-                self._save_to_database(normalized_citation, result)
-            except Exception as e:
-                logger.error(f"[verify_citation] Error saving verification result: {e}")
-
-        return ensure_dict_result(result)
-
-    def batch_verify_citations(self, citations):
-        """
-        Verify a batch of citations.
-        Returns a list of verification results.
-        """
-        results = []
-
-        for citation in citations:
-            result = self.verify_citation(citation)
-            results.append(result)
-
-            # Add a small delay to avoid rate limiting
-            time.sleep(1.0)  # 1 second delay to handle 60 citations per minute
-
-        return results
-
-    def _save_to_unverified_cache(self, citation, result):
-        """
-        Save citations verified by non-CourtListener sources to the unverified citation cache.
-        This allows tracking of citations that are verified but not by the primary CourtListener source.
+        Verify citation using web search (Google search).
+        
+        This method searches for the citation on the web to find case information
+        from various legal databases and websites.
         
         Args:
-            citation (str): The citation text
-            result (dict): Verification result with verified_by field
+            citation (str): The citation to verify
+            
+        Returns:
+            dict: Verification result with case information
         """
         try:
-            # Only save if verified_by is present and not CourtListener
-            verified_by = result.get("verified_by", "")
-            if not verified_by or verified_by == "CourtListener":
-                return
+            logger.info(f"Attempting web search verification for: {citation}")
             
-            # Load existing unverified citations
-            unverified_cache_path = "data/citations/unverified_citations_with_sources.json"
-            os.makedirs(os.path.dirname(unverified_cache_path), exist_ok=True)
+            # Normalize the citation for search
+            search_query = f'"{citation}" case law'
             
-            existing_citations = []
-            if os.path.exists(unverified_cache_path):
-                try:
-                    with open(unverified_cache_path, 'r', encoding='utf-8') as f:
-                        existing_citations = json.load(f)
-                except (json.JSONDecodeError, FileNotFoundError):
-                    existing_citations = []
-            
-            # Create entry for this citation
-            citation_entry = {
-                "citation": citation,
-                "source": verified_by,
-                "verified_by": verified_by,
-                "timestamp": datetime.datetime.utcnow().isoformat(),
-                "status": "verified_non_courtlistener",
-                "summary": result.get("explanation", f"Verified by {verified_by}"),
-                "case_name": result.get("case_name", ""),
-                "confidence": result.get("confidence", 0.0),
-                "url": result.get("url", ""),
-                "details": result.get("details", {})
+            # Use Google search to find case information
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
             
-            # Check if citation already exists
-            existing_index = None
-            for i, existing in enumerate(existing_citations):
-                if existing.get("citation") == citation:
-                    existing_index = i
+            # Search for the citation on legal websites
+            legal_sites = [
+                f'https://law.justia.com/cases/search?query={citation}',
+                f'https://www.casemine.com/search?q={citation}',
+                f'https://www.findlaw.com/search?query={citation}',
+                f'https://www.leagle.com/search?query={citation}',
+                f'https://vlex.com/search?searchText={citation}',  # Add vLex as a source
+                f'https://casetext.com/search?q={citation}'  # Add Casetext as a source
+            ]
+            
+            results = []
+            for site_url in legal_sites:
+                try:
+                    response = requests.get(site_url, headers=headers, timeout=10)
+                    if response.status_code == 200:
+                        # Extract case name from the page content
+                        case_name = self._extract_case_name_from_page(response.text, citation)
+                        if case_name:
+                            results.append({
+                                'source': site_url,
+                                'case_name': case_name,
+                                'url': site_url
+                            })
+                except Exception as e:
+                    logger.warning(f"Error searching {site_url}: {e}")
+                    continue
+            
+            if results:
+                # Return the first successful result
+                best_result = results[0]
+                return {
+                    "verified": True,
+                    "case_name": best_result['case_name'],
+                    "citation": citation,
+                    "source": "web_search",
+                    "url": best_result['url'],
+                    "confidence": "medium",
+                    "verification_method": "web_search"
+                }
+            else:
+                return {
+                    "verified": False,
+                    "error": "No web search results found",
+                    "citation": citation,
+                    "verification_method": "web_search"
+                }
+                
+        except Exception as e:
+            logger.error(f"Error in web search verification: {e}")
+            return {
+                "verified": False,
+                "error": str(e),
+                "citation": citation,
+                "verification_method": "web_search"
+            }
+
+    def _extract_case_name_from_page(self, html_content: str, citation: str, source_url: str = "") -> str:
+        """
+        Extract case name from HTML page content using site-specific patterns.
+        
+        Args:
+            html_content (str): The HTML content of the page
+            citation (str): The citation being searched for
+            source_url (str): The URL of the page for site-specific extraction
+            
+        Returns:
+            str: Extracted case name or empty string
+        """
+        try:
+            # Determine the site type from URL
+            site_type = self._identify_site_type(source_url)
+            
+            # Use site-specific extraction patterns
+            case_name = self._extract_case_name_by_site(html_content, citation, site_type)
+            
+            if case_name:
+                return case_name
+            
+            # Fallback to generic patterns if site-specific extraction fails
+            return self._extract_case_name_generic(html_content, citation)
+            
+        except Exception as e:
+            logger.warning(f"Error extracting case name from page: {e}")
+            return ""
+
+    def _verify_with_api(self, citation):
+        """
+        Verify a citation using multiple external APIs and sources.
+        Returns a standardized result dictionary, including up to two verifying sources and their case names.
+        Always includes a URL if a citation is found, even if case name similarity is low.
+        """
+        sources = [
+            ("CourtListener", self._try_courtlistener),
+            ("Justia", self._try_justia),
+            ("Google Scholar", self._try_google_scholar),
+            ("Leagle", self._try_leagle),
+            ("FindLaw", self._try_findlaw),
+            ("CaseText", self._try_casetext),
+            ("OpenLegal", self._try_openlegal),
+            ("Supreme Court", self._try_supreme_court),
+            ("Federal Courts", self._try_federal_courts),
+            ("State Courts", self._try_state_courts),
+            ("OpenJurist", self._try_openjurist),
+        ]
+        results = []
+        verifying_sources = []
+        case_names = []
+        urls = []
+        found_url = None
+        found_case_name = None
+        found_source = None
+        courtlistener_verified = False
+        
+        # Run all sources in parallel
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_to_source = {executor.submit(method, citation): (name, method) for name, method in sources}
+            for future in concurrent.futures.as_completed(future_to_source):
+                name, method = future_to_source[future]
+                try:
+                    result = future.result()
+                    results.append((name, result))
+                    
+                    if result.get("verified", False):
+                        # Track CourtListener verification separately
+                        if name == "CourtListener":
+                            courtlistener_verified = True
+                        
+                        verifying_sources.append(name)
+                        case_name = result.get("case_name", "")
+                        url = result.get("url", "")
+                        if case_name and case_name != "Unknown Case" and not case_name.startswith("Found in"):
+                            case_names.append(case_name)
+                            if url:
+                                urls.append(url)
+                        else:
+                            case_names.append("")
+                        # Stop if we have two verifying sources
+                        if len(verifying_sources) == 2:
+                            break
+                    # Always record the first found URL, even if not verified
+                    if not found_url and result.get("url"):
+                        found_url = result.get("url")
+                        found_case_name = result.get("case_name", "")
+                        found_source = name
+                except Exception as e:
+                    results.append((name, {"verified": False, "error": str(e)}))
+        
+        # Fallback logic for case name
+        final_case_name = ""
+        final_url = ""
+        for name in verifying_sources:
+            for n, result in results:
+                if n == name:
+                    case_name = result.get("case_name", "")
+                    url = result.get("url", "")
+                    if case_name and case_name != "Unknown Case" and not case_name.startswith("Found in"):
+                        final_case_name = case_name
+                        final_url = url
+                        break
+            if final_case_name:
+                break
+        if not final_case_name:
+            # Try to use any non-empty case name from any result
+            for n, result in results:
+                case_name = result.get("case_name", "")
+                url = result.get("url", "")
+                if case_name and case_name != "Unknown Case" and not case_name.startswith("Found in"):
+                    final_case_name = case_name
+                    final_url = url
                     break
-            
-            if existing_index is not None:
-                # Update existing entry
-                existing_citations[existing_index] = citation_entry
-                logger.debug(f"Updated existing entry in unverified cache for: {citation}")
-            else:
-                # Add new entry
-                existing_citations.append(citation_entry)
-                logger.debug(f"Added new entry to unverified cache for: {citation}")
-            
-            # Save back to file
-            with open(unverified_cache_path, 'w', encoding='utf-8') as f:
-                json.dump(existing_citations, f, indent=2, ensure_ascii=False)
-            
-            logger.info(f"Saved non-CourtListener verified citation to unverified cache: {citation} (verified by {verified_by})")
-            
-        except Exception as e:
-            logger.error(f"Error saving to unverified cache for citation '{citation}': {e}")
+        
+        # If we have a URL but no case name, try to extract case name from the URL
+        if (final_url or found_url) and not (final_case_name or found_case_name):
+            url_to_extract = final_url or found_url
+            extracted_case_name = self._extract_case_name_from_url_content(url_to_extract, citation)
+            if extracted_case_name:
+                if not final_case_name:
+                    final_case_name = extracted_case_name
+                if not found_case_name:
+                    found_case_name = extracted_case_name
+        
+        # Always include the first found URL and case name if available
+        return {
+            "verified": False,  # Verification status will be set in verify_citation
+            "sources": verifying_sources,
+            "case_names": case_names,
+            "case_name": final_case_name or found_case_name or "",
+            "url": final_url or found_url or "",
+            "results": results,
+            "citation": citation,
+            "verification_reason": "",
+            "courtlistener_verified": courtlistener_verified,
+            "found_source": found_source,
+        }
 
-    def _save_to_cache(self, citation, result):
-        """Save the verification result to the cache."""
-        cache_file = os.path.join(
-            self.cache_dir,
-            f"{self._normalize_citation(citation).replace(' ', '_')}.json",
-        )
+    def _try_courtlistener(self, citation):
+        """Try to verify citation using CourtListener API."""
+        api_key = self.courtlistener_api_key
+        if not api_key:
+            return {
+                "verified": False,
+                "source": "CourtListener",
+                "error": "No CourtListener API key provided",
+                "citation": citation,
+            }
+        
         try:
-            with open(cache_file, "w") as f:
-                json.dump(result, f, indent=2)
+            encoded_citation = quote(citation)
+            url = f"https://www.courtlistener.com/api/rest/v4/opinions/?cite={encoded_citation}"
+            headers = {
+                "Authorization": f"Token {api_key}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                # Handle cases where count might not be a number
+                try:
+                    count = int(data.get("count", 0)) if data.get("count") is not None else 0
+                except (ValueError, TypeError):
+                    # If count is not a number, check if results exist
+                    count = len(data.get("results", []))
+                
+                if count > 0:
+                    result = data["results"][0]
+                    case_name = result.get("case_name", "")
+                    case_url = f"https://www.courtlistener.com{result.get('absolute_url', '')}"
+                    
+                    # If case name is missing or unknown, try to extract from the URL
+                    if not case_name or case_name == "Unknown Case" or case_name.strip() == "":
+                        if case_url and case_url != "https://www.courtlistener.com":
+                            extracted_case_name = self._extract_case_name_from_url_content(case_url, citation)
+                            if extracted_case_name:
+                                case_name = extracted_case_name
+                    
+                    # Be more strict about accepting results with unknown or empty case names
+                    if not case_name or case_name == "Unknown Case" or case_name.strip() == "":
+                        return {
+                            "citation": citation,
+                            "verified": False,
+                            "source": "CourtListener",
+                            "case_name": case_name or "Unknown Case",
+                            "url": case_url,
+                            "details": {
+                                "court": result.get("court", "Unknown Court"),
+                                "date_filed": result.get("date_filed", "Unknown Date"),
+                                "docket_number": result.get("docket_number", "Unknown Docket"),
+                            },
+                            "error": "Citation found but case name is unknown or missing",
+                        }
+                    
+                    # Only verify if we have a proper case name
+                    return {
+                        "citation": citation,
+                        "verified": True,
+                        "source": "CourtListener",
+                        "case_name": case_name,
+                        "url": case_url,
+                        "details": {
+                            "court": result.get("court", "Unknown Court"),
+                            "date_filed": result.get("date_filed", "Unknown Date"),
+                            "docket_number": result.get("docket_number", "Unknown Docket"),
+                        },
+                    }
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "CourtListener",
+                "case_name": None,
+                "details": None,
+                "error": "Citation not found in CourtListener database",
+            }
+            
         except Exception as e:
-            logger.error(f"Error saving cache for citation '{citation}': {e}")
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "CourtListener",
+                "case_name": None,
+                "details": None,
+                "error": str(e),
+            }
 
+    def _verify_citation_with_context(self, citation, content, source_name, url):
+        """
+        Verify a citation by looking for legal context around the citation in the content.
+        This is more strict than simple string matching.
+        
+        Args:
+            citation: The citation to verify
+            content: The HTML/text content to search in
+            source_name: Name of the source for the result
+            url: URL of the search results
+            
+        Returns:
+            dict: Verification result
+        """
+        citation_lower = citation.lower()
+        content_lower = content.lower()
+        
+        # First check if citation appears at all
+        if citation_lower not in content_lower and citation_lower.replace(" ", "") not in content_lower:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": source_name,
+                "error": f"Citation not found in {source_name}",
+            }
+        
+        # Split content into sentences to look for context
+        sentences = re.split(r'[.!?]', content)
+        citation_found_in_context = False
+        case_name_found = None
+        
+        for sentence in sentences:
+            if citation_lower in sentence.lower():
+                # Check if this sentence contains legal context
+                legal_indicators = [
+                    'case', 'opinion', 'decision', 'court', 'judge', 'judgment',
+                    'ruling', 'appeal', 'petition', 'motion', 'brief', 'argument',
+                    'plaintiff', 'defendant', 'respondent', 'appellant', 'litigation',
+                    'lawsuit', 'legal', 'jurisdiction', 'precedent', 'holding'
+                ]
+                
+                sentence_lower = sentence.lower()
+                has_legal_context = any(indicator in sentence_lower for indicator in legal_indicators)
+                
+                if has_legal_context:
+                    citation_found_in_context = True
+                    # Try to extract a case name from the sentence
+                    case_patterns = [
+                        r'in\s+([^,]+?)\s*,\s*\d+',  # "In Smith v. Jones, 123"
+                        r'([^,]+?)\s+v\.\s+([^,]+?)\s*,\s*\d+',  # "Smith v. Jones, 123"
+                        r'case\s+of\s+([^,]+?)\s*,\s*\d+',  # "case of Smith v. Jones, 123"
+                        r'([^,]+?)\s+v\.\s+([^,]+?)\s*\(',  # "Smith v. Jones ("
+                        r'([^,]+?)\s+v\.\s+([^,]+?)\s*$',  # "Smith v. Jones" at end
+                    ]
+                    
+                    for pattern in case_patterns:
+                        match = re.search(pattern, sentence, re.IGNORECASE)
+                        if match:
+                            if len(match.groups()) >= 2:
+                                case_name_found = f"{match.group(1)} v. {match.group(2)}"
+                            else:
+                                case_name_found = match.group(1) if match.groups() else match.group(0)
+                            break
+                    break
+        
+        if citation_found_in_context:
+            return {
+                "citation": citation,
+                "verified": True,
+                "source": source_name,
+                "case_name": case_name_found or f"Found in {source_name}",
+                "url": url,
+                "details": {"search_url": url},
+            }
+        else:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": source_name,
+                "error": f"Citation found but lacks legal context in {source_name}",
+            }
 
-def main():
-    """Example usage of the EnhancedMultiSourceVerifier."""
+    def _try_google_scholar(self, citation):
+        """Try to verify citation using Google Scholar."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://scholar.google.com/scholar?q={encoded_query}&as_sdt=2006"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "Google Scholar", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Google Scholar",
+                "error": "Citation not found in Google Scholar",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Google Scholar",
+                "error": str(e),
+            }
+
+    def _try_justia(self, citation):
+        """Try to verify citation using Justia."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://www.justia.com/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "Justia", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Justia",
+                "error": "Citation not found in Justia",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Justia",
+                "error": str(e),
+            }
+
+    def _try_leagle(self, citation):
+        """Try to verify citation using Leagle."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://www.leagle.com/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "Leagle", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Leagle",
+                "error": "Citation not found in Leagle",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Leagle",
+                "error": str(e),
+            }
+
+    def _try_findlaw(self, citation):
+        """Try to verify citation using FindLaw."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://caselaw.findlaw.com/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "FindLaw", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "FindLaw",
+                "error": "Citation not found in FindLaw",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "FindLaw",
+                "error": str(e),
+            }
+
+    def _try_casetext(self, citation):
+        """Try to verify citation using CaseText."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://casetext.com/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "CaseText", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "CaseText",
+                "error": "Citation not found in CaseText",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "CaseText",
+                "error": str(e),
+            }
+
+    def _try_openlegal(self, citation):
+        """Try to verify citation using OpenLegal."""
+        try:
+            # Construct search query
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://openlegal.com/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                content = response.text.lower()
+                citation_lower = citation.lower()
+                
+                if citation_lower in content or citation_lower.replace(" ", "") in content:
+                    return {
+                        "citation": citation,
+                        "verified": True,
+                        "source": "OpenLegal",
+                        "case_name": "Found in OpenLegal",
+                        "url": url,
+                        "details": {"search_url": url},
+                    }
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "OpenLegal",
+                "error": "Citation not found in OpenLegal",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "OpenLegal",
+                "error": str(e),
+            }
+
+    def _try_supreme_court(self, citation):
+        """Try to verify citation using Supreme Court resources."""
+        try:
+            # Check Supreme Court official site
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://www.supremecourt.gov/search.aspx?filename=/docket/docketfiles/html/public/{encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                content = response.text.lower()
+                citation_lower = citation.lower()
+                
+                if citation_lower in content or citation_lower.replace(" ", "") in content:
+                    return {
+                        "citation": citation,
+                        "verified": True,
+                        "source": "Supreme Court",
+                        "case_name": "Found in Supreme Court",
+                        "url": url,
+                        "details": {"search_url": url},
+                    }
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Supreme Court",
+                "error": "Citation not found in Supreme Court",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Supreme Court",
+                "error": str(e),
+            }
+
+    def _try_federal_courts(self, citation):
+        """Try to verify citation using Federal Courts resources."""
+        try:
+            # Check PACER/ECF systems (public access)
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://www.pacer.gov/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                content = response.text.lower()
+                citation_lower = citation.lower()
+                
+                if citation_lower in content or citation_lower.replace(" ", "") in content:
+                    return {
+                        "citation": citation,
+                        "verified": True,
+                        "source": "Federal Courts",
+                        "case_name": "Found in Federal Courts",
+                        "url": url,
+                        "details": {"search_url": url},
+                    }
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Federal Courts",
+                "error": "Citation not found in Federal Courts",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "Federal Courts",
+                "error": str(e),
+            }
+
+    def _try_state_courts(self, citation):
+        """Try to verify citation using State Courts resources."""
+        try:
+            # Check National Center for State Courts
+            query = f'"{citation}"'
+            encoded_query = quote(query)
+            url = f"https://www.ncsc.org/search?q={encoded_query}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._verify_citation_with_context(citation, response.text, "State Courts", url)
+            
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "State Courts",
+                "error": "Citation not found in State Courts",
+            }
+            
+        except Exception as e:
+            return {
+                "citation": citation,
+                "verified": False,
+                "source": "State Courts",
+                "error": str(e),
+            }
+
+    def _try_openjurist(self, citation):
+        """
+        Try to verify citation using OpenJurist (https://openjurist.org/).
+        Returns a dict with 'verified', 'case_name', and 'url' if found.
+        """
+        try:
+            from bs4 import BeautifulSoup
+            query = quote(citation)
+            url = f"https://openjurist.org/search?query={query}"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, "html.parser")
+                for a in soup.find_all("a", href=True):
+                    href = a["href"]
+                    text = a.get_text(strip=True)
+                    if citation.replace(" ", "") in text.replace(" ", ""):
+                        case_url = f"https://openjurist.org{href}" if href.startswith("/") else href
+                        case_name = text
+                        return {
+                            "verified": True,
+                            "source": "OpenJurist",
+                            "case_name": case_name,
+                            "url": case_url,
+                        }
+            return {
+                "verified": False,
+                "source": "OpenJurist",
+                "error": "Citation not found in OpenJurist",
+            }
+        except Exception as e:
+            return {
+                "verified": False,
+                "source": "OpenJurist",
+                "error": str(e),
+            }
+
+    def _calculate_case_name_similarity(self, name1, name2):
+        """
+        Calculate similarity between two case names.
+        
+        Args:
+            name1: First case name
+            name2: Second case name
+            
+        Returns:
+            Similarity score between 0 and 1
+        """
+        if not name1 or not name2:
+            return 0.0
+            
+        # Normalize names
+        norm1 = self._normalize_case_name(name1)
+        norm2 = self._normalize_case_name(name2)
+        
+        if not norm1 or not norm2:
+            return 0.0
+            
+        # Check for exact match
+        if norm1 == norm2:
+            return 1.0
+            
+        # Check for one name being a substring of the other
+        if norm1 in norm2 or norm2 in norm1:
+            return 0.8
+            
+        # Calculate word overlap
+        words1 = set(norm1.split())
+        words2 = set(norm2.split())
+        
+        if not words1 or not words2:
+            return 0.0
+            
+        # Calculate Jaccard similarity
+        intersection = len(words1.intersection(words2))
+        union = len(words1.union(words2))
+        
+        return intersection / union if union > 0 else 0.0
+    
+    def _normalize_case_name(self, name):
+        """
+        Normalize a case name for comparison.
+        
+        Args:
+            name: Case name to normalize
+            
+        Returns:
+            Normalized case name
+        """
+        if not name:
+            return ""
+            
+        # Convert to lowercase and remove punctuation
+        normalized = re.sub(r'[^\w\s]', '', name.lower())
+        
+        # Remove common words that don't add meaning
+        common_words = {
+            'v', 'vs', 'versus', 'state', 'united', 'states', 'county', 'city', 'town',
+            'corporation', 'corp', 'company', 'co', 'incorporated', 'inc', 'limited', 'ltd',
+            'association', 'assoc', 'foundation', 'found', 'trust', 'estate', 'matter',
+            'people', 'public', 'private', 'federal', 'national', 'international',
+            'department', 'dept', 'agency', 'board', 'commission', 'committee',
+            'district', 'school', 'university', 'college', 'hospital', 'medical',
+            'health', 'insurance', 'bank', 'financial', 'investment', 'real', 'estate'
+        }
+        
+        words = normalized.split()
+        filtered_words = [word for word in words if word not in common_words and len(word) > 2]
+        
+        return ' '.join(filtered_words)
+
+    def clear_cache(self):
+        """Clear the verification cache to force fresh verification."""
+        if self.cache:
+            try:
+                # Clear all citation-related cache entries
+                if hasattr(self.cache, 'clear'):
+                    self.cache.clear()
+                elif hasattr(self.cache, 'flush'):
+                    self.cache.flush()
+                logger.info("Verification cache cleared")
+            except Exception as e:
+                logger.warning(f"Failed to clear cache: {str(e)}")
+
+    def _identify_site_type(self, url: str) -> str:
+        """Identify the type of legal website from the URL."""
+        if not url:
+            return "generic"
+        
+        url_lower = url.lower()
+        
+        if "courtlistener.com" in url_lower:
+            return "courtlistener"
+        elif "justia.com" in url_lower:
+            return "justia"
+        elif "findlaw.com" in url_lower or "caselaw.findlaw.com" in url_lower:
+            return "findlaw"
+        elif "casetext.com" in url_lower:
+            return "casetext"
+        elif "leagle.com" in url_lower:
+            return "leagle"
+        elif "supremecourt.gov" in url_lower:
+            return "supreme_court"
+        elif "law.cornell.edu" in url_lower:
+            return "cornell"
+        elif "scholar.google.com" in url_lower:
+            return "google_scholar"
+        elif "openlegal.com" in url_lower:
+            return "openlegal"
+        elif "openjurist.org" in url_lower:
+            return "openjurist"
+        else:
+            return "generic"
+
+    def _extract_case_name_by_site(self, html_content: str, citation: str, site_type: str) -> str:
+        """Extract case name using site-specific patterns."""
+        
+        if site_type == "courtlistener":
+            return self._extract_case_name_courtlistener(html_content, citation)
+        elif site_type == "justia":
+            return self._extract_case_name_justia(html_content, citation)
+        elif site_type == "findlaw":
+            return self._extract_case_name_findlaw(html_content, citation)
+        elif site_type == "casetext":
+            return self._extract_case_name_casetext(html_content, citation)
+        elif site_type == "leagle":
+            return self._extract_case_name_leagle(html_content, citation)
+        elif site_type == "supreme_court":
+            return self._extract_case_name_supreme_court(html_content, citation)
+        elif site_type == "cornell":
+            return self._extract_case_name_cornell(html_content, citation)
+        elif site_type == "google_scholar":
+            return self._extract_case_name_google_scholar(html_content, citation)
+        else:
+            return ""
+
+    def _extract_case_name_courtlistener(self, html_content: str, citation: str) -> str:
+        """Extract case name from CourtListener pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-name"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-name[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-name[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_justia(self, html_content: str, citation: str) -> str:
+        """Extract case name from Justia pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_findlaw(self, html_content: str, citation: str) -> str:
+        """Extract case name from FindLaw pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_casetext(self, html_content: str, citation: str) -> str:
+        """Extract case name from CaseText pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_leagle(self, html_content: str, citation: str) -> str:
+        """Extract case name from Leagle pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_supreme_court(self, html_content: str, citation: str) -> str:
+        """Extract case name from Supreme Court pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_cornell(self, html_content: str, citation: str) -> str:
+        """Extract case name from Cornell LII pages."""
+        patterns = [
+            r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_google_scholar(self, html_content: str, citation: str) -> str:
+        """Extract case name from Google Scholar pages."""
+        patterns = [
+            r'<h3[^>]*class="[^"]*gs_rt[^"]*"[^>]*>([^<]+)</h3>',
+            r'<h3[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h3>',
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'class="gs_rt"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*gs_rt[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*gs_rt[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _extract_case_name_generic(self, html_content: str, citation: str) -> str:
+        """Extract case name using generic patterns."""
+        patterns = [
+            r'<title[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</title>',
+            r'<h1[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h1>',
+            r'<h2[^>]*>([^<]*' + re.escape(citation) + r'[^<]*)</h2>',
+            r'class="case-name"[^>]*>([^<]*)</',
+            r'class="title"[^>]*>([^<]*)</',
+            r'class="case-title"[^>]*>([^<]*)</',
+            r'<span[^>]*class="[^"]*case[^"]*"[^>]*>([^<]*)</span>',
+            r'<div[^>]*class="[^"]*case[^"]*"[^>]*>([^<]*)</div>'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
+            if match:
+                case_name = self._clean_case_name(match.group(1))
+                if self._is_valid_case_name(case_name):
+                    return case_name
+        
+        return ""
+
+    def _clean_case_name(self, case_name: str) -> str:
+        """Clean and normalize a case name."""
+        if not case_name:
+            return ""
+        
+        # Remove HTML tags
+        case_name = re.sub(r'<[^>]+>', '', case_name)
+        
+        # Clean up whitespace
+        case_name = re.sub(r'\s+', ' ', case_name)
+        case_name = case_name.strip()
+        
+        # Remove common unwanted text
+        case_name = re.sub(r'^\s*-\s*', '', case_name)  # Remove leading dash
+        case_name = re.sub(r'\s*-\s*$', '', case_name)  # Remove trailing dash
+        
+        # Remove citation from case name if present
+        citation_patterns = [
+            r'\d+\s+[A-Z]+\.[\d\w\.]+\s+\d+',  # e.g., "181 Wash.2d 391"
+            r'\d+\s+[A-Z]+\s+\d+',  # e.g., "181 Wash 2d 391"
+            r'\d+\s+[A-Z]+\.[\d\w\.]+',  # e.g., "181 Wash.2d"
+        ]
+        
+        for pattern in citation_patterns:
+            case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE)
+        
+        # Clean up again after citation removal
+        case_name = re.sub(r'\s+', ' ', case_name)
+        case_name = case_name.strip()
+        
+        return case_name
+
+    def _is_valid_case_name(self, case_name: str) -> bool:
+        """Check if a case name is valid."""
+        if not case_name or len(case_name) < 5:
+            return False
+        
+        # Must contain typical case name patterns
+        case_patterns = [
+            r'\b[A-Z][a-z]+\s+(?:v\.|vs\.|versus)\s+[A-Z][a-z]+',  # e.g., "Smith v. Jones"
+            r'\bIn\s+re\s+[A-Z][a-z]+',  # e.g., "In re Smith"
+            r'\b[A-Z][a-z]+\s+(?:ex\s+rel\.|ex\s+rel)\s+[A-Z][a-z]+',  # e.g., "State ex rel. Smith"
+        ]
+        
+        for pattern in case_patterns:
+            if re.search(pattern, case_name, re.IGNORECASE):
+                return True
+        
+        return False
+
+    def _extract_case_name_from_url_content(self, url: str, citation: str) -> str:
+        """
+        Extract case name by fetching the content from a URL.
+        
+        Args:
+            url (str): The URL to fetch content from
+            citation (str): The citation being searched for
+            
+        Returns:
+            str: Extracted case name or empty string
+        """
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                return self._extract_case_name_from_page(response.text, citation, url)
+            
+            return ""
+            
+        except Exception as e:
+            logger.warning(f"Error fetching content from {url}: {e}")
+            return ""
+
+    def _get_cached_result(self, citation):
+        """Get cached verification result for a citation."""
+        try:
+            cache_key = f"citation_verification:{citation}"
+            cached_data = self.redis_client.get(cache_key)
+            
+            if cached_data:
+                # Handle both string and bytes data
+                if isinstance(cached_data, bytes):
+                    cached_data = cached_data.decode('utf-8')
+                
+                # Try to parse as JSON
+                try:
+                    result = json.loads(cached_data)
+                    if isinstance(result, dict):
+                        logger.info(f"Cache hit for citation: {citation}")
+                        return result
+                    else:
+                        logger.warning(f"Cache lookup failed: Cached result is not a dictionary")
+                        return None
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.warning(f"Cache lookup failed: Invalid JSON in cache: {e}")
+                    return None
+            
+            return None
+        except Exception as e:
+            logger.error(f"Cache lookup error: {e}")
+            return None
+
+# Standalone function for backward compatibility
+def verify_citation(citation, extracted_case_name=None, use_cache=True, use_database=False, use_api=True, force_refresh=False):
+    """
+    Standalone function to verify a citation using the EnhancedMultiSourceVerifier.
+    
+    Args:
+        citation (str): The citation to verify
+        extracted_case_name (str, optional): Case name extracted from source document
+        use_cache (bool): Whether to use caching
+        use_database (bool): Whether to use database lookup
+        use_api (bool): Whether to use API verification
+        force_refresh (bool): Whether to force refresh cache
+        
+    Returns:
+        dict: Verification result
+    """
     verifier = EnhancedMultiSourceVerifier()
-
-    # Example citations
-    citations = [
-        "410 U.S. 113",  # Roe v. Wade
-        "347 U.S. 483",  # Brown v. Board of Education
-        "5 U.S. 137",  # Marbury v. Madison
-        "198 Wn.2d 271",  # Washington Supreme Court case
-        "175 Wn. App. 1",  # Washington Court of Appeals case
-    ]
-
-    # Verify each citation
-    for citation in citations:
-        try:
-            result = verifier.verify_citation(citation)
-            print(f"\nCitation: {citation}")
-            print(f"Verified: {result.get('verified', False)}")
-            if result.get("verified"):
-                print(f"Case: {result.get('case_name', 'N/A')}")
-                print(f"Court: {result.get('court', 'N/A')}")
-                print(f"Date: {result.get('date_filed', 'N/A')}")
-                if result.get("parallel_citations"):
-                    print("Parallel Citations:")
-                    for pc in result["parallel_citations"]:
-                        print(f"- {pc.get('citation', 'N/A')}")
-            else:
-                print(f"Error: {result.get('error', 'Unknown error')}")
-        except Exception as e:
-            print(f"Error processing citation {citation}: {str(e)}")
-
-
-if __name__ == "__main__":
-    main()
+    return verifier.verify_citation(
+        citation=citation,
+        extracted_case_name=extracted_case_name,
+        use_cache=use_cache,
+        use_database=use_database,
+        use_api=use_api,
+        force_refresh=force_refresh
+    )

@@ -12,6 +12,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from typing import List, Dict, Any, Optional, Union
+import json
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -31,13 +32,12 @@ if project_root not in sys.path:
 
 from src.config import get_config_value, configure_logging
 from src.extract_case_name import extract_case_name_from_text, find_shared_case_name_for_citations
+from src.cache_manager import get_cache_manager
+from src.enhanced_case_name_extractor import EnhancedCaseNameExtractor
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
     configure_logging()
-
-logger = logging.getLogger(__name__)
-
 
 class CitationProcessor:
     """Process and validate legal citations using eyecite and external APIs."""
@@ -50,6 +50,7 @@ class CitationProcessor:
                     If None, will try to get from environment/config.
             max_workers: Maximum number of worker threads for parallel processing
         """
+        self.logger = logging.getLogger(__name__)
         self.api_key = api_key or get_config_value("COURTLISTENER_API_KEY")
         self.max_workers = max_workers
         self.session = self._create_session()
@@ -58,10 +59,17 @@ class CitationProcessor:
             "COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/"
         ).rstrip("/")
         self.citation_lookup_url = f"{self.api_base_url}/citation-lookup/"
+        self.cache_manager = get_cache_manager()
+
+        # Initialize enhanced case name extractor with API key
+        self.enhanced_case_name_extractor = EnhancedCaseNameExtractor(
+            api_key=self.api_key, 
+            cache_results=True
+        ) if self.api_key else None
 
         if not self.api_key:
-            logger.warning(
-                "No CourtListener API key provided. Some features may be limited. "
+            self.logger.warning(
+                "No CourtListener API key provided. Enhanced case name extraction will be limited. "
                 "Set COURTLISTENER_API_KEY in your environment or .env file."
             )
 
@@ -179,14 +187,15 @@ class CitationProcessor:
         return cleaned.strip()
 
     def extract_citations(self, text: str, extract_case_names: bool = True) -> List[Dict[str, Any]]:
-        """Extract citations from text using eyecite.
-
+        """
+        Extract citations from text with enhanced case name extraction.
+        
         Args:
             text: The text to extract citations from
-            extract_case_names: Whether to extract case names from context
-
+            extract_case_names: Whether to extract case names using enhanced method
+            
         Returns:
-            List of extracted citation dictionaries with metadata
+            List of dictionaries with citation and case name information
         """
         try:
             # Clean the text
@@ -229,30 +238,80 @@ class CitationProcessor:
                 }
                 enhanced_citations.append(citation_obj)
             
-            # Extract case names with shared case name detection
-            if extract_case_names:
-                # First, try to find shared case names for all citations
-                shared_case_names = find_shared_case_name_for_citations(text, enhanced_citations)
-                
-                # Now extract individual case names, using shared names when available
-                for citation_obj in enhanced_citations:
-                    citation_text = citation_obj['citation']
+            # Use enhanced case name extraction if available
+            if self.enhanced_case_name_extractor and extract_case_names:
+                try:
+                    enhanced_results = self.enhanced_case_name_extractor.extract_enhanced_case_names(text)
                     
-                    # Check if this citation has a shared case name
-                    if citation_text in shared_case_names:
-                        case_name = shared_case_names[citation_text]
-                    else:
-                        # Extract individual case name
-                        case_name = extract_case_name_from_text(text, citation_text, enhanced_citations)
+                    # Create a mapping of citations to enhanced results
+                    enhanced_map = {result['citation']: result for result in enhanced_results}
                     
-                    citation_obj['case_name'] = case_name
-                    citation_obj['raw'] = citation_str  # Add the raw citation string
-            
-            logger.info(f"Extracted {len(enhanced_citations)} citations with case names")
-            return enhanced_citations
+                    # Combine results
+                    results = []
+                    for citation_info in enhanced_citations:
+                        citation = citation_info['citation']
+                        enhanced_result = enhanced_map.get(citation, {})
+                        
+                        result = {
+                            'citation': citation,
+                            'case_name': enhanced_result.get('case_name'),  # Extracted from document
+                            'canonical_case_name': enhanced_result.get('canonical_name'),  # From API
+                            'confidence': enhanced_result.get('confidence', 0.0),
+                            'method': enhanced_result.get('method', 'none'),
+                            'extracted_name': enhanced_result.get('extracted_name'),  # Document text
+                            'position': citation_info.get('start_index'),
+                            'verified': enhanced_result.get('canonical_name') is not None,
+                            'similarity': enhanced_result.get('similarity_score', 0.0) if enhanced_result.get('canonical_name') and enhanced_result.get('extracted_name') else None,
+                            'canonical_source': enhanced_result.get('source', 'none'),  # Track source of canonical name
+                            'citation_url': self.enhanced_case_name_extractor.get_citation_url(citation) if self.enhanced_case_name_extractor else None,
+                            'url_source': self._get_url_source(citation) if self.enhanced_case_name_extractor else None
+                        }
+                        results.append(result)
+                    
+                    return results
+                    
+                except Exception as e:
+                    # Fallback to original method if enhanced extraction fails
+                    self.logger.warning(f"Enhanced case name extraction failed: {e}. Falling back to original method.")
+                    return self._extract_citations_fallback(text, enhanced_citations)
+            else:
+                # Use fallback method if enhanced extractor not available
+                return self._extract_citations_fallback(text, enhanced_citations)
 
         except Exception as e:
-            logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
+            self.logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
+            return []
+
+    def _extract_citations_fallback(self, text: str, enhanced_citations: List[Dict]) -> List[Dict[str, Any]]:
+        """Fallback method for citation extraction when enhanced extractor is not available."""
+        try:
+            # Use the original case name extraction method
+            from src.extract_case_name import extract_case_name_from_text
+            
+            results = []
+            for citation_info in enhanced_citations:
+                citation = citation_info['citation']
+                
+                # Extract case name using original method
+                case_name = extract_case_name_from_text(text, citation)
+                
+                result = {
+                    'citation': citation,
+                    'case_name': case_name,
+                    'canonical_case_name': None,
+                    'confidence': 0.7 if case_name else 0.0,
+                    'method': 'fallback',
+                    'extracted_name': case_name,
+                    'position': citation_info.get('start_index'),
+                    'verified': False,
+                    'similarity': None
+                }
+                results.append(result)
+            
+            return results
+            
+        except Exception as e:
+            self.logger.error(f"Error in fallback citation extraction: {str(e)}", exc_info=True)
             return []
 
     def _validate_locally(self, citation_text: Union[str, Any]) -> Dict[str, Any]:
@@ -301,7 +360,7 @@ class CitationProcessor:
             }
 
         except Exception as e:
-            logger.error(
+            self.logger.error(
                 f"Error in local validation for '{citation_text}': {str(e)}",
                 exc_info=True,
             )
@@ -348,9 +407,8 @@ class CitationProcessor:
                     pass
             raise Exception(error_msg) from e
 
-    @lru_cache(maxsize=1000)
     def validate_citation(self, citation_text: str) -> Dict[str, Any]:
-        """Validate a single citation with caching and fallback.
+        """Validate a single citation with unified caching and fallback.
 
         Args:
             citation_text: The citation text to validate
@@ -358,6 +416,22 @@ class CitationProcessor:
         Returns:
             Dictionary with validation results
         """
+        # Check cache first
+        cached_result = self.cache_manager.get_citation(citation_text)
+        if cached_result:
+            verification_result = json.loads(cached_result.get('verification_result', '{}'))
+            return {
+                "citation": citation_text,
+                "valid": verification_result.get('valid', False),
+                "results": verification_result.get('results', []),
+                "cached": True,
+                "error": None,
+                "source": "cache",
+                "case_name": verification_result.get('case_name'),
+                "year": verification_result.get('year'),
+                "parallel_citations": json.loads(verification_result.get('parallel_citations', '[]'))
+            }
+
         # First try to validate using the API v4
         try:
             # Call the citation-lookup endpoint
@@ -365,7 +439,7 @@ class CitationProcessor:
                 "/citation-lookup/", params={"citation": str(citation_text)}
             )
 
-            return {
+            validation_result = {
                 "citation": citation_text,
                 "valid": bool(result.get("count", 0) > 0),
                 "results": result.get("results", []),
@@ -375,24 +449,44 @@ class CitationProcessor:
                 "api_version": "v4",
             }
 
+            # Cache the result
+            self.cache_manager.set_citation(citation_text, {
+                'case_name': '',  # Will be extracted later if needed
+                'year': None,
+                'parallel_citations': [],
+                'verification_result': json.dumps(validation_result)
+            })
+
+            return validation_result
+
         except (
             requests.exceptions.RequestException,
             requests.exceptions.ConnectionError,
             requests.exceptions.Timeout,
             requests.exceptions.TooManyRedirects,
         ) as e:
-            logger.warning(
+            self.logger.warning(
                 f"API request failed for '{citation_text}': {str(e)}. Falling back to local validation."
             )
             # Fall back to local validation
-            return self._validate_locally(citation_text)
+            local_result = self._validate_locally(citation_text)
+            
+            # Cache the local validation result
+            self.cache_manager.set_citation(citation_text, {
+                'case_name': '',
+                'year': None,
+                'parallel_citations': [],
+                'verification_result': json.dumps(local_result)
+            })
+            
+            return local_result
 
         except Exception as e:
-            logger.error(
+            self.logger.error(
                 f"Unexpected error validating citation '{citation_text}': {str(e)}",
                 exc_info=True,
             )
-            return {
+            error_result = {
                 "citation": citation_text,
                 "valid": False,
                 "results": [],
@@ -400,84 +494,102 @@ class CitationProcessor:
                 "error": f"Validation error: {str(e)}",
                 "source": "error",
             }
+            
+            # Cache the error result
+            self.cache_manager.set_citation(citation_text, {
+                'case_name': '',
+                'year': None,
+                'parallel_citations': [],
+                'verification_result': json.dumps(error_result)
+            })
+            
+            return error_result
 
     def process_batch(
         self, citations: List[str], batch_size: int = 10
     ) -> List[Dict[str, Any]]:
-        """Process multiple citations in parallel with batching.
-
-        Args:
-            citations: List of citation texts to validate
-            batch_size: Number of citations to process in each batch
-
-        Returns:
-            List of validation results
-        """
+        """Process multiple citations in parallel with batching, using the CourtListener batch API if possible."""
         if not citations:
             return []
 
         results = []
         total = len(citations)
 
-        logger.info(
+        self.logger.info(
             f"Starting batch processing of {total} citations in batches of {batch_size}"
         )
 
-        # Process in batches to avoid overwhelming the API
-        for i in range(0, total, batch_size):
-            batch = citations[i : i + batch_size]
-            batch_num = (i // batch_size) + 1
-            total_batches = (total + batch_size - 1) // batch_size
+        # Try to use the new batch CourtListener API if available
+        try:
+            from src.citation_verification import CitationVerifier
+            verifier = CitationVerifier()
+            self.logger.info("Using CourtListener batch API for citation verification.")
+            batch_results = verifier.verify_citations_batch_courtlistener(citations)
+            
+            # Since the batch API might not return results for all citations (e.g., non-CourtListener ones),
+            # we need to handle the remaining ones.
+            # This part assumes batch_results contains valid data for some citations.
+            
+            # Create a dictionary for quick lookup of batch results
+            batch_results_map = {res['citation']: res for res in batch_results if res}
+            
+            processed_citations = set(batch_results_map.keys())
+            
+            # Add successful batch results
+            for cit in citations:
+                if cit in batch_results_map:
+                    results.append(batch_results_map[cit])
+            
+            # Identify citations that were not processed by the batch API
+            remaining_citations = [cit for cit in citations if cit not in processed_citations]
+            
+            if remaining_citations:
+                self.logger.info(f"Processing {len(remaining_citations)} remaining citations individually.")
+                
+                with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    future_to_citation = {
+                        executor.submit(self.validate_citation, cit): cit
+                        for cit in remaining_citations
+                    }
+                    for future in as_completed(future_to_citation):
+                        citation = future_to_citation[future]
+                        try:
+                            result = future.result()
+                            results.append(result)
+                        except Exception as exc:
+                            self.logger.error(
+                                f"'{citation}' generated an exception: {exc}",
+                                exc_info=True,
+                            )
+                            results.append({"citation": citation, "error": str(exc)})
+            
+            # Re-order results to match the original citation list order
+            final_results = sorted(results, key=lambda x: citations.index(x['citation']))
+            return final_results
 
-            logger.info(
-                f"Processing batch {batch_num}/{total_batches} with {len(batch)} citations"
-            )
-
-            # Use ThreadPoolExecutor to process batch in parallel
-            with ThreadPoolExecutor(
-                max_workers=min(self.max_workers, len(batch))
-            ) as executor:
-                # Submit all tasks in current batch
+        except Exception as e:
+            self.logger.warning(f"Could not use batch API: {e}. Falling back to individual processing.")
+            
+            # Fallback to original individual processing if batch fails entirely
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 future_to_citation = {
-                    executor.submit(self.validate_citation, citation): citation
-                    for citation in batch
+                    executor.submit(self.validate_citation, cit): cit
+                    for cit in citations
                 }
-
-                # Process results as they complete
                 for future in as_completed(future_to_citation):
                     citation = future_to_citation[future]
                     try:
                         result = future.result()
                         results.append(result)
-
-                        # Log progress for long-running batches
-                        if len(results) % 5 == 0 or len(results) == len(batch):
-                            logger.debug(
-                                f"Processed {len(results)}/{len(batch)} in current batch"
-                            )
-
-                    except Exception as e:
-                        logger.error(
-                            f"Error processing citation {citation}: {str(e)}",
-                            exc_info=True,
+                    except Exception as exc:
+                        self.logger.error(
+                            f"'{citation}' generated an exception: {exc}", exc_info=True
                         )
-                        results.append(
-                            {
-                                "citation": citation,
-                                "valid": False,
-                                "results": [],
-                                "cached": False,
-                                "error": str(e),
-                                "source": "error",
-                            }
-                        )
+                        results.append({"citation": citation, "error": str(exc)})
 
-            # Add a small delay between batches to be nice to the API
-            if i + batch_size < total:
-                time.sleep(0.2)  # Reduced from 0.5 for better performance
-
-        logger.info(f"Completed processing {len(results)} citations")
-        return results
+            # Re-order results to match the original citation list order
+            final_results = sorted(results, key=lambda x: citations.index(x['citation']))
+            return final_results
 
     def close(self):
         """Clean up resources."""
@@ -490,6 +602,36 @@ class CitationProcessor:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def _get_url_source(self, citation: str) -> str:
+        """Determine the source of the citation URL."""
+        if not self.enhanced_case_name_extractor:
+            return "none"
+        
+        try:
+            # Get the URL first
+            url = self.enhanced_case_name_extractor.get_citation_url(citation)
+            if not url:
+                return "none"
+            
+            # Determine source based on URL
+            if "courtlistener.com" in url:
+                return "courtlistener"
+            elif "scholar.google.com" in url:
+                return "google_scholar"
+            elif "vlex.com" in url:
+                return "vlex"
+            elif "casemine.com" in url:
+                return "casemine"
+            elif "leagle.com" in url:
+                return "leagle"
+            elif "justia.com" in url:
+                return "justia"
+            else:
+                return "unknown"
+            
+        except Exception as e:
+            self.logger.warning(f"Error determining URL source for '{citation}': {e}")
+            return "unknown"
 
 # Example usage
 if __name__ == "__main__":

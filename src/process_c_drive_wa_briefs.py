@@ -14,6 +14,7 @@ import re
 import uuid
 from datetime import datetime
 import importlib.util
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")
@@ -140,40 +141,6 @@ def extract_citations(text):
     return citations
 
 
-def verify_citation(citation):
-    """
-    Verify a citation using the CaseStrainer verification system.
-    This is a placeholder and should be replaced with actual verification logic.
-    """
-    # Import the verification module
-    try:
-        # Try to import the MultiSourceVerifier
-        spec = importlib.util.spec_from_file_location(
-            "multi_source_verifier",
-            os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "fixed_multi_source_verifier.py",
-            ),
-        )
-        verifier_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(verifier_module)
-
-        # Create a verifier instance
-        verifier = verifier_module.MultiSourceVerifier()
-
-        # Verify the citation
-        result = verifier.verify_citation(citation)
-
-        logger.info(f"Verified citation: {citation}")
-        logger.info(f"Verification result: {result}")
-
-        return result
-
-    except Exception as e:
-        logger.error(f"Error verifying citation {citation}: {e}")
-        return {"verified": False, "error": str(e)}
-
-
 def add_to_database(citation, source, verification_result):
     """Add a citation to the CaseStrainer database."""
     try:
@@ -250,7 +217,7 @@ def process_brief(brief_info):
 
         for citation in citations:
             # Verify the citation
-            verification_result = verify_citation(citation)
+            verification_result = verify_citation(citation, context=..., extracted_case_name=...)
 
             # Add the citation to the database
             source = f"{brief_info.get('court_id')} - {brief_info.get('case_number')} - {brief_info.get('brief_type')}"

@@ -57,6 +57,8 @@ from src.config import COURTLISTENER_API_KEY
 import re
 from src.citation_format_utils import apply_washington_spacing_rules
 
+# Updated: Use the unified verify_citation from enhanced_multi_source_verifier for all verification
+from src.enhanced_multi_source_verifier import verify_citation
 
 def normalize_citation_text(citation_text):
     """
@@ -791,6 +793,76 @@ def batch_validate_citations(citations, api_key=None):
 
 # DEPRECATED: All local citation extraction functions are deprecated.
 # Use the CourtListener citation-lookup API with a text blob for all new code.
+
+def extract_citations(text, return_debug=False, analysis_id=None, logger=logger):
+    """
+    Wrapper function that provides the expected interface for citation extraction.
+    Uses CitationExtractor internally to provide consistent extraction with debug support.
+    
+    Args:
+        text (str): The text to extract citations from
+        return_debug (bool): Whether to return debug information
+        analysis_id (str): Optional analysis ID for logging
+        logger: Logger instance
+    
+    Returns:
+        If return_debug=True: tuple of (citations, debug_info)
+        If return_debug=False: list of citation strings
+    """
+    if analysis_id:
+        logger.info(f"[Analysis {analysis_id}] Starting citation extraction with CitationExtractor")
+    
+    try:
+        from src.citation_extractor import CitationExtractor
+        
+        # Create extractor with enhanced settings
+        extractor = CitationExtractor(
+            use_eyecite=True, 
+            use_regex=True, 
+            context_window=1000, 
+            deduplicate=True,
+            extract_case_names=True
+        )
+        
+        # Extract citations with debug info if requested
+        if return_debug:
+            debug_result = extractor.extract(text, return_context=False, debug=True)
+            if isinstance(debug_result, dict) and 'citations' in debug_result:
+                citations = debug_result['citations']  # <-- Return full objects, not just strings
+                
+                # Apply normalization to citations
+                for citation_obj in citations:
+                    if 'citation' in citation_obj:
+                        citation_obj['citation'] = normalize_citation_text(citation_obj['citation'])
+                
+                debug_info = debug_result  # Return the full debug dict
+                return (citations, debug_info)
+            else:
+                # Fallback if debug result is unexpected
+                citations = extractor.extract(text, return_context=False, debug=False)
+                # Apply normalization to citations
+                for citation_obj in citations:
+                    if 'citation' in citation_obj:
+                        citation_obj['citation'] = normalize_citation_text(citation_obj['citation'])
+                return (citations, {})
+        else:
+            # Extract without debug info
+            results = extractor.extract(text, return_context=False, debug=False)
+            citations = []
+            for item in results:
+                normalized_citation = normalize_citation_text(item['citation'])
+                citations.append(normalized_citation)
+            return citations
+            
+    except Exception as e:
+        logger.error(f"Error in extract_citations: {str(e)}")
+        if analysis_id:
+            logger.error(f"[Analysis {analysis_id}] Citation extraction failed: {str(e)}")
+        
+        if return_debug:
+            return ([], {'errors': [str(e)]})
+        else:
+            return []
 
 def extract_citations_from_text(text, logger=logger):
     """

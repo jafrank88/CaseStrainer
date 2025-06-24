@@ -15,6 +15,7 @@ import time
 import random
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Try to import from app_final_vue.py
 try:
@@ -24,36 +25,6 @@ try:
 except ImportError:
     print("Warning: Could not import functions from app_final_vue.py")
     sys.exit(1)
-
-# Try to import the multi-source verifier
-try:
-    try:
-        from fixed_multi_source_verifier import MultiSourceVerifier
-
-        print(
-            "Successfully imported MultiSourceVerifier from fixed_multi_source_verifier"
-        )
-    except ImportError:
-        from multi_source_verifier import MultiSourceVerifier
-
-        print("Successfully imported MultiSourceVerifier from multi_source_verifier")
-
-    # Initialize the verifier with API keys from config.json
-    api_keys = {}
-    try:
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            api_keys["courtlistener"] = config.get("courtlistener_api_key")
-    except Exception as e:
-        print(f"Error loading API keys from config.json: {e}")
-
-    multi_source_verifier = MultiSourceVerifier(api_keys)
-    USE_MULTI_SOURCE_VERIFIER = True
-except ImportError:
-    print(
-        "Warning: multi_source_verifier module not found. Enhanced verification will not be available."
-    )
-    USE_MULTI_SOURCE_VERIFIER = False
 
 # Washington Courts URLs
 WA_COURTS_BASE_URL = "https://www.courts.wa.gov"
@@ -244,10 +215,7 @@ def process_brief(brief_url, processed_briefs):
                 continue
 
             # Verify the citation
-            if USE_MULTI_SOURCE_VERIFIER:
-                result = multi_source_verifier.verify_citation(citation_text)
-            else:
-                result = check_case_with_ai(citation_text)
+            result = verify_citation(citation_text)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):

@@ -163,7 +163,7 @@ def extract_citations(text):
     return citations
 
 
-def process_brief(brief_url, processed_briefs, multi_source_verifier):
+def process_brief(brief_url, processed_briefs):
     """Process a brief to extract and verify citations."""
     print(f"Processing brief: {brief_url}")
 
@@ -199,7 +199,7 @@ def process_brief(brief_url, processed_briefs, multi_source_verifier):
                 continue
 
             # Verify the citation
-            result = multi_source_verifier.verify_citation(citation_text)
+            result = verify_citation(citation_text, use_database=True)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):
@@ -267,17 +267,6 @@ def main():
     """Main function to process briefs and extract unverified citations."""
     print("Starting extraction of unverified citations from sample briefs")
 
-    # Initialize the verifier with API keys from config.json
-    api_keys = {}
-    try:
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            api_keys["courtlistener"] = config.get("courtlistener_api_key")
-    except Exception as e:
-        print(f"Error loading API keys from config.json: {e}")
-
-    multi_source_verifier = MultiSourceVerifier(api_keys)
-
     # Load processed briefs
     processed_briefs = load_processed_briefs()
     print(f"Loaded {len(processed_briefs)} previously processed briefs")
@@ -291,7 +280,7 @@ def main():
     for i, brief_url in enumerate(new_briefs):
         print(f"Processing brief {i+1}/{len(new_briefs)}: {brief_url}")
         unverified_citations = process_brief(
-            brief_url, processed_briefs, multi_source_verifier
+            brief_url, processed_briefs
         )
         all_unverified_citations.extend(unverified_citations)
 

@@ -1,5 +1,5 @@
 # CaseStrainer .gitignore - Optimized for Vue.js migration
-# Last updated: 2025-06-10
+# Last updated: 2025-06-23
 
 # --- Added by Cascade AI: Prevent accidental commits of secrets and build artifacts ---
 node_modules/
@@ -69,6 +69,12 @@ vcpkg/
 #----------------------------------------------
 # FILES TO EXCLUDE
 #----------------------------------------------
+
+# Database exports and Excel files (private data)
+*.xlsx
+*.xls
+casestrainer_database_export_*.xlsx
+database_export_*.xlsx
 
 # Log files
 logs/*.log

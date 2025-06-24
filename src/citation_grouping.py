@@ -41,7 +41,7 @@ def normalize_case_name(case_name: str) -> str:
 
 def calculate_similarity(name1: str, name2: str) -> float:
     """
-    Calculate similarity between two case names.
+    Calculate similarity between two case names with enhanced weighting for unusual words.
 
     Args:
         name1: First case name
@@ -68,18 +68,76 @@ def calculate_similarity(name1: str, name2: str) -> float:
     if norm1 in norm2 or norm2 in norm1:
         return 0.8
 
-    # Calculate word overlap
+    # Get word sets
     words1 = set(norm1.split())
     words2 = set(norm2.split())
 
     if not words1 or not words2:
         return 0.0
 
-    # Calculate Jaccard similarity
-    intersection = len(words1.intersection(words2))
-    union = len(words1.union(words2))
+    # Define common/stop words that should be weighted less
+    common_words = {
+        'v', 'vs', 'versus', 'state', 'united', 'states', 'county', 'city', 'town',
+        'corporation', 'corp', 'company', 'co', 'incorporated', 'inc', 'limited', 'ltd',
+        'association', 'assoc', 'foundation', 'found', 'trust', 'estate', 'matter',
+        'people', 'public', 'private', 'federal', 'national', 'international',
+        'department', 'dept', 'agency', 'board', 'commission', 'committee',
+        'district', 'school', 'university', 'college', 'hospital', 'medical',
+        'health', 'insurance', 'bank', 'financial', 'investment', 'real', 'estate'
+    }
 
-    return intersection / union if union > 0 else 0.0
+    # Calculate weighted similarity
+    intersection = words1.intersection(words2)
+    union = words1.union(words2)
+    
+    # Base Jaccard similarity
+    base_similarity = len(intersection) / len(union) if union else 0.0
+    
+    # Calculate weighted scores for matching and non-matching words
+    total_weight = 0.0
+    match_weight = 0.0
+    
+    # Process all words in both names
+    all_words = union
+    
+    for word in all_words:
+        # Determine word weight based on rarity
+        if word in common_words:
+            weight = 0.5  # Lower weight for common words
+        elif len(word) <= 3:
+            weight = 0.7  # Medium weight for short words
+        elif len(word) >= 8:
+            weight = 2.0  # Higher weight for long/unusual words
+        else:
+            weight = 1.0  # Standard weight for medium words
+        
+        total_weight += weight
+        
+        # If word is in intersection (matches), add to match weight
+        if word in intersection:
+            match_weight += weight
+    
+    # Calculate weighted similarity
+    weighted_similarity = match_weight / total_weight if total_weight > 0 else 0.0
+    
+    # Bonus for distinctive name matches
+    distinctive_bonus = 0.0
+    
+    # Check for distinctive name patterns (long words, proper nouns, etc.)
+    distinctive_words1 = {w for w in words1 if len(w) >= 6 and w not in common_words}
+    distinctive_words2 = {w for w in words2 if len(w) >= 6 and w not in common_words}
+    
+    if distinctive_words1 and distinctive_words2:
+        distinctive_matches = distinctive_words1.intersection(distinctive_words2)
+        if distinctive_matches:
+            # Bonus based on number of distinctive matches
+            distinctive_bonus = min(0.2, len(distinctive_matches) * 0.1)
+    
+    # Combine base similarity, weighted similarity, and bonus
+    # Weight: 30% base Jaccard, 60% weighted similarity, 10% distinctive bonus
+    final_similarity = (0.3 * base_similarity) + (0.6 * weighted_similarity) + (0.1 * distinctive_bonus)
+    
+    return min(1.0, final_similarity)
 
 
 def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

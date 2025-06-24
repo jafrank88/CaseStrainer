@@ -24,33 +24,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("wa_briefs_processor")
 
-# Try to import from fixed_multi_source_verifier
-try:
-    from fixed_multi_source_verifier import MultiSourceVerifier
-
-    logger.info(
-        "Successfully imported MultiSourceVerifier from fixed_multi_source_verifier"
-    )
-except ImportError:
-    try:
-        from multi_source_verifier import MultiSourceVerifier
-
-        logger.info(
-            "Successfully imported MultiSourceVerifier from multi_source_verifier"
-        )
-    except ImportError:
-        logger.error(
-            "Error importing MultiSourceVerifier, trying to import from app_final_vue"
-        )
-        try:
-            from app_final_vue import extract_citations, check_case_with_ai
-
-            logger.info(
-                "Successfully imported extract_citations and check_case_with_ai from app_final_vue"
-            )
-        except ImportError:
-            logger.error("Error importing verification functions. Cannot proceed.")
-            exit(1)
+# Updated: Use the unified verify_citation from enhanced_multi_source_verifier
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Constants
 BRIEFS_DIR = "wa_briefs"
@@ -176,32 +151,6 @@ def extract_citations(text):
 
     logger.info(f"Extracted {len(unique_citations)} unique citations")
     return unique_citations
-
-
-def verify_citation(citation, multi_source_verifier):
-    """Verify a citation using the multi-source verifier."""
-    logger.info(f"Verifying citation: {citation['citation_text']}")
-
-    try:
-        # Verify the citation
-        result = multi_source_verifier.verify_citation(citation["citation_text"])
-
-        # Add context to the result
-        result["context"] = citation["context"]
-
-        logger.info(
-            f"Verification result for {citation['citation_text']}: found={result['found']}, source={result.get('source', 'None')}"
-        )
-        return result
-
-    except Exception as e:
-        logger.error(f"Error verifying citation {citation['citation_text']}: {e}")
-        return {
-            "found": False,
-            "confidence": 0.1,
-            "explanation": f"Error during verification: {str(e)}",
-            "context": citation["context"],
-        }
 
 
 def save_citation_to_db(citation, source_document):

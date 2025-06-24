@@ -29,9 +29,10 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import from src to ensure consistent imports
-from src.citation_utils import extract_all_citations as extract_citations
+from src.citation_utils import extract_citations
 from src.citation_processor import CitationProcessor
 from src.file_utils import extract_text_from_file
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Create an instance of CitationProcessor
 citation_processor = CitationProcessor()

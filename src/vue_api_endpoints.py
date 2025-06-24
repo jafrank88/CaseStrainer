@@ -57,6 +57,7 @@ from rq import Queue
 from redis import Redis
 from rq import get_current_job
 from citation_processor import CitationProcessor
+import sqlite3
 
 # PATCH: Disable RQ death penalty on Windows before any RQ import
 from src.rq_windows_patch import patch_rq_for_windows
@@ -153,58 +154,66 @@ except Exception as e:
     logger.error(f"Failed to initialize global variables: {str(e)}\n{traceback.format_exc()}")
     raise
 
-# Add a health check endpoint
+def check_redis():
+    try:
+        redis_conn.ping()
+        return "ok"
+    except Exception:
+        return "down"
+
+def check_db():
+    try:
+        conn = sqlite3.connect(os.path.join(os.getcwd(), 'data', 'citations.db'))
+        conn.execute('SELECT 1')
+        conn.close()
+        return "ok"
+    except Exception:
+        return "down"
+
+def check_rq_worker():
+    try:
+        if RQ_AVAILABLE:
+            from rq import Worker
+            workers = Worker.all(connection=redis_conn)
+            return "ok" if workers else "down"
+        else:
+            return "ok" if worker_thread and worker_thread.is_alive() else "down"
+    except Exception:
+        return "down"
+
 @vue_api.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint to verify the backend is running."""
+    """Health check endpoint to verify the backend is running and all components are healthy."""
     try:
-        worker_status = "unknown"
+        worker_status = check_rq_worker()
         queue_size = 0
         server_stats = {}
-        
-        if not RQ_AVAILABLE:
-            try:
-                worker_status = "running" if worker_thread.is_alive() and worker_running else "stopped"
-                queue_size = task_queue.qsize()
-                # Get server stats if available
-                if 'get_server_stats' in globals():
-                    server_stats = get_server_stats()
-            except Exception as e:
-                worker_status = "error"
-                logger.error(f"Error getting worker status: {e}")
-        
+        flask_status = "ok"  # If this endpoint responds, Flask is running
+        redis_status = check_redis()
+        db_status = check_db()
+
         # Get current timestamp
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
+        uptime_seconds = time.time() - server_start_time if 'server_start_time' in globals() else 0
+        uptime = get_uptime() if 'get_uptime' in globals() else "unknown"
+
         response_data = {
-            'status': 'healthy',
+            'status': 'healthy' if all([flask_status=="ok", redis_status=="ok", worker_status=="ok", db_status=="ok"]) else 'degraded',
             'timestamp': time.time(),
             'current_time': current_time,
+            'uptime': uptime,
+            'uptime_seconds': uptime_seconds,
+            'flask_app': flask_status,
+            'redis': redis_status,
+            'rq_worker': worker_status,
+            'database': db_status,
             'active_requests': len(active_requests),
-            'worker_status': worker_status,
-            'queue_size': queue_size,
-            'rq_available': RQ_AVAILABLE,
-            'server_stats': server_stats
+            'rq_available': RQ_AVAILABLE
         }
-        
-        # Add restart tracking info
-        if server_stats:
-            response_data.update({
-                'uptime': server_stats.get('uptime', 'unknown'),
-                'uptime_seconds': server_stats.get('uptime_seconds', 0),
-                'restart_count': server_stats.get('restart_count', 0),
-                'worker_alive': server_stats.get('worker_alive', False)
-            })
-        
         return jsonify(response_data)
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        return jsonify({
-            'status': 'unhealthy',
-            'error': str(e),
-            'timestamp': time.time(),
-            'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }), 500
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 @vue_api.route('/server_stats', methods=['GET'])
 def server_stats():
@@ -528,7 +537,6 @@ def process_citation_task(task_id, task_type, task_data):
             
             from file_utils import extract_text_from_file
             from citation_processor import CitationProcessor
-            from citation_verification import CitationVerifier
             
             # Extract text from file
             text_result = extract_text_from_file(file_path)
@@ -544,14 +552,33 @@ def process_citation_task(task_id, task_type, task_data):
             processor = CitationProcessor()
             citations = processor.extract_citations(text, extract_case_names=True)
             
-            # Pass extracted case names to verification
-            verifier = CitationVerifier()
+            # Use enhanced multi-source verifier for all task types
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
             results = []
             for c in citations:
                 citation_text = c['citation']
                 extracted_case_name = c.get('case_name')
+                canonical_case_name = c.get('canonical_case_name')
+                confidence = c.get('confidence', 0.0)
+                method = c.get('method', 'none')
+                
+                # Verify citation with enhanced verifier
                 result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                result['case_name_extracted'] = extracted_case_name
+                
+                # Add enhanced case name information
+                result.update({
+                    'case_name_extracted': extracted_case_name,  # From document text
+                    'canonical_case_name': canonical_case_name,  # From API
+                    'extraction_confidence': confidence,
+                    'extraction_method': method,
+                    'verified_in_text': c.get('verified', False),
+                    'similarity_score': c.get('similarity'),
+                    'position': c.get('position'),
+                    'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
+                    'canonical_source': c.get('canonical_source', 'none'),  # Track source of canonical name
+                    'url_source': c.get('url_source', 'none')  # Track source of citation URL
+                })
                 results.append(result)
             return {'citations': results, 'status': 'success'}
             
@@ -570,11 +597,13 @@ def process_citation_task(task_id, task_type, task_data):
                 job.save_meta()
             
             from citation_processor import CitationProcessor
-            from citation_verification import CitationVerifier
             
             processor = CitationProcessor()
             citations = processor.extract_citations(text, extract_case_names=True)
-            verifier = CitationVerifier()
+            
+            # Use enhanced multi-source verifier for all task types
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
             results = []
             for c in citations:
                 citation_text = c['citation']
@@ -600,7 +629,6 @@ def process_citation_task(task_id, task_type, task_data):
             
             from enhanced_validator_production import extract_text_from_url
             from citation_processor import CitationProcessor
-            from citation_verification import CitationVerifier
             
             # Update progress: Downloading content
             if job:
@@ -631,13 +659,34 @@ def process_citation_task(task_id, task_type, task_data):
             logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} starting citation extraction from text...")
             processor = CitationProcessor()
             citations = processor.extract_citations(text, extract_case_names=True)
-            verifier = CitationVerifier()
+            
+            # Use enhanced multi-source verifier for all task types
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
             results = []
             for c in citations:
                 citation_text = c['citation']
                 extracted_case_name = c.get('case_name')
+                canonical_case_name = c.get('canonical_case_name')
+                confidence = c.get('confidence', 0.0)
+                method = c.get('method', 'none')
+                
+                # Verify citation with enhanced verifier
                 result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                result['case_name_extracted'] = extracted_case_name
+                
+                # Add enhanced case name information
+                result.update({
+                    'case_name_extracted': extracted_case_name,  # From document text
+                    'canonical_case_name': canonical_case_name,  # From API
+                    'extraction_confidence': confidence,
+                    'extraction_method': method,
+                    'verified_in_text': c.get('verified', False),
+                    'similarity_score': c.get('similarity'),
+                    'position': c.get('position'),
+                    'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
+                    'canonical_source': c.get('canonical_source', 'none'),  # Track source of canonical name
+                    'url_source': c.get('url_source', 'none')  # Track source of citation URL
+                })
                 results.append(result)
             return {'citations': results, 'status': 'success'}
         else:
@@ -819,7 +868,55 @@ def analyze():
                     source_type="text",
                     source_name="pasted_text"
                 )
+            
+            # Check if this is a single citation (likely a single citation format)
+            # Single citations are typically short and contain specific patterns
+            text_trimmed = text.strip()
+            if (len(text_trimmed) < 50 and  # Short text
+                any(char.isdigit() for char in text_trimmed) and  # Contains numbers
+                any(word in text_trimmed.upper() for word in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL']) and  # Contains citation patterns
+                len(text_trimmed.split()) <= 10):  # Few words
                 
+                # Handle as single citation synchronously
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Detected single citation: {text_trimmed}")
+                
+                try:
+                    # Import the enhanced validator
+                    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+                    verifier = EnhancedMultiSourceVerifier()
+                    
+                    # Validate the citation
+                    result = verifier.verify_citation(text_trimmed, extracted_case_name=None)
+                    processing_time = time.time() - start_time
+                    
+                    # Format the response
+                    response_data = {
+                        'citation': text_trimmed,
+                        'valid': result.get('verified', False),
+                        'verified': result.get('verified', False),
+                        'case_name': result.get('case_name', ''),
+                        'confidence': result.get('confidence', 0.0),
+                        'source': result.get('source', 'Unknown'),
+                        'details': result.get('details', {}),
+                        'metadata': {
+                            'source_type': 'citation',
+                            'source_name': 'single_citation',
+                            'processing_time': processing_time,
+                            'timestamp': datetime.utcnow().isoformat() + "Z",
+                            'user_agent': request.headers.get("User-Agent")
+                        }
+                    }
+                    
+                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Single citation '{text_trimmed}' validation result: {result.get('verified', False)}")
+                    
+                    return jsonify(response_data)
+                    
+                except Exception as e:
+                    current_app.logger.error(f"{WORKER_LABEL} [ANALYZE] Error validating single citation '{text_trimmed}': {str(e)}")
+                    # Fall back to async processing
+                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Falling back to async processing for citation: {text_trimmed}")
+                
+            # Continue with async processing for longer text or if single citation validation failed
             # Add task to queue
             task = {
                 'task_id': task_id,
@@ -1111,3 +1208,113 @@ def _estimate_time_remaining(task_status):
         
     except Exception:
         return None
+
+@vue_api.route('/validate-citation', methods=['POST', 'OPTIONS'])
+def validate_citation():
+    """
+    Synchronous endpoint for validating a single citation.
+    Returns immediate results without async processing.
+    """
+    start_time = time.time()
+    
+    try:
+        # Handle OPTIONS request for CORS preflight
+        if request.method == 'OPTIONS':
+            response = make_response(jsonify({'status': 'ok'}), 200)
+            response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Max-Age'] = '3600'
+            return response
+
+        # Get citation from request
+        data = request.get_json(silent=True) or {}
+        citation = data.get('citation', '').strip()
+        
+        if not citation:
+            return make_error_response(
+                "input_validation",
+                "No citation provided",
+                status_code=400,
+                source_type="citation",
+                source_name="single_citation"
+            )
+        
+        current_app.logger.info(f"{WORKER_LABEL} [VALIDATE_CITATION] Validating citation: {citation}")
+        
+        # Import the enhanced validator
+        try:
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+        except ImportError:
+            current_app.logger.error(f"{WORKER_LABEL} [VALIDATE_CITATION] Failed to import EnhancedMultiSourceVerifier")
+            return make_error_response(
+                "server_error",
+                "Citation validation service not available",
+                status_code=500
+            )
+        
+        # Validate the citation
+        try:
+            result = verifier.verify_citation(citation)
+            processing_time = time.time() - start_time
+            
+            # Format the response
+            response_data = {
+                'citation': citation,
+                'valid': result.get('verified', False),
+                'verified': result.get('verified', False),
+                'case_name': result.get('case_name', ''),
+                'confidence': result.get('confidence', 0.0),
+                'source': result.get('source', 'Unknown'),
+                'details': result.get('details', {}),
+                'metadata': {
+                    'source_type': 'citation',
+                    'source_name': 'single_citation',
+                    'processing_time': processing_time,
+                    'timestamp': datetime.utcnow().isoformat() + "Z",
+                    'user_agent': request.headers.get("User-Agent")
+                }
+            }
+            
+            current_app.logger.info(f"{WORKER_LABEL} [VALIDATE_CITATION] Citation '{citation}' validation result: {result.get('verified', False)}")
+            
+            return jsonify(response_data)
+            
+        except Exception as e:
+            current_app.logger.error(f"{WORKER_LABEL} [VALIDATE_CITATION] Error validating citation '{citation}': {str(e)}")
+            return make_error_response(
+                "validation_error",
+                f"Error validating citation: {str(e)}",
+                status_code=500,
+                source_type="citation",
+                source_name="single_citation"
+            )
+            
+    except Exception as e:
+        current_app.logger.error(f"{WORKER_LABEL} [VALIDATE_CITATION] Server error: {str(e)}", exc_info=True)
+        return make_error_response(
+            "server_error",
+            f"Server error: {str(e)}",
+            status_code=500
+        )
+
+@vue_api.route('/version', methods=['GET'])
+def version():
+    """Version endpoint to return the current application version."""
+    try:
+        from src import __version__
+        return jsonify({
+            'version': __version__,
+            'status': 'ok',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Version endpoint error: {str(e)}")
+        return jsonify({
+            'version': 'unknown',
+            'status': 'error',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500

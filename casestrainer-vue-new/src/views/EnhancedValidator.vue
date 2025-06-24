@@ -92,6 +92,10 @@
             @copy-results="copyResults"
             @download-results="downloadResults"
           />
+          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Analysis in progress... Please wait.
+          </div>
           <div v-else class="alert alert-info mt-4">
             No results to display. Please enter a citation and click Analyze.
           </div>
@@ -107,6 +111,10 @@
             @copy-results="copyResults"
             @download-results="downloadResults"
           />
+          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Analysis in progress... Please wait.
+          </div>
           <div v-else class="alert alert-info mt-4">
             No results to display. Please upload a document and wait for analysis.
           </div>
@@ -122,6 +130,10 @@
             @copy-results="copyResults"
             @download-results="downloadResults"
           />
+          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Analysis in progress... Please wait.
+          </div>
           <div v-else class="alert alert-info mt-4">
             No results to display. Please paste text and wait for analysis.
           </div>
@@ -137,7 +149,11 @@
             @copy-results="copyResults"
             @download-results="downloadResults"
           />
-          <div v-else-if="!showLoading" class="alert alert-info mt-4">
+          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Analysis in progress... Please wait.
+          </div>
+          <div v-else class="alert alert-info mt-4">
             No results to display. Please enter a URL and wait for analysis.
           </div>
         </div>
@@ -279,35 +295,34 @@ export default {
     const showLoading = computed(() => isLoading.value || isGlobalLoading.value || hasActiveRequest.value);
     const apiBaseUrl = ref(import.meta.env.VITE_API_BASE_URL || '');
 
-    // Processing time tracking
+    // Composables
     const {
-      startTime,
-      estimatedTotalTime,
-      currentStep,
-      stepProgress,
-      processingSteps,
-      actualTimes,
       elapsedTime,
       remainingTime,
       totalProgress,
+      currentStep,
       currentStepProgress,
+      processingSteps,
+      actualTimes,
+      citationInfo,
+      rateLimitInfo,
+      timeout,
+      processingError,
+      canRetry,
       startProcessing,
-      updateStep,
-      completeStep,
-      updateActualTimes,
-      reset: resetProcessing,
-      formatTime
+      stopProcessing,
+      updateProgress,
+      setSteps,
+      resetProcessing,
+      setProcessingError
     } = useProcessingTime();
 
     // Add new reactive state for enhanced progress tracking
     const queuePosition = ref(0);
     const estimatedQueueTime = ref(null);
-    const rateLimitInfo = ref(null);
-    const processingError = ref(null);
-    const canRetry = ref(false);
     const activeRequestId = ref(null);
-    const citationInfo = ref(null);
-    const timeout = ref(null);
+
+    const pollInterval = ref(null);
 
     // ===== HELPER FUNCTIONS =====
     // Formatting Helpers
@@ -400,6 +415,21 @@ export default {
              mlResult.confidence > 0.4 ? 'bi-exclamation-circle' : 'bi-x-circle';
     }
     
+    // Time formatting function
+    function formatTime(seconds) {
+      if (!seconds || seconds < 0) return '--:--';
+      
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      
+      if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      } else {
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+      }
+    }
+    
     // ===== CORE FUNCTIONS =====
     // Clear all results and reset form
     function clearResults() {
@@ -473,187 +503,86 @@ export default {
       }
     }
     
-    // ... [rest of the functions] ...
-    
-    // ===== HELPER FUNCTIONS =====
-    const loadRecentValidations = () => {
-      try {
-        const saved = localStorage.getItem('recentValidations');
-        if (saved) {
-          recentValidations.value = JSON.parse(saved);
-        }
-      } catch (err) {
-        console.error('Error loading recent validations:', err);
-      }
-    };
-
-    const handleValidationSuccess = (data) => {
-      try {
-        console.log('Handling validation success with data:', data);
-        const rawCitations = data.citations;
-        const transformedData = {
-          ...data,
-          citations: normalizeCitations(rawCitations),
-          metadata: {
-            timestamp: new Date().toISOString(),
-            ...(data.metadata || {})
-          }
-        };
-        validationResult.value = transformedData;
-        console.log('DEBUG: validationResult after analyze:', validationResult.value);
-        error.value = null;
-        if (citationInput.value && citationInput.value.trim()) {
-          addToRecentValidations(citationInput.value.trim(), data.verified);
-        }
-      } catch (err) {
-        console.error('Error in handleValidationSuccess:', err);
-        error.value = 'Error processing validation response. Please try again.';
-      }
-    };
-
-    // Helper to check if a cached result is valid
-    const isValidCache = (cachedResult) => {
-      if (!cachedResult) return false;
-      // If using citations array structure
-      if (Array.isArray(cachedResult.citations)) {
-        return cachedResult.citations.length > 0 && (cachedResult.citations[0].verified || cachedResult.citations[0].valid);
-      }
-      // If using single object structure
-      if (typeof cachedResult === 'object') {
-        return cachedResult.verified === true || cachedResult.valid === true;
-      }
-      return false;
-    };
-
-    const validateCitation = async (citation) => {
-      if (!citation.trim()) {
-        error.value = 'Please enter a citation to validate';
-        return;
-      }
-
-      isLoading.value = true;
-      error.value = null;
+    // Reset all state variables
+    const resetAll = () => {
       validationResult.value = null;
       mlResult.value = null;
       correctionResult.value = null;
+      documentAnalysisResult.value = null;
+      textAnalysisResult.value = null;
+      urlAnalysisResult.value = null;
+      error.value = null;
+      suggestions.value = [];
+      hasActiveRequest.value = false;
+      activeRequestId.value = null;
+      queuePosition.value = 0;
+      estimatedQueueTime.value = null;
+      citationInfo.value = null;
+      rateLimitInfo.value = null;
+      timeout.value = null;
+      processingError.value = null;
+      canRetry.value = false;
+    };
+
+    // Add recent validation to local storage
+    const addRecentValidation = (citation, result) => {
+      try {
+        const validation = {
+          id: Date.now(),
+          citation: citation.trim(),
+          result: result,
+          timestamp: new Date().toISOString()
+        };
+        
+        recentValidations.value.unshift(validation);
+        
+        // Keep only the last 10 validations
+        if (recentValidations.value.length > 10) {
+          recentValidations.value = recentValidations.value.slice(0, 10);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
+      } catch (err) {
+        console.error('Error adding recent validation:', err);
+      }
+    };
+
+    // Handle validation errors
+    const handleError = (error) => {
+      console.error('Validation error:', error);
+      error.value = error.message || 'An error occurred during validation. Please try again.';
+      validationResult.value = null;
+    };
+
+    const validateCitation = async (citation) => {
+      if (!citation || isLoading.value) return;
+      
+      resetAll();
+      resetProcessing();
+      setSteps([
+        { step: 'Validating Citation', estimated_time: 10 },
+      ]);
+      startProcessing();
 
       try {
-        // First, send the citation to be processed
-        const response = await api.post('/analyze', {
-          text: citation,
-          options: {
-            batch_process: false,
-            return_debug: false
-          }
-        });
-
-        // If we get a task ID, start polling for results
-        if (response.data && response.data.task_id) {
-          const taskId = response.data.task_id;
-          let attempts = 0;
-          const maxAttempts = 60; // 60 attempts * 2 seconds = 120 seconds max wait time
-          
-          // Start processing time tracking
-          startProcessing(120); // Default 2 minutes for text processing
+        const response = await citationsApi.validateCitation(citation);
+        
+        // Check if this is an async response with task_id
+        if (response.data.status === 'processing' && response.data.task_id) {
+          // Handle async processing
           hasActiveRequest.value = true;
-          activeRequestId.value = taskId;
-
-          while (attempts < maxAttempts) {
-            // Wait 2 seconds between polls
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Poll for results using the correct endpoint
-            const pollResponse = await api.get(`/task_status/${taskId}`);
-            
-            if (pollResponse.data && pollResponse.data.status === 'completed') {
-              // Process the completed results
-              const rawCitations = pollResponse.data.citations || [];
-              validationResult.value = {
-                ...pollResponse.data,
-                citations: normalizeCitations(rawCitations),
-                metadata: {
-                  ...(pollResponse.data.metadata || {}),
-                  timestamp: new Date().toISOString()
-                }
-              };
-              
-              // Update final progress
-              updateStep('Citation validation', 100);
-              completeStep('Citation validation');
-              hasActiveRequest.value = false;
-              activeRequestId.value = null;
-              break;
-            } else if (pollResponse.data && pollResponse.data.status === 'failed') {
-              throw new Error(pollResponse.data.error || 'Task failed');
-            } else if (pollResponse.data && (pollResponse.data.status === 'processing' || pollResponse.data.status === 'queued')) {
-              // Update progress information
-              const progress = pollResponse.data.progress || 0;
-              const statusMessage = pollResponse.data.status_message || 'Processing...';
-              const currentStep = pollResponse.data.current_step || 'Processing';
-              const estimatedTimeRemaining = pollResponse.data.estimated_time_remaining;
-              
-              // Update processing progress
-              totalProgress.value = progress;
-              
-              // Update current step
-              if (currentStep !== currentStep.value) {
-                updateStep(currentStep, 0);
-              }
-              
-              // Update step progress based on overall progress
-              if (progress > 0) {
-                currentStepProgress.value = Math.min(100, progress);
-              }
-              
-              // Update time estimates
-              if (estimatedTimeRemaining !== undefined && estimatedTimeRemaining !== null) {
-                remainingTime.value = estimatedTimeRemaining;
-              }
-              
-              // Update citation info if available
-              if (pollResponse.data.total_citations !== undefined) {
-                citationInfo.value = {
-                  total: pollResponse.data.total_citations,
-                  processed: pollResponse.data.verified_citations || 0,
-                  unique: pollResponse.data.total_citations
-                };
-              }
-              
-              // Log progress for debugging
-              console.log(`Task ${taskId} progress: ${progress}% - ${statusMessage}`);
-              
-              attempts++;
-              continue;
-            }
-            
-            attempts++;
-          }
-
-          if (attempts >= maxAttempts) {
-            throw new Error('Task timed out');
-          }
+          activeRequestId.value = response.data.task_id;
+          startPolling(response.data.task_id, handleSingleCitationResults);
         } else {
-          // If no task ID, process the response directly
-          const rawCitations = response.data.citations || [];
-          validationResult.value = {
-            ...response.data,
-            citations: normalizeCitations(rawCitations),
-            metadata: {
-              ...(response.data.metadata || {}),
-              timestamp: new Date().toISOString()
-            }
-          };
+          // Handle immediate response (fallback)
+          validationResult.value = response.data;
+          addRecentValidation(citation, response.data);
+          stopProcessing();
         }
-
-        // Add to recent validations if we have a valid result
-        if (validationResult.value && validationResult.value.citations && validationResult.value.citations.length > 0) {
-          addToRecentValidations(citation, validationResult.value);
-        }
-      } catch (err) {
-        console.error('Error validating citation:', err);
-        error.value = err.message || 'Failed to validate citation';
-      } finally {
-        isLoading.value = false;
+      } catch (error) {
+        handleError(error);
+        stopProcessing();
       }
     };
 
@@ -782,7 +711,6 @@ export default {
         });
 
         // Complete processing
-        updateStep('URL analysis', 100);
         completeStep('URL analysis');
         hasActiveRequest.value = false;
         activeRequestId.value = null;
@@ -808,6 +736,57 @@ export default {
       } catch (err) {
         console.error('Error handling URL analysis results:', err);
         error.value = 'Failed to process URL analysis results.';
+        isLoading.value = false;
+      }
+    };
+
+    const handleSingleCitationResults = (results) => {
+      try {
+        console.log('Single citation analysis results:', results); // Debug: log the backend response
+        const rawCitations = (Array.isArray(results.validation_results) && results.validation_results.length > 0)
+          ? results.validation_results
+          : (results.citations || []);
+        validationResult.value = {
+          ...results,
+          citations: normalizeCitations(rawCitations),
+          timestamp: new Date().toISOString()
+        };
+        isLoading.value = false;
+        error.value = null;
+        addToRecentValidations(validationResult.value);
+        nextTick(() => {
+          const resultsElement = document.querySelector('.results-section');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+
+        // Complete processing
+        completeStep('Citation validation');
+        hasActiveRequest.value = false;
+        activeRequestId.value = null;
+        
+        // Start processing time tracking
+        if (results.metadata?.time_estimate) {
+          startProcessing(results.metadata.time_estimate);
+        }
+        
+        // Update processing steps as they complete
+        if (results.metadata?.processing_steps) {
+          for (const step of results.metadata.processing_steps) {
+            if (step.actual_time > 0) {
+              completeStep(step.step);
+            }
+          }
+        }
+        
+        // Update actual times
+        if (results.metadata?.actual_times) {
+          updateActualTimes(results.metadata.actual_times);
+        }
+      } catch (err) {
+        console.error('Error handling single citation results:', err);
+        error.value = 'Failed to process single citation results.';
         isLoading.value = false;
       }
     };
@@ -877,114 +856,68 @@ export default {
 
     // ===== PROGRESS HANDLER FUNCTIONS =====
     const handleDocumentProgress = (progress) => {
-      console.log('Document progress:', progress);
-      
-      // Start processing time tracking if not already started
-      if (!hasActiveRequest.value) {
-        startProcessing(180); // 3 minutes for file processing
-        hasActiveRequest.value = true;
-        activeRequestId.value = progress.task_id;
-      }
-      
-      // Update progress information
-      if (progress.progress !== undefined) {
-        totalProgress.value = progress.progress;
-      }
-      
-      if (progress.status_message) {
-        currentStep.value = progress.status_message;
-      }
-      
-      if (progress.current_step) {
-        updateStep(progress.current_step, progress.progress || 0);
-      }
-      
-      if (progress.estimated_time_remaining !== undefined && progress.estimated_time_remaining !== null) {
-        remainingTime.value = progress.estimated_time_remaining;
-      }
-      
-      // Update citation info if available
-      if (progress.total_citations !== undefined) {
-        citationInfo.value = {
-          total: progress.total_citations,
-          processed: progress.verified_citations || 0,
-          unique: progress.total_citations
-        };
+      if (progress.task_id && !pollInterval.value) {
+        setSteps(progress.steps);
+        startProcessing();
+        startPolling(progress.task_id, handleDocumentResults);
+      } else {
+        updateProgress(progress);
       }
     };
 
     const handleTextProgress = (progress) => {
-      console.log('Text progress:', progress);
-      
-      // Start processing time tracking if not already started
-      if (!hasActiveRequest.value) {
-        startProcessing(60); // 1 minute for text processing
-        hasActiveRequest.value = true;
-        activeRequestId.value = progress.task_id;
-      }
-      
-      // Update progress information
-      if (progress.progress !== undefined) {
-        totalProgress.value = progress.progress;
-      }
-      
-      if (progress.status_message) {
-        currentStep.value = progress.status_message;
-      }
-      
-      if (progress.current_step) {
-        updateStep(progress.current_step, progress.progress || 0);
-      }
-      
-      if (progress.estimated_time_remaining !== undefined && progress.estimated_time_remaining !== null) {
-        remainingTime.value = progress.estimated_time_remaining;
-      }
-      
-      // Update citation info if available
-      if (progress.total_citations !== undefined) {
-        citationInfo.value = {
-          total: progress.total_citations,
-          processed: progress.verified_citations || 0,
-          unique: progress.total_citations
-        };
+      if (progress.task_id && !pollInterval.value) {
+        setSteps(progress.steps);
+        startProcessing();
+        startPolling(progress.task_id, handleTextResults);
+      } else {
+        updateProgress(progress);
       }
     };
 
     const handleUrlProgress = (progress) => {
-      console.log('URL progress:', progress);
-      
-      // Start processing time tracking if not already started
-      if (!hasActiveRequest.value) {
-        startProcessing(300); // 5 minutes for URL processing (includes download)
-        hasActiveRequest.value = true;
-        activeRequestId.value = progress.task_id;
+      if (progress.task_id && !pollInterval.value) {
+        setSteps(progress.steps);
+        startProcessing();
+        startPolling(progress.task_id, handleUrlResults);
+      } else {
+        updateProgress(progress);
+      }
+    };
+
+    // Start polling for task results
+    const startPolling = (taskId, resultHandler) => {
+      if (pollInterval.value) {
+        clearInterval(pollInterval.value);
       }
       
-      // Update progress information
-      if (progress.progress !== undefined) {
-        totalProgress.value = progress.progress;
-      }
-      
-      if (progress.status_message) {
-        currentStep.value = progress.status_message;
-      }
-      
-      if (progress.current_step) {
-        updateStep(progress.current_step, progress.progress || 0);
-      }
-      
-      if (progress.estimated_time_remaining !== undefined && progress.estimated_time_remaining !== null) {
-        remainingTime.value = progress.estimated_time_remaining;
-      }
-      
-      // Update citation info if available
-      if (progress.total_citations !== undefined) {
-        citationInfo.value = {
-          total: progress.total_citations,
-          processed: progress.verified_citations || 0,
-          unique: progress.total_citations
-        };
-      }
+      pollInterval.value = setInterval(async () => {
+        try {
+          const response = await api.get(`/task_status/${taskId}`);
+          
+          if (response.data.status === 'completed') {
+            clearInterval(pollInterval.value);
+            pollInterval.value = null;
+            stopProcessing();
+            resultHandler(response.data);
+          } else if (response.data.status === 'failed') {
+            clearInterval(pollInterval.value);
+            pollInterval.value = null;
+            stopProcessing();
+            error.value = response.data.error || 'Task failed';
+            canRetry.value = true;
+          } else if (response.data.progress) {
+            updateProgress(response.data.progress);
+          }
+        } catch (err) {
+          console.error('Polling error:', err);
+          clearInterval(pollInterval.value);
+          pollInterval.value = null;
+          stopProcessing();
+          error.value = 'Failed to check task status';
+          canRetry.value = true;
+        }
+      }, 2000); // Poll every 2 seconds
     };
 
     const addToRecentValidations = (citation, result) => {
@@ -1228,6 +1161,10 @@ export default {
       if (hasActiveRequest.value) {
         cancelValidation();
       }
+      if (pollInterval.value) {
+        clearInterval(pollInterval.value);
+        pollInterval.value = null;
+      }
     });
     
     // Watch for route changes
@@ -1416,6 +1353,43 @@ export default {
       }
     });
 
+    // Load recent validations from localStorage
+    const loadRecentValidations = () => {
+      try {
+        const stored = localStorage.getItem('recentValidations');
+        recentValidations.value = stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        console.error('Error loading recent validations:', e);
+        recentValidations.value = [];
+      }
+    };
+
+    // Add missing functions
+    const updateStep = (stepName, progress) => {
+      if (processingSteps.value) {
+        const step = processingSteps.value.find(s => s.step === stepName);
+        if (step) {
+          step.progress = progress;
+        }
+      }
+    };
+
+    const completeStep = (stepName) => {
+      if (processingSteps.value) {
+        const step = processingSteps.value.find(s => s.step === stepName);
+        if (step) {
+          step.progress = 100;
+          step.completed = true;
+        }
+      }
+    };
+
+    const updateActualTimes = (times) => {
+      if (actualTimes.value && times) {
+        Object.assign(actualTimes.value, times);
+      }
+    };
+
     return {
       // State
       activeTab,
@@ -1432,6 +1406,7 @@ export default {
       suggestions,
       error,
       isLoading: showLoading,
+      showLoading,
       hasActiveRequest,
       useEnhanced,
       useML,
@@ -1451,9 +1426,13 @@ export default {
       handleDocumentResults,
       handleTextResults,
       handleUrlResults,
+      handleSingleCitationResults,
       handleDocumentError,
       handleTextError,
       handleUrlError,
+      handleDocumentProgress,
+      handleTextProgress,
+      handleUrlProgress,
       applyCorrectionFromResults,
       loadRecentValidations,
       clearRecentValidations,
@@ -1497,7 +1476,12 @@ export default {
       timeout,
       processingError,
       canRetry,
-      retryProcessing
+      retryProcessing,
+      
+      // Missing functions
+      updateStep,
+      completeStep,
+      updateActualTimes
     };
   }
 };

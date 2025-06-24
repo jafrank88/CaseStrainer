@@ -8,6 +8,13 @@ export function useProcessingTime() {
   const processingSteps = ref([]);
   const actualTimes = ref({});
   
+  // Add missing reactive variables
+  const citationInfo = ref(null);
+  const rateLimitInfo = ref(null);
+  const timeout = ref(null);
+  const processingError = ref(null);
+  const canRetry = ref(false);
+  
   const elapsedTime = computed(() => {
     if (!startTime.value) return 0;
     return (Date.now() - startTime.value) / 1000;
@@ -65,6 +72,52 @@ export function useProcessingTime() {
     stepProgress.value = 0;
   };
   
+  // Add missing functions
+  const stopProcessing = () => {
+    startTime.value = null;
+    estimatedTotalTime.value = 0;
+    currentStep.value = '';
+    stepProgress.value = 0;
+  };
+  
+  const updateProgress = (progress) => {
+    if (typeof progress === 'object' && progress.step) {
+      updateStep(progress.step, progress.progress || 0);
+    } else if (typeof progress === 'number') {
+      stepProgress.value = progress;
+    }
+  };
+  
+  const setSteps = (steps) => {
+    if (Array.isArray(steps)) {
+      processingSteps.value = steps.map(step => ({
+        step: typeof step === 'string' ? step : step.step,
+        estimated_time: typeof step === 'object' ? step.estimated_time : 10,
+        startTime: null,
+        progress: 0
+      }));
+    }
+  };
+  
+  const resetProcessing = () => {
+    startTime.value = null;
+    estimatedTotalTime.value = 0;
+    currentStep.value = '';
+    stepProgress.value = 0;
+    processingSteps.value = [];
+    actualTimes.value = {};
+    citationInfo.value = null;
+    rateLimitInfo.value = null;
+    timeout.value = null;
+    processingError.value = null;
+    canRetry.value = false;
+  };
+  
+  const setProcessingError = (error) => {
+    processingError.value = error;
+    canRetry.value = true;
+  };
+  
   const updateStep = (stepName, progress) => {
     const stepIndex = processingSteps.value.findIndex(step => step.step === stepName);
     if (stepIndex === -1) return;
@@ -100,6 +153,11 @@ export function useProcessingTime() {
     stepProgress.value = 0;
     processingSteps.value = [];
     actualTimes.value = {};
+    citationInfo.value = null;
+    rateLimitInfo.value = null;
+    timeout.value = null;
+    processingError.value = null;
+    canRetry.value = false;
   };
   
   return {
@@ -110,6 +168,11 @@ export function useProcessingTime() {
     stepProgress,
     processingSteps,
     actualTimes,
+    citationInfo,
+    rateLimitInfo,
+    timeout,
+    processingError,
+    canRetry,
     
     // Computed
     elapsedTime,
@@ -119,6 +182,11 @@ export function useProcessingTime() {
     
     // Methods
     startProcessing,
+    stopProcessing,
+    updateProgress,
+    setSteps,
+    resetProcessing,
+    setProcessingError,
     updateStep,
     completeStep,
     updateActualTimes,

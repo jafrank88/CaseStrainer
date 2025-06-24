@@ -236,14 +236,22 @@
                 <div class="d-flex justify-content-between align-items-start mb-2">
                   <div class="flex-grow-1">
                     <div class="d-flex align-items-center mb-1">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
+                      <div class="citation-container">
+                        <a 
+                          v-if="getCitationUrl(citation)" 
+                          :href="getCitationUrl(citation)" 
+                          target="_blank" 
+                          class="citation-link"
+                          :title="getUrlSourceDisplayName(citation.url_source)"
+                        >
+                          {{ citation.citation }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
                         </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
+                        <span v-else class="citation-text">{{ citation.citation }}</span>
+                        <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                          <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                        </div>
+                      </div>
                       <button 
                         v-if="citation.correction"
                         class="btn btn-sm btn-outline-secondary ms-2"
@@ -264,12 +272,13 @@
                     <small class="text-muted d-block">Extracted Case Name:</small>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -277,16 +286,25 @@
                     </div>
                   </div>
                   <div class="col-6">
-                    <small class="text-muted d-block">Verified Case Name:</small>
+                    <small class="text-muted d-block">Canonical Case Name:</small>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </div>
@@ -306,7 +324,7 @@
                 <tr>
                   <th>Citation</th>
                   <th>Extracted Case Name</th>
-                  <th>Verified Case Name</th>
+                  <th>Canonical Case Name</th>
                   <th>Details</th>
                   <th>Status</th>
                 </tr>
@@ -314,23 +332,21 @@
               <tbody>
                 <tr v-for="(citation, index) in sortedCitations" :key="index" class="align-middle">
                   <td>
-                    <div class="d-flex align-items-center">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
-                        </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
+                    <div class="citation-container">
+                      <a 
+                        v-if="getCitationUrl(citation)" 
+                        :href="getCitationUrl(citation)" 
+                        target="_blank" 
+                        class="citation-link"
+                        :title="getUrlSourceDisplayName(citation.url_source)"
                       >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
+                        {{ citation.citation }}
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                      <span v-else class="citation-text">{{ citation.citation }}</span>
+                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                      </div>
                     </div>
                     <div v-if="citation.correction" class="text-muted small mt-1">
                       <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
@@ -339,12 +355,13 @@
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -353,14 +370,23 @@
                   </td>
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </td>
@@ -392,30 +418,28 @@
                   <th>Citation</th>
                   <th>Status</th>
                   <th>Extracted Case Name</th>
-                  <th>Verified Case Name</th>
+                  <th>Canonical Case Name</th>
                   <th>Details</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(citation, index) in verifiedCitations" :key="'verified-' + index" class="align-middle">
                   <td>
-                    <div class="d-flex align-items-center">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
-                        </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
+                    <div class="citation-container">
+                      <a 
+                        v-if="getCitationUrl(citation)" 
+                        :href="getCitationUrl(citation)" 
+                        target="_blank" 
+                        class="citation-link"
+                        :title="getUrlSourceDisplayName(citation.url_source)"
                       >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
+                        {{ citation.citation }}
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                      <span v-else class="citation-text">{{ citation.citation }}</span>
+                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                      </div>
                     </div>
                     <div v-if="citation.correction" class="text-muted small mt-1">
                       <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
@@ -429,12 +453,13 @@
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -443,14 +468,23 @@
                   </td>
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </td>
@@ -477,30 +511,28 @@
                   <th>Citation</th>
                   <th>Status</th>
                   <th>Extracted Case Name</th>
-                  <th>Verified Case Name</th>
+                  <th>Canonical Case Name</th>
                   <th>Details</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(citation, index) in validButNotVerifiedCitations" :key="'validButNotVerified-' + index" class="align-middle">
                   <td>
-                    <div class="d-flex align-items-center">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
-                        </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
+                    <div class="citation-container">
+                      <a 
+                        v-if="getCitationUrl(citation)" 
+                        :href="getCitationUrl(citation)" 
+                        target="_blank" 
+                        class="citation-link"
+                        :title="getUrlSourceDisplayName(citation.url_source)"
                       >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
+                        {{ citation.citation }}
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                      <span v-else class="citation-text">{{ citation.citation }}</span>
+                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                      </div>
                     </div>
                     <div v-if="citation.correction" class="text-muted small mt-1">
                       <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
@@ -514,12 +546,13 @@
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -528,14 +561,23 @@
                   </td>
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </td>
@@ -562,30 +604,28 @@
                   <th>Citation</th>
                   <th>Status</th>
                   <th>Extracted Case Name</th>
-                  <th>Verified Case Name</th>
+                  <th>Canonical Case Name</th>
                   <th>Details</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(citation, index) in caseNameMismatches" :key="'caseNameMismatch-' + index" class="align-middle">
                   <td>
-                    <div class="d-flex align-items-center">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
-                        </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
+                    <div class="citation-container">
+                      <a 
+                        v-if="getCitationUrl(citation)" 
+                        :href="getCitationUrl(citation)" 
+                        target="_blank" 
+                        class="citation-link"
+                        :title="getUrlSourceDisplayName(citation.url_source)"
                       >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
+                        {{ citation.citation }}
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                      <span v-else class="citation-text">{{ citation.citation }}</span>
+                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                      </div>
                     </div>
                     <div v-if="citation.correction" class="text-muted small mt-1">
                       <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
@@ -599,12 +639,13 @@
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -613,14 +654,23 @@
                   </td>
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </td>
@@ -647,30 +697,28 @@
                   <th>Citation</th>
                   <th>Status</th>
                   <th>Extracted Case Name</th>
-                  <th>Verified Case Name</th>
+                  <th>Canonical Case Name</th>
                   <th>Details</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(citation, index) in invalidCitations" :key="'invalid-' + index" class="align-middle">
                   <td>
-                    <div class="d-flex align-items-center">
-                      <template v-if="getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="citation-text">
-                          {{ getCitationText(citation) }}
-                        </a>
-                      </template>
-                      <template v-else>
-                        <span class="citation-text">{{ getCitationText(citation) }}</span>
-                      </template>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
+                    <div class="citation-container">
+                      <a 
+                        v-if="getCitationUrl(citation)" 
+                        :href="getCitationUrl(citation)" 
+                        target="_blank" 
+                        class="citation-link"
+                        :title="getUrlSourceDisplayName(citation.url_source)"
                       >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
+                        {{ citation.citation }}
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                      </a>
+                      <span v-else class="citation-text">{{ citation.citation }}</span>
+                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
+                      </div>
                     </div>
                     <div v-if="citation.correction" class="text-muted small mt-1">
                       <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
@@ -684,12 +732,13 @@
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
                       <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        <template v-if="getCitationUrl(citation)">
-                          <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getExtractedCaseName(citation) }}</a>
-                        </template>
-                        <template v-else>
-                          {{ getExtractedCaseName(citation) }}
-                        </template>
+                        {{ getExtractedCaseName(citation) }}
+                        <div v-if="citation.extraction_confidence" class="text-muted small">
+                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
+                        </div>
+                        <div v-if="citation.extraction_method" class="text-muted small">
+                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
+                        </div>
                       </template>
                       <template v-else>
                         <span class="text-muted">Not extracted</span>
@@ -698,14 +747,23 @@
                   </td>
                   <td>
                     <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getVerifiedCaseName(citation) && getVerifiedCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener">{{ getVerifiedCaseName(citation) }}</a>
+                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
+                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
+                          {{ getCanonicalCaseName(citation) }}
+                          <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                      </template>
+                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
+                        {{ getCanonicalCaseName(citation) }}
                       </template>
                       <template v-else>
-                        {{ getVerifiedCaseName(citation) }}
+                        <span class="text-muted">Not available</span>
                       </template>
-                      <div v-if="isCaseNameMismatch(citation)" class="text-warning small">
-                        <i class="bi bi-exclamation-triangle"></i> Low similarity
+                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
+                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
+                      </div>
+                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
+                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
                       </div>
                     </div>
                   </td>
@@ -988,19 +1046,15 @@ export default {
     }
     
     function getCitationUrl(citation) {
-      // Prefer absolute_url from cluster, then resource_uri, then url
-      const cluster = getCluster(citation);
-      if (cluster?.absolute_url) {
-        // If already a full URL, use as is; otherwise, prepend CourtListener domain
-        return cluster.absolute_url.startsWith('http') ? cluster.absolute_url : `https://www.courtlistener.com${cluster.absolute_url}`;
+      // Return citation URL from enhanced citation processor
+      if (citation.citation_url && citation.citation_url.trim() !== '') {
+        return citation.citation_url;
       }
-      if (cluster?.resource_uri) {
-        return cluster.resource_uri.startsWith('http') ? cluster.resource_uri : `https://www.courtlistener.com${cluster.resource_uri}`;
-      }
+      // Fallback to existing URL logic
       if (citation.url) {
         return citation.url;
       }
-      return null;
+      return '';
     }
     
     function getStatusBadgeClass(citation) {
@@ -1105,6 +1159,9 @@ export default {
     }
     
     function getVerifiedCaseName(citation) {
+      // DEV_LOG: Log the entire citation object to inspect its structure
+      console.log('Inspecting citation object for verified case name:', JSON.parse(JSON.stringify(citation)));
+      
       if (citation.data?.case_name) {
         return citation.data.case_name;
       } else if (citation.verified_case_name) {
@@ -1139,6 +1196,68 @@ export default {
       return similarity < 0.3;
     }
     
+    function getCaseNameSimilarityText(citation) {
+      if (citation.case_name_similarity !== undefined) {
+        const similarity = citation.case_name_similarity;
+        if (similarity >= 0.7) {
+          return 'High similarity';
+        } else if (similarity >= 0.3) {
+          return 'Medium similarity';
+        } else {
+          return 'Low similarity';
+        }
+      }
+      return '';
+    }
+    
+    function getCanonicalCaseName(citation) {
+      // Return canonical case name from enhanced citation processor
+      if (citation.canonical_case_name && citation.canonical_case_name.trim() !== '') {
+        return citation.canonical_case_name;
+      }
+      return 'Not available';
+    }
+    
+    function getSourceDisplayName(source) {
+      // Return user-friendly display name for source
+      switch (source) {
+        case 'courtlistener':
+          return 'CourtListener';
+        case 'google_scholar':
+          return 'Google Scholar';
+        case 'web_search':
+          return 'Web Search';
+        case 'language_search':
+          return 'Language Search';
+        case 'none':
+          return 'None';
+        default:
+          return source;
+      }
+    }
+    
+    function getUrlSourceDisplayName(source) {
+      // Return user-friendly display name for URL source
+      switch (source) {
+        case 'courtlistener':
+          return 'CourtListener';
+        case 'google_scholar':
+          return 'Google Scholar';
+        case 'vlex':
+          return 'vLex';
+        case 'casemine':
+          return 'CaseMine';
+        case 'leagle':
+          return 'Leagle';
+        case 'justia':
+          return 'Justia';
+        case 'none':
+          return 'None';
+        default:
+          return source;
+      }
+    }
+    
     return {
       expandedCitation,
       activeTab,
@@ -1171,7 +1290,11 @@ export default {
       formatTimeRemaining,
       formatTimestamp,
       caseNameMismatches,
-      caseNameMismatchCount
+      caseNameMismatchCount,
+      getCaseNameSimilarityText,
+      getCanonicalCaseName,
+      getSourceDisplayName,
+      getUrlSourceDisplayName
     };
   }
 };
@@ -1186,52 +1309,126 @@ export default {
   animation: fadeIn 0.3s ease-in-out;
 }
 
+.citation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.citation-link {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.citation-link:hover {
+  color: #0a58ca;
+  text-decoration: underline;
+}
+
 .citation-text {
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  word-break: break-all;
+  font-weight: 500;
+  color: #212529;
 }
 
 .case-name {
   font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  word-break: break-word;
-  font-size: 0.875rem;
+  color: #198754;
 }
 
 .case-name-mismatch {
-  background-color: #fff3cd;
-  border-color: #ffc107;
-  color: #856404;
+  color: #dc3545;
 }
 
-.case-name-mismatch a {
-  color: #856404;
-  text-decoration: underline;
+.verified-badge {
+  background-color: #198754;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-.case-name-mismatch a:hover {
-  color: #533f03;
+.warning-badge {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-.context-box {
-  background-color: #f8f9fa;
-  border-left: 3px solid #0d6efd;
-  padding: 1rem;
+.error-badge {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.source-badge {
+  background-color: #6c757d;
+  color: white;
+  padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
-  font-style: italic;
-  max-height: 200px;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.source-badge.courtlistener {
+  background-color: #0d6efd;
+}
+
+.source-badge.google-scholar {
+  background-color: #198754;
+}
+
+.source-badge.web-search {
+  background-color: #fd7e14;
+}
+
+.source-badge.language-search {
+  background-color: #6f42c1;
+}
+
+.source-badge.vlex {
+  background-color: #fd7e14;
+}
+
+.source-badge.casemine {
+  background-color: #6f42c1;
+}
+
+.source-badge.leagle {
+  background-color: #dc3545;
+}
+
+.source-badge.justia {
+  background-color: #20c997;
+}
+
+.table-container {
+  max-height: 600px;
   overflow-y: auto;
 }
 
-.table th {
-  background-color: #f8f9fa;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {

@@ -11,6 +11,7 @@ import logging
 import sqlite3
 from datetime import datetime
 import shutil
+from src.enhanced_multi_source_verifier import verify_citation
 
 # Configure logging
 logging.basicConfig(

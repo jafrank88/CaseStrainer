@@ -7,13 +7,23 @@ This document provides comprehensive documentation for all API endpoints in the 
 - Development: `http://localhost:5000/api`
 - Production: `https://wolf.law.uw.edu/casestrainer/api`
 
-## Integration with CourtListener API
+## Multi-Source Citation Verification
 
-CaseStrainer uses the CourtListener API (v4) for citation validation. When using this integration:
+CaseStrainer uses an **Enhanced Multi-Source Verification System** that checks citations against multiple legal databases and sources:
 
-- Only v4 of the CourtListener API is supported
-- All API endpoints automatically use the v4 base URL: `https://www.courtlistener.com/api/rest/v4/`
-- The v3 API is not supported and may not work correctly
+### Primary Sources
+- **CourtListener API** (v4) - Primary legal database
+- **Google Scholar** - Academic and legal research
+- **Justia** - Legal information and case law
+- **Leagle** - Legal research and case law
+- **FindLaw** - Legal information and resources
+- **CaseText** - Legal research platform
+
+### Verification Process
+1. **Database Check** - First checks local SQLite database for previously verified citations
+2. **Multi-Source Verification** - If not found locally, queries multiple external sources
+3. **Confidence Scoring** - Assigns confidence scores based on verification results
+4. **Cache Storage** - Stores results for future use
 
 ## Authentication
 
@@ -32,7 +42,7 @@ Authorization: Bearer your_api_key_here
 POST /analyze
 ```
 
-Analyzes a brief's text for citations and verifies them.
+Analyzes a brief's text for citations and verifies them using the multi-source verification system.
 
 **Request Body:**
 ```json
@@ -52,7 +62,12 @@ Analyzes a brief's text for citations and verifies them.
       "case_name": "Brown v. Board of Education",
       "confidence": 0.95,
       "verified": true,
-      "source": "CourtListener API"
+      "source": "Multiple Sources",
+      "verification_details": {
+        "courtlistener": true,
+        "justia": true,
+        "google_scholar": true
+      }
     }
   ],
   "unconfirmed_citations": [
@@ -72,7 +87,7 @@ Analyzes a brief's text for citations and verifies them.
 POST /verify_citation
 ```
 
-Verifies a single citation using multiple sources.
+Verifies a single citation using the multi-source verification system.
 
 **Request Body:**
 ```json
@@ -89,9 +104,21 @@ Verifies a single citation using multiple sources.
   "case_name": "Brown v. Board of Education",
   "is_valid": true,
   "confidence": 0.9,
-  "explanation": "Citation verified with Court Listener API",
-  "source": "CourtListener API",
-  "url": "https://www.courtlistener.com/opinion/..."
+  "explanation": "Citation verified with multiple sources",
+  "source": "Multiple Sources",
+  "verification_details": {
+    "courtlistener": {
+      "verified": true,
+      "url": "https://www.courtlistener.com/opinion/..."
+    },
+    "justia": {
+      "verified": true,
+      "url": "https://supreme.justia.com/cases/federal/us/347/483/"
+    },
+    "google_scholar": {
+      "verified": true
+    }
+  }
 }
 ```
 
@@ -126,7 +153,7 @@ Retrieves all unconfirmed citations from the database.
 GET /confirmed_with_multitool_data
 ```
 
-Retrieves citations that were confirmed using multiple verification tools.
+Retrieves citations that were confirmed using the multi-source verification system.
 
 **Response:**
 ```json
@@ -137,8 +164,13 @@ Retrieves citations that were confirmed using multiple verification tools.
       "case_name": "Brown v. Board of Education",
       "confidence": 0.95,
       "source": "Multiple Sources",
+      "verification_details": {
+        "courtlistener": true,
+        "justia": true,
+        "google_scholar": true
+      },
       "url": "https://www.courtlistener.com/opinion/...",
-      "explanation": "Verified by CourtListener and LangSearch"
+      "explanation": "Verified by multiple sources including CourtListener, Justia, and Google Scholar"
     }
   ]
 }
@@ -180,7 +212,7 @@ Retrieves data for the citation network visualization.
 POST /enhanced-validate-citation
 ```
 
-Uses the enhanced validator to verify a citation with additional context and ML analysis.
+Uses the enhanced validator to verify a citation with additional context and ML analysis, leveraging the multi-source verification system.
 
 **Request Body:**
 ```json
@@ -195,76 +227,76 @@ Uses the enhanced validator to verify a citation with additional context and ML 
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
   "verified": true,
   "confidence": 0.98,
+  "source": "Enhanced Multi-Source Validator",
+  "verification_details": {
+    "pattern_recognition": true,
+    "landmark_case": true,
+    "ml_classification": true,
+    "multi_source_verification": {
+      "courtlistener": true,
+      "justia": true,
+      "google_scholar": true
+    }
+  },
   "context": {
     "surrounding_text": "...",
     "related_citations": [...],
-    "full_text_url": "..."
-  },
-  "ml_analysis": {
-    "confidence_score": 0.98,
-    "explanation": "Citation matches known pattern and context",
-    "similar_citations": [...]
+    "case_summary": "Landmark case that declared racial segregation in public schools unconstitutional"
   }
 }
 ```
 
-## Error Responses
+### 7. Health Check
 
-All endpoints may return the following error responses:
+#### System Health
+```http
+GET /health
+```
 
-### 400 Bad Request
+Returns the current health status of the API server and verification systems.
+
+**Response:**
 ```json
 {
-  "error": "Invalid request parameters",
-  "message": "Detailed error message"
+  "status": "healthy",
+  "timestamp": "2025-06-23T13:04:42.251Z",
+  "services": {
+    "api_server": "healthy",
+    "database": "healthy",
+    "redis": "healthy",
+    "multi_source_verifier": "healthy"
+  },
+  "version": "2.0.0"
 }
 ```
 
-### 401 Unauthorized
-```json
-{
-  "error": "Unauthorized",
-  "message": "Invalid or missing API key"
-}
-```
+## Error Handling
 
-### 404 Not Found
-```json
-{
-  "error": "Not Found",
-  "message": "Resource not found"
-}
-```
+All endpoints return consistent error responses:
 
-### 500 Internal Server Error
 ```json
 {
-  "error": "Internal Server Error",
-  "message": "Detailed error message"
+  "error": "Error description",
+  "status_code": 400,
+  "timestamp": "2025-06-23T13:04:42.251Z"
 }
 ```
 
 ## Rate Limiting
 
-API requests are rate-limited to prevent abuse. The current limits are:
+- **Development**: No rate limiting
+- **Production**: 100 requests per minute per IP address
+- **Enhanced Validation**: 50 requests per minute per API key
 
-- 100 requests per minute per API key
-- 1000 requests per hour per API key
+## Caching
 
-When rate limits are exceeded, the API will return a 429 Too Many Requests response:
+- **Citation Results**: Cached for 24 hours
+- **Database Queries**: Cached for 1 hour
+- **External API Calls**: Cached for 6 hours
 
-```json
-{
-  "error": "Rate limit exceeded",
-  "message": "Please try again in X seconds",
-  "retry_after": 60
-}
-```
+## Performance
 
-## Best Practices
-
-1. Always include proper error handling in your API calls
-2. Cache responses when appropriate to reduce API load
-3. Use the enhanced validator for critical citations
-4. Implement exponential backoff for retries
-5. Monitor your API usage to stay within rate limits 
+- **Average Response Time**: < 2 seconds
+- **Multi-Source Verification**: < 5 seconds
+- **Database Queries**: < 100ms
+- **Cache Hit Rate**: > 80% 
