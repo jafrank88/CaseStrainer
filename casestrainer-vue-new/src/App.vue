@@ -125,7 +125,7 @@ export default {
   name: 'App',
   data() {
     return {
-      appVersion: import.meta.env.VITE_APP_VERSION || '0.5.0',
+      appVersion: import.meta.env.VITE_APP_VERSION || '0.5.1',
       currentYear: new Date().getFullYear()
     }
   }

@@ -74,7 +74,7 @@ if not logging.getLogger().hasHandlers():
 # Initialize the citation processor
 citation_processor = CitationProcessor()
 
-logger.info("Loading enhanced_validator_production.py v0.5.0 - Modified 2025-06-10")
+logger.info("Loading enhanced_validator_production.py v0.5.1 - Modified 2025-06-10")
 
 def log_step(message: str, level: str = "info"):
     """Helper function to log processing steps with consistent formatting."""
@@ -86,7 +86,7 @@ def extract_text_from_url(url: str) -> Dict[str, Any]:
     """Extract text content from a URL, including PDF support."""
     try:
         logger.info(f"[extract_text_from_url] Fetching URL: {url}")
-        response = requests.get(url, timeout=60, stream=True)
+        response = requests.get(url, timeout=300, stream=True)
         response.raise_for_status()
         content_type = response.headers.get('content-type', '').lower()
         logger.info(f"[extract_text_from_url] Content-Type: {content_type}")
