@@ -22,64 +22,40 @@
 
         <!-- Tab Content -->
         <div class="tab-content p-3 border border-top-0 rounded-bottom">
-          <!-- Single Citation Tab -->
-          <div v-if="activeTab === 'single'" class="tab-pane fade show active">
-            <div class="mb-3">
-              <label for="citationInput" class="form-label">Enter Citation</label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  id="citationInput"
-                  v-model="citationInput"
-                  placeholder="e.g., 410 U.S. 113 (1973)"
-                  @keyup.enter="validateCitation(citationInput)"
-                >
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  @click="validateCitation(citationInput)"
-                  :disabled="!citationInput.trim() || isLoading"
-                >
-                  <span v-if="isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  {{ isLoading ? 'Validating...' : 'Validate' }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Document Upload Tab -->
-          <div v-else-if="activeTab === 'document'" class="tab-pane fade show active">
-            <FileUpload
-              @results="handleDocumentResults"
-              @error="handleDocumentError"
-              @progress="handleDocumentProgress"
-              :is-loading="isLoading"
-              @loading="isLoading = $event"
-            />
-          </div>
-
-          <!-- Text Paste Tab -->
-          <div v-else-if="activeTab === 'text'" class="tab-pane fade show active">
-            <TextPaste
-              @results="handleTextResults"
-              @error="handleTextError"
-              @progress="handleTextProgress"
-              :is-loading="isLoading"
-              @loading="isLoading = $event"
-            />
-          </div>
-
-          <!-- URL Upload Tab -->
-          <div v-else-if="activeTab === 'url'" class="tab-pane fade show active">
-            <UrlUpload
-              @results="handleUrlResults"
-              @error="handleUrlError"
-              @progress="handleUrlProgress"
-              :is-loading="isLoading"
-              @loading="isLoading = $event"
-            />
-          </div>
+          <TextPaste v-if="activeTab === 'single' || activeTab === 'text'"
+            :isAnalyzing="isLoading"
+            :initialText="activeTab === 'single' ? citationInput : ''"
+            @analyze="handleTextAnalyze"
+          />
+          <FileUpload v-if="activeTab === 'document'"
+            :isAnalyzing="isLoading"
+            @analyze="handleFileAnalyze"
+          />
+          <UrlUpload v-if="activeTab === 'url'"
+            :isAnalyzing="isLoading"
+            @analyze="handleUrlAnalyze"
+          />
+          <ProcessingProgress v-if="showLoading"
+            :elapsed-time="elapsedTime"
+            :remaining-time="remainingTime"
+            :total-progress="totalProgress"
+            :current-step="currentStep"
+            :current-step-progress="currentStepProgress"
+            :processing-steps="processingSteps"
+            :actual-times="actualTimes"
+            :citation-info="citationInfo"
+            :rate-limit-info="rateLimitInfo"
+            :timeout="timeout"
+            :error="processingError"
+            :can-retry="canRetry"
+            @retry="retryProcessing"
+          />
+          <CitationResults v-if="results" :results="results"
+            @apply-correction="applyCorrection"
+            @copy-results="copyResults"
+            @download-results="downloadResults"
+          />
+          <div v-if="error" class="alert alert-danger mt-4">{{ error }}</div>
         </div>
 
         <!-- Results Section -->
@@ -323,6 +299,8 @@ export default {
     const activeRequestId = ref(null);
 
     const pollInterval = ref(null);
+
+    const results = ref(null);
 
     // ===== HELPER FUNCTIONS =====
     // Formatting Helpers
@@ -856,6 +834,9 @@ export default {
 
     // ===== PROGRESS HANDLER FUNCTIONS =====
     const handleDocumentProgress = (progress) => {
+      if (progress.total && progress.total > 5) {
+        showLoading.value = true;
+      }
       if (progress.task_id && !pollInterval.value) {
         setSteps(progress.steps);
         startProcessing();
@@ -866,6 +847,9 @@ export default {
     };
 
     const handleTextProgress = (progress) => {
+      if (progress.total && progress.total > 5) {
+        showLoading.value = true;
+      }
       if (progress.task_id && !pollInterval.value) {
         setSteps(progress.steps);
         startProcessing();
@@ -876,6 +860,9 @@ export default {
     };
 
     const handleUrlProgress = (progress) => {
+      if (progress.total && progress.total > 5) {
+        showLoading.value = true;
+      }
       if (progress.task_id && !pollInterval.value) {
         setSteps(progress.steps);
         startProcessing();
@@ -1390,6 +1377,53 @@ export default {
       }
     };
 
+    // Handle analyze events from input components
+    const handleTextAnalyze = async ({ text, options }) => {
+      isLoading.value = true;
+      error.value = null;
+      results.value = null;
+      try {
+        // Call backend API for text analysis
+        const response = await citationsApi.validateCitation(text);
+        results.value = response.data;
+      } catch (err) {
+        error.value = err.message || 'Failed to analyze text.';
+      } finally {
+        isLoading.value = false;
+      }
+    };
+    const handleFileAnalyze = async ({ file }) => {
+      isLoading.value = true;
+      error.value = null;
+      results.value = null;
+      try {
+        // Prepare FormData and call backend API for file analysis
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('type', 'file');
+        const response = await citationsApi.validateCitation(fd);
+        results.value = response.data;
+      } catch (err) {
+        error.value = err.message || 'Failed to analyze file.';
+      } finally {
+        isLoading.value = false;
+      }
+    };
+    const handleUrlAnalyze = async ({ url }) => {
+      isLoading.value = true;
+      error.value = null;
+      results.value = null;
+      try {
+        // Call backend API for URL analysis
+        const response = await citationsApi.validateCitation(url);
+        results.value = response.data;
+      } catch (err) {
+        error.value = err.message || 'Failed to analyze URL.';
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
     return {
       // State
       activeTab,
@@ -1481,7 +1515,13 @@ export default {
       // Missing functions
       updateStep,
       completeStep,
-      updateActualTimes
+      updateActualTimes,
+      
+      // New functions
+      handleTextAnalyze,
+      handleFileAnalyze,
+      handleUrlAnalyze,
+      results
     };
   }
 };

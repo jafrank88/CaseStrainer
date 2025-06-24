@@ -15,16 +15,14 @@ def apply_washington_spacing_rules(citation: str) -> str:
     Returns:
         str: The citation with proper Washington spacing
     """
-    # Handle Washington Reports: ensure no space between Wn. and 2d
-    # Pattern matches: Wn. 2d, Wn.2d, Wash. 2d, Wash.2d -> Wn.2d
-    citation = re.sub(r'Wn\.\s*2d', 'Wn.2d', citation, flags=re.IGNORECASE)
-    citation = re.sub(r'Wash\.\s*2d', 'Wn.2d', citation, flags=re.IGNORECASE)
-    
+    # Always ensure a space between Wash. and 2d/3d
+    citation = re.sub(r'Wash\.\s*2d', 'Wash. 2d', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wash\.\s*3d', 'Wash. 3d', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wn\.\s*2d', 'Wash. 2d', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wn\.\s*3d', 'Wash. 3d', citation, flags=re.IGNORECASE)
     # Handle Washington Appellate Reports: ensure space between Wn. and App.
-    # Pattern matches: Wn.App., Wn. App., Wash.App., Wash. App. -> Wn. App.
-    citation = re.sub(r'Wn\.\s*App\.', 'Wn. App.', citation, flags=re.IGNORECASE)
-    citation = re.sub(r'Wash\.\s*App\.', 'Wn. App.', citation, flags=re.IGNORECASE)
-    
+    citation = re.sub(r'Wn\.\s*App\.', 'Wash. App.', citation, flags=re.IGNORECASE)
+    citation = re.sub(r'Wash\.\s*App\.', 'Wash. App.', citation, flags=re.IGNORECASE)
     return citation
 
 

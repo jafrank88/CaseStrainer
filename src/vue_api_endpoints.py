@@ -181,6 +181,19 @@ def check_rq_worker():
     except Exception:
         return "down"
 
+def is_rq_available():
+    """Dynamically check if Redis and at least one RQ worker are available."""
+    try:
+        # Check Redis connection
+        redis_conn.ping()
+        # Check for at least one RQ worker
+        from rq import Worker
+        workers = Worker.all(connection=redis_conn)
+        return bool(workers)
+    except Exception as e:
+        logger.warning(f"is_rq_available check failed: {e}")
+        return False
+
 @vue_api.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint to verify the backend is running and all components are healthy."""
@@ -208,7 +221,7 @@ def health_check():
             'rq_worker': worker_status,
             'database': db_status,
             'active_requests': len(active_requests),
-            'rq_available': RQ_AVAILABLE
+            'rq_available': is_rq_available()  # PATCH: dynamic check
         }
         return jsonify(response_data)
     except Exception as e:
@@ -223,7 +236,7 @@ def server_stats():
             'timestamp': time.time(),
             'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'active_requests': len(active_requests),
-            'rq_available': RQ_AVAILABLE
+            'rq_available': is_rq_available()  # PATCH: dynamic check
         }
         
         if not RQ_AVAILABLE and 'get_server_stats' in globals():
@@ -555,31 +568,101 @@ def process_citation_task(task_id, task_type, task_data):
             # Use enhanced multi-source verifier for all task types
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
+            
+            # Process citations in parallel for better performance
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            import threading
+            
             results = []
-            for c in citations:
-                citation_text = c['citation']
-                extracted_case_name = c.get('case_name')
-                canonical_case_name = c.get('canonical_case_name')
-                confidence = c.get('confidence', 0.0)
-                method = c.get('method', 'none')
+            results_lock = threading.Lock()
+            
+            def verify_single_citation(citation_info):
+                """Verify a single citation with progress tracking."""
+                try:
+                    citation_text = citation_info['citation']
+                    extracted_case_name = citation_info.get('case_name')
+                    canonical_case_name = citation_info.get('canonical_case_name')
+                    confidence = citation_info.get('confidence', 0.0)
+                    method = citation_info.get('method', 'none')
+                    
+                    # Verify citation with enhanced verifier
+                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
+                    
+                    # Add enhanced case name information
+                    result.update({
+                        'case_name_extracted': extracted_case_name,  # From document text
+                        'canonical_case_name': canonical_case_name,  # From API
+                        'extraction_confidence': confidence,
+                        'extraction_method': method,
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position'),
+                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
+                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
+                        'url_source': citation_info.get('url_source', 'none')  # Track source of citation URL
+                    })
+                    return result
+                except Exception as e:
+                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
+                    return {
+                        'citation': citation_info.get('citation', 'unknown'),
+                        'verified': False,
+                        'error': str(e),
+                        'case_name_extracted': citation_info.get('case_name'),
+                        'canonical_case_name': citation_info.get('canonical_case_name'),
+                        'extraction_confidence': citation_info.get('confidence', 0.0),
+                        'extraction_method': citation_info.get('method', 'none'),
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position')
+                    }
+            
+            # Use ThreadPoolExecutor for parallel processing
+            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all verification tasks
+                future_to_citation = {
+                    executor.submit(verify_single_citation, citation_info): citation_info
+                    for citation_info in citations
+                }
                 
-                # Verify citation with enhanced verifier
-                result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                
-                # Add enhanced case name information
-                result.update({
-                    'case_name_extracted': extracted_case_name,  # From document text
-                    'canonical_case_name': canonical_case_name,  # From API
-                    'extraction_confidence': confidence,
-                    'extraction_method': method,
-                    'verified_in_text': c.get('verified', False),
-                    'similarity_score': c.get('similarity'),
-                    'position': c.get('position'),
-                    'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
-                    'canonical_source': c.get('canonical_source', 'none'),  # Track source of canonical name
-                    'url_source': c.get('url_source', 'none')  # Track source of citation URL
-                })
-                results.append(result)
+                # Process results as they complete
+                for future in as_completed(future_to_citation):
+                    try:
+                        result = future.result()
+                        with results_lock:
+                            results.append(result)
+                            
+                        # Update progress if job tracking is available
+                        if job:
+                            current_progress = len(results)
+                            total_citations = len(citations)
+                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
+                            job.meta['progress'] = progress_percentage
+                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
+                            job.meta['current_step'] = 'Citation verification'
+                            job.save_meta()
+                            
+                    except Exception as e:
+                        citation_info = future_to_citation[future]
+                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
+                        with results_lock:
+                            results.append({
+                                'citation': citation_info.get('citation', 'unknown'),
+                                'verified': False,
+                                'error': str(e),
+                                'case_name_extracted': citation_info.get('case_name'),
+                                'canonical_case_name': citation_info.get('canonical_case_name'),
+                                'extraction_confidence': citation_info.get('confidence', 0.0),
+                                'extraction_method': citation_info.get('method', 'none'),
+                                'verified_in_text': citation_info.get('verified', False),
+                                'similarity_score': citation_info.get('similarity'),
+                                'position': citation_info.get('position')
+                            })
+            
+            # Sort results to maintain original order
+            results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
+            
             return {'citations': results, 'status': 'success'}
             
         elif task_type == 'text':
@@ -604,13 +687,101 @@ def process_citation_task(task_id, task_type, task_data):
             # Use enhanced multi-source verifier for all task types
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
+            
+            # Process citations in parallel for better performance
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            import threading
+            
             results = []
-            for c in citations:
-                citation_text = c['citation']
-                extracted_case_name = c.get('case_name')
-                result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                result['case_name_extracted'] = extracted_case_name
-                results.append(result)
+            results_lock = threading.Lock()
+            
+            def verify_single_citation(citation_info):
+                """Verify a single citation with progress tracking."""
+                try:
+                    citation_text = citation_info['citation']
+                    extracted_case_name = citation_info.get('case_name')
+                    canonical_case_name = citation_info.get('canonical_case_name')
+                    confidence = citation_info.get('confidence', 0.0)
+                    method = citation_info.get('method', 'none')
+                    
+                    # Verify citation with enhanced verifier
+                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
+                    
+                    # Add enhanced case name information
+                    result.update({
+                        'case_name_extracted': extracted_case_name,  # From document text
+                        'canonical_case_name': canonical_case_name,  # From API
+                        'extraction_confidence': confidence,
+                        'extraction_method': method,
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position'),
+                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
+                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
+                        'url_source': citation_info.get('url_source', 'none')  # Track source of citation URL
+                    })
+                    return result
+                except Exception as e:
+                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
+                    return {
+                        'citation': citation_info.get('citation', 'unknown'),
+                        'verified': False,
+                        'error': str(e),
+                        'case_name_extracted': citation_info.get('case_name'),
+                        'canonical_case_name': citation_info.get('canonical_case_name'),
+                        'extraction_confidence': citation_info.get('confidence', 0.0),
+                        'extraction_method': citation_info.get('method', 'none'),
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position')
+                    }
+            
+            # Use ThreadPoolExecutor for parallel processing
+            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all verification tasks
+                future_to_citation = {
+                    executor.submit(verify_single_citation, citation_info): citation_info
+                    for citation_info in citations
+                }
+                
+                # Process results as they complete
+                for future in as_completed(future_to_citation):
+                    try:
+                        result = future.result()
+                        with results_lock:
+                            results.append(result)
+                            
+                        # Update progress if job tracking is available
+                        if job:
+                            current_progress = len(results)
+                            total_citations = len(citations)
+                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
+                            job.meta['progress'] = progress_percentage
+                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
+                            job.meta['current_step'] = 'Citation verification'
+                            job.save_meta()
+                            
+                    except Exception as e:
+                        citation_info = future_to_citation[future]
+                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
+                        with results_lock:
+                            results.append({
+                                'citation': citation_info.get('citation', 'unknown'),
+                                'verified': False,
+                                'error': str(e),
+                                'case_name_extracted': citation_info.get('case_name'),
+                                'canonical_case_name': citation_info.get('canonical_case_name'),
+                                'extraction_confidence': citation_info.get('confidence', 0.0),
+                                'extraction_method': citation_info.get('method', 'none'),
+                                'verified_in_text': citation_info.get('verified', False),
+                                'similarity_score': citation_info.get('similarity'),
+                                'position': citation_info.get('position')
+                            })
+            
+            # Sort results to maintain original order
+            results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
+            
             return {'citations': results, 'status': 'success'}
             
         elif task_type == 'url':
@@ -663,31 +834,101 @@ def process_citation_task(task_id, task_type, task_data):
             # Use enhanced multi-source verifier for all task types
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
+            
+            # Process citations in parallel for better performance
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            import threading
+            
             results = []
-            for c in citations:
-                citation_text = c['citation']
-                extracted_case_name = c.get('case_name')
-                canonical_case_name = c.get('canonical_case_name')
-                confidence = c.get('confidence', 0.0)
-                method = c.get('method', 'none')
+            results_lock = threading.Lock()
+            
+            def verify_single_citation(citation_info):
+                """Verify a single citation with progress tracking."""
+                try:
+                    citation_text = citation_info['citation']
+                    extracted_case_name = citation_info.get('case_name')
+                    canonical_case_name = citation_info.get('canonical_case_name')
+                    confidence = citation_info.get('confidence', 0.0)
+                    method = citation_info.get('method', 'none')
+                    
+                    # Verify citation with enhanced verifier
+                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
+                    
+                    # Add enhanced case name information
+                    result.update({
+                        'case_name_extracted': extracted_case_name,  # From document text
+                        'canonical_case_name': canonical_case_name,  # From API
+                        'extraction_confidence': confidence,
+                        'extraction_method': method,
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position'),
+                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
+                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
+                        'url_source': citation_info.get('url_source', 'none')  # Track source of citation URL
+                    })
+                    return result
+                except Exception as e:
+                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
+                    return {
+                        'citation': citation_info.get('citation', 'unknown'),
+                        'verified': False,
+                        'error': str(e),
+                        'case_name_extracted': citation_info.get('case_name'),
+                        'canonical_case_name': citation_info.get('canonical_case_name'),
+                        'extraction_confidence': citation_info.get('confidence', 0.0),
+                        'extraction_method': citation_info.get('method', 'none'),
+                        'verified_in_text': citation_info.get('verified', False),
+                        'similarity_score': citation_info.get('similarity'),
+                        'position': citation_info.get('position')
+                    }
+            
+            # Use ThreadPoolExecutor for parallel processing
+            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all verification tasks
+                future_to_citation = {
+                    executor.submit(verify_single_citation, citation_info): citation_info
+                    for citation_info in citations
+                }
                 
-                # Verify citation with enhanced verifier
-                result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                
-                # Add enhanced case name information
-                result.update({
-                    'case_name_extracted': extracted_case_name,  # From document text
-                    'canonical_case_name': canonical_case_name,  # From API
-                    'extraction_confidence': confidence,
-                    'extraction_method': method,
-                    'verified_in_text': c.get('verified', False),
-                    'similarity_score': c.get('similarity'),
-                    'position': c.get('position'),
-                    'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
-                    'canonical_source': c.get('canonical_source', 'none'),  # Track source of canonical name
-                    'url_source': c.get('url_source', 'none')  # Track source of citation URL
-                })
-                results.append(result)
+                # Process results as they complete
+                for future in as_completed(future_to_citation):
+                    try:
+                        result = future.result()
+                        with results_lock:
+                            results.append(result)
+                            
+                        # Update progress if job tracking is available
+                        if job:
+                            current_progress = len(results)
+                            total_citations = len(citations)
+                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
+                            job.meta['progress'] = progress_percentage
+                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
+                            job.meta['current_step'] = 'Citation verification'
+                            job.save_meta()
+                            
+                    except Exception as e:
+                        citation_info = future_to_citation[future]
+                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
+                        with results_lock:
+                            results.append({
+                                'citation': citation_info.get('citation', 'unknown'),
+                                'verified': False,
+                                'error': str(e),
+                                'case_name_extracted': citation_info.get('case_name'),
+                                'canonical_case_name': citation_info.get('canonical_case_name'),
+                                'extraction_confidence': citation_info.get('confidence', 0.0),
+                                'extraction_method': citation_info.get('method', 'none'),
+                                'verified_in_text': citation_info.get('verified', False),
+                                'similarity_score': citation_info.get('similarity'),
+                                'position': citation_info.get('position')
+                            })
+            
+            # Sort results to maintain original order
+            results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
+            
             return {'citations': results, 'status': 'success'}
         else:
             logger.error(f"{WORKER_LABEL} [RQ WORKER] Unknown task type: {task_type}")

@@ -104,33 +104,35 @@ def download_brief(brief_url):
 
 
 def extract_text_from_pdf(pdf_path):
-    """Extract text from a PDF file."""
+    """Extract text from a PDF file using pdfminer.six, with PyPDF2 as fallback."""
     print(f"Extracting text from PDF: {pdf_path}")
-
     try:
-        # Try to import PyPDF2
-        try:
-            import PyPDF2
-        except ImportError:
-            print("PyPDF2 not installed. Please install it with 'pip install PyPDF2'.")
-            return None
-
-        # Open the PDF file
-        with open(pdf_path, "rb") as file:
-            # Create a PDF reader object
-            pdf_reader = PyPDF2.PdfReader(file)
-
-            # Extract text from each page
-            text = ""
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text()
-
+        from pdfminer.high_level import extract_text as pdfminer_extract_text
+        text = pdfminer_extract_text(pdf_path)
+        if text and text.strip():
+            print("pdfminer.six succeeded.")
             return text
-
+        else:
+            print("pdfminer.six extracted no text, trying PyPDF2...")
     except Exception as e:
-        print(f"Error extracting text from PDF: {e}")
-        traceback.print_exc()
+        print(f"pdfminer.six failed: {e}")
+    try:
+        import PyPDF2
+        with open(pdf_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+        if text and text.strip():
+            print("PyPDF2 succeeded.")
+            return text
+        else:
+            print("PyPDF2 also extracted no text.")
+            return None
+    except Exception as e:
+        print(f"PyPDF2 failed: {e}")
         return None
 
 

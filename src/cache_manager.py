@@ -8,6 +8,8 @@ import os
 from typing import Dict, Any, Optional, List, Union
 from datetime import datetime, timedelta
 import logging
+import hashlib
+from functools import lru_cache
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,6 +34,15 @@ class UnifiedCacheManager:
         self.db_path = self.config['database_cache']['file']
         self._init_redis()
         self._init_database()
+        
+        # Initialize cache directories
+        self.cache_dir = "citation_cache"
+        os.makedirs(self.cache_dir, exist_ok=True)
+        
+        # In-memory LRU cache for frequently accessed items
+        self.memory_cache = {}
+        self.memory_cache_max_size = 1000
+        self.memory_cache_ttl = 3600  # 1 hour
         
     def _load_config(self, config_file: str) -> Dict[str, Any]:
         """Load cache configuration from JSON file."""
@@ -192,60 +203,173 @@ class UnifiedCacheManager:
         """Generate Redis key with namespace."""
         return f"casestrainer:{cache_type}:{key}"
     
+    def _get_cache_key(self, key: str, cache_type: str = "citation") -> str:
+        """Generate a cache key with type prefix."""
+        return f"{cache_type}:{hashlib.md5(key.encode()).hexdigest()}"
+
     def get_citation(self, citation: str) -> Optional[Dict[str, Any]]:
-        """Get citation from cache (Redis first, then SQLite)."""
-        if not self.redis_client:
-            return self._get_from_sqlite('citations', citation)
-        
-        redis_key = self._get_redis_key('citation', citation)
-        try:
-            # Try Redis first
-            cached_data = self.redis_client.get(redis_key)
-            if cached_data:
-                self._update_stats('citation', 'hit')
-                return self._decompress_data(cached_data)
+        """Get citation from cache (Redis -> Memory -> File -> Database)."""
+        if not citation:
+            return None
             
-            # Fallback to SQLite
-            result = self._get_from_sqlite('citations', citation)
-            if result:
-                # Cache in Redis for next time
-                self._set_in_redis('citation', citation, result, 
-                                 self.config['citation_cache']['ttl'])
+        cache_key = self._get_cache_key(citation, "citation")
+        
+        # 1. Check in-memory cache first (fastest)
+        if cache_key in self.memory_cache:
+            item = self.memory_cache[cache_key]
+            if datetime.now() < item['expires']:
+                logger.debug(f"Memory cache hit for: {citation}")
+                return item['data']
             else:
-                self._update_stats('citation', 'miss')
-            
-            return result
-        except Exception as e:
-            logger.error(f"Error getting citation {citation}: {e}")
-            return self._get_from_sqlite('citations', citation)
-    
-    def set_citation(self, citation: str, data: Dict[str, Any]) -> bool:
-        """Set citation in both Redis and SQLite."""
-        success = True
+                del self.memory_cache[cache_key]
         
-        # Set in Redis
+        # 2. Check Redis cache
         if self.redis_client:
             try:
-                redis_key = self._get_redis_key('citation', citation)
-                compressed_data = self._compress_data(data)
-                self.redis_client.setex(
-                    redis_key,
-                    self.config['citation_cache']['ttl'],
-                    compressed_data
-                )
+                cached_data = self.redis_client.get(cache_key)
+                if cached_data:
+                    data = json.loads(gzip.decompress(cached_data).decode())
+                    # Store in memory cache for future access
+                    self._set_memory_cache(cache_key, data)
+                    logger.debug(f"Redis cache hit for: {citation}")
+                    return data
             except Exception as e:
-                logger.error(f"Redis set failed for {citation}: {e}")
+                logger.warning(f"Redis cache error: {e}")
+        
+        # 3. Check file cache
+        file_data = self._get_file_cache(citation)
+        if file_data:
+            # Store in Redis and memory for future access
+            if self.redis_client:
+                try:
+                    compressed_data = gzip.compress(json.dumps(file_data).encode())
+                    self.redis_client.setex(cache_key, 86400, compressed_data)  # 24 hour TTL
+                except Exception as e:
+                    logger.warning(f"Failed to store in Redis: {e}")
+            self._set_memory_cache(cache_key, file_data)
+            logger.debug(f"File cache hit for: {citation}")
+            return file_data
+        
+        # 4. Check database cache
+        db_data = self._get_database_cache(citation)
+        if db_data:
+            # Store in all caches for future access
+            if self.redis_client:
+                try:
+                    compressed_data = gzip.compress(json.dumps(db_data).encode())
+                    self.redis_client.setex(cache_key, 86400, compressed_data)
+                except Exception as e:
+                    logger.warning(f"Failed to store in Redis: {e}")
+            self._set_memory_cache(cache_key, db_data)
+            logger.debug(f"Database cache hit for: {citation}")
+            return db_data
+        
+        logger.debug(f"Cache miss for: {citation}")
+        return None
+
+    def set_citation(self, citation: str, data: Dict[str, Any]) -> bool:
+        """Set citation in all cache layers."""
+        if not citation:
+            return False
+            
+        cache_key = self._get_cache_key(citation, "citation")
+        
+        # Store in all cache layers
+        success = True
+        
+        # 1. Memory cache
+        self._set_memory_cache(cache_key, data)
+        
+        # 2. Redis cache
+        if self.redis_client:
+            try:
+                compressed_data = gzip.compress(json.dumps(data).encode())
+                self.redis_client.setex(cache_key, 86400, compressed_data)
+            except Exception as e:
+                logger.warning(f"Failed to store in Redis: {e}")
                 success = False
         
-        # Set in SQLite
-        try:
-            self._set_in_sqlite('citations', citation, data)
-        except Exception as e:
-            logger.error(f"SQLite set failed for {citation}: {e}")
+        # 3. File cache
+        if not self._set_file_cache(citation, data):
+            success = False
+        
+        # 4. Database cache
+        if not self._set_database_cache(citation, data):
             success = False
         
         return success
-    
+
+    def _set_memory_cache(self, key: str, data: Dict[str, Any]):
+        """Set item in memory cache with TTL."""
+        # Implement LRU eviction if cache is full
+        if len(self.memory_cache) >= self.memory_cache_max_size:
+            # Remove oldest items
+            oldest_key = min(self.memory_cache.keys(), 
+                           key=lambda k: self.memory_cache[k]['expires'])
+            del self.memory_cache[oldest_key]
+        
+        self.memory_cache[key] = {
+            'data': data,
+            'expires': datetime.now() + timedelta(seconds=self.memory_cache_ttl)
+        }
+
+    def _get_file_cache(self, citation: str) -> Optional[Dict[str, Any]]:
+        """Get citation from file cache."""
+        try:
+            cache_file = os.path.join(self.cache_dir, f"{citation.replace(' ', '_')}.json")
+            if os.path.exists(cache_file):
+                with open(cache_file, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.warning(f"File cache read error: {e}")
+        return None
+
+    def _set_file_cache(self, citation: str, data: Dict[str, Any]) -> bool:
+        """Set citation in file cache."""
+        try:
+            cache_file = os.path.join(self.cache_dir, f"{citation.replace(' ', '_')}.json")
+            with open(cache_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception as e:
+            logger.warning(f"File cache write error: {e}")
+            return False
+
+    def _get_database_cache(self, citation: str) -> Optional[Dict[str, Any]]:
+        """Get citation from database cache."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT verification_result FROM citations WHERE citation_text = ?',
+                (citation,)
+            )
+            result = cursor.fetchone()
+            conn.close()
+            
+            if result and result[0]:
+                return json.loads(result[0])
+        except Exception as e:
+            logger.warning(f"Database cache read error: {e}")
+        return None
+
+    def _set_database_cache(self, citation: str, data: Dict[str, Any]) -> bool:
+        """Set citation in database cache."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT OR REPLACE INTO citations 
+                (citation_text, verification_result, updated_at) 
+                VALUES (?, ?, ?)
+            ''', (citation, json.dumps(data), datetime.now().isoformat()))
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            logger.warning(f"Database cache write error: {e}")
+            return False
+
     def get_url_content(self, url: str) -> Optional[str]:
         """Get URL content from cache."""
         if not self.redis_client:
@@ -473,23 +597,27 @@ class UnifiedCacheManager:
             logger.error(f"Cache warming failed: {e}")
             return 0
     
-    def clear_cache(self, cache_type: str = None):
-        """Clear cache (Redis only, SQLite is persistent)."""
-        if not self.redis_client:
-            return
+    def clear_cache(self, cache_type: str = "all"):
+        """Clear specified cache type."""
+        if cache_type in ["all", "memory"]:
+            self.memory_cache.clear()
+            logger.info("Memory cache cleared")
         
-        try:
-            if cache_type:
-                pattern = f"casestrainer:{cache_type}:*"
-            else:
-                pattern = "casestrainer:*"
-            
-            keys = self.redis_client.keys(pattern)
-            if keys:
-                self.redis_client.delete(*keys)
-                logger.info(f"Cleared {len(keys)} keys from Redis cache")
-        except Exception as e:
-            logger.error(f"Cache clear failed: {e}")
+        if cache_type in ["all", "redis"] and self.redis_client:
+            try:
+                self.redis_client.flushdb()
+                logger.info("Redis cache cleared")
+            except Exception as e:
+                logger.warning(f"Failed to clear Redis cache: {e}")
+        
+        if cache_type in ["all", "file"]:
+            try:
+                for file in os.listdir(self.cache_dir):
+                    if file.endswith('.json'):
+                        os.remove(os.path.join(self.cache_dir, file))
+                logger.info("File cache cleared")
+            except Exception as e:
+                logger.warning(f"Failed to clear file cache: {e}")
 
 # Global cache manager instance
 _cache_manager = None

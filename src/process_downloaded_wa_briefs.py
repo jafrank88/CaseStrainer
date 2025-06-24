@@ -14,8 +14,6 @@ import time
 import random
 import requests
 
-import PyPDF2
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -106,23 +104,37 @@ def save_processed_briefs(processed_briefs):
 
 
 def extract_text_from_pdf(pdf_path):
-    """Extract text from a PDF file."""
+    """Extract text from a PDF file using pdfminer.six, with PyPDF2 as fallback."""
     logger.info(f"Extracting text from {pdf_path}")
-
     try:
-        # Extract text from the PDF
-        text = ""
-        with open(pdf_path, "rb") as f:
-            pdf_reader = PyPDF2.PdfReader(f)
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text() + "\n"
-
-        logger.info(f"Extracted {len(text)} characters of text from {pdf_path}")
-        return text
-
+        from pdfminer.high_level import extract_text as pdfminer_extract_text
+        text = pdfminer_extract_text(pdf_path)
+        if text and text.strip():
+            logger.info("pdfminer.six succeeded.")
+            logger.info(f"Extracted {len(text)} characters of text from {pdf_path}")
+            return text
+        else:
+            logger.warning("pdfminer.six extracted no text, trying PyPDF2...")
     except Exception as e:
-        logger.error(f"Error extracting text from {pdf_path}: {e}")
+        logger.error(f"pdfminer.six failed: {e}")
+    try:
+        import PyPDF2
+        with open(pdf_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            text = ""
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+        if text and text.strip():
+            logger.info("PyPDF2 succeeded.")
+            logger.info(f"Extracted {len(text)} characters of text from {pdf_path}")
+            return text
+        else:
+            logger.warning("PyPDF2 also extracted no text.")
+            return ""
+    except Exception as e:
+        logger.error(f"PyPDF2 failed: {e}")
         return ""
 
 

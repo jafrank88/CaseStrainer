@@ -591,6 +591,133 @@ class CitationProcessor:
             final_results = sorted(results, key=lambda x: citations.index(x['citation']))
             return final_results
 
+    def extract_citations_streaming(self, text: str, chunk_size: int = 100000, extract_case_names: bool = True) -> List[Dict[str, Any]]:
+        """
+        Extract citations from large text using streaming approach to manage memory.
+        
+        Args:
+            text: The text to extract citations from
+            chunk_size: Size of text chunks to process (default: 100KB)
+            extract_case_names: Whether to extract case names
+            
+        Returns:
+            List of citation dictionaries
+        """
+        if not text:
+            return []
+        
+        self.logger.info(f"Processing text of {len(text)} characters in streaming mode")
+        
+        # For small texts, use regular extraction
+        if len(text) <= chunk_size:
+            return self.extract_citations(text, extract_case_names)
+        
+        # For very large texts, use chunked processing
+        citations = []
+        seen_citations = set()  # Track unique citations to avoid duplicates
+        chunk_overlap = 5000  # Overlap between chunks to catch citations that span boundaries
+        
+        # Process text in chunks with overlap
+        for i in range(0, len(text), chunk_size - chunk_overlap):
+            chunk = text[i:i + chunk_size]
+            
+            # Skip empty chunks
+            if not chunk.strip():
+                continue
+                
+            # Extract citations from this chunk
+            chunk_citations = self.extract_citations(chunk, extract_case_names)
+            
+            # Filter out duplicates and add to results
+            for citation in chunk_citations:
+                citation_text = citation.get('citation', '')
+                if citation_text and citation_text not in seen_citations:
+                    seen_citations.add(citation_text)
+                    citations.append(citation)
+            
+            # Memory management: clear chunk data
+            del chunk
+            del chunk_citations
+            
+            # Early termination: if we've found a reasonable number of citations, stop
+            if len(citations) > 1000:  # Arbitrary limit to prevent excessive processing
+                self.logger.info(f"Early termination: found {len(citations)} citations")
+                break
+        
+        self.logger.info(f"Streaming extraction complete: found {len(citations)} unique citations")
+        return citations
+
+    def process_large_document(self, file_path: str, extract_case_names: bool = True) -> Dict[str, Any]:
+        """
+        Process a large document file efficiently using streaming and memory management.
+        
+        Args:
+            file_path: Path to the document file
+            extract_case_names: Whether to extract case names
+            
+        Returns:
+            Dictionary with processing results and metadata
+        """
+        import os
+        import gc
+        
+        start_time = time.time()
+        file_size = os.path.getsize(file_path)
+        
+        self.logger.info(f"Processing large document: {file_path} ({file_size} bytes)")
+        
+        try:
+            # Read file in chunks to manage memory
+            chunk_size = 1024 * 1024  # 1MB chunks
+            text_chunks = []
+            
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    text_chunks.append(chunk)
+                    
+                    # Memory management: limit number of chunks in memory
+                    if len(text_chunks) > 10:  # Keep max 10MB in memory
+                        # Process accumulated chunks
+                        combined_text = ''.join(text_chunks)
+                        citations = self.extract_citations_streaming(combined_text, extract_case_names=extract_case_names)
+                        
+                        # Clear processed chunks
+                        text_chunks = [combined_text[-5000:]]  # Keep last 5KB for overlap
+                        
+                        # Force garbage collection
+                        gc.collect()
+            
+            # Process any remaining chunks
+            if text_chunks:
+                final_text = ''.join(text_chunks)
+                final_citations = self.extract_citations_streaming(final_text, extract_case_names=extract_case_names)
+            else:
+                final_citations = []
+            
+            processing_time = time.time() - start_time
+            
+            return {
+                'status': 'success',
+                'file_path': file_path,
+                'file_size': file_size,
+                'processing_time': processing_time,
+                'citations_found': len(final_citations),
+                'citations': final_citations,
+                'memory_usage': 'optimized'
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error processing large document {file_path}: {e}")
+            return {
+                'status': 'error',
+                'file_path': file_path,
+                'error': str(e),
+                'processing_time': time.time() - start_time
+            }
+
     def close(self):
         """Clean up resources."""
         self.session.close()

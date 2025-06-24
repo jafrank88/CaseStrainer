@@ -922,19 +922,21 @@ def extract_citations_from_text(text, logger=logger):
         for match in matches:
             found.add(match.strip())
     
-    # Post-processing: For each Wn. citation, add Wash. variant
+    # Post-processing: For each Wn. or Wash. citation, add Wash. 2d/3d variant
     wn_to_wash = []
     for citation in found:
-        # Wn.2d -> Wash. 2d
-        if re.search(r'\bWn\.2d\b', citation):
-            wn_to_wash.append(re.sub(r'\bWn\.2d\b', 'Wash. 2d', citation))
-        # Wn. App. -> Wash. App.
-        if re.search(r'\bWn\.App\.\b', citation):
-            wn_to_wash.append(re.sub(r'\bWn\.App\.\b', 'Wash. App.', citation))
-        # Wn. -> Wash.
-        if re.search(r'\bWn\.\b', citation):
-            wn_to_wash.append(re.sub(r'\bWn\.\b', 'Wash.', citation))
-
+        # Wn.2d or Wn. 2d -> Wash. 2d
+        if re.search(r'\bWn\.?\s*2d\b', citation):
+            wn_to_wash.append(re.sub(r'\bWn\.?\s*2d\b', 'Wash. 2d', citation))
+        # Wn.3d or Wn. 3d -> Wash. 3d
+        if re.search(r'\bWn\.?\s*3d\b', citation):
+            wn_to_wash.append(re.sub(r'\bWn\.?\s*3d\b', 'Wash. 3d', citation))
+        # Wash.2d or Wash.2d -> Wash. 2d
+        if re.search(r'\bWash\.2d\b', citation):
+            wn_to_wash.append(re.sub(r'\bWash\.2d\b', 'Wash. 2d', citation))
+        # Wash.3d or Wash. 3d -> Wash. 3d
+        if re.search(r'\bWash\.3d\b', citation):
+            wn_to_wash.append(re.sub(r'\bWash\.3d\b', 'Wash. 3d', citation))
     # Add new variants if not already present
     for variant in wn_to_wash:
         if variant not in found:

@@ -20,6 +20,8 @@ from src.citation_format_utils import apply_washington_spacing_rules
 from urllib.parse import quote
 from bs4 import BeautifulSoup
 import redis
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -33,33 +35,29 @@ class EnhancedMultiSourceVerifier:
 
     def __init__(self):
         """Initialize the enhanced multi-source verifier."""
-        self.cache = None
+        self.logger = logging.getLogger(__name__)
         self.config = self._load_config()
-        
-        # Initialize cache if Redis is available
-        try:
-            redis_host = self.config.get("redis_host", "localhost")
-            redis_port = self.config.get("redis_port", 6379)
-            redis_db = self.config.get("redis_db", 0)
-            self.cache = redis.Redis(
-                host=redis_host, port=redis_port, db=redis_db, decode_responses=True
-            )
-            # Test the connection
-            self.cache.ping()
-            logger.info("Redis cache initialized successfully")
-        except Exception as e:
-            logger.warning(f"Redis cache not available: {e}")
-            self.cache = None
-
-        # Load API keys and configuration
-        self.courtlistener_api_key = self.config.get("courtlistener_api_key")
-        self.langsearch_api_key = self.config.get("langsearch_api_key")
-        
-        # Database configuration
         self.db_path = self.config.get("database_path", "data/citations.db")
+        self.courtlistener_api_key = self.config.get("courtlistener_api_key")
+        self.cache_manager = get_cache_manager()
         
-        # Initialize database connection
+        # Initialize database connection pool
         self._init_database()
+        
+        # Initialize connection pool for HTTP requests
+        self.session = self._create_session()
+        
+        # Request cache for API calls
+        self.request_cache = {}
+        self.cache_ttl = 3600  # 1 hour cache
+        
+        # Performance tracking
+        self.stats = {
+            'api_calls': 0,
+            'cache_hits': 0,
+            'cache_misses': 0,
+            'total_time': 0
+        }
 
     def _load_config(self):
         """Load configuration from config.json."""
@@ -1485,17 +1483,7 @@ class EnhancedMultiSourceVerifier:
         """
         Verify a citation using external APIs and cache only.
         Database is used only for archiving results, not for verification.
-
-        Args:
-            citation (str): The citation to verify
-            extracted_case_name (str, optional): The case name extracted from the document
-            use_cache (bool): Whether to check the cache first
-            use_database (bool): Whether to save results to database (archiving only)
-            use_api (bool): Whether to use external APIs
-            force_refresh (bool): If True, bypass cache and force a fresh verification
-
-        Returns:
-            dict: Verification result with source and confidence
+        Triggers fallback sources (Google Scholar, Justia, Leagle, web search) if CourtListener is incomplete/unverified.
         """
         if not citation or not isinstance(citation, str):
             return {
@@ -1507,16 +1495,12 @@ class EnhancedMultiSourceVerifier:
             }
 
         try:
-            # Clean and normalize the citation
             citation = citation.strip()
             if not citation:
                 raise ValueError("Citation is empty after stripping whitespace")
-
             normalized = self._normalize_citation(citation)
             if not normalized:
                 raise ValueError("Failed to normalize citation")
-
-            # Track verification steps for debugging and transparency
             verification_steps = []
             cache_key = f"citation:{normalized}" if self.cache else None
 
@@ -1526,7 +1510,6 @@ class EnhancedMultiSourceVerifier:
                     cached = self.cache.get(cache_key)
                     if cached is not None:
                         verification_steps.append({"step": "cache", "status": "hit"})
-                        # Ensure cached result has all required fields
                         if not isinstance(cached, dict):
                             raise ValueError("Cached result is not a dictionary")
                         return {
@@ -1538,11 +1521,9 @@ class EnhancedMultiSourceVerifier:
                     verification_steps.append({"step": "cache", "status": "miss"})
                 except Exception as e:
                     logger.warning(f"Cache lookup failed: {str(e)}")
-                    verification_steps.append(
-                        {"step": "cache", "status": "error", "error": str(e)}
-                    )
+                    verification_steps.append({"step": "cache", "status": "error", "error": str(e)})
 
-            # 2. Try external API if enabled (skip database verification)
+            # 2. Try CourtListener API if enabled
             api_result = None
             if use_api:
                 try:
@@ -1552,12 +1533,8 @@ class EnhancedMultiSourceVerifier:
                     case_name_similarity = None
                     case_name_mismatch = False
                     note = None
-
-                    # Always include the URL if found
                     if found_url:
                         api_result["url"] = found_url
-
-                    # If we have both an extracted and a found case name, compare them
                     if extracted_case_name and verified_case_name:
                         case_name_similarity = self._calculate_case_name_similarity(
                             extracted_case_name, verified_case_name
@@ -1570,39 +1547,57 @@ class EnhancedMultiSourceVerifier:
                         else:
                             api_result["verified"] = True
                     elif verified_case_name:
-                        # No extracted name, but we have a source name
                         api_result["verified"] = True
                     elif found_url:
-                        # No case name, but a dedicated case page was found
                         api_result["verified"] = True
                     else:
                         api_result["verified"] = False
-
                     api_result["case_name_similarity"] = case_name_similarity
                     api_result["case_name_mismatch"] = case_name_mismatch
                     api_result["extracted_case_name"] = extracted_case_name
                     if note:
                         api_result["note"] = note
+                    verification_steps.append({"step": "courtlistener", "status": "success" if api_result["verified"] else "incomplete", "result": api_result})
 
+                    # Fallback: If not verified, case name is missing/unknown, or similarity is too low, try other sources
+                    fallback_needed = (
+                        not api_result.get("verified")
+                        or not verified_case_name
+                        or verified_case_name.strip().lower() == "unknown case"
+                        or (case_name_similarity is not None and case_name_similarity < 0.7)
+                    )
+                    if fallback_needed:
+                        # Try Google Scholar
+                        scholar_result = self._try_google_scholar(normalized)
+                        verification_steps.append({"step": "google_scholar", "status": "success" if scholar_result.get("verified") else "fail", "result": scholar_result})
+                        if scholar_result.get("verified"):
+                            api_result = scholar_result
+                        else:
+                            # Try Justia
+                            justia_result = self._try_justia(normalized)
+                            verification_steps.append({"step": "justia", "status": "success" if justia_result.get("verified") else "fail", "result": justia_result})
+                            if justia_result.get("verified"):
+                                api_result = justia_result
+                            else:
+                                # Try Leagle
+                                leagle_result = self._try_leagle(normalized)
+                                verification_steps.append({"step": "leagle", "status": "success" if leagle_result.get("verified") else "fail", "result": leagle_result})
+                                if leagle_result.get("verified"):
+                                    api_result = leagle_result
+                                else:
+                                    # Try web search
+                                    web_result = self._verify_with_web_search(normalized)
+                                    verification_steps.append({"step": "web_search", "status": "success" if web_result.get("verified") else "fail", "result": web_result})
+                                    if web_result.get("verified"):
+                                        api_result = web_result
                     # Save to database for archiving (not verification)
                     if use_database:
                         try:
                             self._save_to_database(normalized, api_result)
-                            verification_steps.append(
-                                {"step": "database_archive", "status": "success"}
-                            )
+                            verification_steps.append({"step": "database_archive", "status": "success"})
                         except Exception as e:
-                            logger.error(
-                                f"Failed to save to database: {str(e)}",
-                                exc_info=True,
-                            )
-                            verification_steps.append(
-                                {
-                                    "step": "database_archive",
-                                    "status": "error",
-                                    "error": str(e),
-                                }
-                            )
+                            logger.error(f"Failed to save to database: {str(e)}", exc_info=True)
+                            verification_steps.append({"step": "database_archive", "status": "error", "error": str(e)})
                     # Update cache with API result
                     result_to_cache = {
                         **api_result,
@@ -1610,15 +1605,11 @@ class EnhancedMultiSourceVerifier:
                         "cached": False,
                     }
                     if self.cache:
-                        self.cache.set(
-                            cache_key, json.dumps(result_to_cache), ex=86400
-                        )  # 24 hours
+                        self.cache.set(cache_key, json.dumps(result_to_cache), ex=86400)
                     return result_to_cache
                 except Exception as e:
                     logger.error(f"API verification failed: {str(e)}", exc_info=True)
-                    verification_steps.append(
-                        {"step": "api", "status": "error", "error": str(e)}
-                    )
+                    verification_steps.append({"step": "api", "status": "error", "error": str(e)})
 
             # 3. If we get here, no verification method succeeded
             result = {
@@ -1630,22 +1621,15 @@ class EnhancedMultiSourceVerifier:
                 "verification_steps": verification_steps,
                 "timestamp": datetime.datetime.utcnow().isoformat(),
             }
-
-            # Cache negative result to avoid repeated lookups (shorter TTL for negative results)
             if self.cache:
                 try:
-                    self.cache.set(
-                        cache_key, json.dumps({**result, "cached": False}), ex=3600
-                    )  # 1 hour for negative results
+                    self.cache.set(cache_key, json.dumps({**result, "cached": False}), ex=3600)
                 except Exception as e:
                     logger.warning(f"Failed to cache negative result: {str(e)}")
-
             return result
 
         except Exception as e:
-            logger.error(
-                f"Error in verify_citation for '{citation}': {str(e)}", exc_info=True
-            )
+            logger.error(f"Error in verify_citation for '{citation}': {str(e)}", exc_info=True)
             return {
                 "verified": False,
                 "source": "None",
@@ -1656,7 +1640,7 @@ class EnhancedMultiSourceVerifier:
 
     def _check_database(self, citation):
         """
-        Check if the citation exists in the database using multiple matching strategies.
+        Check if the citation exists in the database using optimized multi-strategy lookup.
 
         Args:
             citation (str): The citation to look up
@@ -1676,199 +1660,71 @@ class EnhancedMultiSourceVerifier:
         try:
             # Clean and normalize the citation
             normalized_citation = self._normalize_citation(citation)
+            components = self._extract_citation_components(normalized_citation)
 
             conn = sqlite3.connect(self.db_path)
             conn.row_factory = sqlite3.Row  # Enable column access by name
             cursor = conn.cursor()
 
-            # Strategy 1: Exact match with original citation
-            cursor.execute(
-                """
+            # Optimized single query with multiple strategies
+            query = """
                 SELECT * FROM citations 
                 WHERE citation_text = ? 
+                   OR citation_text = ?
+                   OR (citation_text LIKE ? AND citation_text LIKE ? AND citation_text LIKE ?)
+                ORDER BY 
+                    CASE 
+                        WHEN citation_text = ? THEN 1
+                        WHEN citation_text = ? THEN 2
+                        ELSE 3
+                    END
                 LIMIT 1
-            """,
-                (citation,),
+            """
+            
+            # Prepare parameters for the optimized query
+            volume_like = f"%{components.get('volume', '')}%" if components.get('volume') else "%"
+            reporter_like = f"%{components.get('reporter', '')}%" if components.get('reporter') else "%"
+            page_like = f"%{components.get('page', '')}%" if components.get('page') else "%"
+            
+            params = (
+                citation,  # Exact match original
+                normalized_citation,  # Exact match normalized
+                volume_like, reporter_like, page_like,  # Component match
+                citation,  # For ordering
+                normalized_citation  # For ordering
             )
 
+            cursor.execute(query, params)
             match = cursor.fetchone()
+
             if match:
-                result = self._format_database_match(match, "exact", citation)
+                # Determine match type based on the result
+                if match['citation_text'] == citation:
+                    match_type = "exact"
+                elif match['citation_text'] == normalized_citation:
+                    match_type = "normalized"
+                else:
+                    match_type = "components"
+                
+                result = self._format_database_match(match, match_type, citation)
                 if result.get("verified", False):
                     return result
 
-            # Strategy 2: Try normalized citation if different
-            if normalized_citation != citation:
-                cursor.execute(
-                    """
-                    SELECT * FROM citations 
-                    WHERE citation_text = ? 
-                    LIMIT 1
-                """,
-                    (normalized_citation,),
-                )
-
-                match = cursor.fetchone()
-                if match:
-                    result = self._format_database_match(
-                        match,
-                        "normalized",
-                        citation,
-                        "citation_text",
-                        normalized_citation,
-                    )
-                    if result.get("verified", False):
-                        return result
-
-            # Strategy 3: Extract components and search by volume/reporter/page
-            components = self._extract_citation_components(normalized_citation)
-            if all(k in components for k in ["volume", "reporter", "page"]):
-                cursor.execute(
-                    """
-                    SELECT * FROM citations 
-                    WHERE citation_text LIKE ? 
-                    AND citation_text LIKE ?
-                    AND citation_text LIKE ?
-                    LIMIT 1
-                """,
-                    (
-                        f"%{components['volume']}%",
-                        f"%{components['reporter']}%",
-                        f"%{components['page']}%",
-                    ),
-                )
-
-                match = cursor.fetchone()
-                if match:
-                    return self._format_database_match(
-                        match,
-                        "components",
-                        citation,
-                        "volume/reporter/page",
-                        f"{components['volume']} {components['reporter']} {components['page']}",
-                    )
-
-            # Strategy 4: Try case-insensitive search as last resort
-            cursor.execute(
-                """
-                SELECT * FROM citations 
-                WHERE LOWER(citation_text) = LOWER(?) 
-                LIMIT 1
-            """,
-                (citation,),
-            )
-
-            match = cursor.fetchone()
-            if match:
-                return self._format_database_match(match, "case_insensitive", citation)
-
-            # If we get here, no match was found
-            logger.debug(f"No database match found for citation: {citation}")
             return {
                 "verified": False,
                 "source": "Database",
                 "error": "Citation not found in database",
                 "citation": citation,
-                "components": components,
             }
 
-            # Strategy 1: Exact match with original citation
-            cursor.execute(
-                f"SELECT * FROM citations WHERE {citation_col} = ? LIMIT 1", (citation,)
-            )
-            exact_match = cursor.fetchone()
-            if exact_match:
-                return self._format_database_match(
-                    exact_match, columns, "exact", citation
-                )
-
-            # Strategy 2: Normalized citation match
-            normalized = self._normalize_citation(citation)
-            if normalized != citation:
-                cursor.execute(
-                    f"SELECT * FROM citations WHERE {citation_col} = ? LIMIT 1",
-                    (normalized,),
-                )
-                normalized_match = cursor.fetchone()
-                if normalized_match:
-                    return self._format_database_match(
-                        normalized_match,
-                        columns,
-                        "normalized",
-                        citation,
-                        citation_col,
-                        normalized,
-                    )
-
-            # Strategy 3: Extract components and search by volume/reporter/page
-            components = self._extract_citation_components(citation)
-            if all(k in components for k in ["volume", "reporter", "page"]):
-                query = f"""
-                    SELECT * FROM citations 
-                    WHERE {citation_col} LIKE ? 
-                    AND {citation_col} LIKE ?
-                    AND {citation_col} LIKE ?
-                    LIMIT 1
-                """
-                cursor.execute(
-                    query,
-                    (
-                        f"%{components['volume']}%",
-                        f"%{components['reporter']}%",
-                        f"%{components['page']}%",
-                    ),
-                )
-                component_match = cursor.fetchone()
-                if component_match:
-                    return self._format_database_match(
-                        component_match, columns, "components", citation
-                    )
-
-            # Strategy 4: Fuzzy match with LIKE and wildcards
-            search_terms = [citation, normalized]
-            if components.get("reporter"):
-                search_terms.append(
-                    f"{components.get('volume', '')} {components['reporter']} {components.get('page', '')}"
-                )
-
-            for term in set(search_terms):
-                if not term:
-                    continue
-
-                cursor.execute(
-                    f"""
-                    SELECT * FROM citations 
-                    WHERE {citation_col} LIKE ? 
-                    LIMIT 1
-                """,
-                    (f"%{term}%",),
-                )
-
-                fuzzy_match = cursor.fetchone()
-                if fuzzy_match:
-                    return self._format_database_match(
-                        fuzzy_match, columns, "fuzzy", citation, citation_col, term
-                    )
-
-            # If we get here, no match was found
-            logger.info(f"No database match found for citation: {citation}")
-            return {
-                "verified": False,
-                "source": "Database",
-                "error": "Citation not found in database",
-                "citation": citation,
-                "components": components,
-            }
-
-        except sqlite3.Error as e:
-            logger.error(f"Database error when checking citation '{citation}': {e}")
+        except Exception as e:
+            logger.error(f"Database lookup error for citation '{citation}': {e}")
             return {
                 "verified": False,
                 "source": "Database",
                 "error": f"Database error: {str(e)}",
                 "citation": citation,
             }
-
         finally:
             if conn:
                 conn.close()
@@ -2185,23 +2041,25 @@ class EnhancedMultiSourceVerifier:
 
     def _verify_with_api(self, citation):
         """
-        Verify a citation using multiple external APIs and sources.
+        Verify a citation using multiple external APIs and sources in parallel.
         Returns a standardized result dictionary, including up to two verifying sources and their case names.
         Always includes a URL if a citation is found, even if case name similarity is low.
         """
+        # Prioritize sources by reliability and speed
         sources = [
-            ("CourtListener", self._try_courtlistener),
-            ("Justia", self._try_justia),
-            ("Google Scholar", self._try_google_scholar),
-            ("Leagle", self._try_leagle),
-            ("FindLaw", self._try_findlaw),
-            ("CaseText", self._try_casetext),
-            ("OpenLegal", self._try_openlegal),
-            ("Supreme Court", self._try_supreme_court),
-            ("Federal Courts", self._try_federal_courts),
-            ("State Courts", self._try_state_courts),
-            ("OpenJurist", self._try_openjurist),
+            ("CourtListener", self._try_courtlistener),  # Most reliable, fastest
+            ("Google Scholar", self._try_google_scholar),  # Good coverage
+            ("Justia", self._try_justia),  # Reliable
+            ("Leagle", self._try_leagle),  # Good for state cases
+            ("FindLaw", self._try_findlaw),  # Backup
+            ("CaseText", self._try_casetext),  # Backup
+            ("OpenLegal", self._try_openlegal),  # Backup
+            ("Supreme Court", self._try_supreme_court),  # Specialized
+            ("Federal Courts", self._try_federal_courts),  # Specialized
+            ("State Courts", self._try_state_courts),  # Specialized
+            ("OpenJurist", self._try_openjurist),  # Backup
         ]
+        
         results = []
         verifying_sources = []
         case_names = []
@@ -2211,10 +2069,22 @@ class EnhancedMultiSourceVerifier:
         found_source = None
         courtlistener_verified = False
         
-        # Run all sources in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future_to_source = {executor.submit(method, citation): (name, method) for name, method in sources}
-            for future in concurrent.futures.as_completed(future_to_source):
+        # Run all sources in parallel with timeout
+        import concurrent.futures
+        import time
+        
+        start_time = time.time()
+        timeout = 15  # 15 second timeout for all API calls
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+            # Submit all tasks
+            future_to_source = {
+                executor.submit(self._call_api_with_timeout, method, citation, 8): (name, method) 
+                for name, method in sources
+            }
+            
+            # Process results as they complete
+            for future in concurrent.futures.as_completed(future_to_source, timeout=timeout):
                 name, method = future_to_source[future]
                 try:
                     result = future.result()
@@ -2234,15 +2104,25 @@ class EnhancedMultiSourceVerifier:
                                 urls.append(url)
                         else:
                             case_names.append("")
-                        # Stop if we have two verifying sources
-                        if len(verifying_sources) == 2:
+                        
+                        # Early termination: if we have CourtListener + one other source, we're done
+                        if courtlistener_verified and len(verifying_sources) >= 2:
                             break
+                        # Or if we have 3 sources total
+                        elif len(verifying_sources) >= 3:
+                            break
+                    
                     # Always record the first found URL, even if not verified
                     if not found_url and result.get("url"):
                         found_url = result.get("url")
                         found_case_name = result.get("case_name", "")
                         found_source = name
+                        
+                except concurrent.futures.TimeoutError:
+                    logger.warning(f"API call to {name} timed out")
+                    results.append((name, {"verified": False, "error": "timeout"}))
                 except Exception as e:
+                    logger.warning(f"API call to {name} failed: {e}")
                     results.append((name, {"verified": False, "error": str(e)}))
         
         # Fallback logic for case name
@@ -2292,6 +2172,20 @@ class EnhancedMultiSourceVerifier:
             "courtlistener_verified": courtlistener_verified,
             "found_source": found_source,
         }
+
+    def _call_api_with_timeout(self, method, citation, timeout):
+        """Call an API method with a timeout."""
+        import concurrent.futures
+        import time
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(method, citation)
+            try:
+                return future.result(timeout=timeout)
+            except concurrent.futures.TimeoutError:
+                return {"verified": False, "error": "timeout"}
+            except Exception as e:
+                return {"verified": False, "error": str(e)}
 
     def _try_courtlistener(self, citation):
         """Try to verify citation using CourtListener API."""
@@ -3252,6 +3146,39 @@ class EnhancedMultiSourceVerifier:
         except Exception as e:
             logger.error(f"Cache lookup error: {e}")
             return None
+
+    def _create_session(self):
+        """Create a requests session with connection pooling and retry logic."""
+        import requests
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        
+        session = requests.Session()
+        
+        # Configure retry strategy
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.5,
+            status_forcelist=[500, 502, 503, 504, 522, 524],
+            allowed_methods=["GET", "POST"],
+            respect_retry_after_header=True,
+        )
+        
+        # Configure connection pooling
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=20,  # Increased pool size
+            pool_maxsize=50,      # Increased max connections
+            pool_block=False      # Don't block when pool is full
+        )
+        
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        # Set default timeout
+        session.timeout = 10
+        
+        return session
 
 # Standalone function for backward compatibility
 def verify_citation(citation, extracted_case_name=None, use_cache=True, use_database=False, use_api=True, force_refresh=False):
