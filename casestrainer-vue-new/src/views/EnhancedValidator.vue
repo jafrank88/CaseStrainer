@@ -25,6 +25,7 @@
           <TextPaste v-if="activeTab === 'single' || activeTab === 'text'"
             :isAnalyzing="isLoading"
             :initialText="activeTab === 'single' ? citationInput : ''"
+            :mode="activeTab === 'single' ? 'single' : 'multi'"
             @analyze="handleTextAnalyze"
           />
           <FileUpload v-if="activeTab === 'document'"
@@ -58,78 +59,35 @@
           <div v-if="error" class="alert alert-danger mt-4">{{ error }}</div>
         </div>
 
-        <!-- Results Section -->
-        <div v-if="activeTab === 'single'">
+        <!-- Unified Results Section -->
+        <div v-if="results && !showLoading" class="mt-4">
           <CitationResults
-            v-if="validationResult && validationResult.citations && validationResult.citations.length"
-            :results="validationResult"
+            :results="results"
             :active-tab="activeTab"
             @apply-correction="applyCorrection"
             @copy-results="copyResults"
             @download-results="downloadResults"
           />
-          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Analysis in progress... Please wait.
-          </div>
-          <div v-else class="alert alert-info mt-4">
-            No results to display. Please enter a citation and click Analyze.
-          </div>
         </div>
 
-        <!-- Document Upload Results -->
-        <div v-else-if="activeTab === 'document'">
-          <CitationResults
-            v-if="documentAnalysisResult && documentAnalysisResult.citations && documentAnalysisResult.citations.length"
-            :results="documentAnalysisResult"
-            :active-tab="activeTab"
-            @apply-correction="applyCorrection"
-            @copy-results="copyResults"
-            @download-results="downloadResults"
-          />
-          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Analysis in progress... Please wait.
+        <!-- Loading State -->
+        <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Analysis in progress... Please wait.
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="!results && !showLoading" class="alert alert-info mt-4">
+          <div v-if="activeTab === 'single'">
+            No results to display. Please enter a citation and click Validate Citation.
           </div>
-          <div v-else class="alert alert-info mt-4">
+          <div v-else-if="activeTab === 'document'">
             No results to display. Please upload a document and wait for analysis.
           </div>
-        </div>
-
-        <!-- Text Paste Results -->
-        <div v-else-if="activeTab === 'text'">
-          <CitationResults
-            v-if="textAnalysisResult && textAnalysisResult.citations && textAnalysisResult.citations.length"
-            :results="textAnalysisResult"
-            :active-tab="activeTab"
-            @apply-correction="applyCorrection"
-            @copy-results="copyResults"
-            @download-results="downloadResults"
-          />
-          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Analysis in progress... Please wait.
-          </div>
-          <div v-else class="alert alert-info mt-4">
+          <div v-else-if="activeTab === 'text'">
             No results to display. Please paste text and wait for analysis.
           </div>
-        </div>
-
-        <!-- URL Upload Results -->
-        <div v-else-if="activeTab === 'url'">
-          <CitationResults
-            v-if="urlAnalysisResult && urlAnalysisResult.citations && urlAnalysisResult.citations.length"
-            :results="urlAnalysisResult"
-            :active-tab="activeTab"
-            @apply-correction="applyCorrection"
-            @copy-results="copyResults"
-            @download-results="downloadResults"
-          />
-          <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Analysis in progress... Please wait.
-          </div>
-          <div v-else class="alert alert-info mt-4">
+          <div v-else-if="activeTab === 'url'">
             No results to display. Please enter a URL and wait for analysis.
           </div>
         </div>
@@ -1382,10 +1340,23 @@ export default {
       isLoading.value = true;
       error.value = null;
       results.value = null;
+      
       try {
         // Call backend API for text analysis
         const response = await citationsApi.validateCitation(text);
-        results.value = response.data;
+        
+        // Store results based on the mode
+        if (options.mode === 'single') {
+          // Single citation mode - store in validationResult for single citation tab
+          validationResult.value = response.data;
+          // Also store in general results for the main results display
+          results.value = response.data;
+        } else {
+          // Multi-text mode - store in textAnalysisResult for text tab
+          textAnalysisResult.value = response.data;
+          // Also store in general results for the main results display
+          results.value = response.data;
+        }
       } catch (err) {
         error.value = err.message || 'Failed to analyze text.';
       } finally {
