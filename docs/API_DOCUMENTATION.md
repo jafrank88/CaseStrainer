@@ -82,45 +82,69 @@ Analyzes a brief's text for citations and verifies them using the multi-source v
 
 ### 2. Citation Verification
 
-#### Verify Single Citation
+#### Unified Citation Analysis
 ```http
-POST /verify_citation
+POST /analyze
 ```
 
-Verifies a single citation using the multi-source verification system.
+Analyzes citations from various input types (text, file, URL, or single citation) using the unified processing pipeline with enhanced multi-source verification.
 
 **Request Body:**
 ```json
 {
-  "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-  "case_name": "Brown v. Board of Education"
+  "type": "text",
+  "text": "Brown v. Board of Education, 347 U.S. 483 (1954)"
+}
+```
+
+**For Single Citation (using text type):**
+```json
+{
+  "type": "text", 
+  "text": "181 Wash.2d 391, 333 P.3d 440"
 }
 ```
 
 **Response:**
 ```json
 {
-  "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-  "case_name": "Brown v. Board of Education",
-  "is_valid": true,
-  "confidence": 0.9,
-  "explanation": "Citation verified with multiple sources",
-  "source": "Multiple Sources",
-  "verification_details": {
-    "courtlistener": {
+  "status": "success",
+  "citations": [
+    {
+      "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
       "verified": true,
-      "url": "https://www.courtlistener.com/opinion/..."
-    },
-    "justia": {
-      "verified": true,
-      "url": "https://supreme.justia.com/cases/federal/us/347/483/"
-    },
-    "google_scholar": {
-      "verified": true
+      "case_name": "Brown v. Board of Education",
+      "case_name_extracted": "Brown v. Board of Education",
+      "canonical_case_name": "Brown v. Board of Education",
+      "confidence": 0.95,
+      "source": "Multiple Sources",
+      "sources": ["CourtListener", "Justia", "Google Scholar"],
+      "url": "https://www.courtlistener.com/opinion/...",
+      "verification_details": {
+        "courtlistener": {
+          "verified": true,
+          "url": "https://www.courtlistener.com/opinion/..."
+        },
+        "justia": {
+          "verified": true,
+          "url": "https://supreme.justia.com/cases/federal/us/347/483/"
+        },
+        "google_scholar": {
+          "verified": true
+        }
+      }
     }
+  ],
+  "metadata": {
+    "total_citations": 1,
+    "verified_count": 1,
+    "processing_time": 2.5,
+    "source_type": "text"
   }
 }
 ```
+
+**Note:** Single citations are processed through the same unified pipeline as multi-text analysis, ensuring consistent accuracy and performance optimizations.
 
 ### 3. Unconfirmed Citations
 

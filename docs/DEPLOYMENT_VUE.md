@@ -101,8 +101,8 @@ This script will:
 ### API Base Path
 
 All API endpoints are accessed under the `/api/` prefix. For example:
-- `https://wolf.law.uw.edu/casestrainer/api/verify_citation`
-- `http://localhost:5000/api/verify_citation`
+- `https://wolf.law.uw.edu/casestrainer/api/analyze`
+- `http://localhost:5000/api/analyze`
 
 **Troubleshooting:**
 If you encounter 404 or path errors, ensure your Nginx/proxy configuration is correctly handling the `/casestrainer` prefix and forwarding requests to the backend with the correct path.
@@ -233,14 +233,13 @@ If you encounter issues building the Vue.js frontend:
 
 The Vue.js frontend communicates with the backend through these API endpoints:
 
-- `/api/analyze` - Analyze briefs for citations
+- `/api/analyze` - Analyze briefs for citations (unified endpoint for text, file, URL, and single citation)
 - `/api/unconfirmed_citations_data` - Get unconfirmed citations
 - `/api/confirmed_with_multitool_data` - Get citations confirmed with multiple tools
 - `/api/citation_network_data` - Get citation network visualization data
 - `/api/train_ml_classifier` - Train the ML classifier
 - `/api/classify_citation` - Classify a citation using ML
 - `/api/test_citations` - Get test citations
-- `/api/verify_citation` - Verify a single citation
 
 ## Updating the Application
 
