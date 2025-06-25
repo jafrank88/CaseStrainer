@@ -13,6 +13,10 @@ import time
 from typing import List, Dict, Optional, Tuple
 from difflib import SequenceMatcher
 import logging
+from bs4 import BeautifulSoup
+from urllib.parse import quote_plus
+import nltk
+from nltk.tokenize import sent_tokenize
 
 class EnhancedCaseNameExtractor:
     def __init__(self, api_key: Optional[str] = None, cache_results: bool = True):
@@ -52,10 +56,6 @@ class EnhancedCaseNameExtractor:
         except ImportError:
             self.api_base_url = "https://www.courtlistener.com/api/rest/v4/"
         
-        # Google Scholar API configuration
-        self.serpapi_key = "c7dafc0c5d9a040b5fa2b9b1d70b26b4ac6858720005c54adc910c581e1da534"
-        self.serpapi_base_url = "https://serpapi.com/search.json"
-        
         # Citation patterns for extraction
         self.citation_patterns = [
             # Washington citations
@@ -76,87 +76,255 @@ class EnhancedCaseNameExtractor:
         self.citation_cache = {}
         self.base_url = "https://www.courtlistener.com/api/rest/v4"
         
-        # Headers for API requests
+        # Browser-like headers for web scraping
         self.headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "CaseStrainer Enhanced Extractor"
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
         }
     
     def get_canonical_case_name(self, citation: str) -> Optional[str]:
         """Get canonical case name from CourtListener API or Google Scholar as fallback.
-        
-        Args:
-            citation: The citation text to look up
-            
-        Returns:
-            Canonical case name if found, None otherwise
+        Tries all normalized and alternate forms for all U.S. state and regional reporters, including parallel citations if present.
         """
-        # First try CourtListener API
-        if self.api_key:
-            try:
-                # Check cache first
-                if self.cache_results and self.cache_manager:
-                    cached_result = self.cache_manager.get_citation(citation)
-                    if cached_result:
-                        return cached_result.get('canonical_name')
-                
-                # Make API request to CourtListener
-                url = f"{self.api_base_url}/citation-lookup/"
-                params = {"citation": citation}
-                headers = {
-                    "Authorization": f"Token {self.api_key}",
-                    "Content-Type": "application/json",
-                    "User-Agent": "CaseStrainer Enhanced Extractor"
-                }
-                
-                response = requests.get(url, params=params, headers=headers, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-                
-                # Extract canonical name from response
-                if data.get('results'):
-                    for result in data['results']:
-                        if result.get('case_name') and result['case_name'] != 'Unknown Case':
-                            canonical_name = result['case_name']
-                            
-                            # Cache the result
-                            if self.cache_results and self.cache_manager:
-                                cache_data = {
-                                    'canonical_name': canonical_name,
-                                    'source': 'courtlistener',
-                                    'citation': citation,
-                                    'timestamp': time.time()
-                                }
-                                self.cache_manager.set_citation(citation, cache_data)
-                            
-                            self.logger.info(f"Found canonical name in CourtListener: {canonical_name}")
-                            return canonical_name
-                
-                # If CourtListener didn't find it, try Google Scholar
-                self.logger.info(f"Citation not found in CourtListener, trying Google Scholar: {citation}")
-                google_scholar_name = self.get_canonical_case_name_from_google_scholar(citation)
-                if google_scholar_name:
-                    return google_scholar_name
-                
-                # Cache negative result
-                if self.cache_results and self.cache_manager:
-                    cache_data = {
-                        'canonical_name': None,
-                        'source': 'none',
-                        'citation': citation,
-                        'timestamp': time.time()
-                    }
-                    self.cache_manager.set_citation(citation, cache_data)
-                
-                return None
-                
-            except Exception as e:
-                self.logger.warning(f"Error with CourtListener API for '{citation}': {e}")
-                # Fall back to Google Scholar
-                return self.get_canonical_case_name_from_google_scholar(citation)
+        import re
+        tried_citations = set()
+        forms_to_try = [citation]
         
-        # If no CourtListener API key, try Google Scholar directly
+        # Add normalized forms for Washington
+        from src.citation_format_utils import normalize_washington_synonyms
+        from src.citation_patterns import normalize_washington_citation
+        norm1 = normalize_washington_synonyms(citation)
+        norm2 = normalize_washington_citation(citation)
+        for form in (norm1, norm2):
+            if form and form not in forms_to_try:
+                forms_to_try.append(form)
+        
+        # Enhanced Washington citation normalization
+        washington_variants = self._generate_washington_variants(citation)
+        forms_to_try.extend(washington_variants)
+        
+        # Add generic normalization for other states/reporters
+        generic_variants = set()
+        # Remove/replace common spaces and periods in reporter abbreviations
+        generic_variants.add(re.sub(r"\bApp\.\b", "App", citation))
+        generic_variants.add(re.sub(r"\bApp\b", "App.", citation))
+        generic_variants.add(re.sub(r"\bDiv\.\b", "Div", citation))
+        generic_variants.add(re.sub(r"\bDiv\b", "Div.", citation))
+        generic_variants.add(re.sub(r"\bCal\.\b", "Cal", citation))
+        generic_variants.add(re.sub(r"\bCal\b", "Cal.", citation))
+        generic_variants.add(re.sub(r"\bN\.Y\.\b", "NY", citation))
+        generic_variants.add(re.sub(r"\bNY\b", "N.Y.", citation))
+        generic_variants.add(re.sub(r"\bIll\.\b", "Ill", citation))
+        generic_variants.add(re.sub(r"\bIll\b", "Ill.", citation))
+        generic_variants.add(re.sub(r"\bTex\.\b", "Tex", citation))
+        generic_variants.add(re.sub(r"\bTex\b", "Tex.", citation))
+        generic_variants.add(re.sub(r"\bPa\.\b", "Pa", citation))
+        generic_variants.add(re.sub(r"\bPa\b", "Pa.", citation))
+        
+        # Add more comprehensive normalization patterns
+        # Handle common citation format variations
+        base_citation = re.sub(r'\s+', ' ', citation).strip()
+        
+        # Try different spacing patterns
+        spacing_variants = [
+            base_citation,
+            re.sub(r'(\d+)\s+([A-Z])', r'\1 \2', base_citation),  # Add space between number and letter
+            re.sub(r'([A-Z])\s+(\d+)', r'\1 \2', base_citation),  # Add space between letter and number
+            re.sub(r'(\d+)\s*([A-Z]{2,})\s*(\d+)', r'\1 \2 \3', base_citation),  # Standardize reporter spacing
+        ]
+        forms_to_try.extend(spacing_variants)
+        
+        # Try different reporter abbreviation formats
+        reporter_variants = []
+        # Washington specific
+        if 'Wn.' in citation or 'Wn' in citation:
+            reporter_variants.extend([
+                re.sub(r'Wn\.?\s*', 'Wash. ', citation),
+                re.sub(r'Wn\.?\s*', 'Washington ', citation),
+                re.sub(r'Wn\.?\s*', 'Wn. ', citation),
+            ])
+        # Federal specific
+        if 'F.' in citation or 'F.3d' in citation or 'F.2d' in citation:
+            reporter_variants.extend([
+                re.sub(r'F\.?\s*(\d+)d', r'F.\1d', citation),
+                re.sub(r'F\.?\s*(\d+)d', r'F \1d', citation),
+            ])
+        # Supreme Court specific
+        if 'U.S.' in citation or 'US' in citation:
+            reporter_variants.extend([
+                re.sub(r'U\.?\s*S\.?', 'U.S.', citation),
+                re.sub(r'U\.?\s*S\.?', 'US', citation),
+            ])
+        
+        forms_to_try.extend(reporter_variants)
+        
+        # Add parallel citation attempts
+        parallel_variants = self._generate_parallel_citations(citation)
+        forms_to_try.extend(parallel_variants)
+        
+        # Remove duplicates and empty strings
+        forms_to_try = [form for form in forms_to_try if form and form.strip()]
+        forms_to_try = list(dict.fromkeys(forms_to_try))  # Remove duplicates while preserving order
+        
+        # Try all forms in order
+        for form in forms_to_try:
+            if not form or form in tried_citations:
+                continue
+            tried_citations.add(form)
+            
+            # Check cache first
+            if self.cache_results and self.cache_manager:
+                cached_result = self.cache_manager.get_citation(form)
+                if cached_result and cached_result.get('canonical_name'):
+                    return cached_result.get('canonical_name')
+            
+            # Make API request to CourtListener
+            if self.api_key:
+                try:
+                    # Try citation-lookup endpoint first (most precise)
+                    url = f"{self.api_base_url}/citation-lookup/"
+                    params = {"citation": form}
+                    headers = {
+                        "Authorization": f"Token {self.api_key}",
+                        "Content-Type": "application/json",
+                        "User-Agent": "CaseStrainer Enhanced Extractor"
+                    }
+                    response = requests.get(url, params=params, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    # Parse citation-lookup response
+                    if data.get('results'):
+                        for result in data['results']:
+                            if result.get('case_name') and result['case_name'] != 'Unknown Case':
+                                canonical_name = result['case_name']
+                                # Cache the result
+                                if self.cache_results and self.cache_manager:
+                                    cache_data = {
+                                        'canonical_name': canonical_name,
+                                        'source': 'courtlistener_citation_lookup',
+                                        'citation': form,
+                                        'timestamp': time.time()
+                                    }
+                                    self.cache_manager.set_citation(form, cache_data)
+                                self.logger.info(f"[PATCH] Found canonical name in CourtListener citation-lookup for form '{form}': {canonical_name}")
+                                return canonical_name
+                    
+                    # If citation-lookup fails, try search endpoint as fallback
+                    self.logger.info(f"[PATCH] Citation-lookup failed for '{form}', trying search endpoint...")
+                    search_url = f"{self.api_base_url}/search/"
+                    search_params = {
+                        "q": form,
+                        "type": "o",  # opinions only
+                        "stat_Precedential": "on"
+                    }
+                    search_response = requests.get(search_url, params=search_params, headers=headers, timeout=10)
+                    search_response.raise_for_status()
+                    search_data = search_response.json()
+                    
+                    # Parse search response
+                    if search_data.get('results'):
+                        for result in search_data['results']:
+                            if result.get('caseName') and result['caseName'] != 'Unknown Case':
+                                canonical_name = result['caseName']
+                                # Cache the result
+                                if self.cache_results and self.cache_manager:
+                                    cache_data = {
+                                        'canonical_name': canonical_name,
+                                        'source': 'courtlistener_search',
+                                        'citation': form,
+                                        'timestamp': time.time()
+                                    }
+                                    self.cache_manager.set_citation(form, cache_data)
+                                self.logger.info(f"[PATCH] Found canonical name in CourtListener search for form '{form}': {canonical_name}")
+                                return canonical_name
+                                
+                except Exception as e:
+                    self.logger.warning(f"[PATCH] Error with CourtListener API for '{form}': {e}")
+        
+        # If all forms fail, try Google Scholar
         return self.get_canonical_case_name_from_google_scholar(citation)
+    
+    def _generate_washington_variants(self, citation: str) -> List[str]:
+        """Generate Washington-specific citation variants with proper normalization."""
+        variants = []
+        
+        # First, normalize Wn. to Wash. for better search results
+        normalized_citation = citation.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
+        
+        # Washington citation patterns with proper normalization
+        washington_patterns = [
+            # Standard Washington patterns (Wn. -> Wash.)
+            (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wash. \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Washington \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn \2 \3'),
+            
+            # Washington App patterns (Wn. App. -> Wash. App.)
+            (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wash. App. \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Washington App. \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. App. \2 \3'),
+            
+            # Washington 2d patterns (Wn. 2d -> Wash. 2d)
+            (r'(\d+)\s+Wn\.?\s*2d\s+(\d+[a-z]?)\s+(\d+)', r'\1 Wash. 2d \2 \3'),
+            (r'(\d+)\s+Wn\.?\s*2d\s+(\d+[a-z]?)\s+(\d+)', r'\1 Washington 2d \2 \3'),
+            
+            # Handle cases where Wn. is already in the citation
+            (r'(\d+)\s+Wash\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
+            (r'(\d+)\s+Washington\s+(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
+        ]
+        
+        # Apply patterns to both original and normalized citations
+        for original, replacement in washington_patterns:
+            # Apply to original citation
+            variant = re.sub(original, replacement, citation, flags=re.IGNORECASE)
+            if variant != citation:
+                variants.append(variant)
+            
+            # Apply to normalized citation (Wn. -> Wash.)
+            variant = re.sub(original, replacement, normalized_citation, flags=re.IGNORECASE)
+            if variant != normalized_citation and variant not in variants:
+                variants.append(variant)
+        
+        # Add the normalized citation itself
+        if normalized_citation != citation:
+            variants.append(normalized_citation)
+        
+        # Add specific Washington variants for better search
+        if 'Wn.' in citation or 'Wn ' in citation:
+            # Convert Wn. to Wash. for better API compatibility
+            wash_variant = citation.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
+            if wash_variant not in variants:
+                variants.append(wash_variant)
+            
+            # Also try Washington (full word)
+            wash_full_variant = citation.replace('Wn.', 'Washington ').replace('Wn ', 'Washington ')
+            if wash_full_variant not in variants:
+                variants.append(wash_full_variant)
+        
+        return variants
+    
+    def _generate_parallel_citations(self, citation: str) -> List[str]:
+        """Generate parallel citation attempts for common legal databases."""
+        variants = []
+        
+        # Common parallel citation patterns
+        # If it's a Washington citation, try federal equivalents
+        if 'Wn.' in citation or 'Wash.' in citation:
+            # Try to find federal parallel citations
+            # This would require a lookup table or API call
+            pass
+        
+        # If it's a federal citation, try state equivalents
+        if 'F.' in citation or 'U.S.' in citation:
+            # Try to find state parallel citations
+            pass
+        
+        return variants
     
     def extract_case_name_from_context(self, text: str, citation: str, context_window: int = 500) -> Optional[str]:
         """
@@ -220,6 +388,19 @@ class EnhancedCaseNameExtractor:
         # Remove common prefixes/suffixes
         cleaned = self._clean_case_name(case_name)
         
+        # Check for common invalid introductory phrases that might have been missed
+        invalid_intro_patterns = [
+            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
+            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
+            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
+            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
+            r'^(?:unknown\s+case|case\s+not\s+found|no\s+case\s+name)',
+        ]
+        
+        for pattern in invalid_intro_patterns:
+            if re.match(pattern, cleaned, re.IGNORECASE):
+                return False
+        
         # Check for common invalid patterns
         invalid_patterns = [
             r'^\d+$',  # Just numbers
@@ -244,6 +425,12 @@ class EnhancedCaseNameExtractor:
         Returns:
             Cleaned case name
         """
+        if not case_name:
+            return ""
+        
+        # Normalize whitespace first
+        case_name = re.sub(r'\s+', ' ', case_name).strip()
+        
         # Remove common prefixes
         prefixes_to_remove = [
             'See, e.g.,',
@@ -254,28 +441,66 @@ class EnhancedCaseNameExtractor:
             'accord',
             'cf.',
             'but see',
-            'contra',
         ]
         
-        cleaned = case_name.strip()
         for prefix in prefixes_to_remove:
-            if cleaned.lower().startswith(prefix.lower()):
-                cleaned = cleaned[len(prefix):].strip()
+            if case_name.lower().startswith(prefix.lower()):
+                case_name = case_name[len(prefix):].strip()
         
-        # Remove common suffixes
-        suffixes_to_remove = [
-            ', supra',
-            ', infra',
-            ';',
-            ',',
-            '.',
+        # Remove common introductory phrases (more comprehensive)
+        intro_patterns = [
+            r'^(?:the\s+)?(?:case\s+of\s+|supreme\s+court\s+in\s+|court\s+of\s+appeals\s+in\s+)',
+            r'^(?:the\s+)?(?:washington\s+supreme\s+court\s+in\s+|washington\s+court\s+of\s+appeals\s+in\s+)',
+            r'^(?:in\s+the\s+case\s+of\s+|in\s+the\s+matter\s+of\s+)',
+            r'^(?:the\s+)?(?:matter\s+of\s+|proceeding\s+of\s+)',
+            r'^(?:in\s+(?!re\b)|the\s+case\s+)',  # Don't remove 'in' if it's followed by 're'
+            r'^(?:and\s+the\s+court\s+of\s+appeals\s+in\s+)',
+            # Add patterns for common legal writing phrases
+            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
+            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
+            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
+            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
+        ]
+        for pattern in intro_patterns:
+            case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE)
+        
+        # Remove common artifacts that might appear at the end
+        case_name = re.sub(r'\s+(?:case|matter|proceeding|action|petition)\s*$', '', case_name, flags=re.IGNORECASE)
+        
+        # Remove trailing descriptive text
+        case_name = re.sub(r'\s+(?:was\s+decided|established|addressed|dealt\s+with).*$', '', case_name, flags=re.IGNORECASE)
+        
+        # Enhanced: Find and extract the actual case name pattern, removing any text before it
+        # This handles cases like "I respectfully concur. City of Seattle v. Wiggins"
+        case_name_patterns = [
+            r"([A-Z][A-Za-z'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z'\-\s,\.]+)",
+            r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
         ]
         
-        for suffix in suffixes_to_remove:
-            if cleaned.endswith(suffix):
-                cleaned = cleaned[:-len(suffix)].strip()
+        for pattern in case_name_patterns:
+            match = re.search(pattern, case_name, re.IGNORECASE)
+            if match:
+                case_name = match.group(1).strip()
+                break
         
-        return cleaned
+        # If the result is still too long, truncate to first 12 words
+        words = case_name.split()
+        if len(words) > 12:
+            case_name = ' '.join(words[:12])
+        
+        # Ensure proper capitalization for common legal terms
+        if case_name.lower().startswith('in re'):
+            case_name = re.sub(r'^in\s+re\b', 'In re', case_name, flags=re.IGNORECASE)
+        else:
+            case_name = re.sub(r'\b(Ex parte|Ex rel|Matter of|Estate of)\b', lambda m: m.group(1).title(), case_name, flags=re.IGNORECASE)
+        
+        # Final cleanup - remove trailing punctuation
+        case_name = re.sub(r'[\.,;]\s*$', '', case_name).strip()
+        
+        return case_name
     
     def calculate_similarity(self, name1: str, name2: str) -> float:
         """
@@ -326,6 +551,29 @@ class EnhancedCaseNameExtractor:
         # Sort by position in text
         all_citations.sort(key=lambda x: x['start'])
         
+        # Group citations by sentence or comma separation for parallel handling
+        nltk.download('punkt', quiet=True)
+        sentences = sent_tokenize(text)
+        # Map citation string to sentence index
+        citation_to_sentence = {}
+        for idx, sentence in enumerate(sentences):
+            for citation_info in all_citations:
+                if citation_info['citation'] in sentence:
+                    citation_to_sentence[citation_info['citation']] = idx
+        # Group citations by sentence
+        sentence_to_citations = {}
+        for citation, idx in citation_to_sentence.items():
+            sentence_to_citations.setdefault(idx, []).append(citation)
+        # Extract case names for each sentence group
+        sentence_case_names = {}
+        for idx, citation_list in sentence_to_citations.items():
+            sentence = sentences[idx]
+            # Try to extract a case name from the sentence context
+            extracted_name = self.extract_case_name_from_context(sentence, citation_list[0])
+            if extracted_name:
+                for citation in citation_list:
+                    sentence_case_names[citation] = extracted_name
+        
         # Process each citation
         for citation_info in all_citations:
             citation = citation_info['citation']
@@ -333,16 +581,32 @@ class EnhancedCaseNameExtractor:
             # Get canonical case name from API
             canonical_name = self.get_canonical_case_name(citation)
             
-            # Extract case name from context
-            extracted_name = self.extract_case_name_from_context(text, citation)
-            
+            # Use group-extracted name if available
+            extracted_name = sentence_case_names.get(citation)
+            if not extracted_name:
+                extracted_name = self.extract_case_name_from_context(text, citation)
+
+            # If we have a canonical name, try hinted extraction if needed
+            hinted_name = None
+            hinted_score = 0.0
+            if canonical_name:
+                # Only use hinted extraction if extracted_name is missing or not similar
+                similarity_score = 0.0
+                if extracted_name:
+                    similarity_score = self.calculate_similarity(canonical_name, extracted_name)
+                if not extracted_name or similarity_score < 0.7:
+                    from src.extract_case_name import extract_case_name_hinted
+                    hinted_name, hinted_score = extract_case_name_hinted(text, citation, canonical_name)
+                    if hinted_name and hinted_score > 60:
+                        extracted_name = hinted_name
+                        similarity_score = hinted_score / 100.0
+
             # Determine best case name and source
             final_case_name = None
             confidence = 0.0
             method = "none"
-            similarity_score = 0.0
             source = "none"
-            
+
             if extracted_name and self._verify_in_text(extracted_name, text):
                 # We have a valid extracted name from the document
                 if canonical_name:
@@ -359,14 +623,13 @@ class EnhancedCaseNameExtractor:
                 else:
                     confidence = 0.7
                     method = "extracted_only"
-                
                 final_case_name = extracted_name
             elif canonical_name:
                 # Only API result available, but we can't use it directly
                 confidence = 0.0
                 method = "api_only_no_text_match"
                 source = self._get_canonical_source(citation)
-            
+
             # Add to results
             result = {
                 'citation': citation,
@@ -380,6 +643,8 @@ class EnhancedCaseNameExtractor:
                 'source': source
             }
             
+            # Add detailed debug logging
+            self.logger.info(f"[DEBUG] Citation: {citation} | Extracted: {extracted_name} | Canonical: {canonical_name} | Final: {final_case_name} | Method: {method} | Confidence: {confidence}")
             results.append(result)
             
             # Rate limiting - be nice to the API
@@ -427,74 +692,62 @@ class EnhancedCaseNameExtractor:
         return stats
     
     def get_citation_url(self, citation: str) -> Optional[str]:
-        """Get the URL for a citation from CourtListener, legal databases, or Google Scholar fallback.
-        
-        Args:
-            citation: The citation text
+        """Get direct URL to citation in legal databases."""
+        try:
+            # Try CourtListener first (most reliable)
+            if self.api_key:
+                try:
+                    # Try citation-lookup endpoint first
+                    url = f"{self.api_base_url}/citation-lookup/"
+                    params = {"citation": citation}
+                    headers = {
+                        "Authorization": f"Token {self.api_key}",
+                        "Content-Type": "application/json",
+                        "User-Agent": "CaseStrainer Enhanced Extractor"
+                    }
+                    response = requests.get(url, params=params, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    data = response.json()
+                    if data.get('results'):
+                        for result in data['results']:
+                            if result.get('absolute_url'):
+                                return f"https://www.courtlistener.com{result['absolute_url']}"
+                    
+                    # If citation-lookup fails, try search endpoint
+                    search_url = f"{self.api_base_url}/search/"
+                    search_params = {
+                        "q": citation,
+                        "type": "o",  # opinions only
+                        "stat_Precedential": "on"
+                    }
+                    search_response = requests.get(search_url, params=search_params, headers=headers, timeout=10)
+                    search_response.raise_for_status()
+                    search_data = search_response.json()
+                    
+                    if search_data.get('results'):
+                        for result in search_data['results']:
+                            if result.get('absolute_url'):
+                                return f"https://www.courtlistener.com{result['absolute_url']}"
+                                
+                except Exception as e:
+                    self.logger.warning(f"Error getting CourtListener URL for '{citation}': {e}")
             
-        Returns:
-            URL to the case on CourtListener, legal databases, or Google Scholar, or None if not found
-        """
-        # First try CourtListener
-        if self.api_key:
-            try:
-                # Check cache first
-                if self.cache_results and self.cache_manager:
-                    cached_result = self.cache_manager.get_citation(citation)
-                    if cached_result:
-                        verification_result = json.loads(cached_result.get('verification_result', '{}'))
-                        if verification_result.get('results'):
-                            # Return the first result's URL
-                            for result in verification_result['results']:
-                                if result.get('absolute_url'):
-                                    return f"https://www.courtlistener.com{result['absolute_url']}"
-                
-                # Make API request to CourtListener
-                url = f"{self.api_base_url}/citation-lookup/"
-                params = {"citation": citation}
-                headers = {
-                    "Authorization": f"Token {self.api_key}",
-                    "Content-Type": "application/json",
-                    "User-Agent": "CaseStrainer Enhanced Extractor"
-                }
-                
-                response = requests.get(url, params=params, headers=headers, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-                
-                # Extract URL from response
-                if data.get('results'):
-                    for result in data['results']:
-                        if result.get('absolute_url'):
-                            courtlistener_url = f"https://www.courtlistener.com{result['absolute_url']}"
-                            
-                            # Cache the result
-                            if self.cache_results and self.cache_manager:
-                                cache_data = {
-                                    'citation_url': courtlistener_url,
-                                    'source': 'courtlistener',
-                                    'citation': citation,
-                                    'timestamp': time.time()
-                                }
-                                self.cache_manager.set_citation(f"url_{citation}", cache_data)
-                            
-                            return courtlistener_url
-                
-            except Exception as e:
-                self.logger.warning(f"Error getting CourtListener URL for '{citation}': {e}")
-        
-        # Fallback to legal database URLs (prioritize legal databases over Google Scholar)
-        legal_db_url = self.get_legal_database_url(citation)
-        if legal_db_url:
-            return legal_db_url
-        
-        # Fallback to Google Scholar URL (for academic/research citations)
-        google_scholar_url = self.get_google_scholar_url(citation)
-        if google_scholar_url:
-            return google_scholar_url
-        
-        # Final fallback to general legal search
-        return self.get_general_legal_search_url(citation)
+            # Fallback to other legal databases with search functionality
+            # Justia - has good search
+            justia_url = f"https://law.justia.com/search?query={quote_plus(citation)}"
+            
+            # FindLaw - has search
+            findlaw_url = f"https://caselaw.findlaw.com/search?query={quote_plus(citation)}"
+            
+            # Casetext - has search
+            casetext_url = f"https://casetext.com/search?q={quote_plus(citation)}"
+            
+            # Return Justia as primary fallback (most reliable)
+            return justia_url
+            
+        except Exception as e:
+            self.logger.warning(f"Error generating citation URL for '{citation}': {e}")
+            return None
     
     def get_legal_database_url(self, citation: str) -> Optional[str]:
         """Get a URL for a citation from legal databases like vLex, CaseMine, Leagle, etc.
@@ -689,7 +942,7 @@ class EnhancedCaseNameExtractor:
             return None
     
     def get_canonical_case_name_from_google_scholar(self, citation: str) -> Optional[str]:
-        """Get canonical case name from Google Scholar using SerpApi.
+        """Get canonical case name from Google Scholar using direct web scraping.
         
         Args:
             citation: The citation text to search for
@@ -697,9 +950,6 @@ class EnhancedCaseNameExtractor:
         Returns:
             Canonical case name if found, None otherwise
         """
-        if not self.serpapi_key:
-            return None
-            
         try:
             # Check cache first
             cache_key = f"scholar_{citation}"
@@ -708,41 +958,64 @@ class EnhancedCaseNameExtractor:
                 if cached_result:
                     return cached_result.get('canonical_name')
             
-            # Prepare search query - use the citation as the search term
-            params = {
-                'engine': 'google_scholar',
-                'q': citation,
-                'api_key': self.serpapi_key,
-                'hl': 'en',
-                'as_sdt': '0,5'  # Include patents and legal documents
-            }
+            # Add delay to prevent rate limiting
+            time.sleep(2)  # 2 second delay between requests
+            
+            # Build Google Scholar search URL
+            search_query = quote_plus(citation)
+            scholar_url = f"https://scholar.google.com/scholar?q={search_query}&hl=en&as_sdt=0,5"
             
             self.logger.info(f"Searching Google Scholar for citation: {citation}")
-            response = requests.get(self.serpapi_base_url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
             
-            # Extract case name from search results
-            if data.get('organic_results'):
-                for result in data['organic_results']:
-                    title = result.get('title', '')
-                    snippet = result.get('snippet', '')
+            # Fetch the search results page with longer timeout
+            response = requests.get(scholar_url, headers=self.headers, timeout=30)
+            
+            # Check for rate limiting
+            if response.status_code == 429:
+                self.logger.warning(f"Google Scholar rate limited for citation: {citation}")
+                # Cache negative result to avoid repeated attempts
+                if self.cache_results and self.cache_manager:
+                    cache_data = {
+                        'canonical_name': None,
+                        'source': 'google_scholar_rate_limited',
+                        'citation': citation,
+                        'timestamp': time.time()
+                    }
+                    self.cache_manager.set_citation(cache_key, cache_data)
+                return None
+            
+            response.raise_for_status()
+            
+            # Parse the HTML
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Look for search result titles (Google Scholar result titles are in h3 tags)
+            result_titles = soup.find_all('h3', class_='gs_rt')
+            
+            if result_titles:
+                # Get the first result title
+                first_title = result_titles[0].get_text(strip=True)
+                
+                # Also look for snippets which might contain case names
+                result_snippets = soup.find_all('div', class_='gs_rs')
+                first_snippet = result_snippets[0].get_text(strip=True) if result_snippets else ""
+                
+                # Extract case name from title and snippet
+                case_name = self._extract_case_name_from_scholar_result(first_title, first_snippet)
+                
+                if case_name:
+                    # Cache the result
+                    if self.cache_results and self.cache_manager:
+                        cache_data = {
+                            'canonical_name': case_name,
+                            'source': 'google_scholar',
+                            'citation': citation,
+                            'timestamp': time.time()
+                        }
+                        self.cache_manager.set_citation(cache_key, cache_data)
                     
-                    # Look for case name patterns in title and snippet
-                    case_name = self._extract_case_name_from_scholar_result(title, snippet)
-                    if case_name:
-                        # Cache the result
-                        if self.cache_results and self.cache_manager:
-                            cache_data = {
-                                'canonical_name': case_name,
-                                'source': 'google_scholar',
-                                'citation': citation,
-                                'timestamp': time.time()
-                            }
-                            self.cache_manager.set_citation(cache_key, cache_data)
-                        
-                        self.logger.info(f"Found case name in Google Scholar: {case_name}")
-                        return case_name
+                    self.logger.info(f"Found case name in Google Scholar: {case_name}")
+                    return case_name
             
             # If no results found, cache the negative result
             if self.cache_results and self.cache_manager:
@@ -754,10 +1027,32 @@ class EnhancedCaseNameExtractor:
                 }
                 self.cache_manager.set_citation(cache_key, cache_data)
             
+            self.logger.info(f"No case name found in Google Scholar for: {citation}")
             return None
             
+        except requests.exceptions.RequestException as e:
+            self.logger.warning(f"Network error searching Google Scholar for '{citation}': {e}")
+            # Cache negative result to avoid repeated attempts
+            if self.cache_results and self.cache_manager:
+                cache_data = {
+                    'canonical_name': None,
+                    'source': 'google_scholar_error',
+                    'citation': citation,
+                    'timestamp': time.time()
+                }
+                self.cache_manager.set_citation(cache_key, cache_data)
+            return None
         except Exception as e:
             self.logger.warning(f"Error searching Google Scholar for '{citation}': {e}")
+            # Cache negative result to avoid repeated attempts
+            if self.cache_results and self.cache_manager:
+                cache_data = {
+                    'canonical_name': None,
+                    'source': 'google_scholar_error',
+                    'citation': citation,
+                    'timestamp': time.time()
+                }
+                self.cache_manager.set_citation(cache_key, cache_data)
             return None
     
     def _get_canonical_source(self, citation: str) -> str:

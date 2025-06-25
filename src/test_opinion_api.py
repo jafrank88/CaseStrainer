@@ -12,7 +12,7 @@ def test_opinion_api(api_key, opinion_id):
     print(f"Testing CourtListener Opinion API with opinion ID: {opinion_id}")
 
     # API endpoint
-    api_url = f"https://www.courtlistener.com/api/rest/v3/opinions/{opinion_id}/"
+    api_url = f"https://www.courtlistener.com/api/rest/v4/opinions/{opinion_id}/"
 
     # Prepare the request
     headers = {"Authorization": f"Token {api_key}", "Content-Type": "application/json"}

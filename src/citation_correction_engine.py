@@ -15,6 +15,7 @@ import sys
 from typing import List, Dict, Any, Optional
 from difflib import SequenceMatcher
 from src.citation_format_utils import apply_washington_spacing_rules
+from src.database_manager import get_database_manager
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -500,70 +501,36 @@ class CitationCorrectionEngine:
             # Ensure database is initialized
             self._init_database()
 
-            # Connect to the database with row factory to access columns by name
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
-            cursor = conn.cursor()
+            db_manager = get_database_manager()
+            logger.debug("Using DatabaseManager to fetch verified citations")
 
-            logger.debug("Connected to database to fetch verified citations")
-
-            try:
-                # First check if the citations table exists
-                cursor.execute(
-                    """
-                    SELECT name FROM sqlite_master 
-                    WHERE type='table' AND name='citations'
-                """
-                )
-
-                if not cursor.fetchone():
-                    logger.warning("Citations table does not exist in the database")
-                    return []
-
-                # Check if the 'found' column exists
-                cursor.execute("PRAGMA table_info(citations)")
-                columns = [column[1] for column in cursor.fetchall()]
-
-                # Prepare query based on available columns
-                if "found" in columns:
-                    query = "SELECT citation_text FROM citations WHERE found = 1"
-                    logger.debug("Querying for verified citations with 'found = 1'")
-                else:
-                    query = "SELECT citation_text FROM citations"
-                    logger.warning("'found' column not found, returning all citations")
-
-                # Execute the query
-                cursor.execute(query)
-                rows = cursor.fetchall()
-
-                # Extract citation texts, ensuring we don't return None values
-                verified_citations = [
-                    row["citation_text"] for row in rows if row and row["citation_text"]
-                ]
-
-                logger.info(
-                    f"Retrieved {len(verified_citations)} verified citations from database"
-                )
-                return verified_citations
-
-            except sqlite3.Error as e:
-                logger.error(f"Database error while fetching citations: {e}")
-                logger.debug(
-                    f"SQLite error: {e.sqlite_error_name} - {e.sqlite_error_code}"
-                )
+            # Check if the citations table exists
+            tables = db_manager.execute_query("SELECT name FROM sqlite_master WHERE type='table' AND name='citations'")
+            if not tables:
+                logger.warning("Citations table does not exist in the database")
                 return []
 
-            finally:
-                # Always close the connection
-                try:
-                    conn.close()
-                except Exception as e:
-                    logger.warning(f"Error closing database connection: {e}")
+            # Check if the 'found' column exists
+            columns = db_manager.execute_query("PRAGMA table_info(citations)")
+            column_names = [col['name'] for col in columns]
+
+            # Prepare query based on available columns
+            if "found" in column_names:
+                query = "SELECT citation_text FROM citations WHERE found = 1"
+                logger.debug("Querying for verified citations with 'found = 1'")
+            else:
+                query = "SELECT citation_text FROM citations"
+                logger.warning("'found' column not found, returning all citations")
+
+            rows = db_manager.execute_query(query)
+            verified_citations = [row["citation_text"] for row in rows if row and row["citation_text"]]
+
+            logger.info(f"Retrieved {len(verified_citations)} verified citations from database")
+            return verified_citations
 
         except Exception as e:
             logger.error(f"Unexpected error in _get_verified_citations: {e}")
             import traceback
-
             logger.error(traceback.format_exc())
             return []
 

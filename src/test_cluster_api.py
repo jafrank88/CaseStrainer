@@ -12,7 +12,7 @@ def test_cluster_api(api_key, cluster_id):
     print(f"Testing CourtListener Cluster API with cluster ID: {cluster_id}")
 
     # API endpoint
-    api_url = f"https://www.courtlistener.com/api/rest/v3/clusters/{cluster_id}/"
+    api_url = f"https://www.courtlistener.com/api/rest/v4/clusters/{cluster_id}/"
 
     # Prepare the request
     headers = {"Authorization": f"Token {api_key}", "Content-Type": "application/json"}

@@ -11,6 +11,9 @@ import re
 import time
 import requests
 from typing import Optional, Dict, Any, Tuple
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Flag to track if CourtListener API is available
 COURTLISTENER_AVAILABLE = True
@@ -29,17 +32,10 @@ USE_LOCAL_PDF_SEARCH = False
 def decrypt_api_key(encrypted_key: str) -> str:
     """Decrypt an API key using the master key."""
     try:
-        from setup_api_keys import decrypt_api_key as decrypt
-
-        master_key = os.environ.get("MASTER_KEY")
-        if not master_key:
-            print(
-                "Warning: MASTER_KEY environment variable not set. Using encrypted key as-is."
-            )
-            return encrypted_key
-        return decrypt(encrypted_key, master_key)
+        logger.warning("Warning: setup_api_keys module not available. Using encrypted key as-is.")
+        return encrypted_key
     except Exception as e:
-        print(f"Warning: Could not decrypt API key: {e}")
+        logger.warning(f"Warning: Could not decrypt API key: {e}")
         return encrypted_key
 
 
@@ -64,10 +60,10 @@ def setup_courtlistener_api(
         key = api_key or os.environ.get("COURTLISTENER_API_KEY")
         if not key:
             if verbose:
-                print(
+                logger.warning(
                     "Warning: CourtListener API key not provided and COURTLISTENER_API_KEY environment variable not set."
                 )
-                print("CourtListener API will be used in limited mode (rate-limited).")
+                logger.warning("CourtListener API will be used in limited mode (rate-limited).")
             COURTLISTENER_AVAILABLE = True
             return True  # CourtListener allows some requests without API key
 
@@ -75,13 +71,13 @@ def setup_courtlistener_api(
         try:
             key = decrypt_api_key(key)
         except Exception as e:
-            print(f"Error decrypting CourtListener API key: {e}")
+            logger.warning(f"Warning: Error decrypting CourtListener API key: {e}")
             pass  # If decryption fails, use the key as-is
 
         # Store the API key in an environment variable for later use
         os.environ["COURTLISTENER_API_KEY"] = key
         if verbose:
-            print(
+            logger.info(
                 f"CourtListener API key set in environment variable: {key[:5]}...{key[-5:] if len(key) > 10 else ''}"
             )
 
@@ -97,68 +93,68 @@ def setup_courtlistener_api(
 
                 if response.status_code == 200:
                     if verbose:
-                        print("CourtListener API connection successful.")
-                        print("API is now available for full functionality.")
+                        logger.info("CourtListener API connection successful.")
+                        logger.info("API is now available for full functionality.")
                     COURTLISTENER_AVAILABLE = True
                     return True
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(
+                        logger.info(
                             f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
                         )
                         time.sleep(wait_time)
                         continue
                     else:
-                        print(f"Rate limit exceeded after {max_retries} attempts.")
+                        logger.info(f"Rate limit exceeded after {max_retries} attempts.")
                         COURTLISTENER_AVAILABLE = False
                         return False
                 else:
                     if verbose:
-                        print(
-                            f"Error testing CourtListener API connection: Status code {response.status_code}"
+                        logger.warning(
+                            f"Warning: Error testing CourtListener API connection: Status code {response.status_code}"
                         )
-                        print(f"Response: {response.text}")
-                        print("This may indicate an invalid API key or a server issue.")
+                        logger.warning(f"Response: {response.text}")
+                        logger.warning("This may indicate an invalid API key or a server issue.")
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(f"Retrying in {wait_time} seconds...")
+                        logger.warning(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
                     else:
                         COURTLISTENER_AVAILABLE = False
                         return False
             except requests.exceptions.Timeout:
-                print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
-                    print(
+                    logger.warning(
                         "Failed to connect to CourtListener API after multiple attempts."
                     )
                     COURTLISTENER_AVAILABLE = False
                     return False
             except requests.exceptions.RequestException as e:
-                print(f"Request error: {str(e)}")
+                logger.warning(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
-                    print(
+                    logger.warning(
                         f"Failed to connect to CourtListener API after {max_retries} attempts."
                     )
                     COURTLISTENER_AVAILABLE = False
                     return False
             except Exception as e:
-                print(f"Error testing CourtListener API connection: {str(e)}")
+                logger.warning(f"Warning: Error testing CourtListener API connection: {str(e)}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
@@ -168,15 +164,15 @@ def setup_courtlistener_api(
         # If we've exhausted all retries and still haven't returned, set to False
         COURTLISTENER_AVAILABLE = False
         if verbose:
-            print("Failed to set up CourtListener API after multiple attempts.")
-            print(
+            logger.warning("Failed to set up CourtListener API after multiple attempts.")
+            logger.warning(
                 "API will be used in limited mode or local PDF search will be used instead."
             )
         return False
     except Exception as e:
         if verbose:
-            print(f"Error setting up CourtListener API: {str(e)}")
-            print(
+            logger.warning(f"Warning: Error setting up CourtListener API: {str(e)}")
+            logger.warning(
                 "API will be used in limited mode or local PDF search will be used instead."
             )
         COURTLISTENER_AVAILABLE = False
@@ -218,7 +214,7 @@ def search_citation(
             - Optional[Dict]: Case data if found, None otherwise.
     """
     if not citation or not citation.strip():
-        print("Error: Citation cannot be empty")
+        logger.error("Error: Citation cannot be empty")
         return False, None
 
     # Normalize citation to improve search results
@@ -227,10 +223,10 @@ def search_citation(
     # Check if this is a WestLaw citation
     is_westlaw = re.search(r"\d{4}\s*W\.?\s*L\.?\s*\d+", citation) is not None
     if is_westlaw:
-        print(f"Detected WestLaw citation: {citation}")
+        logger.info(f"Detected WestLaw citation: {citation}")
         citation = normalize_westlaw_citation(citation)
-        print(f"Normalized to: {citation}")
-        print("Note: WestLaw citations may not be directly supported by CourtListener")
+        logger.info(f"Normalized to: {citation}")
+        logger.info("Note: WestLaw citations may not be directly supported by CourtListener")
 
     # Retry mechanism for API calls
     for attempt in range(max_retries):
@@ -244,36 +240,34 @@ def search_citation(
             if not is_westlaw and "lexis" not in citation.lower():
                 try:
                     # The citation lookup API expects a properly formatted citation
-                    # Example: /api/rest/v4/citation-lookup/?citation=410 U.S. 113
-                    lookup_url = f"https://www.courtlistener.com/api/rest/v4/citation-lookup/?citation={citation}"
-
-                    print(f"Trying citation lookup API: {lookup_url}")
-
-                    response = requests.get(
+                    # Use POST with form data and 'text' key
+                    lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+                    response = requests.post(
                         lookup_url,
+                        data={"text": citation},
                         headers=headers,
-                        timeout=10,  # Add timeout to prevent hanging requests
+                        timeout=10
                     )
 
                     if response.status_code == 200:
                         data = response.json()
                         if data and len(data) > 0:
                             # Found at least one matching case
-                            print("Citation found via citation lookup API")
+                            logger.info("Citation found via citation lookup API")
                             return True, data[0]
                     elif (
                         response.status_code != 404
                     ):  # 404 means citation not found, which is expected
-                        print(
-                            f"Citation lookup API returned status code {response.status_code}"
+                        logger.warning(
+                            f"Warning: Citation lookup API returned status code {response.status_code}"
                         )
-                        print(f"Response: {response.text}")
+                        logger.warning(f"Response: {response.text}")
                 except Exception as e:
-                    print(f"Error using citation lookup API: {str(e)}")
-                    print("Falling back to search API")
+                    logger.warning(f"Warning: Error using citation lookup API: {str(e)}")
+                    logger.warning("Falling back to search API")
 
             # If citation lookup API didn't work or wasn't used, try the search API
-            print(f"Trying search API with citation: {citation}")
+            logger.info(f"Trying search API with citation: {citation}")
 
             # Search by citation
             params = {"cite": citation, "format": "json"}
@@ -313,49 +307,49 @@ def search_citation(
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(
+                        logger.info(
                             f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
                         )
                         time.sleep(wait_time)
                         continue
                     else:
-                        print(f"Rate limit exceeded after {max_retries} attempts.")
+                        logger.info(f"Rate limit exceeded after {max_retries} attempts.")
                         return False, None
                 else:
-                    print(
-                        f"Error searching CourtListener API: Status code {response.status_code}"
+                    logger.warning(
+                        f"Warning: Error searching CourtListener API: Status code {response.status_code}"
                     )
-                    print(f"Response: {response.text}")
+                    logger.warning(f"Response: {response.text}")
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(f"Retrying in {wait_time} seconds...")
+                        logger.warning(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
                     else:
                         return False, None
             except requests.exceptions.Timeout:
-                print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
                     return False, None
             except requests.exceptions.RequestException as e:
-                print(f"Request error: {str(e)}")
+                logger.warning(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
                     return False, None
         except Exception as e:
-            print(f"Error searching CourtListener API: {str(e)}")
+            logger.warning(f"Warning: Error searching CourtListener API: {str(e)}")
             if attempt < max_retries - 1:
                 wait_time = 3**attempt  # Increased exponential backoff
-                print(f"Retrying in {wait_time} seconds...")
+                logger.warning(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
             else:
@@ -377,7 +371,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
         Optional[Dict]: Case details if found, None otherwise.
     """
     if not case_id:
-        print("Error: Case ID cannot be empty")
+        logger.error("Error: Case ID cannot be empty")
         return None
 
     # Retry mechanism for API calls
@@ -399,49 +393,49 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(
+                        logger.info(
                             f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
                         )
                         time.sleep(wait_time)
                         continue
                     else:
-                        print(f"Rate limit exceeded after {max_retries} attempts.")
+                        logger.info(f"Rate limit exceeded after {max_retries} attempts.")
                         return None
                 else:
-                    print(
-                        f"Error getting case details from CourtListener API: Status code {response.status_code}"
+                    logger.warning(
+                        f"Warning: Error getting case details from CourtListener API: Status code {response.status_code}"
                     )
-                    print(f"Response: {response.text}")
+                    logger.warning(f"Response: {response.text}")
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        print(f"Retrying in {wait_time} seconds...")
+                        logger.warning(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)
                         continue
                     else:
                         return None
             except requests.exceptions.Timeout:
-                print(f"Request timed out on attempt {attempt + 1}/{max_retries}")
+                logger.warning(f"Request timed out on attempt {attempt + 1}/{max_retries}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
                     return None
             except requests.exceptions.RequestException as e:
-                print(f"Request error: {str(e)}")
+                logger.warning(f"Request error: {str(e)}")
                 if attempt < max_retries - 1:
                     wait_time = 3**attempt  # Increased exponential backoff
-                    print(f"Retrying in {wait_time} seconds...")
+                    logger.warning(f"Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     continue
                 else:
                     return None
         except Exception as e:
-            print(f"Error getting case details from CourtListener API: {str(e)}")
+            logger.warning(f"Warning: Error getting case details from CourtListener API: {str(e)}")
             if attempt < max_retries - 1:
                 wait_time = 3**attempt  # Increased exponential backoff
-                print(f"Retrying in {wait_time} seconds...")
+                logger.warning(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
             else:
@@ -473,9 +467,9 @@ def generate_case_summary_from_courtlistener(
     # Check if this is a WestLaw citation
     is_westlaw = re.search(r"\d{4}\s*W\.?\s*L\.?\s*\d+", citation) is not None
     if is_westlaw:
-        print(f"Detected WestLaw citation: {citation}")
+        logger.info(f"Detected WestLaw citation: {citation}")
         citation = normalize_westlaw_citation(citation)
-        print(f"Normalized to: {citation}")
+        logger.info(f"Normalized to: {citation}")
 
     if not COURTLISTENER_AVAILABLE:
         return f"CourtListener API is not available. Cannot generate summary for {citation}."
@@ -540,16 +534,16 @@ def generate_case_summary_from_courtlistener(
 
             return summary
         except Exception as e:
-            print(
-                f"Error generating summary from CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}"
+            logger.warning(
+                f"Warning: Error generating summary from CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}"
             )
             if attempt < max_retries - 1:
                 wait_time = 3**attempt  # Increased exponential backoff
-                print(f"Retrying in {wait_time} seconds...")
+                logger.warning(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"Failed to generate summary after {max_retries} attempts.")
+                logger.warning(f"Failed to generate summary after {max_retries} attempts.")
                 return f"Error generating summary for {citation}: {str(e)}"
 
     # If we've exhausted all retries and still haven't returned, return an error
@@ -565,7 +559,7 @@ def set_use_local_pdf_search(enabled: bool) -> None:
     """
     global USE_LOCAL_PDF_SEARCH
     USE_LOCAL_PDF_SEARCH = enabled
-    print(f"Local PDF search {'enabled' if enabled else 'disabled'}")
+    logger.info(f"Local PDF search {'enabled' if enabled else 'disabled'}")
 
 
 def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> bool:
@@ -580,7 +574,7 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
         bool: True if the citation is found in any PDF filename, False otherwise.
     """
     if not citation or not citation.strip():
-        print("Error: Citation cannot be empty")
+        logger.error("Error: Citation cannot be empty")
         return False
 
     # Normalize citation to improve search results
@@ -601,7 +595,7 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
         if year not in parts:
             parts.append(year)
 
-    print(f"Searching for citation parts: {parts}")
+    logger.info(f"Searching for citation parts: {parts}")
 
     try:
         # Track start time for timeout
@@ -615,32 +609,32 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
                 break
 
         if not folders_exist:
-            print("Warning: None of the specified PDF folders exist")
+            logger.warning("Warning: None of the specified PDF folders exist")
             return False
 
         # Search in each folder
         for folder in LOCAL_PDF_FOLDERS:
             # Check for timeout
             if time.time() - start_time > timeout_seconds:
-                print(f"Search timeout after {timeout_seconds} seconds")
+                logger.warning(f"Search timeout after {timeout_seconds} seconds")
                 return False
 
             if not os.path.exists(folder) or not os.path.isdir(folder):
-                print(f"Warning: Folder does not exist: {folder}")
+                logger.warning(f"Warning: Folder does not exist: {folder}")
                 continue
 
-            print(f"Searching in folder: {folder}")
+            logger.info(f"Searching in folder: {folder}")
 
             try:
                 # List all PDF files in the folder
                 files = [f for f in os.listdir(folder) if f.lower().endswith(".pdf")]
-                print(f"Found {len(files)} PDF files in folder")
+                logger.info(f"Found {len(files)} PDF files in folder")
 
                 # Check each file for a match
                 for file in files:
                     # Check for timeout
                     if time.time() - start_time > timeout_seconds:
-                        print(f"Search timeout after {timeout_seconds} seconds")
+                        logger.warning(f"Search timeout after {timeout_seconds} seconds")
                         return False
 
                     # Check if key parts of the citation are in the filename
@@ -659,18 +653,18 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
                     min_matches = min(2, max(1, len(parts) // 2))
 
                     if match_count >= min_matches:
-                        print(f"Found potential match for '{citation}' in file: {file}")
-                        print(f"Matched parts: {matched_parts}")
+                        logger.info(f"Found potential match for '{citation}' in file: {file}")
+                        logger.info(f"Matched parts: {matched_parts}")
                         return True
             except Exception as e:
-                print(f"Error searching folder {folder}: {str(e)}")
+                logger.warning(f"Warning: Error searching folder {folder}: {str(e)}")
                 continue
 
         # No match found in any folder
-        print(f"No match found for '{citation}' in local PDF folders")
+        logger.warning(f"No match found for '{citation}' in local PDF folders")
         return False
     except Exception as e:
-        print(f"Error searching local PDFs: {str(e)}")
+        logger.warning(f"Warning: Error searching local PDFs: {str(e)}")
         return False
 
 
@@ -729,11 +723,11 @@ def check_citation_exists(
               Returns True if there's an error (conservative approach).
     """
     if not citation or not citation.strip():
-        print("Error: Citation cannot be empty")
+        logger.error("Error: Citation cannot be empty")
         return True  # Default to assuming it exists if we can't check
 
     if not COURTLISTENER_AVAILABLE:
-        print("CourtListener API is not available. Cannot check citation.")
+        logger.warning("CourtListener API is not available. Cannot check citation.")
         return True  # Default to assuming it exists if we can't check
 
     # Normalize citation to improve search results
@@ -742,9 +736,9 @@ def check_citation_exists(
     # Check if this is a WestLaw citation
     is_westlaw = re.search(r"\d{4}\s*W\.?\s*L\.?\s*\d+", citation) is not None
     if is_westlaw:
-        print(f"Detected WestLaw citation: {citation}")
+        logger.info(f"Detected WestLaw citation: {citation}")
         citation = normalize_westlaw_citation(citation)
-        print(f"Normalized to: {citation}")
+        logger.info(f"Normalized to: {citation}")
 
     # Special case for obviously fake citations
     if "Pringle v JP Morgan Chase" in citation:
@@ -753,7 +747,7 @@ def check_citation_exists(
 
     # Check if we should use local PDF search
     if USE_LOCAL_PDF_SEARCH:
-        print(f"Using local PDF search for citation: {citation}")
+        logger.info(f"Using local PDF search for citation: {citation}")
         return search_citation_in_local_pdfs(
             citation, timeout_seconds=local_search_timeout
         )
@@ -764,16 +758,16 @@ def check_citation_exists(
             exists, _ = search_citation(citation)
             return exists
         except Exception as e:
-            print(
-                f"Error checking citation with CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}"
+            logger.warning(
+                f"Warning: Error checking citation with CourtListener (attempt {attempt+1}/{max_retries}): {str(e)}"
             )
             if attempt < max_retries - 1:
                 wait_time = 3**attempt  # Increased exponential backoff
-                print(f"Retrying in {wait_time} seconds...")
+                logger.warning(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
             else:
-                print(
+                logger.warning(
                     f"Failed to check citation after {max_retries} attempts. Assuming it exists."
                 )
                 return True  # Default to assuming it exists if there's an error

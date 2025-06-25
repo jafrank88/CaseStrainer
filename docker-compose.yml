@@ -6,7 +6,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    restart: unless-stopped
+    restart: always
     networks:
       - app-network
 
@@ -27,7 +27,7 @@ services:
       - FLASK_SESSION_FILE_DIR=/app/casestrainer_sessions
       - FLASK_SECRET_KEY=dev-key-change-in-production
       - REDIS_URL=redis://redis:6379/0
-    restart: unless-stopped
+    restart: always
     networks:
       - app-network
     depends_on:
@@ -51,7 +51,7 @@ services:
       - casestrainer
     networks:
       - app-network
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "--no-check-certificate", "https://localhost:8443/casestrainer"]
       interval: 30s

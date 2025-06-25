@@ -9,6 +9,8 @@ It first checks if the case is found in CourtListener, and if not, then uses the
 import os
 import requests
 from typing import Optional, Dict, Any
+import time
+import logging
 
 # Import CourtListener functions
 from .courtlistener_integration import (
@@ -18,22 +20,7 @@ from .courtlistener_integration import (
 # Flag to track if LangSearch API is available
 LANGSEARCH_AVAILABLE = True
 
-
-def decrypt_api_key(encrypted_key: str) -> str:
-    """Decrypt an API key using the master key."""
-    try:
-        from setup_api_keys import decrypt_api_key as decrypt
-
-        master_key = os.environ.get("MASTER_KEY")
-        if not master_key:
-            print(
-                "Warning: MASTER_KEY environment variable not set. Using encrypted key as-is."
-            )
-            return encrypted_key
-        return decrypt(encrypted_key, master_key)
-    except Exception as e:
-        print(f"Warning: Could not decrypt API key: {e}")
-        return encrypted_key
+logger = logging.getLogger(__name__)
 
 
 def setup_langsearch_api(api_key: Optional[str] = None):
@@ -50,21 +37,14 @@ def setup_langsearch_api(api_key: Optional[str] = None):
         # Get API key from parameter or environment variable
         key = api_key or os.environ.get("LANGSEARCH_API_KEY")
         if not key:
-            print(
+            logger.error(
                 "Error: LangSearch API key not provided and LANGSEARCH_API_KEY environment variable not set."
             )
             return False
 
-        # Try to decrypt the key if it's encrypted
-        try:
-            key = decrypt_api_key(key)
-        except Exception as e:
-            print(f"Error decrypting API key: {e}")
-            pass  # If decryption fails, use the key as-is
-
         # Validate API key format (basic check)
         if not key.startswith("sk-"):
-            print(
+            logger.warning(
                 "Warning: API key format doesn't match expected pattern. Key should start with 'sk-'."
             )
 
@@ -90,25 +70,25 @@ def setup_langsearch_api(api_key: Optional[str] = None):
             )
 
             if response.status_code == 200:
-                print("LangSearch API connection successful.")
+                logger.info("LangSearch API connection successful.")
                 return True
             else:
-                print(
+                logger.error(
                     f"Error testing LangSearch API connection: Status code {response.status_code}"
                 )
                 # Safely print the response text to avoid Unicode encoding errors
                 try:
-                    print(f"Response: {response.text}")
+                    logger.error(f"Response: {response.text}")
                 except UnicodeEncodeError:
                     # If Unicode fails, print a safe version
                     safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
-                    print(f"Response (safe): {safe_text}")
+                    logger.error(f"Response (safe): {safe_text}")
                 return False
         except requests.exceptions.RequestException as e:
-            print(f"Error testing LangSearch API connection: {str(e)}")
+            logger.error(f"Error testing LangSearch API connection: {str(e)}")
             return False
     except Exception as e:
-        print(f"Error setting up LangSearch API: {str(e)}")
+        logger.error(f"Error setting up LangSearch API: {str(e)}")
         return False
 
 
@@ -212,34 +192,34 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 last_error = f"Rate limit exceeded: {response.text}"
                 if attempt < max_retries - 1:
                     wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                    print(
+                    logger.warning(
                         f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
                     )
                     time.sleep(wait_time)
                 else:
-                    print(f"Rate limit exceeded after {max_retries} attempts.")
+                    logger.error(f"Rate limit exceeded after {max_retries} attempts.")
                     raise RuntimeError(
                         f"Failed to generate summary due to rate limits: {response.text}"
                     )
             elif response.status_code == 401:  # Unauthorized
                 # Safely print the authentication error to avoid Unicode encoding errors
                 try:
-                    print(f"Authentication error: {response.text}")
+                    logger.error(f"Authentication error: {response.text}")
                 except UnicodeEncodeError:
                     # If Unicode fails, print a safe version
                     safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
-                    print(f"Authentication error (safe): {safe_text}")
+                    logger.error(f"Authentication error (safe): {safe_text}")
                 raise ValueError(
                     f"LangSearch API authentication failed: {response.text}"
                 )
             elif response.status_code == 400:  # Bad Request
                 # Safely print the invalid request error to avoid Unicode encoding errors
                 try:
-                    print(f"Invalid request: {response.text}")
+                    logger.error(f"Invalid request: {response.text}")
                 except UnicodeEncodeError:
                     # If Unicode fails, print a safe version
                     safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
-                    print(f"Invalid request (safe): {safe_text}")
+                    logger.error(f"Invalid request (safe): {safe_text}")
                 raise ValueError(f"Invalid request to LangSearch API: {response.text}")
             else:
                 last_error = (
@@ -247,10 +227,10 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 )
                 if attempt < max_retries - 1:
                     wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                    print(f"API error. Retrying in {wait_time} seconds...")
+                    logger.error(f"API error. Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                 else:
-                    print(f"API error after {max_retries} attempts.")
+                    logger.error(f"API error after {max_retries} attempts.")
                     raise RuntimeError(
                         f"Failed to generate summary: API error (status code {response.status_code}): {response.text}"
                     )
@@ -258,11 +238,11 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
             last_error = "Request timed out"
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                print(f"Request timed out. Retrying in {wait_time} seconds...")
+                logger.error(f"Request timed out. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                print(f"Request timed out after {max_retries} attempts.")
-                print(
+                logger.error(f"Request timed out after {max_retries} attempts.")
+                logger.error(
                     "This may be due to a large file or server load. Processing will continue with other methods."
                 )
                 raise RuntimeError(
@@ -272,10 +252,10 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
             last_error = str(e)
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                print(f"Request error: {str(e)}. Retrying in {wait_time} seconds...")
+                logger.error(f"Request error: {str(e)}. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                print(f"Request error after {max_retries} attempts.")
+                logger.error(f"Request error after {max_retries} attempts.")
                 raise RuntimeError(
                     f"Failed to generate summary: Request error: {str(e)}"
                 )
@@ -283,12 +263,12 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
             last_error = str(e)
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                print(
+                logger.error(
                     f"Error calling LangSearch API: {str(e)}. Retrying in {wait_time} seconds..."
                 )
                 time.sleep(wait_time)
             else:
-                print(f"Failed to generate summary after {max_retries} attempts")
+                logger.error(f"Failed to generate summary after {max_retries} attempts")
                 raise RuntimeError(
                     f"Failed to generate summary after {max_retries} attempts: {str(e)}"
                 )
@@ -395,7 +375,7 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
 
     if exists:
         # Case found in CourtListener, use the case data directly
-        print(
+        logger.info(
             f"Case '{case_citation}' found in CourtListener. Generating summary from case data."
         )
 
@@ -411,11 +391,11 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
         return generate_case_summary_from_data(case_data)
     else:
         # Case not found in CourtListener, use LangSearch API
-        print(
+        logger.info(
             f"Case '{case_citation}' not found in CourtListener. Using LangSearch API."
         )
         try:
             return generate_case_summary_with_langsearch_api(case_citation)
         except Exception as e:
-            print(f"Error generating summary with LangSearch API: {str(e)}")
+            logger.error(f"Error generating summary with LangSearch API: {str(e)}")
             return f"Error: Could not generate summary for '{case_citation}'. Case not found in CourtListener and LangSearch API failed: {str(e)}"

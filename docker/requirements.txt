@@ -53,3 +53,7 @@ typing==3.7.4.3
 werkzeug==2.0.1
 gunicorn==20.1.0
 gevent==22.10.2
+
+# Added from the code block
+httpx
+parsel

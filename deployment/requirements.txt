@@ -37,3 +37,7 @@ waitress==2.1.2  # Production WSGI server
 
 # For regular expressions
 re==2.2.1  # For citation pattern matching
+
+# New dependencies
+httpx
+parsel

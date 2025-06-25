@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 import logging
 import string
 from rapidfuzz import fuzz
+import unicodedata
 
 # Set up debug logging
 logging.basicConfig(filename='case_name_debug.log', level=logging.DEBUG, 
@@ -175,33 +176,33 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
     # Enhanced patterns for case name extraction - more robust to line breaks and whitespace
     patterns = [
         # Improved pattern to handle multi-word party names and trailing commas
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+vs\.\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+versus\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+vs\.\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+versus\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
         # Original patterns as fallback
-        r"([A-Z][^,\n]+?\s+v\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+vs\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+versus\s+[^,\n]+)",
-        r"(?:^|\s)(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+ex\s+rel\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(People\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(State\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+et\s+al\.\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s*&\s*[A-Z][A-Za-z'\-\s,\.]+\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+vs\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+versus\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(In\s+re\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Estate\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Matter\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Ex\s+parte\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+ex\s+rel\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(People\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(State\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+et\s+al\.\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s*&\s*[A-Z][\w\u00C0-\u017F]+\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
     ]
     case_name_patterns = [
-        r"([A-Z][A-Za-z'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Estate\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Matter\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Ex\s+parte\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
     ]
     for pattern in patterns:
-        matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL))
+        matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL | re.UNICODE))
         if matches:
             case_name = matches[-1].group(1).strip()
             case_name = clean_case_name(case_name)
@@ -237,7 +238,7 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
             line = context_before[line_start:line_end]
             log_debug(f"Extracted line: {repr(line)}")
             for pattern in patterns:
-                matches = list(re.finditer(pattern, line, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, line, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -251,9 +252,9 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
                         return case_name
             before_citation = line.split(citation_text)[0].strip()
             log_debug(f"Before citation: {repr(before_citation)}")
-            fallback_pattern = r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+)"
+            fallback_pattern = r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)"
             log_debug(f"Using fallback pattern: {fallback_pattern}")
-            matches = list(re.finditer(fallback_pattern, before_citation, re.IGNORECASE | re.DOTALL))
+            matches = list(re.finditer(fallback_pattern, before_citation, re.IGNORECASE | re.DOTALL | re.UNICODE))
             log_debug(f"Found {len(matches)} matches with fallback pattern")
             if matches:
                 case_name = matches[-1].group(1).strip()
@@ -270,7 +271,7 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
                 log_debug("No matches found with fallback pattern")
             in_re_pattern = r"(In\s+re[\w\s,\.''\-]*)"
             log_debug(f"Using In re fallback pattern: {in_re_pattern}")
-            in_re_matches = list(re.finditer(in_re_pattern, before_citation, re.IGNORECASE | re.DOTALL))
+            in_re_matches = list(re.finditer(in_re_pattern, before_citation, re.IGNORECASE | re.DOTALL | re.UNICODE))
             log_debug(f"Found {len(in_re_matches)} In re matches with fallback pattern")
             if in_re_matches:
                 in_re_case_name = in_re_matches[-1].group(1).strip()
@@ -293,11 +294,11 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
             
             # Try v.-style patterns in broader context
             v_patterns = [
-                r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+)",
-                r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+[A-Za-z0-9'\-\s,\.]*)",
+                r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)",
+                r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+[A-Z][\w\u00C0-\u017F]+)",
             ]
             for pattern in v_patterns:
-                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -312,11 +313,11 @@ def extract_case_name_from_context(context_before: str, citation_text: str = "")
             
             # Try In re patterns in broader context
             in_re_patterns = [
-                r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+)",
-                r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+[A-Za-z'\-\s,\.]*)",
+                r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+)",
+                r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+[A-Z][\w\u00C0-\u017F]+)",
             ]
             for pattern in in_re_patterns:
-                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -469,8 +470,12 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     case_name = extract_case_name_from_context(pre_text, citation_text)
     log_debug(f"Context extraction result: {repr(case_name)}")
     if case_name and not is_citation_like(case_name):
-        log_debug(f"Returning context extraction result: {case_name}")
-        return case_name
+        # Apply cleaning to remove introductory phrases
+        cleaned_case_name = clean_case_name(case_name)
+        log_debug(f"Cleaned case name: {repr(cleaned_case_name)}")
+        if cleaned_case_name and not is_citation_like(cleaned_case_name):
+            log_debug(f"Returning cleaned context extraction result: {cleaned_case_name}")
+            return cleaned_case_name
     
     # If no case name found in the large context window, try a more aggressive search
     # Look for case name patterns in the entire text before the citation
@@ -482,23 +487,23 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     
     # Look for the most recent case name pattern in this larger window
     patterns = [
-        r"([A-Z][^,\n]+?\s+v\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+vs\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+versus\s+[^,\n]+)",
-        r"(?:^|\s)(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+ex\s+rel\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(People\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(State\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+et\s+al\.\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s*&\s*[A-Z][A-Za-z'\-\s,\.]+\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+vs\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+versus\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(In\s+re\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Estate\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Matter\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Ex\s+parte\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+ex\s+rel\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(People\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(State\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+et\s+al\.\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s*&\s*[A-Z][\w\u00C0-\u017F]+\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
     ]
     
     for pattern in patterns:
-        matches = list(re.finditer(pattern, aggressive_pre_text, re.IGNORECASE | re.DOTALL))
+        matches = list(re.finditer(pattern, aggressive_pre_text, re.IGNORECASE | re.DOTALL | re.UNICODE))
         if matches:
             # Get the last match (closest to citation)
             case_name = matches[-1].group(1).strip()
@@ -536,7 +541,7 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     
     # Look for case name patterns in the sentence
     for pattern in patterns:
-        matches = list(re.finditer(pattern, sentence, re.IGNORECASE | re.DOTALL))
+        matches = list(re.finditer(pattern, sentence, re.IGNORECASE | re.DOTALL | re.UNICODE))
         if matches:
             case_name = matches[-1].group(1).strip()
             case_name = clean_case_name(case_name)
@@ -616,6 +621,11 @@ def clean_case_name(case_name: str) -> str:
         r'^(?:the\s+)?(?:matter\s+of\s+|proceeding\s+of\s+)',
         r'^(?:in\s+(?!re\b)|the\s+case\s+)',  # Don't remove 'in' if it's followed by 're'
         r'^(?:and\s+the\s+court\s+of\s+appeals\s+in\s+)',
+        # Add patterns for common legal writing phrases
+        r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
+        r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
+        r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
+        r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
     ]
     for pattern in intro_patterns:
         case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE)
@@ -629,11 +639,11 @@ def clean_case_name(case_name: str) -> str:
     # Enhanced: Find and extract the actual case name pattern, removing any text before it
     # This handles cases like "I respectfully concur. City of Seattle v. Wiggins"
     case_name_patterns = [
-        r"([A-Z][A-Za-z'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Estate\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Matter\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(Ex\s+parte\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
     ]
     
     for pattern in case_name_patterns:
@@ -734,8 +744,8 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
     context = context_before[-500:]
     
     # Find all v.-style case names in the last 500 characters before the citation
-    v_style_pattern = r"([A-Z][A-Za-z'\-\s,\.]+?\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)"
-    matches = list(re.finditer(v_style_pattern, context, re.IGNORECASE | re.DOTALL))
+    v_style_pattern = r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)"
+    matches = list(re.finditer(v_style_pattern, context, re.IGNORECASE | re.DOTALL | re.UNICODE))
     if matches:
         # Return the last match (closest to the citation)
         case_name = matches[-1].group(1).strip()
@@ -748,26 +758,26 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
     # Enhanced patterns for case name extraction - more robust to line breaks and whitespace
     patterns = [
         # Improved pattern to handle multi-word party names and trailing commas
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+vs\.\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
-        r"([A-Z][A-Za-z'\-\s,\.]+?\s+versus\s+[A-Z][A-Za-z'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+vs\.\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
+        r"([A-Z][\w\u00C0-\u017F'\-\s,\.]+?\s+versus\s+[A-Z][\w\u00C0-\u017F'\-\s,\.]+?)(?:\s*[,;]|\s*$)",
         # Original patterns as fallback
-        r"([A-Z][^,\n]+?\s+v\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+vs\.\s+[^,\n]+)",
-        r"([A-Z][^,\n]+?\s+versus\s+[^,\n]+)",
-        r"(?:^|\s)(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+ex\s+rel\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(People\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(State\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s+et\s+al\.\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
-        r"(?:^|\s)([A-Z][A-Za-z'\-\s,\.]+\s*&\s*[A-Z][A-Za-z'\-\s,\.]+\s+v\.\s+[A-Z][A-Za-z'\-\s,\.]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+vs\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"([A-Z][\w\u00C0-\u017F]+?\s+versus\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(In\s+re\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Estate\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Matter\s+of\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(Ex\s+parte\s+[A-Z][\w\u00C0-\u017F]+?\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+ex\s+rel\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(People\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(State\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)(United\s+States\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s+et\s+al\.\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
+        r"(?:^|\s)([A-Z][\w\u00C0-\u017F]+\s*&\s*[A-Z][\w\u00C0-\u017F]+\s+v\.\s+[A-Z][\w\u00C0-\u017F]+)",
     ]
     for pattern in patterns:
-        matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL))
+        matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL | re.UNICODE))
         if matches:
             case_name = matches[-1].group(1).strip()
             case_name = clean_case_name(case_name)
@@ -793,7 +803,7 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
             line = context_before[line_start:line_end]
             log_debug(f"Extracted line: {repr(line)}")
             for pattern in patterns:
-                matches = list(re.finditer(pattern, line, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, line, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -802,9 +812,9 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
                         return case_name
             before_citation = line.split(citation_text)[0].strip()
             log_debug(f"Before citation: {repr(before_citation)}")
-            fallback_pattern = r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+)"
+            fallback_pattern = r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)"
             log_debug(f"Using fallback pattern: {fallback_pattern}")
-            matches = list(re.finditer(fallback_pattern, before_citation, re.IGNORECASE | re.DOTALL))
+            matches = list(re.finditer(fallback_pattern, before_citation, re.IGNORECASE | re.DOTALL | re.UNICODE))
             log_debug(f"Found {len(matches)} matches with fallback pattern")
             if matches:
                 case_name = matches[-1].group(1).strip()
@@ -816,7 +826,7 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
                 log_debug("No matches found with fallback pattern")
             in_re_pattern = r"(In\s+re[\w\s,\.''\-]*)"
             log_debug(f"Using In re fallback pattern: {in_re_pattern}")
-            in_re_matches = list(re.finditer(in_re_pattern, before_citation, re.IGNORECASE | re.DOTALL))
+            in_re_matches = list(re.finditer(in_re_pattern, before_citation, re.IGNORECASE | re.DOTALL | re.UNICODE))
             log_debug(f"Found {len(in_re_matches)} In re matches with fallback pattern")
             if in_re_matches:
                 in_re_case_name = in_re_matches[-1].group(1).strip()
@@ -834,11 +844,11 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
             
             # Try v.-style patterns in broader context
             v_patterns = [
-                r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+)",
-                r"([A-Z][A-Za-z0-9'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z0-9'\-\s,\.]+[A-Za-z0-9'\-\s,\.]*)",
+                r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+)",
+                r"([A-Z][\w\u00C0-\u017F]+?\s+(?:v\.|vs\.|versus)\s+[A-Z][\w\u00C0-\u017F]+[A-Z][\w\u00C0-\u017F]+)",
             ]
             for pattern in v_patterns:
-                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -853,11 +863,11 @@ def extract_case_name_from_context_split(context_before: str, citation_text: str
             
             # Try In re patterns in broader context
             in_re_patterns = [
-                r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+)",
-                r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+[A-Za-z'\-\s,\.]*)",
+                r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+)",
+                r"(In\s+re\s+[A-Z][\w\u00C0-\u017F]+[A-Z][\w\u00C0-\u017F]+)",
             ]
             for pattern in in_re_patterns:
-                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL))
+                matches = list(re.finditer(pattern, broader_context, re.IGNORECASE | re.DOTALL | re.UNICODE))
                 if matches:
                     case_name = matches[-1].group(1).strip()
                     case_name = clean_case_name(case_name)
@@ -955,7 +965,7 @@ def extract_case_name_hinted(text, citation, canonical_name, window=300):
     start = max(0, idx - window)
     context = text[start:idx]
     # Find all candidate case names in the context (e.g., 'X v. Y' patterns)
-    candidate_pattern = re.compile(r'([A-Z][A-Za-z0-9\'\-\. ]+ v\. [A-Z][A-Za-z0-9\'\-\. ]+)', re.MULTILINE)
+    candidate_pattern = re.compile(r'([A-Z][\w\u00C0-\u017F]+ v\. [A-Z][\w\u00C0-\u017F]+)', re.MULTILINE)
     candidates = candidate_pattern.findall(context)
     # If no candidates, return empty
     if not candidates:

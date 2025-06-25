@@ -10,14 +10,19 @@ import logging
 from pathlib import Path
 
 # Configure logging before importing the app
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('wsgi.log')
-    ]
-)
+try:
+    from src.config import configure_logging
+    configure_logging()
+except ImportError:
+    # Fallback if src.config is not available
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('wsgi.log')
+        ]
+    )
 
 logger = logging.getLogger('wsgi')
 

@@ -202,14 +202,26 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
             submitButton.disabled = true;
             
-            const formData = new FormData(this);
+            // Get the text input value
+            const textInput = this.querySelector('textarea[name="text"]');
+            const text = textInput ? textInput.value : '';
+            
+            if (!text || text.trim() === '') {
+                alert('Please enter some text to analyze');
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+                return;
+            }
             
             // Setup progress tracking
             const progressContainer = setupProgressTracking(this);
             
             fetch(apiUrl('/analyze'), {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
             })
             .then(response => {
                 if (!response.ok) {
@@ -296,12 +308,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Fetch URL response:', data);
                 if (data.status === 'success' && data.text) {
                     console.log('Starting text analysis with length:', data.text.length);
-                    const textFormData = new FormData();
-                    textFormData.append('text', data.text);
                     
                     return fetch(apiUrl('/analyze'), {
                         method: 'POST',
-                        body: textFormData
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: data.text })
                     });
                 } else {
                     throw new Error(data.message || 'Failed to fetch URL content');

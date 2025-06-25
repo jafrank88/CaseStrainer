@@ -171,7 +171,7 @@ def check_citation_in_courtlistener(citation_text):
 
         # Make the request
         response = requests.get(
-            "https://www.courtlistener.com/api/rest/v3/search/",
+"https://www.courtlistener.com/api/rest/v4/search/",
             headers=headers,
             params=params,
         )

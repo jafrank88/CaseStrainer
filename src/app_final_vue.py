@@ -16,32 +16,16 @@ if project_root not in sys.path:
 
 # Configure logging first, before any other imports
 def setup_logging():
-    """Configure logging for the application."""
+    """Configure logging for the application using centralized configuration."""
     try:
-        # Create logs directory if it doesn't exist
-        logs_dir = Path(project_root) / "logs"
-        logs_dir.mkdir(exist_ok=True)
-        
-        # Create a timestamp for the log file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = logs_dir / f"app_{timestamp}.log"
-        
-        # Configure basic logging first
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.StreamHandler(),
-                logging.FileHandler(log_file, encoding="utf-8")
-            ]
-        )
+        # Import and use the centralized logging configuration
+        from src.config import configure_logging
+        configure_logging()
         
         # Get logger for this module
         logger = logging.getLogger(__name__)
-        logger.propagate = False  # Prevent propagation to avoid duplicate logs
         
         logger.info("=== Logging Configuration ===")
-        logger.info(f"Log file: {log_file}")
         logger.info(f"Python version: {sys.version}")
         logger.info(f"Working directory: {os.getcwd()}")
         
@@ -81,6 +65,8 @@ try:
         MAIL_DEFAULT_SENDER,
         MAIL_DEBUG,
         UPLOAD_FOLDER,
+        ALLOWED_EXTENSIONS,
+        MAX_CONTENT_LENGTH,
     )
     logger.info("Successfully imported config module")
 except ImportError as e:
@@ -102,10 +88,6 @@ try:
 except ImportError as e:
     logger.error(f"Failed to import citation utilities: {e}")
     raise
-
-# Define allowed file extensions
-ALLOWED_EXTENSIONS = {"txt", "pdf", "doc", "docx", "rtf"}
-ALLOWED_EXTENSIONS_LIST = list(ALLOWED_EXTENSIONS)
 
 # Global flag for enhanced validator - now always true since it's integrated into vue_api
 ENHANCED_VALIDATOR_AVAILABLE = True
@@ -133,6 +115,61 @@ thread_local = threading.local()
 _app_instance = None
 
 print("Python executable:", sys.executable)
+
+def setup_secure_upload_directory():
+    """
+    Set up secure upload directory with proper permissions and security measures.
+    """
+    try:
+        # Create upload directory if it doesn't exist
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER, mode=0o755, exist_ok=True)
+            logger.info(f"Created upload directory: {UPLOAD_FOLDER}")
+        
+        # Create subdirectories for better organization
+        subdirs = ['temp', 'processed', 'rejected']
+        for subdir in subdirs:
+            subdir_path = os.path.join(UPLOAD_FOLDER, subdir)
+            if not os.path.exists(subdir_path):
+                os.makedirs(subdir_path, mode=0o755, exist_ok=True)
+                logger.info(f"Created upload subdirectory: {subdir_path}")
+        
+        # Create .htaccess file to prevent direct access (if using Apache)
+        htaccess_path = os.path.join(UPLOAD_FOLDER, '.htaccess')
+        if not os.path.exists(htaccess_path):
+            with open(htaccess_path, 'w') as f:
+                f.write("Order deny,allow\n")
+                f.write("Deny from all\n")
+            logger.info(f"Created .htaccess file: {htaccess_path}")
+        
+        # Create index.html to prevent directory listing
+        index_path = os.path.join(UPLOAD_FOLDER, 'index.html')
+        if not os.path.exists(index_path):
+            with open(index_path, 'w') as f:
+                f.write("<!DOCTYPE html>\n<html><head><title>403 Forbidden</title></head>")
+                f.write("<body><h1>403 Forbidden</h1><p>Access denied.</p></body></html>")
+            logger.info(f"Created index.html file: {index_path}")
+        
+        # Test write permissions
+        test_file = os.path.join(UPLOAD_FOLDER, 'test_write.tmp')
+        try:
+            with open(test_file, 'w') as f:
+                f.write('Test write permission')
+            os.remove(test_file)
+            logger.info("Upload directory write permissions verified")
+        except Exception as e:
+            logger.error(f"Upload directory write permission test failed: {e}")
+            raise
+        
+        logger.info(f"Upload directory setup completed: {UPLOAD_FOLDER}")
+        logger.info(f"Allowed extensions: {', '.join(ALLOWED_EXTENSIONS)}")
+        logger.info(f"Max file size: {MAX_CONTENT_LENGTH // (1024*1024)}MB")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to setup upload directory: {e}")
+        return False
 
 def create_app():
     """Create and configure the Flask application."""
@@ -168,17 +205,113 @@ def create_app():
          allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
          expose_headers=["Content-Disposition", "Content-Type"])
 
-    # Add robust SPA fallback for Vue.js frontend
+    # Set up secure upload directory
+    if not setup_secure_upload_directory():
+        logger.error("Failed to setup secure upload directory")
+        raise RuntimeError("Upload directory setup failed")
+
+    # Initialize the global database manager
+    db_manager = get_database_manager()
+    logger.info("DatabaseManager initialized and ready.")
+
+    # Add robust SPA fallback for Vue.js frontend with enhanced security
     @app.route('/casestrainer/', defaults={'path': ''})
     @app.route('/casestrainer/<path:path>')
     def serve_vue_app(path):
         vue_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'casestrainer-vue-new', 'dist'))
-        file_path = os.path.join(vue_dist_dir, path)
+        
+        # Security: Prevent directory traversal attacks
+        if '..' in path or path.startswith('/'):
+            logger.warning(f"Potential directory traversal attempt: {path}")
+            return make_response("Forbidden", 403)
+        
+        # Security: Validate file path
+        try:
+            file_path = os.path.join(vue_dist_dir, path)
+            # Ensure the resolved path is within the vue_dist_dir
+            if not os.path.abspath(file_path).startswith(vue_dist_dir):
+                logger.warning(f"Path traversal attempt blocked: {path}")
+                return make_response("Forbidden", 403)
+        except Exception as e:
+            logger.error(f"Error resolving file path: {e}")
+            return make_response("Bad Request", 400)
+        
+        # Serve static files with proper headers
         if path and os.path.exists(file_path) and os.path.isfile(file_path):
-            return send_from_directory(vue_dist_dir, path)
+            response = send_from_directory(vue_dist_dir, path)
+            
+            # Set appropriate caching headers based on file type
+            if path.endswith(('.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2', '.ttf', '.eot')):
+                # Static assets: cache for 1 year
+                response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+                response.headers['Expires'] = 'Thu, 31 Dec 2025 23:59:59 GMT'
+            elif path.endswith('.html'):
+                # HTML files: no cache to ensure fresh content
+                response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+                response.headers['Pragma'] = 'no-cache'
+                response.headers['Expires'] = '0'
+            else:
+                # Other files: cache for 1 hour
+                response.headers['Cache-Control'] = 'public, max-age=3600'
+            
+            # Security headers
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Frame-Options'] = 'DENY'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            
+            # Set proper MIME types for common file extensions
+            mime_types = {
+                '.js': 'application/javascript',
+                '.css': 'text/css',
+                '.html': 'text/html',
+                '.json': 'application/json',
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+                '.gif': 'image/gif',
+                '.svg': 'image/svg+xml',
+                '.woff': 'font/woff',
+                '.woff2': 'font/woff2',
+                '.ttf': 'font/ttf',
+                '.eot': 'application/vnd.ms-fontobject'
+            }
+            
+            file_ext = os.path.splitext(path)[1].lower()
+            if file_ext in mime_types:
+                response.headers['Content-Type'] = mime_types[file_ext]
+            
+            return response
         else:
             # Serve index.html for unknown routes (SPA fallback)
-            return send_from_directory(vue_dist_dir, 'index.html')
+            response = send_from_directory(vue_dist_dir, 'index.html')
+            
+            # Security headers for HTML responses
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            response.headers['X-Frame-Options'] = 'DENY'
+            response.headers['X-XSS-Protection'] = '1; mode=block'
+            response.headers['Content-Type'] = 'text/html; charset=utf-8'
+            
+            # No cache for HTML files
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            
+            return response
+
+    # Add a database health/stats endpoint
+    @app.route('/casestrainer/api/db_stats', methods=['GET'])
+    def db_stats():
+        stats = db_manager.get_database_stats()
+        return jsonify(stats)
+
+    # Print all registered routes for debugging
+    for rule in app.url_map.iter_rules():
+        print(f"Registered route: {rule}")
+
+    # Add a direct /test route for debugging
+    @app.route('/test')
+    def test():
+        return 'test route is working!'
 
     # Store the instance
     _app_instance = app

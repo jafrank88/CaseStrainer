@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from typing import List, Dict, Any, Optional, Union
 import json
+from datetime import datetime
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -38,6 +39,109 @@ from src.enhanced_case_name_extractor import EnhancedCaseNameExtractor
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
     configure_logging()
+
+logger = logging.getLogger(__name__)
+
+def extract_date_from_context(text: str, citation_start: int, citation_end: int, context_window: int = 200) -> Optional[str]:
+    """
+    Extract date from context around a citation.
+    
+    Args:
+        text: The full text document
+        citation_start: Start position of the citation
+        citation_end: End position of the citation
+        context_window: Number of characters to look before and after citation
+        
+    Returns:
+        Extracted date string in ISO format (YYYY-MM-DD) or None if not found
+    """
+    try:
+        # Define context boundaries
+        context_start = max(0, citation_start - context_window)
+        context_end = min(len(text), citation_end + context_window)
+        
+        # Extract context around citation
+        context_before = text[context_start:citation_start]
+        context_after = text[citation_end:context_end]
+        full_context = context_before + context_after
+        
+        # Date patterns to look for
+        date_patterns = [
+            # ISO format: 2024-01-15
+            r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b',
+            # US format: 01/15/2024, 1/15/2024
+            r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b',
+            # US format with month names: January 15, 2024, Jan 15, 2024
+            r'\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),?\s+(\d{4})\b',
+            # Year only: (2024)
+            r'\((\d{4})\)',
+            # Year in citation context: decided in 2024
+            r'(?:decided|filed|issued|released)\s+(?:in\s+)?(\d{4})\b',
+            # Simple year pattern near citation
+            r'\b(19|20)\d{2}\b'
+        ]
+        
+        month_map = {
+            'january': '01', 'jan': '01',
+            'february': '02', 'feb': '02',
+            'march': '03', 'mar': '03',
+            'april': '04', 'apr': '04',
+            'may': '05',
+            'june': '06', 'jun': '06',
+            'july': '07', 'jul': '07',
+            'august': '08', 'aug': '08',
+            'september': '09', 'sep': '09',
+            'october': '10', 'oct': '10',
+            'november': '11', 'nov': '11',
+            'december': '12', 'dec': '12'
+        }
+        
+        for pattern in date_patterns:
+            matches = re.finditer(pattern, full_context, re.IGNORECASE)
+            for match in matches:
+                groups = match.groups()
+                
+                if len(groups) == 3:
+                    # Full date pattern
+                    if pattern == r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b':
+                        # ISO format
+                        year, month, day = groups
+                    elif pattern == r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b':
+                        # US format
+                        month, day, year = groups
+                    elif 'January|February' in pattern:
+                        # Month name format
+                        month_name, day, year = groups
+                        month = month_map.get(month_name.lower(), '01')
+                    else:
+                        continue
+                        
+                    # Validate and format
+                    try:
+                        year = int(year)
+                        month = int(month)
+                        day = int(day)
+                        
+                        if 1900 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
+                            return f"{year:04d}-{month:02d}-{day:02d}"
+                    except (ValueError, TypeError):
+                        continue
+                        
+                elif len(groups) == 1:
+                    # Year only pattern
+                    year = groups[0]
+                    try:
+                        year_int = int(year)
+                        if 1900 <= year_int <= 2100:
+                            return f"{year_int:04d}-01-01"  # Default to January 1st
+                    except (ValueError, TypeError):
+                        continue
+        
+        return None
+        
+    except Exception as e:
+        logger.warning(f"Error extracting date from context: {e}")
+        return None
 
 class CitationProcessor:
     """Process and validate legal citations using eyecite and external APIs."""
@@ -264,7 +368,12 @@ class CitationProcessor:
                             'similarity': enhanced_result.get('similarity_score', 0.0) if enhanced_result.get('canonical_name') and enhanced_result.get('extracted_name') else None,
                             'canonical_source': enhanced_result.get('source', 'none'),  # Track source of canonical name
                             'citation_url': self.enhanced_case_name_extractor.get_citation_url(citation) if self.enhanced_case_name_extractor else None,
-                            'url_source': self._get_url_source(citation) if self.enhanced_case_name_extractor else None
+                            'url_source': self._get_url_source(citation) if self.enhanced_case_name_extractor else None,
+                            'extracted_date': extract_date_from_context(
+                                text, 
+                                citation_info.get('start_index', 0), 
+                                citation_info.get('end_index', 0)
+                            ) if citation_info.get('start_index') is not None else None
                         }
                         results.append(result)
                     
@@ -304,7 +413,12 @@ class CitationProcessor:
                     'extracted_name': case_name,
                     'position': citation_info.get('start_index'),
                     'verified': False,
-                    'similarity': None
+                    'similarity': None,
+                    'extracted_date': extract_date_from_context(
+                        text, 
+                        citation_info.get('start_index', 0), 
+                        citation_info.get('end_index', 0)
+                    ) if citation_info.get('start_index') is not None else None
                 }
                 results.append(result)
             
@@ -378,7 +492,7 @@ class CitationProcessor:
                 "source": "error",
             }
 
-    def _make_api_request(self, endpoint: str, params: Optional[Dict] = None) -> Dict:
+    def _make_api_request(self, endpoint: str, method: str = "GET", params: Optional[Dict] = None, data: Optional[Dict] = None) -> Dict:
         """Make an authenticated request to the CourtListener API."""
         url = f"{self.api_base_url}{endpoint}"
         headers = {
@@ -387,9 +501,11 @@ class CitationProcessor:
         }
 
         try:
-            response = self.session.get(
+            response = self.session.request(
+                method,
                 url,
                 params=params,
+                json=data,
                 headers={k: v for k, v in headers.items() if v is not None},
                 timeout=10,
             )
@@ -436,7 +552,7 @@ class CitationProcessor:
         try:
             # Call the citation-lookup endpoint
             result = self._make_api_request(
-                "/citation-lookup/", params={"citation": str(citation_text)}
+                "/citation-lookup/", method="POST", data={"text": str(citation_text)}
             )
 
             validation_result = {
@@ -773,7 +889,7 @@ if __name__ == "__main__":
 
         # Extract citations
         citations = processor.extract_citations(text)
-        print(f"Extracted {len(citations)} citations")
+        self.logger.info(f"Extracted {len(citations)} citations")
 
         # Validate citations
         citation_texts = [str(citation) for citation in citations]
@@ -781,6 +897,6 @@ if __name__ == "__main__":
 
         # Print results
         for result in results:
-            print(f"{result['citation']}: {'Valid' if result['valid'] else 'Invalid'}")
+            self.logger.info(f"{result['citation']}: {'Valid' if result['valid'] else 'Invalid'}")
             if result.get("error"):
-                print(f"  Error: {result['error']}")
+                self.logger.error(f"  Error: {result['error']}")

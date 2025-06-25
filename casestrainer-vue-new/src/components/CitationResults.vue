@@ -1,1429 +1,511 @@
 <template>
   <div class="citation-results">
-    <div v-if="loading" class="text-center my-4">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mt-2">Analyzing citations...</p>
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <h3>Analyzing citations...</h3>
     </div>
     
-    <!-- Progress Bar for Async Tasks -->
-    <div v-else-if="taskProgress && taskProgress.status === 'queued'" class="progress-container my-4">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">Processing Document</h6>
-            <span class="badge bg-primary">{{ taskProgress.progress || 0 }}%</span>
-          </div>
-          
-          <!-- Progress Bar -->
-          <div class="progress mb-3" style="height: 20px;">
-            <div 
-              class="progress-bar progress-bar-striped progress-bar-animated" 
-              :style="{ width: (taskProgress.progress || 0) + '%' }"
-              role="progressbar"
-              :aria-valuenow="taskProgress.progress || 0"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              {{ taskProgress.progress || 0 }}%
-            </div>
-          </div>
-          
-          <!-- Status Message -->
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <p class="mb-1 text-muted">
-                <i class="bi bi-info-circle me-1"></i>
-                {{ taskProgress.status_message || 'Processing...' }}
-              </p>
-              <p class="mb-0 small text-muted">
-                <i class="bi bi-gear me-1"></i>
-                {{ taskProgress.current_step || 'Unknown step' }}
-              </p>
-            </div>
-            <div v-if="taskProgress.estimated_time_remaining" class="text-end">
-              <p class="mb-0 small text-muted">
-                <i class="bi bi-clock me-1"></i>
-                Est. {{ formatTimeRemaining(taskProgress.estimated_time_remaining) }}
-              </p>
-            </div>
-          </div>
-          
-          <!-- Task Info -->
-          <div class="mt-3 pt-3 border-top">
-            <div class="row text-center">
-              <div class="col-4">
-                <div class="small text-muted">Task ID</div>
-                <div class="font-monospace small">{{ taskProgress.task_id?.substring(0, 8) }}...</div>
-              </div>
-              <div class="col-4">
-                <div class="small text-muted">Type</div>
-                <div class="small">{{ taskProgress.metadata?.source_type || 'Unknown' }}</div>
-              </div>
-              <div class="col-4">
-                <div class="small text-muted">Started</div>
-                <div class="small">{{ formatTimestamp(taskProgress.metadata?.timestamp) }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Error State -->
+    <div v-else-if="error" class="error-state">
+      <div class="error-icon">❌</div>
+      <h3>Analysis Error</h3>
+      <p>{{ error }}</p>
     </div>
     
-    <div v-else-if="error" class="alert alert-danger">
-      <h5 class="alert-heading">Error</h5>
-      <p class="mb-0">{{ error }}</p>
-    </div>
-    
-    <!-- Main Results Card -->
-    <div v-else-if="results && results.citations && results.citations.length > 0" class="results-card">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Citation Analysis Results</h4>
-        <div v-if="false">
-          <span class="badge bg-primary me-2">
-            Total: {{ results.citations.length }}
-          </span>
-          <span class="badge bg-success me-2">
-            Verified: {{ validCount }}
-          </span>
-          <span class="badge bg-warning text-dark me-2" v-if="validButNotVerifiedCount > 0">
-            Valid but Not Verified: {{ validButNotVerifiedCount }}
-          </span>
-          <span class="badge bg-danger">
-            Invalid: {{ invalidCount }}
-          </span>
-        </div>
-      </div>
-      
-      <!-- New: Stats summary card -->
-      <div v-if="results.stats" class="card mb-3">
-        <div class="card-header bg-light">
-          <strong>Citation Processing Breakdown</strong>
-        </div>
-        <div class="card-body p-2">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Total Extracted</span>
-              <span class="badge bg-secondary">{{ results.stats.total_extracted }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Deduplicated</span>
-              <span class="badge bg-secondary">{{ results.stats.deduplicated }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Verified in Cache</span>
-              <span class="badge bg-info">{{ results.stats.verified_in_cache }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Verified in JSON Array</span>
-              <span class="badge bg-success">{{ results.stats.verified_in_json_array }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Verified in Text Blob</span>
-              <span class="badge bg-primary">{{ results.stats.verified_in_text_blob }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Verified in Single Lookup</span>
-              <span class="badge bg-warning text-dark">{{ results.stats.verified_in_single }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Verified in LangSearch</span>
-              <span class="badge bg-dark">{{ results.stats.verified_in_langsearch }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>Not Verified</span>
-              <span class="badge bg-danger">{{ results.stats.not_verified }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- End stats summary card -->
-      
-      <!-- Tab Navigation -->
-      <div class="tab-navigation mb-3">
-        <!-- Mobile: Dropdown for tabs -->
-        <div class="d-md-none">
-          <select class="form-select" v-model="activeTab" @change="activeTab = $event.target.value">
-            <option value="all">All Citations ({{ results.citations.length }})</option>
-            <option value="verified">Verified ({{ validCount }})</option>
-            <option value="validButNotVerified">Valid but Not Verified ({{ validButNotVerifiedCount }})</option>
-            <option value="caseNameMismatches">Case Name Mismatches ({{ caseNameMismatchCount }})</option>
-            <option value="invalid">Invalid ({{ invalidCount }})</option>
-          </select>
-        </div>
-        
-        <!-- Desktop: Tab navigation -->
-        <ul class="nav nav-tabs d-none d-md-flex" id="citationTabs" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button 
-              class="nav-link" 
-              :class="{ active: activeTab === 'all' }"
-              @click="activeTab = 'all'"
-              type="button" 
-              role="tab"
-            >
-              All Citations ({{ results.citations.length }})
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button 
-              class="nav-link" 
-              :class="{ active: activeTab === 'verified' }"
-              @click="activeTab = 'verified'"
-              type="button" 
-              role="tab"
-            >
-              Verified ({{ validCount }})
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button 
-              class="nav-link" 
-              :class="{ active: activeTab === 'validButNotVerified' }"
-              @click="activeTab = 'validButNotVerified'"
-              type="button" 
-              role="tab"
-            >
-              Valid but Not Verified ({{ validButNotVerifiedCount }})
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button 
-              class="nav-link" 
-              :class="{ active: activeTab === 'caseNameMismatches' }"
-              @click="activeTab = 'caseNameMismatches'"
-              type="button" 
-              role="tab"
-            >
-              Case Name Mismatches ({{ caseNameMismatchCount }})
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button 
-              class="nav-link" 
-              :class="{ active: activeTab === 'invalid' }"
-              @click="activeTab = 'invalid'"
-              type="button" 
-              role="tab"
-            >
-              Invalid ({{ invalidCount }})
-            </button>
-          </li>
-        </ul>
-      </div>
-      
-      <!-- Tab Content -->
-      <div class="tab-content">
-        <!-- All Citations Tab -->
-        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'all' }">
-          <!-- Mobile: Card layout -->
-          <div class="d-md-none">
-            <div v-for="(citation, index) in sortedCitations" :key="index" class="card mb-3">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-end mt-2">
-                  <button 
-                    class="btn btn-sm btn-outline-primary"
-                    @click="toggleDetails(index)"
-                  >
-                    {{ expandedCitation === index ? 'Hide' : 'View' }} Details
-                  </button>
-                  <span :class="['badge', getStatusBadgeClass(citation)]">
-                    {{ getStatusText(citation) }}
-                  </span>
-                </div>
-                
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <div class="flex-grow-1">
-                    <div class="d-flex align-items-center mb-1">
-                      <div class="citation-container">
-                        <a 
-                          v-if="getCitationUrl(citation)" 
-                          :href="getCitationUrl(citation)" 
-                          target="_blank" 
-                          class="citation-link"
-                          :title="getUrlSourceDisplayName(citation.url_source)"
-                        >
-                          {{ citation.citation }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                        <span v-else class="citation-text">{{ citation.citation }}</span>
-                        <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                          <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                        </div>
-                      </div>
-                      <button 
-                        v-if="citation.correction"
-                        class="btn btn-sm btn-outline-secondary ms-2"
-                        @click="applyCorrection(citation)"
-                        title="Apply correction"
-                      >
-                        <i class="bi bi-arrow-clockwise"></i>
-                      </button>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row g-2 mb-2">
-                  <div class="col-6">
-                    <small class="text-muted d-block">Extracted Case Name:</small>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted d-block">Canonical Case Name:</small>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div v-if="isCaseNameMismatch(citation)" class="alert alert-warning py-2 mb-2">
-                  <i class="bi bi-exclamation-triangle"></i> Low similarity
-                </div>
-              </div>
+    <!-- Results -->
+    <div v-else-if="results && results.citations && results.citations.length > 0" class="results-content">
+      <!-- Header with Summary -->
+      <div class="results-header">
+        <div class="header-content">
+          <h2>Citation Analysis Results</h2>
+          <div class="summary-stats">
+            <div class="stat-item">
+              <span class="stat-number">{{ results.citations.length }}</span>
+              <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-item verified">
+              <span class="stat-number">{{ validCount }}</span>
+              <span class="stat-label">Verified</span>
+            </div>
+            <div class="stat-item invalid">
+              <span class="stat-number">{{ invalidCount }}</span>
+              <span class="stat-label">Invalid</span>
             </div>
           </div>
-          
-          <!-- Desktop: Table layout -->
-          <div class="table-responsive d-none d-md-block">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Extracted Case Name</th>
-                  <th>Canonical Case Name</th>
-                  <th>Details</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in sortedCitations" :key="index" class="align-middle">
-                  <td>
-                    <div class="citation-container">
-                      <a 
-                        v-if="getCitationUrl(citation)" 
-                        :href="getCitationUrl(citation)" 
-                        target="_blank" 
-                        class="citation-link"
-                        :title="getUrlSourceDisplayName(citation.url_source)"
-                      >
-                        {{ citation.citation }}
-                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                      </a>
-                      <span v-else class="citation-text">{{ citation.citation }}</span>
-                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                      </div>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small mt-1">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      @click="toggleDetails(index)"
-                    >
-                      {{ expandedCitation === index ? 'Hide' : 'View' }} Details
-                    </button>
-                  </td>
-                  <td>
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
         
-        <!-- Verified Citations Tab -->
-        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'verified' }">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Extracted Case Name</th>
-                  <th>Canonical Case Name</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in verifiedCitations" :key="'verified-' + index" class="align-middle">
-                  <td>
-                    <div class="citation-container">
-                      <a 
-                        v-if="getCitationUrl(citation)" 
-                        :href="getCitationUrl(citation)" 
-                        target="_blank" 
-                        class="citation-link"
-                        :title="getUrlSourceDisplayName(citation.url_source)"
-                      >
-                        {{ citation.citation }}
-                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                      </a>
-                      <span v-else class="citation-text">{{ citation.citation }}</span>
-                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                      </div>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small mt-1">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </td>
-                  <td>
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      @click="toggleDetails('verified-' + index)"
-                    >
-                      {{ expandedCitation === 'verified-' + index ? 'Hide' : 'View' }} Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <!-- Valid but Not Verified Citations Tab -->
-        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'validButNotVerified' }">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Extracted Case Name</th>
-                  <th>Canonical Case Name</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in validButNotVerifiedCitations" :key="'validButNotVerified-' + index" class="align-middle">
-                  <td>
-                    <div class="citation-container">
-                      <a 
-                        v-if="getCitationUrl(citation)" 
-                        :href="getCitationUrl(citation)" 
-                        target="_blank" 
-                        class="citation-link"
-                        :title="getUrlSourceDisplayName(citation.url_source)"
-                      >
-                        {{ citation.citation }}
-                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                      </a>
-                      <span v-else class="citation-text">{{ citation.citation }}</span>
-                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                      </div>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small mt-1">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </td>
-                  <td>
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      @click="toggleDetails('validButNotVerified-' + index)"
-                    >
-                      {{ expandedCitation === 'validButNotVerified-' + index ? 'Hide' : 'View' }} Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <!-- Case Name Mismatches Tab -->
-        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'caseNameMismatches' }">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Extracted Case Name</th>
-                  <th>Canonical Case Name</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in caseNameMismatches" :key="'caseNameMismatch-' + index" class="align-middle">
-                  <td>
-                    <div class="citation-container">
-                      <a 
-                        v-if="getCitationUrl(citation)" 
-                        :href="getCitationUrl(citation)" 
-                        target="_blank" 
-                        class="citation-link"
-                        :title="getUrlSourceDisplayName(citation.url_source)"
-                      >
-                        {{ citation.citation }}
-                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                      </a>
-                      <span v-else class="citation-text">{{ citation.citation }}</span>
-                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                      </div>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small mt-1">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </td>
-                  <td>
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      @click="toggleDetails('caseNameMismatch-' + index)"
-                    >
-                      {{ expandedCitation === 'caseNameMismatch-' + index ? 'Hide' : 'View' }} Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <!-- Invalid Citations Tab -->
-        <div class="tab-pane fade" :class="{ 'show active': activeTab === 'invalid' }">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Citation</th>
-                  <th>Status</th>
-                  <th>Extracted Case Name</th>
-                  <th>Canonical Case Name</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(citation, index) in invalidCitations" :key="'invalid-' + index" class="align-middle">
-                  <td>
-                    <div class="citation-container">
-                      <a 
-                        v-if="getCitationUrl(citation)" 
-                        :href="getCitationUrl(citation)" 
-                        target="_blank" 
-                        class="citation-link"
-                        :title="getUrlSourceDisplayName(citation.url_source)"
-                      >
-                        {{ citation.citation }}
-                        <i class="bi bi-box-arrow-up-right ms-1"></i>
-                      </a>
-                      <span v-else class="citation-text">{{ citation.citation }}</span>
-                      <div v-if="citation.url_source && citation.url_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-link-45deg"></i> {{ getUrlSourceDisplayName(citation.url_source) }}
-                      </div>
-                    </div>
-                    <div v-if="citation.correction" class="text-muted small mt-1">
-                      <i class="bi bi-lightbulb"></i> Suggested: {{ citation.correction }}
-                    </div>
-                  </td>
-                  <td>
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getExtractedCaseName(citation) && getExtractedCaseName(citation).trim() !== '' && getExtractedCaseName(citation) !== 'Not extracted' && getExtractedCaseName(citation).toLowerCase() !== 'westlaw citation'">
-                        {{ getExtractedCaseName(citation) }}
-                        <div v-if="citation.extraction_confidence" class="text-muted small">
-                          <i class="bi bi-graph-up"></i> Confidence: {{ Math.round(citation.extraction_confidence * 100) }}%
-                        </div>
-                        <div v-if="citation.extraction_method" class="text-muted small">
-                          <i class="bi bi-gear"></i> Method: {{ citation.extraction_method }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not extracted</span>
-                      </template>
-                    </div>
-                  </td>
-                  <td>
-                    <div :class="['case-name', { 'case-name-mismatch': isCaseNameMismatch(citation) }]">
-                      <template v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified' && getCitationUrl(citation)">
-                        <a :href="getCitationUrl(citation)" target="_blank" rel="noopener" class="canonical-link">
-                          {{ getCanonicalCaseName(citation) }}
-                          <i class="bi bi-box-arrow-up-right ms-1"></i>
-                        </a>
-                      </template>
-                      <template v-else-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'Not verified'">
-                        {{ getCanonicalCaseName(citation) }}
-                      </template>
-                      <template v-else>
-                        <span class="text-muted">Not available</span>
-                      </template>
-                      <div v-if="citation.similarity_score !== undefined && citation.similarity_score !== null" class="text-muted small">
-                        <i class="bi bi-arrow-left-right"></i> Similarity: {{ Math.round(citation.similarity_score * 100) }}%
-                      </div>
-                      <div v-if="citation.canonical_source && citation.canonical_source !== 'none'" class="text-muted small">
-                        <i class="bi bi-database"></i> Source: {{ getSourceDisplayName(citation.canonical_source) }}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      @click="toggleDetails('invalid-' + index)"
-                    >
-                      {{ expandedCitation === 'invalid-' + index ? 'Hide' : 'View' }} Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Expanded Details Panels -->
-      <div 
-        v-for="(citation, index) in currentTabCitations" 
-        :key="'detail-' + (activeTab + '-' + index)"
-        v-show="expandedCitation === (activeTab + '-' + index)"
-        class="card mb-3"
-      >
-        <div class="card-header">
-          <h5 class="mb-0">Citation Details: {{ getCitationText(citation) }}</h5>
-        </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6">
-                <h6>Basic Information</h6>
-                <dl class="row">
-                  <dt class="col-sm-4">Status</dt>
-                  <dd class="col-sm-8">
-                    <span :class="['badge', getStatusBadgeClass(citation)]">
-                      {{ getStatusText(citation) }}
-                    </span>
-                    <span v-if="citation.data?.confidence < 0.7" class="ms-2 badge bg-warning text-dark">
-                      Low Confidence ({{ Math.round(citation.data?.confidence * 100) }}%)
-                    </span>
-                  </dd>
-                  
-                  <dt class="col-sm-4">Source</dt>
-                  <dd class="col-sm-8">
-                    <span class="text-capitalize">{{ citation.data?.source || 'N/A' }}</span>
-                    <a v-if="getCitationUrl(citation)" :href="getCitationUrl(citation)" target="_blank" class="ms-2">
-                      <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                  </dd>
-                  
-                  <dt class="col-sm-4">Case Name(s)</dt>
-                  <dd class="col-sm-8">
-                    <span v-if="citation.data?.case_name_verified && citation.data?.case_name_extracted && citation.data?.case_name_verified !== citation.data?.case_name_extracted">
-                      <strong>Verified:</strong> {{ citation.data?.case_name_verified }}<br>
-                      <span class="text-muted"><strong>Extracted:</strong> {{ citation.data?.case_name_extracted }}</span>
-                    </span>
-                    <span v-else-if="citation.data?.case_name_verified">
-                      {{ citation.data?.case_name_verified }}
-                    </span>
-                    <span v-else-if="citation.data?.case_name_extracted">
-                      {{ citation.data?.case_name_extracted }}
-                    </span>
-                    <span v-else>{{ getCaseName(citation) }}</span>
-                  </dd>
-                  
-                  <dt class="col-sm-4">Confidence</dt>
-                  <dd class="col-sm-8">
-                    <div class="progress" style="height: 20px;">
-                      <div 
-                        class="progress-bar" 
-                        :class="{
-                          'bg-success': citation.data?.confidence >= 0.7,
-                          'bg-warning': citation.data?.confidence >= 0.4 && citation.data?.confidence < 0.7,
-                          'bg-danger': citation.data?.confidence < 0.4
-                        }"
-                        role="progressbar" 
-                        :style="{ width: (citation.data?.confidence * 100) + '%' }"
-                        :aria-valuenow="citation.data?.confidence * 100"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                      >
-                        {{ Math.round(citation.data?.confidence * 100) }}%
-                      </div>
-                    </div>
-                  </dd>
-                </dl>
-              </div>
-              
-              <div class="col-md-6">
-                <h6>Additional Details</h6>
-                <dl class="row">
-                  <dt class="col-sm-4">Validation Method</dt>
-                  <dd class="col-sm-8">{{ citation.data?.method || 'N/A' }}</dd>
-                </dl>
-              </div>
-            </div>
-            <div v-if="citation.data?.error_message" class="alert alert-warning mt-3">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              {{ citation.data?.error_message }}
-            </div>
-          
-          <div v-if="citation.data?.metadata" class="mt-3">
-            <h6>Additional Metadata</h6>
-            <pre class="bg-light p-2 rounded">{{ JSON.stringify(citation.data?.metadata, null, 2) }}</pre>
-          </div>
-        </div>
-      </div>
-      
-      <div class="d-flex justify-content-between align-items-center mt-4">
-        <div>
-          <button class="btn btn-outline-secondary me-2" @click="downloadResults('json')">
-            <i class="bi bi-download me-1"></i> Download JSON
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button @click="copyResults" class="action-btn copy-btn">
+            <span class="btn-icon">📋</span>
+            Copy Results
           </button>
-          <button class="btn btn-outline-secondary me-2" @click="downloadResults('csv')">
-            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Download CSV
-          </button>
-          <button class="btn btn-outline-secondary" @click="copyToClipboard">
-            <i class="bi bi-clipboard me-1"></i> Copy to Clipboard
-          </button>
-        </div>
-        <div>
-          <button class="btn btn-primary" @click="startNewAnalysis">
-            <i class="bi bi-arrow-repeat me-1"></i> New Analysis
+          <button @click="downloadResults" class="action-btn download-btn">
+            <span class="btn-icon">💾</span>
+            Download
           </button>
         </div>
       </div>
-    </div>
-    
-    <div v-else class="text-center py-5">
-      <div class="text-muted">
-        <i class="bi bi-search" style="font-size: 3rem;"></i>
-        <h4 class="mt-3">No citations found</h4>
-        <p class="mb-0">Try analyzing some legal text to see citation results here.</p>
+
+      <!-- Processing Stats (if available) -->
+      <div v-if="results.stats" class="stats-section">
+        <h3>Processing Breakdown</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-value">{{ results.stats.total_extracted }}</span>
+            <span class="stat-title">Extracted</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">{{ results.stats.deduplicated }}</span>
+            <span class="stat-title">Unique</span>
+          </div>
+          <div class="stat-card verified">
+            <span class="stat-value">{{ results.stats.verified_in_cache + results.stats.verified_in_json_array + results.stats.verified_in_text_blob + results.stats.verified_in_single + results.stats.verified_in_langsearch }}</span>
+            <span class="stat-title">Verified</span>
+          </div>
+          <div class="stat-card invalid">
+            <span class="stat-value">{{ results.stats.not_verified }}</span>
+            <span class="stat-title">Not Verified</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-section">
+        <div class="filter-controls">
+          <button 
+            v-for="filter in filters" 
+            :key="filter.value"
+            :class="['filter-btn', { active: activeFilter === filter.value }]"
+            @click="activeFilter = filter.value"
+          >
+            {{ filter.label }}
+            <span class="filter-count">({{ filter.count }})</span>
+          </button>
+        </div>
+        
+        <div class="search-box">
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="Search citations..."
+            class="search-input"
+          />
+        </div>
+      </div>
+
+      <!-- Citations List -->
+      <div v-if="filteredCitations.length > 0" class="citations-list">
+        <div
+          v-for="citation in paginatedCitations"
+          :key="citation.id || citation.citation"
+          :class="['citation-item', { verified: citation.verified, invalid: !citation.verified }]"
+        >
+          <div class="citation-header">
+            <div class="citation-text">
+              <span class="citation-content">{{ citation.citation }}</span>
+              <span :class="['status-badge', citation.verified ? 'verified' : 'invalid']">
+                {{ citation.verified ? '✓ Verified' : '✗ Invalid' }}
+              </span>
+            </div>
+            <div class="citation-actions">
+              <button
+                v-if="getCitationUrl(citation)"
+                @click="openCitation(getCitationUrl(citation))"
+                class="action-link"
+                title="View case details"
+              >
+                🔗
+              </button>
+              <button
+                @click="copyCitation(citation.citation)"
+                class="action-link"
+                title="Copy citation"
+              >
+                📋
+              </button>
+            </div>
+          </div>
+          
+          <!-- Enhanced Citation Details -->
+          <div class="citation-details">
+            <!-- Case Name Comparison -->
+            <div v-if="getCaseName(citation) || getExtractedCaseName(citation)" class="detail-section">
+              <h4 class="section-title">Case Information</h4>
+              <div class="detail-row">
+                <span class="detail-label">Canonical Case Name:</span>
+                <span class="detail-value">{{ getCaseName(citation) || 'N/A' }}</span>
+              </div>
+              <div v-if="getExtractedCaseName(citation)" class="detail-row">
+                <span class="detail-label">Extracted Case Name:</span>
+                <span class="detail-value">{{ getExtractedCaseName(citation) }}</span>
+              </div>
+              <div v-if="getCaseNameSimilarity(citation) !== null" class="detail-row">
+                <span class="detail-label">Name Similarity:</span>
+                <span :class="['detail-value', getSimilarityClass(getCaseNameSimilarity(citation))]">
+                  {{ (getCaseNameSimilarity(citation) * 100).toFixed(1) }}%
+                </span>
+              </div>
+              <div v-if="getCaseNameMismatch(citation)" class="detail-row">
+                <span class="detail-label">Name Mismatch:</span>
+                <span class="detail-value warning">⚠️ Case names differ significantly</span>
+              </div>
+            </div>
+
+            <!-- Court and Docket Information -->
+            <div v-if="getCourt(citation) || getDocket(citation)" class="detail-section">
+              <h4 class="section-title">Court Information</h4>
+              <div v-if="getCourt(citation)" class="detail-row">
+                <span class="detail-label">Court:</span>
+                <span class="detail-value">{{ getCourt(citation) }}</span>
+              </div>
+              <div v-if="getDocket(citation)" class="detail-row">
+                <span class="detail-label">Docket:</span>
+                <span class="detail-value">{{ getDocket(citation) }}</span>
+              </div>
+            </div>
+
+            <!-- Decision Date -->
+            <div v-if="getDateFiled(citation) || getExtractedDate(citation)" class="detail-section">
+              <h4 class="section-title">Decision Information</h4>
+              <div v-if="getExtractedDate(citation)" class="detail-row">
+                <span class="detail-label">Extracted Date:</span>
+                <span class="detail-value">{{ formatDate(getExtractedDate(citation)) }}</span>
+              </div>
+              <div v-if="getDateFiled(citation)" class="detail-row">
+                <span class="detail-label">Canonical Date:</span>
+                <span class="detail-value">{{ formatDate(getDateFiled(citation)) }}</span>
+              </div>
+              <div v-if="getExtractedDate(citation) && getDateFiled(citation)" class="detail-row">
+                <span class="detail-label">Date Match:</span>
+                <span :class="['detail-value', getExtractedDate(citation) === getDateFiled(citation) ? 'high-similarity' : 'low-similarity']">
+                  {{ getExtractedDate(citation) === getDateFiled(citation) ? '✓ Match' : '✗ Different' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Parallel Citations -->
+            <div v-if="getParallelCitations(citation) && getParallelCitations(citation).length > 0" class="detail-section">
+              <h4 class="section-title">Parallel Citations</h4>
+              <div class="parallel-citations">
+                <span 
+                  v-for="(parallel, index) in getParallelCitations(citation)" 
+                  :key="index"
+                  class="parallel-citation"
+                >
+                  {{ parallel }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Source Information -->
+            <div class="detail-section">
+              <h4 class="section-title">Verification Details</h4>
+              <div class="detail-row">
+                <span class="detail-label">Source:</span>
+                <span class="detail-value">{{ getSource(citation) || 'N/A' }}</span>
+              </div>
+              <div v-if="getNote(citation)" class="detail-row">
+                <span class="detail-label">Note:</span>
+                <span class="detail-value note">{{ getNote(citation) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="pagination">
+          <button 
+            @click="currentPage--" 
+            :disabled="currentPage <= 1"
+            class="pagination-btn"
+          >
+            ← Previous
+          </button>
+          <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+          <button 
+            @click="currentPage++" 
+            :disabled="currentPage >= totalPages"
+            class="pagination-btn"
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty Filter State -->
+      <div v-if="filteredCitations.length === 0 && results.citations.length > 0" class="empty-filter">
+        <div class="empty-icon">🔍</div>
+        <h3>No citations match your filter</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>
+    </div>
+
+    <!-- No Results State -->
+    <div v-else class="no-results">
+      <div class="no-results-icon">📄</div>
+      <h3>No Citations Found</h3>
+      <p>The document didn't contain any recognizable legal citations</p>
     </div>
   </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
+<script setup>
+import { ref, computed, watch } from 'vue';
 
-export default {
-  name: 'CitationResults',
-  props: {
-    results: {
-      type: Object,
-      default: () => ({
-        citations: [],
-        metadata: {}
-      })
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    error: {
-      type: String,
-      default: ''
-    },
-    taskProgress: {
-      type: Object,
-      default: () => ({})
-    }
+const props = defineProps({
+  results: {
+    type: Object,
+    default: null
   },
-  emits: ['new-analysis', 'apply-correction'],
-  setup(props, { emit }) {
-    const expandedCitation = ref(null);
-    const activeTab = ref('all');
-    
-    const validCount = computed(() => {
-      return props.results?.citations?.filter(c => c.valid || c.verified || c.found || c.exists).length || 0;
-    });
-    
-    const validButNotVerifiedCitations = computed(() => {
-      if (!props.results?.citations) return [];
-      return props.results.citations.filter(c => !(c.valid || c.verified || c.found || c.exists) && isValidCitationFormat(c));
-    });
-    
-    const validButNotVerifiedCount = computed(() => {
-      return validButNotVerifiedCitations.value.length;
-    });
-    
-    const invalidCount = computed(() => {
-      return props.results?.citations?.filter(c => !(c.valid || c.verified || c.found || c.exists) && !isValidCitationFormat(c)).length || 0;
-    });
-    
-    const lowConfidenceCount = computed(() => {
-      return props.results?.citations?.filter(c => (c.confidence ?? 0) >= 0.4 && (c.confidence ?? 0) < 0.7).length || 0;
-    });
-    
-    const verifiedCitations = computed(() => {
-      if (!props.results?.citations) return [];
-      return props.results.citations.filter(c => c.valid || c.verified || c.found || c.exists);
-    });
-    
-    const invalidCitations = computed(() => {
-      if (!props.results?.citations) return [];
-      return props.results.citations.filter(c => !(c.valid || c.verified || c.found || c.exists));
-    });
-    
-    const caseNameMismatches = computed(() => {
-      return sortedCitations.value.filter(citation => isCaseNameMismatch(citation));
-    });
-    
-    const caseNameMismatchCount = computed(() => {
-      return caseNameMismatches.value.length;
-    });
-    
-    const currentTabCitations = computed(() => {
-      switch (activeTab.value) {
-        case 'verified':
-          return verifiedCitations.value;
-        case 'validButNotVerified':
-          return validButNotVerifiedCitations.value;
-        case 'caseNameMismatches':
-          return caseNameMismatches.value;
-        case 'invalid':
-          return invalidCitations.value;
-        default:
-          return sortedCitations.value;
-      }
-    });
-    
-    const showResults = computed(() => {
-      return props.results && props.results.citations && props.results.citations.length > 0;
-    });
-    
-    const sortedCitations = computed(() => {
-      if (!props.results?.citations) return [];
-      return [...props.results.citations].sort((a, b) => {
-        // Assign a sort rank: 0 = Red (Invalid), 1 = Yellow (Valid but Not Verified), 2 = Green (Verified)
-        function getBadgeRank(citation) {
-          if (citation.valid || citation.verified || citation.found || citation.exists) {
-            return 2; // Green
-          } else if (isValidCitationFormat(citation)) {
-            return 1; // Yellow
-          } else {
-            return 0; // Red
-          }
-        }
-        const aRank = getBadgeRank(a);
-        const bRank = getBadgeRank(b);
-        if (aRank !== bRank) {
-          return aRank - bRank; // Lower rank (Red) first
-        }
-        // If same rank, sort by confidence descending
-        const aConf = a.confidence ?? 0;
-        const bConf = b.confidence ?? 0;
-        return bConf - aConf;
-      });
-    });
-    
-    function getCitationText(citation) {
-      return citation.citation || citation.text || citation.citation_text || 'Unknown Citation';
-    }
-    
-    function getCluster(citation) {
-      return citation.data?.details?.[0]?.clusters?.[0] || null;
-    }
-    
-    function getCaseName(citation) {
-      const cluster = getCluster(citation);
-      return cluster?.case_name || 'N/A';
-    }
-    
-    function getCourtInfo(citation) {
-      const cluster = getCluster(citation);
-      return cluster?.court || 'N/A';
-    }
-    
-    function getDateFiled(citation) {
-      const cluster = getCluster(citation);
-      return cluster?.date_filed || 'N/A';
-    }
-    
-    function getPrecedentialStatus(citation) {
-      const cluster = getCluster(citation);
-      return cluster?.precedential_status || 'N/A';
-    }
-    
-    function getCitationUrl(citation) {
-      // Return citation URL from enhanced citation processor
-      if (citation.citation_url && citation.citation_url.trim() !== '') {
-        return citation.citation_url;
-      }
-      // Fallback to existing URL logic
-      if (citation.url) {
-        return citation.url;
-      }
-      return '';
-    }
-    
-    function getStatusBadgeClass(citation) {
-      if (citation.valid || citation.verified || citation.found || citation.exists) {
-        return 'bg-success';
-      } else if (isValidCitationFormat(citation)) {
-        return 'bg-warning text-dark';
-      } else {
-        return 'bg-danger';
-      }
-    }
-    
-    function getStatusText(citation) {
-      if (citation.valid || citation.verified || citation.found || citation.exists) {
-        return 'Verified';
-      } else if (isValidCitationFormat(citation)) {
-        return 'Valid but Not Verified';
-      } else {
-        return 'Invalid';
-      }
-    }
-    
-    function isValidCitationFormat(citation) {
-      const citationText = getCitationText(citation);
-      
-      // Check if it's clearly invalid (like "Filed", "Page", etc.)
-      const invalidPatterns = [
-        /^filed\s+\d+$/i,
-        /^page\s+\d+$/i,
-        /^docket\s+\d+$/i,
-        /^\d+\s+filed\s+\d+$/i,
-        /^\d+\s+page\s+\d+$/i,
-        /^\d+\s+docket\s+\d+$/i
-      ];
-      
-      for (const pattern of invalidPatterns) {
-        if (pattern.test(citationText)) {
-          return false;
-        }
-      }
-      
-      // Check if it looks like a valid legal citation format
-      const validPatterns = [
-        /\d+\s+[A-Z]\.\s*\d+/i,  // e.g., "534 F.3d 1290"
-        /\d+\s+[A-Z]{2,}\.\s*\d+/i,  // e.g., "123 Wash. 456"
-        /\d+\s+WL\s+\d+/i,  // Westlaw citations
-        /\d+\s+U\.S\.\s+\d+/i,  // Supreme Court
-        /\d+\s+S\.\s*Ct\.\s+\d+/i,  // Supreme Court
-        /\d+\s+[A-Z]\.\s*App\.\s*\d+/i,  // Appellate courts
-      ];
-      
-      for (const pattern of validPatterns) {
-        if (pattern.test(citationText)) {
-          return true;
-        }
-      }
-      
-      return false;
-    }
-    
-    const toggleDetails = (index) => {
-      expandedCitation.value = expandedCitation.value === index ? null : index;
-    };
-    
-    const startNewAnalysis = () => {
-      emit('new-analysis');
-    };
-    
-    const applyCorrection = (citation) => {
-      emit('apply-correction', citation);
-    };
-    
-    const downloadResults = (format) => {
-      console.log(`Downloading results as ${format}`);
-    };
-    
-    const copyToClipboard = () => {
-      console.log('Copying results to clipboard');
-    };
-    
-    // Helper methods for progress tracking
-    const formatTimeRemaining = (seconds) => {
-      if (!seconds || seconds <= 0) return 'Complete';
-      if (seconds < 60) return `${seconds}s`;
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
-      return `${minutes}m ${remainingSeconds}s`;
-    };
-    
-    const formatTimestamp = (timestamp) => {
-      if (!timestamp) return 'Unknown';
-      try {
-        const date = new Date(timestamp);
-        return date.toLocaleTimeString();
-      } catch {
-        return 'Invalid';
-      }
-    };
-    
-    function getExtractedCaseName(citation) {
-      return citation.case_name_extracted && citation.case_name_extracted.trim() !== '' ? citation.case_name_extracted : 'Not extracted';
-    }
-    
-    function getVerifiedCaseName(citation) {
-      // DEV_LOG: Log the entire citation object to inspect its structure
-      console.log('Inspecting citation object for verified case name:', JSON.parse(JSON.stringify(citation)));
-      
-      if (citation.data?.case_name) {
-        return citation.data.case_name;
-      } else if (citation.verified_case_name) {
-        return citation.verified_case_name;
-      } else if (citation.case_name) {
-        return citation.case_name;
-      }
-      return 'Not verified';
-    }
-    
-    function isCaseNameMismatch(citation) {
-      const extracted = getExtractedCaseName(citation);
-      const verified = getVerifiedCaseName(citation);
-      
-      // If either is missing, not a mismatch
-      if (extracted === 'Not extracted' || verified === 'Not verified') {
-        return false;
-      }
-      
-      // Check if citation has similarity score
-      if (citation.case_name_similarity !== undefined) {
-        return citation.case_name_similarity < 0.3; // Low similarity threshold
-      }
-      
-      // Fallback: check if names are very different
-      const extractedWords = extracted.toLowerCase().split(/\s+/).filter(word => word.length > 2);
-      const verifiedWords = verified.toLowerCase().split(/\s+/).filter(word => word.length > 2);
-      
-      const commonWords = extractedWords.filter(word => verifiedWords.includes(word));
-      const similarity = commonWords.length / Math.max(extractedWords.length, verifiedWords.length);
-      
-      return similarity < 0.3;
-    }
-    
-    function getCaseNameSimilarityText(citation) {
-      if (citation.case_name_similarity !== undefined) {
-        const similarity = citation.case_name_similarity;
-        if (similarity >= 0.7) {
-          return 'High similarity';
-        } else if (similarity >= 0.3) {
-          return 'Medium similarity';
-        } else {
-          return 'Low similarity';
-        }
-      }
-      return '';
-    }
-    
-    function getCanonicalCaseName(citation) {
-      // Return canonical case name from enhanced citation processor
-      if (citation.canonical_case_name && citation.canonical_case_name.trim() !== '') {
-        return citation.canonical_case_name;
-      }
-      return 'Not available';
-    }
-    
-    function getSourceDisplayName(source) {
-      // Return user-friendly display name for source
-      switch (source) {
-        case 'courtlistener':
-          return 'CourtListener';
-        case 'google_scholar':
-          return 'Google Scholar';
-        case 'web_search':
-          return 'Web Search';
-        case 'language_search':
-          return 'Language Search';
-        case 'none':
-          return 'None';
-        default:
-          return source;
-      }
-    }
-    
-    function getUrlSourceDisplayName(source) {
-      // Return user-friendly display name for URL source
-      switch (source) {
-        case 'courtlistener':
-          return 'CourtListener';
-        case 'google_scholar':
-          return 'Google Scholar';
-        case 'vlex':
-          return 'vLex';
-        case 'casemine':
-          return 'CaseMine';
-        case 'leagle':
-          return 'Leagle';
-        case 'justia':
-          return 'Justia';
-        case 'none':
-          return 'None';
-        default:
-          return source;
-      }
-    }
-    
-    return {
-      expandedCitation,
-      activeTab,
-      validCount,
-      validButNotVerifiedCitations,
-      validButNotVerifiedCount,
-      invalidCount,
-      lowConfidenceCount,
-      showResults,
-      sortedCitations,
-      verifiedCitations,
-      invalidCitations,
-      currentTabCitations,
-      getCitationText,
-      getCaseName,
-      getExtractedCaseName,
-      getVerifiedCaseName,
-      isCaseNameMismatch,
-      getCourtInfo,
-      getDateFiled,
-      getPrecedentialStatus,
-      getCitationUrl,
-      getStatusBadgeClass,
-      getStatusText,
-      toggleDetails,
-      startNewAnalysis,
-      applyCorrection,
-      downloadResults,
-      copyToClipboard,
-      formatTimeRemaining,
-      formatTimestamp,
-      caseNameMismatches,
-      caseNameMismatchCount,
-      getCaseNameSimilarityText,
-      getCanonicalCaseName,
-      getSourceDisplayName,
-      getUrlSourceDisplayName
-    };
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  error: {
+    type: String,
+    default: ''
+  }
+});
+
+const emit = defineEmits(['apply-correction', 'copy-results', 'download-results', 'toast']);
+
+// Reactive state
+const activeFilter = ref('all');
+const searchQuery = ref('');
+const currentPage = ref(1);
+const itemsPerPage = 50;
+
+// Computed properties
+const validCount = computed(() => {
+  if (!props.results?.citations) return 0;
+  return props.results.citations.filter(c => c.verified).length;
+});
+
+const invalidCount = computed(() => {
+  if (!props.results?.citations) return 0;
+  return props.results.citations.filter(c => !c.verified).length;
+});
+
+const filteredCitations = computed(() => {
+  if (!props.results?.citations) return [];
+  
+  let filtered = props.results.citations;
+  
+  // Apply filter
+  if (activeFilter.value === 'verified') {
+    filtered = filtered.filter(c => c.verified);
+  } else if (activeFilter.value === 'invalid') {
+    filtered = filtered.filter(c => !c.verified);
+  }
+  
+  // Apply search
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(c => 
+      c.citation.toLowerCase().includes(query) ||
+      (getCaseName(c) && getCaseName(c).toLowerCase().includes(query)) ||
+      (getExtractedCaseName(c) && getExtractedCaseName(c).toLowerCase().includes(query)) ||
+      (getCourt(c) && getCourt(c).toLowerCase().includes(query)) ||
+      (getDocket(c) && getDocket(c).toLowerCase().includes(query)) ||
+      (getDateFiled(c) && getDateFiled(c).toLowerCase().includes(query)) ||
+      (getExtractedDate(c) && getExtractedDate(c).toLowerCase().includes(query)) ||
+      (getParallelCitations(c) && getParallelCitations(c).some(p => p.toLowerCase().includes(query))) ||
+      (getSource(c) && getSource(c).toLowerCase().includes(query))
+    );
+  }
+  
+  return filtered;
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredCitations.value.length / itemsPerPage);
+});
+
+const paginatedCitations = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredCitations.value.slice(start, end);
+});
+
+const filters = computed(() => [
+  { value: 'all', label: 'All', count: props.results?.citations?.length || 0 },
+  { value: 'verified', label: 'Verified', count: validCount.value },
+  { value: 'invalid', label: 'Invalid', count: invalidCount.value }
+]);
+
+// Methods
+const copyCitation = async (citation) => {
+  try {
+    await navigator.clipboard.writeText(citation);
+    emit('toast', 'Citation copied to clipboard!', 'success');
+  } catch (err) {
+    emit('toast', 'Failed to copy citation', 'error');
   }
 };
+
+const openCitation = (url) => {
+  window.open(url, '_blank');
+};
+
+// Helper functions for enhanced data structure compatibility
+const getCaseName = (citation) => {
+  return citation.case_name || citation.metadata?.case_name || null;
+};
+
+const getExtractedCaseName = (citation) => {
+  return citation.extracted_case_name || null;
+};
+
+const getCaseNameSimilarity = (citation) => {
+  return citation.case_name_similarity || null;
+};
+
+const getCaseNameMismatch = (citation) => {
+  return citation.case_name_mismatch || false;
+};
+
+const getCourt = (citation) => {
+  return citation.court || citation.metadata?.court || null;
+};
+
+const getDocket = (citation) => {
+  return citation.docket_number || citation.metadata?.docket || null;
+};
+
+const getDateFiled = (citation) => {
+  return citation.date_filed || null;
+};
+
+const getExtractedDate = (citation) => {
+  return citation.extracted_date || null;
+};
+
+const getParallelCitations = (citation) => {
+  return citation.parallel_citations || [];
+};
+
+const getCitationUrl = (citation) => {
+  return citation.url || citation.metadata?.url || null;
+};
+
+const getSource = (citation) => {
+  return citation.source || citation.metadata?.source || null;
+};
+
+const getNote = (citation) => {
+  return citation.note || null;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (err) {
+    return dateString; // Return as-is if parsing fails
+  }
+};
+
+const getSimilarityClass = (similarity) => {
+  if (similarity === null) return '';
+  if (similarity >= 0.9) return 'high-similarity';
+  if (similarity >= 0.7) return 'medium-similarity';
+  return 'low-similarity';
+};
+
+const copyResults = async () => {
+  try {
+    const resultsText = filteredCitations.value
+      .map(c => `${c.citation} - ${c.verified ? 'Verified' : 'Invalid'}`)
+      .join('\n');
+    
+    await navigator.clipboard.writeText(resultsText);
+    emit('copy-results');
+    emit('toast', 'Results copied to clipboard!', 'success');
+  } catch (err) {
+    emit('toast', 'Failed to copy results', 'error');
+  }
+};
+
+const downloadResults = () => {
+  try {
+    const data = {
+      timestamp: new Date().toISOString(),
+      total: filteredCitations.value.length,
+      verified: validCount.value,
+      invalid: invalidCount.value,
+      citations: filteredCitations.value.map(c => ({
+        citation: c.citation,
+        verified: c.verified,
+        case_name: getCaseName(c),
+        extracted_case_name: getExtractedCaseName(c),
+        case_name_similarity: getCaseNameSimilarity(c),
+        case_name_mismatch: getCaseNameMismatch(c),
+        court: getCourt(c),
+        docket_number: getDocket(c),
+        date_filed: getDateFiled(c),
+        extracted_date: getExtractedDate(c),
+        parallel_citations: getParallelCitations(c),
+        url: getCitationUrl(c),
+        source: getSource(c),
+        note: getNote(c),
+        metadata: c.metadata // Keep original metadata for backward compatibility
+      }))
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `citation-results-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    emit('download-results');
+    emit('toast', 'Results downloaded successfully!', 'success');
+  } catch (err) {
+    emit('toast', 'Failed to download results', 'error');
+  }
+};
+
+// Reset pagination when filter changes
+const resetPagination = () => {
+  currentPage.value = 1;
+};
+
+// Watch for filter changes
+watch(activeFilter, resetPagination);
+watch(searchQuery, resetPagination);
 </script>
 
 <style scoped>
 .citation-results {
-  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.results-container {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.citation-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.citation-link {
-  color: #0d6efd;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.2s ease;
-}
-
-.citation-link:hover {
-  color: #0a58ca;
-  text-decoration: underline;
-}
-
-.citation-text {
-  font-weight: 500;
-  color: #212529;
-}
-
-.case-name {
-  font-weight: 500;
-  color: #198754;
-}
-
-.case-name-mismatch {
-  color: #dc3545;
-}
-
-.verified-badge {
-  background-color: #198754;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.warning-badge {
-  background-color: #ffc107;
-  color: #212529;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.error-badge {
-  background-color: #dc3545;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.source-badge {
-  background-color: #6c757d;
-  color: white;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-}
-
-.source-badge.courtlistener {
-  background-color: #0d6efd;
-}
-
-.source-badge.google-scholar {
-  background-color: #198754;
-}
-
-.source-badge.web-search {
-  background-color: #fd7e14;
-}
-
-.source-badge.language-search {
-  background-color: #6f42c1;
-}
-
-.source-badge.vlex {
-  background-color: #fd7e14;
-}
-
-.source-badge.casemine {
-  background-color: #6f42c1;
-}
-
-.source-badge.leagle {
-  background-color: #dc3545;
-}
-
-.source-badge.justia {
-  background-color: #20c997;
-}
-
-.table-container {
-  max-height: 600px;
-  overflow-y: auto;
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 3rem;
 }
 
 .loading-spinner {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #0d6efd;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
 }
 
 @keyframes spin {
@@ -1431,212 +513,438 @@ export default {
   100% { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 3rem;
+  background: #fff5f5;
+  border-radius: 12px;
+  border: 1px solid #fed7d7;
 }
 
-/* Mobile-specific improvements */
-@media (max-width: 768px) {
-  .citation-results {
-    margin: 0 -1rem;
-  }
-  
-  .results-container {
-    padding: 0 1rem;
-  }
-  
-  /* Tab navigation */
-  .tab-navigation {
-    margin-bottom: 1rem;
-  }
-  
-  .form-select {
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.375rem;
-  }
-  
-  /* Card layout for mobile */
-  .card {
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  }
-  
-  .card-body {
-    padding: 1rem;
-  }
-  
-  /* Citation text */
-  .citation-text {
-    font-size: 0.875rem;
-    line-height: 1.4;
-  }
-  
-  /* Case names */
-  .case-name {
-    font-size: 0.8rem;
-    padding: 0.375rem 0.5rem;
-    margin-bottom: 0.25rem;
-  }
-  
-  /* Buttons */
-  .btn {
-    min-height: 44px;
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-  }
-  
-  .btn-sm {
-    min-height: 36px;
-    font-size: 0.8rem;
-    padding: 0.375rem 0.75rem;
-  }
-  
-  /* Badges */
-  .badge {
-    font-size: 0.75rem;
-    padding: 0.375rem 0.5rem;
-  }
-  
-  /* Alerts */
-  .alert {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  /* Stats summary */
-  .card .list-group-item {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  /* Progress bar */
-  .progress {
-    height: 1.5rem;
-  }
-  
-  .progress-bar {
-    font-size: 0.75rem;
-    line-height: 1.5rem;
-  }
-  
-  /* Hide table on mobile */
-  .table-responsive {
-    display: none;
-  }
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-/* Tablet improvements */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .citation-text {
-    font-size: 0.9rem;
-  }
-  
-  .case-name {
-    font-size: 0.85rem;
-  }
-  
-  .btn {
-    min-height: 40px;
-  }
-}
-
-/* Desktop improvements */
-@media (min-width: 1025px) {
-  .citation-text {
-    font-size: 1rem;
-  }
-  
-  .case-name {
-    font-size: 0.9rem;
-  }
-}
-
-/* Touch improvements */
-@media (hover: none) and (pointer: coarse) {
-  .btn {
-    min-height: 48px;
-  }
-  
-  .btn-sm {
-    min-height: 40px;
-  }
-  
-  .card {
-    cursor: pointer;
-  }
-  
-  .card:hover {
-    transform: none;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .context-box {
-    background-color: #2c3034;
-    border-left-color: #0d6efd;
-  }
-  
-  .table th {
-    background-color: #2c3034;
-  }
-  
-  .table-striped > tbody > tr:nth-of-type(odd) > * {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
-  }
-  
-  .bg-light {
-    background-color: #2c3034 !important;
-    color: #e9ecef;
-  }
-  
-  .case-name {
-    background-color: #2c3034;
-    border-color: #495057;
-    color: #e9ecef;
-  }
-  
-  .card {
-    background-color: #2c3034;
-    border-color: #495057;
-  }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .results-container {
-    animation: none;
-  }
-  
-  .card {
-    transition: none;
-  }
-}
-
-/* Print styles */
-@media print {
-  .btn, .badge {
-    border: 1px solid #000;
-    background: white !important;
-    color: black !important;
-  }
-  
-  .card {
-    border: 1px solid #000;
-    box-shadow: none;
-  }
-}
-
-.results-card {
-  background: #e6f7fb;
-  border: 2px solid #b6e6fa;
-  border-radius: 0.75rem;
-  padding: 2rem 1rem 1.5rem 1rem;
+/* Results Header */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.05);
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.header-content h2 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-item.verified .stat-number {
+  color: #28a745;
+}
+
+.stat-item.invalid .stat-number {
+  color: #dc3545;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-btn {
+  background: #007bff;
+  color: white;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+
+.download-btn {
+  background: #28a745;
+  color: white;
+}
+
+.download-btn:hover {
+  background: #1e7e34;
+}
+
+/* Stats Section */
+.stats-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stats-section h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.verified {
+  border-left: 4px solid #28a745;
+}
+
+.stat-card.invalid {
+  border-left: 4px solid #dc3545;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.stat-title {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Filter Section */
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.filter-btn:hover {
+  border-color: #007bff;
+}
+
+.filter-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.filter-count {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Citations List */
+.citations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.citation-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #6c757d;
+  transition: all 0.2s;
+}
+
+.citation-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.citation-item.verified {
+  border-left-color: #28a745;
+}
+
+.citation-item.invalid {
+  border-left-color: #dc3545;
+}
+
+.citation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.citation-text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.citation-content {
+  font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Courier New', monospace;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.invalid {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.citation-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-link {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.action-link:hover {
+  background: #f8f9fa;
+}
+
+/* Citation Details */
+.citation-details {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.25rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: #2c3e50;
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
+}
+
+.detail-value.warning {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.detail-value.note {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.detail-value.high-similarity {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.detail-value.medium-similarity {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.detail-value.low-similarity {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Parallel Citations */
+.parallel-citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.parallel-citation {
+  background: #e9ecef;
+  color: #495057;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+/* Empty States */
+.empty-filter,
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.empty-icon,
+.no-results-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .results-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .summary-stats {
+    gap: 1rem;
+  }
+  
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    max-width: none;
+  }
+  
+  .citation-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .citation-text {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .citation-details {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

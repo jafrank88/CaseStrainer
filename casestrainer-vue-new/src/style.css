@@ -154,3 +154,67 @@ tr:nth-child(even) {
 }
 
 /* Remove old color overrides for light mode */
+
+/* --- Mobile Friendly Tweaks --- */
+.input-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+.input-method-card {
+  min-width: 220px;
+  max-width: 320px;
+  flex: 1 1 220px;
+  margin-bottom: 1rem;
+}
+@media (max-width: 991px) {
+  .input-methods {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .input-method-card {
+    max-width: 100%;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.input-area input,
+.input-area textarea,
+.quick-citation-input,
+.analyze-btn {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1.1em;
+  margin-bottom: 1rem;
+}
+.analyze-btn {
+  min-height: 44px;
+}
+@media (max-width: 767px) {
+  #app {
+    padding: 0.5rem;
+  }
+  .input-methods {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .input-method-card {
+    margin-bottom: 0.5rem;
+  }
+  .input-area input,
+  .input-area textarea,
+  .analyze-btn {
+    font-size: 1.15em;
+    min-height: 44px;
+  }
+  .results-container {
+    padding: 0.5rem;
+    overflow-x: auto;
+  }
+}
+/* Ensure all buttons and inputs are touch-friendly */
+button, .analyze-btn, .input-area input, .input-area textarea {
+  min-height: 44px;
+}

@@ -24,7 +24,7 @@ CONFIRMED_DIR = os.path.join(DOWNLOAD_DIR, "confirmed_cases")
 os.makedirs(CONFIRMED_DIR, exist_ok=True)
 
 # CourtListener API URL
-COURTLISTENER_API_URL = "https://www.courtlistener.com/api/rest/v3/search/"
+COURTLISTENER_API_URL = "https://www.courtlistener.com/api/rest/v4/search/"
 
 
 # Load API key from config.json

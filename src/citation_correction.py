@@ -22,7 +22,7 @@ UNCONFIRMED_CITATIONS_FILE = os.path.join(
 CORRECTION_CACHE_FILE = os.path.join(DOWNLOAD_DIR, "correction_suggestions.json")
 
 # CourtListener API URL
-COURTLISTENER_API_URL = "https://www.courtlistener.com/api/rest/v3/search/"
+COURTLISTENER_API_URL = "https://www.courtlistener.com/api/rest/v4/search/"
 
 
 # Load API key from config.json

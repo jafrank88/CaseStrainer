@@ -90,37 +90,44 @@ class EnhancedLegalScraper:
     def search_for_case(self, citation: str, database_name: str) -> List[Dict[str, Any]]:
         """
         Search for a case on a specific legal database using search engines.
-        
-        Args:
-            citation: The citation to search for
-            database_name: Name of the legal database
-            
-        Returns:
-            List of search results with URLs and metadata
+        First, try the two-step CourtListener process. Only if not verified, proceed to Google/Bing.
         """
         if database_name not in self.legal_databases:
             self.logger.warning(f"Unknown database: {database_name}")
             return []
         
+        # --- Two-step CourtListener process first ---
+        try:
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+            cl_result = verifier._verify_with_courtlistener(citation)
+            if cl_result.get("verified") and cl_result.get("url"):
+                # Return as a search result format for downstream compatibility
+                return [{
+                    'title': cl_result.get('case_name', ''),
+                    'url': cl_result.get('url', ''),
+                    'snippet': '',
+                    'source': 'courtlistener',
+                    'score': 100,
+                    'is_detail_page': True
+                }]
+        except Exception as e:
+            self.logger.error(f"CourtListener verification error: {e}")
+        
         database_info = self.legal_databases[database_name]
         results = []
-        
         # Create search queries for both Google and Bing
         search_queries = self._create_search_queries(citation, database_info)
-        
         # Search using Google
         if self.use_google:
             google_results = self._search_google(search_queries)
             results.extend(google_results)
-        
         # Search using Bing
         if self.use_bing:
             bing_results = self._search_bing(search_queries)
             results.extend(bing_results)
-        
         # Filter and rank results
         filtered_results = self._filter_and_rank_results(results, database_info)
-        
         return filtered_results
     
     def _create_search_queries(self, citation: str, database_info: Dict) -> List[str]:
@@ -235,39 +242,44 @@ class EnhancedLegalScraper:
     def extract_case_metadata(self, citation: str, database_name: str) -> Dict[str, Any]:
         """
         Extract comprehensive case metadata using search engines to find detail pages.
-        
-        Args:
-            citation: The citation to search for
-            database_name: Name of the legal database
-            
-        Returns:
-            Dictionary containing extracted metadata
+        First, try the two-step CourtListener process. Only if not verified, proceed to Google/Bing.
         """
         try:
-            # Search for the case
-            search_results = self.search_for_case(citation, database_name)
-            
-            if not search_results:
-                self.logger.warning(f"No search results found for {citation} on {database_name}")
-                return self._empty_result(citation, database_name)
-            
-            # Try the best result first
-            best_result = search_results[0]
-            detail_url = best_result['url']
-            
-            # Extract metadata from the detail page
-            metadata = self.detail_scraper.extract_case_info(detail_url)
-            
-            # Add search result info
-            metadata['search_source'] = best_result.get('source', 'unknown')
-            metadata['search_score'] = best_result.get('score', 0)
-            metadata['search_results_count'] = len(search_results)
-            
-            return metadata
-            
+            # --- Two-step CourtListener process first ---
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+            cl_result = verifier._verify_with_courtlistener(citation)
+            if cl_result.get("verified") and cl_result.get("url"):
+                return {
+                    'canonical_name': cl_result.get('case_name', ''),
+                    'url': cl_result.get('url', ''),
+                    'parallel_citations': cl_result.get('parallel_citations', []),
+                    'year': cl_result.get('date_filed', ''),
+                    'court': cl_result.get('court', ''),
+                    'docket': cl_result.get('docket', ''),
+                    'search_source': 'courtlistener',
+                    'search_score': 100,
+                    'search_results_count': 1,
+                    'citation': citation,
+                    'database': database_name
+                }
         except Exception as e:
-            self.logger.error(f"Error extracting metadata for {citation} from {database_name}: {e}")
+            self.logger.error(f"CourtListener verification error: {e}")
+        # Fallback to search engines
+        search_results = self.search_for_case(citation, database_name)
+        if not search_results:
+            self.logger.warning(f"No search results found for {citation} on {database_name}")
             return self._empty_result(citation, database_name)
+        # Try the best result first
+        best_result = search_results[0]
+        detail_url = best_result['url']
+        # Extract metadata from the detail page
+        metadata = self.detail_scraper.extract_case_info(detail_url)
+        # Add search result info
+        metadata['search_source'] = best_result.get('source', 'unknown')
+        metadata['search_score'] = best_result.get('score', 0)
+        metadata['search_results_count'] = len(search_results)
+        return metadata
     
     def extract_from_all_databases(self, citation: str) -> Dict[str, Dict[str, Any]]:
         """

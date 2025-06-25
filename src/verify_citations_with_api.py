@@ -65,7 +65,7 @@ def verify_citation_with_api(citation, api_key):
         clean_citation = citation.replace(" ", "+")
 
         # Make the request to CourtListener API
-        url = f"https://www.courtlistener.com/api/rest/v3/search/?type=o&q={clean_citation}"
+url = f"https://www.courtlistener.com/api/rest/v4/search/?type=o&q={clean_citation}"
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:

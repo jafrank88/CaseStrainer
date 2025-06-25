@@ -45,3 +45,7 @@ typing-extensions==4.7.1
 
 # Frontend development
 nodeenv==1.8.0
+
+# New additions
+httpx
+parsel

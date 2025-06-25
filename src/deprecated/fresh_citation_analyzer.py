@@ -342,7 +342,7 @@ def verify_citation(citation):
         }
 
         # Make the request to CourtListener
-        url = f"https://www.courtlistener.com/api/rest/v3/search/?type=o&q={citation}"
+url = f"https://www.courtlistener.com/api/rest/v4/search/?type=o&q={citation}"
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:

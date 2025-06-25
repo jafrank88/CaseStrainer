@@ -1,147 +1,183 @@
 <template>
-  <div class="enhanced-validator container-fluid py-3">
-    <div class="row">
-      <div class="col-12">
-        <h2 class="mb-4">Citation Validator</h2>
-        
-        <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs mb-4" role="tablist">
-          <li v-for="tab in tabs" :key="tab.id" class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              :class="{ active: activeTab === tab.id }"
-              @click="activeTab = tab.id"
-              type="button"
-              role="tab"
-              :aria-selected="activeTab === tab.id"
-            >
-              {{ tab.label }}
-            </button>
-          </li>
-        </ul>
+  <div class="enhanced-validator">
+    <Toast v-if="toastMessage" :message="toastMessage" :type="toastType" @close="clearToast" />
+    <!-- Header -->
+    <div class="header">
+      <h1>Citation Validator</h1>
+      <p class="subtitle">Analyze legal documents, text, or URLs for citation verification</p>
+    </div>
 
-        <!-- Tab Content -->
-        <div class="tab-content p-3 border border-top-0 rounded-bottom">
-          <TextPaste v-if="activeTab === 'single' || activeTab === 'text'"
-            :isAnalyzing="isLoading"
-            :initialText="activeTab === 'single' ? citationInput : ''"
-            :mode="activeTab === 'single' ? 'single' : 'multi'"
-            @analyze="handleTextAnalyze"
-          />
-          <FileUpload v-if="activeTab === 'document'"
-            :isAnalyzing="isLoading"
-            @analyze="handleFileAnalyze"
-          />
-          <UrlUpload v-if="activeTab === 'url'"
-            :isAnalyzing="isLoading"
-            @analyze="handleUrlAnalyze"
-          />
-          <ProcessingProgress v-if="showLoading"
-            :elapsed-time="elapsedTime"
-            :remaining-time="remainingTime"
-            :total-progress="totalProgress"
-            :current-step="currentStep"
-            :current-step-progress="currentStepProgress"
-            :processing-steps="processingSteps"
-            :actual-times="actualTimes"
-            :citation-info="citationInfo"
-            :rate-limit-info="rateLimitInfo"
-            :timeout="timeout"
-            :error="processingError"
-            :can-retry="canRetry"
-            @retry="retryProcessing"
-          />
-          <CitationResults v-if="results" :results="results"
-            @apply-correction="applyCorrection"
-            @copy-results="copyResults"
-            @download-results="downloadResults"
-          />
-          <div v-if="error" class="alert alert-danger mt-4">{{ error }}</div>
-        </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Input Section -->
+      <div class="input-container">
+        <UnifiedInput
+          :isAnalyzing="isLoading"
+          @analyze="handleUnifiedAnalyze"
+        />
+      </div>
 
-        <!-- Unified Results Section -->
-        <div v-if="results && !showLoading" class="mt-4">
-          <CitationResults
-            :results="results"
-            :active-tab="activeTab"
-            @apply-correction="applyCorrection"
-            @copy-results="copyResults"
-            @download-results="downloadResults"
-          />
-        </div>
+      <!-- Progress Section -->
+      <div v-if="showLoading && !results" class="progress-container">
+        <SkeletonLoader :lines="4" height="6em" />
+      </div>
 
-        <!-- Loading State -->
-        <div v-else-if="showLoading" class="alert alert-info mt-4 d-flex align-items-center justify-content-center">
-          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          Analysis in progress... Please wait.
-        </div>
-
-        <!-- Empty State -->
-        <div v-else-if="!results && !showLoading" class="alert alert-info mt-4">
-          <div v-if="activeTab === 'single'">
-            No results to display. Please enter a citation and click Validate Citation.
-          </div>
-          <div v-else-if="activeTab === 'document'">
-            No results to display. Please upload a document and wait for analysis.
-          </div>
-          <div v-else-if="activeTab === 'text'">
-            No results to display. Please paste text and wait for analysis.
-          </div>
-          <div v-else-if="activeTab === 'url'">
-            No results to display. Please enter a URL and wait for analysis.
-          </div>
-        </div>
-
-        <!-- Recent Validations -->
-        <div v-if="false && recentValidations.length > 0" class="mt-5">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Recent Validations</h5>
-            <button class="btn btn-sm btn-outline-danger" @click="clearRecentValidations">
-              Clear All
-            </button>
-          </div>
-          <ul class="list-group">
-            <li v-for="item in recentValidations" :key="item.id" class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <span class="fw-bold">{{ item.citation }}</span>
-                <span
-                  v-if="item.result && item.result.citations && item.result.citations.length"
-                  class="badge ms-2"
-                  :class="isCitationValid(item.result.citations[0]) ? 'bg-success' : 'bg-danger'"
+      <!-- Processing Progress Section -->
+      <div v-if="showLoading" class="processing-section mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-cog fa-spin me-2"></i>
+              Processing Citations
+            </h5>
+            
+            <!-- Overall Progress -->
+            <div class="progress mb-3" style="height: 25px;">
+              <div 
+                class="progress-bar progress-bar-striped progress-bar-animated" 
+                :class="getProgressBarClass(totalProgress / 100)"
+                :style="{ width: `${totalProgress}%` }"
+                role="progressbar"
+                :aria-valuenow="totalProgress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {{ Math.round(totalProgress) }}%
+              </div>
+            </div>
+            
+            <!-- Time Information -->
+            <div class="row text-center mb-3">
+              <div class="col-md-4">
+                <div class="time-info">
+                  <small class="text-muted">Elapsed</small>
+                  <div class="fw-bold">{{ formatTime(elapsedTime) }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="time-info">
+                  <small class="text-muted">Remaining</small>
+                  <div class="fw-bold">{{ formatTime(remainingTime) }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="time-info">
+                  <small class="text-muted">Total Estimate</small>
+                  <div class="fw-bold">{{ formatTime(estimatedTotalTime) }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Current Step -->
+            <div v-if="currentStep" class="current-step mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-semibold">Current Step:</span>
+                <span class="text-primary">{{ currentStep }}</span>
+              </div>
+              <div class="progress" style="height: 15px;">
+                <div 
+                  class="progress-bar bg-info" 
+                  :style="{ width: `${currentStepProgress}%` }"
+                  role="progressbar"
+                  :aria-valuenow="currentStepProgress"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
+              </div>
+            </div>
+            
+            <!-- Citation Processing Stats -->
+            <div v-if="citationInfo" class="citation-stats mb-3">
+              <div class="row text-center">
+                <div class="col-md-3">
+                  <div class="stat-item">
+                    <small class="text-muted">Total Citations</small>
+                    <div class="fw-bold">{{ citationInfo.total }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stat-item">
+                    <small class="text-muted">Unique</small>
+                    <div class="fw-bold">{{ citationInfo.unique }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stat-item">
+                    <small class="text-muted">Processed</small>
+                    <div class="fw-bold">{{ citationInfo.processed }}</div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="stat-item">
+                    <small class="text-muted">Rate</small>
+                    <div class="fw-bold">{{ citationInfo.processed > 0 ? Math.round(citationInfo.processed / elapsedTime) : 0 }}/sec</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Processing Steps -->
+            <div v-if="processingSteps.length > 0" class="processing-steps">
+              <h6 class="mb-2">Processing Steps:</h6>
+              <div class="steps-list">
+                <div 
+                  v-for="(step, index) in processingSteps" 
+                  :key="index"
+                  class="step-item d-flex justify-content-between align-items-center py-1"
+                  :class="{ 'text-muted': step.progress === 0, 'text-success': step.progress === 100 }"
                 >
-                  {{ isCitationValid(item.result.citations[0]) ? 'Valid' : 'Invalid' }}
-                </span>
+                  <span class="step-name">{{ step.step }}</span>
+                  <span class="step-status">
+                    <span v-if="step.progress === 100" class="text-success">
+                      <i class="fas fa-check"></i> Complete
+                    </span>
+                    <span v-else-if="step.progress > 0" class="text-primary">
+                      {{ Math.round(step.progress) }}%
+                    </span>
+                    <span v-else class="text-muted">Pending</span>
+                  </span>
+                </div>
               </div>
-              <div>
-                <button class="btn btn-sm btn-outline-secondary me-1" @click="copyToClipboard(item.citation, 'Citation copied!')">
-                  <i class="bi bi-clipboard"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" @click="removeRecentValidation(item.id)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </li>
-          </ul>
+            </div>
+            
+            <!-- Error Information -->
+            <div v-if="processingError" class="alert alert-danger mt-3">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ processingError }}
+              <button v-if="canRetry" @click="handleRetry" class="btn btn-sm btn-outline-danger ms-2">
+                Retry
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Processing Overlay -->
-        <div v-if="showLoading" class="processing-overlay">
-          <ProcessingProgress
-            v-if="showLoading"
-            :elapsed-time="elapsedTime"
-            :remaining-time="remainingTime"
-            :total-progress="totalProgress"
-            :current-step="currentStep"
-            :current-step-progress="currentStepProgress"
-            :processing-steps="processingSteps"
-            :actual-times="actualTimes"
-            :citation-info="citationInfo"
-            :rate-limit-info="rateLimitInfo"
-            :timeout="timeout"
-            :error="processingError"
-            :can-retry="canRetry"
-            @retry="retryProcessing"
-          />
+      <!-- Results Section -->
+      <div v-if="results && !showLoading" class="results-container">
+        <CitationResults
+          :results="results"
+          @apply-correction="applyCorrection"
+          @copy-results="copyResults"
+          @download-results="downloadResults"
+          @toast="showToast"
+        />
+      </div>
+
+      <!-- Error Display -->
+      <div v-if="error && !showLoading" class="error-container">
+        <div class="error-card">
+          <i class="error-icon">❌</i>
+          <h3>Analysis Failed</h3>
+          <p>{{ error }}</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="!results && !showLoading && !error" class="empty-state">
+        <div class="empty-content">
+          <div class="empty-icon">📄</div>
+          <h2>Ready to Analyze</h2>
+          <p>Choose your input method above to get started</p>
         </div>
       </div>
     </div>
@@ -149,71 +185,39 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useLoadingState } from '@/composables/useLoadingState';
 import api from '@/api/api';
-import citationsApi from '@/api/citations';  // Import the citations API module
 import { useProcessingTime } from '../composables/useProcessingTime';
-import ProcessingProgress from '../components/ProcessingProgress.vue';
 
 // Components
-import FileUpload from '@/components/FileUpload.vue';
-import TextPaste from '@/components/TextPaste.vue';
-import UrlUpload from '@/components/UrlUpload.vue';
 import CitationResults from '@/components/CitationResults.vue';
+import UnifiedInput from '@/components/UnifiedInput.vue';
+import Toast from '@/components/Toast.vue';
+import SkeletonLoader from '@/components/SkeletonLoader.vue';
 
 export default {
   name: 'EnhancedValidator',
   components: {
-    FileUpload,
-    TextPaste,
-    UrlUpload,
     CitationResults,
-    ProcessingProgress
+    UnifiedInput,
+    Toast,
+    SkeletonLoader
   },
   setup() {
     // ===== REACTIVE STATE =====
-    // Router and route
     const route = useRoute();
     const router = useRouter();
     
-    // UI State
-    const tabs = [
-      { id: 'single', label: 'Single Citation' },
-      { id: 'document', label: 'Upload Document' },
-      { id: 'text', label: 'Paste Text' },
-      { id: 'url', label: 'URL Upload' }
-    ];
-    
-    const activeTab = ref('single');
-    const activeResultTab = ref('validation');
-    const showBasicValidation = ref(true);
-    const showMLAnalysis = ref(true);
-    const showCorrections = ref(true);
-    
-    // Feature Toggles
-    const useEnhanced = ref(true);
-    const useML = ref(true);
-    const useCorrection = ref(true);
-    
     // Data State
-    const citationInput = ref('');  // For single citation input
-    const citationText = ref('');    // For text paste content
-    const validationResult = ref(null);
-    const mlResult = ref(null);
-    const correctionResult = ref(null);
-    const documentAnalysisResult = ref(null);
-    const textAnalysisResult = ref(null);
-    const urlAnalysisResult = ref(null);
-    const recentValidations = ref([]);
-    const suggestions = ref([]);     // For storing correction suggestions
-    const error = ref(null);         // For error messages
+    const results = ref(null);
+    const error = ref(null);
     
     // API State
     const { 
-      execute: executeApi, 
+      execute, 
       data: apiData,
       isLoading,
       error: apiError,
@@ -227,7 +231,6 @@ export default {
     const hasActiveRequest = ref(false);
     const { isLoading: isGlobalLoading } = useLoadingState();
     const showLoading = computed(() => isLoading.value || isGlobalLoading.value || hasActiveRequest.value);
-    const apiBaseUrl = ref(import.meta.env.VITE_API_BASE_URL || '');
 
     // Composables
     const {
@@ -255,105 +258,22 @@ export default {
     const queuePosition = ref(0);
     const estimatedQueueTime = ref(null);
     const activeRequestId = ref(null);
-
     const pollInterval = ref(null);
 
-    const results = ref(null);
+    // Toast state
+    const toastMessage = ref('');
+    const toastType = ref('info');
+    const showToast = (msg, type = 'info') => {
+      toastMessage.value = msg;
+      toastType.value = type;
+    };
+    const clearToast = () => {
+      toastMessage.value = '';
+    };
 
     // ===== HELPER FUNCTIONS =====
-    // Formatting Helpers
-    function formatDate(dateString) {
-      if (!dateString) return '';
-      try {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        }).format(date);
-      } catch (e) {
-        console.error('Error formatting date:', e);
-        return dateString || '';
-      }
-    }
-    
-    function formatCitation(citation) {
-      if (!citation) return '';
-      return citation.replace(/\s+/g, ' ').trim();
-    }
-    
-    // UI Helpers
-    function getAlertClass(isValid) {
-      if (isValid === undefined || isValid === null) return 'alert-info';
-      return isValid ? 'alert-success' : 'alert-danger';
-    }
-    
-    function getConfidenceClass(confidence) {
-      if (confidence >= 0.8) return 'bg-success';
-      if (confidence >= 0.5) return 'bg-warning';
-      return 'bg-danger';
-    }
-    
-    function getProgressBarClass(value) {
-      if (value >= 0.8) return 'bg-success';
-      if (value >= 0.5) return 'bg-info';
-      if (value >= 0.3) return 'bg-warning';
-      return 'bg-danger';
-    }
-    
-    function getValidationIcon(isValid) {
-      if (isValid === undefined || isValid === null) return 'bi-question-circle';
-      return isValid ? 'bi-check-circle' : 'bi-x-circle';
-    }
-    
-    function getValidationColor(isValid) {
-      if (isValid === undefined || isValid === null) return 'text-info';
-      return isValid ? 'text-success' : 'text-danger';
-    }
-    
-    function getValidationLabel(isValid) {
-      if (isValid === undefined || isValid === null) return 'Unknown';
-      return isValid ? 'Valid' : 'Invalid';
-    }
-    
-    function getCorrectionIcon(correction) {
-      if (!correction) return 'bi-question-circle';
-      return correction.confidence > 0.7 ? 'bi-lightbulb' : 'bi-lightbulb-off';
-    }
-    
-    function getCorrectionColor(correction) {
-      if (!correction) return 'text-muted';
-      return correction.confidence > 0.7 ? 'text-warning' : 'text-muted';
-    }
-    
-    function getCorrectionLabel(correction) {
-      if (!correction) return 'No suggestions';
-      return correction.confidence > 0.7 ? 'Suggested' : 'Low confidence';
-    }
-    
-    function getMLLabel(mlResult) {
-      if (!mlResult) return 'N/A';
-      return mlResult.prediction || 'Unknown';
-    }
-    
-    function getMLColor(mlResult) {
-      if (!mlResult) return 'text-muted';
-      return mlResult.confidence > 0.7 ? 'text-success' : 
-             mlResult.confidence > 0.4 ? 'text-warning' : 'text-danger';
-    }
-    
-    function getMLIcon(mlResult) {
-      if (!mlResult) return 'bi-question-circle';
-      return mlResult.confidence > 0.7 ? 'bi-check-circle' : 
-             mlResult.confidence > 0.4 ? 'bi-exclamation-circle' : 'bi-x-circle';
-    }
-    
-    // Time formatting function
     function formatTime(seconds) {
-      if (!seconds || seconds < 0) return '--:--';
+      if (!seconds || seconds < 0) return '0s';
       
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
@@ -366,787 +286,21 @@ export default {
       }
     }
     
+    function getProgressBarClass(value) {
+      if (value >= 0.8) return 'bg-success';
+      if (value >= 0.5) return 'bg-info';
+      if (value >= 0.3) return 'bg-warning';
+      return 'bg-danger';
+    }
+    
     // ===== CORE FUNCTIONS =====
     // Clear all results and reset form
     function clearResults() {
-      validationResult.value = null;
-      mlResult.value = null;
-      correctionResult.value = null;
-      documentAnalysisResult.value = null;
-      textAnalysisResult.value = null;
-      urlAnalysisResult.value = null;
+      results.value = null;
       error.value = null;
-      citationText.value = '';
-    }
-    
-    // Process validation response from API
-    function processValidationResponse(response) {
-      try {
-        console.log('Processing validation response:', response);
-        
-        // Reset states
-        validationResult.value = null;
-        mlResult.value = null;
-        correctionResult.value = null;
-        error.value = null;
-        
-        // Extract data from response
-        const data = response?.data || response || {};
-        console.log('Response data:', data);
-        
-        // Process and set validation result
-        if (data.verified !== undefined) {
-          validationResult.value = {
-            valid: data.verified,
-            message: data.message || (data.verified ? 'Citation is valid' : 'Citation is invalid'),
-            details: data.details || {},
-            timestamp: new Date().toISOString()
-          };
-        }
-        
-        // Handle errors
-        if (data.error) {
-          error.value = data.error;
-          return;
-        }
-        
-        // Process ML results if available
-        if (data.ml_analysis) {
-          mlResult.value = {
-            prediction: data.ml_analysis.prediction,
-            confidence: data.ml_analysis.confidence,
-            details: data.ml_analysis.details,
-            timestamp: new Date().toISOString()
-          };
-        }
-        
-        // Process correction suggestions if available
-        if (data.corrections?.suggestions?.length) {
-          correctionResult.value = {
-            suggestions: data.corrections.suggestions.map((suggestion, index) => ({
-              id: index,
-              original: data.citation,
-              corrected_text: suggestion.text,
-              explanation: suggestion.reason,
-              confidence: suggestion.confidence || 0.8,
-              timestamp: new Date().toISOString()
-            }))
-          };
-        }
-      } catch (err) {
-        console.error('Error processing validation response:', err);
-        error.value = 'Failed to process validation response. Please try again.';
-      }
-    }
-    
-    // Reset all state variables
-    const resetAll = () => {
-      validationResult.value = null;
-      mlResult.value = null;
-      correctionResult.value = null;
-      documentAnalysisResult.value = null;
-      textAnalysisResult.value = null;
-      urlAnalysisResult.value = null;
-      error.value = null;
-      suggestions.value = [];
-      hasActiveRequest.value = false;
-      activeRequestId.value = null;
-      queuePosition.value = 0;
-      estimatedQueueTime.value = null;
-      citationInfo.value = null;
-      rateLimitInfo.value = null;
-      timeout.value = null;
-      processingError.value = null;
-      canRetry.value = false;
-    };
-
-    // Add recent validation to local storage
-    const addRecentValidation = (citation, result) => {
-      try {
-        const validation = {
-          id: Date.now(),
-          citation: citation.trim(),
-          result: result,
-          timestamp: new Date().toISOString()
-        };
-        
-        recentValidations.value.unshift(validation);
-        
-        // Keep only the last 10 validations
-        if (recentValidations.value.length > 10) {
-          recentValidations.value = recentValidations.value.slice(0, 10);
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-      } catch (err) {
-        console.error('Error adding recent validation:', err);
-      }
-    };
-
-    // Handle validation errors
-    const handleError = (error) => {
-      console.error('Validation error:', error);
-      error.value = error.message || 'An error occurred during validation. Please try again.';
-      validationResult.value = null;
-    };
-
-    const validateCitation = async (citation) => {
-      if (!citation || isLoading.value) return;
-      
-      resetAll();
       resetProcessing();
-      setSteps([
-        { step: 'Validating Citation', estimated_time: 10 },
-      ]);
-      startProcessing();
-
-      try {
-        const response = await citationsApi.validateCitation(citation);
-        
-        // Check if this is an async response with task_id
-        if (response.data.status === 'processing' && response.data.task_id) {
-          // Handle async processing
-          hasActiveRequest.value = true;
-          activeRequestId.value = response.data.task_id;
-          startPolling(response.data.task_id, handleSingleCitationResults);
-        } else {
-          // Handle immediate response (fallback)
-          validationResult.value = response.data;
-          addRecentValidation(citation, response.data);
-          stopProcessing();
-        }
-      } catch (error) {
-        handleError(error);
-        stopProcessing();
-      }
-    };
-
-    // ===== API HANDLER FUNCTIONS =====
-    const handleDocumentResults = (results) => {
-      try {
-        const rawCitations = (Array.isArray(results.validation_results) && results.validation_results.length > 0)
-          ? results.validation_results
-          : (results.citations || []);
-        documentAnalysisResult.value = {
-          ...results,
-          citations: normalizeCitations(rawCitations),
-          timestamp: new Date().toISOString()
-        };
-        isLoading.value = false;
-        error.value = null;
-        addToRecentValidations(documentAnalysisResult.value);
-        nextTick(() => {
-          const resultsElement = document.querySelector('.results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-
-        // Complete processing
-        updateStep('Document analysis', 100);
-        completeStep('Document analysis');
-        hasActiveRequest.value = false;
-        activeRequestId.value = null;
-        
-        // Start processing time tracking
-        if (results.metadata?.time_estimate) {
-          startProcessing(results.metadata.time_estimate);
-        }
-        
-        // Update processing steps as they complete
-        if (results.metadata?.processing_steps) {
-          for (const step of results.metadata.processing_steps) {
-            if (step.actual_time > 0) {
-              completeStep(step.step);
-            }
-          }
-        }
-        
-        // Update actual times
-        if (results.metadata?.actual_times) {
-          updateActualTimes(results.metadata.actual_times);
-        }
-      } catch (err) {
-        console.error('Error handling document results:', err);
-        error.value = 'Failed to process document results';
-        isLoading.value = false;
-      }
-    };
-
-    const handleTextResults = (results) => {
-      try {
-        const rawCitations = (Array.isArray(results.validation_results) && results.validation_results.length > 0)
-          ? results.validation_results
-          : (results.citations || []);
-        textAnalysisResult.value = {
-          ...results,
-          citations: normalizeCitations(rawCitations),
-          timestamp: new Date().toISOString()
-        };
-        isLoading.value = false;
-        error.value = null;
-        addToRecentValidations(textAnalysisResult.value);
-        nextTick(() => {
-          const resultsElement = document.querySelector('.results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-
-        // Complete processing
-        updateStep('Text analysis', 100);
-        completeStep('Text analysis');
-        hasActiveRequest.value = false;
-        activeRequestId.value = null;
-        
-        // Start processing time tracking
-        if (results.metadata?.time_estimate) {
-          startProcessing(results.metadata.time_estimate);
-        }
-        
-        // Update processing steps as they complete
-        if (results.metadata?.processing_steps) {
-          for (const step of results.metadata.processing_steps) {
-            if (step.actual_time > 0) {
-              completeStep(step.step);
-            }
-          }
-        }
-        
-        // Update actual times
-        if (results.metadata?.actual_times) {
-          updateActualTimes(results.metadata.actual_times);
-        }
-      } catch (err) {
-        console.error('Error handling text results:', err);
-        error.value = 'Failed to process text results';
-        isLoading.value = false;
-      }
-    };
-
-    const handleUrlResults = (results) => {
-      try {
-        console.log('URL analysis results:', results); // Debug: log the backend response
-        const rawCitations = (Array.isArray(results.validation_results) && results.validation_results.length > 0)
-          ? results.validation_results
-          : (results.citations || []);
-        urlAnalysisResult.value = {
-          ...results,
-          citations: normalizeCitations(rawCitations),
-          timestamp: new Date().toISOString()
-        };
-        isLoading.value = false;
-        error.value = null;
-        addToRecentValidations(urlAnalysisResult.value);
-        nextTick(() => {
-          const resultsElement = document.querySelector('.results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-
-        // Complete processing
-        completeStep('URL analysis');
-        hasActiveRequest.value = false;
-        activeRequestId.value = null;
-        
-        // Start processing time tracking
-        if (results.metadata?.time_estimate) {
-          startProcessing(results.metadata.time_estimate);
-        }
-        
-        // Update processing steps as they complete
-        if (results.metadata?.processing_steps) {
-          for (const step of results.metadata.processing_steps) {
-            if (step.actual_time > 0) {
-              completeStep(step.step);
-            }
-          }
-        }
-        
-        // Update actual times
-        if (results.metadata?.actual_times) {
-          updateActualTimes(results.metadata.actual_times);
-        }
-      } catch (err) {
-        console.error('Error handling URL analysis results:', err);
-        error.value = 'Failed to process URL analysis results.';
-        isLoading.value = false;
-      }
-    };
-
-    const handleSingleCitationResults = (results) => {
-      try {
-        console.log('Single citation analysis results:', results); // Debug: log the backend response
-        const rawCitations = (Array.isArray(results.validation_results) && results.validation_results.length > 0)
-          ? results.validation_results
-          : (results.citations || []);
-        validationResult.value = {
-          ...results,
-          citations: normalizeCitations(rawCitations),
-          timestamp: new Date().toISOString()
-        };
-        isLoading.value = false;
-        error.value = null;
-        addToRecentValidations(validationResult.value);
-        nextTick(() => {
-          const resultsElement = document.querySelector('.results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        });
-
-        // Complete processing
-        completeStep('Citation validation');
-        hasActiveRequest.value = false;
-        activeRequestId.value = null;
-        
-        // Start processing time tracking
-        if (results.metadata?.time_estimate) {
-          startProcessing(results.metadata.time_estimate);
-        }
-        
-        // Update processing steps as they complete
-        if (results.metadata?.processing_steps) {
-          for (const step of results.metadata.processing_steps) {
-            if (step.actual_time > 0) {
-              completeStep(step.step);
-            }
-          }
-        }
-        
-        // Update actual times
-        if (results.metadata?.actual_times) {
-          updateActualTimes(results.metadata.actual_times);
-        }
-      } catch (err) {
-        console.error('Error handling single citation results:', err);
-        error.value = 'Failed to process single citation results.';
-        isLoading.value = false;
-      }
-    };
-
-    const handleDocumentError = (error) => {
-      console.error('Document analysis error:', error);
-      
-      // Ensure error is an object with the expected properties
-      const errorObj = typeof error === 'string' ? { message: error } : error;
-      
-      documentAnalysisResult.value = {
-        error: errorObj.message || 'An error occurred while analyzing the document',
-        details: errorObj.details || null,
-        status: errorObj.status || 500,
-        timestamp: new Date().toISOString()
-      };
-      
-      isLoading.value = false;
-      error.value = documentAnalysisResult.value.error;
-      
-      // Reset progress tracking
-      hasActiveRequest.value = false;
-      activeRequestId.value = null;
-      processingError.value = errorObj.message || 'Document analysis failed';
-      canRetry.value = true;
-      
-      // Scroll to results to show error
-      nextTick(() => {
-        const resultsElement = document.querySelector('.results-section');
-        if (resultsElement) {
-          resultsElement.scrollIntoView({ behavior: 'smooth' });
-        }
-      });
-    };
-
-    const handleTextError = (error) => {
-      console.error('Text analysis error:', error);
-      textAnalysisResult.value = {
-        error: error.message || 'An error occurred while analyzing the text',
-        timestamp: new Date().toISOString()
-      };
-      isLoading.value = false;
-      error.value = 'Failed to analyze text. Please try again.';
-      
-      // Reset progress tracking
-      hasActiveRequest.value = false;
-      activeRequestId.value = null;
-      processingError.value = error.message || 'Text analysis failed';
-      canRetry.value = true;
-    };
-
-    const handleUrlError = (error) => {
-      console.error('URL analysis error:', error);
-      urlAnalysisResult.value = {
-        error: error.message || 'An error occurred while analyzing the URL',
-        timestamp: new Date().toISOString()
-      };
-      isLoading.value = false;
-      error.value = 'Failed to analyze URL. Please check the URL and try again.';
-      
-      // Reset progress tracking
-      hasActiveRequest.value = false;
-      activeRequestId.value = null;
-      processingError.value = error.message || 'URL analysis failed';
-      canRetry.value = true;
-    };
-
-    // ===== PROGRESS HANDLER FUNCTIONS =====
-    const handleDocumentProgress = (progress) => {
-      if (progress.total && progress.total > 5) {
-        showLoading.value = true;
-      }
-      if (progress.task_id && !pollInterval.value) {
-        setSteps(progress.steps);
-        startProcessing();
-        startPolling(progress.task_id, handleDocumentResults);
-      } else {
-        updateProgress(progress);
-      }
-    };
-
-    const handleTextProgress = (progress) => {
-      if (progress.total && progress.total > 5) {
-        showLoading.value = true;
-      }
-      if (progress.task_id && !pollInterval.value) {
-        setSteps(progress.steps);
-        startProcessing();
-        startPolling(progress.task_id, handleTextResults);
-      } else {
-        updateProgress(progress);
-      }
-    };
-
-    const handleUrlProgress = (progress) => {
-      if (progress.total && progress.total > 5) {
-        showLoading.value = true;
-      }
-      if (progress.task_id && !pollInterval.value) {
-        setSteps(progress.steps);
-        startProcessing();
-        startPolling(progress.task_id, handleUrlResults);
-      } else {
-        updateProgress(progress);
-      }
-    };
-
-    // Start polling for task results
-    const startPolling = (taskId, resultHandler) => {
-      if (pollInterval.value) {
-        clearInterval(pollInterval.value);
-      }
-      
-      pollInterval.value = setInterval(async () => {
-        try {
-          const response = await api.get(`/task_status/${taskId}`);
-          
-          if (response.data.status === 'completed') {
-            clearInterval(pollInterval.value);
-            pollInterval.value = null;
-            stopProcessing();
-            resultHandler(response.data);
-          } else if (response.data.status === 'failed') {
-            clearInterval(pollInterval.value);
-            pollInterval.value = null;
-            stopProcessing();
-            error.value = response.data.error || 'Task failed';
-            canRetry.value = true;
-          } else if (response.data.progress) {
-            updateProgress(response.data.progress);
-          }
-        } catch (err) {
-          console.error('Polling error:', err);
-          clearInterval(pollInterval.value);
-          pollInterval.value = null;
-          stopProcessing();
-          error.value = 'Failed to check task status';
-          canRetry.value = true;
-        }
-      }, 2000); // Poll every 2 seconds
-    };
-
-    const addToRecentValidations = (citation, result) => {
-      // Only add if result is a valid citation object (not a raw JSON string or debug output)
-      if (typeof result === 'object' && result !== null && !Array.isArray(result) && result.text !== 'Unknown citation') {
-        const validation = {
-          citation,
-          result,
-          timestamp: new Date().toISOString()
-        };
-        // Add to the beginning of the array
-        recentValidations.value.unshift(validation);
-        // Keep only the last 10 validations
-        if (recentValidations.value.length > 10) {
-          recentValidations.value = recentValidations.value.slice(0, 10);
-        }
-        // Save to localStorage
-        try {
-          localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-        } catch (error) {
-          console.warn('[EnhancedValidator] Error saving recent validations:', error);
-        }
-      }
-    };
-
-    const clearRecentValidations = () => {
-      try {
-        recentValidations.value = [];
-        localStorage.removeItem('recentValidations');
-      } catch (err) {
-        console.error('Error clearing recent validations:', err);
-      }
-    };
-
-    const removeRecentValidation = (id) => {
-      try {
-        recentValidations.value = recentValidations.value.filter(item => item.id !== id);
-        localStorage.setItem('recentValidations', JSON.stringify(recentValidations.value));
-      } catch (err) {
-        console.error('Error removing recent validation:', err);
-      }
-    };
-
-    /**
-     * Copies the given text to the clipboard
-     * @param {string} text - The text to copy
-     * @param {string} successMessage - Optional success message to show
-     * @returns {Promise<boolean>} - Whether the copy was successful
-     */
-    const copyToClipboard = async (text, successMessage = 'Copied to clipboard!') => {
-      try {
-        await navigator.clipboard.writeText(text);
-        if (successMessage) {
-          // You might want to show a toast notification here
-          console.log(successMessage);
-        }
-        return true;
-      } catch (err) {
-        console.error('Failed to copy text:', err);
-        // Fallback for older browsers
-        try {
-          const textarea = document.createElement('textarea');
-          textarea.value = text;
-          textarea.style.position = 'fixed';
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textarea);
-          if (successMessage) {
-            console.log(successMessage);
-          }
-          return true;
-        } catch (fallbackErr) {
-          console.error('Fallback copy failed:', fallbackErr);
-          return false;
-        }
-      }
-    };
-
-    // ===== HELPER FUNCTIONS CONTINUED =====
-    const copyResults = async () => {
-      try {
-        // Get the current results based on the active tab
-        let resultsToCopy = '';
-        
-        if (activeTab.value === 'document' && documentAnalysisResult.value) {
-          resultsToCopy = formatResultsForCopy(documentAnalysisResult.value);
-        } else if (activeTab.value === 'text' && textAnalysisResult.value) {
-          resultsToCopy = formatResultsForCopy(textAnalysisResult.value);
-        } else if (activeTab.value === 'url' && urlAnalysisResult.value) {
-          resultsToCopy = formatResultsForCopy(urlAnalysisResult.value);
-        } else if (activeTab.value === 'single' && validationResult.value) {
-          resultsToCopy = formatResultsForCopy(validationResult.value);
-        }
-        
-        if (resultsToCopy) {
-          await navigator.clipboard.writeText(resultsToCopy);
-          // You might want to show a success message here
-          console.log('Results copied to clipboard');
-        }
-      } catch (err) {
-        console.error('Failed to copy results:', err);
-        error.value = 'Failed to copy results to clipboard';
-      }
-    };
-
-    const downloadResults = () => {
-      try {
-        let resultsToDownload = '';
-        let filename = 'validation-results.txt';
-        
-        if (activeTab.value === 'document' && documentAnalysisResult.value) {
-          resultsToDownload = formatResultsForCopy(documentAnalysisResult.value);
-          filename = 'document-validation.txt';
-        } else if (activeTab.value === 'text' && textAnalysisResult.value) {
-          resultsToDownload = formatResultsForCopy(textAnalysisResult.value);
-          filename = 'text-validation.txt';
-        } else if (activeTab.value === 'url' && urlAnalysisResult.value) {
-          resultsToDownload = formatResultsForCopy(urlAnalysisResult.value);
-          filename = 'url-validation.txt';
-        } else if (activeTab.value === 'single' && validationResult.value) {
-          resultsToDownload = formatResultsForCopy(validationResult.value);
-          filename = 'citation-validation.txt';
-        }
-        
-        if (resultsToDownload) {
-          const blob = new Blob([resultsToDownload], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }
-      } catch (err) {
-        console.error('Failed to download results:', err);
-        error.value = 'Failed to download results';
-      }
-    };
-
-    const formatResultsForCopy = (results) => {
-      // Format the results as text for copying/downloading
-      if (!results) return '';
-      
-      let formatted = `Validation Results\n`;
-      formatted += `Generated: ${new Date().toLocaleString()}\n\n`;
-      
-      if (results.citation) {
-        formatted += `Citation: ${results.citation}\n`;
-      }
-      
-      if (results.valid !== undefined) {
-        formatted += `Valid: ${results.valid ? 'Yes' : 'No'}\n`;
-      }
-      
-      if (results.confidence) {
-        formatted += `Confidence: ${(results.confidence * 100).toFixed(1)}%\n`;
-      }
-      
-      if (results.suggestions && results.suggestions.length > 0) {
-        formatted += '\nSuggestions:\n';
-        results.suggestions.forEach((suggestion, index) => {
-          formatted += `${index + 1}. ${suggestion.text}\n`;
-          if (suggestion.reason) {
-            formatted += `   Reason: ${suggestion.reason}\n`;
-          }
-          if (suggestion.confidence) {
-            formatted += `   Confidence: ${(suggestion.confidence * 100).toFixed(1)}%\n`;
-          }
-          formatted += '\n';
-        });
-      }
-      
-      return formatted;
-    };
-
-    const applyCorrection = (correction) => {
-      if (!correction) return;
-      
-      // Update the current citation with the corrected text
-      if (activeTab.value === 'single') {
-        citationInput.value = correction.corrected_text;
-      }
-      
-      // If there are any suggestions, update them as well
-      if (suggestions.value) {
-        suggestions.value = suggestions.value.map(s => 
-          s.id === correction.id ? { ...s, applied: true } : s
-        );
-      }
-      
-      // Show success message
-      // You can add a toast or notification here if needed
-      console.log('Correction applied:', correction);
-    };
-
-    const applyCorrectionFromResults = (results) => {
-      if (!results || !results.suggestions || results.suggestions.length === 0) {
-        return false;
-      }
-      
-      // Get the first suggestion with high confidence
-      const highConfidenceSuggestion = results.suggestions.find(
-        s => s.confidence && s.confidence > 0.7
-      );
-      
-      if (highConfidenceSuggestion) {
-        applyCorrection(highConfidenceSuggestion);
-        return true;
-      }
-      
-      return false;
-    };
-
-    const handleRouteChange = () => {
-      const { tab } = route.query;
-      if (tab && tabs.some(t => t.id === tab)) {
-        activeTab.value = tab;
-      }
-      
-      // Auto-validate if there's a citation in the URL
-      const { citation } = route.query;
-      if (citation && typeof citation === 'string') {
-        citationInput.value = citation;
-        validateCitation(citation);
-      }
-    };
-    
-    // Watch for route changes
-    watch(() => route.query, handleRouteChange);
-    
-    // ===== LIFECYCLE HOOKS =====
-    onMounted(() => {
-      loadRecentValidations();
-      nextTick(handleRouteChange);
-    });
-    
-    onUnmounted(() => {
-      if (hasActiveRequest.value) {
-        cancelValidation();
-      }
-      if (pollInterval.value) {
-        clearInterval(pollInterval.value);
-        pollInterval.value = null;
-      }
-    });
-    
-    // Watch for route changes
-    watch(() => route.query, (newQuery, oldQuery) => {
-      if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
-        handleRouteChange();
-      }
-    });
-    
-    // ===== RETURN STATEMENT =====
-    function isCitationValid(citation) {
-      if (!citation) return false;
-      return citation.status === 'verified' || citation.verified === true;
     }
-
-    const validCount = computed(() => {
-      const citations = getCurrentCitations();
-      return citations.filter(c => c.valid || c.verified || c.data?.valid || c.data?.found || c.exists).length;
-    });
-    const invalidCount = computed(() => {
-      const citations = getCurrentCitations();
-      return citations.filter(c => !(c.valid || c.verified || c.data?.valid || c.data?.found || c.exists)).length;
-    });
-    // Helper to get the current citations array for the active tab
-    function getCurrentCitations() {
-      if (activeTab.value === 'single' && validationResult.value && validationResult.value.citations) {
-        return validationResult.value.citations;
-      } else if (activeTab.value === 'document' && documentAnalysisResult.value && documentAnalysisResult.value.citations) {
-        return documentAnalysisResult.value.citations;
-      } else if (activeTab.value === 'text' && textAnalysisResult.value && textAnalysisResult.value.citations) {
-        return textAnalysisResult.value.citations;
-      } else if (activeTab.value === 'url' && urlAnalysisResult.value && urlAnalysisResult.value.citations) {
-        return urlAnalysisResult.value.citations;
-      }
-      return [];
-    }
-
+    
     // Helper: Normalize citations for frontend display
     function normalizeCitations(citations) {
       return (citations || []).map(citation => {
@@ -1166,6 +320,169 @@ export default {
           verified: isVerified,
         };
       });
+    }
+
+    // Enhanced progress tracking function
+    async function pollTaskStatus(taskId) {
+      if (!taskId) return;
+      
+      try {
+        const response = await api.get(`/task_status/${taskId}`);
+        const data = response.data;
+        
+        if (data.status === 'completed') {
+          // Task completed successfully
+          // Use the 'results' field directly, fallback to 'citations' for legacy
+          const citationResults = Array.isArray(data.results) ? data.results : (data.citations || []);
+          
+          // Create the proper structure expected by CitationResults component
+          results.value = {
+            citations: normalizeCitations(citationResults),
+            metadata: data.metadata || {},
+            total_citations: citationResults.length,
+            verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
+            unverified_count: citationResults.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
+          };
+          
+          hasActiveRequest.value = false;
+          stopProcessing();
+          isLoading.value = false;
+          if (typeof isGlobalLoading !== 'undefined' && isGlobalLoading.value !== undefined) {
+            isGlobalLoading.value = false;
+          }
+          
+          // Show success toast
+          showToast('Citation analysis completed successfully!', 'success');
+          
+          // Clear polling
+          if (pollInterval.value) {
+            clearInterval(pollInterval.value);
+            pollInterval.value = null;
+          }
+          
+          // Show a message if no results
+          if (citationResults.length === 0) {
+            error.value = 'No citations found in the provided text or document.';
+          }
+        } else if (data.status === 'failed') {
+          // Task failed
+          error.value = data.error || 'Processing failed';
+          hasActiveRequest.value = false;
+          setProcessingError(data.error || 'Processing failed');
+          
+          // Show error toast
+          showToast(`Processing failed: ${data.error || 'Unknown error'}`, 'error');
+          
+          // Clear polling
+          if (pollInterval.value) {
+            clearInterval(pollInterval.value);
+            pollInterval.value = null;
+          }
+          
+        } else {
+          // Task is still processing - update progress
+          hasActiveRequest.value = true;
+          
+          // Update processing time with backend data
+          if (data.estimated_total_time && data.steps) {
+            startProcessing({
+              estimated_total_time: data.estimated_total_time,
+              steps: data.steps
+            });
+          } else if (data.estimated_total_time) {
+            startProcessing(data.estimated_total_time);
+          }
+          
+          // Update current step and progress
+          if (data.current_step) {
+            updateProgress({
+              step: data.current_step,
+              progress: data.progress || 0
+            });
+          }
+          
+          // Update citation info if available
+          if (data.total_citations !== undefined) {
+            citationInfo.value = {
+              total: data.total_citations,
+              processed: data.processed_citations || 0,
+              unique: data.unique_citations || 0
+            };
+          }
+          
+          // Continue polling
+          if (!pollInterval.value) {
+            pollInterval.value = setInterval(() => pollTaskStatus(taskId), 2000);
+          }
+        }
+        
+      } catch (err) {
+        console.error('Error polling task status:', err);
+        error.value = 'Failed to check processing status';
+        hasActiveRequest.value = false;
+        setProcessingError('Failed to check processing status');
+        
+        // Clear polling on error
+        if (pollInterval.value) {
+          clearInterval(pollInterval.value);
+          pollInterval.value = null;
+        }
+      }
+    }
+
+    // Enhanced form submission with immediate progress feedback
+    async function handleSubmit(formData) {
+      try {
+        clearResults();
+        hasActiveRequest.value = true;
+        
+        // Start processing immediately with default estimates
+        startProcessing(30); // Default 30 seconds estimate
+        updateProgress({
+          step: 'Submitting request...',
+          progress: 5
+        });
+        
+        const response = await execute(() => api.post('/analyze', formData));
+        
+        if (response && response.task_id) {
+          activeRequestId.value = response.task_id;
+          
+          // Update progress to show task created
+          updateProgress({
+            step: 'Task created, starting processing...',
+            progress: 10
+          });
+          
+          // Start polling for status updates
+          await pollTaskStatus(response.task_id);
+          
+        } else {
+          // Direct response (no async task)
+          const citationResults = response?.citations || [];
+          results.value = {
+            citations: normalizeCitations(citationResults),
+            metadata: response?.metadata || {},
+            total_citations: citationResults.length,
+            verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
+            unverified_count: citationResults.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
+          };
+          hasActiveRequest.value = false;
+          stopProcessing();
+          isLoading.value = false;
+          if (typeof isGlobalLoading !== 'undefined' && isGlobalLoading.value !== undefined) {
+            isGlobalLoading.value = false;
+          }
+          showToast('Citation analysis completed!', 'success');
+        }
+        
+      } catch (err) {
+        console.error('Error submitting form:', err);
+        error.value = err.message || 'Failed to submit request';
+        hasActiveRequest.value = false;
+        setProcessingError(err.message || 'Failed to submit request');
+        showToast(`Error: ${err.message || 'Failed to submit request'}`, 'error');
+      }
     }
 
     // Add method to handle retry
@@ -1192,276 +509,249 @@ export default {
       }
     };
 
-    // Update the analyzeInput method
+    // Add method to analyze input
     const analyzeInput = async (input, type) => {
       try {
-        hasActiveRequest.value = true;
-        processingError.value = null;
-        canRetry.value = false;
-        citationInfo.value = null;
-        timeout.value = null;
-        
-        // Start processing time tracking
-        const response = await api.analyze(input, type);
-        activeRequestId.value = response.requestId;
-        
-        // Update citation information
-        if (response.metadata?.citation_count) {
-          citationInfo.value = {
-            total: response.metadata.citation_count,
-            unique: response.metadata.unique_citations,
-            processed: 0
-          };
+        if (type === 'file') {
+          await handleFileAnalyze({ file: input });
+        } else if (type === 'url') {
+          await handleUrlAnalyze({ url: input });
+        } else if (type === 'text') {
+          await handleTextAnalyze({ text: input });
         }
-        
-        // Update queue information
-        if (response.status === 'queued') {
-          queuePosition.value = response.queuePosition;
-          estimatedQueueTime.value = response.estimatedWaitTime;
-        }
-        
-        // Update rate limit information if available
-        if (response.metadata?.rate_limit_info) {
-          rateLimitInfo.value = response.metadata.rate_limit_info;
-        }
-        
-        // Update timeout information
-        if (response.metadata?.timeout) {
-          timeout.value = response.metadata.timeout;
-        }
-        
-        // Start processing time tracking
-        if (response.metadata?.time_estimate) {
-          startProcessing(response.metadata.time_estimate);
-        }
-        
-        // Update processing steps as they complete
-        if (response.metadata?.processing_steps) {
-          for (const step of response.metadata.processing_steps) {
-            if (step.actual_time > 0) {
-              completeStep(step.step);
-              // Update citation processing count if this is a citation verification step
-              if (step.step.includes('Verifying citations') && citationInfo.value) {
-                const match = step.step.match(/Verifying citations (\d+)-(\d+) of (\d+)/);
-                if (match) {
-                  const [, start, end] = match.map(Number);
-                  citationInfo.value.processed = Math.max(citationInfo.value.processed, end);
-                }
-              }
-            }
-          }
-        }
-        
-        // Update actual times
-        if (response.metadata?.actual_times) {
-          updateActualTimes(response.metadata.actual_times);
-        }
-        
-        // Handle the final result
-        if (response.status === 'completed') {
-          if (type === 'url') {
-            handleUrlResults(response);
-          } else if (type === 'text') {
-            handleTextResults(response);
-          } else if (type === 'file') {
-            handleDocumentResults(response);
-          }
-          
-          // Update final citation count
-          if (citationInfo.value) {
-            citationInfo.value.processed = citationInfo.value.unique;
-          }
-        }
-        
       } catch (error) {
-        if (error.response?.status === 504) {
-          processingError.value = `Request timed out after ${timeout.value} seconds. The document contains ${citationInfo.value?.unique || 0} unique citations, which may take longer than expected to process.`;
-        } else {
-          processingError.value = error.message || 'An error occurred during processing';
-        }
+        processingError.value = `Failed to analyze input: ${error.message}`;
         canRetry.value = true;
-        console.error('Analysis error:', error);
-      } finally {
+      }
+    };
+
+    // ===== RESULT HANDLERS =====
+    const handleResults = (responseData) => {
+      try {
+        const rawCitations = (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0)
+          ? responseData.validation_results
+          : (responseData.citations || []);
+        
+        results.value = {
+          ...responseData,
+          citations: normalizeCitations(rawCitations),
+          timestamp: new Date().toISOString()
+        };
+        
+        isLoading.value = false;
+        error.value = null;
         hasActiveRequest.value = false;
         activeRequestId.value = null;
-        queuePosition.value = 0;
-        estimatedQueueTime.value = null;
-        timeout.value = null;
-        resetProcessing();
-      }
-    };
-
-    // Add cleanup on component unmount
-    onUnmounted(() => {
-      if (activeRequestId.value) {
-        api.cancelRequest(activeRequestId.value);
-      }
-    });
-
-    // Load recent validations from localStorage
-    const loadRecentValidations = () => {
-      try {
-        const stored = localStorage.getItem('recentValidations');
-        recentValidations.value = stored ? JSON.parse(stored) : [];
-      } catch (e) {
-        console.error('Error loading recent validations:', e);
-        recentValidations.value = [];
-      }
-    };
-
-    // Add missing functions
-    const updateStep = (stepName, progress) => {
-      if (processingSteps.value) {
-        const step = processingSteps.value.find(s => s.step === stepName);
-        if (step) {
-          step.progress = progress;
+        
+        // Complete processing
+        if (typeof isGlobalLoading !== 'undefined' && isGlobalLoading.value !== undefined) {
+          isGlobalLoading.value = false;
         }
+        
+        // Scroll to results
+        nextTick(() => {
+          const resultsElement = document.querySelector('.results-container');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+        
+      } catch (err) {
+        console.error('Error handling results:', err);
+        error.value = 'Failed to process results';
+        isLoading.value = false;
       }
     };
 
-    const completeStep = (stepName) => {
-      if (processingSteps.value) {
-        const step = processingSteps.value.find(s => s.step === stepName);
-        if (step) {
-          step.progress = 100;
-          step.completed = true;
-        }
-      }
+    const handleError = (err) => {
+      console.error('Analysis error:', err);
+      error.value = err.message || 'An error occurred during analysis';
+      isLoading.value = false;
+      hasActiveRequest.value = false;
+      activeRequestId.value = null;
+      processingError.value = err.message || 'Analysis failed';
+      canRetry.value = true;
+      showToast(error.value, 'error');
     };
 
-    const updateActualTimes = (times) => {
-      if (actualTimes.value && times) {
-        Object.assign(actualTimes.value, times);
-      }
-    };
-
-    // Handle analyze events from input components
+    // ===== API HANDLER FUNCTIONS =====
     const handleTextAnalyze = async ({ text, options }) => {
       isLoading.value = true;
       error.value = null;
       results.value = null;
       
       try {
-        // Call backend API for text analysis
-        const response = await citationsApi.validateCitation(text);
+        // Send text data to the analyze endpoint
+        const response = await api.post('/analyze', {
+          text: text,
+          type: 'text'
+        }, {
+          timeout: 300000 // 5 minutes for text processing
+        });
         
-        // Store results based on the mode
-        if (options.mode === 'single') {
-          // Single citation mode - store in validationResult for single citation tab
-          validationResult.value = response.data;
-          // Also store in general results for the main results display
-          results.value = response.data;
+        // Check if this is an async response with task_id
+        if (response.data.status === 'processing' && response.data.task_id) {
+          // Handle async processing
+          hasActiveRequest.value = true;
+          activeRequestId.value = response.data.task_id;
+          // Start polling for status updates
+          if (!pollInterval.value) {
+            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
+          }
         } else {
-          // Multi-text mode - store in textAnalysisResult for text tab
-          textAnalysisResult.value = response.data;
-          // Also store in general results for the main results display
-          results.value = response.data;
+          // Handle immediate response
+          handleResults(response.data);
+          isLoading.value = false;
         }
       } catch (err) {
-        error.value = err.message || 'Failed to analyze text.';
-      } finally {
-        isLoading.value = false;
+        handleError(err);
       }
     };
+
     const handleFileAnalyze = async ({ file }) => {
       isLoading.value = true;
       error.value = null;
       results.value = null;
+      
       try {
-        // Prepare FormData and call backend API for file analysis
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('type', 'file');
-        const response = await citationsApi.validateCitation(fd);
-        results.value = response.data;
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Send file directly to the analyze endpoint
+        const response = await api.post('/analyze', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          timeout: 300000 // 5 minutes for file processing
+        });
+        
+        // Check if this is an async response with task_id
+        if (response.data.status === 'processing' && response.data.task_id) {
+          // Handle async processing
+          hasActiveRequest.value = true;
+          activeRequestId.value = response.data.task_id;
+          // Start polling for status updates
+          if (!pollInterval.value) {
+            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
+          }
+        } else {
+          // Handle immediate response
+          handleResults(response.data);
+          isLoading.value = false;
+        }
       } catch (err) {
-        error.value = err.message || 'Failed to analyze file.';
-      } finally {
-        isLoading.value = false;
+        handleError(err);
       }
     };
+
     const handleUrlAnalyze = async ({ url }) => {
       isLoading.value = true;
       error.value = null;
       results.value = null;
+      
       try {
-        // Call backend API for URL analysis
-        const response = await citationsApi.validateCitation(url);
-        results.value = response.data;
+        // Send URL data to the analyze endpoint
+        const response = await api.post('/analyze', {
+          url: url,
+          type: 'url'
+        }, {
+          timeout: 300000 // 5 minutes for URL processing
+        });
+        
+        // Check if this is an async response with task_id
+        if (response.data.status === 'processing' && response.data.task_id) {
+          // Handle async processing
+          hasActiveRequest.value = true;
+          activeRequestId.value = response.data.task_id;
+          // Start polling for status updates
+          if (!pollInterval.value) {
+            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
+          }
+        } else {
+          // Handle immediate response
+          handleResults(response.data);
+          isLoading.value = false;
+        }
       } catch (err) {
-        error.value = err.message || 'Failed to analyze URL.';
-      } finally {
-        isLoading.value = false;
+        handleError(err);
       }
     };
 
+    // Unified handler for all input types
+    function handleUnifiedAnalyze(payload) {
+      console.log('handleUnifiedAnalyze payload:', payload);
+      // Reset and start progress tracking for all input types
+      resetProcessing();
+      setSteps([
+        { step: 'Preparing analysis', estimated_time: 5 },
+        { step: 'Processing content', estimated_time: 30 },
+        { step: 'Verifying citations', estimated_time: 60 }
+      ]);
+      startProcessing();
+      hasActiveRequest.value = true;
+      error.value = null;
+      results.value = null;
+      
+      if (payload.file) {
+        handleFileAnalyze(payload);
+      } else if (payload.url) {
+        handleUrlAnalyze(payload);
+      } else if (payload.text) {
+        // If quick mode, treat as single citation
+        if (payload.quick) {
+          handleTextAnalyze({ text: payload.text, options: { mode: 'single' } });
+        } else {
+          handleTextAnalyze({ text: payload.text, options: { mode: 'multi' } });
+        }
+      }
+    }
+
+    // ===== LIFECYCLE HOOKS =====
+    onMounted(() => {
+      // Auto-validate if there's a citation in the URL
+      const { citation } = route.query;
+      if (citation && typeof citation === 'string') {
+        handleUnifiedAnalyze({ text: citation });
+      }
+    });
+    
+    onUnmounted(() => {
+      if (hasActiveRequest.value) {
+        cancelValidation();
+      }
+      if (pollInterval.value) {
+        clearInterval(pollInterval.value);
+        pollInterval.value = null;
+      }
+    });
+
+    // Add a placeholder for copyResults to fix ReferenceError
+    function copyResults() {
+      console.log('copyResults called');
+    }
+
+    // Add a placeholder for downloadResults to fix ReferenceError
+    function downloadResults() {
+      console.log('downloadResults called');
+    }
+
+    // ===== RETURN STATEMENT =====
     return {
       // State
-      activeTab,
-      activeResultTab,
-      citationInput,
-      citationText,
-      validationResult,
-      mlResult,
-      correctionResult,
-      documentAnalysisResult,
-      textAnalysisResult,
-      urlAnalysisResult,
-      recentValidations,
-      suggestions,
+      results,
       error,
       isLoading: showLoading,
       showLoading,
       hasActiveRequest,
-      useEnhanced,
-      useML,
-      useCorrection,
-      showBasicValidation,
-      showMLAnalysis,
-      showCorrections,
-      apiBaseUrl,
-      tabs,
       
       // Methods
       clearResults,
-      validateCitation,
-      applyCorrection,
+      handleUnifiedAnalyze,
+      retryProcessing,
+      cancelValidation,
       copyResults,
       downloadResults,
-      handleDocumentResults,
-      handleTextResults,
-      handleUrlResults,
-      handleSingleCitationResults,
-      handleDocumentError,
-      handleTextError,
-      handleUrlError,
-      handleDocumentProgress,
-      handleTextProgress,
-      handleUrlProgress,
-      applyCorrectionFromResults,
-      loadRecentValidations,
-      clearRecentValidations,
-      removeRecentValidation,
-      copyToClipboard,
-      formatDate,
-      
-      // Helper functions
-      getAlertClass,
-      getConfidenceClass,
-      getProgressBarClass,
-      formatCitation,
-      getValidationIcon,
-      getValidationColor,
-      getValidationLabel,
-      getCorrectionIcon,
-      getCorrectionColor,
-      getCorrectionLabel,
-      getMLLabel,
-      getMLColor,
-      getMLIcon,
-      isCitationValid,
-      validCount,
-      invalidCount,
       
       // Processing time tracking
       elapsedTime,
@@ -1481,42 +771,154 @@ export default {
       timeout,
       processingError,
       canRetry,
-      retryProcessing,
       
-      // Missing functions
-      updateStep,
-      completeStep,
-      updateActualTimes,
+      // Helper functions
+      getProgressBarClass,
       
-      // New functions
-      handleTextAnalyze,
-      handleFileAnalyze,
-      handleUrlAnalyze,
-      results
+      // Stub methods for CitationResults component
+      applyCorrection: () => {},
+      
+      // Toast
+      toastMessage,
+      toastType,
+      clearToast,
     };
   }
 };
 </script>
 
 <style scoped>
-.processing-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.enhanced-validator {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  background: #f8f9fa;
+  padding: 2rem;
+  text-align: center;
+}
+
+.main-content {
   padding: 2rem;
 }
 
-.processing-overlay .processing-progress {
-  max-width: 600px;
-  width: 100%;
-  background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.input-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.progress-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.progress-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.progress-bar-container {
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  background: #f3f3f3;
+  border-radius: 10px;
+  height: 20px;
+}
+
+.progress-fill {
+  background: #007bff;
+  border-radius: 10px;
+  height: 100%;
+}
+
+.progress-text {
+  text-align: center;
+  font-weight: bold;
+}
+
+.current-step {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.time-info {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.error-message {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.retry-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.results-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.error-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.empty-state {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 3rem 1.5rem;
+}
+
+.empty-content {
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.error-icon {
+  color: #dc3545;
+  margin-right: 0.5rem;
 }
 </style>

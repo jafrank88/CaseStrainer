@@ -1,9 +1,18 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'url';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    })
+  ],
   
   // Base public path - use /casestrainer/ in both development and production
   base: '/casestrainer/',
@@ -55,19 +64,48 @@ export default defineConfig({
   build: {
     sourcemap: process.env.NODE_ENV !== 'production',
     minify: process.env.NODE_ENV === 'production' ? 'terser' : false,
-    chunkSizeWarningLimit: 1600,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'pinia', 'axios']
+          'vue-core': ['vue', 'vue-router'],
+          'pinia': ['pinia'],
+          'axios': ['axios'],
+          'bootstrap': ['bootstrap', '@popperjs/core'],
+          ...(process.env.NODE_ENV === 'development' && {
+            'dev-tools': ['cypress']
+          })
+        },
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+          return `js/[name]-[hash].js`;
+        },
+        entryFileNames: 'js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/\.(css)$/.test(assetInfo.name)) {
+            return `css/[name]-[hash].${ext}`;
+          }
+          if (/\.(png|jpe?g|gif|svg|ico|webp)$/.test(assetInfo.name)) {
+            return `images/[name]-[hash].${ext}`;
+          }
+          return `assets/[name]-[hash].${ext}`;
         }
+      }
+    },
+    terserOptions: {
+      compress: {
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: process.env.NODE_ENV === 'production',
+        pure_funcs: process.env.NODE_ENV === 'production' ? ['console.log'] : []
       }
     }
   },
   
   // Environment variables
   define: {
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/casestrainer/api'),  // Set base URL to /casestrainer/api
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/casestrainer/api'),
     'import.meta.env.VITE_APP_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
     'import.meta.env.VITE_COURTLISTENER_API_KEY': JSON.stringify(process.env.COURTLISTENER_API_KEY || '***REDACTED_COURTLISTENER_KEY***')
   }

@@ -78,6 +78,7 @@ if (!(Test-Path $venvPython)) {
     Write-Host "Virtual environment not found. Creating one..." -ForegroundColor Yellow
     python -m venv .venv
     & $venvPython -m pip install --upgrade pip
+    & $venvPython -m pip install -r requirements.txt
 }
 
 # Docker Desktop helper functions

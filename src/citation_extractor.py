@@ -332,6 +332,19 @@ class CitationExtractor:
         if case_name.lower() in common_words:
             return False
         
+        # Check for common invalid introductory phrases
+        invalid_intro_patterns = [
+            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
+            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
+            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
+            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
+            r'^(?:unknown\s+case|case\s+not\s+found|no\s+case\s+name)',
+        ]
+        
+        for pattern in invalid_intro_patterns:
+            if re.match(pattern, case_name, re.IGNORECASE):
+                return False
+        
         # Must not contain obvious non-case-name patterns
         invalid_patterns = [
             r'^\d+$',  # Just numbers
@@ -348,6 +361,12 @@ class CitationExtractor:
     
     def _clean_case_name(self, case_name):
         """Clean up extracted case name."""
+        if not case_name:
+            return ""
+        
+        # Normalize whitespace first
+        case_name = re.sub(r'\s+', ' ', case_name).strip()
+        
         # Remove common prefixes
         prefixes_to_remove = [
             'quoting ', 'citing ', 'see ', 'see also ', 'accord ', 'but see ',
@@ -364,6 +383,56 @@ class CitationExtractor:
         for prefix in prefixes_to_remove:
             if cleaned.lower().startswith(prefix.lower()):
                 cleaned = cleaned[len(prefix):].strip()
+        
+        # Remove common introductory phrases (more comprehensive)
+        intro_patterns = [
+            r'^(?:the\s+)?(?:case\s+of\s+|supreme\s+court\s+in\s+|court\s+of\s+appeals\s+in\s+)',
+            r'^(?:the\s+)?(?:washington\s+supreme\s+court\s+in\s+|washington\s+court\s+of\s+appeals\s+in\s+)',
+            r'^(?:in\s+the\s+case\s+of\s+|in\s+the\s+matter\s+of\s+)',
+            r'^(?:the\s+)?(?:matter\s+of\s+|proceeding\s+of\s+)',
+            r'^(?:in\s+(?!re\b)|the\s+case\s+)',  # Don't remove 'in' if it's followed by 're'
+            r'^(?:and\s+the\s+court\s+of\s+appeals\s+in\s+)',
+            # Add patterns for common legal writing phrases
+            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
+            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
+            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
+            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
+        ]
+        for pattern in intro_patterns:
+            cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+        
+        # Remove common artifacts that might appear at the end
+        cleaned = re.sub(r'\s+(?:case|matter|proceeding|action|petition)\s*$', '', cleaned, flags=re.IGNORECASE)
+        
+        # Remove trailing descriptive text
+        cleaned = re.sub(r'\s+(?:was\s+decided|established|addressed|dealt\s+with).*$', '', cleaned, flags=re.IGNORECASE)
+        
+        # Enhanced: Find and extract the actual case name pattern, removing any text before it
+        # This handles cases like "I respectfully concur. City of Seattle v. Wiggins"
+        case_name_patterns = [
+            r"([A-Z][A-Za-z'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z'\-\s,\.]+)",
+            r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+            r"(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
+        ]
+        
+        for pattern in case_name_patterns:
+            match = re.search(pattern, cleaned, re.IGNORECASE)
+            if match:
+                cleaned = match.group(1).strip()
+                break
+        
+        # If the result is still too long, truncate to first 12 words
+        words = cleaned.split()
+        if len(words) > 12:
+            cleaned = ' '.join(words[:12])
+        
+        # Ensure proper capitalization for common legal terms
+        if cleaned.lower().startswith('in re'):
+            cleaned = re.sub(r'^in\s+re\b', 'In re', cleaned, flags=re.IGNORECASE)
+        else:
+            cleaned = re.sub(r'\b(Ex parte|Ex rel|Matter of|Estate of)\b', lambda m: m.group(1).title(), cleaned, flags=re.IGNORECASE)
         
         # Remove trailing punctuation and common suffixes
         cleaned = re.sub(r'[.,;:]$', '', cleaned)

@@ -4,18 +4,18 @@ import { createRouter, createWebHistory } from 'vue-router';
 const BASE_PATH = '/casestrainer/';
 
 // Import views directly
-const HomeView = () => import('@/views/HomeView.vue');
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
 const NotFound = () => import('@/views/NotFound.vue');
 const BrowserExtension = () => import('@/views/BrowserExtension.vue');
 const WordPlugin = () => import('@/views/WordPlugin.vue');
 const ApiDocs = () => import('@/views/ApiDocs.vue');
+const Docs = () => import('@/views/Docs.vue');
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView,
+    component: EnhancedValidator,
     meta: {
       title: 'CaseStrainer - Legal Citation Validator',
       metaTags: [
@@ -39,16 +39,24 @@ const routes = [
     }
   },
   {
-    path: '/enhanced-validator',
-    name: 'EnhancedValidator',
-    component: EnhancedValidator,
+    path: '/docs',
+    name: 'Docs',
+    component: Docs,
     meta: {
-      title: 'Enhanced Validator | CaseStrainer',
+      title: 'Documentation | CaseStrainer',
       metaTags: [
-        {
-          name: 'description',
-          content: 'Use our enhanced validator to check legal citations for accuracy and validity. Supports multiple input methods including file upload and text paste.'
-        }
+        { name: 'description', content: 'Documentation hub for CaseStrainer, including user guides, API docs, and more.' }
+      ]
+    }
+  },
+  {
+    path: '/docs/api',
+    name: 'ApiDocs',
+    component: ApiDocs,
+    meta: {
+      title: 'API Documentation | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'API documentation for CaseStrainer.' }
       ]
     }
   },
@@ -71,17 +79,6 @@ const routes = [
       title: 'Word Plug-in | CaseStrainer',
       metaTags: [
         { name: 'description', content: 'Use the CaseStrainer Word plug-in to validate citations directly in your documents.' }
-      ]
-    }
-  },
-  {
-    path: '/api-docs',
-    name: 'ApiDocs',
-    component: ApiDocs,
-    meta: {
-      title: 'API Documentation | CaseStrainer',
-      metaTags: [
-        { name: 'description', content: 'API documentation for CaseStrainer.' }
       ]
     }
   },
