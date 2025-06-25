@@ -314,7 +314,7 @@
       <pre><code>{
   "status": "healthy",
   "timestamp": "2024-01-15T10:30:00Z",
-  "version": "1.0.0"
+  "version": "0.5.3"
 }</code></pre>
     </div>
 

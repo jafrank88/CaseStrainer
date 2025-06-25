@@ -290,7 +290,7 @@ Returns the current health status of the API server and verification systems.
     "redis": "healthy",
     "multi_source_verifier": "healthy"
   },
-  "version": "2.0.0"
+  "version": "0.5.3"
 }
 ```
 

@@ -28,10 +28,15 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" to="/enhanced-validator">
-                <i class="bi bi-shield-check me-1"></i> 
-                <span class="d-none d-md-inline">Enhanced Validator</span>
-                <span class="d-inline d-md-none">Validator</span>
+              <router-link class="nav-link" to="/docs">
+                <i class="bi bi-journal-bookmark me-1"></i>
+                <span class="d-none d-md-inline">Docs</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/docs/api">
+                <i class="bi bi-code-slash me-1"></i>
+                <span class="d-none d-md-inline">API Docs</span>
               </router-link>
             </li>
             <li class="nav-item d-none d-lg-block">
@@ -43,11 +48,6 @@
               <router-link class="nav-link" to="/word-plugin">
                 <i class="bi bi-file-earmark-word me-1"></i> Word Plug-in
               </router-link>
-            </li>
-            <li class="nav-item d-none d-lg-block">
-              <a class="nav-link" href="/casestrainer/api-docs" target="_blank">
-                <i class="bi bi-code-slash me-1"></i> API Docs
-              </a>
             </li>
           </ul>
           <div class="d-flex align-items-center">
@@ -90,15 +90,14 @@
             <h5>Quick Links</h5>
             <ul class="list-unstyled">
               <li><router-link to="/" class="text-decoration-none">Home</router-link></li>
-              <li><router-link to="/enhanced-validator" class="text-decoration-none">Enhanced Validator</router-link></li>
-              <li><a href="/casestrainer/api-docs" target="_blank" class="text-decoration-none">API Documentation</a></li>
+              <li><router-link to="/docs" class="text-decoration-none">Docs</router-link></li>
+              <li><router-link to="/docs/api" class="text-decoration-none">API Documentation</router-link></li>
             </ul>
           </div>
           <div class="col-6 col-md-3">
             <h5>Resources</h5>
             <ul class="list-unstyled">
-              <li><a href="#" class="text-decoration-none">Documentation</a></li>
-              <li><a href="#" class="text-decoration-none">GitHub Repository</a></li>
+              <li><a href="https://github.com/jafrank88/casestrainer" class="text-decoration-none" target="_blank">GitHub Repository</a></li>
               <li><a href="mailto:jafrank@uw.edu" class="footer-link">Report an issue</a></li>
             </ul>
           </div>
@@ -125,7 +124,7 @@ export default {
   name: 'App',
   data() {
     return {
-      appVersion: import.meta.env.VITE_APP_VERSION || '0.5.2',
+      appVersion: import.meta.env.VITE_APP_VERSION || '0.5.3',
       currentYear: new Date().getFullYear()
     }
   }
