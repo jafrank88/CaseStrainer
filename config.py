@@ -3,6 +3,7 @@ Configuration settings for CaseStrainer application
 """
 
 import os
+import logging
 
 
 def get_config_value(key, default=None):
@@ -58,7 +59,7 @@ class Config:
     # Application settings
     ENV = os.environ.get('FLASK_ENV', 'production')
     APP_NAME = "CaseStrainer"
-    APP_VERSION = "4.0.0"
+    APP_VERSION = "0.5.4"
     
     # Static files
     STATIC_FOLDER = '../static/vue'

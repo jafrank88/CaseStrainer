@@ -14,7 +14,7 @@ import time
 import uuid
 import traceback
 from src.file_utils import extract_text_from_file
-from src.citation_extractor import CitationExtractor
+from src.citation_processor import CitationProcessor
 from src.citation_correction_engine import CitationCorrectionEngine
 from src.citation_utils import get_citation_context
 import hashlib
@@ -74,7 +74,7 @@ if not logging.getLogger().hasHandlers():
 # Initialize the citation processor
 citation_processor = CitationProcessor()
 
-logger.info("Loading enhanced_validator_production.py v0.5.3 - Modified 2025-06-10")
+logger.info("Loading enhanced_validator_production.py v0.5.4 - Modified 2025-06-10")
 
 def log_step(message: str, level: str = "info"):
     """Helper function to log processing steps with consistent formatting."""
@@ -108,7 +108,11 @@ def extract_text_from_url(url: str) -> Dict[str, Any]:
                     temp_file = tmp.name
                 logger.info(f"[extract_text_from_url] PDF downloaded to: {temp_file}")
                 logger.info(f"[extract_text_from_url] Starting text extraction from PDF: {temp_file}")
-                text = extract_text_from_file(temp_file, file_ext='.pdf')
+                text_result = extract_text_from_file(temp_file, file_ext='.pdf')
+                if isinstance(text_result, tuple):
+                    text, _ = text_result
+                else:
+                    text = text_result
                 logger.info(f"[extract_text_from_url] Text extraction complete from PDF: {temp_file}")
                 if isinstance(text, dict):
                     if not text.get('success', True):
@@ -118,7 +122,6 @@ def extract_text_from_url(url: str) -> Dict[str, Any]:
                             'error': text.get('error', 'Failed to extract text from PDF'),
                             'content_type': content_type
                         }
-                    text = text.get('text', '')
             except Exception as e:
                 logger.error(f"[extract_text_from_url] Exception during PDF extraction: {str(e)}")
                 return {
