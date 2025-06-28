@@ -246,6 +246,29 @@ def validate_potential_citation(citation_text):
             - is_valid: Boolean indicating if the citation might be valid
             - reason: String explaining why it might be valid
     """
+    # Filter out short citations early
+    if isinstance(citation_text, str):
+        # Check for eyecite object representations that should be filtered out
+        if any(pattern in citation_text for pattern in [
+            "IdCitation('Id.", 
+            "IdCitation('id.", 
+            "IdCitation('Ibid.", 
+            "IdCitation('ibid.",
+            "ShortCaseCitation(",
+            "UnknownCitation(",
+            "SupraCitation(",
+            "InfraCitation("
+        ]):
+            return False, "Short form citation (Id., Ibid., etc.)"
+        
+        # Check for short citations with "at" before page numbers
+        if re.search(r"\bat\s+\d+", citation_text, re.IGNORECASE):
+            return False, "Short citation with 'at' reference"
+        
+        # Check for citations that start with short form indicators
+        if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
+            return False, "Short form citation indicator"
+    
     # Remove common punctuation and normalize spaces
     cleaned_text = re.sub(r'[.,;]', ' ', citation_text)
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
@@ -418,6 +441,35 @@ def clean_and_validate_citations(citations):
             validation_stats["total_removed"] += 1
             continue
             
+        # Filter out short citations early
+        if isinstance(citation_text, str):
+            # Check for eyecite object representations that should be filtered out
+            if any(pattern in citation_text for pattern in [
+                "IdCitation('Id.", 
+                "IdCitation('id.", 
+                "IdCitation('Ibid.", 
+                "IdCitation('ibid.",
+                "ShortCaseCitation(",
+                "UnknownCitation(",
+                "SupraCitation(",
+                "InfraCitation("
+            ]):
+                validation_stats["malformed"] += 1
+                validation_stats["total_removed"] += 1
+                continue  # Skip short form citations
+            
+            # Check for short citations with "at" before page numbers
+            if re.search(r"\bat\s+\d+", citation_text, re.IGNORECASE):
+                validation_stats["malformed"] += 1
+                validation_stats["total_removed"] += 1
+                continue  # Skip short citations with 'at' reference
+            
+            # Check for citations that start with short form indicators
+            if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
+                validation_stats["malformed"] += 1
+                validation_stats["total_removed"] += 1
+                continue  # Skip short form citation indicators
+        
         # Basic citation format validation
         # Look for common citation patterns
         citation_patterns = [

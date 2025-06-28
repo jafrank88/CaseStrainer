@@ -219,8 +219,14 @@ class CitationExtractor:
                     print("Running eyecite citation extraction...")
                     eyecite_citations = get_citations(original_text, tokenizer=tokenizer)
                     for c in eyecite_citations:
-                        citation_str = str(c)
+                        # Extract citation text from eyecite object properly
+                        citation_str = extract_citation_text_from_eyecite(c)
                         citation_str = normalize_citation(citation_str)  # Normalize here
+                        
+                        # Skip empty citations (filtered out short citations)
+                        if not citation_str or not citation_str.strip():
+                            continue
+                            
                         if self.deduplicate and citation_str in seen:
                             continue
                         seen.add(citation_str)
@@ -500,4 +506,76 @@ def count_washington_citations(citations: List[Dict]) -> Dict:
         "regex_washington": regex_count,
         "eyecite_washington": eyecite_count,
         "washington_citations": washington_citations
-    } 
+    }
+
+def extract_citation_text_from_eyecite(citation_obj):
+    """Extract citation text from eyecite object properly."""
+    if isinstance(citation_obj, str):
+        citation_str = citation_obj
+    else:
+        citation_str = str(citation_obj)
+    
+    # Filter out short form citations early
+    if any(pattern in citation_str for pattern in [
+        "IdCitation('Id.", 
+        "IdCitation('id.", 
+        "IdCitation('Ibid.", 
+        "IdCitation('ibid.",
+        "ShortCaseCitation(",
+        "UnknownCitation(",
+        "SupraCitation(",
+        "InfraCitation("
+    ]):
+        return ""  # Return empty string for short citations to filter them out
+    
+    # Extract citation from FullCaseCitation format
+    import re
+    full_case_match = re.search(r"FullCaseCitation\('([^']+)'", citation_str)
+    if full_case_match:
+        extracted = full_case_match.group(1)
+        # Additional check for short citations within FullCaseCitation
+        if extracted.lower().startswith(('id.', 'ibid.')) or ' at ' in extracted.lower():
+            return ""  # Filter out short citations
+        return extracted
+    
+    # Extract citation from ShortCaseCitation format
+    short_case_match = re.search(r"ShortCaseCitation\('([^']+)'", citation_str)
+    if short_case_match:
+        extracted = short_case_match.group(1)
+        # Filter out short citations
+        if extracted.lower().startswith(('id.', 'ibid.')) or ' at ' in extracted.lower():
+            return ""  # Filter out short citations
+        return extracted
+    
+    # Extract citation from FullLawCitation format
+    law_match = re.search(r"FullLawCitation\('([^']+)'", citation_str)
+    if law_match:
+        return law_match.group(1)
+    
+    # If it's an object with a 'cite' attribute (eyecite objects)
+    if hasattr(citation_obj, 'cite') and citation_obj.cite:
+        cite_text = citation_obj.cite
+        # Filter out short citations
+        if cite_text.lower().startswith(('id.', 'ibid.')) or ' at ' in cite_text.lower():
+            return ""  # Filter out short citations
+        return cite_text
+    
+    # If it's an object with a 'citation' attribute
+    if hasattr(citation_obj, 'citation') and citation_obj.citation:
+        cite_text = citation_obj.citation
+        # Filter out short citations
+        if cite_text.lower().startswith(('id.', 'ibid.')) or ' at ' in cite_text.lower():
+            return ""  # Filter out short citations
+        return cite_text
+    
+    # If it's an object with 'groups' attribute (eyecite objects)
+    if hasattr(citation_obj, 'groups') and citation_obj.groups:
+        groups = citation_obj.groups
+        volume = groups.get('volume', '')
+        reporter = groups.get('reporter', '')
+        page = groups.get('page', '')
+        if volume and reporter and page:
+            return f"{volume} {reporter} {page}"
+    
+    # Fallback to string representation
+    return citation_str 

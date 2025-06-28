@@ -175,6 +175,73 @@ function Start-DockerDesktop {
     }
 }
 
+# Redis Docker helper functions
+function Stop-RedisDocker {
+    Write-Host "Attempting to stop Redis Docker container..." -ForegroundColor Cyan
+    try {
+        $container = docker ps -a --filter "name=redis" --format "{{.ID}}"
+        if ($container) {
+            docker stop redis | Out-Null
+            Write-Host "Redis Docker container stopped." -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "No Redis Docker container found to stop." -ForegroundColor Yellow
+            return $false
+        }
+    } catch {
+        Write-Host "Error stopping Redis Docker container: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Start-RedisDocker {
+    Write-Host "Attempting to start Redis Docker container..." -ForegroundColor Cyan
+    try {
+        $container = docker ps -a --filter "name=redis" --format "{{.ID}}"
+        if ($container) {
+            docker start redis | Out-Null
+            Write-Host "Redis Docker container started." -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "No Redis Docker container found to start. Please create one with: docker run --name redis -d -p 6379:6379 redis" -ForegroundColor Yellow
+            return $false
+        }
+    } catch {
+        Write-Host "Error starting Redis Docker container: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Start-RQWorker {
+    Write-Host "Starting RQ worker..." -ForegroundColor Cyan
+    try {
+        # Check if Redis is available
+        $redisTest = docker ps --filter "name=redis" --format "{{.Status}}" 2>$null
+        if (-not $redisTest) {
+            Write-Host "Redis container not running. Starting Redis first..." -ForegroundColor Yellow
+            if (-not (Start-RedisDocker)) {
+                Write-Host "Failed to start Redis. RQ worker cannot start." -ForegroundColor Red
+                return $false
+            }
+            Start-Sleep -Seconds 3
+        }
+        
+        # Start RQ worker using the Windows-compatible script
+        $rqWorkerScript = Join-Path $PSScriptRoot "src\rq_worker_windows.py"
+        if (Test-Path $rqWorkerScript) {
+            $script:RQWorkerProcess = Start-Process -FilePath $venvPython -ArgumentList $rqWorkerScript, "worker", "casestrainer" -NoNewWindow -PassThru
+            Write-Host "RQ worker started (PID: $($script:RQWorkerProcess.Id))" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "RQ worker script not found at: $rqWorkerScript" -ForegroundColor Red
+            return $false
+        }
+    } catch {
+        Write-Host "Failed to start RQ worker: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
 # Auto-restart and monitoring functions (must be defined before other functions)
 function Initialize-CrashLogging {
     $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -602,19 +669,21 @@ function Show-Menu {
     
     Write-Host " 3. Check Server Status" -ForegroundColor Yellow
     Write-Host " 4. Stop All Services" -ForegroundColor Red
-    Write-Host " 5. View Logs" -ForegroundColor Yellow
-    Write-Host " 6. View LangSearch Cache" -ForegroundColor Yellow
-    Write-Host " 7. Redis/RQ Management (Background Tasks)" -ForegroundColor Yellow
-    Write-Host " 8. Help" -ForegroundColor Cyan
-    Write-Host " 9. View Citation Cache Info" -ForegroundColor Yellow
-    Write-Host "10. Clear Unverified Citation Cache" -ForegroundColor Yellow
-    Write-Host "11. Clear All Citation Cache" -ForegroundColor Red
-    Write-Host "12. View Non-CourtListener Verified Citation Cache" -ForegroundColor Yellow
-    Write-Host "13. Service Monitoring Status" -ForegroundColor Blue
+    Write-Host " 5. Restart Development Backend" -ForegroundColor Yellow
+    Write-Host " 6. Restart Production Backend" -ForegroundColor Yellow
+    Write-Host " 7. View Logs" -ForegroundColor Yellow
+    Write-Host " 8. View LangSearch Cache" -ForegroundColor Yellow
+    Write-Host " 9. Redis/RQ Management (Background Tasks)" -ForegroundColor Yellow
+    Write-Host "10. Help" -ForegroundColor Cyan
+    Write-Host "11. View Citation Cache Info" -ForegroundColor Yellow
+    Write-Host "12. Clear Unverified Citation Cache" -ForegroundColor Yellow
+    Write-Host "13. Clear All Citation Cache" -ForegroundColor Red
+    Write-Host "14. View Non-CourtListener Verified Citation Cache" -ForegroundColor Yellow
+    Write-Host "15. Service Monitoring Status" -ForegroundColor Blue
     Write-Host " 0. Exit" -ForegroundColor Gray
     Write-Host ""
     
-    $selection = Read-Host "Select an option (0-13)"
+    $selection = Read-Host "Select an option (0-15)"
     return $selection
 }
 
@@ -1783,640 +1852,170 @@ function Cleanup-ServicesForRestart {
     Write-Host "Service cleanup completed" -ForegroundColor Green
 }
 
-# Docker-based Redis management
-function Start-RedisDocker {
-    Write-Host "Checking Redis availability..." -ForegroundColor Cyan
-    
-    # First, check if Docker is available and running
-    try {
-        $dockerVersion = docker --version 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Docker is not installed or not in PATH" -ForegroundColor Yellow
-            return Start-RedisAlternative
-        }
-        
-        # Test Docker daemon connection using the new function
-        $dockerStatus = Test-DockerDesktopStatus
-        if (-not $dockerStatus.Running) {
-            Write-Host "Docker is installed but not running: $($dockerStatus.Message)" -ForegroundColor Yellow
-            return Start-RedisAlternative
-        }
-        
-        Write-Host "Docker Desktop is running and accessible" -ForegroundColor Green
-    } catch {
-        Write-Host "Docker is not available: $($_.Exception.Message)" -ForegroundColor Yellow
-        return Start-RedisAlternative
-    }
-    
-    # Check if Redis is already running as a Docker container (check multiple possible names)
-    try {
-        $redisContainerNames = @("casestrainer-redis", "redis-casestrainer", "redis")
-        $existingRedisContainer = $null
-        
-        foreach ($containerName in $redisContainerNames) {
-            $container = docker ps -q -f name=$containerName 2>&1
-            if ($container -and $LASTEXITCODE -eq 0) {
-                $existingRedisContainer = $container
-                Write-Host "Redis is already running in Docker container: $containerName ($existingRedisContainer)" -ForegroundColor Green
-                break
-            }
-        }
-        
-        if ($existingRedisContainer) {
-            # Test if the existing container is actually working
-            try {
-                $testConnection = docker exec $existingRedisContainer redis-cli ping 2>&1
-                if ($LASTEXITCODE -eq 0 -and $testConnection -eq "PONG") {
-                    Write-Host "Existing Redis container is working properly" -ForegroundColor Green
-                    return $true
-                } else {
-                    Write-Host "Existing Redis container is not responding properly" -ForegroundColor Yellow
-                    # Try to restart the existing container
-                    Write-Host "Attempting to restart existing Redis container..." -ForegroundColor Cyan
-                    docker restart $existingRedisContainer | Out-Null
-                    Start-Sleep -Seconds 3
-                    
-                    $testConnection = docker exec $existingRedisContainer redis-cli ping 2>&1
-                    if ($LASTEXITCODE -eq 0 -and $testConnection -eq "PONG") {
-                        Write-Host "Redis container restarted successfully" -ForegroundColor Green
-                        return $true
-                    } else {
-                        Write-Host "Failed to restart existing Redis container" -ForegroundColor Red
-                        # Remove the broken container and create a new one
-                        docker rm -f $existingRedisContainer | Out-Null
-                    }
-                }
-            } catch {
-                Write-Host "Error testing existing Redis container: $($_.Exception.Message)" -ForegroundColor Yellow
-                # Remove the problematic container
-                docker rm -f $existingRedisContainer | Out-Null
-            }
-        }
-    } catch {
-        Write-Host "Error checking Docker containers: $($_.Exception.Message)" -ForegroundColor Yellow
-        return Start-RedisAlternative
-    }
-    
-    # Check if port 6379 is already in use by a non-docker process
-    $portCheck = netstat -ano | findstr ":6379" | findstr "LISTENING"
-    if ($portCheck) {
-        # Check if the process is a docker process
-        $processId = ($portCheck -split '\s+')[-1]
-        $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
-        if ($process -and $process.ProcessName -ne "com.docker.backend") {
-             Write-Host "Port 6379 is already in use by another service (PID: $processId). Testing Redis connection..." -ForegroundColor Yellow
-             # Test if we can connect to Redis on localhost
-             try {
-                 $testConnection = python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Redis connection successful')" 2>&1
-                 if ($LASTEXITCODE -eq 0) {
-                     Write-Host "Redis is already running and accessible on localhost:6379" -ForegroundColor Green
-                     return $true
-                 }
-             } catch {
-                 # Fall through to alternative setup
-             }
-             return Start-RedisAlternative -Reason "Port 6379 is in use by a non-Redis service."
-        }
-    }
-    
-    # Clean up any stopped containers with our names to avoid conflicts
-    try {
-        $stoppedContainers = @("casestrainer-redis", "redis-casestrainer")
-        foreach ($containerName in $stoppedContainers) {
-            $stoppedContainer = docker ps -a -q -f name=$containerName 2>&1
-            if ($stoppedContainer -and $LASTEXITCODE -eq 0) {
-                Write-Host "Removing stopped container: $containerName" -ForegroundColor Yellow
-                docker rm $containerName | Out-Null
-            }
-        }
-    } catch {
-        Write-Host "Warning: Could not clean up stopped containers: $($_.Exception.Message)" -ForegroundColor Yellow
-    }
-    
-    # Use docker run for Redis (more reliable than Docker Compose)
-    try {
-        Write-Host "Starting Redis with 'docker run'..." -ForegroundColor Cyan
-        
-        # Try multiple Redis image versions in case one fails
-        $redisImages = @("redis:7-alpine", "redis:7", "redis:alpine", "redis:latest")
-        $redisStarted = $false
-        
-        foreach ($image in $redisImages) {
-            Write-Host "Trying Redis image: $image" -ForegroundColor Cyan
-            
-            # Start Redis using docker run with a unique name
-            $containerName = "casestrainer-redis-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-            $dockerRunResult = docker run -d --name $containerName -p 6379:6379 $image 2>&1
-            
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "Redis container started with name: $containerName" -ForegroundColor Green
-                
-                # Wait for Redis to be ready
-                Start-Sleep -Seconds 5
-                
-                # Test if Redis is responding
-                $testResult = docker exec $containerName redis-cli ping 2>&1
-                if ($LASTEXITCODE -eq 0 -and $testResult -eq "PONG") {
-                    Write-Host "Redis is responding properly" -ForegroundColor Green
-                    
-                    # Rename the container to a standard name for easier management
-                    docker rename $containerName casestrainer-redis | Out-Null
-                    Write-Host "Redis container renamed to: casestrainer-redis" -ForegroundColor Green
-                    
-                    $redisStarted = $true
-                    break
-                } else {
-                    Write-Host "Redis container started but not responding properly" -ForegroundColor Yellow
-                    docker rm -f $containerName | Out-Null
-                }
-            } else {
-                Write-Host "Failed to start Redis with image $image : $dockerRunResult" -ForegroundColor Yellow
-                # Try to clean up any partial container
-                docker rm -f $containerName 2>&1 | Out-Null
-            }
-        }
-        
-        if ($redisStarted) {
-            Write-Host "Redis started successfully using 'docker run'." -ForegroundColor Green
-            return $true
-        } else {
-            Write-Host "Failed to start Redis with any available image." -ForegroundColor Red
-            return Start-RedisAlternative -Reason "Failed to start Redis container with any available image."
-        }
-    } catch {
-        Write-Host "Error starting Redis with 'docker run': $($_.Exception.Message)" -ForegroundColor Red
-        return Start-RedisAlternative -Reason "A script error occurred while trying to start Redis."
-    }
-}
-
-function Start-RedisAlternative {
-    param(
-        [string]$Reason = "Docker Desktop is not running or is not accessible."
-    )
-
-    Write-Host "`n=== Redis Alternative Setup ===" -ForegroundColor Cyan
-    Write-Host $Reason -ForegroundColor Yellow
-    Write-Host "Please choose an alternative:" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "1. Install and start Redis manually" -ForegroundColor Green
-    Write-Host "2. Use Redis Cloud (free tier available)" -ForegroundColor Green
-    Write-Host "3. Skip Redis (some features will be limited)" -ForegroundColor Yellow
-    Write-Host "4. Start Docker Desktop and retry" -ForegroundColor Blue
-    Write-Host "5. Clean up Docker containers and retry" -ForegroundColor Magenta
-    Write-Host ""
-    
-    $choice = Read-Host "Select an option (1-5)"
-    
-    switch ($choice) {
-        '1' {
-            Write-Host "`nTo install Redis manually:" -ForegroundColor Cyan
-            Write-Host "1. Download Redis for Windows from: https://github.com/microsoftarchive/redis/releases" -ForegroundColor White
-            Write-Host "2. Install and start the Redis service" -ForegroundColor White
-            Write-Host "3. Run this launcher again" -ForegroundColor White
-            Write-Host ""
-            Write-Host "Or use Windows Subsystem for Linux (WSL) with Redis:" -ForegroundColor White
-            Write-Host "1. Install WSL2: wsl --install" -ForegroundColor White
-            Write-Host "2. Install Redis in WSL: sudo apt update && sudo apt install redis-server" -ForegroundColor White
-            Write-Host "3. Start Redis: sudo service redis-server start" -ForegroundColor White
-            Write-Host "4. Configure your application to connect to localhost:6379" -ForegroundColor White
-            return $false
-        }
-        '2' {
-            Write-Host "`nTo use Redis Cloud:" -ForegroundColor Cyan
-            Write-Host "1. Sign up at https://redis.com/try-free/" -ForegroundColor White
-            Write-Host "2. Create a free database" -ForegroundColor White
-            Write-Host "3. Update the Redis connection in your application" -ForegroundColor White
-            Write-Host "4. Set environment variable REDIS_URL with your connection string" -ForegroundColor White
-            Write-Host ""
-            Write-Host "Example connection string:" -ForegroundColor White
-            Write-Host "redis://username:password@hostname:port" -ForegroundColor Gray
-            return $false
-        }
-        '3' {
-            Write-Host "`nWarning: Running without Redis will limit functionality:" -ForegroundColor Yellow
-            Write-Host "- Citation processing tasks will not work" -ForegroundColor Yellow
-            Write-Host "- Background job processing will be disabled" -ForegroundColor Yellow
-            Write-Host "- Some features may not function properly" -ForegroundColor Yellow
-            Write-Host ""
-            $confirm = Read-Host "Continue without Redis? (y/N)"
-            if ($confirm -eq 'y') {
-                Write-Host "Proceeding without Redis..." -ForegroundColor Yellow
-                return $true
-            } else {
-                return $false
-            }
-        }
-        '4' {
-            if (Start-DockerDesktop) {
-                Write-Host "`nDocker Desktop started successfully! Retrying Redis setup..." -ForegroundColor Green
-                Start-Sleep -Seconds 2
-                return Start-RedisDocker
-            } else {
-                Write-Host "`nFailed to start Docker Desktop automatically." -ForegroundColor Red
-                Write-Host "Please start Docker Desktop manually and try again." -ForegroundColor Yellow
-                Write-Host "`nPress any key to return to the menu..." -NoNewline
-                $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-                return $false
-            }
-        }
-        '5' {
-            Write-Host "`nCleaning up Docker containers and retrying..." -ForegroundColor Cyan
-            
-            # Clean up any existing Redis containers
-            try {
-                $redisContainers = @("casestrainer-redis", "redis-casestrainer", "redis")
-                foreach ($containerName in $redisContainers) {
-                    $container = docker ps -a -q -f name=$containerName 2>&1
-                    if ($container -and $LASTEXITCODE -eq 0) {
-                        Write-Host "Removing container: $containerName" -ForegroundColor Yellow
-                        docker rm -f $containerName | Out-Null
-                    }
-                }
-                
-                # Also clean up any containers using port 6379
-                $portContainers = docker ps -a --format "table {{.Names}}\t{{.Ports}}" | findstr ":6379"
-                if ($portContainers) {
-                    Write-Host "Found containers using port 6379, removing them..." -ForegroundColor Yellow
-                    $portContainers | ForEach-Object {
-                        $containerName = ($_ -split '\s+')[0]
-                        if ($containerName -and $containerName -ne "NAMES") {
-                            Write-Host "Removing container: $containerName" -ForegroundColor Yellow
-                            docker rm -f $containerName | Out-Null
-                        }
-                    }
-                }
-                
-                Write-Host "Cleanup completed. Retrying Redis setup..." -ForegroundColor Green
-                Start-Sleep -Seconds 2
-                return Start-RedisDocker
-                
-            } catch {
-                Write-Host "Error during cleanup: $($_.Exception.Message)" -ForegroundColor Red
-                Write-Host "Retrying Redis setup anyway..." -ForegroundColor Yellow
-                Start-Sleep -Seconds 2
-                return Start-RedisDocker
-            }
-        }
-        default {
-            Write-Host "Invalid choice. Please try again." -ForegroundColor Red
-            return Start-RedisAlternative -Reason "Invalid option selected."
-        }
-    }
-}
-
-function New-DockerComposeFile {
-    $dockerComposeContent = @"
-version: '3.8'
-
-services:
-  redis:
-    image: redis:latest
-    container_name: casestrainer-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - app-network
-
-volumes:
-  redis_data:
-
-networks:
-  app-network:
-    driver: bridge
-"@
-    
-    [System.IO.File]::WriteAllText("docker-compose.yml", $dockerComposeContent, [System.Text.UTF8Encoding]::new($false))
-    Write-Host "Created docker-compose.yml with Redis service." -ForegroundColor Green
-}
-
-function Show-RedisDockerStatus {
-    # Check for any Redis container
-    try {
-        $dockerVersion = docker --version 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Redis (Docker): NOT AVAILABLE (Docker not installed)" -ForegroundColor Red
-            return
-        }
-        
-        $dockerInfo = docker info 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Redis (Docker): NOT RUNNING (Docker Desktop not started)" -ForegroundColor Red
-            return
-        }
-        
-        # Check for Redis containers with multiple possible names
-        $redisContainerNames = @("casestrainer-redis", "redis-casestrainer", "redis")
-        $foundContainer = $null
-        $containerName = $null
-        
-        foreach ($name in $redisContainerNames) {
-            $container = docker ps -q -f name=$name 2>&1
-            if ($container -and $LASTEXITCODE -eq 0) {
-                $foundContainer = $container
-                $containerName = $name
-                break
-            }
-        }
-        
-        Write-Host "Redis (Docker):" -NoNewline
-        if ($foundContainer) {
-            # Test if the container is actually working
-            $testResult = docker exec $foundContainer redis-cli ping 2>&1
-            if ($LASTEXITCODE -eq 0 -and $testResult -eq "PONG") {
-                Write-Host " RUNNING (Container: $containerName - $foundContainer)" -ForegroundColor Green
-            } else {
-                Write-Host " CONTAINER EXISTS BUT NOT RESPONDING (Container: $containerName)" -ForegroundColor Yellow
-                Write-Host "  - Container may need to be restarted" -ForegroundColor Yellow
-                Write-Host "  - Try option 5 in Redis management to clean up and retry" -ForegroundColor Yellow
-            }
-        } else {
-            # Check if Redis is accessible on localhost (might be running outside Docker)
-            try {
-                $testConnection = python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('OK')" 2>&1
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host " RUNNING (Local/External Redis on localhost:6379)" -ForegroundColor Green
-                } else {
-                    Write-Host " STOPPED (No containers found, no local Redis)" -ForegroundColor Red
-                    Write-Host "  - No Redis containers running" -ForegroundColor Gray
-                    Write-Host "  - No Redis service on localhost:6379" -ForegroundColor Gray
-                }
-            } catch {
-                Write-Host " STOPPED (No containers found, Redis test failed)" -ForegroundColor Red
-                Write-Host "  - Error testing local Redis: $($_.Exception.Message)" -ForegroundColor Gray
-            }
-        }
-        
-        # Show additional helpful information
-        if (-not $foundContainer) {
-            Write-Host "`nRedis Setup Options:" -ForegroundColor Cyan
-            Write-Host "  - Use option 1 in Redis management to start Redis" -ForegroundColor White
-            Write-Host "  - Use option 5 in Redis management to clean up and retry" -ForegroundColor White
-            Write-Host "  - Install Redis manually or use Redis Cloud" -ForegroundColor White
-        }
-        
-    } catch {
-        Write-Host "Redis (Docker): ERROR ($($_.Exception.Message))" -ForegroundColor Red
-    }
-}
-
-function Stop-RedisDocker {
-    try {
-        $dockerVersion = docker --version 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Docker not available - cannot stop Redis container" -ForegroundColor Yellow
-            return
-        }
-        
-        $dockerInfo = docker info 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "Docker Desktop not running - cannot stop Redis container" -ForegroundColor Yellow
-            return
-        }
-        
-        # Stop Redis container directly
-        $redisContainer = docker ps -q -f name=casestrainer-redis
-        if ($redisContainer) {
-            Write-Host "Stopping Redis Docker container..." -ForegroundColor Yellow
-            docker stop casestrainer-redis | Out-Null
-            Write-Host "Redis Docker container stopped." -ForegroundColor Green
-        } else {
-            Write-Host "No Redis Docker container found to stop." -ForegroundColor Gray
-        }
-    } catch {
-        Write-Host "Error stopping Redis Docker container: $($_.Exception.Message)" -ForegroundColor Yellow
-    }
-}
-
-function Start-RQWorker {
-    Write-Host "Starting RQ Worker..." -ForegroundColor Cyan
-    
-    # Check if Redis is accessible
-    $redisAccessible = $false
-    
-    # First check for Docker Redis containers
-    try {
-        $dockerVersion = docker --version 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            $dockerInfo = docker info 2>&1
-            if ($LASTEXITCODE -eq 0) {
-                $redisContainer = docker ps -q -f name=redis
-                if ($redisContainer) {
-                    Write-Host "Found Redis container: $redisContainer" -ForegroundColor Green
-                    $redisAccessible = $true
-                }
-            }
-        }
-    } catch {
-        Write-Host "Docker not available for Redis check" -ForegroundColor Yellow
-    }
-    
-    if (-not $redisAccessible) {
-        # Test connection to localhost Redis
-        try {
-            $testConnection = python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Redis connection successful')" 2>&1
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "Redis is accessible on localhost:6379" -ForegroundColor Green
-                $redisAccessible = $true
-            }
-        } catch {
-            Write-Host "Redis connection test failed" -ForegroundColor Yellow
-        }
-    }
-    
-    if (-not $redisAccessible) {
-        Write-Host "Redis is not accessible. RQ Worker cannot start." -ForegroundColor Red
-        Write-Host "Background task processing will be disabled." -ForegroundColor Yellow
-        return $false
-    }
-    
-    # Start RQ worker with Windows-compatible settings
-    try {
-        # Use custom Windows-compatible RQ worker script
-        $rqWorkerScript = Join-Path $PSScriptRoot "src\rq_worker_windows.py"
-        if (-not (Test-Path $rqWorkerScript)) {
-            Write-Host "Custom RQ worker script not found at $rqWorkerScript" -ForegroundColor Red
-            return $false
-        }
-        
-        # Use Python to run the custom worker script with proper path handling
-        $rqArgs = @(
-            "`"$rqWorkerScript`"",
-            "worker", "casestrainer",
-            "--worker-class", "rq.worker.SimpleWorker",
-            "--path", "src",
-            "--disable-job-desc-logging",
-            "--disable-default-exception-handler"
-        )
-        
-        $script:RQWorkerProcess = Start-Process -FilePath $venvPython -ArgumentList $rqArgs -NoNewWindow -PassThru
-        Write-Host "RQ Worker started (PID: $($script:RQWorkerProcess.Id))" -ForegroundColor Green
-        
-        # Wait a moment for the worker to start
-        Start-Sleep -Seconds 2
-        
-        # Check if the worker is still running
-        if ($script:RQWorkerProcess.HasExited) {
-            Write-Host "RQ Worker failed to start" -ForegroundColor Red
-            return $false
-        }
-        
-        return $true
-    } catch {
-        Write-Host "Failed to start RQ Worker: $($_.Exception.Message)" -ForegroundColor Red
-        return $false
-    }
-}
-
-function Show-RedisRQManagement {
+function Restart-DevelopmentBackend {
     Clear-Host
-    Write-Host "`n=== Redis/RQ Management ===`n" -ForegroundColor Cyan
+    Write-Host "`n=== Restarting Development Backend ===`n" -ForegroundColor Cyan
     
-    # Show current status
-    Show-RedisDockerStatus
+    # Check if backend is currently running
+    $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
+        Where-Object { $_.CommandLine -like '*waitress-serve*' -or $_.CommandLine -like '*app_final_vue*' }
     
-    $rqWorkerProcesses = Get-Process python -ErrorAction SilentlyContinue | 
-        Where-Object { $_.CommandLine -like '*rq worker*' }
-    
-    Write-Host "RQ Worker:" -NoNewline
-    if ($rqWorkerProcesses) {
-        Write-Host " RUNNING (PID: $($rqWorkerProcesses[0].Id))" -ForegroundColor Green
+    if ($backendProcesses) {
+        Write-Host "Backend is currently running (PID: $($backendProcesses[0].Id))" -ForegroundColor Yellow
+        Write-Host "Stopping backend..." -ForegroundColor Yellow
+        
+        # Stop the backend process
+        $backendProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 3
+        
+        Write-Host "Backend stopped successfully" -ForegroundColor Green
     } else {
-        Write-Host " STOPPED" -ForegroundColor Red
+        Write-Host "Backend is not currently running" -ForegroundColor Gray
     }
     
-    Write-Host "`nOptions:" -ForegroundColor Yellow
-    Write-Host " 1. Start Redis" -ForegroundColor Green
-    Write-Host " 2. Stop Redis" -ForegroundColor Red
-    Write-Host " 3. Start RQ Worker" -ForegroundColor Green
-    Write-Host " 4. Stop RQ Worker" -ForegroundColor Red
-    Write-Host " 5. Restart Redis" -ForegroundColor Yellow
-    Write-Host " 6. Restart RQ Worker" -ForegroundColor Yellow
-    Write-Host " 7. Redis Setup Help" -ForegroundColor Blue
-    Write-Host " 8. Run Redis Diagnostics" -ForegroundColor Magenta
-    Write-Host " 0. Back to Menu" -ForegroundColor Gray
-    Write-Host ""
+    Write-Host "`nStarting development backend (Flask)..." -ForegroundColor Yellow
     
-    $selection = Read-Host "Select an option (0-8)"
+    # Start development backend with Flask
+    $backendStarted = $false
+    try {
+        $script:BackendProcess = Start-Process -FilePath $venvPython -ArgumentList @(
+            "app_final_vue.py"
+        ) -WorkingDirectory "src" -PassThru -WindowStyle Hidden
+        
+        if ($script:BackendProcess) {
+            Write-Host "Development backend started (PID: $($script:BackendProcess.Id))" -ForegroundColor Green
+            $backendStarted = $true
+        }
+    } catch {
+        Write-Host "Failed to start development backend: $($_.Exception.Message)" -ForegroundColor Red
+    }
     
-    switch ($selection) {
-        '1' { 
-            if (Start-RedisDocker) {
-                Write-Host "Redis started successfully!" -ForegroundColor Green
-            } else {
-                Write-Host "Failed to start Redis!" -ForegroundColor Red
+    if ($backendStarted) {
+        Write-Host "`nWaiting for backend to initialize..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 5
+        
+        # Test backend health
+        $healthCheckAttempts = 0
+        $maxHealthCheckAttempts = 6
+        
+        while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+            try {
+                $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+                if ($response.status -eq "healthy") {
+                    Write-Host "✅ Development backend is healthy and responding!" -ForegroundColor Green
+                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
+                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+                    break
+                }
+            } catch {
+                $healthCheckAttempts++
+                if ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+                    Write-Host "Backend not ready yet, waiting... (attempt $healthCheckAttempts/$maxHealthCheckAttempts)" -ForegroundColor Yellow
+                    Start-Sleep -Seconds 5
+                } else {
+                    Write-Host "⚠️  Backend started but health check failed after $maxHealthCheckAttempts attempts" -ForegroundColor Yellow
+                    Write-Host "The backend may still be starting up. Check the logs if issues persist." -ForegroundColor Yellow
+                }
             }
         }
-        '2' { 
-            Stop-RedisDocker
-            Write-Host "Redis stopped!" -ForegroundColor Green
-        }
-        '3' { 
-            if (Start-RQWorker) {
-                Write-Host "RQ Worker started successfully!" -ForegroundColor Green
-            } else {
-                Write-Host "Failed to start RQ Worker!" -ForegroundColor Red
-            }
-        }
-        '4' { 
-            $rqWorkerProcesses = Get-Process python -ErrorAction SilentlyContinue | 
-                Where-Object { $_.CommandLine -like '*rq worker*' }
-            if ($rqWorkerProcesses) {
-                $rqWorkerProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-                Write-Host "RQ Worker stopped!" -ForegroundColor Green
-            } else {
-                Write-Host "RQ Worker is not running!" -ForegroundColor Yellow
-            }
-        }
-        '5' { 
-            Stop-RedisDocker
-            Start-Sleep -Seconds 2
-            if (Start-RedisDocker) {
-                Write-Host "Redis restarted successfully!" -ForegroundColor Green
-            } else {
-                Write-Host "Failed to restart Redis!" -ForegroundColor Red
-            }
-        }
-        '6' { 
-            $rqWorkerProcesses = Get-Process python -ErrorAction SilentlyContinue | 
-                Where-Object { $_.CommandLine -like '*rq worker*' }
-            if ($rqWorkerProcesses) {
-                $rqWorkerProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-                Start-Sleep -Seconds 2
-            }
-            if (Start-RQWorker) {
-                Write-Host "RQ Worker restarted successfully!" -ForegroundColor Green
-            } else {
-                Write-Host "Failed to restart RQ Worker!" -ForegroundColor Red
-            }
-        }
-        '7' {
-            Clear-Host
-            Write-Host "`n=== Redis Setup Help ===`n" -ForegroundColor Cyan
-            Write-Host "Redis is required for background task processing in CaseStrainer." -ForegroundColor White
-            Write-Host ""
-            Write-Host "Setup Options:" -ForegroundColor Yellow
-            Write-Host ""
-            Write-Host "1. Docker Desktop (Recommended):" -ForegroundColor Green
-            Write-Host "   - Install Docker Desktop for Windows" -ForegroundColor White
-            Write-Host "   - Start Docker Desktop" -ForegroundColor White
-            Write-Host "   - Run this launcher again" -ForegroundColor White
-            Write-Host ""
-            Write-Host "2. Manual Redis Installation:" -ForegroundColor Green
-            Write-Host "   - Download Redis for Windows from:" -ForegroundColor White
-            Write-Host "     https://github.com/microsoftarchive/redis/releases" -ForegroundColor White
-            Write-Host "   - Install and start as a Windows service" -ForegroundColor White
-            Write-Host ""
-            Write-Host "3. WSL with Redis:" -ForegroundColor Green
-            Write-Host "   - Install Windows Subsystem for Linux" -ForegroundColor White
-            Write-Host "   - Install Redis in WSL: sudo apt update && sudo apt install redis-server" -ForegroundColor White
-            Write-Host "   - Start Redis: sudo service redis-server start" -ForegroundColor White
-            Write-Host ""
-            Write-Host "4. Redis Cloud (Free Tier):" -ForegroundColor Green
-            Write-Host "   - Sign up at https://redis.com/try-free/" -ForegroundColor White
-            Write-Host "   - Create a free database" -ForegroundColor White
-            Write-Host "   - Set REDIS_URL environment variable" -ForegroundColor White
-            Write-Host ""
-            Write-Host "5. Run Without Redis:" -ForegroundColor Yellow
-            Write-Host "   - Basic citation validation will work" -ForegroundColor White
-            Write-Host "   - Background processing will be disabled" -ForegroundColor White
-            Write-Host "   - Some advanced features may not work" -ForegroundColor White
-            Write-Host ""
-            Write-Host "Press any key to return to the menu..." -NoNewline
-            $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-            return
-        }
-        '8' {
-            $diagnostics = Test-RedisSetupIssues
-            Write-Host "`nPress any key to return to the menu..." -NoNewline
-            $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-            return
-        }
-        '0' { return }
-        default { 
-            Write-Host "Invalid selection!" -ForegroundColor Red
-        }
+        
+        Write-CrashLog "Development backend restarted successfully" -Level "INFO"
+    } else {
+        Write-Host "❌ Failed to restart development backend" -ForegroundColor Red
+        Write-CrashLog "Failed to restart development backend" -Level "ERROR"
     }
     
     Write-Host "`nPress any key to return to the menu..." -NoNewline
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
-# Register cleanup on script exit
-Register-EngineEvent PowerShell.Exiting -Action { Stop-Services }
-
-# Handle command line arguments
-if ($Help) {
-    Show-Help
-    exit 0
+function Restart-ProductionBackend {
+    Clear-Host
+    Write-Host "`n=== Restarting Production Backend ===`n" -ForegroundColor Cyan
+    
+    # Check if backend is currently running
+    $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
+        Where-Object { $_.CommandLine -like '*waitress-serve*' -or $_.CommandLine -like '*app_final_vue*' }
+    
+    if ($backendProcesses) {
+        Write-Host "Backend is currently running (PID: $($backendProcesses[0].Id))" -ForegroundColor Yellow
+        Write-Host "Stopping backend..." -ForegroundColor Yellow
+        
+        # Stop the backend process
+        $backendProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 3
+        
+        Write-Host "Backend stopped successfully" -ForegroundColor Green
+    } else {
+        Write-Host "Backend is not currently running" -ForegroundColor Gray
+    }
+    
+    Write-Host "`nStarting production backend (Waitress)..." -ForegroundColor Yellow
+    
+    # Start production backend with Waitress
+    $backendStarted = $false
+    try {
+        $script:BackendProcess = Start-Process -FilePath $waitressExe -ArgumentList @(
+            "--host=127.0.0.1",
+            "--port=$($config.BackendPort)",
+            "--call",
+            "app_final_vue:app"
+        ) -WorkingDirectory "src" -PassThru -WindowStyle Hidden
+        
+        if ($script:BackendProcess) {
+            Write-Host "Production backend started (PID: $($script:BackendProcess.Id))" -ForegroundColor Green
+            $backendStarted = $true
+        }
+    } catch {
+        Write-Host "Failed to start production backend: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    if ($backendStarted) {
+        Write-Host "`nWaiting for backend to initialize..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 5
+        
+        # Test backend health
+        $healthCheckAttempts = 0
+        $maxHealthCheckAttempts = 6
+        
+        while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+            try {
+                $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+                if ($response.status -eq "healthy") {
+                    Write-Host "✅ Production backend is healthy and responding!" -ForegroundColor Green
+                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
+                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+                    break
+                }
+            } catch {
+                $healthCheckAttempts++
+                if ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+                    Write-Host "Backend not ready yet, waiting... (attempt $healthCheckAttempts/$maxHealthCheckAttempts)" -ForegroundColor Yellow
+                    Start-Sleep -Seconds 5
+                } else {
+                    Write-Host "⚠️  Backend started but health check failed after $maxHealthCheckAttempts attempts" -ForegroundColor Yellow
+                    Write-Host "The backend may still be starting up. Check the logs if issues persist." -ForegroundColor Yellow
+                }
+            }
+        }
+        
+        Write-CrashLog "Production backend restarted successfully" -Level "INFO"
+    } else {
+        Write-Host "❌ Failed to restart production backend" -ForegroundColor Red
+        Write-CrashLog "Failed to restart production backend" -Level "ERROR"
+    }
+    
+    Write-Host "`nPress any key to return to the menu..." -NoNewline
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
 # Main execution
 try {
     # Initialize crash logging
     Initialize-CrashLogging
+    
+    # Initialize log directory
+    Initialize-LogDirectory
     
     # If environment is set via parameter and NoMenu is specified, skip the menu
     if ($Environment -ne "Menu" -and $NoMenu) {
@@ -2431,15 +2030,17 @@ try {
                 '2' { $Environment = "Production"; break }
                 '3' { Show-ServerStatus; continue }
                 '4' { Stop-AllServices; continue }
-                '5' { Show-Logs; continue }
-                '6' { Show-LangSearchCache; continue }
-                '7' { Show-RedisDockerStatus; continue }
-                '8' { Show-Help; continue }
-                '9' { Show-CitationCacheInfo; continue }
-                '10' { Clear-UnverifiedCitationCache; continue }
-                '11' { Clear-AllCitationCache; continue }
-                '12' { Show-UnverifiedCitationCache; continue }
-                '13' { Show-MonitoringStatus; continue }
+                '5' { Restart-DevelopmentBackend; continue }
+                '6' { Restart-ProductionBackend; continue }
+                '7' { Show-Logs; continue }
+                '8' { Show-LangSearchCache; continue }
+                '9' { Show-RedisDockerStatus; continue }
+                '10' { Show-Help; continue }
+                '11' { Show-CitationCacheInfo; continue }
+                '12' { Clear-UnverifiedCitationCache; continue }
+                '13' { Clear-AllCitationCache; continue }
+                '14' { Show-UnverifiedCitationCache; continue }
+                '15' { Show-MonitoringStatus; continue }
                 '0' { exit 0 }
                 default { 
                     Write-Host "`nInvalid selection. Please try again." -ForegroundColor Red
@@ -2465,7 +2066,7 @@ try {
                 Write-Host "`nWarning: Redis is not available. Some features may be limited." -ForegroundColor Yellow
                 Write-Host "Citation processing and background tasks will not work." -ForegroundColor Yellow
                 Write-Host "You can still use the basic citation validation features." -ForegroundColor Green
-            Write-Host ""
+                Write-Host ""
                 $continue = Read-Host "Continue without Redis? (y/N)"
                 if ($continue -ne 'y') {
                     Write-CrashLog "User chose to exit due to Redis unavailability" -Level "INFO"
@@ -2586,140 +2187,4 @@ try {
 } finally {
     Write-CrashLog "Shutting down services" -Level "INFO"
     Stop-Services
-}
-
-function Test-RedisSetupIssues {
-    <#
-    .SYNOPSIS
-    Automatically detects and reports common Redis setup issues.
-    #>
-    Write-Host "`n=== Redis Setup Diagnostics ===" -ForegroundColor Cyan
-
-    $issues = @()
-    $warnings = @()
-    $suggestions = @()
-
-    # Check Docker availability
-    try {
-        $dockerVersion = docker --version 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            $issues += "Docker is not installed or not in PATH"
-        } else {
-            Write-Host "OK: Docker is installed: $dockerVersion" -ForegroundColor Green
-        }
-    } catch {
-        $issues += "Docker is not available: $($_.Exception.Message)"
-    }
-
-    # Check Docker Desktop status
-    if ($issues -notcontains "Docker is not installed or not in PATH") {
-        try {
-            $dockerStatus = Test-DockerDesktopStatus
-            if (-not $dockerStatus.Running) {
-                $issues += "Docker Desktop is not running: $($dockerStatus.Message)"
-            } else {
-                Write-Host "OK: Docker Desktop is running" -ForegroundColor Green
-            }
-        } catch {
-            $issues += "Error checking Docker Desktop status: $($_.Exception.Message)"
-        }
-    }
-
-    # Check for container name conflicts
-    if ($issues -notcontains "Docker Desktop is not running") {
-        try {
-            $redisContainers = @("casestrainer-redis", "redis-casestrainer", "redis")
-            $conflictingContainers = @()
-            foreach ($containerName in $redisContainers) {
-                $container = docker ps -a -q -f name=$containerName 2>&1
-                if ($container -and $LASTEXITCODE -eq 0) {
-                    $containerStatus = docker ps -q -f name=$containerName 2>&1
-                    if ($containerStatus -and $LASTEXITCODE -eq 0) {
-                        # Container is running
-                        try {
-                            $testResult = docker exec $containerStatus redis-cli ping 2>&1
-                            if ($LASTEXITCODE -eq 0 -and $testResult -eq "PONG") {
-                                Write-Host "OK: Redis container is running and responding: $containerName" -ForegroundColor Green
-                                return @{ Status = "OK"; Issues = @(); Warnings = @(); Suggestions = @() }
-                            } else {
-                                $warnings += "Redis container '$containerName' is running but not responding properly"
-                            }
-                        } catch {
-                            $warnings += "Error testing Redis container '$containerName': $($_.Exception.Message)"
-                        }
-                    } else {
-                        # Container exists but is stopped
-                        $conflictingContainers += $containerName
-                    }
-                }
-            }
-            if ($conflictingContainers.Count -gt 0) {
-                $issues += "Found stopped Redis containers that may cause conflicts: $($conflictingContainers -join ', ')"
-                $suggestions += "Use option 5 in Redis management to clean up stopped containers"
-            }
-        } catch {
-            $warnings += "Error checking Docker containers: $($_.Exception.Message)"
-        }
-    }
-
-    # Check port conflicts
-    try {
-        $portCheck = netstat -ano | findstr ":6379" | findstr "LISTENING"
-        if ($portCheck) {
-            $processId = ($portCheck -split '\s+')[-1]
-            $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
-            if ($process) {
-                if ($process.ProcessName -eq "com.docker.backend") {
-                    Write-Host "OK: Port 6379 is in use by Docker (expected)" -ForegroundColor Green
-                } else {
-                    $warnings += "Port 6379 is in use by non-Docker process: $($process.ProcessName) (PID: $processId)"
-                    $suggestions += "Stop the process using port 6379 or use a different Redis port"
-                }
-            }
-        } else {
-            Write-Host "OK: Port 6379 is available" -ForegroundColor Green
-        }
-    } catch {
-        $warnings += "Error checking port 6379: $($_.Exception.Message)"
-    }
-
-    # Check Redis connectivity
-    try {
-        $testConnection = & python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('OK')" 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "OK: Redis is accessible on localhost:6379" -ForegroundColor Green
-            return @{ Status = "OK"; Issues = @(); Warnings = $warnings; Suggestions = $suggestions }
-        }
-    } catch {
-        # Redis not accessible, which is expected if not running
-    }
-
-    # Provide summary
-    if ($issues.Count -eq 0 -and $warnings.Count -eq 0) {
-        Write-Host "OK: No issues detected with Redis setup" -ForegroundColor Green
-        return @{ Status = "OK"; Issues = @(); Warnings = @(); Suggestions = @() }
-    }
-
-    if ($issues.Count -gt 0) {
-        Write-Host "`nIssues found:" -ForegroundColor Red
-        foreach ($issue in $issues) {
-            Write-Host "  X $issue" -ForegroundColor Red
-        }
-    }
-
-    if ($warnings.Count -gt 0) {
-        Write-Host "`nWarnings:" -ForegroundColor Yellow
-        foreach ($warning in $warnings) {
-            Write-Host "  ! $warning" -ForegroundColor Yellow
-        }
-    }
-
-    if ($suggestions.Count -gt 0) {
-        Write-Host "`nSuggestions:" -ForegroundColor Cyan
-        foreach ($suggestion in $suggestions) {
-            Write-Host "  > $suggestion" -ForegroundColor Cyan
-        }
-    }
-
-    return @{ Status = "Issues"; Issues = $issues; Warnings = $warnings; Suggestions = $suggestions }
 }

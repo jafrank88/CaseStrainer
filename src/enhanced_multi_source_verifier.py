@@ -401,6 +401,7 @@ class EnhancedMultiSourceVerifier:
                 r"(\d+)\s+(Wash\.\s*App\.)\s+(\d+)", # 123 Wash. App. 456
                 r"(\d+)\s+(Wash\.\s*2d)\s+(\d+)",   # 123 Wash. 2d 456
                 r"(\d+)\s+(Wash\.\s*3d)\s+(\d+)",   # 123 Wash. 3d 456
+                r"(\d+)\s+Wash\.\s+\d+[d]\s+\d+",   # Washington Supreme Court (Wash. 2d 647)
                 # Federal format: 123 F.3d 456
                 r"(\d+)\s+(F\.\d+[a-z]?)\s+(\d+)",
                 # State format: 123 P.3d 456
@@ -1487,19 +1488,21 @@ class EnhancedMultiSourceVerifier:
                 # Extract URL from absolute_url field
                 url = f"https://www.courtlistener.com{result.get('absolute_url')}"
                 
-                # Extract case name from absolute_url (e.g., "/opinion/105221/brown-v-board-of-education/" -> "Brown v. Board of Education")
-                case_name = ""
-                absolute_url = result.get('absolute_url', '')
-                if absolute_url:
-                    # Extract the last part of the URL path and convert from kebab-case to Title Case
-                    url_parts = absolute_url.strip('/').split('/')
-                    if len(url_parts) >= 2:
-                        case_slug = url_parts[-1]  # e.g., "brown-v-board-of-education"
-                        # Convert kebab-case to Title Case
-                        case_name = case_slug.replace('-', ' ').title()
-                        # Handle common legal abbreviations
-                        case_name = case_name.replace(' V ', ' v. ')
-                        case_name = case_name.replace(' V. ', ' v. ')
+                # Extract case name - prefer the direct case_name field from the API response
+                case_name = result.get("case_name", "")
+                if not case_name:
+                    # Fallback: Extract case name from absolute_url (e.g., "/opinion/105221/brown-v-board-of-education/" -> "Brown v. Board of Education")
+                    absolute_url = result.get('absolute_url', '')
+                    if absolute_url:
+                        # Extract the last part of the URL path and convert from kebab-case to Title Case
+                        url_parts = absolute_url.strip('/').split('/')
+                        if len(url_parts) >= 2:
+                            case_slug = url_parts[-1]  # e.g., "brown-v-board-of-education"
+                            # Convert kebab-case to Title Case
+                            case_name = case_slug.replace('-', ' ').title()
+                            # Handle common legal abbreviations
+                            case_name = case_name.replace(' V ', ' v. ')
+                            case_name = case_name.replace(' V. ', ' v. ')
                 
                 # Extract date - try multiple possible field names
                 canonical_date = ""
@@ -1510,12 +1513,17 @@ class EnhancedMultiSourceVerifier:
                 elif result.get("date_filed_is_approximate") is False and result.get("date_filed"):
                     canonical_date = result.get("date_filed")
                 
+                # Extract parallel citations from the CourtListener response
+                parallel_citations = self._get_parallel_citations(result)
+                
                 # Log URL extraction
                 self.logger.info(f"[CourtListener] URL extraction for '{original_citation}':")
                 self.logger.info(f"  - absolute_url field: {result.get('absolute_url', 'NOT_FOUND')}")
+                self.logger.info(f"  - Direct case_name field: {result.get('case_name', 'NOT_FOUND')}")
                 self.logger.info(f"  - Extracted case name: {case_name}")
                 self.logger.info(f"  - Extracted date: {canonical_date}")
                 self.logger.info(f"  - Final URL: {url}")
+                self.logger.info(f"  - Parallel citations found: {len(parallel_citations)}")
                 
                 processed_result = {
                     "verified": "true",
@@ -1528,7 +1536,7 @@ class EnhancedMultiSourceVerifier:
                     "docket_number": result.get("docket_number", result.get("docketNumber", "")),
                     "source": "CourtListener",
                     "confidence": result.get("confidence", 0.9),
-                    "parallel_citations": result.get("parallel_citations", []),
+                    "parallel_citations": parallel_citations,
                     "verification_method": "courtlistener_api"
                 }
                 
@@ -2089,6 +2097,13 @@ class EnhancedMultiSourceVerifier:
                 self._log_lookup_stats(citation, 'utah_direct', result.get('verified', False))
                 if result.get('verified'):
                     return result
+            # Try Washington: 97 Wash. 2d 30, 123 Wash. App. 456
+            if re.match(r'\d+\s+Wash\.\s*(?:2d|3d|App\.)\s+\d+', citation):
+                result = self._lookup_washington_case(citation, components)
+                self._log_lookup_stats(citation, 'washington_direct', result.get('verified', False))
+                if result.get('verified'):
+                    return result
+            
             # Add more states as needed...
             
             # Try other state court patterns (placeholder)
@@ -2153,6 +2168,91 @@ class EnhancedMultiSourceVerifier:
             return {'verified': 'false', 'error': f'{state_abbr} case not found via direct lookup'}
         except Exception as e:
             self.logger.error(f"Error in {state_abbr} case lookup: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _lookup_washington_case(self, citation: str, components: dict) -> dict:
+        """Try to look up a Washington state case on Justia by searching for the citation."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            import re
+            
+            # Clean the citation
+            clean_citation = citation.strip()
+            
+            # Search Justia for Washington cases
+            search_url = f"https://law.justia.com/search?query={quote_plus(clean_citation)}"
+            
+            self.logger.info(f"[Washington Direct] Searching Justia for '{clean_citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for case results
+                case_links = soup.find_all('a', href=True)
+                
+                for link in case_links:
+                    href = link.get('href', '')
+                    link_text = link.get_text().strip()
+                    
+                    # Check if this is a Washington case link
+                    if '/cases/washington/' in href and clean_citation.lower() in link_text.lower():
+                        full_url = f"https://law.justia.com{href}" if href.startswith('/') else href
+                        
+                        # Get the case page
+                        case_response = requests.get(full_url, timeout=10, headers={
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        })
+                        
+                        if case_response.status_code == 200:
+                            case_soup = BeautifulSoup(case_response.text, 'html.parser')
+                            page_text = case_soup.get_text()
+                            
+                            # Verify the citation is actually on the page
+                            if clean_citation in page_text:
+                                # Extract case name from title or h1
+                                title = case_soup.find('h1') or case_soup.find('title')
+                                case_name = title.get_text().strip() if title else "Washington State Case"
+                                
+                                # Extract court information
+                                court = "Washington Supreme Court"
+                                if "App." in clean_citation:
+                                    court = "Washington Court of Appeals"
+                                
+                                # Extract year from citation or page
+                                year_match = re.search(r'\((\d{4})\)', clean_citation)
+                                year = year_match.group(1) if year_match else None
+                                
+                                # If no year in citation, try to extract from page
+                                if not year:
+                                    year_match = re.search(r'Filed:\s*(\w+\s+\d{1,2},\s+(\d{4}))', page_text)
+                                    if year_match:
+                                        year = year_match.group(2)
+                                
+                                self.logger.info(f"[Washington Direct] Found match for '{clean_citation}': {case_name} {full_url}")
+                                
+                                return {
+                                    'verified': 'true',
+                                    'case_name': case_name,
+                                    'canonical_name': case_name,
+                                    'url': full_url,
+                                    'source': 'Justia (Washington Direct)',
+                                    'confidence': 0.9,
+                                    'verification_method': 'direct_lookup',
+                                    'court': court,
+                                    'canonical_date': f"{year}-01-01" if year else None,
+                                    'year': year
+                                }
+            
+            return {'verified': 'false', 'error': 'Washington case not found via direct lookup'}
+            
+        except Exception as e:
+            self.logger.error(f"Error in Washington case lookup: {e}")
             return {'verified': 'false', 'error': str(e)}
 
     def _log_lookup_stats(self, citation: str, method: str, success: bool):
@@ -2733,6 +2833,7 @@ class EnhancedMultiSourceVerifier:
             import requests
             from bs4 import BeautifulSoup
             from urllib.parse import quote_plus
+            import re
             
             # Clean the citation
             clean_citation = citation.strip()
@@ -2740,24 +2841,87 @@ class EnhancedMultiSourceVerifier:
             # Search URL
             search_url = f"https://law.justia.com/search?query={quote_plus(clean_citation)}"
             
+            self.logger.info(f"[Justia] Searching for '{clean_citation}' at: {search_url}")
+            
             # Make request
-            response = requests.get(search_url, timeout=10)
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
             response.raise_for_status()
             
             # Parse results
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Look for case results
+            # Look for case results - try multiple selectors
             case_links = soup.find_all('a', href=True)
+            
             for link in case_links:
                 href = link.get('href', '')
-                if '/cases/' in href and clean_citation.lower() in link.get_text().lower():
-                    return {
-                        'verified': True,
-                        'source': 'Justia',
-                        'url': f"https://law.justia.com{href}",
-                        'method': 'justia_search'
-                    }
+                link_text = link.get_text().strip()
+                
+                # Check if this is a case link and contains our citation
+                if '/cases/' in href and clean_citation.lower() in link_text.lower():
+                    full_url = f"https://law.justia.com{href}" if href.startswith('/') else href
+                    
+                    # Get the case page to extract more details
+                    try:
+                        case_response = requests.get(full_url, timeout=10, headers={
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        })
+                        
+                        if case_response.status_code == 200:
+                            case_soup = BeautifulSoup(case_response.text, 'html.parser')
+                            page_text = case_soup.get_text()
+                            
+                            # Verify the citation is actually on the page
+                            if clean_citation in page_text:
+                                # Extract case name from title or h1
+                                title = case_soup.find('h1') or case_soup.find('title')
+                                case_name = title.get_text().strip() if title else link_text
+                                
+                                # Extract court information
+                                court = ""
+                                if "washington" in href.lower():
+                                    if "app" in clean_citation.lower():
+                                        court = "Washington Court of Appeals"
+                                    else:
+                                        court = "Washington Supreme Court"
+                                
+                                # Extract year from citation or page
+                                year_match = re.search(r'\((\d{4})\)', clean_citation)
+                                year = year_match.group(1) if year_match else None
+                                
+                                # If no year in citation, try to extract from page
+                                if not year:
+                                    year_match = re.search(r'Filed:\s*(\w+\s+\d{1,2},\s+(\d{4}))', page_text)
+                                    if year_match:
+                                        year = year_match.group(2)
+                                
+                                self.logger.info(f"[Justia] Found match for '{clean_citation}': {case_name} {full_url}")
+                                
+                                return {
+                                    'verified': 'true',
+                                    'case_name': case_name,
+                                    'canonical_name': case_name,
+                                    'url': full_url,
+                                    'source': 'Justia',
+                                    'confidence': 0.8,
+                                    'verification_method': 'justia_search',
+                                    'court': court,
+                                    'canonical_date': f"{year}-01-01" if year else None,
+                                    'year': year
+                                }
+                    except Exception as e:
+                        self.logger.debug(f"Error getting case page {full_url}: {e}")
+                        # Fall back to basic result
+                        return {
+                            'verified': 'true',
+                            'case_name': link_text,
+                            'url': full_url,
+                            'source': 'Justia',
+                            'confidence': 0.7,
+                            'verification_method': 'justia_search'
+                        }
             
             return {
                 'verified': 'false',
@@ -2793,27 +2957,9 @@ class EnhancedMultiSourceVerifier:
 
     def is_valid_citation_format(self, citation: str) -> bool:
         """Flexible citation format validation supporting case names, parallel citations, pinpoints, and hyphenated pages."""
-        # Regex for a single citation (volume reporter page, with optional hyphenated page)
-        # Updated to handle multi-word reporters like "Wn. App." and "P.3d"
-        single_citation = r"\d+\s+[A-Za-z\.\s]+\s+\d+(?:-\d+)?"
-        # Allow pinpoint pages (just numbers, optionally hyphenated)
-        pinpoint_page = r"\d+(?:-\d+)?"
-        # Allow multiple citations, each optionally followed by pinpoint pages
-        citations_group = rf"({single_citation}(?:,\s*{pinpoint_page})*(?:,\s*{single_citation}(?:,\s*{pinpoint_page})*)*)"
-        # Optional case name at the start, ending with a comma
-        case_name = r"(?:[\w\s\.\'\-]+?,\s*)?"
-        # Trailing year in parentheses
-        year = r"\(\d{4}\)"
-        # Full pattern: [case name,] citation[, pinpoint ...][, citation[, pinpoint ...]] (year)
-        pattern = rf"^{case_name}{citations_group}\s*{year}$"
-        
-        # Test the pattern
-        if re.match(pattern, citation.strip()):
-            return True
-            
-        # Also accept if any citation in the string matches the old patterns (for backward compatibility)
+        # First, try the legacy patterns which are more permissive
         legacy_patterns = [
-            r'\d+\s+[A-Z]+\.[\d]*\s+\d+',  # Standard reporter format (F.3d, F.Supp., etc.)
+            r'\d+\s+[A-Z]+\.[\d]*[A-Za-z]*\s+\d+',  # Standard reporter format (F.3d, F.Supp., etc.)
             r'\d+\s+[A-Z]{2}\s+\d+',       # State court format (OK 80, etc.)
             r'\d+\s+U\.S\.\s+\d+',         # Supreme Court
             r'\d+\s+S\.Ct\.\s+\d+',        # Supreme Court Reporter
@@ -2822,12 +2968,35 @@ class EnhancedMultiSourceVerifier:
             r'\d+\s+[A-Z]+\s+\d+',         # General reporter format
             r'\d+\s+[A-Z]+\.[A-Z]+\s+\d+', # Multi-letter reporter (N.J.Super., etc.)
             r'\d+\s+Wn\.\s*App\.\s+\d+',   # Washington App
-            r'\d+\s+P\.\d+\s+\d+',         # Pacific reporter
+            r'\d+\s+P\.\d+[d]\s+\d+',      # Pacific reporter (P.2d, P.3d, etc.)
+            r'\d+\s+[A-Z]+\.[A-Z]+\.\s+\d+', # Multi-letter reporter with period (Wn. App., etc.)
+            r'\d+\s+Wash\.\s+\d+\s+\d+',   # Washington Supreme Court (Wash. 2d)
+            r'\d+\s+Wash\.\s+\d+',         # Washington Supreme Court (Wash. 2d) - more flexible
         ]
         
+        # Test legacy patterns first (more permissive)
         for legacy in legacy_patterns:
             if re.search(legacy, citation):
                 return True
+        
+        # If legacy patterns don't match, try the more complex pattern for citations with case names and years
+        # Regex for a single citation (volume reporter page, with optional hyphenated page)
+        single_citation = r"\d+\s+[A-Za-z\.\s]+\s+\d+(?:-\d+)?"
+        # Allow pinpoint pages (just numbers, optionally hyphenated)
+        pinpoint_page = r"\d+(?:-\d+)?"
+        # Allow multiple citations, each optionally followed by pinpoint pages
+        citations_group = rf"({single_citation}(?:,\s*{pinpoint_page})*(?:,\s*{single_citation}(?:,\s*{pinpoint_page})*)*)"
+        # Optional case name at the start, ending with a comma
+        case_name = r"(?:[\w\s\.\'\-]+?,\s*)?"
+        # Optional trailing year in parentheses
+        year = r"(?:\(\d{4}\))?"
+        # Full pattern: [case name,] citation[, pinpoint ...][, citation[, pinpoint ...]] [year]
+        pattern = rf"^{case_name}{citations_group}\s*{year}$"
+        
+        # Test the complex pattern
+        if re.match(pattern, citation.strip()):
+            return True
+            
         return False
 
     def _try_courtlistener_api(self, citation: str, extracted_case_name: str = None, hinted_case_name: str = None) -> dict:

@@ -1,46 +1,56 @@
 #!/usr/bin/env python3
 """
-Test Washington citation extraction and normalization
+Test script to verify Washington citation lookup and verification.
 """
-
-import sys
 import os
-import logging
-from src.citation_extractor import extract_all_citations
+import sys
+sys.path.append('src')
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 def test_washington_citations():
-    """Test Washington citation extraction and normalization."""
+    """Test Washington citation verification."""
     
-    # Sample text with Washington citations
-    sample_text = """
-    The court cited State v. Smith, 123 Wn.2d 456 (1995) and Doe v. Roe, 456 Wn. App. 789 (2000).
-    Other cases include Johnson v. State, 789 Wash. 2d 123 (1998) and Brown v. City, 321 Wash. App. 654 (1999).
-    The Pacific Reporter citation is 980 P.2d 742 (1999).
-    """
+    # Test Washington citations
+    test_citations = [
+        "97 Wash. 2d 30",
+        "185 Wash. 2d 363", 
+        "190 Wash. 2d 185",
+        "121 Wash. 2d 205",
+        "177 Wash. 2d 351"
+    ]
     
-    print("Testing Washington citation extraction...")
-    print("=" * 60)
-    print(f"Sample text: {sample_text.strip()}")
-    print()
+    print("Testing Washington Citation Verification")
+    print("=" * 50)
     
-    # Extract citations using unified extractor
-    citations = extract_all_citations(sample_text, logger=logger)
+    verifier = EnhancedMultiSourceVerifier()
     
-    print(f"Found {len(citations)} citations:")
-    for i, citation_info in enumerate(citations, 1):
-        citation = citation_info['citation']
-        source = citation_info.get('source', 'unknown')
-        print(f"  {i}. {citation} (source: {source})")
+    for i, citation in enumerate(test_citations, 1):
+        print(f"\n{i}. Testing: {citation}")
+        print("-" * 30)
+        
+        try:
+            result = verifier.verify_citation_unified_workflow(citation)
+            
+            print(f"  Verified: {result.get('verified')}")
+            print(f"  Case Name: {result.get('case_name')}")
+            print(f"  Canonical Name: {result.get('canonical_name')}")
+            print(f"  URL: {result.get('url')}")
+            print(f"  Court: {result.get('court')}")
+            print(f"  Source: {result.get('source')}")
+            print(f"  Method: {result.get('verification_method')}")
+            print(f"  Error: {result.get('error')}")
+            
+            if result.get('verified') == 'true':
+                print(f"  ✅ SUCCESS: Citation verified!")
+            else:
+                print(f"  ❌ FAILED: Citation not verified")
+                
+        except Exception as e:
+            print(f"  ❌ ERROR: {e}")
     
-    # Check for Washington citations specifically
-    washington_citations = [c for c in citations if 'Wash.' in c['citation'] or 'Wn.' in c['citation']]
-    print(f"\nWashington citations found: {len(washington_citations)}")
-    for citation_info in washington_citations:
-        print(f"  - {citation_info['citation']}")
+    print(f"\n" + "=" * 50)
+    print("Test completed!")
 
 if __name__ == "__main__":
     test_washington_citations() 

@@ -43,7 +43,7 @@ def test_frontend_verification():
         try:
             # Import the enhanced validator and complex citation integration
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            from src.complex_citation_integration import process_text_with_complex_citations, format_complex_citation_for_frontend
+            from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
             
             print("✓ Successfully imported modules")
             
@@ -60,7 +60,8 @@ def test_frontend_verification():
             
             # Use complex citation processing for better handling of complex citations
             print("Calling process_text_with_complex_citations...")
-            results = process_text_with_complex_citations(test_text, verifier)
+            integrator = ComplexCitationIntegrator()
+            results = integrator.process_text_with_complex_citations_original(test_text)
             print(f"✓ Got {len(results)} results")
             
             # Format results for frontend

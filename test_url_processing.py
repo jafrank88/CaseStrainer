@@ -89,8 +89,8 @@ def test_url_processing(url):
     # Step 4: Summary
     print(f"\nStep 4: Summary")
     print("=" * 60)
-    verified = [r for r in results if r.get('verification_status') == 'VERIFIED' or r.get('verified') == True]
-    invalid = [r for r in results if r.get('verification_status') == 'INVALID' or (r.get('verified') == False and r.get('verification_status') != 'VERIFIED')]
+    verified = [r for r in results if r.get('verification_status') == 'VERIFIED' or r.get('verified') == 'true']
+    invalid = [r for r in results if r.get('verification_status') == 'INVALID' or (r.get('verified') == 'false' and r.get('verification_status') != 'VERIFIED')]
     errors = [r for r in results if 'error' in r]
     
     print(f"Total citations processed: {len(results)}")

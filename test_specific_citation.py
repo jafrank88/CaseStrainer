@@ -1,119 +1,117 @@
 #!/usr/bin/env python3
 """
-Simple script to test a specific citation and identify where verification fails.
-Usage: python test_specific_citation.py "your citation here"
+Test script to debug the specific citation: John Doe P v. Thurston County, 199 Wn. App. 280, 283, 399 P.3d 1195 (2017)
 """
 
 import sys
 import os
-import json
-import logging
-from pathlib import Path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-# Add the src directory to the path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+from citation_extractor import CitationExtractor
+from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from complex_citation_integration import ComplexCitationIntegrator
+from citation_utils import clean_and_validate_citations
 
-# Set up logging to show DEBUG level logs
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-def test_citation(citation):
-    """Test a specific citation step by step."""
-    print(f"Testing citation: {citation}")
-    print("=" * 50)
+def test_specific_citation():
+    """Test the specific citation that's not being verified properly."""
+    
+    # The specific citation from the user
+    citation_text = "John Doe P v. Thurston County, 199 Wn. App. 280, 283, 399 P.3d 1195 (2017)"
+    
+    print(f"Testing citation: {citation_text}")
+    print("=" * 80)
+    
+    # Step 1: Test citation extraction
+    print("\n1. Testing Citation Extraction:")
+    print("-" * 40)
+    
+    extractor = CitationExtractor(use_eyecite=False, use_regex=True)
+    extracted_citations = extractor.extract_citations(citation_text)
+    
+    print(f"Extracted {len(extracted_citations)} citations:")
+    for i, citation in enumerate(extracted_citations, 1):
+        print(f"  {i}. {citation['citation']}")
+        print(f"     Method: {citation['method']}")
+        print(f"     Pattern: {citation['pattern']}")
+        print(f"     Confidence: {citation['confidence']}")
+    
+    # Step 2: Test citation validation
+    print("\n2. Testing Citation Validation:")
+    print("-" * 40)
+    
+    for citation in extracted_citations:
+        citation_text = citation['citation']
+        is_valid, reason = clean_and_validate_citations([citation_text])
+        print(f"Citation: {citation_text}")
+        print(f"Valid: {is_valid}")
+        print(f"Reason: {reason}")
+        print()
+    
+    # Step 3: Test CourtListener API verification
+    print("\n3. Testing CourtListener API Verification:")
+    print("-" * 40)
+    
+    verifier = EnhancedMultiSourceVerifier()
+    
+    for citation in extracted_citations:
+        citation_text = citation['citation']
+        print(f"Verifying: {citation_text}")
+        
+        try:
+            # Test CourtListener citation lookup
+            cl_result = verifier._verify_with_courtlistener(citation_text)
+            print(f"  CourtListener result: {cl_result}")
+            
+            # Test web search fallback
+            web_result = verifier._verify_with_web_search(citation_text)
+            print(f"  Web search result: {web_result}")
+            
+        except Exception as e:
+            print(f"  Error: {e}")
+        print()
+    
+    # Step 4: Test complex citation integration
+    print("\n4. Testing Complex Citation Integration:")
+    print("-" * 40)
+    
+    integrator = ComplexCitationIntegrator()
     
     try:
-        from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-        from enhanced_case_name_extractor import EnhancedCaseNameExtractor
+        # Process with complex citation integration
+        result = integrator.process_text_with_complex_citations_original(citation_text)
+        print(f"Complex integration result: {result}")
         
-        # Initialize
-        verifier = EnhancedMultiSourceVerifier()
-        extractor = EnhancedCaseNameExtractor(cache_results=False)
-        
-        # Step 1: Test citation cleaning
-        print("\n1. Citation Cleaning:")
-        cleaned = verifier._clean_citation_for_lookup(citation)
-        print(f"   Original: {citation}")
-        print(f"   Cleaned:  {cleaned}")
-        
-        # Step 2: Test component extraction
-        print("\n2. Component Extraction:")
-        components = verifier._extract_citation_components(citation)
-        print(f"   Components: {json.dumps(components, indent=2)}")
-        
-        # Step 3: Test CourtListener lookup
-        print("\n3. CourtListener Lookup:")
-        lookup_result = verifier._lookup_citation(citation)
-        if lookup_result:
-            print(f"   Success: {lookup_result.get('verified', False)}")
-            if lookup_result.get('error'):
-                print(f"   Error: {lookup_result['error']}")
-            if lookup_result.get('case_name'):
-                print(f"   Case Name: {lookup_result['case_name']}")
-            if lookup_result.get('url'):
-                print(f"   URL: {lookup_result['url']}")
-        else:
-            print("   Failed: No result returned")
-        
-        # Step 4: Test full verification
-        print("\n4. Full Verification:")
-        full_result = verifier.verify_citation(citation)
-        print(f"   Success: {full_result.get('verified', False)}")
-        if full_result.get('error'):
-            print(f"   Error: {full_result['error']}")
-        if full_result.get('case_name'):
-            print(f"   Case Name: {full_result['case_name']}")
-        if full_result.get('url'):
-            print(f"   URL: {full_result['url']}")
-        
-        # Step 5: Test URL generation
-        print("\n5. URL Generation:")
-        url = extractor.get_citation_url(citation)
-        print(f"   Generated URL: {url}")
-        
-        # Step 6: Test canonical name
-        print("\n6. Canonical Name:")
-        canonical_result = extractor.get_canonical_case_name(citation)
-        if canonical_result:
-            print(f"   Canonical Name: {canonical_result.get('case_name')}")
-            print(f"   Canonical Date: {canonical_result.get('date')}")
-        else:
-            print(f"   Canonical Name: None")
-            print(f"   Canonical Date: None")
-        
-        return {
-            'cleaned': cleaned,
-            'components': components,
-            'lookup_result': lookup_result,
-            'full_result': full_result,
-            'url': url,
-            'canonical_name': canonical_result.get('case_name') if canonical_result else None,
-            'canonical_date': canonical_result.get('date') if canonical_result else None
-        }
+        if 'citations' in result:
+            print(f"Found {len(result['citations'])} citations:")
+            for i, citation in enumerate(result['citations'], 1):
+                print(f"  {i}. {citation}")
         
     except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return None
-
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python test_specific_citation.py \"your citation here\"")
-        print("Example: python test_specific_citation.py \"Brown v. Board of Education, 347 U.S. 483 (1954)\"")
-        return
+        print(f"Error in complex integration: {e}")
     
-    citation = sys.argv[1]
-    results = test_citation(citation)
+    # Step 5: Test full pipeline
+    print("\n5. Testing Full Pipeline:")
+    print("-" * 40)
     
-    if results:
-        # Save results to file
-        output_file = f"test_results_{citation.replace(' ', '_').replace(',', '').replace('(', '').replace(')', '')}.json"
-        with open(output_file, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        print(f"\nResults saved to: {output_file}")
+    from document_processing import extract_and_verify_citations
+    
+    try:
+        result = extract_and_verify_citations(citation_text)
+        print(f"Full pipeline result: {result}")
+        
+        if 'results' in result:
+            print(f"Found {len(result['results'])} results:")
+            for i, citation in enumerate(result['results'], 1):
+                print(f"  {i}. Citation: {citation.get('citation', 'N/A')}")
+                print(f"     Verified: {citation.get('verified', 'N/A')}")
+                print(f"     Canonical Name: {citation.get('canonical_name', 'N/A')}")
+                print(f"     Canonical Date: {citation.get('canonical_date', 'N/A')}")
+                print(f"     Source: {citation.get('source', 'N/A')}")
+                print(f"     URL: {citation.get('url', 'N/A')}")
+                print()
+        
+    except Exception as e:
+        print(f"Error in full pipeline: {e}")
 
 if __name__ == "__main__":
-    main() 
+    test_specific_citation() 

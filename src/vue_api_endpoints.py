@@ -668,6 +668,7 @@ def process_citation_task(task_id, task_type, task_data):
         # Process the citations to ensure they have the expected structure
         citations = result.get('citations', [])
         logger.info(f"[DEBUG] Processing {len(citations)} citations from process_document result")
+        logger.info(f"[DEBUG] Raw citations from process_document: {citations}")
         for i, citation in enumerate(citations, 1):
             logger.info(f"[DEBUG] Citation {i} from process_document: {citation.get('citation', 'N/A')}")
         
@@ -697,8 +698,9 @@ def process_citation_task(task_id, task_type, task_data):
             processed_citations.append(processed_citation)
         
         logger.info(f"[DEBUG] Processed {len(processed_citations)} citations for final result")
+        logger.info(f"[DEBUG] Raw processed_citations: {processed_citations}")
         for i, citation in enumerate(processed_citations, 1):
-            logger.info(f"[DEBUG] Processed citation {i}: {citation.get('citation', 'N/A')} (verified={citation.get('verified', False)})")
+            logger.info(f"[DEBUG] Processed citation {i}: {citation.get('citation', 'N/A')} (verified={citation.get('verified', 'false')})")
         
         # Progress update
         if job:
@@ -725,6 +727,24 @@ def process_citation_task(task_id, task_type, task_data):
             'statistics': result.get('statistics', {}),
             'summary': result.get('summary', {})
         }
+        
+        # Store results in active_requests so task_status endpoint can find them
+        if task_id in active_requests:
+            active_requests[task_id].update({
+                'results': processed_citations,
+                'citations': processed_citations,
+                'case_names': result.get('case_names', []),
+                'metadata': result.get('extraction_metadata', {}),
+                'statistics': result.get('statistics', {}),
+                'summary': result.get('summary', {})
+            })
+            logger.info(f"{WORKER_LABEL} [WORKER] Stored results in active_requests for task {task_id}: {len(processed_citations)} citations")
+            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}] keys: {list(active_requests[task_id].keys())}")
+            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}]['results'] length: {len(active_requests[task_id].get('results', []))}")
+            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}]: {active_requests[task_id]}")
+        else:
+            logger.warning(f"{WORKER_LABEL} [WORKER] Task {task_id} not found in active_requests, cannot store results")
+        
         print(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
         logger.info(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
         # Log the full response_data sent to the frontend
@@ -917,17 +937,30 @@ def analyze():
                 try:
                     # Import the enhanced validator and complex citation integration
                     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-                    from src.complex_citation_integration import process_text_with_complex_citations, format_complex_citation_for_frontend
+                    from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
                     verifier = EnhancedMultiSourceVerifier()
                     
                     # Use complex citation processing for better handling of complex citations
-                    results_data = process_text_with_complex_citations(text_trimmed, verifier)
+                    integrator = ComplexCitationIntegrator()
+                    results = integrator.process_text_with_complex_citations_original(text_trimmed)
                     processing_time = time.time() - start_time
                     
                     # Extract results and statistics
-                    results = results_data.get('results', [])
-                    statistics = results_data.get('statistics', {})
-                    summary = results_data.get('summary', {})
+                    # The method returns a list directly, not a dictionary
+                    statistics = {
+                        'total_citations': len(results),
+                        'verified_citations': len([r for r in results if r.get('verified') == 'true']),
+                        'unverified_citations': len([r for r in results if r.get('verified') != 'true']),
+                        'parallel_citations': len([r for r in results if r.get('is_parallel_citation')]),
+                        'unique_cases': len(set(r.get('canonical_name', '') for r in results if r.get('canonical_name')))
+                    }
+                    summary = {
+                        'total_citations': len(results),
+                        'verified_citations': len([r for r in results if r.get('verified') == 'true']),
+                        'unverified_citations': len([r for r in results if r.get('verified') != 'true']),
+                        'parallel_citations': len([r for r in results if r.get('is_parallel_citation')]),
+                        'unique_cases': len(set(r.get('canonical_name', '') for r in results if r.get('canonical_name')))
+                    }
                     
                     # Format results for frontend
                     formatted_citations = []
@@ -966,13 +999,8 @@ def analyze():
                     
                     response_data = {
                         'citations': formatted_citations,
-                        'statistics': {
-                            'total_citations': summary.get('total_citations', 0),
-                            'parallel_citations': summary.get('parallel_citations', 0),
-                            'verified_citations': summary.get('verified_citations', 0),
-                            'unverified_citations': summary.get('unverified_citations', 0),
-                            'unique_cases': summary.get('unique_cases', 0)
-                        }
+                        'statistics': statistics,
+                        'summary': summary
                     }
                     
                     # Log results
@@ -1287,11 +1315,26 @@ def task_status(task_id):
             # If more than 2 seconds have passed, update status to processing
             if elapsed_time > 2:
                 estimated_progress = min(int(elapsed_time * 5), 85)  # Conservative progress estimate
+                # Preserve existing results when updating status
+                existing_results = active_requests[task_id].get('results', [])
+                existing_citations = active_requests[task_id].get('citations', [])
+                existing_case_names = active_requests[task_id].get('case_names', [])
+                existing_metadata = active_requests[task_id].get('metadata', {})
+                existing_statistics = active_requests[task_id].get('statistics', {})
+                existing_summary = active_requests[task_id].get('summary', {})
+                
                 active_requests[task_id].update({
                     'status': 'processing',
                     'progress': estimated_progress,
                     'status_message': 'Processing citations...',
-                    'current_step': 'Citation extraction and verification'
+                    'current_step': 'Citation extraction and verification',
+                    # Preserve existing results
+                    'results': existing_results,
+                    'citations': existing_citations,
+                    'case_names': existing_case_names,
+                    'metadata': existing_metadata,
+                    'statistics': existing_statistics,
+                    'summary': existing_summary
                 })
                 current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} updated to processing (elapsed: {elapsed_time:.1f}s, progress: {estimated_progress}%)")
         
@@ -1314,11 +1357,14 @@ def task_status(task_id):
             # Prefer 'results', fallback to 'citations', always include at least an empty list
             current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} completed, checking for results")
             current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task status keys: {list(task_status.keys())}")
+            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task status: {task_status}")
             
             # First check active_requests for results
             if 'results' in task_status:
                 response_data['results'] = task_status['results']
                 current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'results' field, count: {len(task_status['results'])}")
+                current_app.logger.info(f"[TASK_STATUS_DEBUG] task_status['results'] length: {len(task_status['results'])}")
+                current_app.logger.info(f"[TASK_STATUS_DEBUG] task_status['results'] keys: {list(task_status['results'][0].keys()) if task_status['results'] else 'EMPTY'}")
             elif 'citations' in task_status:
                 response_data['results'] = task_status['citations']
                 current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'citations' field, count: {len(task_status['citations'])}")
@@ -1730,6 +1776,8 @@ def enrich_citation_with_database_fields(citation_result):
         db_manager = get_database_manager()
         citation_text = citation_result.get('citation', '')
         
+        logger.info(f"[enrich_citation_with_database_fields] Incoming citation: {citation_text}, verified: {citation_result.get('verified')}")
+        
         if not citation_text:
             return citation_result
         
@@ -1762,7 +1810,6 @@ def enrich_citation_with_database_fields(citation_result):
                     WHERE citation_text = ?
                 """
         except Exception as e:
-            # If timestamp columns don't exist, use the basic query
             logger.debug(f"Timestamp columns not available: {e}")
         
         results = db_manager.execute_query(query, (citation_text,))
@@ -1770,7 +1817,9 @@ def enrich_citation_with_database_fields(citation_result):
         if results:
             db_record = results[0]
             
-            # Add database fields to the citation result
+            logger.info(f"[enrich_citation_with_database_fields] Database record for {citation_text}: is_verified={db_record.get('is_verified')}, verification_result={db_record.get('verification_result')}")
+            
+            # Add database fields to the citation result, but DO NOT overwrite 'verified'
             enriched_result = citation_result.copy()
             enriched_result.update({
                 'db_id': db_record.get('id'),
@@ -1792,10 +1841,11 @@ def enrich_citation_with_database_fields(citation_result):
                 'db_verification_count': db_record.get('verification_count'),
                 'db_error_count': db_record.get('error_count')
             })
-            
+            # DO NOT overwrite 'verified' field
+            logger.info(f"[enrich_citation_with_database_fields] Final result for {citation_text}: verified={enriched_result.get('verified')}, db_is_verified={enriched_result.get('db_is_verified')}")
             return enriched_result
         else:
-            # No database record found, return original result
+            logger.info(f"[enrich_citation_with_database_fields] No database record found for {citation_text}, returning original result")
             return citation_result
             
     except Exception as e:
