@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Start progress polling
         window.citationProcessing.progressInterval = setInterval(() => {
             console.log('Checking progress...');
-            fetch(apiUrl('/analyze'), {
+            fetch(apiUrl('/processing_progress'), {
                 method: 'GET'
             })
             .then(response => response.json())

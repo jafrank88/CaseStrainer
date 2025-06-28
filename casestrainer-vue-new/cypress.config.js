@@ -92,7 +92,7 @@ export default defineConfig({
   config: {
     // Custom configuration values
     appName: 'CaseStrainer',
-    version: '0.5.3',
+    version: '0.5.5',
     
     // API endpoints
     endpoints: {

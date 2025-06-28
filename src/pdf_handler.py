@@ -17,6 +17,7 @@ import logging
 from typing import Optional, Tuple, Dict, Any, Union
 from dataclasses import dataclass
 from enum import Enum
+from src.extract_case_name import is_valid_case_name, clean_case_name
 
 
 class PDFExtractionMethod(Enum):
@@ -326,121 +327,119 @@ class PDFHandler:
             except Exception as e:
                 self.logger.warning(f"Error cleaning up temporary directory: {e}")
     
-    def extract_text(self, file_path: str) -> str:
-        """Main entry point for text extraction with enhanced error handling and logging."""
-        self.logger.info(f"\n=== PDF EXTRACTION DEBUG ===")
-        self.logger.info(f"Starting PDF extraction from: {file_path}")
-        start_time = time.time()
+    def preprocess_pdf_text(self, text: str) -> str:
+        """Preprocess PDF text: minimally remove only obvious page numbers and very short all-uppercase lines."""
+        if not text:
+            return ""
         
+        lines = text.splitlines()
+        filtered_lines = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            # Remove standalone page numbers
+            if re.match(r'^\d{1,3}$', line):
+                continue
+            # Remove very short all-uppercase lines (1-3 chars)
+            if len(line) <= 3 and line.isupper():
+                continue
+            filtered_lines.append(line)
+        text = " ".join(filtered_lines)
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+
+    def extract_case_name_global(self, text: str) -> Optional[str]:
+        """Extract a likely case name from anywhere in the document (global search)."""
+        if not text:
+            return None
+        
+        # Look for case name patterns with better filtering
+        patterns = [
+            # Pattern for "Plaintiff v. Defendant" format
+            r'([A-Z][A-Za-z0-9\s\.,&\-\']+)\s+v\.\s+([A-Z][A-Za-z0-9\s\.,&\-\']+)',
+            # Pattern for "In re Case Name" format
+            r'In\s+re\s+([A-Z][A-Za-z0-9\s\.,&\-\']+)',
+            # Pattern for "Case Name v. Defendant" (more flexible)
+            r'([A-Z][A-Za-z0-9\s\.,&\-\']{3,50})\s+v\.\s+([A-Z][A-Za-z0-9\s\.,&\-\']{3,50})',
+        ]
+        
+        for pattern in patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                if pattern.startswith('In\s+re'):
+                    # For "In re" cases, return the case name
+                    case_name = match.group(1).strip()
+                else:
+                    # For "v." cases, combine plaintiff and defendant
+                    plaintiff = match.group(1).strip()
+                    defendant = match.group(2).strip()
+                    case_name = f"{plaintiff} v. {defendant}"
+                
+                # Use canonical cleaning and validation functions
+                case_name = clean_case_name(case_name)
+                
+                # Filter out very short or very long case names
+                if 5 <= len(case_name) <= 200:
+                    # Use canonical validation function
+                    if is_valid_case_name(case_name):
+                        # Additional filtering to avoid header/footer text
+                        if not any(skip_word in case_name.upper() for skip_word in [
+                            'SUPREME COURT', 'FILED', 'RECORD', 'CLERK', 'OFFICE', 'STATE OF',
+                            'MAY 29', '2025', 'SARAH', 'PENDLETON', 'THIS OPINION'
+                        ]):
+                            return case_name
+        
+        return None
+
+    def extract_text(self, file_path: str) -> str:
+        """Extract text from a PDF file, always using pdfminer.six first."""
+        start_time = time.time()
+        file_size = os.path.getsize(file_path)
+        self.logger.info(f"Extracting text from PDF: {file_path} ({file_size} bytes)")
         try:
-            # Check if file exists and is readable
-            if not os.path.exists(file_path):
-                error_msg = f"PDF file does not exist: {file_path}"
-                self.logger.error(error_msg)
-                return f"Error: {error_msg}"
-                
-            # Get file size
-            file_size = os.path.getsize(file_path)
-            self.logger.info(f"PDF file size: {file_size/1024:.1f}KB")
-            
-            if file_size == 0:
-                error_msg = f"PDF file is empty: {file_path}"
-                self.logger.error(error_msg)
-                return f"Error: {error_msg}"
-                
-            # Check for known problematic files
-            filename = os.path.basename(file_path)
-            if filename in self._known_problematic_files:
-                self.logger.warning(f"Known problematic file detected: {filename}")
-                text, error = self._handle_problematic_pdf(file_path)
-                if text:
-                    return text
-                return f"Error: {error or 'Failed to extract text from problematic PDF'}"
-                
-            # Validate PDF header
-            is_valid, header_msg, metadata = self._validate_pdf_header(file_path)
-            if not is_valid:
-                self.logger.error(header_msg)
-                return f"Error: {header_msg}"
-            self.logger.info(header_msg)
-            
-            # Try multiple extraction methods with a quick test to select the fastest for large files
-            if file_size > 5 * 1024 * 1024:  # For files >5MB, test methods quickly
-                self.logger.info("Large file detected, testing extraction methods for fastest result...")
+            # Always use pdfminer.six as the primary extractor
+            self.logger.info("Extracting text with pdfminer.six (primary)...")
+            text = pdfminer_extract_text(file_path)
+            if text and text.strip():
+                self.logger.info(f"Successfully extracted {len(text)} characters with pdfminer.six")
+                # Clean text if enabled
+                if self.config.clean_text and file_size <= 10 * 1024 * 1024:
+                    self.logger.info("Cleaning extracted text...")
+                    text = clean_extracted_text(text)
+                elif file_size > 10 * 1024 * 1024:
+                    self.logger.info("Skipping text cleaning for very large file to improve performance")
+                preprocessed_text = self.preprocess_pdf_text(text)
+                self.logger.info(f"Preprocessed text sample: {preprocessed_text[:300]}")
+                case_name = self.extract_case_name_global(preprocessed_text)
+                if case_name:
+                    self.logger.info(f"[PDFHandler] Global case name extraction: {case_name}")
+                else:
+                    self.logger.info("[PDFHandler] No case name found in global search.")
+                return text
+            else:
+                self.logger.warning("pdfminer.six extracted no text, trying fallbacks...")
+                # Try fallbacks only if pdfminer fails
                 methods = [
-                    (self._extract_with_pdfminer, "pdfminer"),
-                    (self._extract_with_pypdf2, "PyPDF2"),
-                    (self._extract_with_pdftotext, "pdftotext")
+                    (self._extract_with_pdftotext, "pdftotext"),
+                    (self._extract_with_pypdf2, "PyPDF2")
                 ]
-                best_method = None
-                best_time = float('inf')
-                original_timeout = self.config.timeout
-                self.config.timeout = self.config.quick_test_timeout  # Short timeout for testing
-                
                 for method_func, method_name in methods:
-                    test_start_time = time.time()
-                    text, error = method_func(file_path, test_start_time)
-                    test_time = time.time() - test_start_time
-                    if text and test_time < best_time:
-                        best_method = (method_func, method_name)
-                        best_time = test_time
-                    elif error:
-                        self.logger.warning(f"Quick test with {method_name} failed: {error}")
-                
-                self.config.timeout = original_timeout  # Restore original timeout
-                
-                if best_method:
-                    method_func, method_name = best_method
-                    self.logger.info(f"Selected {method_name} as fastest method based on quick test")
-                    text, error = method_func(file_path, start_time)
+                    self.logger.info(f"Trying {method_name} as fallback...")
+                    text, error = method_func(file_path, time.time())
                     if text:
-                        # Clean text if enabled
                         if self.config.clean_text:
                             text = clean_extracted_text(text)
                         return text
-                    else:
-                        self.logger.error(f"Full extraction with {method_name} failed: {error}")
-                        return f"Error: {error or 'Failed to extract text with selected method'}"
-                else:
-                    self.logger.warning("No method succeeded in quick test, falling back to pdfminer.six")
-            
-            # Default extraction with pdfminer.six for smaller files or if quick test fails
-            self.logger.info("Extracting text with pdfminer.six...")
-            text = pdfminer_extract_text(file_path)
-            
-            if not text or not text.strip():
-                error_msg = "No text content extracted from PDF"
+                    self.logger.warning(f"{method_name} failed: {error}")
+                error_msg = "All extraction methods failed for PDF"
                 self.logger.error(error_msg)
                 return f"Error: {error_msg}"
-                
-            # Log success
-            text_length = len(text)
-            self.logger.info(f"Successfully extracted {text_length} characters")
-            if text_length > 0:
-                sample = text[:500].replace('\n', ' ').strip()
-                self.logger.info(f"Text sample (first 500 chars): {sample}")
-            
-            # Clean text if enabled
-            if self.config.clean_text and file_size <= 10 * 1024 * 1024:  # Skip for very large files
-                self.logger.info("Cleaning extracted text...")
-                text = clean_extracted_text(text)
-            elif file_size > 10 * 1024 * 1024:
-                self.logger.info("Skipping text cleaning for very large file to improve performance")
-                
-            return text
-                
         except Exception as e:
-            error_msg = f"PDFMiner extraction failed: {str(e)}"
+            error_msg = f"PDF extraction failed: {str(e)}"
             self.logger.error(error_msg)
             self.logger.error("Stack trace:", exc_info=True)
             return f"Error: {error_msg}"
-            
-        except Exception as e:
-            error_msg = f"Unexpected error in PDF extraction: {str(e)}"
-            self.logger.error(error_msg)
-            self.logger.error("Stack trace:", exc_info=True)
-            return f"Error: {error_msg}"
-            
         finally:
             elapsed_time = time.time() - start_time
             self.logger.info(f"\nPDF extraction completed in {elapsed_time:.1f}s")

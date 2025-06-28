@@ -6,6 +6,7 @@ import re
 from functools import wraps
 from flask import jsonify, request
 import logging
+from src.config import ALLOWED_EXTENSIONS
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ def validate_file_upload(f):
             return jsonify({"error": "No selected file"}), 400
 
         # Check file extension
-        allowed_extensions = {"pdf", "doc", "docx", "txt"}
+        allowed_extensions = ALLOWED_EXTENSIONS
         if (
             "." not in file.filename
             or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions

@@ -1,8 +1,7 @@
-This is a test document with some well-known Supreme Court citations:
 
-1. Brown v. Board of Education, 347 U.S. 483 (1954)
-2. District of Columbia v. Heller, 554 U.S. 570 (2008)
-3. Obergefell v. Hodges, 576 U.S. 644 (2015)
-4. Plessy v. Ferguson, 163 U.S. 537 (1896)
-
-These are landmark cases in U.S. constitutional law. 
+This is a test document with legal citations.
+The case of Brown v. Board of Education, 347 U.S. 483 (1954) established important precedent.
+Additionally, Roe v. Wade, 410 U.S. 113 (1973) is another landmark case.
+The court in Marbury v. Madison, 5 U.S. 137 (1803) established judicial review.
+In Miranda v. Arizona, 384 U.S. 436 (1966), the Court established important procedural rights.
+The case of Gideon v. Wainwright, 372 U.S. 335 (1963) guaranteed the right to counsel.

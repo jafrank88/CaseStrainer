@@ -59,7 +59,7 @@ class Config:
     # Application settings
     ENV = os.environ.get('FLASK_ENV', 'production')
     APP_NAME = "CaseStrainer"
-    APP_VERSION = "0.5.4"
+    APP_VERSION = "0.5.5"
     
     # Static files
     STATIC_FOLDER = '../static/vue'
@@ -69,7 +69,7 @@ class Config:
     
     # Upload settings
     UPLOAD_FOLDER = os.path.abspath("uploads")
-    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max upload size
     
     # API settings

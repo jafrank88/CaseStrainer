@@ -74,7 +74,7 @@ if not logging.getLogger().hasHandlers():
 # Initialize the citation processor
 citation_processor = CitationProcessor()
 
-logger.info("Loading enhanced_validator_production.py v0.5.4 - Modified 2025-06-10")
+logger.info("Loading enhanced_validator_production.py v0.5.5 - Modified 2025-06-10")
 
 def log_step(message: str, level: str = "info"):
     """Helper function to log processing steps with consistent formatting."""

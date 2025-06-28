@@ -4,7 +4,12 @@ import logging
 from datetime import datetime
 
 # Set up logging
-log_file = "flask_debug.log"
+# Use project root logs directory
+project_root = os.path.dirname(os.path.abspath(__file__))
+logs_dir = os.path.join(project_root, "logs")
+os.makedirs(logs_dir, exist_ok=True)
+
+log_file = os.path.join(logs_dir, "flask_debug.log")
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",

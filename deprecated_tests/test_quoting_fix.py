@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from extract_case_name import clean_case_name, extract_case_name_from_text
+from src.extract_case_name import clean_case_name, extract_case_name_from_text
 from enhanced_case_name_extractor import EnhancedCaseNameExtractor
 from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 from citation_extractor import CitationExtractor

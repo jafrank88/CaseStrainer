@@ -69,7 +69,7 @@ CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
 
 # Upload settings
 UPLOAD_FOLDER = os.path.abspath("uploads")
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm'}
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
 # Email configuration for UW SMTP
@@ -119,15 +119,20 @@ def configure_logging(log_level: int = logging.INFO) -> None:
     """
     import sys
 
+    # Use project root logs directory
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+
     # Use ConcurrentRotatingFileHandler for robust log rotation on Windows
     try:
         from concurrent_log_handler import ConcurrentRotatingFileHandler
 
         file_handler = ConcurrentRotatingFileHandler(
-            "logs/casestrainer.log", maxBytes=5 * 1024 * 1024, backupCount=5
+            os.path.join(logs_dir, "casestrainer.log"), maxBytes=5 * 1024 * 1024, backupCount=5
         )
     except ImportError:
-        file_handler = logging.FileHandler("logs/casestrainer.log")
+        file_handler = logging.FileHandler(os.path.join(logs_dir, "casestrainer.log"))
     try:
         from colorama import init, Fore, Style
 
@@ -136,7 +141,6 @@ def configure_logging(log_level: int = logging.INFO) -> None:
     except ImportError:
         COLORAMA_AVAILABLE = False
 
-    os.makedirs("logs", exist_ok=True)
     formatter = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )

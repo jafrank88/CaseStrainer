@@ -1,23 +1,52 @@
+import warnings
 import re
 import time
+import logging
 from typing import List, Dict, Optional, Any, Union
 from rapidfuzz import fuzz
 
 try:
-    from eyecite import get_citations
+    from eyecite import get_citations, resolve_citations
     from eyecite.tokenizers import AhocorasickTokenizer
     EYECITE_AVAILABLE = True
 except ImportError:
     EYECITE_AVAILABLE = False
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier
-from src.enhanced_multi_source_verifier import verify_citation
-from src.extract_case_name import extract_case_name_from_text, find_shared_case_name_for_citations
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.extract_case_name import (
+    extract_case_name_triple_from_text, 
+    extract_case_name_from_context_unified,
+    is_valid_case_name,
+    clean_case_name
+)
+
+# Import the main regex patterns from citation_utils
+from src.citation_utils import extract_citations_from_text
+
+from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted
+
+from src.citation_normalizer import normalize_citation
+
+def deprecated_warning(func):
+    """Decorator to show deprecation warnings."""
+    import functools
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn(
+            f"{func.__name__} is deprecated. Use src.unified_citation_processor.UnifiedCitationProcessor instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return func(*args, **kwargs)
+    return wrapper
 
 class CitationExtractor:
     """
     Unified citation extractor supporting eyecite and regex extraction, deduplication,
     optional context, debug info, and a consistent return format.
+
+    DEPRECATED: This module is deprecated. Use src.unified_citation_processor instead.
 
     Features:
     - Eyecite and regex extraction (with fallback)
@@ -143,6 +172,7 @@ class CitationExtractor:
                     matches = list(pattern.finditer(original_text))
                     for match in matches:
                         citation_str = match.group(0)
+                        citation_str = normalize_citation(citation_str)  # Normalize here
                         if self.deduplicate and citation_str in seen:
                             continue
                         seen.add(citation_str)
@@ -155,29 +185,24 @@ class CitationExtractor:
                 except Exception as e:
                     if debug:
                         debug_info['warnings'].append(f"regex extraction failed for {name}: {e}")
-        # Find shared case names for all regex citations
-        shared_case_names = {}
-        if self.extract_case_names and all_citation_objs:
-            shared_case_names = find_shared_case_name_for_citations(original_text, all_citation_objs)
         # Now build results with shared case names if available
         for obj in all_citation_objs:
             citation_str = obj['citation']
-            case_name = ''
+            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': ''}
             if self.extract_case_names:
-                if citation_str in shared_case_names:
-                    case_name = shared_case_names[citation_str]
-                else:
-                    case_name = extract_case_name_from_text(original_text, citation_str, all_citation_objs)
-                if not case_name:
-                    case_name = ''
-            context_val = self._get_context(original_text, citation_str) if (self.context_window or 200) else ""
+                case_name_triple = extract_case_name_triple(text, citation_str)
+            context_val = self._get_context(text, citation_str) if (self.context_window or 200) else ""
             entry = {
                 'citation': citation_str,
                 'method': 'regex',
                 'pattern': obj.get('pattern', ''),
                 'confidence': 'medium',
-                'case_name': case_name,
-                'context': context_val or ''
+                'case_name': case_name_triple['case_name'],
+                'context': context_val or '',
+                'extracted_case_name': case_name_triple['extracted_name'] or '',
+                'hinted_case_name': case_name_triple['hinted_name'] or '',
+                'canonical_date': case_name_triple['canonical_date'] or '',
+                'extracted_date': extract_year_from_line(text) or '',
             }
             results.append(entry)
         if debug:
@@ -192,34 +217,26 @@ class CitationExtractor:
                     tokenizer = AhocorasickTokenizer()
                     print("Using AhocorasickTokenizer")
                     print("Running eyecite citation extraction...")
-                    citations = get_citations(text, tokenizer=tokenizer)
-                    print(f"Eyecite found {len(citations)} citations")
-                    for c in citations:
+                    eyecite_citations = get_citations(original_text, tokenizer=tokenizer)
+                    for c in eyecite_citations:
                         citation_str = str(c)
+                        citation_str = normalize_citation(citation_str)  # Normalize here
                         if self.deduplicate and citation_str in seen:
                             continue
                         seen.add(citation_str)
-                        
-                        # Extract case name if enabled (using original text)
-                        case_name = None
-                        if self.extract_case_names:
-                            case_name = extract_case_name_from_text(original_text, citation_str)
-                            # Only set case_name if it is found in the context and is not None/empty
-                            if not case_name:
-                                case_name = ''
-                            else:
-                                print(f"Extracted case name: {case_name}")
-                        # Always extract context (using original text)
-                        context_val = self._get_context(original_text, citation_str) if (self.context_window or 200) else ""
                         entry = {
                             'citation': citation_str,
                             'method': 'eyecite',
-                            'confidence': 'high',
-                            'case_name': case_name,  # will be '' if not found
-                            'context': context_val or ''
+                            'pattern': 'eyecite',
+                            'confidence': 'medium',
+                            'case_name': '',
+                            'context': self._get_context(text, citation_str) if (self.context_window or 200) else "",
+                            'extracted_case_name': '',
+                            'hinted_case_name': '',
+                            'canonical_date': '',
+                            'extracted_date': extract_year_from_line(text) or '',
                         }
                         results.append(entry)
-                        print(f"Added citation: {citation_str}")
                 else:
                     print("Eyecite not available")
                     if debug:
@@ -245,255 +262,242 @@ class CitationExtractor:
         idx = text.find(citation)
         if idx == -1:
             return ""
-        start = max(0, idx - window)
-        end = min(len(text), idx + len(citation) + window)
+        
+        start = max(0, idx - window // 2)
+        end = min(len(text), idx + len(citation) + window // 2)
         return text[start:end]
 
     def extract_case_names_from_text(self, text, citations):
         """Extract case names from text using citation context."""
         case_names = []
-        
         for citation in citations:
             citation_text = str(citation)
-            
-            # Find the citation in the text
-            start_pos = text.find(citation_text)
-            if start_pos == -1:
-                continue
-                
-            # Look for case name before the citation (within 500 characters)
-            context_before = text[max(0, start_pos - 500):start_pos]
-            context_after = text[start_pos + len(citation_text):start_pos + len(citation_text) + 200]
-            
-            # Try to extract case name from context
-            case_name = self._extract_case_name_from_context(context_before, context_after, citation_text)
-            
+            case_name = extract_case_name_from_text(text, citation_text)
             if case_name:
                 case_names.append({
                     'citation': citation_text,
                     'case_name': case_name,
                     'method': 'context'
                 })
-        
         return case_names
-    
-    def _extract_case_name_from_context(self, context_before, context_after, citation):
-        """Extract case name from context around citation."""
-        # More flexible patterns for case names
-        case_patterns = [
-            # Pattern: "Case Name v. Defendant" (most common)
-            r'([A-Z][A-Za-z0-9\s&\'\.\-]+(?:\s+v\.?\s+[A-Z][A-Za-z0-9\s&\'\.\-]+))',
-            # Pattern: "Case Name, Defendant" (comma separated)
-            r'([A-Z][A-Za-z0-9\s&\'\.\-]+,\s+[A-Z][A-Za-z0-9\s&\'\.\-]+)',
-            # Pattern: "Case Name" (single party with more flexibility)
-            r'([A-Z][A-Za-z0-9\s&\'\.\-]{3,50})',
-            # Pattern: "In re Case Name" (bankruptcy/probate cases)
-            r'(In\s+re\s+[A-Z][A-Za-z0-9\s&\'\.\-]+)',
-            # Pattern: "State v. Defendant" or "United States v. Defendant"
-            r'((?:State|United\s+States)\s+v\.?\s+[A-Z][A-Za-z0-9\s&\'\.\-]+)',
-        ]
+
+    def _extract_case_name_from_context(self, text, citation):
+        """Extract case name from context around a citation using canonical function."""
+        idx = text.find(citation)
+        if idx == -1:
+            return None
         
-        # Look in context before citation (within 300 characters)
-        for pattern in case_patterns:
-            matches = re.findall(pattern, context_before)
-            if matches:
-                # Get the last match (closest to citation)
-                potential_case = matches[-1].strip()
-                # Clean up common prefixes/suffixes
-                potential_case = self._clean_case_name(potential_case)
-                if len(potential_case) > 3 and self._is_valid_case_name(potential_case):
-                    return potential_case
+        # Look for case name before the citation
+        before_context = text[max(0, idx - 500):idx]
         
-        # Look in context after citation (within 200 characters)
-        for pattern in case_patterns:
-            matches = re.findall(pattern, context_after)
-            if matches:
-                # Get the first match (closest to citation)
-                potential_case = matches[0].strip()
-                # Clean up common prefixes/suffixes
-                potential_case = self._clean_case_name(potential_case)
-                if len(potential_case) > 3 and self._is_valid_case_name(potential_case):
-                    return potential_case
+        # Use the canonical unified function
+        case_name = extract_case_name_from_context_unified(before_context, citation)
+        
+        if case_name and is_valid_case_name(case_name):
+            return clean_case_name(case_name)
         
         return None
-    
+
     def _is_valid_case_name(self, case_name):
-        """Check if extracted text looks like a valid case name."""
-        # Must contain at least one letter
-        if not re.search(r'[A-Za-z]', case_name):
-            return False
-        
-        # Must not be too short or too long
-        if len(case_name) < 3 or len(case_name) > 200:
-            return False
-        
-        # Must not be just numbers or common words
-        common_words = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by']
-        if case_name.lower() in common_words:
-            return False
-        
-        # Check for common invalid introductory phrases
-        invalid_intro_patterns = [
-            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
-            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
-            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
-            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
-            r'^(?:unknown\s+case|case\s+not\s+found|no\s+case\s+name)',
-        ]
-        
-        for pattern in invalid_intro_patterns:
-            if re.match(pattern, case_name, re.IGNORECASE):
-                return False
-        
-        # Must not contain obvious non-case-name patterns
-        invalid_patterns = [
-            r'^\d+$',  # Just numbers
-            r'^[A-Za-z\s]+$',  # Just letters and spaces (too generic)
-            r'page\s+\d+',  # Page references
-            r'volume\s+\d+',  # Volume references
-        ]
-        
-        for pattern in invalid_patterns:
-            if re.match(pattern, case_name, re.IGNORECASE):
-                return False
-        
-        return True
-    
+        """Check if a case name is valid using canonical function."""
+        return is_valid_case_name(case_name)
+
     def _clean_case_name(self, case_name):
-        """Clean up extracted case name."""
-        if not case_name:
-            return ""
-        
-        # Normalize whitespace first
-        case_name = re.sub(r'\s+', ' ', case_name).strip()
-        
-        # Remove common prefixes
-        prefixes_to_remove = [
-            'quoting ', 'citing ', 'see ', 'see also ', 'accord ', 'but see ',
-            'cf. ', 'compare ', 'contra ', 'e.g., ', 'i.e., ', 'id. at ',
-            'supra ', 'infra ', 'hereinafter ', 'hereinafter, ',
-            'motion for summary judgment de novo. ',
-            'most favorable to the nonmoving party. ',
-            'civil suits arising from such injuries. ',
-            'it is both incorrect and harmful. ',
-            's prior decision in ',
-        ]
-        
-        cleaned = case_name
-        for prefix in prefixes_to_remove:
-            if cleaned.lower().startswith(prefix.lower()):
-                cleaned = cleaned[len(prefix):].strip()
-        
-        # Remove common introductory phrases (more comprehensive)
-        intro_patterns = [
-            r'^(?:the\s+)?(?:case\s+of\s+|supreme\s+court\s+in\s+|court\s+of\s+appeals\s+in\s+)',
-            r'^(?:the\s+)?(?:washington\s+supreme\s+court\s+in\s+|washington\s+court\s+of\s+appeals\s+in\s+)',
-            r'^(?:in\s+the\s+case\s+of\s+|in\s+the\s+matter\s+of\s+)',
-            r'^(?:the\s+)?(?:matter\s+of\s+|proceeding\s+of\s+)',
-            r'^(?:in\s+(?!re\b)|the\s+case\s+)',  # Don't remove 'in' if it's followed by 're'
-            r'^(?:and\s+the\s+court\s+of\s+appeals\s+in\s+)',
-            # Add patterns for common legal writing phrases
-            r'^(?:quoting\s+|cited\s+in\s+|referenced\s+in\s+|as\s+stated\s+in\s+|as\s+held\s+in\s+)',
-            r'^(?:the\s+)?(?:court\s+in\s+|judge\s+in\s+|opinion\s+in\s+)',
-            r'^(?:see\s+|cf\.\s+|e\.g\.,?\s+|i\.e\.,?\s+)',
-            r'^(?:according\s+to\s+|per\s+|as\s+per\s+)',
-        ]
-        for pattern in intro_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
-        
-        # Remove common artifacts that might appear at the end
-        cleaned = re.sub(r'\s+(?:case|matter|proceeding|action|petition)\s*$', '', cleaned, flags=re.IGNORECASE)
-        
-        # Remove trailing descriptive text
-        cleaned = re.sub(r'\s+(?:was\s+decided|established|addressed|dealt\s+with).*$', '', cleaned, flags=re.IGNORECASE)
-        
-        # Enhanced: Find and extract the actual case name pattern, removing any text before it
-        # This handles cases like "I respectfully concur. City of Seattle v. Wiggins"
-        case_name_patterns = [
-            r"([A-Z][A-Za-z'\-\s,\.]+\s+(?:v\.|vs\.|versus)\s+[A-Z][A-Za-z'\-\s,\.]+)",
-            r"(In\s+re\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-            r"(Estate\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-            r"(Matter\s+of\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-            r"(Ex\s+parte\s+[A-Z][A-Za-z'\-\s,\.]+(?:\s+[A-Z][A-Za-z'\-\s,\.]+)*)",
-        ]
-        
-        for pattern in case_name_patterns:
-            match = re.search(pattern, cleaned, re.IGNORECASE)
-            if match:
-                cleaned = match.group(1).strip()
-                break
-        
-        # If the result is still too long, truncate to first 12 words
-        words = cleaned.split()
-        if len(words) > 12:
-            cleaned = ' '.join(words[:12])
-        
-        # Ensure proper capitalization for common legal terms
-        if cleaned.lower().startswith('in re'):
-            cleaned = re.sub(r'^in\s+re\b', 'In re', cleaned, flags=re.IGNORECASE)
-        else:
-            cleaned = re.sub(r'\b(Ex parte|Ex rel|Matter of|Estate of)\b', lambda m: m.group(1).title(), cleaned, flags=re.IGNORECASE)
-        
-        # Remove trailing punctuation and common suffixes
-        cleaned = re.sub(r'[.,;:]$', '', cleaned)
-        cleaned = re.sub(r'\s+', ' ', cleaned)  # Normalize whitespace
-        
-        return cleaned.strip()
+        """Clean and normalize a case name using canonical function."""
+        return clean_case_name(case_name)
 
-def extract_all_citations(text: str, use_enhanced: bool = True) -> List[str]:
+    def extract_citations_with_case_names(self, text: str) -> Dict[str, Any]:
+        """
+        Extract citations and case names from text.
+        
+        Args:
+            text: The input text to search for citations and case names
+            
+        Returns:
+            Dictionary containing citations, case names, and metadata
+        """
+        try:
+            # Extract citations using the main extract method
+            citations_result = self.extract(text, return_context=True, debug=False)
+            
+            # Extract case names from the text
+            case_names = []
+            if self.extract_case_names:
+                # Extract case names from the text using regex patterns
+                case_names = self._extract_case_names_from_text(text)
+            
+            # Prepare the result
+            result = {
+                'citations': citations_result,
+                'case_names': case_names,
+                'metadata': {
+                    'text_length': len(text),
+                    'citations_found': len(citations_result),
+                    'case_names_found': len(case_names),
+                    'extraction_method': 'unified_extractor'
+                }
+            }
+            
+            return result
+            
+        except Exception as e:
+            logging.error(f"Error in extract_citations_with_case_names: {str(e)}")
+            return {
+                'citations': [],
+                'case_names': [],
+                'metadata': {
+                    'error': str(e),
+                    'text_length': len(text) if text else 0
+                }
+            }
+
+    def _extract_case_names_from_text(self, text: str) -> List[str]:
+        """
+        Extract case names from text using regex patterns.
+        
+        Args:
+            text: The input text
+            
+        Returns:
+            List of extracted case names
+        """
+        case_names = []
+        
+        # Common case name patterns
+        patterns = [
+            r'\b([A-Z][A-Za-z\'\-\s,\.]+)\s+v\.\s+([A-Z][A-Za-z\'\-\s,\.]+?)(?:\s*[,;]|\s*$)',
+            r'\b([A-Z][A-Za-z\'\-\s,\.]+)\s+vs\.\s+([A-Z][A-Za-z\'\-\s,\.]+?)(?:\s*[,;]|\s*$)',
+            r'\b([A-Z][A-Za-z\'\-\s,\.]+)\s+versus\s+([A-Z][A-Za-z\'\-\s,\.]+?)(?:\s*[,;]|\s*$)',
+            r'\bIn\s+re\s+([A-Z][A-Za-z\'\-\s,\.]+?)(?:\s*[,;]|\s*$)',
+            r'\b([A-Z][A-Za-z\'\-\s,\.]+)\s+ex\s+rel\.\s+([A-Z][A-Za-z\'\-\s,\.]+?)(?:\s*[,;]|\s*$)',
+        ]
+        
+        for pattern in patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                if len(match.groups()) == 2:
+                    # For "X v. Y" patterns
+                    case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
+                else:
+                    # For "In re X" or "X ex rel. Y" patterns
+                    case_name = match.group(0).strip()
+                
+                # Clean and validate the case name
+                if self._is_valid_case_name(case_name):
+                    case_names.append(case_name)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_case_names = []
+        for case_name in case_names:
+            if case_name not in seen:
+                seen.add(case_name)
+                unique_case_names.append(case_name)
+        
+        return unique_case_names
+
+    def _is_valid_case_name(self, case_name: str) -> bool:
+        """
+        Check if a case name is valid.
+        
+        Args:
+            case_name: The case name to validate
+            
+        Returns:
+            bool: True if valid
+        """
+        if not case_name or len(case_name) < 5:
+            return False
+        
+        # Must contain typical case name patterns
+        case_patterns = [
+            r'\b[A-Z][a-z]+\s+(?:v\.|vs\.|versus)\s+[A-Z][a-z]+',  # e.g., "Smith v. Jones"
+            r'\bIn\s+re\s+[A-Z][a-z]+',  # e.g., "In re Smith"
+            r'\b[A-Z][a-z]+\s+(?:ex\s+rel\.|ex\s+rel)\s+[A-Z][a-z]+',  # e.g., "State ex rel. Smith"
+        ]
+        
+        for pattern in case_patterns:
+            if re.search(pattern, case_name, re.IGNORECASE):
+                return True
+        
+        return False
+
+    def extract_citations(self, text: str) -> List[Dict]:
+        """
+        Extract only citations from text (without case names).
+        
+        Args:
+            text: The input text to search for citations
+            
+        Returns:
+            List of citation dictionaries
+        """
+        try:
+            result = self.extract(text, return_context=True, debug=False)
+            return result if isinstance(result, list) else []
+        except Exception as e:
+            logging.error(f"Error in extract_citations: {str(e)}")
+            return []
+
+def normalize_washington_citations(citation_text: str) -> str:
+    """Normalize Washington citations from Wn. to Wash. format."""
+    # Wn.2d -> Wash. 2d
+    citation_text = re.sub(r'\bWn\.2d\b', 'Wash. 2d', citation_text)
+    # Wn.3d -> Wash. 3d  
+    citation_text = re.sub(r'\bWn\.3d\b', 'Wash. 3d', citation_text)
+    # Wn. App. -> Wash. App.
+    citation_text = re.sub(r'\bWn\. App\.\b', 'Wash. App.', citation_text)
+    # Wn. -> Wash.
+    citation_text = re.sub(r'\bWn\.\b', 'Wash.', citation_text)
+    return citation_text
+
+def extract_all_citations(text: str, logger=None) -> List[Dict]:
     """
-    Extract all citations from text using the enhanced extractor.
+    Extract all citations from text using the unified extractor.
+    
+    This function now delegates to the unified citation extraction system
+    for consistency across the codebase.
     
     Args:
-        text: The input text to search for citations
-        use_enhanced: Whether to use enhanced extraction (default: True)
-    
+        text: The text to extract citations from
+        logger: Optional logger instance
+        
     Returns:
-        List of citation strings
+        List of citation dictionaries with metadata
     """
-    extractor = CitationExtractor(use_eyecite=use_enhanced, use_regex=True, context_window=1000)
-    results = extractor.extract(text)
-    return [r['citation'] for r in results]
+    from src.unified_citation_extractor import extract_all_citations as unified_extract
+    return unified_extract(text, logger)
 
-def verify_citation(citation: str, use_enhanced: bool = True) -> Dict[str, Any]:
-    """
-    Verify a citation using the enhanced validator.
+def verify_citation(citation: str, use_enhanced: bool = True) -> dict:
+    """Verify a citation using the unified workflow (verify_citation_unified_workflow)."""
+    verifier = EnhancedMultiSourceVerifier()
+    return verifier.verify_citation_unified_workflow(citation)
+
+def extract_case_name_from_line(line):
+    # Look for the last 'v.' or 'vs.' before the first citation
+    # This is a simple fallback method
+    pass
+
+def extract_year_from_line(line):
+    # Look for a year in parentheses at the end
+    # This is a simple fallback method
+    pass
+
+def count_washington_citations(citations: List[Dict]) -> Dict:
+    """Count Washington citations and provide statistics."""
+    washington_citations = []
+    for citation_info in citations:
+        citation = citation_info['citation']
+        if 'Wash.' in citation:
+            washington_citations.append(citation_info)
     
-    Args:
-        citation: The citation to verify
-        use_enhanced: Whether to use enhanced validation (default: True)
-    
-    Returns:
-        Dictionary with validation results
-    """
-    start_time = time.time()
-    
-    # Basic validation
-    if not citation or not isinstance(citation, str):
-        return {
-            'valid': False,
-            'error': 'Invalid citation format',
-            'processing_time': time.time() - start_time
-        }
-    
-    # Extract citations from the citation string
-    extractor = CitationExtractor(use_eyecite=use_enhanced, use_regex=True, context_window=500)
-    results = extractor.extract(citation)
-    
-    if not results:
-        return {
-            'valid': False,
-            'error': 'No valid citation format found',
-            'processing_time': time.time() - start_time
-        }
-    
-    # Get the first result
-    result = results[0]
+    # Count by source
+    regex_count = len([c for c in washington_citations if c['source'] == 'regex'])
+    eyecite_count = len([c for c in washington_citations if c['source'] == 'eyecite'])
     
     return {
-        'valid': True,
-        'citation': result['citation'],
-        'method': result.get('method', 'unknown'),
-        'confidence': result.get('confidence', 'medium'),
-        'processing_time': time.time() - start_time
+        "total_washington": len(washington_citations),
+        "regex_washington": regex_count,
+        "eyecite_washington": eyecite_count,
+        "washington_citations": washington_citations
     } 

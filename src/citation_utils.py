@@ -32,6 +32,8 @@ def allowed_file(filename):
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)
 
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+
 def log_citation_verification(citation, result):
     """
     Log the result of a citation verification attempt.
@@ -40,16 +42,14 @@ def log_citation_verification(citation, result):
         citation (str): The citation text that was verified.
         result (dict): The result of the verification process.
     """
-    status = "SUCCESS" if result.get("found", False) else "FAILED"
+    status = "SUCCESS" if result.get("verified", False) else "FAILED"
     logger.info(f"Citation Verification [{status}]: {citation}")
     if result.get("error", False):
-        logger.error(f"Verification error: {result.get('error_message', 'Unknown error')}")
-    elif result.get("found", False):
-        # Safely log the source information to avoid Unicode encoding errors
+        logger.error(f"Verification error: {result.get('error', 'Unknown error')}")
+    elif result.get("verified", False):
         try:
             logger.info(f"Verified citation details: {result.get('source', 'No source info')}")
         except UnicodeEncodeError:
-            # If Unicode fails, log a safe version
             safe_source = str(result.get('source', 'No source info')).encode('cp1252', errors='replace').decode('cp1252')
             logger.info(f"Verified citation details (safe): {safe_source}")
 
@@ -58,7 +58,7 @@ import re
 from src.citation_format_utils import apply_washington_spacing_rules
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier for all verification
-from src.enhanced_multi_source_verifier import verify_citation
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 def normalize_citation_text(citation_text):
     """
@@ -119,193 +119,18 @@ def normalize_citation_text(citation_text):
 def verify_citation(
     citation,
     context=None,
-    logger=logger,
-    DEFAULT_API_KEY=COURTLISTENER_API_KEY,
+    logger=None,
+    DEFAULT_API_KEY=None,
     thread_local=None,
-    timeout=15,  # Reduced from 30 to match CitationVerifier
+    timeout=15,
+    extracted_case_name=None
 ):
-    """Verify a citation using the robust CitationVerifier logic with improved error handling, including retry, throttling, timeout, and caching.
-
-    Args:
-        citation: The citation to verify
-        context: Optional context around the citation
-        logger: Logger instance
-        DEFAULT_API_KEY: Default API key to use
-        thread_local: Thread-local storage for API key
-        timeout: Global timeout in seconds for the entire verification process
-    """
-    import threading
-    import time
-    import random
-    from functools import wraps
-
-    # Configuration
-    MAX_RETRIES = 3  # Match CitationVerifier
-    MIN_RETRY_DELAY = 1
-    MAX_RETRY_DELAY = 10
-    MIN_INTERVAL = 0.2  # Minimum time between API calls (reduced from 0.5 for better performance)
-
-    # Decorator to enforce timeout on a function
-    def timeout_decorator(timeout_seconds):
-        def decorator(func):
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                result = [None]
-                exception = [None]
-
-                def target():
-                    try:
-                        result[0] = func(*args, **kwargs)
-                    except Exception as e:
-                        exception[0] = e
-
-                thread = threading.Thread(target=target)
-                thread.daemon = True
-                thread.start()
-                thread.join(timeout_seconds)
-
-                if thread.is_alive():
-                    raise TimeoutError(
-                        f"Operation timed out after {timeout_seconds} seconds"
-                    )
-                if exception[0] is not None:
-                    raise exception[0]
-                return result[0]
-
-            return wrapper
-
-        return decorator
-
-    @timeout_decorator(timeout)
-    def _verify_citation_with_timeout(citation, context, api_key, logger):
-        # Import CitationVerifier with better error handling
-        from citation_verification import CitationVerifier
-
-        # --- Begin: Caching ---
-        cache_key = citation.lower().strip()
-        cache = getattr(verify_citation, "_cache", {})
-        cache_lock = getattr(verify_citation, "_cache_lock", threading.Lock())
-
-        with cache_lock:
-            if cache_key in cache:
-                logger.info("Cache hit for citation: %s", citation)
-                return cache[cache_key]
-        # --- End: Caching ---
-
-        # --- Begin: Throttling ---
-        if not hasattr(verify_citation, "_last_call_time"):
-            verify_citation._last_call_time = 0
-        now = time.time()
-        elapsed = now - verify_citation._last_call_time
-        if elapsed < MIN_INTERVAL:
-            sleep_time = MIN_INTERVAL - elapsed
-            logger.info(f"Throttling: sleeping {sleep_time:.2f}s before API call")
-            time.sleep(min(sleep_time, 1.0))  # Don't sleep too long
-        verify_citation._last_call_time = time.time()
-        # --- End: Throttling ---
-
-        verifier = CitationVerifier(api_key=api_key)
-        logger.info(f"Verifying citation: {citation}")
-        start_time = time.time()
-
-        # --- Begin: Retry Logic with Exponential Backoff ---
-        for attempt in range(MAX_RETRIES):
-            try:
-                attempt_start = time.time()
-                if context:
-                    logger.info(f"Context provided, length: {len(context)}")
-                    result = verifier.verify_citation(citation, context=context)
-                else:
-                    result = verifier.verify_citation(citation)
-
-                verification_time = time.time() - attempt_start
-                logger.info(
-                    f"Verification completed in {verification_time:.2f} seconds (attempt {attempt + 1})"
-                )
-                # Safely log the verification result to avoid Unicode encoding errors
-                try:
-                    logger.info(f"Verification result: {result}")
-                except UnicodeEncodeError:
-                    # If Unicode fails, log a safe version
-                    safe_result = str(result).encode('cp1252', errors='replace').decode('cp1252')
-                    logger.info(f"Verification result (safe): {safe_result}")
-                log_citation_verification(citation, result)
-
-                # Save to cache
-                with cache_lock:
-                    cache[cache_key] = result
-                return result
-
-            except Exception as e:
-                elapsed = time.time() - start_time
-                time_remaining = timeout - elapsed
-
-                if attempt == MAX_RETRIES - 1 or time_remaining < MIN_RETRY_DELAY:
-                    logger.error(f"Final attempt failed for citation: {citation}")
-                    logger.error(f"Error: {str(e)}")
-                    traceback.print_exc()
-                    break
-
-                # Calculate backoff with jitter, but respect the remaining timeout
-                backoff = min(
-                    MAX_RETRY_DELAY,
-                    MIN_RETRY_DELAY * (2 ** attempt) + random.uniform(0, 1),
-                    time_remaining - 1
-                )
-                if backoff > 0:
-                    logger.info(
-                        f"Retrying after {backoff:.2f}s... (time remaining: {time_remaining:.1f}s)"
-                    )
-                    time.sleep(backoff)
-        # --- End: Retry Logic ---
-
-        return {
-            "found": False,
-            "source": None,
-            "explanation": "Unable to verify citation within the allowed time.",
-            "error": True,
-            "error_message": f"Verification failed after {MAX_RETRIES} attempts",
-        }
-
-    # Main function logic
-    try:
-        api_key = (
-            getattr(thread_local, "api_key", DEFAULT_API_KEY)
-            if thread_local
-            else DEFAULT_API_KEY
-        )
-        if api_key:
-            logger.info(
-                f"Using API key for verification: {api_key[:5]}... (length: {len(api_key)})"
-            )
-        else:
-            logger.warning("No API key available for citation verification")
-            print("WARNING: No API key available for citation verification")
-
-        return _verify_citation_with_timeout(citation, context, api_key, logger)
-
-    except TimeoutError as te:
-        logger.error(
-            f"Citation verification timed out after {timeout} seconds: {citation}"
-        )
-        return {
-            "found": False,
-            "source": None,
-            "explanation": "Citation verification timed out.",
-            "error": True,
-            "error_message": str(te),
-            "timed_out": True,
-        }
-    except Exception as e:
-        logger.error(f"Error verifying citation: {e}")
-        traceback.print_exc()
-        return {
-            "found": False,
-            "source": None,
-            "explanation": f"Error during verification: {str(e)}",
-            "error": True,
-            "error_message": str(e),
-        }
+    """Verify a citation using the unified EnhancedMultiSourceVerifier workflow (verify_citation_unified_workflow)."""
+    verifier = EnhancedMultiSourceVerifier()
+    return verifier.verify_citation_unified_workflow(
+        citation,
+        extracted_case_name=extracted_case_name
+    )
 
 
 def extract_citations_from_file(filepath, logger=logger):
@@ -600,7 +425,7 @@ def clean_and_validate_citations(citations):
             r"\d+\s+F\.?(?:\s*\d*[a-z]*)?\s+\d+",  # Federal Reporter
             r"\d+\s+S\.?\s*Ct\.?\s+\d+",  # Supreme Court Reporter
             r"\d+\s+L\.?\s*Ed\.?\s*\d+",  # Lawyers Edition
-            r"\d+\s+(?:Wash\.?|Wn\.?)\s*(?:App|2d)?\s+\d+",  # Washington Reports (including Wn. variants)
+            r"\d+\s+(?:Wash\.2d|Wash\.App\.|Wash\.|Wn\.2d|Wn\.App\.|Wn\.)\s+\d+",  # Washington Reports (including Wn. variants)
             r"\d+\s+P\.?\s*(?:2d|3d)?\s+\d+",  # Pacific Reporter
             r"\d+\s+N\.?\s*W\.?\s*(?:2d)?\s+\d+",  # North Western Reporter
             r"\d+\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d+",  # North Eastern Reporter
@@ -705,7 +530,8 @@ def batch_validate_citations_optimized(citations, api_key=None):
             }
     
     # Use ThreadPoolExecutor for parallel processing
-    max_workers = min(10, len(cleaned_citations))  # Limit concurrent threads
+    # Fix: Ensure max_workers is at least 1 to avoid ThreadPoolExecutor error
+    max_workers = max(1, min(10, len(cleaned_citations)))  # At least 1, max 10 workers
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all validation tasks
         future_to_citation = {
@@ -791,78 +617,18 @@ def batch_validate_citations(citations, api_key=None):
     return results
 
 
-# DEPRECATED: All local citation extraction functions are deprecated.
-# Use the CourtListener citation-lookup API with a text blob for all new code.
+# DEPRECATED: Use extract_all_citations from src.citation_extractor instead.
+def extract_citations(*args, **kwargs):
+    """DEPRECATED. Use extract_all_citations from src.citation_extractor instead."""
+    import warnings
+    warnings.warn("extract_citations is deprecated. Use extract_all_citations from src.citation_extractor instead.", DeprecationWarning)
+    return []
 
-def extract_citations(text, return_debug=False, analysis_id=None, logger=logger):
-    """
-    Wrapper function that provides the expected interface for citation extraction.
-    Uses CitationExtractor internally to provide consistent extraction with debug support.
-    
-    Args:
-        text (str): The text to extract citations from
-        return_debug (bool): Whether to return debug information
-        analysis_id (str): Optional analysis ID for logging
-        logger: Logger instance
-    
-    Returns:
-        If return_debug=True: tuple of (citations, debug_info)
-        If return_debug=False: list of citation strings
-    """
-    if analysis_id:
-        logger.info(f"[Analysis {analysis_id}] Starting citation extraction with CitationExtractor")
-    
-    try:
-        from src.citation_extractor import CitationExtractor
-        
-        # Create extractor with enhanced settings
-        extractor = CitationExtractor(
-            use_eyecite=True, 
-            use_regex=True, 
-            context_window=1000, 
-            deduplicate=True,
-            extract_case_names=True
-        )
-        
-        # Extract citations with debug info if requested
-        if return_debug:
-            debug_result = extractor.extract(text, return_context=False, debug=True)
-            if isinstance(debug_result, dict) and 'citations' in debug_result:
-                citations = debug_result['citations']  # <-- Return full objects, not just strings
-                
-                # Apply normalization to citations
-                for citation_obj in citations:
-                    if 'citation' in citation_obj:
-                        citation_obj['citation'] = normalize_citation_text(citation_obj['citation'])
-                
-                debug_info = debug_result  # Return the full debug dict
-                return (citations, debug_info)
-            else:
-                # Fallback if debug result is unexpected
-                citations = extractor.extract(text, return_context=False, debug=False)
-                # Apply normalization to citations
-                for citation_obj in citations:
-                    if 'citation' in citation_obj:
-                        citation_obj['citation'] = normalize_citation_text(citation_obj['citation'])
-                return (citations, {})
-        else:
-            # Extract without debug info
-            results = extractor.extract(text, return_context=False, debug=False)
-            citations = []
-            for item in results:
-                normalized_citation = normalize_citation_text(item['citation'])
-                citations.append(normalized_citation)
-            return citations
-            
-    except Exception as e:
-        logger.error(f"Error in extract_citations: {str(e)}")
-        if analysis_id:
-            logger.error(f"[Analysis {analysis_id}] Citation extraction failed: {str(e)}")
-        
-        if return_debug:
-            return ([], {'errors': [str(e)]})
-        else:
-            return []
+def extract_citations_from_text(*args, **kwargs):
+    """DEPRECATED. Use extract_all_citations from src.citation_extractor instead."""
+    import warnings
+    warnings.warn("extract_citations_from_text is deprecated. Use extract_all_citations from src.citation_extractor instead.", DeprecationWarning)
+    return []
 
 def extract_citations_from_text(text, logger=logger):
     """
@@ -904,8 +670,8 @@ def extract_citations_from_text(text, logger=logger):
         r'\d+\s+So\.\s+\d{2,}',       # Southern Reporter (original series)
         r'\d+\s+P\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',      # Pacific Reporter, all series
         r'\d+\s+P\.\s+\d{2,}',        # Pacific Reporter (original series)
-        # Washington (Wn and Wash variants)
-        r'\d+\s+(?:Wn\.2d|Wn\.App\.|Wn\.|Wash\.2d|Wash\.|Wash\.App\.)\s+\d+',
+        # Washington (Wash. or Wn. with series and page)
+        r'\d+\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d+',
         # California (Cal.4th, etc.)
         r'\d+\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',
         r'\d+\s+Cal\.\s+\d{2,}',
@@ -922,28 +688,31 @@ def extract_citations_from_text(text, logger=logger):
         for match in matches:
             found.add(match.strip())
     
-    # Post-processing: For each Wn. or Wash. citation, add Wash. 2d/3d variant
-    wn_to_wash = []
+    # Post-processing: Normalize all Washington citations to Wash. format
+    normalized_citations = []
     for citation in found:
-        # Wn.2d or Wn. 2d -> Wash. 2d
-        if re.search(r'\bWn\.?\s*2d\b', citation):
-            wn_to_wash.append(re.sub(r'\bWn\.?\s*2d\b', 'Wash. 2d', citation))
-        # Wn.3d or Wn. 3d -> Wash. 3d
-        if re.search(r'\bWn\.?\s*3d\b', citation):
-            wn_to_wash.append(re.sub(r'\bWn\.?\s*3d\b', 'Wash. 3d', citation))
-        # Wash.2d or Wash.2d -> Wash. 2d
-        if re.search(r'\bWash\.2d\b', citation):
-            wn_to_wash.append(re.sub(r'\bWash\.2d\b', 'Wash. 2d', citation))
-        # Wash.3d or Wash. 3d -> Wash. 3d
-        if re.search(r'\bWash\.3d\b', citation):
-            wn_to_wash.append(re.sub(r'\bWash\.3d\b', 'Wash. 3d', citation))
-    # Add new variants if not already present
-    for variant in wn_to_wash:
-        if variant not in found:
-            found.add(variant)
-
-    logger.info(f"Extracted {len(found)} raw citations from text (including Wn./Wash. variants).")
-    return list(found)
+        normalized_citation = citation
+        # Normalize Wn. to Wash. for all Washington citations
+        if re.search(r'\bWn\.', citation):
+            # Wn.2d -> Wash. 2d
+            normalized_citation = re.sub(r'\bWn\.2d\b', 'Wash. 2d', normalized_citation)
+            # Wn.3d -> Wash. 3d  
+            normalized_citation = re.sub(r'\bWn\.3d\b', 'Wash. 3d', normalized_citation)
+            # Wn. App. -> Wash. App.
+            normalized_citation = re.sub(r'\bWn\. App\.\b', 'Wash. App.', normalized_citation)
+            # Wn. -> Wash.
+            normalized_citation = re.sub(r'\bWn\.\b', 'Wash.', normalized_citation)
+        
+        # Also normalize any Wash.2d to Wash. 2d format
+        normalized_citation = re.sub(r'\bWash\.2d\b', 'Wash. 2d', normalized_citation)
+        normalized_citation = re.sub(r'\bWash\.3d\b', 'Wash. 3d', normalized_citation)
+        
+        normalized_citations.append(normalized_citation)
+    
+    # Remove duplicates and return normalized citations
+    unique_normalized = list(set(normalized_citations))
+    logger.info(f"Extracted {len(unique_normalized)} unique Washington citations (normalized to Wash. format).")
+    return unique_normalized
 
 
 def chunk_text_with_overlap(text, max_len=64000, overlap=40):
@@ -972,24 +741,27 @@ def deduplicate_citations(citations):
 
 def extract_all_citations(text, logger=logger):
     """
-    Enhanced: Chunk text >64k with overlap, extract citations from each chunk, deduplicate, then verify.
+    Extract all citations from text using the unified extractor.
+    
+    This function now delegates to the unified citation extraction system
+    for consistency across the codebase.
+    
+    Args:
+        text: The text to extract citations from
+        logger: Optional logger instance
+        
+    Returns:
+        List of citation dictionaries with metadata
     """
-    logger.info("Calling extract_all_citations (with chunking for large text).")
-    if not text or not isinstance(text, str):
-        logger.error("Invalid input: Text must be a non-empty string.")
-        return []
-
-    # If text is small, use original logic
-    if len(text) <= 64000:
-        return extract_citations_from_text(text, logger=logger)
-
-    # Otherwise, chunk and combine
-    logger.info(f"Text is {len(text)} chars, chunking for extraction.")
-    chunks = chunk_text_with_overlap(text, 64000, 40)
-    all_citations = []
-    for chunk in chunks:
-        chunk_citations = extract_citations_from_text(chunk, logger=logger)
-        all_citations.extend(chunk_citations)
-    deduped = deduplicate_citations(all_citations)
-    logger.info(f"After chunking and deduplication: {len(deduped)} unique citations.")
-    return deduped
+    from src.citation_extractor import CitationExtractor
+    
+    # Initialize extractor with case name extraction enabled
+    extractor = CitationExtractor(
+        use_eyecite=True,
+        use_regex=True,
+        context_window=1000,
+        deduplicate=True,
+        extract_case_names=True
+    )
+    
+    return extractor.extract(text)

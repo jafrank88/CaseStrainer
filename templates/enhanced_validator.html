@@ -466,7 +466,7 @@
                     const formData = new FormData();
                     formData.append('file', documentUpload.files[0]);
 
-                    const response = await axios.post(`${basePath}/enhanced-analyze`, formData, {
+                    const response = await axios.post(`${basePath}/analyze`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -499,7 +499,7 @@
                     const formData = new FormData();
                     formData.append('text', textInput.value.trim());
 
-                    const response = await axios.post(`${basePath}/enhanced-analyze`, formData);
+                    const response = await axios.post(`${basePath}/analyze`, formData);
 
                     // Display results
                     textResults.innerHTML = formatTextResults(response.data);

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import PDF processing libraries
 try:
-    from pdf_handler import extract_text_from_pdf
+    from pdf_handler import extract_text_from_pdf, PDFHandler
 except ImportError:
     extract_text_from_pdf = None
 
@@ -182,7 +182,7 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         if not os.path.exists(file_path):
             error_msg = f"File does not exist: {file_path}"
             print(f"ERROR: {error_msg}")
-            return f"Error: {error_msg}"
+            return f"Error: {error_msg}", None
             
         # Get file size
         file_size = os.path.getsize(file_path)
@@ -191,7 +191,7 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         if file_size == 0:
             error_msg = f"File is empty: {file_path}"
             print(f"ERROR: {error_msg}")
-            return f"Error: {error_msg}"
+            return f"Error: {error_msg}", None
         
         # Handle PDF files
         if file_ext == '.pdf':
@@ -207,7 +207,7 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                     if not header.startswith(b'%PDF-'):
                         error_msg = "Invalid PDF file: Missing PDF header"
                         print(f"ERROR: {error_msg}")
-                        return f"Error: {error_msg}"
+                        return f"Error: {error_msg}", None
                     else:
                         # Try to decode version number if present
                         try:
@@ -215,9 +215,9 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                             print(f"PDF version: {version}")
                         except UnicodeDecodeError:
                             print("Could not decode PDF version number")
-                # Extract text using PyPDF2 first
-                print("Attempting extraction with PyPDF2...")
-                text = extract_text_from_pdf(file_path)
+                # Extract text using PDFHandler (with preprocessing and case name extraction)
+                handler = PDFHandler()
+                text = handler.extract_text(file_path)
                 extraction_end = time.time()
                 elapsed = extraction_end - extraction_start
                 print(f"PDF extraction took {elapsed:.2f} seconds")
@@ -226,20 +226,28 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                 if text and isinstance(text, str):
                     if text.startswith("Error:"):
                         print(f"PDF extraction failed: {text}")
-                        return text
+                        return text, None
                     else:
                         print(f"Successfully extracted {len(text)} characters from PDF")
-                        return text
+                        # --- New: Also extract and log the global case name ---
+                        preprocessed_text = handler.preprocess_pdf_text(text)
+                        case_name = handler.extract_case_name_global(preprocessed_text)
+                        if case_name:
+                            print(f"[file_utils] Global case name extraction: {case_name}")
+                        else:
+                            print("[file_utils] No case name found in global search.")
+                        # Return both text and extracted case name
+                        return text, case_name
                 else:
                     error_msg = f"PDF extraction returned invalid result: {type(text)}"
                     print(f"ERROR: {error_msg}")
-                    return f"Error: {error_msg}"
+                    return f"Error: {error_msg}", None
             except Exception as e:
                 error_msg = f"Error processing PDF file: {str(e)}"
                 print(f"ERROR: {error_msg}")
                 print("Stack trace:")
                 traceback.print_exc()
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
         # Handle DOCX files
         elif file_ext == '.docx':
             print("\nProcessing DOCX file...")
@@ -248,49 +256,54 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                 doc = Document(file_path)
                 text = '\n'.join([para.text for para in doc.paragraphs])
                 print(f"Successfully extracted {len(text)} characters from DOCX")
-                return text
+                # For DOCX, we don't have the same case name extraction, so return None for case_name
+                return text, None
             except ImportError:
                 error_msg = "python-docx is not installed. Please install it to process DOCX files."
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
             except Exception as e:
                 error_msg = f"Error processing DOCX file: {str(e)}"
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
         # Handle DOC files
         elif file_ext == '.doc':
             print("\nProcessing DOC file...")
             try:
-                import textract
+                # Optional dependency: textract for DOC file processing
+                import textract  # type: ignore
                 text = textract.process(file_path).decode('utf-8')
                 print(f"Successfully extracted {len(text)} characters from DOC")
-                return text
+                # For DOC, we don't have the same case name extraction, so return None for case_name
+                return text, None
             except ImportError:
                 error_msg = "textract is not installed. Please install it to process DOC files."
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
             except Exception as e:
                 error_msg = f"Error processing DOC file: {str(e)}"
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
         # Handle RTF files
         elif file_ext == '.rtf':
             print("\nProcessing RTF file...")
             try:
-                from striprtf.striprtf import rtf_to_text
+                # Optional dependency: striprtf for RTF file processing
+                from striprtf.striprtf import rtf_to_text  # type: ignore
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     rtf_content = f.read()
                 text = rtf_to_text(rtf_content)
                 print(f"Successfully extracted {len(text)} characters from RTF")
-                return text
+                # For RTF, we don't have the same case name extraction, so return None for case_name
+                return text, None
             except ImportError:
                 error_msg = "striprtf is not installed. Please install it to process RTF files."
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
             except Exception as e:
                 error_msg = f"Error processing RTF file: {str(e)}"
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
         # Handle HTML files
         elif file_ext in ['.html', '.htm']:
             print("\nProcessing HTML file...")
@@ -301,20 +314,21 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                 soup = BeautifulSoup(html_content, 'html.parser')
                 text = soup.get_text(separator='\n')
                 print(f"Successfully extracted {len(text)} characters from HTML")
-                return text
+                # For HTML, we don't have the same case name extraction, so return None for case_name
+                return text, None
             except ImportError:
                 error_msg = "BeautifulSoup4 is not installed. Please install it to process HTML files."
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
             except Exception as e:
                 error_msg = f"Error processing HTML file: {str(e)}"
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+                return f"Error: {error_msg}", None
         # Handle other binary files
         elif file_ext in BINARY_EXTS:
             error_msg = f"Binary file type {file_ext} not supported for text extraction"
             print(f"ERROR: {error_msg}")
-            return f"Error: {error_msg}"
+            return f"Error: {error_msg}", None
         
         # Handle plain text files
         elif file_ext in ['.txt', '.md', '.markdown']:
@@ -331,7 +345,8 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                         sanitized_text = ''.join(c for c in text[:100] if c.isprintable())
                         print(f"Successfully read file with {encoding} encoding: {len(text)} characters")
                         print(f"Sample text: {sanitized_text}...")
-                        return text
+                        # For text files, we don't have the same case name extraction, so return None for case_name
+                        return text, None
                 except UnicodeDecodeError:
                     print(f"Failed to decode with {encoding} encoding")
                     continue
@@ -344,15 +359,22 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                     sanitized_text = ''.join(c for c in text[:100] if c.isprintable())
                     print(f"Read file with replacement characters: {len(text)} characters")
                     print(f"Sample text: {sanitized_text}...")
-                    return text
+                    # For text files, we don't have the same case name extraction, so return None for case_name
+                    return text, None
             except Exception as e:
                 error_msg = f"Failed to read file with any encoding: {str(e)}"
                 print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
-                
+                return f"Error: {error_msg}", None
+        
+        # Handle unknown file types
+        else:
+            error_msg = f"Unsupported file type: {file_ext}"
+            print(f"ERROR: {error_msg}")
+            return f"Error: {error_msg}", None
+            
     except Exception as e:
-        error_msg = f"Unexpected error processing file: {str(e)}"
+        error_msg = f"Unexpected error in file extraction: {str(e)}"
         print(f"ERROR: {error_msg}")
         print("Stack trace:")
         traceback.print_exc()
-        return f"Error: {error_msg}"
+        return f"Error: {error_msg}", None

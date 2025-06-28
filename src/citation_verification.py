@@ -57,11 +57,16 @@ MIN_RETRY_DELAY = 0.5  # minimum seconds between retries
 MAX_RETRY_DELAY = 3  # maximum seconds between retries
 
 # Configure logging
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logs_dir = os.path.join(project_root, "logs")
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('citation_verification.log')
+        logging.FileHandler(os.path.join(logs_dir, 'citation_verification.log'))
     ]
 )

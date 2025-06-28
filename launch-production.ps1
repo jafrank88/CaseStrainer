@@ -403,7 +403,6 @@ function New-NginxConfig {
     
     # Convert Windows paths to forward slashes and properly escape for nginx
     $frontendPath = (Join-Path $PSScriptRoot "casestrainer-vue-new/dist") -replace '\\', '/'
-    $staticPath = (Join-Path $PSScriptRoot "casestrainer-vue-new/dist/static") -replace '\\', '/'
     $sslCertPath = $SSL_CERT -replace '\\', '/'
     $sslKeyPath = $SSL_KEY -replace '\\', '/'
     

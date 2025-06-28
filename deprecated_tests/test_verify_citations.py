@@ -6,7 +6,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from extract_case_name import clean_case_name
+from src.extract_case_name import clean_case_name
 from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 # List of test citations and case names

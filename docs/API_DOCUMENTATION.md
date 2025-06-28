@@ -1,326 +1,275 @@
 # CaseStrainer API Documentation
 
-This document provides comprehensive documentation for all API endpoints in the CaseStrainer application.
+## Overview
+CaseStrainer provides a comprehensive API for legal citation verification and analysis. The system uses the enhanced `EnhancedMultiSourceVerifier` with CourtListener API integration, volume range validation, format analysis, and likelihood scoring.
 
-## Base URL
+## Core Features
 
-- Development: `http://localhost:5000/api`
-- Production: `https://wolf.law.uw.edu/casestrainer/api`
+### ✅ **Enhanced Citation Verification**
+- **Primary Source**: CourtListener API (fast, reliable)
+- **Washington Normalization**: `Wn.` → `Wash.` (e.g., `149 Wn.2d 647` → `149 Wash. 2d 647`)
+- **Volume Range Validation**: Comprehensive validation for all reporter series
+- **Format Analysis**: Detailed regex-based pattern matching
+- **Likelihood Scoring**: Sophisticated scoring for real vs. fictional citations
+- **Enhanced Error Explanations**: Clear, actionable feedback
 
-## Multi-Source Citation Verification
+### ✅ **Performance Features**
+- **Caching**: 1-hour TTL for API responses
+- **Rate Limiting**: Built-in retry logic and rate limiting
+- **Connection Pooling**: Efficient HTTP connection management
+- **Performance Tracking**: Detailed timing and statistics
 
-CaseStrainer uses an **Enhanced Multi-Source Verification System** that checks citations against multiple legal databases and sources:
+### ✅ **Case Name Extraction**
+- **Context Extraction**: Extract case names from surrounding text
+- **Hinted Extraction**: Use canonical names to find context-specific mentions
+- **Date Extraction**: Extract dates from citation strings
 
-### Primary Sources
-- **CourtListener API** (v4) - Primary legal database
-- **Google Scholar** - Academic and legal research
-- **Justia** - Legal information and case law
-- **Leagle** - Legal research and case law
-- **FindLaw** - Legal information and resources
-- **CaseText** - Legal research platform
+## API Endpoints
 
-### Verification Process
-1. **Database Check** - First checks local SQLite database for previously verified citations
-2. **Multi-Source Verification** - If not found locally, queries multiple external sources
-3. **Confidence Scoring** - Assigns confidence scores based on verification results
-4. **Cache Storage** - Stores results for future use
+### POST `/casestrainer/api/analyze`
 
-## Authentication
+Analyze text for legal citations and verify them using the enhanced verification system.
 
-Most endpoints require a valid API key to be included in the request header:
-
-```http
-Authorization: Bearer your_api_key_here
-```
-
-## Endpoints
-
-### 1. Citation Analysis
-
-#### Analyze Brief Text
-```http
-POST /analyze
-```
-
-Analyzes a brief's text for citations and verifies them using the multi-source verification system.
-
-**Request Body:**
+#### Request
 ```json
 {
-  "text": "The brief text content here...",
-  "api_key": "your_courtlistener_api_key"
+  "text": "The court held in State v. Rohrich, 149 Wn.2d 647, that...",
+  "source_type": "text"
 }
 ```
 
-**Response:**
+#### Response
 ```json
 {
-  "success": true,
   "citations": [
     {
-      "citation_text": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-      "case_name": "Brown v. Board of Education",
-      "confidence": 0.95,
+      "citation": "149 Wn.2d 647",
+      "canonical_citation": "149 Wash. 2d 647",
+      "case_name": "State v. Rohrich",
+      "canonical_name": "State v. Rohrich",
+      "extracted_case_name": "State v. Rohrich",
+      "hinted_case_name": "State v. Rohrich",
+      "extracted_date": "2003",
+      "canonical_date": "2003-06-26",
+      "url": "https://www.courtlistener.com/opinion/4907935/state-v-rohrich/",
+      "court": "Supreme Court of Washington",
+      "docket_number": "71447-1",
       "verified": true,
-      "source": "Multiple Sources",
-      "verification_details": {
-        "courtlistener": true,
-        "justia": true,
-        "google_scholar": true
-      }
-    }
-  ],
-  "unconfirmed_citations": [
-    {
-      "citation_text": "Smith v. Jones, 123 F.3d 456 (2020)",
-      "confidence": 0.3,
-      "explanation": "Citation not found in any database"
-    }
-  ]
-}
-```
-
-### 2. Citation Verification
-
-#### Unified Citation Analysis
-```http
-POST /analyze
-```
-
-Analyzes citations from various input types (text, file, URL, or single citation) using the unified processing pipeline with enhanced multi-source verification.
-
-**Request Body:**
-```json
-{
-  "type": "text",
-  "text": "Brown v. Board of Education, 347 U.S. 483 (1954)"
-}
-```
-
-**For Single Citation (using text type):**
-```json
-{
-  "type": "text", 
-  "text": "181 Wash.2d 391, 333 P.3d 440"
-}
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "citations": [
-    {
-      "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-      "verified": true,
-      "case_name": "Brown v. Board of Education",
-      "case_name_extracted": "Brown v. Board of Education",
-      "canonical_case_name": "Brown v. Board of Education",
+      "valid": true,
       "confidence": 0.95,
-      "source": "Multiple Sources",
-      "sources": ["CourtListener", "Justia", "Google Scholar"],
-      "url": "https://www.courtlistener.com/opinion/...",
-      "verification_details": {
-        "courtlistener": {
-          "verified": true,
-          "url": "https://www.courtlistener.com/opinion/..."
-        },
-        "justia": {
-          "verified": true,
-          "url": "https://supreme.justia.com/cases/federal/us/347/483/"
-        },
-        "google_scholar": {
-          "verified": true
+      "source": "courtlistener",
+      "format_analysis": {
+        "format_type": "state_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": true,
+        "details": {
+          "volume": 149,
+          "page": 647,
+          "valid_volume_range": "1-1000"
         }
+      },
+      "likelihood_score": 0.8,
+      "explanation": "Citation format is valid and has characteristics of a real case.",
+      "metadata": {
+        "processing_time": 1.2,
+        "source_name": "single_citation",
+        "source_type": "citation",
+        "timestamp": "2025-06-27T04:05:23.408815Z"
       }
     }
   ],
-  "metadata": {
-    "total_citations": 1,
-    "verified_count": 1,
-    "processing_time": 2.5,
-    "source_type": "text"
-  }
+  "status": "success"
 }
 ```
 
-**Note:** Single citations are processed through the same unified pipeline as multi-text analysis, ensuring consistent accuracy and performance optimizations.
-
-### 3. Unconfirmed Citations
-
-#### Get Unconfirmed Citations
-```http
-GET /unconfirmed_citations_data
-```
-
-Retrieves all unconfirmed citations from the database.
-
-**Response:**
+#### Error Response (Invalid Citation)
 ```json
 {
   "citations": [
     {
-      "citation_text": "Smith v. Jones, 123 F.3d 456 (2020)",
-      "case_name": "Unknown",
-      "confidence": 0.3,
-      "explanation": "No explanation available",
-      "document": "brief_2023_01.pdf"
-    }
-  ]
-}
-```
-
-### 4. Multitool Confirmed Citations
-
-#### Get Multitool Confirmed Citations
-```http
-GET /confirmed_with_multitool_data
-```
-
-Retrieves citations that were confirmed using the multi-source verification system.
-
-**Response:**
-```json
-{
-  "citations": [
-    {
-      "citation_text": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-      "case_name": "Brown v. Board of Education",
-      "confidence": 0.95,
-      "source": "Multiple Sources",
-      "verification_details": {
-        "courtlistener": true,
-        "justia": true,
-        "google_scholar": true
+      "citation": "999 F.999d 999 (2025)",
+      "canonical_citation": "999 F.999d 999 (2025)",
+      "verified": false,
+      "valid": false,
+      "confidence": 0.1,
+      "source": "enhanced_verifier",
+      "format_analysis": {
+        "format_type": "federal_reporter",
+        "is_valid_format": true,
+        "is_valid_volume": false,
+        "volume_error": "Volume 999 is outside the valid range (1-1500) for federal_reporter series 999"
       },
-      "url": "https://www.courtlistener.com/opinion/...",
-      "explanation": "Verified by multiple sources including CourtListener, Justia, and Google Scholar"
-    }
-  ]
-}
-```
-
-### 5. Citation Network
-
-#### Get Citation Network Data
-```http
-GET /citation_network_data
-```
-
-Retrieves data for the citation network visualization.
-
-**Response:**
-```json
-{
-  "nodes": [
-    {
-      "id": "citation1",
-      "label": "Brown v. Board of Education",
-      "group": "landmark"
+      "likelihood_score": 0.2,
+      "explanation": "Invalid volume number: Volume 999 is outside the valid range (1-1500) for federal_reporter series 999",
+      "error": "Invalid volume number: Volume 999 is outside the valid range (1-1500) for federal_reporter series 999"
     }
   ],
-  "edges": [
-    {
-      "from": "citation1",
-      "to": "citation2",
-      "label": "cited by"
-    }
-  ]
+  "status": "success"
 }
 ```
 
-### 6. Enhanced Citation Validation
+## Enhanced Features
 
-#### Enhanced Citation Validation
-```http
-POST /enhanced-validate-citation
+### **Volume Range Validation**
+The system validates citation volumes against expected ranges:
+
+- **U.S. Reports**: 1-1000
+- **Federal Reporter F.1d**: 1-500
+- **Federal Reporter F.2d**: 1-1500
+- **Federal Reporter F.3d**: 1-1500
+- **Federal Supplement**: 1-1500
+- **Supreme Court Reporter**: 1-1000
+
+### **Citation Format Analysis**
+Comprehensive pattern matching for:
+- U.S. Reports (`410 U.S. 113 (1973)`)
+- Federal Reporter (`123 F.3d 456 (9th Cir. 1997)`)
+- Federal Supplement (`456 F.Supp.2d 789 (D. Mass. 2006)`)
+- State Reporters (`149 Wash. 2d 647 (2003)`)
+- Regional Reporters (`456 N.E.2d 789 (Ill. 1983)`)
+- Supreme Court Reporter (`93 S.Ct. 705 (1973)`)
+- Lawyers Edition (`93 L.Ed.2d 705 (1973)`)
+- Westlaw (`2024 WL 123456`)
+
+### **Likelihood Scoring**
+Scores citations from 0.0 to 1.0 based on:
+- Format validity
+- Volume range validity
+- Citation type (U.S. Reports vs. state reporters)
+- Case name presence
+- Historical patterns
+
+### **Enhanced Error Explanations**
+Provides detailed feedback:
+- **Invalid Format**: "Unrecognized citation format"
+- **Invalid Volume**: "Volume 999 is outside the valid range"
+- **Likely Hallucination**: "Citation format is valid but likely a hallucination"
+- **Possible Real Case**: "Citation format is valid and has characteristics of a real case"
+
+## Usage Examples
+
+### **Valid Citation**
+```bash
+curl -X POST http://localhost:5000/casestrainer/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "410 U.S. 113 (1973)"}'
 ```
 
-Uses the enhanced validator to verify a citation with additional context and ML analysis, leveraging the multi-source verification system.
-
-**Request Body:**
-```json
-{
-  "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)"
-}
+### **Invalid Citation**
+```bash
+curl -X POST http://localhost:5000/casestrainer/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "999 F.999d 999 (2025)"}'
 ```
 
-**Response:**
-```json
-{
-  "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
-  "verified": true,
-  "confidence": 0.98,
-  "source": "Enhanced Multi-Source Validator",
-  "verification_details": {
-    "pattern_recognition": true,
-    "landmark_case": true,
-    "ml_classification": true,
-    "multi_source_verification": {
-      "courtlistener": true,
-      "justia": true,
-      "google_scholar": true
-    }
-  },
-  "context": {
-    "surrounding_text": "...",
-    "related_citations": [...],
-    "case_summary": "Landmark case that declared racial segregation in public schools unconstitutional"
-  }
-}
+### **Washington Citation**
+```bash
+curl -X POST http://localhost:5000/casestrainer/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "149 Wn.2d 647"}'
 ```
 
-### 7. Health Check
-
-#### System Health
-```http
-GET /health
+### **Text with Multiple Citations**
+```bash
+curl -X POST http://localhost:5000/casestrainer/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": "The court held in State v. Rohrich, 149 Wn.2d 647, and Roe v. Wade, 410 U.S. 113 (1973), that..."}'
 ```
 
-Returns the current health status of the API server and verification systems.
+## Response Fields
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-06-23T13:04:42.251Z",
-  "services": {
-    "api_server": "healthy",
-    "database": "healthy",
-    "redis": "healthy",
-    "multi_source_verifier": "healthy"
-  },
-  "version": "0.5.3"
-}
-```
+### **Core Fields**
+- `citation`: Original citation text
+- `canonical_citation`: Normalized citation (e.g., `Wn.` → `Wash.`)
+- `verified`: Whether citation was verified in CourtListener
+- `valid`: Whether citation format is valid
+- `confidence`: Confidence score (0.0-1.0)
+
+### **Case Information**
+- `case_name`: Extracted case name
+- `canonical_name`: Canonical case name from CourtListener
+- `extracted_case_name`: Case name extracted from context
+- `hinted_case_name`: Case name found using canonical name hints
+
+### **Date Information**
+- `extracted_date`: Date extracted from citation
+- `canonical_date`: Canonical date from CourtListener
+
+### **Enhanced Analysis**
+- `format_analysis`: Detailed format validation results
+- `likelihood_score`: Likelihood of being a real case (0.0-1.0)
+- `explanation`: Detailed explanation of verification result
+- `error`: Error message if verification failed
+
+### **Metadata**
+- `url`: CourtListener opinion URL
+- `court`: Court name
+- `docket_number`: Docket number
+- `source`: Verification source (courtlistener, enhanced_verifier)
+- `metadata`: Processing metadata (timing, source info)
 
 ## Error Handling
 
-All endpoints return consistent error responses:
+### **HTTP Status Codes**
+- `200`: Success
+- `400`: Bad request (invalid JSON, missing required fields)
+- `500`: Internal server error
 
+### **Error Response Format**
 ```json
 {
-  "error": "Error description",
-  "status_code": 400,
-  "timestamp": "2025-06-23T13:04:42.251Z"
+  "error": "Error message",
+  "status": "error",
+  "details": "Additional error details"
 }
 ```
 
 ## Rate Limiting
 
-- **Development**: No rate limiting
-- **Production**: 100 requests per minute per IP address
-- **Enhanced Validation**: 50 requests per minute per API key
+The API includes built-in rate limiting:
+- **Requests per minute**: 60
+- **Concurrent requests**: 10
+- **Retry logic**: Automatic retry with exponential backoff
 
 ## Caching
 
-- **Citation Results**: Cached for 24 hours
-- **Database Queries**: Cached for 1 hour
-- **External API Calls**: Cached for 6 hours
+API responses are cached for 1 hour to improve performance:
+- **Cache TTL**: 3600 seconds
+- **Cache key**: Citation text + parameters
+- **Cache invalidation**: Automatic after TTL expires
 
 ## Performance
 
-- **Average Response Time**: < 2 seconds
-- **Multi-Source Verification**: < 5 seconds
-- **Database Queries**: < 100ms
-- **Cache Hit Rate**: > 80% 
+Typical response times:
+- **Valid citations**: 0.5-2.0 seconds
+- **Invalid citations**: 0.1-0.5 seconds
+- **Cache hits**: < 0.1 seconds
+
+## Migration from Legacy Verifiers
+
+### **For Developers**
+```python
+# OLD (deprecated)
+from docker.src.multi_source_verifier_unused import MultiSourceVerifier
+verifier = MultiSourceVerifier()
+result = verifier.verify_citation(citation)
+
+# NEW (canonical)
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+verifier = EnhancedMultiSourceVerifier()
+result = verifier.verify_citation_unified_workflow(citation)
+```
+
+### **Benefits of Migration**
+- **Faster**: CourtListener API vs. multiple web searches
+- **More Reliable**: Single, well-tested implementation
+- **Better Error Reporting**: Detailed explanations and likelihood scores
+- **Volume Validation**: Comprehensive validation for all reporter series
+- **Format Analysis**: Detailed pattern matching and validation
+
+## Support
+
+For questions or issues:
+- **Documentation**: See `VERIFIER_CONSOLIDATION_SUMMARY.md`
+- **Legacy Code**: See `docker/src/deprecated_verifiers/README.md`
+- **Issues**: Create an issue in the repository 

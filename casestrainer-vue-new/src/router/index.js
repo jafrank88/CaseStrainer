@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 const BASE_PATH = '/casestrainer/';
 
 // Import views directly
+const HomeView = () => import('@/views/HomeView.vue');
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
 const NotFound = () => import('@/views/NotFound.vue');
 const BrowserExtension = () => import('@/views/BrowserExtension.vue');
@@ -15,7 +16,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: EnhancedValidator,
+    component: HomeView,
     meta: {
       title: 'CaseStrainer - Legal Citation Validator',
       metaTags: [
@@ -79,6 +80,17 @@ const routes = [
       title: 'Word Plug-in | CaseStrainer',
       metaTags: [
         { name: 'description', content: 'Use the CaseStrainer Word plug-in to validate citations directly in your documents.' }
+      ]
+    }
+  },
+  {
+    path: '/enhanced-validator',
+    name: 'EnhancedValidator',
+    component: EnhancedValidator,
+    meta: {
+      title: 'Enhanced Validator | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'Advanced citation validation and analysis tools.' }
       ]
     }
   },

@@ -97,122 +97,235 @@
 
       <!-- Citations List -->
       <div v-if="filteredCitations.length > 0" class="citations-list">
-        <div
-          v-for="citation in paginatedCitations"
-          :key="citation.id || citation.citation"
-          :class="['citation-item', { verified: citation.verified, invalid: !citation.verified }]"
-        >
-          <div class="citation-header">
-            <div class="citation-text">
-              <span class="citation-content">{{ citation.citation }}</span>
-              <span :class="['status-badge', citation.verified ? 'verified' : 'invalid']">
-                {{ citation.verified ? '✓ Verified' : '✗ Invalid' }}
-              </span>
-            </div>
-            <div class="citation-actions">
-              <button
-                v-if="getCitationUrl(citation)"
-                @click="openCitation(getCitationUrl(citation))"
-                class="action-link"
-                title="View case details"
-              >
-                🔗
-              </button>
-              <button
-                @click="copyCitation(citation.citation)"
-                class="action-link"
-                title="Copy citation"
-              >
-                📋
-              </button>
-            </div>
+        <!-- Grouped and sorted citations -->
+        <template v-for="(group, groupIndex) in groupedCitations" :key="group.status">
+          <div class="group-header" :class="group.status">
+            <span v-if="group.status === 'verified'" class="group-icon">✔️</span>
+            <span v-else-if="group.status === 'unverified'" class="group-icon">❌</span>
+            <span class="group-title">
+              {{ group.status === 'verified' ? 'Verified Citations' : 'Unverified Citations' }}
+              ({{ group.citations.length }})
+            </span>
           </div>
           
-          <!-- Enhanced Citation Details -->
-          <div class="citation-details">
-            <!-- Case Name Comparison -->
-            <div v-if="getCaseName(citation) || getExtractedCaseName(citation)" class="detail-section">
-              <h4 class="section-title">Case Information</h4>
-              <div class="detail-row">
-                <span class="detail-label">Canonical Case Name:</span>
-                <span class="detail-value">{{ getCaseName(citation) || 'N/A' }}</span>
+          <!-- Citation Clusters -->
+          <div v-for="cluster in citationClusters.filter(c => {
+            const isVerified = c.primary?.verified || c.parallels.some(p => p.verified);
+            return group.status === 'verified' ? isVerified : !isVerified;
+          })" :key="cluster.primary?.citation || 'cluster'" class="citation-cluster">
+            
+            <!-- Primary Citation -->
+            <div v-if="cluster.primary" :class="['citation-item', { verified: cluster.primary.verified, invalid: !cluster.primary.verified }]">
+              <div class="citation-header">
+                <div class="citation-main">
+                  <!-- Primary Citation Badge -->
+                  <div class="primary-badge" title="Primary citation in this cluster">
+                    🎯 Primary
+                  </div>
+                  
+                  <!-- Score Flag -->
+                  <div :class="['score-flag', `score-${cluster.primary.scoreColor}`]"
+                       :title="getScoreDescription(cluster.primary.score)"
+                       @mouseenter="showScoreTooltip(cluster.primary)"
+                       @mouseleave="hideScoreTooltip"
+                       @click="toggleScoreTooltip(cluster.primary)"
+                       style="cursor: pointer; position: relative;">
+                    {{ cluster.primary.score }}/4
+                    <div v-if="scoreTooltipGroup === cluster.primary" class="score-tooltip">
+                      <div><strong>Score Breakdown:</strong></div>
+                      <div>Case name match: <span :class="{ 'text-success': cluster.primary.case_name && cluster.primary.case_name !== 'N/A' }">{{ cluster.primary.case_name && cluster.primary.case_name !== 'N/A' ? '+2' : '0' }}</span></div>
+                      <div>Hinted name similarity: <span :class="{ 'text-success': getCaseNameSimilarity(cluster.primary) >= 0.5 }">{{ getCaseNameSimilarity(cluster.primary) >= 0.5 ? '+1' : '0' }}</span></div>
+                      <div>Year match: <span :class="{ 'text-success': getExtractedDate(cluster.primary) && getCanonicalDate(cluster.primary) && getExtractedDate(cluster.primary).substring(0,4) === getCanonicalDate(cluster.primary).substring(0,4) }">{{ getExtractedDate(cluster.primary) && getCanonicalDate(cluster.primary) && getExtractedDate(cluster.primary).substring(0,4) === getCanonicalDate(cluster.primary).substring(0,4) ? '+1' : '0' }}</span></div>
+                    </div>
+                  </div>
+                  
+                  <!-- Case Name with Hyperlink -->
+                  <div class="case-name">
+                    <a 
+                      v-if="cluster.primary.verified && getCitationUrl(cluster.primary)"
+                      :href="getCitationUrl(cluster.primary)"
+                      target="_blank"
+                      class="case-name-link"
+                      title="View case details"
+                    >
+                      {{ getCaseName(cluster.primary) || 'Unknown Case' }}
+                    </a>
+                    <span v-else>
+                      {{ getCaseName(cluster.primary) || 'Unknown Case' }}
+                    </span>
+                  </div>
+                  
+                  <!-- Citation with Hyperlink -->
+                  <div class="citation-link">
+                    <a 
+                      v-if="cluster.primary.verified && getCitationUrl(cluster.primary)"
+                      :href="getCitationUrl(cluster.primary)"
+                      target="_blank"
+                      class="citation-hyperlink"
+                      title="View case details"
+                    >
+                      {{ getMainCitationText(cluster.primary) }}
+                    </a>
+                    <span v-else class="citation-text">
+                      {{ getMainCitationText(cluster.primary) }}
+                    </span>
+                    <!-- Complex Citation Indicator -->
+                    <span v-if="cluster.isComplex" class="complex-indicator" title="Complex citation with multiple components">
+                      🔗
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Expand/Collapse Button -->
+                <div class="citation-actions">
+                  <button
+                    @click="toggleCitationDetails(cluster.primary)"
+                    class="expand-btn"
+                    :class="{ expanded: expandedCitations.has(cluster.primary.citation) }"
+                    :title="expandedCitations.has(cluster.primary.citation) ? 'Hide details' : 'Show details'"
+                  >
+                    {{ expandedCitations.has(cluster.primary.citation) ? '▼' : '▶' }}
+                  </button>
+                </div>
               </div>
-              <div v-if="getExtractedCaseName(citation)" class="detail-row">
-                <span class="detail-label">Extracted Case Name:</span>
-                <span class="detail-value">{{ getExtractedCaseName(citation) }}</span>
-              </div>
-              <div v-if="getCaseNameSimilarity(citation) !== null" class="detail-row">
-                <span class="detail-label">Name Similarity:</span>
-                <span :class="['detail-value', getSimilarityClass(getCaseNameSimilarity(citation))]">
-                  {{ (getCaseNameSimilarity(citation) * 100).toFixed(1) }}%
-                </span>
-              </div>
-              <div v-if="getCaseNameMismatch(citation)" class="detail-row">
-                <span class="detail-label">Name Mismatch:</span>
-                <span class="detail-value warning">⚠️ Case names differ significantly</span>
+              
+              <!-- Expandable Details Section for Primary -->
+              <div v-if="expandedCitations.has(cluster.primary.citation)" class="citation-details">
+                <!-- Include all the existing detail sections here -->
+                <!-- Basic Citation Info -->
+                <div class="detail-section">
+                  <h4 class="section-title">Citation Information</h4>
+                  <div class="detail-row"><span class="detail-label">Citation Text:</span> <span class="detail-value">{{ getMainCitationText(cluster.primary) }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.id"><span class="detail-label">Database ID:</span> <span class="detail-value">{{ cluster.primary.id }}</span></div>
+                  <div class="detail-row"><span class="detail-label">Status:</span> <span :class="['detail-value', cluster.primary.verified ? 'verified' : 'invalid']">{{ cluster.primary.verified ? 'Verified' : 'Not Verified' }}</span></div>
+                </div>
+
+                <!-- Case Name Comparison -->
+                <div class="detail-section">
+                  <h4 class="section-title">Case Information</h4>
+                  <div class="detail-row"><span class="detail-label">Canonical Case Name:</span> <span class="detail-value">{{ getCaseName(cluster.primary) || 'N/A' }}</span></div>
+                  <div class="detail-row"><span class="detail-label">Extracted Case Name:</span> <span class="detail-value">{{ getExtractedCaseName(cluster.primary) || 'N/A' }}</span></div>
+                  <div class="detail-row"><span class="detail-label">Hinted Case Name:</span> <span class="detail-value">{{ cluster.primary.hinted_case_name || 'N/A' }}</span></div>
+                  <div v-if="getCaseNameSimilarity(cluster.primary) !== null" class="detail-row"><span class="detail-label">Name Similarity:</span> <span :class="['detail-value', getSimilarityClass(getCaseNameSimilarity(cluster.primary))]">{{ (getCaseNameSimilarity(cluster.primary) * 100).toFixed(1) }}%</span></div>
+                  <div v-if="getCaseNameMismatch(cluster.primary)" class="detail-row"><span class="detail-label">Name Mismatch:</span> <span class="detail-value warning">⚠️ Case names differ significantly</span></div>
+                </div>
+
+                <!-- Citation Components -->
+                <div class="detail-section">
+                  <h4 class="section-title">Citation Components</h4>
+                  <div class="detail-row" v-if="cluster.primary.volume"><span class="detail-label">Volume:</span> <span class="detail-value">{{ cluster.primary.volume }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.reporter"><span class="detail-label">Reporter:</span> <span class="detail-value">{{ cluster.primary.reporter }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.page"><span class="detail-label">Page:</span> <span class="detail-value">{{ cluster.primary.page }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.year"><span class="detail-label">Year:</span> <span class="detail-value">{{ cluster.primary.year }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.court"><span class="detail-label">Court:</span> <span class="detail-value">{{ cluster.primary.court }}</span></div>
+                </div>
+
+                <!-- Decision Date -->
+                <div v-if="getDateFiled(cluster.primary) || getExtractedDate(cluster.primary) || getCanonicalDate(cluster.primary)" class="detail-section">
+                  <h4 class="section-title">Decision Information</h4>
+                  <div class="detail-row"><span class="detail-label">Extracted Date:</span> <span class="detail-value">{{ formatDate(getExtractedDate(cluster.primary)) || 'N/A' }}</span></div>
+                  <div v-if="getCanonicalDate(cluster.primary)" class="detail-row"><span class="detail-label">Canonical Date (Case Name):</span> <span class="detail-value">{{ formatDate(getCanonicalDate(cluster.primary)) }}</span></div>
+                  <div v-if="getDateFiled(cluster.primary)" class="detail-row"><span class="detail-label">Canonical Date (Verified):</span> <span class="detail-value">{{ formatDate(getDateFiled(cluster.primary)) }}</span></div>
+                  <div v-if="getExtractedDate(cluster.primary) && getDateFiled(cluster.primary)" class="detail-row"><span class="detail-label">Date Match:</span> <span :class="['detail-value', getExtractedDate(cluster.primary) === getDateFiled(cluster.primary) ? 'high-similarity' : 'low-similarity']">{{ getExtractedDate(cluster.primary) === getDateFiled(cluster.primary) ? '✓ Match' : '✗ Different' }}</span></div>
+                </div>
+
+                <!-- Context -->
+                <div v-if="cluster.primary.context" class="detail-section">
+                  <h4 class="section-title">Context</h4>
+                  <div class="context-box">{{ cluster.primary.context }}</div>
+                </div>
+
+                <!-- Parallel Citations -->
+                <div v-if="cluster.parallels.length > 0" class="detail-section">
+                  <h4 class="section-title">Parallel Citations in This Cluster</h4>
+                  <div class="parallel-citations">
+                    <div v-for="(parallel, index) in cluster.parallels" :key="index" class="parallel-citation-item">
+                      <span class="parallel-badge" title="Parallel citation">🔗 Parallel</span>
+                      <span class="parallel-citation-text">{{ parallel.citation }}</span>
+                      <span v-if="parallel.verified === 'true_by_parallel'" class="inherited-badge" title="Verified by association with primary">✓ Inherited</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Source Information -->
+                <div class="detail-section">
+                  <h4 class="section-title">Verification Details</h4>
+                  <div class="detail-row"><span class="detail-label">Source:</span> <span class="detail-value">{{ getSource(cluster.primary) || 'N/A' }}</span></div>
+                  <div class="detail-row" v-if="cluster.primary.confidence !== undefined"><span class="detail-label">Confidence:</span> <span class="detail-value">{{ (cluster.primary.confidence * 100).toFixed(1) }}%</span></div>
+                  <div v-if="getNote(cluster.primary)" class="detail-row"><span class="detail-label">Note:</span> <span class="detail-value note">{{ getNote(cluster.primary) }}</span></div>
+                </div>
+
+                <!-- Complex Citation Information -->
+                <div v-if="cluster.isComplex && cluster.primary.complex_metadata" class="detail-section">
+                  <h4 class="section-title">Complex Citation Details</h4>
+                  <div class="complex-citation-info">
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.primary_citation">
+                      <span class="detail-label">Primary Citation:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.primary_citation }}</span>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.parallel_citations && cluster.primary.complex_metadata.parallel_citations.length > 0">
+                      <span class="detail-label">Parallel Citations:</span> 
+                      <div class="detail-value">
+                        <span v-for="(parallel, index) in cluster.primary.complex_metadata.parallel_citations" :key="index" class="parallel-citation-tag">
+                          {{ parallel }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.pinpoint_pages && cluster.primary.complex_metadata.pinpoint_pages.length > 0">
+                      <span class="detail-label">Pinpoint Pages:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.pinpoint_pages.join(', ') }}</span>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.docket_numbers && cluster.primary.complex_metadata.docket_numbers.length > 0">
+                      <span class="detail-label">Docket Numbers:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.docket_numbers.join(', ') }}</span>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.case_history && cluster.primary.complex_metadata.case_history.length > 0">
+                      <span class="detail-label">Case History:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.case_history.join(', ') }}</span>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.publication_status">
+                      <span class="detail-label">Publication Status:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.publication_status }}</span>
+                    </div>
+                    <div class="detail-row" v-if="cluster.primary.complex_metadata.year">
+                      <span class="detail-label">Year:</span> 
+                      <span class="detail-value">{{ cluster.primary.complex_metadata.year }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <!-- Court and Docket Information -->
-            <div v-if="getCourt(citation) || getDocket(citation)" class="detail-section">
-              <h4 class="section-title">Court Information</h4>
-              <div v-if="getCourt(citation)" class="detail-row">
-                <span class="detail-label">Court:</span>
-                <span class="detail-value">{{ getCourt(citation) }}</span>
-              </div>
-              <div v-if="getDocket(citation)" class="detail-row">
-                <span class="detail-label">Docket:</span>
-                <span class="detail-value">{{ getDocket(citation) }}</span>
-              </div>
-            </div>
-
-            <!-- Decision Date -->
-            <div v-if="getDateFiled(citation) || getExtractedDate(citation)" class="detail-section">
-              <h4 class="section-title">Decision Information</h4>
-              <div v-if="getExtractedDate(citation)" class="detail-row">
-                <span class="detail-label">Extracted Date:</span>
-                <span class="detail-value">{{ formatDate(getExtractedDate(citation)) }}</span>
-              </div>
-              <div v-if="getDateFiled(citation)" class="detail-row">
-                <span class="detail-label">Canonical Date:</span>
-                <span class="detail-value">{{ formatDate(getDateFiled(citation)) }}</span>
-              </div>
-              <div v-if="getExtractedDate(citation) && getDateFiled(citation)" class="detail-row">
-                <span class="detail-label">Date Match:</span>
-                <span :class="['detail-value', getExtractedDate(citation) === getDateFiled(citation) ? 'high-similarity' : 'low-similarity']">
-                  {{ getExtractedDate(citation) === getDateFiled(citation) ? '✓ Match' : '✗ Different' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Parallel Citations -->
-            <div v-if="getParallelCitations(citation) && getParallelCitations(citation).length > 0" class="detail-section">
-              <h4 class="section-title">Parallel Citations</h4>
-              <div class="parallel-citations">
-                <span 
-                  v-for="(parallel, index) in getParallelCitations(citation)" 
-                  :key="index"
-                  class="parallel-citation"
-                >
-                  {{ parallel }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Source Information -->
-            <div class="detail-section">
-              <h4 class="section-title">Verification Details</h4>
-              <div class="detail-row">
-                <span class="detail-label">Source:</span>
-                <span class="detail-value">{{ getSource(citation) || 'N/A' }}</span>
-              </div>
-              <div v-if="getNote(citation)" class="detail-row">
-                <span class="detail-label">Note:</span>
-                <span class="detail-value note">{{ getNote(citation) }}</span>
+            
+            <!-- Parallel Citations (if any) -->
+            <div v-if="cluster.parallels.length > 0" class="parallel-citations-section">
+              <div v-for="parallel in cluster.parallels" :key="parallel.citation" :class="['citation-item', 'parallel-item', { verified: parallel.verified, invalid: !parallel.verified }]">
+                <div class="citation-header">
+                  <div class="citation-main">
+                    <!-- Parallel Citation Badge -->
+                    <div class="parallel-badge" title="Parallel citation">
+                      🔗 Parallel
+                    </div>
+                    
+                    <!-- Inherited Status Badge -->
+                    <div v-if="parallel.verified === 'true_by_parallel'" class="inherited-badge" title="Verified by association with primary">
+                      ✓ Inherited
+                    </div>
+                    
+                    <!-- Case Name (inherited from primary) -->
+                    <div class="case-name">
+                      <span>{{ getCaseName(parallel) || 'Unknown Case' }}</span>
+                    </div>
+                    
+                    <!-- Citation Text -->
+                    <div class="citation-link">
+                      <span class="citation-text">{{ getMainCitationText(parallel) }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
         
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="pagination">
@@ -248,6 +361,132 @@
       <h3>No Citations Found</h3>
       <p>The document didn't contain any recognizable legal citations</p>
     </div>
+
+    <!-- Citation Details Modal -->
+    <div v-if="selectedCitation" class="modal-overlay" @click="closeCitationDetails">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Citation Details</h3>
+          <button @click="closeCitationDetails" class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+          <!-- Basic Citation Info -->
+          <div class="detail-section">
+            <h4>Citation Information</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Citation Text:</span>
+                <span class="detail-value">{{ getMainCitationText(selectedCitation) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Database ID:</span>
+                <span class="detail-value">{{ selectedCitation.id || 'N/A' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <span :class="['detail-value', selectedCitation.verified ? 'verified' : 'invalid']">
+                  {{ selectedCitation.verified ? 'Verified' : 'Not Verified' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Citation Components -->
+          <div class="detail-section">
+            <h4>Citation Components</h4>
+            <div class="detail-grid">
+              <div class="detail-item" v-if="selectedCitation.volume">
+                <span class="detail-label">Volume:</span>
+                <span class="detail-value">{{ selectedCitation.volume }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.reporter">
+                <span class="detail-label">Reporter:</span>
+                <span class="detail-value">{{ selectedCitation.reporter }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.page">
+                <span class="detail-label">Page:</span>
+                <span class="detail-value">{{ selectedCitation.page }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.year">
+                <span class="detail-label">Year:</span>
+                <span class="detail-value">{{ selectedCitation.year }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.court">
+                <span class="detail-label">Court:</span>
+                <span class="detail-value">{{ selectedCitation.court }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verification Details -->
+          <div class="detail-section">
+            <h4>Verification Details</h4>
+            <div class="detail-grid">
+              <div class="detail-item" v-if="selectedCitation.verification_source">
+                <span class="detail-label">Verification Source:</span>
+                <span class="detail-value">{{ selectedCitation.verification_source }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.verification_confidence !== undefined">
+                <span class="detail-label">Verification Confidence:</span>
+                <span class="detail-value">{{ (selectedCitation.verification_confidence * 100).toFixed(1) }}%</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.verification_count !== undefined">
+                <span class="detail-label">Times Verified:</span>
+                <span class="detail-value">{{ selectedCitation.verification_count }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.error_count !== undefined">
+                <span class="detail-label">Verification Errors:</span>
+                <span class="detail-value">{{ selectedCitation.error_count }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timestamps -->
+          <div class="detail-section">
+            <h4>Database Timestamps</h4>
+            <div class="detail-grid">
+              <div class="detail-item" v-if="selectedCitation.created_at">
+                <span class="detail-label">First Added:</span>
+                <span class="detail-value">{{ formatTimestamp(selectedCitation.created_at) }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.updated_at">
+                <span class="detail-label">Last Updated:</span>
+                <span class="detail-value">{{ formatTimestamp(selectedCitation.updated_at) }}</span>
+              </div>
+              <div class="detail-item" v-if="selectedCitation.last_verified_at">
+                <span class="detail-label">Last Verified:</span>
+                <span class="detail-value">{{ formatTimestamp(selectedCitation.last_verified_at) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Raw Verification Result -->
+          <div class="detail-section" v-if="selectedCitation.verification_result">
+            <h4>Raw Verification Data</h4>
+            <div class="raw-data">
+              <pre>{{ formatJson(selectedCitation.verification_result) }}</pre>
+            </div>
+          </div>
+
+          <!-- Parallel Citations -->
+          <div class="detail-section" v-if="getOtherParallelCitations(selectedCitation) && getOtherParallelCitations(selectedCitation).length > 0">
+            <h4>Additional Parallel Citations</h4>
+            <div class="parallel-citations">
+              <span 
+                v-for="(parallel, index) in getOtherParallelCitations(selectedCitation)" 
+                :key="index"
+                class="parallel-citation"
+              >
+                {{ formatParallelCitation(parallel) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeCitationDetails" class="btn btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -276,6 +515,9 @@ const activeFilter = ref('all');
 const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 50;
+const selectedCitation = ref(null);
+const expandedCitations = ref(new Set());
+const scoreTooltipGroup = ref(null);
 
 // Computed properties
 const validCount = computed(() => {
@@ -316,6 +558,13 @@ const filteredCitations = computed(() => {
     );
   }
   
+  // Sort by score from worst to best (ascending order)
+  filtered.sort((a, b) => {
+    const scoreA = a.score || 0;
+    const scoreB = b.score || 0;
+    return scoreA - scoreB;
+  });
+  
   return filtered;
 });
 
@@ -335,6 +584,64 @@ const filters = computed(() => [
   { value: 'invalid', label: 'Invalid', count: invalidCount.value }
 ]);
 
+const groupedCitations = computed(() => {
+  // Group and sort citations by status
+  const verified = paginatedCitations.value.filter(c => c.verified);
+  const unverified = paginatedCitations.value.filter(c => !c.verified);
+  return [
+    { status: 'verified', citations: verified },
+    { status: 'unverified', citations: unverified }
+  ].filter(group => group.citations.length > 0);
+});
+
+// New computed property for citation clusters
+const citationClusters = computed(() => {
+  if (!props.results?.citations) return [];
+  
+  // Group citations by primary citation
+  const clusters = new Map();
+  
+  paginatedCitations.value.forEach(citation => {
+    const primaryCitation = citation.primary_citation || citation.citation;
+    
+    if (!clusters.has(primaryCitation)) {
+      clusters.set(primaryCitation, {
+        primary: null,
+        parallels: [],
+        isComplex: false
+      });
+    }
+    
+    const cluster = clusters.get(primaryCitation);
+    
+    // Determine if this is the primary or a parallel
+    if (citation.citation === primaryCitation || !citation.is_parallel_citation) {
+      cluster.primary = citation;
+    } else {
+      cluster.parallels.push(citation);
+    }
+    
+    // Mark as complex if any citation in the cluster is complex
+    if (citation.is_complex_citation) {
+      cluster.isComplex = true;
+    }
+  });
+  
+  // Convert to array and sort by verification status
+  return Array.from(clusters.values())
+    .sort((a, b) => {
+      // Sort verified clusters first
+      const aVerified = a.primary?.verified || a.parallels.some(p => p.verified);
+      const bVerified = b.primary?.verified || b.parallels.some(p => p.verified);
+      if (aVerified !== bVerified) return bVerified ? 1 : -1;
+      
+      // Then sort by primary citation text
+      const aText = a.primary?.citation || '';
+      const bText = b.primary?.citation || '';
+      return aText.localeCompare(bText);
+    });
+});
+
 // Methods
 const copyCitation = async (citation) => {
   try {
@@ -351,7 +658,9 @@ const openCitation = (url) => {
 
 // Helper functions for enhanced data structure compatibility
 const getCaseName = (citation) => {
-  return citation.case_name || citation.metadata?.case_name || null;
+  const caseName = citation.case_name || citation.metadata?.case_name || citation.group_metadata?.case_name || null;
+  console.log('getCaseName called for citation:', citation.citation, 'returning:', caseName);
+  return caseName;
 };
 
 const getExtractedCaseName = (citation) => {
@@ -367,31 +676,56 @@ const getCaseNameMismatch = (citation) => {
 };
 
 const getCourt = (citation) => {
-  return citation.court || citation.metadata?.court || null;
+  return citation.court || citation.metadata?.court || citation.group_metadata?.court || null;
 };
 
 const getDocket = (citation) => {
-  return citation.docket_number || citation.metadata?.docket || null;
+  return citation.docket_number || citation.metadata?.docket || citation.group_metadata?.docket || null;
 };
 
 const getDateFiled = (citation) => {
-  return citation.date_filed || null;
+  return citation.date_filed || citation.group_metadata?.date_filed || null;
 };
 
 const getExtractedDate = (citation) => {
   return citation.extracted_date || null;
 };
 
+const getCanonicalDate = (citation) => {
+  return citation.canonical_date || citation.group_metadata?.canonical_date || null;
+};
+
 const getParallelCitations = (citation) => {
-  return citation.parallel_citations || [];
+  return citation.parallel_citations && citation.parallel_citations.length > 0 ? citation.parallel_citations : (citation.all_citations || []);
 };
 
 const getCitationUrl = (citation) => {
-  return citation.url || citation.metadata?.url || null;
+  return citation.url || citation.metadata?.url || citation.group_metadata?.url || null;
 };
 
 const getSource = (citation) => {
-  return citation.source || citation.metadata?.source || null;
+  // Prefer the domain of the 'url' field if present (for web_search and others)
+  const urlField = citation.url || '';
+  if (urlField) {
+    try {
+      const domain = (new URL(urlField)).hostname.replace(/^www\./, '');
+      return domain;
+    } catch (e) {
+      return urlField;
+    }
+  }
+  // Next, try the canonical citation_url
+  const citationUrl = citation.citation_url || '';
+  if (citationUrl) {
+    try {
+      const domain = (new URL(citationUrl)).hostname.replace(/^www\./, '');
+      return domain;
+    } catch (e) {
+      return citationUrl;
+    }
+  }
+  // Fallback to previous logic
+  return citation.source || citation.metadata?.source || 'Unknown';
 };
 
 const getNote = (citation) => {
@@ -400,22 +734,20 @@ const getNote = (citation) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
+  // If the string matches YYYY or YYYY-MM-DD, return just the year
+  const yearMatch = /^\d{4}/.exec(dateString);
+  if (yearMatch) return yearMatch[0];
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return date.getFullYear();
   } catch (err) {
     return dateString; // Return as-is if parsing fails
   }
 };
 
 const getSimilarityClass = (similarity) => {
-  if (similarity === null) return '';
-  if (similarity >= 0.9) return 'high-similarity';
-  if (similarity >= 0.7) return 'medium-similarity';
+  if (similarity >= 0.8) return 'high-similarity';
+  if (similarity >= 0.6) return 'medium-similarity';
   return 'low-similarity';
 };
 
@@ -484,6 +816,152 @@ const resetPagination = () => {
 // Watch for filter changes
 watch(activeFilter, resetPagination);
 watch(searchQuery, resetPagination);
+
+const formatParallelCitation = (parallel) => {
+  if (!parallel) return '';
+  
+  // If it's a string, return as is
+  if (typeof parallel === 'string') return parallel;
+  
+  // If it's an object, extract the citation text
+  if (typeof parallel === 'object') {
+    // Try to get the clean citation text from various possible properties
+    if (parallel.citation) return parallel.citation;
+    if (parallel.cite) return parallel.cite;
+    if (parallel.text) return parallel.text;
+    
+    // If it has volume, reporter, page structure, format it
+    if (parallel.volume || parallel.reporter || parallel.page) {
+      const v = parallel.volume || '';
+      const r = parallel.reporter || '';
+      const p = parallel.page || '';
+      const y = parallel.year || '';
+      let citation = [v, r, p].filter(Boolean).join(' ');
+      if (y && citation && !citation.includes(y)) citation += ` (${y})`;
+      if (citation) return citation;
+    }
+    
+    // Last resort: try to get a string representation
+    return String(parallel);
+  }
+  
+  return String(parallel);
+};
+
+// Helper function to get the main citation text for display
+const getMainCitationText = (group) => {
+  if (!group) return '';
+
+  // Prefer 'citation' field
+  let citation = group.citation;
+  if (Array.isArray(citation)) {
+    if (citation.length > 0) return citation[0];
+  } else if (typeof citation === 'string') {
+    return citation;
+  }
+
+  // Fallback to canonical_citation
+  let canonical = group.canonical_citation;
+  if (Array.isArray(canonical)) {
+    if (canonical.length > 0) return canonical[0];
+  } else if (typeof canonical === 'string') {
+    return canonical;
+  }
+
+  // Fallback to any citation-like property
+  if (group.cite) return group.cite;
+  if (group.text) return group.text;
+
+  return 'Citation not available';
+};
+
+// Helper function to get all parallel citations (excluding the main one)
+const getOtherParallelCitations = (group) => {
+  let citation = group.citation;
+  if (Array.isArray(citation) && citation.length > 1) {
+    return citation.slice(1);
+  }
+  // If canonical_citation is an array and citation is not, use canonical as parallel
+  if (!Array.isArray(citation) && Array.isArray(group.canonical_citation) && group.canonical_citation.length > 1) {
+    return group.canonical_citation.slice(1);
+  }
+  // If parallel_citations exists and is non-empty, use it
+  if (Array.isArray(group.parallel_citations) && group.parallel_citations.length > 0) {
+    return group.parallel_citations;
+  }
+  return [];
+};
+
+// Citation Details Modal Methods
+const showCitationDetails = (citation) => {
+  selectedCitation.value = citation;
+};
+
+const closeCitationDetails = () => {
+  selectedCitation.value = null;
+};
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return 'N/A';
+  try {
+    return new Date(timestamp).toLocaleString();
+  } catch (e) {
+    return timestamp;
+  }
+};
+
+const formatJson = (jsonString) => {
+  if (!jsonString) return 'N/A';
+  try {
+    const parsed = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+    return JSON.stringify(parsed, null, 2);
+  } catch (e) {
+    return jsonString;
+  }
+};
+
+const parseParallelCitations = (parallelCitations) => {
+  if (!parallelCitations) return [];
+  try {
+    if (typeof parallelCitations === 'string') {
+      return JSON.parse(parallelCitations);
+    }
+    return Array.isArray(parallelCitations) ? parallelCitations : [];
+  } catch (e) {
+    return [parallelCitations];
+  }
+};
+
+const toggleCitationDetails = (citation) => {
+  if (expandedCitations.value.has(citation.citation)) {
+    expandedCitations.value.delete(citation.citation);
+  } else {
+    expandedCitations.value.add(citation.citation);
+  }
+};
+
+const getScoreDescription = (score) => {
+  const descriptions = {
+    0: 'No verification data available',
+    1: 'Limited verification - some data available',
+    2: 'Good verification - case name found',
+    3: 'Very good verification - case name and additional data',
+    4: 'Excellent verification - all data matches'
+  };
+  return descriptions[score] || 'Unknown score';
+};
+
+const showScoreTooltip = (group) => {
+  scoreTooltipGroup.value = group;
+};
+
+const hideScoreTooltip = () => {
+  scoreTooltipGroup.value = null;
+};
+
+const toggleScoreTooltip = (group) => {
+  scoreTooltipGroup.value = scoreTooltipGroup.value === group ? null : group;
+};
 </script>
 
 <style scoped>
@@ -724,64 +1202,119 @@ watch(searchQuery, resetPagination);
 
 .citation-item {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #6c757d;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .citation-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transform: translateY(-1px);
 }
 
 .citation-item.verified {
-  border-left-color: #28a745;
+  border-left: 4px solid #28a745;
 }
 
 .citation-item.invalid {
-  border-left-color: #dc3545;
+  border-left: 4px solid #dc3545;
 }
 
 .citation-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
-.citation-text {
+.citation-main {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.citation-content {
-  font-weight: 600;
-  color: #2c3e50;
-  font-family: 'Courier New', monospace;
-}
-
-.status-badge {
+.score-flag {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  min-width: 40px;
+  color: white;
+}
+
+.score-flag.score-green {
+  background: #28a745;
+}
+
+.score-flag.score-yellow {
+  background: #ffc107;
+  color: #212529;
+}
+
+.score-flag.score-orange {
+  background: #fd7e14;
+}
+
+.score-flag.score-red {
+  background: #dc3545;
+}
+
+.case-name {
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #2c3e50;
+  flex: 1;
+  min-width: 0;
 }
 
-.status-badge.verified {
-  background: #d4edda;
-  color: #155724;
+.citation-link {
+  flex: 1;
+  min-width: 0;
 }
 
-.status-badge.invalid {
-  background: #f8d7da;
-  color: #721c24;
+.citation-hyperlink {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.citation-hyperlink:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.case-name-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.case-name-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.parallel-citation-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+.parallel-citation-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+.citation-text {
+  font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Courier New', monospace;
 }
 
 .citation-actions {
@@ -789,18 +1322,25 @@ watch(searchQuery, resetPagination);
   gap: 0.5rem;
 }
 
-.action-link {
+.expand-btn {
   background: none;
   border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #6c757d;
+  transition: all 0.2s;
 }
 
-.action-link:hover {
+.expand-btn:hover {
   background: #f8f9fa;
+  color: #495057;
+}
+
+.expand-btn.expanded {
+  background: #e9ecef;
+  color: #495057;
 }
 
 /* Citation Details */
@@ -890,12 +1430,13 @@ watch(searchQuery, resetPagination);
 }
 
 .parallel-citation {
-  background: #e9ecef;
-  color: #495057;
-  padding: 0.25rem 0.5rem;
+  display: inline-block;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  margin: 2px;
   border-radius: 4px;
-  font-size: 0.85rem;
-  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  border: 1px solid #dee2e6;
 }
 
 /* Empty States */
@@ -937,7 +1478,7 @@ watch(searchQuery, resetPagination);
     gap: 1rem;
   }
   
-  .citation-text {
+  .citation-main {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -946,5 +1487,358 @@ watch(searchQuery, resetPagination);
   .citation-details {
     grid-template-columns: 1fr;
   }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.modal-close:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 0 20px 20px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.detail-value {
+  color: #333;
+  word-break: break-word;
+}
+
+.detail-value.verified {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.detail-value.invalid {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.raw-data {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.raw-data pre {
+  margin: 0;
+  font-size: 0.85em;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.score-tooltip {
+  position: absolute;
+  top: 2.2rem;
+  left: 0;
+  background: #fff;
+  border: 1px solid #1976d2;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(60,72,88,0.12);
+  padding: 0.75rem 1rem;
+  z-index: 10;
+  min-width: 180px;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.text-success {
+  color: #198754;
+  font-weight: bold;
+}
+
+.context-box {
+  background: #f7fafd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 1.05rem;
+  color: #333;
+  margin-bottom: 1rem;
+  white-space: pre-line;
+}
+
+.group-header {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.group-header.verified {
+  color: #198754;
+}
+.group-header.unverified {
+  color: #dc3545;
+}
+.group-icon {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+.group-title {
+  font-size: 1.1rem;
+}
+
+/* Complex Citation Styles */
+.complex-citation-info {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.parallel-citation-tag {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  margin: 2px 4px 2px 0;
+  border: 1px solid #bbdefb;
+}
+
+.parallel-citation-tag:hover {
+  background: #bbdefb;
+  color: #1565c0;
+}
+
+.complex-citation-info .detail-row {
+  margin-bottom: 8px;
+}
+
+.complex-citation-info .detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.complex-citation-info .detail-value {
+  font-weight: 500;
+}
+
+/* Complex Citation Indicator */
+.complex-indicator {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-left: 0.5rem;
+}
+
+/* Citation Clusters */
+.citation-cluster {
+  margin-bottom: 1.5rem;
+  border: 2px solid #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.citation-cluster .citation-item {
+  margin-bottom: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.citation-cluster .citation-item:last-child {
+  border-bottom: none;
+}
+
+/* Primary and Parallel Badges */
+.primary-badge {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.parallel-badge {
+  display: inline-block;
+  background: #6c757d;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.inherited-badge {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* Parallel Citations Section */
+.parallel-citations-section {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.parallel-citations-section .citation-item {
+  background: #f8f9fa;
+  border: none;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+.parallel-citations-section .citation-item:last-child {
+  border-bottom: none;
+}
+
+.parallel-citations-section .citation-item:hover {
+  background: #e9ecef;
+  transform: none;
+  box-shadow: none;
+}
+
+.parallel-item {
+  padding: 0.75rem 1rem;
+}
+
+.parallel-item .citation-header {
+  padding: 0;
+}
+
+.parallel-item .citation-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.parallel-item .case-name {
+  font-weight: 500;
+  color: #495057;
+}
+
+.parallel-item .citation-text {
+  color: #6c757d;
+  font-family: monospace;
+}
+
+/* Parallel Citation Items in Details */
+.parallel-citation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.parallel-citation-text {
+  font-family: monospace;
+  color: #495057;
 }
 </style>

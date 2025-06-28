@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from extract_case_name import extract_case_name_from_context
+from src.extract_case_name import extract_case_name_from_context
 
 def test_534_f3d_1290():
     """Test case name extraction for citation 534 F.3d 1290"""

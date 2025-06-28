@@ -1,0 +1,220 @@
+{
+  "cleaned": "347 U.S. 483",
+  "components": {
+    "volume": "347",
+    "reporter": "U",
+    "page": "",
+    "court": "",
+    "year": "",
+    "pinpoint": "",
+    "parallel_citations": []
+  },
+  "lookup_result": {
+    "verified": true,
+    "case_name": "Brown V Board Of Education",
+    "citation": "347 U.S. 483",
+    "parallel_citations": [
+      {
+        "volume": 98,
+        "reporter": "L. Ed. 2d",
+        "page": "873",
+        "type": 1
+      },
+      {
+        "volume": 74,
+        "reporter": "S. Ct.",
+        "page": "686",
+        "type": 1
+      },
+      {
+        "volume": 347,
+        "reporter": "U.S.",
+        "page": "483",
+        "type": 1
+      },
+      {
+        "volume": 1954,
+        "reporter": "U.S. LEXIS",
+        "page": "2094",
+        "type": 6
+      },
+      {
+        "volume": 38,
+        "reporter": "A.L.R. 2d",
+        "page": "1180",
+        "type": 4
+      },
+      {
+        "volume": 53,
+        "reporter": "Ohio Op.",
+        "page": "326",
+        "type": 2
+      },
+      {
+        "volume": 98,
+        "reporter": "L. Ed.",
+        "page": "873",
+        "type": 1
+      }
+    ],
+    "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+    "date_filed": "1954-05-17",
+    "court": "",
+    "docket_number": "",
+    "opinion_type": "",
+    "precedential": true,
+    "judge": "Warren",
+    "source": "courtlistener",
+    "confidence": 0.95
+  },
+  "full_result": {
+    "verified": true,
+    "case_name": "Brown v. Board of Education of Topeka, (1954)",
+    "canonical_case_name": "Brown v. Board of Education of Topeka, (1954)",
+    "citation": "347 U.S. 483",
+    "source": "web_search",
+    "url": "https://supreme.justia.com/cases/federal/us/347/483/",
+    "confidence": "medium",
+    "verification_method": "web_search",
+    "search_source": "Justia",
+    "verification_steps": [
+      {
+        "step": "courtlistener",
+        "status": "incomplete",
+        "result": {
+          "verified": false,
+          "sources": [],
+          "case_names": [],
+          "case_name": "",
+          "url": "",
+          "results": [
+            [
+              "CaseText",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "CaseText",
+                "error": "Citation not found in CaseText"
+              }
+            ],
+            [
+              "FindLaw",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "FindLaw",
+                "error": "Citation not found in FindLaw"
+              }
+            ],
+            [
+              "CourtListener",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "CourtListener",
+                "error": "Citation not found in CourtListener"
+              }
+            ],
+            [
+              "Leagle",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "Leagle",
+                "error": "Citation not found in Leagle"
+              }
+            ],
+            [
+              "OpenLegal",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "OpenLegal",
+                "error": "Citation not found in OpenLegal"
+              }
+            ],
+            [
+              "State Courts",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "State Courts",
+                "error": "Citation found but lacks legal context in State Courts"
+              }
+            ],
+            [
+              "Supreme Court",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "Supreme Court",
+                "error": "Citation not found in Supreme Court"
+              }
+            ],
+            [
+              "Google Scholar",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "Google Scholar",
+                "error": "Citation not found in Google Scholar"
+              }
+            ],
+            [
+              "Justia",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "Justia",
+                "error": "Citation found but lacks legal context in Justia"
+              }
+            ],
+            [
+              "Federal Courts",
+              {
+                "citation": "347 U.S. 483",
+                "verified": false,
+                "source": "Federal Courts",
+                "error": "Citation not found in Federal Courts"
+              }
+            ],
+            [
+              "OpenJurist",
+              {
+                "verified": false,
+                "source": "OpenJurist",
+                "error": "Citation not found in OpenJurist"
+              }
+            ]
+          ],
+          "citation": "347 U.S. 483",
+          "verification_reason": "",
+          "courtlistener_verified": false,
+          "found_source": null,
+          "case_name_similarity": null,
+          "case_name_mismatch": false,
+          "extracted_case_name": null
+        }
+      },
+      {
+        "step": "web_search",
+        "status": "success",
+        "result": {
+          "verified": true,
+          "case_name": "Brown v. Board of Education of Topeka, (1954)",
+          "canonical_case_name": "Brown v. Board of Education of Topeka, (1954)",
+          "citation": "347 U.S. 483",
+          "source": "web_search",
+          "url": "https://supreme.justia.com/cases/federal/us/347/483/",
+          "confidence": "medium",
+          "verification_method": "web_search",
+          "search_source": "Justia"
+        }
+      }
+    ],
+    "cached": false
+  },
+  "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+  "canonical_name": "Brown v. Board of Education",
+  "canonical_date": "1954"
+}

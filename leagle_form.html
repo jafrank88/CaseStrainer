@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+                 <title>Leagle Search Decisions | Leagle.com</title>
+                 <meta name="description" content="Search for decisions containing all words, any words, exact phrase, courts,attorneys, judges or party names">
+                 <meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta name="google-site-verification" content="M2kLyy3Ok6EPpmzDTgVZMizvbhv3TJEz9DRWmskE8Os" />
+                <link rel="canonical" href="https://www.leagle.com/leaglesearch" />
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-generic">
+	<link rel="stylesheet" type="text/css" media="all" href="/css/leagle-new.css" />
+	<link rel="stylesheet" type="text/css" media="print" href="/css/leagle-print.min.css" />
+</head>
+<body>
+	<div class="container blue-container-bg">
+		<div class="topbar">
+			<div class="lgl-g">
+				<div class="lgl-u-1-7 scarlet"></div>
+				<div class="lgl-u-1-7 sky-blue"></div>
+				<div class="lgl-u-1-7 apple-green"></div>
+				<div class="lgl-u-1-7 sun-yellow"></div>
+				<div class="lgl-u-1-7 orange"></div>
+				<div class="lgl-u-1-7 aqua-marine"></div>
+				<div class="lgl-u-1-7 scarlet"></div>
+			</div>
+		</div>
+		<div class="header-container">
+			<div class="lgl-g header-content-container">
+				<div class="lgl-u-1 lgl-u-md-1-5 header-left">
+					<a href="/" class="logo right">
+						<img src="/images/logo.png" alt="Leagle.com"> 
+					</a>
+				</div>
+				<div class="lgl-u-1 lgl-u-md-3-5 header-right">
+					<div class="lgl-g lmenu" id="menu">
+						<div class="lgl-u-1 toggle">
+							<div class="lgl-menu">
+								<a href="#" class="lgl-menu-heading custom-brand" id="toggle">Menu</a>
+							</div>
+						</div>
+						<div class="lgl-u-1">
+							<div class="lgl-menu lgl-menu-horizontal leagle-menu">
+								<ul class="lgl-menu-list">
+									<li class="lgl-menu-item"><a href="https://www.leagle.com/" class="lgl-menu-link">Home</a></li>
+									
+									<li class="lgl-menu-item"><a href="https://www.leagle.com/featureddecisions" class="lgl-menu-link">Featured Decisions</a></li>
+									<li class="lgl-menu-item"><a href="https://www.leagle.com/decisions/browse/latest" class="lgl-menu-link">Latest Decisions</a></li>
+									<li class="lgl-menu-item"><a href="https://www.leagle.com/decisions" class="lgl-menu-link">Browse Decisions</a></li>
+									<li class="lgl-menu-item lgl-menu-active"><a href="https://www.leagle.com/leaglesearch" class="lgl-menu-link">Advanced Search</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="lgl-u-1 lgl-u-md-1-5 header-right-sm">
+					<div class="sm-btns" style="padding-top:2em;">
+						<a href="#" class="sm-btn" id="fbk">
+							<img src="/images/fbk.png" alt="Leagle.com" class="lgl-img"> 
+						</a>
+						<a href="#"  class="sm-btn" id="lnkd">
+							<img src="/images/lnkdn.png" alt="Leagle.com" class="lgl-img"> 
+						</a>
+						<a href="#"  class="sm-btn" id="twt">
+							<img src="/images/twtr.png" alt="Leagle.com" class="lgl-img"> 
+						</a>
+					</div>
+					<div class="login" style="padding-left:1.5em;padding-top:2.3em;font-family:Oswald,sans-serif;">
+						<a href="/user/login?from=/leaglesearch" style="text-decoration:none;">Sign in</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="content-container">
+			<div class="lgl-g">
+				<div class="lgl-u-1 lgl-u-md-2-3 content">
+					<div class="content-area">
+						<div class="lgl-u-1 content">
+
+
+<h1>Leagle Search</h1>
+<div class="tabbed-container">
+    
+    <form action="leaglesearch" method="get" id="leagle-search" name="leagle-search" class="lgl-form lgl-form-stacked">
+        <div class="search-buttons" style="width:30%;">
+          <button type="submit" class="lgl-button search-button" id="search_submit">Search</button>
+          <button type="reset" class="lgl-button reset-button" id="reset">Reset</button>
+        </div>
+    <div class="quick-search tab-container">
+        <h3>Search For</h3>
+        <div class="lgl-g search-block">
+            <div class="search-terms">
+                <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>All These Words</label>
+                    <input type="text" name="all" id="all_these_words" value="" placeholder="Containing All These Words"./>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>This Exact Phrase</label>
+                    <input type="text" name="exact" id="this_exact_phrase" value="" placeholder="Containing This Exact Phrase"./>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>Any of These Words</label>
+                    <input type="text" name="any" id="any_of_these_words" value="" placeholder="Containing Any of These Words"./>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>But Without Any of These Words</label>
+                    <input type="text" name="woany" id="without_any_of_these_words" value="" placeholder="With Out These Words"./>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-container">
+        <div class="search-by search-input-block">
+            <h3>Search By</h3>
+            <div class="search-block lgl-g">
+                <div class=" lgl-u-1 lgl-u-md-1-3">
+                    <label>Case Name</label>
+                    <input type="text" id="casename" name="casen" value="" placeholder="Case Name">
+                </div>
+                <div class="small_inputs  lgl-u-1 lgl-u-md-1-3">
+                    <label>Citation</label>
+                    <input type="text" id="citation" name="cite" value="" placeholder="Citation Ex : 1 F.2d 1">
+                    <small>Ex : 1 F.2d 1</small>
+                </div>
+                <div class="small_inputs  lgl-u-1 lgl-u-md-1-3">
+                    <label>Docket No.</label>
+                    <input type="text" id="docket_no" name="dkt" value="" placeholder="Docket Ex : 17322">
+                    <small>Ex : 17322</small>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-3">
+                    <label>Party Name(s)</label>
+                    <input type="text" id="party_name" name="pty" value="" placeholder="Party Name">
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-3">
+                    <label>Attorney(s)</label>
+                    <input type="text" id="attorney" name="attny" value="" placeholder="Attorney Names">
+                </div>
+                <div class=" lgl-u-1 lgl-u-md-1-3">
+                    <label>Judge(s)</label>
+                    <input type="text" id="judge" name="judge" value="" placeholder="Judge Names">
+                </div>
+            </div>
+        </div>
+
+        <div class="date_block search-input-block">
+            <h3>Search By Date</h3>
+            <div class="search-block lgl-g">
+                <div class="select-date lgl-u-1" id="select_date">
+                    <div class="lgl-g">
+                    <div class="lgl-u-1 lgl-u-md-1-3">
+                    <label  class="lgl-radio"> 
+                        <input type="radio" value="" id="all" name="search_dates" checked="checked"> All Dates
+                    </label>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-3">
+                    <label  class="lgl-radio"> 
+                        <input type="radio" value="" id="on" name="search_dates"> On Date 
+                    </label>
+                </div>
+                <div class="lgl-u-1 lgl-u-md-1-3">
+                    <label  class="lgl-radio"> 
+                    <input type="radio" value="" id="range" name="search_dates"> Between Dates 
+                </label>
+                </div>
+                </div>
+            </div>
+            <div class="lgl-u-1">
+            <div class="lgl-g">
+                <div id="dateon" class="select-date hide">
+                    <div class="lgl-u-1">
+                    <label>On Date </label>
+                    <input class="date-inp"id="dates_on_text" value=""  name="ond">
+                    </div>
+                </div>
+                <div id="daterange" class="select-date hide">
+                    <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>From</label>
+                    <input class="date-inp"id="dates_from_text" value=""  name="frd">
+                    </div>
+                     <div class="lgl-u-1 lgl-u-md-1-2">
+                    <label>To</label>
+                    <input class="date-inp"id="dates_to_text" value=""  name="tod">
+                    </div>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="select_court search-input-block">
+            <h3>Search By Court</h3>
+            <div class="search-block lgl-g">
+                <div class="checks_block select_all_court  lgl-u-1">
+                    <label>Court</label>
+                    <select name="crt" id="court">
+                        <option value="">-- Select a Court --</option>
+                        <optgroup label="Federal Courts">
+                            <option value="US Supreme Court">US Supreme Court</option>
+                            <option value="US Bankruptcy Court">Federal Bankruptcy Court</option>
+                            <option value="US Tax Court">US Tax Court</option>
+                            <option value="US District Court">Federal District Court</option>
+                            <option value="Federal Circuit">Federal Court of Appeals</option>
+                        </optgroup>
+                        <optgroup label="State Courts">
+                            <option value="Alabama">Alabama</option>
+                            <option value="Alaska">Alaska</option>
+                            <option value="Arizona">Arizona</option>
+                            <option value="Arkansas">Arkansas</option>
+                            <option value="California">California</option>
+                            <option value="Colorado">Colorado</option>
+                            <option value="Connecticut">Connecticut</option>
+                            <option value="Delaware">Delaware</option>
+                            <option value="District of Columbia">D.C</option>
+                            <option value="Florida">Florida</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Hawaii">Hawaii</option>
+                            <option value="Idaho">Idaho</option>
+                            <option value="Illinois">Illinois</option>
+                            <option value="Indiana">Indiana</option>
+                            <option value="Iowa">Iowa</option>
+                            <option value="Kansas">Kansas</option>
+                            <option value="Kentucky">Kentucky</option>
+                            <option value="Louisiana">Louisiana</option>
+                            <option value="Maine">Maine</option>
+                            <option value="Maryland">Maryland</option>
+                            <option value="Massachusetts">Massachusetts</option>
+                            <option value="Michigan">Michigan</option>
+                            <option value="Minnesota">Minnesota</option>
+                            <option value="Mississippi">Mississippi</option>
+                            <option value="Missouri">Missouri</option>
+                            <option value="Montana">Montana</option>
+                            <option value="Nebraska">Nebraska</option>
+                            <option value="Nevada">Nevada</option>
+                            <option value="New Hampshire">New Hampshire</option>
+                            <option value="New Jersey">New Jersey</option>
+                            <option value="New Mexico">New Mexico</option>
+                            <option value="New York">New York</option>
+                            <option value="North Carolina">North Carolina</option>
+                            <option value="North Dakota">North Dakota</option>
+                            <option value="Ohio">Ohio</option>
+                            <option value="Oklahoma">Oklahoma</option>
+                            <option value="Oregon">Oregon</option>
+                            <option value="Pennsylvania">Pennsylvania</option>
+                            <option value="Rhode Island">Rhode Island</option>
+                            <option value="South Carolina">South Carolina</option>
+                            <option value="South Dakota">South Dakota</option>
+                            <option value="Tennessee">Tennessee</option>
+                            <option value="Texas">Texas</option>
+                            <option value="Utah">Utah</option>
+                            <option value="Vermont">Vermont</option>
+                            <option value="Virginia">Virginia</option>
+                            <option value="Washington">Washington</option>
+                            <option value="West Virginia">West Virginia</option>
+                            <option value="Wisconsin">Wisconsin</option>
+                            <option value="Wyoming">Wyoming</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-buttons" style="width:30%;">
+      <button type="submit" class="lgl-button search-button" id="search_submit">Search</button>
+      <button type="reset" class="lgl-button reset-button" id="reset">Reset</button>
+    </div>
+</form>
+    <hr>
+</div>
+
+<div class="search-results lgl-g">
+	<h3>Search Results</h3>
+	<span class="loading" style="display:none;"><img src="/images/loader.gif" alt="Loading"><img></span>
+	<div class="results-list lgl-u-1">
+	
+	 
+	</div>
+</div>
+
+</div> 
+</div> 
+</div>
+<div class="lgl-u-1 lgl-u-md-1-3 content">
+  <div class="sidebar-area">
+    
+    
+    <div class="recent-comments">
+      <h3>Recent Comments</h3>
+      <ul id="recentcomments"></ul>
+      <p><a href="https://www.leagle.com/comments/" class="more-comments right">More..</a></p>
+    </div>
+    
+  </div>
+</div>
+</div>
+</div>
+<script src="/js/jquery.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="https://www.leagle.com/css/jquery.datepick.min.css">
+<script src="/js/leagle.min.js"></script>
+<script src="/js/leaglesearchs.min.js"></script>
+<script src="/js/jquery.datepick.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.date-inp').datepick({yearRange:'c-100:c+0',maxDate:'c'});
+    checkSelect = {
+    	ond: "",
+    	frd: "",
+    	crt: "",
+    }
+    if(checkSelect.ond.length > 0){
+    	$('#on').attr("checked","checked")
+    	$('#dateon').show();
+    }else if(checkSelect.frd.length > 0){
+    	$('#range').attr("checked","checked")
+    	$('#daterange').show();
+    }
+    if(checkSelect.crt.length > 0){
+    	$('#court').val(checkSelect.crt)
+    }
+    if($(".results-list .search-result").length > 0){
+           $('html,body').animate({
+                scrollTop: $(".results-list").offset().top + 1
+            }, 1000);
+   }
+});
+</script>
+
+		<div class="footer-container">
+			<div class="lgl-g footer">
+				<div class="lgl-u-1 lgl-u-md-1-3 cr">
+					<a>Copyright © 2025, Leagle, Inc.</a>
+				</div>
+				<div class="lgl-u-1 lgl-u-md-2-3 links">
+					<ul>
+						<li><a href="https://www.leagle.com/disclaimer">Disclaimer</a></li>
+						<li><a href="https://www.leagle.com/terms-of-use"> Terms of Use</a></li>
+						<li><a href="https://www.leagle.com/privacy">Privacy Statement</a></li>
+                        <li><a href="https://www.leagle.com/csr">Corporate Social Responsibility</a></li>
+						<li><a href="https://www.leagle.com/about-us">About Us</a></li>
+						<li><a href="https://www.leagle.com/contact-us">Contact Us</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	<script src="//static.getclicky.com/js" type="text/javascript"></script>
+	<script type="text/javascript">try{ clicky.init(66399707); }catch(e){}</script>
+	<noscript><p><img alt="Clicky" width="1" height="1" src="//getclicky.com/66399707ns.gif" /></p></noscript>
+	</div>
+</body>
+</html>

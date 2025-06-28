@@ -38,7 +38,7 @@ class DatabaseManager:
         Args:
             db_path: Path to the SQLite database file
             max_connections: Maximum number of connections in the pool
-            backup_enabled: Whether to enable automatic backups
+            backup_enabled: Whether to enable automatic backups (now handled by background tasks)
         """
         self.db_path = db_path
         self.max_connections = max_connections
@@ -60,9 +60,8 @@ class DatabaseManager:
         # Initialize database with optimized settings
         self._initialize_database()
         
-        # Start background tasks
-        if backup_enabled:
-            self._start_backup_scheduler()
+        # Note: Backup scheduling is now handled by the centralized background tasks system
+        # in src/background_tasks.py
     
     def _initialize_database(self):
         """Initialize the database with optimized settings and schema."""
@@ -267,7 +266,8 @@ class DatabaseManager:
                     conn = self.connection_pool.pop()
                     self.stats['connections_reused'] += 1
                 else:
-                    conn = sqlite3.connect(self.db_path, timeout=30.0)
+                    # Use check_same_thread=False for thread safety
+                    conn = sqlite3.connect(self.db_path, timeout=30.0, check_same_thread=False)
                     conn.row_factory = sqlite3.Row
                     self.stats['connections_created'] += 1
             
@@ -445,30 +445,6 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Failed to get database stats: {e}")
             return {}
-    
-    def _start_backup_scheduler(self):
-        """Start background backup scheduler."""
-        def backup_scheduler():
-            while True:
-                try:
-                    # Check if backup is needed (daily backup)
-                    if (not self.stats['last_backup'] or 
-                        datetime.now() - datetime.fromisoformat(self.stats['last_backup']) > timedelta(days=1)):
-                        self.backup_database()
-                    
-                    # Clean old backups (keep last 7 days)
-                    self._cleanup_old_backups()
-                    
-                    # Sleep for 1 hour
-                    time.sleep(3600)
-                    
-                except Exception as e:
-                    logger.error(f"Backup scheduler error: {e}")
-                    time.sleep(3600)
-        
-        backup_thread = threading.Thread(target=backup_scheduler, daemon=True)
-        backup_thread.start()
-        logger.info("Database backup scheduler started")
     
     def _cleanup_old_backups(self, keep_days: int = 7):
         """Clean up old backup files."""

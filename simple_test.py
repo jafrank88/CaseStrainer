@@ -1,54 +1,43 @@
-import sys
-import json
-import logging
-from pathlib import Path
+#!/usr/bin/env python3
+"""
+Simple test to identify issues with the unified processor.
+"""
 
-# Set up basic logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
+import sys
+import os
 
 # Add the project root to the Python path
-project_root = str(Path(__file__).parent.absolute())
-sys.path.insert(0, project_root)
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-# Now import the function we want to test
-from src.enhanced_validator_production import validate_citations_batch
-
-
-def main():
-    print("=" * 50)
-    print("STARTING SIMPLE CITATION VALIDATION TEST")
-    print("=" * 50)
-
-    try:
-        # Test with a known citation
-        test_citation = "534 F.3d 1290"
-        print(f"\nTesting citation: {test_citation}")
-
-        # Call the validation function directly
-        print("\nCalling validate_citations_batch...")
-        results, stats = validate_citations_batch([{"citation_text": test_citation}])
-
-        # Print the results
-        print("\n=== RESULTS ===")
-        print(json.dumps(results, indent=2))
-        print("\n=== STATS ===")
-        print(json.dumps(stats, indent=2))
-
-        print("\n✅ Test completed successfully!")
-        return 0
-
-    except Exception as e:
-        print("\n❌ Test failed!")
-        print(f"Error: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
-        return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+try:
+    print("Testing imports...")
+    from src.unified_citation_processor import UnifiedCitationProcessor, TextCleaner, DateExtractor
+    print("✓ All imports successful")
+    
+    print("\nTesting TextCleaner...")
+    test_text = "This   has   extra   spaces"
+    cleaned = TextCleaner.clean_text(test_text)
+    print(f"✓ Text cleaning works: '{cleaned}'")
+    
+    print("\nTesting DateExtractor...")
+    test_text = "The court decided in 2024. See Smith v. Jones, 123 Wn. App. 456."
+    date = DateExtractor.extract_date_from_context(test_text, 50, 65)
+    print(f"✓ Date extraction works: {date}")
+    
+    print("\nTesting UnifiedCitationProcessor initialization...")
+    processor = UnifiedCitationProcessor()
+    print("✓ Processor initialized successfully")
+    
+    print("\nTesting basic citation extraction...")
+    test_text = "See Smith v. Jones, 123 Wn. App. 456."
+    result = processor.process_text(test_text)
+    print(f"✓ Processing completed: {result['summary']}")
+    
+    print("\nAll tests passed!")
+    
+except Exception as e:
+    print(f"✗ Error: {e}")
+    import traceback
+    traceback.print_exc()

@@ -155,7 +155,7 @@ def extract_citations_with_context(text):
             context_after = text[end_pos:context_end]
 
             # Extract likely case name from context_before using utility function
-            from extract_case_name import extract_case_name_from_context
+            from src.extract_case_name import extract_case_name_from_context
 
             extracted_case_name = extract_case_name_from_context(context_before)
 

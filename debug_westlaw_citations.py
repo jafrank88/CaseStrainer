@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from extract_case_name import extract_case_name_from_context, extract_case_name_from_text
+from src.extract_case_name import extract_case_name_from_context, extract_case_name_from_text
 
 def test_westlaw_citations():
     """Test case name extraction for the failing Westlaw citations"""

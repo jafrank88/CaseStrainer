@@ -216,83 +216,77 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
 
 def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Group multiple citations that have the same URL.
-
-    Args:
-        citations: List of citation dictionaries, each with 'citation', 'url', etc.
-
-    Returns:
-        List of grouped citation dictionaries with additional 'alternate_citations' field
+    Group multiple citations that have the same canonical URL (if present).
+    For each group, propagate canonical fields from the best-verified citation (prefer CourtListener).
+    Attach all parallel citation objects (not just strings) to the group, each with all relevant metadata fields.
+    Propagate all relevant metadata fields from the best-verified/most complete citation in the group to all parallel citations.
     """
     if not citations:
         return []
 
-    # Group by URL
+    # Group by canonical URL (prefer 'citation_url', fallback to 'url')
     url_groups: Dict[str, List[int]] = {}
-
     for i, citation in enumerate(citations):
-        url = citation.get("url", "")
-        case_name = citation.get("case_name", "")
-
-        # Skip citations with unknown case names - they should never be grouped
-        if (
-            not case_name
-            or case_name == "Unknown case"
-            or case_name.lower() == "unknown case"
-        ):
-            continue
-
+        url = citation.get("citation_url") or citation.get("url") or ""
         if url:
             if url not in url_groups:
                 url_groups[url] = []
             url_groups[url].append(i)
 
-    # Create grouped citations
     grouped_citations = []
     processed_indices = set()
 
-    # First process URL groups
+    # List of metadata fields to propagate
+    propagate_fields = [
+        "case_name", "extracted_case_name", "hinted_case_name", "extracted_date", "date_filed", "canonical_date", "court", "docket_number", "url", "citation_url", "opinion_type", "precedential", "judge", "confidence", "source"
+    ]
+
     for url, indices in url_groups.items():
-        if len(indices) <= 1:
-            # Skip groups with only one citation (will be handled later)
-            continue
+        # Use the best-verified/most complete citation as primary (prefer CourtListener, then others, then most fields)
+        best_idx = indices[0]
+        max_fields = 0
+        for idx in indices:
+            c = citations[idx]
+            # Prefer CourtListener
+            if c.get("source", "").lower() == "courtlistener":
+                best_idx = idx
+                break
+            # Otherwise, pick the citation with the most non-empty propagate fields
+            non_empty_fields = sum(1 for f in propagate_fields if c.get(f))
+            if non_empty_fields > max_fields:
+                max_fields = non_empty_fields
+                best_idx = idx
+        primary = citations[best_idx].copy()
+        processed_indices.update(indices)
 
-        # Use the first citation as the primary
-        primary_idx = indices[0]
-        primary = citations[primary_idx].copy()
-        primary["alternate_citations"] = []
-        processed_indices.add(primary_idx)
+        # Propagate all relevant fields from the primary to each parallel citation object
+        parallel_citation_objs = []
+        for idx in indices:
+            parallel = citations[idx].copy()
+            for field in propagate_fields:
+                if not parallel.get(field) and primary.get(field):
+                    parallel[field] = primary[field]
+            parallel_citation_objs.append(parallel)
 
-        # Add the rest as alternates
-        for idx in indices[1:]:
-            other = citations[idx]
-            # Double-check that we're not grouping unknown case names
-            other_case_name = other.get("case_name", "")
-            if (
-                not other_case_name
-                or other_case_name == "Unknown case"
-                or other_case_name.lower() == "unknown case"
-            ):
-                continue
-
-            primary["alternate_citations"].append(
-                {
-                    "citation": other.get("citation", ""),
-                    "case_name": other.get("case_name", ""),
-                    "url": other.get("url", ""),
-                    "source": other.get("source", ""),
-                }
-            )
-            processed_indices.add(idx)
+        # The primary citation object gets the full list of parallel citation objects
+        primary["parallel_citations"] = parallel_citation_objs
 
         grouped_citations.append(primary)
 
-    # Add any remaining citations that weren't grouped by URL
+    # Add any remaining citations that weren't grouped (no URL)
     for i, citation in enumerate(citations):
         if i not in processed_indices:
             citation_copy = citation.copy()
-            citation_copy["alternate_citations"] = []
+            citation_copy["parallel_citations"] = [citation_copy]
             grouped_citations.append(citation_copy)
+
+    # Sort grouped citations by confidence (lowest to highest)
+    def get_confidence(citation):
+        try:
+            return float(citation.get("confidence", 0))
+        except Exception:
+            return 0
+    grouped_citations.sort(key=get_confidence)
 
     return grouped_citations
 
@@ -302,28 +296,18 @@ def group_citations(
 ) -> List[Dict[str, Any]]:
     """
     Group multiple citations that refer to the same case using the specified method.
-
-    Args:
-        citations: List of citation dictionaries
-        method: Grouping method ('url', 'name', or 'url_then_name')
-
-    Returns:
-        List of grouped citation dictionaries
+    Default is to group by canonical URL, then by case name similarity.
     """
     if not citations:
         return []
-
     if method == "url":
         return group_citations_by_url(citations)
     elif method == "name":
         return group_citations_by_case(citations)
     elif method == "url_then_name":
-        # First group by URL
         url_grouped = group_citations_by_url(citations)
-        # Then group by case name
         return group_citations_by_case(url_grouped)
     else:
-        # Default to URL grouping if invalid method
         return group_citations_by_url(citations)
 
 

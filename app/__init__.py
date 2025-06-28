@@ -47,14 +47,7 @@ def create_app(config_name=None):
             x_prefix=1
         )
         
-        # Add a simple test route
-        @app.route('/api/health')
-        def health_check():
-            return jsonify({
-                'status': 'healthy',
-                'environment': app.config['ENV'],
-                'debug': app.debug
-            })
+        # Note: Health endpoint removed - use /casestrainer/api/health from vue_api_endpoints.py instead
         
         app.logger.info(f"Application initialized in {app.config['ENV']} mode")
         
@@ -66,6 +59,11 @@ def create_app(config_name=None):
 
 def configure_logging(app):
     """Configure logging for the application."""
+    # Use project root logs directory
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    
     if app.debug:
         # Detailed logging for development
         logging.basicConfig(
@@ -73,7 +71,7 @@ def configure_logging(app):
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler('casestrainer.log')
+                logging.FileHandler(os.path.join(logs_dir, 'casestrainer.log'))
             ]
         )
     else:
@@ -83,7 +81,7 @@ def configure_logging(app):
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.StreamHandler(),
-                logging.FileHandler('casestrainer.log')
+                logging.FileHandler(os.path.join(logs_dir, 'casestrainer.log'))
             ]
         )
     

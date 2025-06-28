@@ -39,8 +39,8 @@ import asyncio
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 import requests
-from citation_extractor import extract_all_citations, verify_citation
-from file_utils import extract_text_from_file
+from src.citation_utils import extract_all_citations
+from src.file_utils import extract_text_from_file
 from citation_utils import deduplicate_citations
 from enhanced_validator_production import make_error_response
 import tempfile
@@ -60,6 +60,8 @@ from citation_processor import CitationProcessor
 import sqlite3
 import redis
 import threading
+from src.document_processing import process_document_input, extract_and_verify_citations
+from src.config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
 
 # PATCH: Disable RQ death penalty on Windows before any RQ import
 import os
@@ -97,20 +99,73 @@ logger = configure_logging()
 logger.info("=== Backend Startup ===")
 logger.info("Importing required modules...")
 
+# Add Flask after_request handler to log all JSON responses
+def log_json_responses(response):
+    """
+    Flask after_request handler to log all JSON responses before they are sent to the frontend.
+    This ensures we capture all JSON output regardless of which endpoint generates it.
+    """
+    try:
+        # Log all responses for debugging
+        logger.info(f"[JSON_LOGGER] Processing response: endpoint={request.endpoint}, method={request.method}, status={response.status_code}, content_type={response.content_type}")
+        
+        # Only log JSON responses
+        if response.content_type == 'application/json':
+            # Get the response data
+            response_data = response.get_data(as_text=True)
+            
+            # Try to parse and pretty-print the JSON for better logging
+            try:
+                import json
+                parsed_data = json.loads(response_data)
+                formatted_json = json.dumps(parsed_data, indent=2, ensure_ascii=False)
+                
+                # Log the response with context
+                logger.info("=" * 80)
+                logger.info("JSON RESPONSE BEING SENT TO FRONTEND")
+                logger.info("=" * 80)
+                logger.info(f"Endpoint: {request.endpoint}")
+                logger.info(f"Method: {request.method}")
+                logger.info(f"URL: {request.url}")
+                logger.info(f"Status Code: {response.status_code}")
+                logger.info(f"Content-Type: {response.content_type}")
+                logger.info(f"Response Size: {len(response_data)} characters")
+                logger.info("-" * 80)
+                logger.info("RESPONSE BODY:")
+                logger.info(formatted_json)
+                logger.info("=" * 80)
+                
+            except json.JSONDecodeError:
+                # If JSON parsing fails, log the raw response
+                logger.warning("Failed to parse JSON response, logging raw data:")
+                logger.info(f"Raw response: {response_data}")
+        else:
+            logger.info(f"[JSON_LOGGER] Skipping non-JSON response: content_type={response.content_type}")
+                
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in log_json_responses: {str(e)}")
+        return response
+
 # Use EnhancedMultiSourceVerifier for multi-source citation verification
 try:
-    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier, RateLimitError
     CitationVerifier = EnhancedMultiSourceVerifier  # Alias for compatibility
     logger.info("Using EnhancedMultiSourceVerifier for multi-source citation verification")
 except ImportError as e:
     logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
     logger.warning("Falling back to CitationVerifier")
     from citation_verification import CitationVerifier
+    RateLimitError = Exception  # Fallback for compatibility
 
 try:
     # Create Blueprint instead of Flask app
     logger.info("Creating Flask Blueprint...")
     vue_api = Blueprint('vue_api', __name__)
+    
+    # Register the after_request handler to log all JSON responses
+    vue_api.after_request(log_json_responses)
     
     logger.info("Flask Blueprint created successfully")
     
@@ -151,35 +206,8 @@ try:
     TASK_TTL = 300  # seconds (5 minutes in memory)
     REDIS_TASK_TTL = 600  # seconds (10 minutes in Redis)
     
-    def cleanup_old_tasks():
-        """Background thread to clean up old completed/failed tasks from memory"""
-        while True:
-            try:
-                now = time.time()
-                to_delete = []
-                for task_id, task in list(active_requests.items()):
-                    if task['status'] in ('completed', 'failed'):
-                        end_time = task.get('end_time', task.get('start_time', now))
-                        if now - end_time > TASK_TTL:
-                            to_delete.append(task_id)
-                            logger.debug(f"[CLEANUP] Marking task {task_id} for deletion (age: {now - end_time:.1f}s)")
-                
-                for task_id in to_delete:
-                    del active_requests[task_id]
-                    logger.info(f"[CLEANUP] Removed task {task_id} from memory")
-                
-                if to_delete:
-                    logger.info(f"[CLEANUP] Cleaned up {len(to_delete)} old tasks")
-                    
-            except Exception as e:
-                logger.error(f"[CLEANUP] Error in cleanup thread: {e}")
-            
-            time.sleep(TASK_CLEANUP_INTERVAL)
-    
-    # Start cleanup thread
-    cleanup_thread = threading.Thread(target=cleanup_old_tasks, daemon=True)
-    cleanup_thread.start()
-    logger.info("[CLEANUP] Task cleanup thread started")
+    # Note: Task cleanup is now handled by the centralized background tasks system
+    # in src/background_tasks.py
     
     logger.info("Global variables initialized successfully")
     
@@ -229,37 +257,51 @@ def is_rq_available():
 
 @vue_api.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint to verify the backend is running and all components are healthy."""
+    """Health check endpoint for the Vue API."""
     try:
-        worker_status = check_rq_worker()
-        queue_size = 0
-        server_stats = {}
-        flask_status = "ok"  # If this endpoint responds, Flask is running
-        redis_status = check_redis()
-        db_status = check_db()
-
-        # Get current timestamp
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        uptime_seconds = time.time() - server_start_time if 'server_start_time' in globals() else 0
-        uptime = get_uptime() if 'get_uptime' in globals() else "unknown"
-
-        response_data = {
-            'status': 'healthy' if all([flask_status=="ok", redis_status=="ok", worker_status=="ok", db_status=="ok"]) else 'degraded',
-            'timestamp': time.time(),
-            'current_time': current_time,
-            'uptime': uptime,
-            'uptime_seconds': uptime_seconds,
-            'flask_app': flask_status,
-            'redis': redis_status,
-            'rq_worker': worker_status,
-            'database': db_status,
-            'active_requests': len(active_requests),
-            'rq_available': is_rq_available()  # PATCH: dynamic check
-        }
-        return jsonify(response_data)
+        return jsonify({
+            'status': 'healthy',
+            'service': 'CaseStrainer Vue API',
+            'timestamp': datetime.now().isoformat(),
+            'redis': check_redis(),
+            'database': check_db(),
+            'rq_worker': check_rq_worker(),
+            'environment': WORKER_ENV,
+            'version': '2.0.0'
+        })
     except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        return jsonify({'status': 'error', 'error': str(e)}), 500
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            'status': 'error',
+            'service': 'CaseStrainer Vue API',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@vue_api.route('/process-text', methods=['POST'])
+def process_text():
+    """
+    Deprecated: Forwards text input to /analyze endpoint. Use /analyze instead.
+    """
+    try:
+        # Accept both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('text', '')
+        else:
+            text = request.form.get('text', '')
+        if not text.strip():
+            return jsonify({'error': 'No text provided', 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 400
+        # Forward the text to /analyze as JSON
+        analyze_url = request.url_root.rstrip('/') + '/analyze'
+        headers = {"Content-Type": "application/json", "X-Forwarded-For": "internal-process-text"}
+        resp = requests.post(analyze_url, json={"type": "text", "text": text}, headers=headers)
+        response_json = resp.json()
+        response_json['deprecated'] = True
+        response_json['message'] = 'This endpoint is deprecated. Please use /analyze.'
+        return make_response(jsonify(response_json), resp.status_code)
+    except Exception as e:
+        return jsonify({'error': str(e), 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 500
 
 @vue_api.route('/server_stats', methods=['GET'])
 def server_stats():
@@ -473,7 +515,8 @@ if not RQ_AVAILABLE:
                         
                         active_requests[task_id].update({
                             'status': 'completed',
-                            'citations': result.get('citations', []),
+                            'results': result.get('results', result.get('citations', [])),  # Store 'results' for frontend
+                            'citations': result.get('citations', []),  # Keep 'citations' for backward compatibility
                             'metadata': result.get('metadata', {}),
                             'end_time': time.time(),
                             'progress': 100,
@@ -482,6 +525,8 @@ if not RQ_AVAILABLE:
                         })
                         
                         logger.info(f"{WORKER_LABEL} [WORKER] Updated active_requests[{task_id}] keys: {list(active_requests[task_id].keys())}")
+                        logger.info(f"{WORKER_LABEL} [WORKER] Results count: {len(active_requests[task_id].get('results', []))}")
+                        logger.info(f"{WORKER_LABEL} [WORKER] Citations count: {len(active_requests[task_id].get('citations', []))}")
                         
                         # Persist result in Redis
                         if REDIS_AVAILABLE and redis_conn:
@@ -551,609 +596,156 @@ if not RQ_AVAILABLE:
         }
 
 def process_citation_task(task_id, task_type, task_data):
-    import logging
+    """
+    Unified citation verification task with progress tracking for file, url, and text.
+    """
     logger = logging.getLogger(__name__)
-    import time
-    import os
-    import tempfile
-    import json
-    from datetime import datetime
+    logger.info(f"[TASK] Starting citation verification task {task_id}")
+    print(f"[DEBUG] process_citation_task called with task_id={task_id}, task_type={task_type}")
+    print(f"[DEBUG] task_data: {task_data}")
     
-    print(f"{WORKER_LABEL} [PROCESS] Starting process_citation_task for {task_id} of type {task_type}")  # Immediate output
-    
-    # Initialize RQ connection for job updates
+    job = None
     try:
-        redis_host = os.environ.get('REDIS_HOST', 'localhost')
-        redis_port = int(os.environ.get('REDIS_PORT', 6379))
-        redis_db = int(os.environ.get('REDIS_DB', 0))
-        
-        redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
-        rq_queue = Queue('casestrainer', connection=redis_conn)
-        job = rq_queue.fetch_job(task_id)
+        job = queue.fetch_job(task_id)
     except Exception as e:
-        logger.warning(f"{WORKER_LABEL} [PROCESS] Could not connect to Redis for job updates: {e}")
-        job = None
-    
-    logger = logging.getLogger(__name__)
-    
+        logger.error(f"[TASK] Error fetching job {task_id}: {e}")
     try:
-        print(f"{WORKER_LABEL} [PROCESS] Task {task_id} of type {task_type} - starting processing")  # Immediate output
-        logger.info(f"{WORKER_LABEL} [RQ WORKER] Starting task {task_id} of type {task_type}")
-        
-        # Initialize progress tracking
+        print(f"{WORKER_LABEL} [PROCESS] Starting process_citation_task for {task_id} of type {task_type}")
+        # Initialize RQ connection for job updates
+        try:
+            redis_host = os.environ.get('REDIS_HOST', 'localhost')
+            redis_port = int(os.environ.get('REDIS_PORT', 6379))
+            redis_db = int(os.environ.get('REDIS_DB', 0))
+            redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
+            rq_queue = Queue('casestrainer', connection=redis_conn)
+            job = rq_queue.fetch_job(task_id)
+        except Exception as e:
+            logger.warning(f"{WORKER_LABEL} [PROCESS] Could not connect to Redis for job updates: {e}")
+            job = None
+        logger = logging.getLogger(__name__)
+        # Progress tracking
         if job:
             job.meta['progress'] = 0
             job.meta['status'] = 'Starting...'
             job.meta['current_step'] = 'Initializing'
             job.save_meta()
         
+        from src.document_processing import process_document
+        print(f"[DEBUG] Imported process_document successfully")
+        
+        # Prepare input parameters for unified processing
+        result = None
         if task_type == 'file':
             file_path = task_data.get('file_path')
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} file_path: {file_path}")
-            if not file_path or not os.path.exists(file_path):
-                logger.error(f"{WORKER_LABEL} [RQ WORKER] File not found: {file_path}")
-                raise ValueError(f"File not found: {file_path}")
-            
-            # Update progress: File validation
-            if job:
-                job.meta['progress'] = 10
-                job.meta['status'] = 'Validating file...'
-                job.meta['current_step'] = 'File validation'
-                job.save_meta()
-            
-            from file_utils import extract_text_from_file
-            from citation_processor import CitationProcessor
-            
-            # Extract text from file
-            text_result = extract_text_from_file(file_path)
-            if isinstance(text_result, dict):
-                if not text_result.get('success', True):
-                    logger.error(f"{WORKER_LABEL} [RQ WORKER] File extraction error: {text_result.get('error')}")
-                    return {'status': 'error', 'error': text_result.get('error', 'Failed to extract text from file')}
-                text = text_result.get('text', '')
-            else:
-                text = text_result
-            
-            # Use enhanced citation processor
-            processor = CitationProcessor()
-            citations = processor.extract_citations(text, extract_case_names=True)
-            
-            # Use enhanced multi-source verifier for all task types
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
-            
-            # Process citations in parallel for better performance
-            from concurrent.futures import ThreadPoolExecutor, as_completed
-            import threading
-            
-            results = []
-            results_lock = threading.Lock()
-            
-            def verify_single_citation(citation_info):
-                """Verify a single citation with progress tracking."""
-                try:
-                    citation_text = citation_info['citation']
-                    extracted_case_name = citation_info.get('case_name')
-                    canonical_case_name = citation_info.get('canonical_case_name')
-                    confidence = citation_info.get('confidence', 0.0)
-                    method = citation_info.get('method', 'none')
-                    extracted_date = citation_info.get('extracted_date')
-                    
-                    # Verify citation with enhanced verifier
-                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                    
-                    # Add enhanced case name information
-                    result.update({
-                        'case_name_extracted': extracted_case_name,  # From document text
-                        'canonical_case_name': canonical_case_name,  # From API
-                        'extraction_confidence': confidence,
-                        'extraction_method': method,
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
-                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
-                        'url_source': citation_info.get('url_source', 'none'),  # Track source of citation URL
-                        'extracted_date': extracted_date,  # Date extracted from user's document
-                        'date_filed': result.get('date_filed')  # Canonical date from authoritative source
-                    })
-                    
-                    # Add detailed logging for debugging
-                    logger.info(f"[CITATION_PROCESSING] Citation: {citation_text}")
-                    logger.info(f"[CITATION_PROCESSING]   - Extracted case name: {extracted_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Canonical case name: {canonical_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Citation URL: {result.get('citation_url')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Date filed: {result.get('date_filed')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Verification status: {result.get('verified')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Sources used: {result.get('sources', [])}")
-                    
-                    # Log any missing data for debugging
-                    missing_data = []
-                    if not canonical_case_name:
-                        missing_data.append("canonical_case_name")
-                    if not result.get('citation_url'):
-                        missing_data.append("citation_url")
-                    if not result.get('date_filed'):
-                        missing_data.append("date_filed")
-                    
-                    if missing_data:
-                        logger.warning(f"[CITATION_PROCESSING] Missing data for {citation_text}: {missing_data}")
-                    
-                    return result
-                except Exception as e:
-                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
-                    return {
-                        'citation': citation_info.get('citation', 'unknown'),
-                        'verified': False,
-                        'error': str(e),
-                        'case_name_extracted': citation_info.get('case_name'),
-                        'canonical_case_name': citation_info.get('canonical_case_name'),
-                        'extraction_confidence': citation_info.get('confidence', 0.0),
-                        'extraction_method': citation_info.get('method', 'none'),
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'extracted_date': citation_info.get('extracted_date'),
-                        'date_filed': None
-                    }
-            
-            # Use ThreadPoolExecutor for parallel processing
-            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Submit all verification tasks
-                future_to_citation = {
-                    executor.submit(verify_single_citation, citation_info): citation_info
-                    for citation_info in citations
-                }
-                
-                # Process results as they complete
-                for future in as_completed(future_to_citation):
-                    try:
-                        result = future.result()
-                        with results_lock:
-                            results.append(result)
-                            
-                        # Update progress if job tracking is available
-                        if job:
-                            current_progress = len(results)
-                            total_citations = len(citations)
-                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
-                            job.meta['progress'] = progress_percentage
-                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
-                            job.meta['current_step'] = 'Citation verification'
-                            job.save_meta()
-                            
-                    except Exception as e:
-                        citation_info = future_to_citation[future]
-                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
-                        with results_lock:
-                            results.append({
-                                'citation': citation_info.get('citation', 'unknown'),
-                                'verified': False,
-                                'error': str(e),
-                                'case_name_extracted': citation_info.get('case_name'),
-                                'canonical_case_name': citation_info.get('canonical_case_name'),
-                                'extraction_confidence': citation_info.get('confidence', 0.0),
-                                'extraction_method': citation_info.get('method', 'none'),
-                                'verified_in_text': citation_info.get('verified', False),
-                                'similarity_score': citation_info.get('similarity'),
-                                'position': citation_info.get('position'),
-                                'extracted_date': citation_info.get('extracted_date'),
-                                'date_filed': None
-                            })
-            
-            # Sort results to maintain original order, but only if both lists are non-empty and all results have a matching citation
-            if results and citations:
-                try:
-                    results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
-                except StopIteration:
-                    logger.warning("[PATCH] Could not find a matching citation for sorting. Skipping sort.")
-            else:
-                logger.info("[PATCH] Skipping sort: results or citations empty.")
-            
-            # Add metadata for file tasks
-            file_metadata = {
-                'file_name': os.path.basename(file_path) if file_path else None,
-                'file_type': os.path.splitext(file_path)[1].lower() if file_path else None,
-                'source_type': 'file',
-                'source_name': os.path.basename(file_path) if file_path else None,
-                'file_size': os.path.getsize(file_path) if file_path and os.path.exists(file_path) else None
-            }
-            return {'citations': results, 'status': 'success', 'metadata': file_metadata}
-            
-        elif task_type == 'text':
-            text = task_data.get('text')
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} processing text input")
-            if not text:
-                logger.error(f"{WORKER_LABEL} [RQ WORKER] No text provided for task {task_id}")
-                raise ValueError("No text provided")
-            
-            # Update progress: Text validation
-            if job:
-                job.meta['progress'] = 15
-                job.meta['status'] = 'Processing text...'
-                job.meta['current_step'] = 'Text processing'
-                job.save_meta()
-            
-            from citation_processor import CitationProcessor
-            
-            processor = CitationProcessor()
-            citations = processor.extract_citations(text, extract_case_names=True)
-            
-            # Use enhanced multi-source verifier for all task types
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
-            
-            # Process citations in parallel for better performance
-            from concurrent.futures import ThreadPoolExecutor, as_completed
-            import threading
-            
-            results = []
-            results_lock = threading.Lock()
-            
-            def verify_single_citation(citation_info):
-                """Verify a single citation with progress tracking."""
-                try:
-                    citation_text = citation_info['citation']
-                    extracted_case_name = citation_info.get('case_name')
-                    canonical_case_name = citation_info.get('canonical_case_name')
-                    confidence = citation_info.get('confidence', 0.0)
-                    method = citation_info.get('method', 'none')
-                    extracted_date = citation_info.get('extracted_date')
-                    
-                    # Verify citation with enhanced verifier
-                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                    
-                    # Add enhanced case name information
-                    result.update({
-                        'case_name_extracted': extracted_case_name,  # From document text
-                        'canonical_case_name': canonical_case_name,  # From API
-                        'extraction_confidence': confidence,
-                        'extraction_method': method,
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
-                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
-                        'url_source': citation_info.get('url_source', 'none'),  # Track source of citation URL
-                        'extracted_date': extracted_date,  # Date extracted from user's document
-                        'date_filed': result.get('date_filed')  # Canonical date from authoritative source
-                    })
-                    
-                    # Add detailed logging for debugging
-                    logger.info(f"[CITATION_PROCESSING] Citation: {citation_text}")
-                    logger.info(f"[CITATION_PROCESSING]   - Extracted case name: {extracted_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Canonical case name: {canonical_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Citation URL: {result.get('citation_url')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Date filed: {result.get('date_filed')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Verification status: {result.get('verified')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Sources used: {result.get('sources', [])}")
-                    
-                    # Log any missing data for debugging
-                    missing_data = []
-                    if not canonical_case_name:
-                        missing_data.append("canonical_case_name")
-                    if not result.get('citation_url'):
-                        missing_data.append("citation_url")
-                    if not result.get('date_filed'):
-                        missing_data.append("date_filed")
-                    
-                    if missing_data:
-                        logger.warning(f"[CITATION_PROCESSING] Missing data for {citation_text}: {missing_data}")
-                    
-                    return result
-                except Exception as e:
-                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
-                    return {
-                        'citation': citation_info.get('citation', 'unknown'),
-                        'verified': False,
-                        'error': str(e),
-                        'case_name_extracted': citation_info.get('case_name'),
-                        'canonical_case_name': citation_info.get('canonical_case_name'),
-                        'extraction_confidence': citation_info.get('confidence', 0.0),
-                        'extraction_method': citation_info.get('method', 'none'),
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'extracted_date': citation_info.get('extracted_date'),
-                        'date_filed': None
-                    }
-            
-            # Use ThreadPoolExecutor for parallel processing
-            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Submit all verification tasks
-                future_to_citation = {
-                    executor.submit(verify_single_citation, citation_info): citation_info
-                    for citation_info in citations
-                }
-                
-                # Process results as they complete
-                for future in as_completed(future_to_citation):
-                    try:
-                        result = future.result()
-                        with results_lock:
-                            results.append(result)
-                            
-                        # Update progress if job tracking is available
-                        if job:
-                            current_progress = len(results)
-                            total_citations = len(citations)
-                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
-                            job.meta['progress'] = progress_percentage
-                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
-                            job.meta['current_step'] = 'Citation verification'
-                            job.save_meta()
-                            
-                    except Exception as e:
-                        citation_info = future_to_citation[future]
-                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
-                        with results_lock:
-                            results.append({
-                                'citation': citation_info.get('citation', 'unknown'),
-                                'verified': False,
-                                'error': str(e),
-                                'case_name_extracted': citation_info.get('case_name'),
-                                'canonical_case_name': citation_info.get('canonical_case_name'),
-                                'extraction_confidence': citation_info.get('confidence', 0.0),
-                                'extraction_method': citation_info.get('method', 'none'),
-                                'verified_in_text': citation_info.get('verified', False),
-                                'similarity_score': citation_info.get('similarity'),
-                                'position': citation_info.get('position'),
-                                'extracted_date': citation_info.get('extracted_date'),
-                                'date_filed': None
-                            })
-            
-            # Sort results to maintain original order, but only if both lists are non-empty and all results have a matching citation
-            if results and citations:
-                try:
-                    results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
-                except StopIteration:
-                    logger.warning("[PATCH] Could not find a matching citation for sorting. Skipping sort.")
-            else:
-                logger.info("[PATCH] Skipping sort: results or citations empty.")
-            
-            text_metadata = {
-                'source_type': 'text',
-                'source_name': 'pasted_text',
-                'text_length': len(text) if text else 0
-            }
-            return {'citations': results, 'status': 'success', 'metadata': text_metadata}
-            
+            if not file_path:
+                raise ValueError("No file path provided")
+            print(f"[DEBUG] Processing file: {file_path}")
+            result = process_document(file_path=file_path, extract_case_names=True)
         elif task_type == 'url':
             url = task_data.get('url')
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} processing url input: {url}")
             if not url:
-                logger.error(f"{WORKER_LABEL} [RQ WORKER] No URL provided for task {task_id}")
                 raise ValueError("No URL provided")
-            
-            # Update progress: URL validation
-            if job:
-                job.meta['progress'] = 5
-                job.meta['status'] = 'Validating URL...'
-                job.meta['current_step'] = 'URL validation'
-                job.save_meta()
-            
-            from enhanced_validator_production import extract_text_from_url
-            from citation_processor import CitationProcessor
-            
-            # Update progress: Downloading content
-            if job:
-                job.meta['progress'] = 20
-                job.meta['status'] = 'Downloading content from URL...'
-                job.meta['current_step'] = 'Content download'
-                job.save_meta()
-            
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} starting URL text extraction...")
-            text_result = extract_text_from_url(url)
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} URL text extraction result: {text_result.get('status')}")
-            
-            if text_result.get('status') != 'success' or not text_result.get('text'):
-                error_msg = f"Failed to extract text from URL: {text_result.get('error', 'Unknown error')}"
-                logger.error(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} {error_msg}")
-                raise ValueError(error_msg)
-            
-            text = text_result['text']
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} extracted {len(text)} characters from URL")
-            
-            # Update progress: Text extraction complete
-            if job:
-                job.meta['progress'] = 40
-                job.meta['status'] = 'Extracting citations from content...'
-                job.meta['current_step'] = 'Citation extraction'
-                job.save_meta()
-            
-            logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} starting citation extraction from text...")
-            processor = CitationProcessor()
-            citations = processor.extract_citations(text, extract_case_names=True)
-            
-            # Use enhanced multi-source verifier for all task types
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
-            
-            # Process citations in parallel for better performance
-            from concurrent.futures import ThreadPoolExecutor, as_completed
-            import threading
-            
-            results = []
-            results_lock = threading.Lock()
-            
-            def verify_single_citation(citation_info):
-                """Verify a single citation with progress tracking."""
-                try:
-                    citation_text = citation_info['citation']
-                    extracted_case_name = citation_info.get('case_name')
-                    canonical_case_name = citation_info.get('canonical_case_name')
-                    confidence = citation_info.get('confidence', 0.0)
-                    method = citation_info.get('method', 'none')
-                    extracted_date = citation_info.get('extracted_date')
-                    
-                    # Verify citation with enhanced verifier
-                    result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-                    
-                    # Add enhanced case name information
-                    result.update({
-                        'case_name_extracted': extracted_case_name,  # From document text
-                        'canonical_case_name': canonical_case_name,  # From API
-                        'extraction_confidence': confidence,
-                        'extraction_method': method,
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'citation_url': processor.enhanced_case_name_extractor.get_citation_url(citation_text) if processor.enhanced_case_name_extractor else None,
-                        'canonical_source': citation_info.get('canonical_source', 'none'),  # Track source of canonical name
-                        'url_source': citation_info.get('url_source', 'none'),  # Track source of citation URL
-                        'extracted_date': extracted_date,  # Date extracted from user's document
-                        'date_filed': result.get('date_filed')  # Canonical date from authoritative source
-                    })
-                    
-                    # Add detailed logging for debugging
-                    logger.info(f"[CITATION_PROCESSING] Citation: {citation_text}")
-                    logger.info(f"[CITATION_PROCESSING]   - Extracted case name: {extracted_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Canonical case name: {canonical_case_name}")
-                    logger.info(f"[CITATION_PROCESSING]   - Citation URL: {result.get('citation_url')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Date filed: {result.get('date_filed')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Verification status: {result.get('verified')}")
-                    logger.info(f"[CITATION_PROCESSING]   - Sources used: {result.get('sources', [])}")
-                    
-                    # Log any missing data for debugging
-                    missing_data = []
-                    if not canonical_case_name:
-                        missing_data.append("canonical_case_name")
-                    if not result.get('citation_url'):
-                        missing_data.append("citation_url")
-                    if not result.get('date_filed'):
-                        missing_data.append("date_filed")
-                    
-                    if missing_data:
-                        logger.warning(f"[CITATION_PROCESSING] Missing data for {citation_text}: {missing_data}")
-                    
-                    return result
-                except Exception as e:
-                    logger.error(f"Error verifying citation {citation_info.get('citation', 'unknown')}: {e}")
-                    return {
-                        'citation': citation_info.get('citation', 'unknown'),
-                        'verified': False,
-                        'error': str(e),
-                        'case_name_extracted': citation_info.get('case_name'),
-                        'canonical_case_name': citation_info.get('canonical_case_name'),
-                        'extraction_confidence': citation_info.get('confidence', 0.0),
-                        'extraction_method': citation_info.get('method', 'none'),
-                        'verified_in_text': citation_info.get('verified', False),
-                        'similarity_score': citation_info.get('similarity'),
-                        'position': citation_info.get('position'),
-                        'extracted_date': citation_info.get('extracted_date'),
-                        'date_filed': None
-                    }
-            
-            # Use ThreadPoolExecutor for parallel processing
-            max_workers = min(8, len(citations))  # Limit to 8 workers to avoid overwhelming APIs
-            with ThreadPoolExecutor(max_workers=max_workers) as executor:
-                # Submit all verification tasks
-                future_to_citation = {
-                    executor.submit(verify_single_citation, citation_info): citation_info
-                    for citation_info in citations
-                }
-                
-                # Process results as they complete
-                for future in as_completed(future_to_citation):
-                    try:
-                        result = future.result()
-                        with results_lock:
-                            results.append(result)
-                            
-                        # Update progress if job tracking is available
-                        if job:
-                            current_progress = len(results)
-                            total_citations = len(citations)
-                            progress_percentage = min(90, 40 + int((current_progress / total_citations) * 50))
-                            job.meta['progress'] = progress_percentage
-                            job.meta['status'] = f'Verifying citations... ({current_progress}/{total_citations})'
-                            job.meta['current_step'] = 'Citation verification'
-                            job.save_meta()
-                            
-                    except Exception as e:
-                        citation_info = future_to_citation[future]
-                        logger.error(f"Error processing citation {citation_info.get('citation', 'unknown')}: {e}")
-                        with results_lock:
-                            results.append({
-                                'citation': citation_info.get('citation', 'unknown'),
-                                'verified': False,
-                                'error': str(e),
-                                'case_name_extracted': citation_info.get('case_name'),
-                                'canonical_case_name': citation_info.get('canonical_case_name'),
-                                'extraction_confidence': citation_info.get('confidence', 0.0),
-                                'extraction_method': citation_info.get('method', 'none'),
-                                'verified_in_text': citation_info.get('verified', False),
-                                'similarity_score': citation_info.get('similarity'),
-                                'position': citation_info.get('position'),
-                                'extracted_date': citation_info.get('extracted_date'),
-                                'date_filed': None
-                            })
-            
-            # Sort results to maintain original order, but only if both lists are non-empty and all results have a matching citation
-            if results and citations:
-                try:
-                    results.sort(key=lambda x: citations.index(next(c for c in citations if c['citation'] == x['citation'])))
-                except StopIteration:
-                    logger.warning("[PATCH] Could not find a matching citation for sorting. Skipping sort.")
-            else:
-                logger.info("[PATCH] Skipping sort: results or citations empty.")
-            
-            url_metadata = {
-                'source_type': 'url',
-                'source_name': url,
-                'text_length': len(text) if text else 0
-            }
-            return {'citations': results, 'status': 'success', 'metadata': url_metadata}
+            print(f"[DEBUG] Processing URL: {url}")
+            result = process_document(url=url, extract_case_names=True)
+        elif task_type == 'text':
+            text = task_data.get('text')
+            if not text:
+                raise ValueError("No text provided")
+            print(f"[DEBUG] Processing text (length: {len(text)})")
+            result = process_document(content=text, extract_case_names=True)
         else:
-            logger.error(f"{WORKER_LABEL} [RQ WORKER] Unknown task type: {task_type}")
+            logger.error(f"Unknown task type: {task_type}")
             raise ValueError(f"Unknown task type: {task_type}")
-            
-        # Final progress update
+        
+        print(f"[DEBUG] process_document result: success={result.get('success')}, citations={len(result.get('citations', []))}, case_names={len(result.get('case_names', []))}")
+        logger.info(f"[DEBUG] process_document result: success={result.get('success')}, citations={len(result.get('citations', []))}, case_names={len(result.get('case_names', []))}")
+        
+        if not result.get('success', False):
+            error_msg = result.get('error', 'Unknown processing error')
+            logger.error(f"[RQ WORKER] Processing error for task {task_id}: {error_msg}")
+            return {'status': 'error', 'error': error_msg, 'metadata': result}
+        
+        # Process the citations to ensure they have the expected structure
+        citations = result.get('citations', [])
+        logger.info(f"[DEBUG] Processing {len(citations)} citations from process_document result")
+        for i, citation in enumerate(citations, 1):
+            logger.info(f"[DEBUG] Citation {i} from process_document: {citation.get('citation', 'N/A')}")
+        
+        processed_citations = []
+        
+        for citation in citations:
+            # Ensure each citation has the required fields
+            processed_citation = {
+                'citation': citation.get('citation', ''),
+                'case_name': citation.get('case_name', 'N/A'),
+                'extracted_case_name': citation.get('extracted_case_name', 'N/A'),
+                'canonical_name': citation.get('canonical_name', 'N/A'),
+                'hinted_case_name': citation.get('hinted_case_name', 'N/A'),
+                'canonical_date': citation.get('canonical_date', ''),
+                'extracted_date': citation.get('extracted_date', ''),
+                'court': citation.get('court', ''),
+                'docket_number': citation.get('docket_number', ''),
+                'url': citation.get('url', ''),
+                'confidence': citation.get('confidence', 'medium'),
+                'context': citation.get('context', ''),
+                'method': citation.get('method', 'regex'),
+                'pattern': citation.get('pattern', ''),
+                'verified': citation.get('verified', 'false'),
+                'valid': citation.get('valid', 'false'),
+                'source': citation.get('source', 'Unknown')
+            }
+            processed_citations.append(processed_citation)
+        
+        logger.info(f"[DEBUG] Processed {len(processed_citations)} citations for final result")
+        for i, citation in enumerate(processed_citations, 1):
+            logger.info(f"[DEBUG] Processed citation {i}: {citation.get('citation', 'N/A')} (verified={citation.get('verified', False)})")
+        
+        # Progress update
         if job:
             job.meta['progress'] = 100
             job.meta['status'] = 'Completed successfully'
             job.meta['current_step'] = 'Complete'
             job.save_meta()
-            
+            if task_id in active_requests:
+                active_requests[task_id].update({
+                    'progress': 100,
+                    'status': 'Completed successfully',
+                    'current_step': 'Complete',
+                    'elapsed_time': int(time.time() - active_requests[task_id].get('start_time', time.time())),
+                    'end_time': time.time()
+                })
         logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} completed successfully")
-        return result_data
+        
+        final_result = {
+            'results': processed_citations,  # Use 'results' to match frontend expectation
+            'citations': processed_citations,  # Keep 'citations' for backward compatibility
+            'case_names': result.get('case_names', []),
+            'status': 'success',
+            'metadata': result.get('extraction_metadata', {}),
+            'statistics': result.get('statistics', {}),
+            'summary': result.get('summary', {})
+        }
+        print(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
+        logger.info(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
+        # Log the full response_data sent to the frontend
+        print(f"[DEBUG] About to log response to frontend")
+        logger.info(f"[DEBUG] About to log response to frontend")
+        print(f"[DEBUG] Final result type: {type(final_result)}")
+        logger.info(f"[DEBUG] Final result type: {type(final_result)}")
+        print(f"[DEBUG] Final result keys: {list(final_result.keys())}")
+        logger.info(f"[DEBUG] Final result keys: {list(final_result.keys())}")
+        try:
+            logger.info(f"[ANALYZE] Response to frontend: {json.dumps(final_result, indent=2, ensure_ascii=False)}")
+            print(f"[DEBUG] Logged response to frontend")
+            logger.info(f"[DEBUG] Logged response to frontend")
+        except Exception as e:
+            print(f"[DEBUG] Error logging response: {e}")
+            logger.error(f"[ANALYZE] Error logging response: {e}")
+        return final_result
     except Exception as e:
-        error_msg = f"{str(e)}\n{traceback.format_exc()}"
-        logger.error(f"Task {task_id} failed: {error_msg}")
-        if task_id in active_requests:
-            # Try to include metadata if possible
-            metadata = {}
-            if task_type == 'file':
-                file_path = task_data.get('file_path')
-                metadata = {
-                    'file_name': os.path.basename(file_path) if file_path else None,
-                    'file_type': os.path.splitext(file_path)[1].lower() if file_path else None,
-                    'source_type': 'file',
-                    'source_name': os.path.basename(file_path) if file_path else None,
-                    'file_size': os.path.getsize(file_path) if file_path and os.path.exists(file_path) else None
-                }
-            elif task_type == 'text':
-                text = task_data.get('text')
-                metadata = {
-                    'source_type': 'text',
-                    'source_name': 'pasted_text',
-                    'text_length': len(text) if text else 0
-                }
-            elif task_type == 'url':
-                url = task_data.get('url')
-                metadata = {
-                    'source_type': 'url',
-                    'source_name': url,
-                    'text_length': len(url) if url else 0
-                }
-            active_requests[task_id].update({
-                'status': 'failed',
-                'error': error_msg,
-                'metadata': metadata
-            })
-        return {'status': 'failed', 'error': error_msg, 'metadata': metadata}
+        logger.error(f"Error processing citation task {task_id}: {str(e)}")
+        print(f"[DEBUG] Exception in process_citation_task: {str(e)}")
+        return {'status': 'failed', 'error': str(e)}
 
 @vue_api.route('/analyze', methods=['POST', 'OPTIONS'])
 def analyze():
@@ -1314,33 +906,55 @@ def analyze():
             # process it synchronously for instant feedback. Otherwise, queue for async processing.
             # This logic is tuned for optimal user experience and can be adjusted as needed.
             text_trimmed = text.strip()
-            current_app.logger.info(f"[ANALYZE] Immediate/Async decision: text_len={len(text_trimmed)}, words={len(text_trimmed.split())}, patterns={[w for w in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL'] if w in text_trimmed.upper()]}")
+            current_app.logger.info(f"[ANALYZE] Immediate/Async decision: text_len={len(text_trimmed)}, words={len(text_trimmed.split())}, patterns={[w for w in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'L.ED.2D', 'L.ED.3D', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL', 'WN.2D', 'WN.APP.', 'WN. APP.', 'WASH.2D', 'WASH.APP.', 'WASH. APP.'] if w in text_trimmed.upper()]}")
             if (len(text_trimmed) < 50 and  # Short text
                 any(char.isdigit() for char in text_trimmed) and  # Contains numbers
-                any(word in text_trimmed.upper() for word in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL']) and  # Contains citation patterns
+                any(word in text_trimmed.upper() for word in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'L.ED.2D', 'L.ED.3D', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL', 'WN.2D', 'WN.APP.', 'WN. APP.', 'WASH.2D', 'WASH.APP.', 'WASH. APP.']) and  # Contains citation patterns
                 len(text_trimmed.split()) <= 10):  # Few words
                 # Immediate (synchronous) response
                 current_app.logger.info(f"[ANALYZE] Using immediate (synchronous) response for citation: {text_trimmed}")
                 
                 try:
-                    # Import the enhanced validator
+                    # Import the enhanced validator and complex citation integration
                     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+                    from src.complex_citation_integration import process_text_with_complex_citations, format_complex_citation_for_frontend
                     verifier = EnhancedMultiSourceVerifier()
                     
-                    # Validate the citation
-                    result = verifier.verify_citation(text_trimmed, extracted_case_name=None)
+                    # Use complex citation processing for better handling of complex citations
+                    results_data = process_text_with_complex_citations(text_trimmed, verifier)
                     processing_time = time.time() - start_time
                     
-                    # Format the response
-                    response_data = {
-                        'citations': [{
-                            'citation': text_trimmed,
-                            'valid': result.get('verified', False),
-                            'verified': result.get('verified', False),
+                    # Extract results and statistics
+                    results = results_data.get('results', [])
+                    statistics = results_data.get('statistics', {})
+                    summary = results_data.get('summary', {})
+                    
+                    # Format results for frontend
+                    formatted_citations = []
+                    for result in results:
+                        formatted_result = format_complex_citation_for_frontend(result)
+                        formatted_citations.append({
+                            'citation': result.get('citation', text_trimmed),
+                            'valid': result.get('verified', 'false'),
+                            'verified': result.get('verified', 'false'),
                             'case_name': result.get('case_name', ''),
+                            'extracted_case_name': result.get('extracted_case_name', ''),
+                            'canonical_name': result.get('canonical_name', ''),
+                            'hinted_case_name': result.get('hinted_case_name', ''),
+                            'canonical_date': result.get('canonical_date', ''),
+                            'extracted_date': result.get('extracted_date', ''),
+                            'court': result.get('court', ''),
+                            'docket_number': result.get('docket_number', ''),
                             'confidence': result.get('confidence', 0.0),
                             'source': result.get('source', 'Unknown'),
+                            'url': result.get('url', ''),
                             'details': result.get('details', {}),
+                            'is_complex_citation': result.get('is_complex_citation', False),
+                            'is_parallel_citation': result.get('is_parallel_citation', False),
+                            'complex_metadata': result.get('complex_metadata', {}),
+                            'display_text': formatted_result.get('display_text', ''),
+                            'complex_features': formatted_result.get('complex_features', {}),
+                            'parallel_info': formatted_result.get('parallel_info', {}),
                             'metadata': {
                                 'source_type': 'citation',
                                 'source_name': 'single_citation',
@@ -1348,11 +962,27 @@ def analyze():
                                 'timestamp': datetime.utcnow().isoformat() + "Z",
                                 'user_agent': request.headers.get("User-Agent")
                             }
-                        }]
+                        })
+                    
+                    response_data = {
+                        'citations': formatted_citations,
+                        'statistics': {
+                            'total_citations': summary.get('total_citations', 0),
+                            'parallel_citations': summary.get('parallel_citations', 0),
+                            'verified_citations': summary.get('verified_citations', 0),
+                            'unverified_citations': summary.get('unverified_citations', 0),
+                            'unique_cases': summary.get('unique_cases', 0)
+                        }
                     }
                     
-                    current_app.logger.info(f"[ANALYZE] Single citation '{text_trimmed}' validation result: {result.get('verified', False)}")
-                    
+                    # Log results
+                    for result in results:
+                        current_app.logger.info(f"[ANALYZE] Citation '{result.get('citation', text_trimmed)}' validation result: {result.get('verified', False)}")
+                        current_app.logger.info(f"[ANALYZE] Is complex citation: {result.get('is_complex_citation', False)}")
+                        current_app.logger.info(f"[ANALYZE] Extracted case name: {result.get('extracted_case_name', 'None')}")
+                        current_app.logger.info(f"[ANALYZE] Canonical case name: {result.get('canonical_name', 'None')}")
+                    # Log the full response_data sent to the frontend
+                    current_app.logger.info(f"[ANALYZE] Response to frontend: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
                     return jsonify(response_data)
                     
                 except Exception as e:
@@ -1685,6 +1315,7 @@ def task_status(task_id):
             current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} completed, checking for results")
             current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task status keys: {list(task_status.keys())}")
             
+            # First check active_requests for results
             if 'results' in task_status:
                 response_data['results'] = task_status['results']
                 current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'results' field, count: {len(task_status['results'])}")
@@ -1692,10 +1323,56 @@ def task_status(task_id):
                 response_data['results'] = task_status['citations']
                 current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'citations' field, count: {len(task_status['citations'])}")
             else:
-                response_data['results'] = []
-                current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] No results or citations found in task status")
+                # If no results in active_requests, try to get from RQ job
+                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] No results in active_requests, checking RQ job")
+                try:
+                    # Try to get the RQ job result
+                    if REDIS_AVAILABLE and redis_conn:
+                        rq_queue = Queue('casestrainer', connection=redis_conn)
+                        job = rq_queue.fetch_job(task_id)
+                        if job and job.result:
+                            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Found RQ job result for task {task_id}")
+                            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] RQ job result keys: {list(job.result.keys())}")
+                            
+                            # Extract results from RQ job
+                            if 'results' in job.result:
+                                response_data['results'] = job.result['results']
+                                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'results' field from RQ job, count: {len(job.result['results'])}")
+                                
+                                # Update active_requests for future requests
+                                if task_id in active_requests:
+                                    active_requests[task_id]['results'] = job.result['results']
+                                    current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Updated active_requests with RQ job results")
+                            elif 'citations' in job.result:
+                                response_data['results'] = job.result['citations']
+                                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'citations' field from RQ job, count: {len(job.result['citations'])}")
+                                
+                                # Update active_requests for future requests
+                                if task_id in active_requests:
+                                    active_requests[task_id]['citations'] = job.result['citations']
+                                    current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Updated active_requests with RQ job citations")
+                            else:
+                                response_data['results'] = []
+                                current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] RQ job has no results or citations")
+                        else:
+                            response_data['results'] = []
+                            current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] No RQ job or job result found for task {task_id}")
+                    else:
+                        response_data['results'] = []
+                        current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Redis not available, cannot check RQ job")
+                except Exception as e:
+                    current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Error checking RQ job for task {task_id}: {str(e)}")
+                    response_data['results'] = []
         elif task_status['status'] == 'failed' and 'error' in task_status:
             response_data['error'] = task_status['error']
+        
+        # Log the full response_data sent to the frontend
+        current_app.logger.info(f"[ANALYZE] Response to frontend: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
+        
+        # Add explicit logging for debugging
+        current_app.logger.info(f"[TASK_STATUS_DEBUG] About to return JSON response for task {task_id}")
+        current_app.logger.info(f"[TASK_STATUS_DEBUG] Response data keys: {list(response_data.keys())}")
+        current_app.logger.info(f"[TASK_STATUS_DEBUG] Results count: {len(response_data.get('results', []))}")
         
         return jsonify(response_data)
         
@@ -1763,6 +1440,114 @@ def version():
             'timestamp': datetime.now().isoformat()
         }), 500
 
+@vue_api.route('/processing_progress', methods=['GET'])
+def processing_progress():
+    """
+    Compatibility endpoint for old static JavaScript frontend.
+    Returns a simplified progress response that matches the expected format.
+    """
+    try:
+        # Get the total parameter from the request (used by old frontend)
+        total_citations = request.args.get('total', 0, type=int)
+        
+        # Check if there are any active requests
+        if not active_requests:
+            # No active processing
+            return jsonify({
+                'status': 'success',
+                'processed_citations': 0,
+                'total_citations': total_citations,
+                'is_complete': True
+            })
+        
+        # Find the most recent active request
+        latest_task_id = None
+        latest_start_time = 0
+        
+        for task_id, task_status in active_requests.items():
+            start_time = task_status.get('start_time', 0)
+            if start_time > latest_start_time:
+                latest_start_time = start_time
+                latest_task_id = task_id
+        
+        if not latest_task_id:
+            return jsonify({
+                'status': 'success',
+                'processed_citations': 0,
+                'total_citations': total_citations,
+                'is_complete': True
+            })
+        
+        # Get the latest task status
+        task_status = active_requests[latest_task_id]
+        status = task_status.get('status', 'unknown')
+        
+        # Calculate progress based on status
+        if status == 'completed':
+            # Task is complete
+            citations = task_status.get('results', []) or task_status.get('citations', [])
+            processed_count = len(citations) if citations else 0
+            
+            return jsonify({
+                'status': 'success',
+                'processed_citations': processed_count,
+                'total_citations': max(total_citations, processed_count),
+                'is_complete': True
+            })
+        
+        elif status == 'failed':
+            # Task failed
+            return jsonify({
+                'status': 'success',
+                'processed_citations': 0,
+                'total_citations': total_citations,
+                'is_complete': True
+            })
+        
+        elif status in ['queued', 'processing']:
+            # Task is still processing
+            # Estimate progress based on elapsed time
+            start_time = task_status.get('start_time', time.time())
+            elapsed_time = time.time() - start_time
+            
+            task_type = task_status.get('type', 'text')
+            if task_type == 'file':
+                estimated_total = 60  # 60 seconds for file processing
+            elif task_type == 'url':
+                estimated_total = 120  # 120 seconds for URL processing
+            else:  # text
+                estimated_total = 20  # 20 seconds for text processing
+            
+            # Calculate estimated progress (cap at 90% until complete)
+            estimated_progress = min(int((elapsed_time / estimated_total) * 90), 90)
+            processed_count = int((estimated_progress / 100) * total_citations) if total_citations > 0 else 0
+            
+            return jsonify({
+                'status': 'success',
+                'processed_citations': processed_count,
+                'total_citations': total_citations,
+                'is_complete': False
+            })
+        
+        else:
+            # Unknown status
+            return jsonify({
+                'status': 'success',
+                'processed_citations': 0,
+                'total_citations': total_citations,
+                'is_complete': False
+            })
+            
+    except Exception as e:
+        logger.error(f"Processing progress endpoint error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'processed_citations': 0,
+            'total_citations': 0,
+            'is_complete': False
+        }), 500
+
 # Add comprehensive file upload security validation
 def validate_file_upload(file):
     """
@@ -1770,65 +1555,48 @@ def validate_file_upload(file):
     Returns (is_valid, error_message) tuple.
     """
     try:
-        # Import centralized config
-        from src.config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
-        
-        # Check if file exists
         if not file or not file.filename:
             return False, "No file provided"
-        
-        # Check file size
-        file.seek(0, 2)  # Seek to end to get file size
+        file.seek(0, 2)
         file_size = file.tell()
-        file.seek(0)  # Reset to beginning
-        
+        file.seek(0)
         if file_size > MAX_CONTENT_LENGTH:
             return False, f"File too large. Maximum size is {MAX_CONTENT_LENGTH // (1024*1024)}MB"
-        
         if file_size == 0:
             return False, "File is empty"
-        
-        # Validate filename
         filename = secure_filename(file.filename)
         if not filename or filename == '':
             return False, "Invalid filename"
-        
-        # Check file extension
+        # Check file extension (allow multiple dots, only check final extension)
         if '.' not in filename:
             return False, f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
-        
         file_ext = filename.rsplit('.', 1)[1].lower()
         if file_ext not in ALLOWED_EXTENSIONS:
             return False, f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
-        
         # Additional security checks
-        # Check for double extensions (e.g., file.pdf.exe)
-        if filename.count('.') > 1:
-            return False, "Invalid filename: multiple extensions detected"
-        
-        # Check for suspicious patterns in filename
         suspicious_patterns = ['..', '\\', '/', ':', '*', '?', '"', '<', '>', '|']
         if any(pattern in file.filename for pattern in suspicious_patterns):
             return False, "Invalid filename: contains suspicious characters"
-        
         # Check file content type (basic validation)
         allowed_mime_types = {
             'pdf': 'application/pdf',
             'doc': 'application/msword',
             'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'txt': 'text/plain',
-            'rtf': 'application/rtf'
+            'rtf': 'application/rtf',
+            'odt': 'application/vnd.oasis.opendocument.text',
+            'html': 'text/html',
+            'htm': 'text/html'
         }
-        
         if file_ext in allowed_mime_types:
             expected_mime = allowed_mime_types[file_ext]
             if hasattr(file, 'content_type') and file.content_type:
-                if file.content_type != expected_mime:
+                # For html, htm, rtf, odt, allow any content_type (browsers may send text/plain or octet-stream)
+                if file_ext in ['html', 'htm', 'rtf', 'odt']:
+                    pass  # skip strict content_type check
+                elif file.content_type != expected_mime:
                     logger.warning(f"File content type mismatch: expected {expected_mime}, got {file.content_type}")
-                    # Don't reject based on content type alone as it can be unreliable
-        
         return True, None
-        
     except Exception as e:
         logger.error(f"File validation error: {str(e)}")
         return False, f"File validation failed: {str(e)}"
@@ -1945,3 +1713,91 @@ def validate_url_input(url):
     except Exception as e:
         logger.error(f"URL validation error: {str(e)}")
         return False, f"URL validation failed: {str(e)}"
+
+def enrich_citation_with_database_fields(citation_result):
+    """
+    Enrich a citation result with all available database fields.
+    
+    Args:
+        citation_result (dict): The citation result from verification
+        
+    Returns:
+        dict: Enriched citation result with database fields
+    """
+    try:
+        from src.database_manager import get_database_manager
+        
+        db_manager = get_database_manager()
+        citation_text = citation_result.get('citation', '')
+        
+        if not citation_text:
+            return citation_result
+        
+        # Query the database for this citation with flexible column handling
+        query = """
+            SELECT id, citation_text, case_name, year, court, reporter, volume, page,
+                   parallel_citations, verification_result, verification_source, 
+                   verification_confidence, found, is_verified
+            FROM citations 
+            WHERE citation_text = ?
+        """
+        
+        # Add timestamp columns if they exist
+        try:
+            # Try to get timestamp columns
+            timestamp_query = """
+                SELECT created_at, updated_at, last_verified_at, verification_count, error_count
+                FROM citations 
+                WHERE citation_text = ?
+            """
+            timestamp_results = db_manager.execute_query(timestamp_query, (citation_text,))
+            if timestamp_results:
+                # Add timestamp fields to the main query
+                query = """
+                    SELECT id, citation_text, case_name, year, court, reporter, volume, page,
+                           parallel_citations, verification_result, verification_source, 
+                           verification_confidence, found, is_verified,
+                           created_at, updated_at, last_verified_at, verification_count, error_count
+                    FROM citations 
+                    WHERE citation_text = ?
+                """
+        except Exception as e:
+            # If timestamp columns don't exist, use the basic query
+            logger.debug(f"Timestamp columns not available: {e}")
+        
+        results = db_manager.execute_query(query, (citation_text,))
+        
+        if results:
+            db_record = results[0]
+            
+            # Add database fields to the citation result
+            enriched_result = citation_result.copy()
+            enriched_result.update({
+                'db_id': db_record.get('id'),
+                'db_case_name': db_record.get('case_name'),
+                'db_year': db_record.get('year'),
+                'db_court': db_record.get('court'),
+                'db_reporter': db_record.get('reporter'),
+                'db_volume': db_record.get('volume'),
+                'db_page': db_record.get('page'),
+                'db_parallel_citations': db_record.get('parallel_citations'),
+                'db_verification_result': db_record.get('verification_result'),
+                'db_verification_source': db_record.get('verification_source'),
+                'db_verification_confidence': db_record.get('verification_confidence'),
+                'db_found': db_record.get('found'),
+                'db_is_verified': db_record.get('is_verified'),
+                'db_created_at': db_record.get('created_at'),
+                'db_updated_at': db_record.get('updated_at'),
+                'db_last_verified_at': db_record.get('last_verified_at'),
+                'db_verification_count': db_record.get('verification_count'),
+                'db_error_count': db_record.get('error_count')
+            })
+            
+            return enriched_result
+        else:
+            # No database record found, return original result
+            return citation_result
+            
+    except Exception as e:
+        logger.warning(f"Could not enrich citation with database fields: {e}")
+        return citation_result

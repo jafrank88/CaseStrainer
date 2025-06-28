@@ -36,7 +36,7 @@ const uploadFile = async () => {
     updateProgress();
 
     // Make API request with timeout
-    const response = await axios.post("/analyze-document", formData, {
+    const response = await axios.post("/analyze", formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       },

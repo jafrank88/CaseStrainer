@@ -1,12 +1,18 @@
 import sys
 import logging
+import os
 
 # Configure logging to file
+# Use project root logs directory
+project_root = os.path.dirname(os.path.abspath(__file__))
+logs_dir = os.path.join(project_root, "logs")
+os.makedirs(logs_dir, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("import_test.log", mode="w"),
+        logging.FileHandler(os.path.join(logs_dir, "import_test.log"), mode="w"),
         logging.StreamHandler(),
     ],
 )

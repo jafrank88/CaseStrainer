@@ -271,3 +271,9 @@ Planned enhancements for the Enhanced Validator include:
 5. **Batch Processing**: Supporting validation of multiple citations in a single request
 6. **Additional Sources**: Integrating more legal databases and research platforms
 7. **Advanced Context Analysis**: Providing deeper legal context and analysis
+
+## Related Documentation
+
+For a comprehensive understanding of how citations flow through the entire CaseStrainer system, including all three input methods (file upload, URL upload, text paste), see:
+
+- **[Citation Processing Flowchart](CITATION_PROCESSING_FLOWCHART.md)** - Detailed flowcharts showing the complete citation processing pipeline from input to output, including all modules and data transformations

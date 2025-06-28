@@ -2,152 +2,55 @@
   <div class="enhanced-validator">
     <Toast v-if="toastMessage" :message="toastMessage" :type="toastType" @close="clearToast" />
     <!-- Header -->
-    <div class="header">
-      <h1>Citation Validator</h1>
-      <p class="subtitle">Analyze legal documents, text, or URLs for citation verification</p>
+    <div class="header text-center mb-4">
+      <button class="btn btn-link back-btn" @click="goHome">
+        <i class="bi bi-arrow-left"></i> Back to Home
+      </button>
+      <h1 class="results-title">Citation Verification Results</h1>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-      <!-- Input Section -->
-      <div class="input-container">
-        <UnifiedInput
-          :isAnalyzing="isLoading"
-          @analyze="handleUnifiedAnalyze"
-        />
-      </div>
-
       <!-- Progress Section -->
       <div v-if="showLoading && !results" class="progress-container">
         <SkeletonLoader :lines="4" height="6em" />
       </div>
 
       <!-- Processing Progress Section -->
-      <div v-if="showLoading" class="processing-section mb-4">
+      <div v-if="showLoading && !showTimer" class="processing-section mb-4">
         <div class="card">
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title">
               <i class="fas fa-cog fa-spin me-2"></i>
               Processing Citations
             </h5>
-            
-            <!-- Overall Progress -->
-            <div class="progress mb-3" style="height: 25px;">
-              <div 
-                class="progress-bar progress-bar-striped progress-bar-animated" 
-                :class="getProgressBarClass(totalProgress / 100)"
-                :style="{ width: `${totalProgress}%` }"
-                role="progressbar"
-                :aria-valuenow="totalProgress"
-                aria-valuemin="0"
-                aria-valuemax="100"
-              >
-                {{ Math.round(totalProgress) }}%
+            <div class="spinner-border text-info mt-3" role="status">
+              <span class="visually-hidden">Processing...</span>
               </div>
-            </div>
-            
-            <!-- Time Information -->
-            <div class="row text-center mb-3">
-              <div class="col-md-4">
-                <div class="time-info">
-                  <small class="text-muted">Elapsed</small>
-                  <div class="fw-bold">{{ formatTime(elapsedTime) }}</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="time-info">
-                  <small class="text-muted">Remaining</small>
-                  <div class="fw-bold">{{ formatTime(remainingTime) }}</div>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="time-info">
-                  <small class="text-muted">Total Estimate</small>
-                  <div class="fw-bold">{{ formatTime(estimatedTotalTime) }}</div>
+            <div class="mt-2">Processing citations...</div>
                 </div>
               </div>
             </div>
             
-            <!-- Current Step -->
-            <div v-if="currentStep" class="current-step mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-semibold">Current Step:</span>
-                <span class="text-primary">{{ currentStep }}</span>
-              </div>
-              <div class="progress" style="height: 15px;">
-                <div 
-                  class="progress-bar bg-info" 
-                  :style="{ width: `${currentStepProgress}%` }"
-                  role="progressbar"
-                  :aria-valuenow="currentStepProgress"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                ></div>
-              </div>
+      <!-- Enhanced Progress Bar for >20 citations -->
+      <div v-if="showLoading && showTimer" class="processing-section mb-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <h5 class="card-title">
+              <i class="fas fa-cog fa-spin me-2"></i>
+              Processing Citations
+            </h5>
+            <div class="spinner-border text-info mt-3" role="status">
+              <span class="visually-hidden">Processing...</span>
             </div>
-            
-            <!-- Citation Processing Stats -->
-            <div v-if="citationInfo" class="citation-stats mb-3">
-              <div class="row text-center">
-                <div class="col-md-3">
-                  <div class="stat-item">
-                    <small class="text-muted">Total Citations</small>
-                    <div class="fw-bold">{{ citationInfo.total }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="stat-item">
-                    <small class="text-muted">Unique</small>
-                    <div class="fw-bold">{{ citationInfo.unique }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="stat-item">
-                    <small class="text-muted">Processed</small>
-                    <div class="fw-bold">{{ citationInfo.processed }}</div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="stat-item">
-                    <small class="text-muted">Rate</small>
-                    <div class="fw-bold">{{ citationInfo.processed > 0 ? Math.round(citationInfo.processed / elapsedTime) : 0 }}/sec</div>
-                  </div>
-                </div>
+            <div class="mt-2">Processing {{ progressCurrent }} of {{ progressTotal }} citations...</div>
+            <div class="progress mt-3" style="height: 1.5rem;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" :class="progressBarClass" role="progressbar"
+                :style="{ width: progressPercent + '%' }" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
+                {{ progressPercent }}%
               </div>
             </div>
-            
-            <!-- Processing Steps -->
-            <div v-if="processingSteps.length > 0" class="processing-steps">
-              <h6 class="mb-2">Processing Steps:</h6>
-              <div class="steps-list">
-                <div 
-                  v-for="(step, index) in processingSteps" 
-                  :key="index"
-                  class="step-item d-flex justify-content-between align-items-center py-1"
-                  :class="{ 'text-muted': step.progress === 0, 'text-success': step.progress === 100 }"
-                >
-                  <span class="step-name">{{ step.step }}</span>
-                  <span class="step-status">
-                    <span v-if="step.progress === 100" class="text-success">
-                      <i class="fas fa-check"></i> Complete
-                    </span>
-                    <span v-else-if="step.progress > 0" class="text-primary">
-                      {{ Math.round(step.progress) }}%
-                    </span>
-                    <span v-else class="text-muted">Pending</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Error Information -->
-            <div v-if="processingError" class="alert alert-danger mt-3">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              {{ processingError }}
-              <button v-if="canRetry" @click="handleRetry" class="btn btn-sm btn-outline-danger ms-2">
-                Retry
-              </button>
-            </div>
+            <div v-if="progressPercent === 100 && !results" class="mt-2 text-muted">Finalizing results...</div>
           </div>
         </div>
       </div>
@@ -172,20 +75,16 @@
         </div>
       </div>
 
-      <!-- Empty State -->
-      <div v-if="!results && !showLoading && !error" class="empty-state">
-        <div class="empty-content">
-          <div class="empty-icon">📄</div>
-          <h2>Ready to Analyze</h2>
-          <p>Choose your input method above to get started</p>
-        </div>
+      <!-- No Results State -->
+      <div v-if="!results && !showLoading && !error" class="no-results-state text-center mt-5">
+        <p class="lead">No results to display.<br />Please return to the home page to start a new analysis.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue';
+import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useLoadingState } from '@/composables/useLoadingState';
@@ -251,7 +150,8 @@ export default {
       updateProgress,
       setSteps,
       resetProcessing,
-      setProcessingError
+      setProcessingError,
+      estimatedTotalTime
     } = useProcessingTime();
 
     // Add new reactive state for enhanced progress tracking
@@ -259,6 +159,7 @@ export default {
     const estimatedQueueTime = ref(null);
     const activeRequestId = ref(null);
     const pollInterval = ref(null);
+    let lastPolledTaskId = ref(null);
 
     // Toast state
     const toastMessage = ref('');
@@ -270,6 +171,33 @@ export default {
     const clearToast = () => {
       toastMessage.value = '';
     };
+
+    // Fallback timer state
+    const fallbackTimeout = ref(null);
+    const fallbackTimeoutMs = 120000; // 2 minutes
+
+    // Error state for fallback
+    const fallbackError = ref('');
+
+    // Add showTimer computed property
+    const showTimer = computed(() => {
+      return citationInfo.value && citationInfo.value.total >= 35;
+    });
+
+    // Progress bar state
+    const progressCurrent = ref(0);
+    const progressTotal = computed(() => (citationInfo.value && citationInfo.value.total) ? citationInfo.value.total : 0);
+    const progressPercent = computed(() => {
+      if (!progressTotal.value) return 0;
+      return Math.min(100, Math.round((progressCurrent.value / progressTotal.value) * 100));
+    });
+    const progressBarClass = computed(() => {
+      if (progressPercent.value >= 80) return 'bg-success';
+      if (progressPercent.value >= 50) return 'bg-info';
+      if (progressPercent.value >= 30) return 'bg-warning';
+      return 'bg-danger';
+    });
+    let progressTimer = null;
 
     // ===== HELPER FUNCTIONS =====
     function formatTime(seconds) {
@@ -303,22 +231,101 @@ export default {
     
     // Helper: Normalize citations for frontend display
     function normalizeCitations(citations) {
+      console.log('Normalizing citations:', citations);
+      
       return (citations || []).map(citation => {
-        const cluster = citation.clusters && citation.clusters.length > 0 ? citation.clusters[0] : {};
-        // Map absolute_url to url for direct linking
-        const url = cluster.absolute_url ? `https://www.courtlistener.com${cluster.absolute_url}` : undefined;
+        // For the new backend structure, citations come directly with case_name, canonical_date, etc.
+        // We need to add the verified property based on whether we have canonical data
+        const hasCanonicalData = citation.case_name && citation.case_name !== 'N/A' && 
+                                citation.canonical_date && citation.canonical_date !== 'N/A';
         
-        // Determine verification status based on backend response structure
-        const isVerified = citation.data?.valid || citation.data?.found || citation.exists || 
-                          citation.status === 'verified' || citation.verified === true;
+        // A citation is considered verified if it has canonical case name and date
+        const isVerified = hasCanonicalData;
         
-        return {
+        // Calculate citation score (0-4)
+        let score = 0;
+        
+        // 2 points for canonical case name found (increased from 1)
+        if (citation.case_name && citation.case_name !== 'N/A') {
+          score += 2;
+        }
+        
+        // 1 point for hinted name similarity to canonical name
+        if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' && 
+            citation.case_name && citation.case_name !== 'N/A') {
+          // Simple similarity check - if extracted name contains key parts of canonical name
+          const canonicalWords = citation.case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+          const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+          const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
+          const similarity = commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
+          if (similarity >= 0.5) { // 50% similarity threshold
+            score += 1;
+          }
+        }
+        
+        // 1 point for year matching between extracted and canonical
+        if (citation.extracted_date && citation.canonical_date) {
+          const extractedYear = citation.extracted_date.toString().substring(0, 4);
+          const canonicalYear = citation.canonical_date.toString().substring(0, 4);
+          if (extractedYear === canonicalYear && extractedYear.length === 4) {
+            score += 1;
+          }
+        }
+        
+        // Determine score color (updated for 0-4 scale)
+        let scoreColor = 'red';
+        if (score === 4) scoreColor = 'green';
+        else if (score === 3) scoreColor = 'green';
+        else if (score === 2) scoreColor = 'yellow';
+        else if (score === 1) scoreColor = 'orange';
+        
+        const normalizedCitation = {
           ...citation,
-          metadata: { ...cluster, url },
-          details: { ...cluster, url },
-          valid: isVerified,
+          // Ensure we have the citation text
+          citation: citation.citation || citation.text || 'Unknown citation',
+          // Add verification status
           verified: isVerified,
+          valid: isVerified,
+          // Add scoring
+          score: score,
+          scoreColor: scoreColor,
+          // Map case name fields
+          case_name: citation.case_name || 'N/A',
+          extracted_case_name: citation.extracted_case_name || 'N/A',
+          hinted_case_name: citation.hinted_case_name || 'N/A',
+          // Map date fields
+          canonical_date: citation.canonical_date || null,
+          extracted_date: citation.extracted_date || null,
+          // Add metadata for compatibility
+          metadata: {
+            case_name: citation.case_name,
+            canonical_date: citation.canonical_date,
+            court: citation.court,
+            confidence: citation.confidence,
+            method: citation.method,
+            pattern: citation.pattern
+          },
+          // Add details for compatibility
+          details: {
+            case_name: citation.case_name,
+            canonical_date: citation.canonical_date,
+            court: citation.court,
+            confidence: citation.confidence,
+            method: citation.method,
+            pattern: citation.pattern
+          }
         };
+        
+        // Debug logging for case names
+        console.log('Normalized citation:', {
+          citation: normalizedCitation.citation,
+          case_name: normalizedCitation.case_name,
+          extracted_case_name: normalizedCitation.extracted_case_name,
+          verified: normalizedCitation.verified,
+          score: normalizedCitation.score
+        });
+        
+        return normalizedCitation;
       });
     }
 
@@ -362,7 +369,19 @@ export default {
           
           // Show a message if no results
           if (citationResults.length === 0) {
-            error.value = 'No citations found in the provided text or document.';
+            let debugMsg = 'No citations found in the provided text or document.';
+            if (data.status_message && data.status_message.toLowerCase().includes('rate limit')) {
+              debugMsg += ' (Possible cause: search engine rate limiting)';
+            }
+            if (data.error) {
+              debugMsg += ` (Backend error: ${data.error})`;
+            }
+            error.value = debugMsg;
+          }
+
+          // Debug: Show raw backend response if debug flag is set
+          if (window && window.localStorage && window.localStorage.getItem('debugMode') === 'true') {
+            error.value += '\n[DEBUG] Raw backend response: ' + JSON.stringify(data, null, 2);
           }
         } else if (data.status === 'failed') {
           // Task failed
@@ -385,12 +404,18 @@ export default {
           
           // Update processing time with backend data
           if (data.estimated_total_time && data.steps) {
-            startProcessing({
-              estimated_total_time: data.estimated_total_time,
-              steps: data.steps
-            });
+            if (lastPolledTaskId.value !== taskId) {
+              startProcessing({
+                estimated_total_time: data.estimated_total_time,
+                steps: data.steps
+              });
+              lastPolledTaskId.value = taskId;
+            }
           } else if (data.estimated_total_time) {
-            startProcessing(data.estimated_total_time);
+            if (lastPolledTaskId.value !== taskId) {
+              startProcessing(data.estimated_total_time);
+              lastPolledTaskId.value = taskId;
+            }
           }
           
           // Update current step and progress
@@ -416,6 +441,7 @@ export default {
           }
         }
         
+        onProgressOrResult(); // Clear fallback timer on any progress
       } catch (err) {
         console.error('Error polling task status:', err);
         error.value = 'Failed to check processing status';
@@ -435,6 +461,7 @@ export default {
       try {
         clearResults();
         hasActiveRequest.value = true;
+        lastPolledTaskId.value = null;
         
         // Start processing immediately with default estimates
         startProcessing(30); // Default 30 seconds estimate
@@ -705,14 +732,61 @@ export default {
           handleTextAnalyze({ text: payload.text, options: { mode: 'multi' } });
         }
       }
+      onProcessingStart(); // Start fallback timer
     }
 
     // ===== LIFECYCLE HOOKS =====
     onMounted(() => {
-      // Auto-validate if there's a citation in the URL
-      const { citation } = route.query;
-      if (citation && typeof citation === 'string') {
-        handleUnifiedAnalyze({ text: citation });
+      let input = { ...route.query };
+      
+      // Check for task_id first (async processing)
+      if (input.task_id) {
+        console.log('Found task_id, starting polling:', input.task_id);
+        activeRequestId.value = input.task_id;
+        hasActiveRequest.value = true;
+        pollTaskStatus(input.task_id);
+        return;
+      }
+      
+      // Check localStorage for recent input if no query params
+      if ((!input.text && !input.url && !input.fileName) && localStorage.getItem('lastCitationInput')) {
+        try {
+          input = JSON.parse(localStorage.getItem('lastCitationInput'));
+        } catch (e) {
+          input = {};
+        }
+      }
+      
+      // If we have input, trigger analysis
+      if (input.text || input.url || input.fileName) {
+        console.log('Triggering analysis with input:', input);
+        
+        // Clear any existing results
+        clearResults();
+        
+        // Trigger analysis based on input type
+        if (input.text) {
+          handleTextAnalyze({ text: input.text });
+        } else if (input.url) {
+          handleUrlAnalyze({ url: input.url });
+        } else if (input.fileName) {
+          // For files, we can't restore the actual file, so show an error
+          error.value = 'File upload not available from history. Please upload the file again.';
+        }
+      } else {
+        // No input found, show no results
+        results.value = null;
+      }
+
+      // Watch for citation count and start progress if needed
+      if (showTimer.value && progressTotal.value > 20) {
+        progressCurrent.value = 0;
+        if (progressTimer) clearInterval(progressTimer);
+        progressTimer = setInterval(() => {
+          if (progressCurrent.value < progressTotal.value) {
+            progressCurrent.value++;
+          }
+        }, 2000); // 2 seconds per citation
       }
     });
     
@@ -724,6 +798,16 @@ export default {
         clearInterval(pollInterval.value);
         pollInterval.value = null;
       }
+      clearFallbackTimer();
+      if (progressTimer) clearInterval(progressTimer);
+    });
+
+    // Jump to 100% when results are ready
+    watch(() => results.value, (val) => {
+      if (val && progressTimer) {
+        progressCurrent.value = progressTotal.value;
+        clearInterval(progressTimer);
+      }
     });
 
     // Add a placeholder for copyResults to fix ReferenceError
@@ -734,6 +818,37 @@ export default {
     // Add a placeholder for downloadResults to fix ReferenceError
     function downloadResults() {
       console.log('downloadResults called');
+    }
+
+    // Start fallback timer
+    function startFallbackTimer() {
+      clearFallbackTimer();
+      fallbackTimeout.value = setTimeout(() => {
+        fallbackError.value = 'Processing timed out. No response from server.';
+        setProcessingError(fallbackError.value);
+        hasActiveRequest.value = false;
+        // Optionally, show a toast or error UI
+        showToast(fallbackError.value, 'error');
+      }, fallbackTimeoutMs);
+    }
+
+    // Clear fallback timer
+    function clearFallbackTimer() {
+      if (fallbackTimeout.value) {
+        clearTimeout(fallbackTimeout.value);
+        fallbackTimeout.value = null;
+      }
+    }
+
+    // When processing starts, start fallback timer
+    function onProcessingStart() {
+      fallbackError.value = '';
+      startFallbackTimer();
+    }
+
+    // When progress or results are received, clear fallback timer
+    function onProgressOrResult() {
+      clearFallbackTimer();
     }
 
     // ===== RETURN STATEMENT =====
@@ -782,6 +897,18 @@ export default {
       toastMessage,
       toastType,
       clearToast,
+      
+      // Fallback timer
+      fallbackError,
+      
+      // Show timer computed property
+      showTimer,
+      
+      // Progress bar state
+      progressCurrent,
+      progressTotal,
+      progressPercent,
+      progressBarClass,
     };
   }
 };
@@ -919,6 +1046,24 @@ export default {
 
 .error-icon {
   color: #dc3545;
+  margin-right: 0.5rem;
+}
+
+.results-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1976d2;
+  letter-spacing: 0.01em;
+}
+
+.back-btn {
+  font-size: 1.1rem;
+  color: #1976d2;
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+.back-btn i {
   margin-right: 0.5rem;
 }
 </style>

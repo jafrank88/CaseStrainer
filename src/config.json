@@ -1,15 +1,16 @@
 {
+    "SECRET_KEY": "case_strainer_production_key_2025_05_28_v1",
     "BASE_URL": "http://localhost:5000",
     "API_BASE_URL": "http://localhost:5000/api",
     "COURTLISTENER_API_KEY": "***REDACTED_COURTLISTENER_KEY***",
-    "COURTLISTENER_API_URL": "https://www.courtlistener.com/api/rest/v4/opinions/",
+    "COURTLISTENER_API_URL": "https://www.courtlistener.com/api/rest/v4/",
     "ALLOWED_EXTENSIONS": ["txt", "pdf", "doc", "docx", "rtf", "odt", "html", "htm"],
     "UPLOAD_FOLDER": "uploads",
     "SESSION_FOLDER": "casestrainer_sessions",
     "LOG_LEVEL": "INFO",
     "LOG_FILE": "logs/casestrainer.log",
     "courtlistener_api_key": "***REDACTED_COURTLISTENER_KEY***",
-    "langsearch_api_key": "YOUR_LANGSEARCH_API_KEY_HERE",
+    "langsearch_api_key": "***REDACTED_LANGSEARCH_KEY***",
     "SESSION_CONFIG": {
         "SESSION_TYPE": "filesystem",
         "SESSION_FILE_DIR": "casestrainer_sessions",
@@ -21,11 +22,29 @@
         "SESSION_COOKIE_SAMESITE": "Lax"
     },
     "SECURITY_CONFIG": {
-        "MAX_CONTENT_LENGTH": 16777216,
+        "MAX_CONTENT_LENGTH": 52428800,
         "UPLOAD_FOLDER_PERMISSIONS": 755,
         "SESSION_FOLDER_PERMISSIONS": 755
     },
-    "environment": "development",
-    "debug": true,
-    "database_path": "data/citations.db"
+    "health_endpoint": "https://your-production-domain.com/health",
+    "check_interval": 300,
+    "alert_threshold": 3,
+    "notifications": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "username": "your-email@gmail.com",
+            "password": "your-app-password",
+            "recipients": ["admin@example.com"]
+        },
+        "slack": {
+            "enabled": false,
+            "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+        },
+        "discord": {
+            "enabled": false,
+            "webhook_url": "https://discord.com/api/webhooks/YOUR/WEBHOOK/URL"
+        }
+    }
 } 

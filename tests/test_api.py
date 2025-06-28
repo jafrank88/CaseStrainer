@@ -1,959 +1,352 @@
-import unittest
-import traceback
-import json
+#!/usr/bin/env python
+"""
+Test script to directly interact with the CaseStrainer API
+"""
 import os
 import sys
-import logging
-import argparse
-import urllib3
+import requests
+import json
 import time
-from urllib.parse import urljoin
-from urllib3.util.retry import Retry
+import logging
 
-# Disable SSL warnings
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-from typing import Dict, Any, List, Optional, Union
-from unittest.mock import patch, MagicMock
-
-# Set up logging
+# Configure logging to console only
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
-
-# Add the project root to the Python path
-project_root = os.path.dirname(os.path.abspath(__file__))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-logger.info(f"Python path: {sys.path}")
-
-from flask.testing import FlaskClient
-from flask import Flask, jsonify, current_app
-
-# Import the create_app function
-from src.app_final_vue import create_app
-
-# Import the EnhancedMultiSourceVerifier for testing
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+logger.info("Logging to console")
 
 
-class TestCitationAPI(unittest.TestCase):
-    """Test cases for the Citation API endpoints."""
-
-    @classmethod
-    def setUpClass(cls):
-        """Set up test fixtures before running any tests."""
-        # Configure root logger
-        logging.basicConfig(
-            level=logging.DEBUG,  # Increased to DEBUG for more detailed output
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler("test.log", mode="w"),
-            ],
-        )
-        cls.logger = logging.getLogger(__name__)
-        cls.logger.info("\n" + "=" * 70)
-        cls.logger.info("Setting up test environment...")
-
-        try:
-            # Create a test SQLite database in memory
-            cls.test_db_path = ":memory:"
-            cls.logger.info(f"Using in-memory SQLite database: {cls.test_db_path}")
-
-            # Create a test Flask app with explicit configuration
-            cls.app = create_app()
-            
-            # Configure the app for testing
-            cls.app.config.update(
-                TESTING=True,
-                DEBUG=True,
-                PROPAGATE_EXCEPTIONS=True,
-                SQLALCHEMY_DATABASE_URI=f"sqlite:///{cls.test_db_path}",
-                SQLALCHEMY_TRACK_MODIFICATIONS=False,
-                WTF_CSRF_ENABLED=False,
-                SERVER_NAME='localhost:5000'  # Add server name for URL building
-            )
-            
-            # Create a test client with explicit configuration
-            cls.client = cls.app.test_client()
-            cls.client.testing = True
-            
-            # Enable test client session transactions
-            cls.app.testing = True
-            
-            cls.logger.info("Test Flask application created")
-            cls.logger.debug(f"Available routes: {[str(rule) for rule in cls.app.url_map.iter_rules()]}")
-
-            # Push an application context
-            cls.app_context = cls.app.app_context()
-            cls.app_context.push()
-            cls.logger.info("Application context pushed")
-
-            cls.logger.info("Test environment setup complete" + "\n" + "=" * 70)
-            
-            # Verify the test client
-            with cls.app.test_request_context():
-                cls.logger.info(f"Test request context established. URL map: {cls.app.url_map}")
-                
-                # Test a simple route to verify the app is working
-                try:
-                    response = cls.client.get('/casestrainer/api/health')
-                    cls.logger.info(f"Health check status: {response.status_code}")
-                    cls.logger.info(f"Health check response: {response.get_json()}")
-                except Exception as e:
-                    cls.logger.error(f"Failed to access health endpoint: {str(e)}")
-                    raise
-
-        except Exception as e:
-            cls.logger.error(f"Error setting up test environment: {str(e)}")
-            raise
-
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up after all tests have run."""
-        try:
-            # Pop the application context
-            if hasattr(cls, "app_context"):
-                cls.app_context.pop()
-
-            # Remove the test database if it exists
-            if (
-                hasattr(cls, "test_db_path")
-                and cls.test_db_path != ":memory:"
-                and os.path.exists(cls.test_db_path)
-            ):
-                try:
-                    os.unlink(cls.test_db_path)
-                    cls.logger.info(f"Removed test database: {cls.test_db_path}")
-                except Exception as e:
-                    cls.logger.error(f"Error removing test database: {str(e)}")
-
-            cls.logger.info("Test environment cleaned up")
-        except Exception as e:
-            cls.logger.error(f"Error during test teardown: {str(e)}")
-            raise
-            # Clean up the test database
-            if hasattr(cls, "test_db_path") and os.path.exists(cls.test_db_path):
-                os.unlink(cls.test_db_path)
-        except Exception as e:
-            logger.error(f"Error cleaning up test environment: {str(e)}")
-            raise
-
-    @patch(
-        "src.enhanced_multi_source_verifier.EnhancedMultiSourceVerifier.verify_citation"
+def test_verify_citation(citation_text, case_name=None):
+    """Test the /casestrainer/api/verify-citation endpoint with a citation text."""
+    print(
+        f"Testing /casestrainer/api/verify-citation endpoint with citation: {citation_text}"
     )
-    @patch("src.enhanced_multi_source_verifier.sqlite3")
-    def test_enhanced_validate_citation(self, mock_sqlite3, mock_verify_citation):
-        """Test the enhanced_validate_citation endpoint with various input formats."""
-        print("\n" + "=" * 70)
-        print("STARTING TEST: test_enhanced_validate_citation")
-        print("=" * 70)
-
-        # Set up logging for this test
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler("test.log", mode="w"),
-            ],
-        )
-
-        logger = logging.getLogger(__name__)
-        logger.info("Starting test_enhanced_validate_citation")
-
-        # Set up mock database
-        mock_conn = MagicMock()
-        mock_cursor = MagicMock()
-        mock_sqlite3.connect.return_value = mock_conn
-        mock_conn.cursor.return_value = mock_cursor
-        mock_cursor.fetchone.return_value = None  # No cached results by default
-
-        # Create a test client
-        self.app.config["TESTING"] = True
-        self.app.config["WTF_CSRF_ENABLED"] = False
-        self.client = self.app.test_client()
-
-        # Mock the verify_citation method to return different responses based on input
-        def mock_verify_citation_side_effect(citation_text, case_name=None):
-            # For testing different citation formats
-            if citation_text == "123 F.3d 456":
-                return {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                }
-            elif citation_text == "410 U.S. 113 (1973)":
-                return {
-                    "citation": "410 U.S. 113",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Roe v. Wade"},
-                    "backdrop": "roe-v-wade-backdrop",
-                    "error": "",
-                }
-            elif citation_text == "":
-                return {
-                    "citation": "",
-                    "verified": False,
-                    "error": "No citation provided",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "Validation",
-                }
-            else:
-                return {
-                    "citation": citation_text,
-                    "verified": False,
-                    "error": "Citation not found",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "",
-                }
-
-        mock_verify_citation.side_effect = mock_verify_citation_side_effect
-
-        # Test cases for different scenarios
-        test_cases = [
-            # Valid citation format
-            {
-                "name": "Simple citation string (Federal Reporter)",
-                "data": {"citation": "123 F.3d 456"},
-                "setup_db": lambda: None,  # No special DB setup needed
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                },
-            },
-            # Test case for empty citation
-            {
-                "name": "Empty citation",
-                "data": {"citation": ""},
-                "setup_db": lambda: None,
-                "expected_status": 400,
-                "expected_response": {
-                    "citation": "",
-                    "verified": False,
-                    "error": "No citation provided",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "Validation",
-                },
-            },
-            # US Supreme Court citation
-            {
-                "name": "US Supreme Court citation",
-                "data": {"citation": "410 U.S. 113 (1973)"},
-                "setup_db": lambda: None,
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "410 U.S. 113",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Roe v. Wade"},
-                    "backdrop": "roe-v-wade-backdrop",
-                    "error": "",
-                },
-            },
-            # Missing citation field
-            {
-                "name": "Missing citation field",
-                "data": {},
-                "setup_db": lambda: None,
-                "expected_status": 400,
-                "expected_response": {
-                    "citation": "",
-                    "verified": False,
-                    "verified_by": "Validation",
-                    "error": "No citation provided",
-                    "metadata": {},
-                    "backdrop": "",
-                },
-            },
-            # US Supreme Court citation
-            {
-                "name": "US Supreme Court citation",
-                "data": {"citation": "410 U.S. 113 (1973)"},
-                "setup_db": lambda: None,
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "410 U.S. 113",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Roe v. Wade"},
-                    "backdrop": "roe-v-wade-backdrop",
-                    "error": "",
-                },
-            },
-            # Citation with case name
-            {
-                "name": "Citation with case name",
-                "data": {"citation": "123 F.3d 456", "case_name": "Test v. Case"},
-                "setup_db": lambda: None,
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                },
-            },
-        ]
-
-        # Mock function for verify_citation
-        def mock_verify_citation_side_effect(citation_text, case_name=None):
-            if citation_text == "123 F.3d 456":
-                return {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": case_name or "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                }
-            elif citation_text == "410 U.S. 113 (1973)":
-                return {
-                    "citation": "410 U.S. 113",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Roe v. Wade"},
-                    "backdrop": "roe-v-wade-backdrop",
-                    "error": "",
-                }
-            elif not citation_text:
-                return {
-                    "citation": "",
-                    "verified": False,
-                    "error": "No citation provided",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "Validation",
-                }
-            else:
-                return {
-                    "citation": citation_text,
-                    "verified": False,
-                    "error": "Citation not found",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "",
-                }
-
-        mock_verify_citation.side_effect = mock_verify_citation_side_effect
-
-        # Test cases for different scenarios
-        test_cases = [
-            # Citation with case name
-            {
-                "name": "Citation with case name",
-                "data": {"citation": "123 F.3d 456", "case_name": "Test v. Case"},
-                "setup_db": lambda: None,
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                },
-            },
-            # Citation as object
-            {
-                "name": "Citation as object",
-                "data": {
-                    "citation": {
-                        "citation_text": "123 F.3d 456",
-                        "case_name": "Test v. Case",
-                    }
-                },
-                "setup_db": lambda: None,
-                "expected_status": 200,
-                "expected_response": {
-                    "citation": "123 F.3d 456",
-                    "verified": True,
-                    "verified_by": "CourtListener",
-                    "metadata": {"case_name": "Test v. Case"},
-                    "backdrop": "test-backdrop",
-                    "error": "",
-                },
-            },
-            # None as citation
-            {
-                "name": "None as citation",
-                "data": {"citation": None},
-                "setup_db": lambda: None,
-                "expected_status": 400,
-                "expected_response": {
-                    "citation": "",
-                    "verified": False,
-                    "error": "No citation provided",
-                    "metadata": {},
-                    "backdrop": "",
-                    "verified_by": "Validation",
-                },
-            },
-            # Invalid JSON
-            {
-                "name": "Invalid JSON",
-                "data": "this is not valid JSON",
-                "setup_db": lambda: None,
-                "expected_status": 400,
-                "expected_response": {"error": "Invalid JSON data"},
-            },
-        ]
-
-        # Execute test cases
-        for case in test_cases:
-            with self.subTest(case["name"]):
-                logger.info(f"\nTest case: {case['name']}")
-                logger.info(f"Request data: {json.dumps(case['data'], indent=2)}")
-
-                try:
-                    # Set up any database mocks needed for this test case
-                    if "setup_db" in case and callable(case["setup_db"]):
-                        case["setup_db"]()
-
-                    # Make the request
-                    # Try with and without the /casestrainer prefix
-                    endpoints = [
-                        "/api/validate-citation",  # Try without prefix first
-                        "/casestrainer/api/validate-citation"  # Then with prefix
-                    ]
-                    
-                    response = None
-                    for endpoint in endpoints:
-                        print(f"Trying endpoint: {endpoint}")
-                        if case["name"] == "Invalid JSON":
-                            response = self.client.post(
-                                endpoint,
-                                data=case["data"],
-                                content_type="application/json",
-                            )
-                        else:
-                            response = self.client.post(
-                                endpoint, 
-                                json=case["data"]
-                            )
-                        if response.status_code != 404:  # If not found, try next endpoint
-                            print(f"Using endpoint: {endpoint} (Status: {response.status_code})")
-                            break
-                    else:
-                        self.fail("No valid endpoint found for /api/validate-citation")
-
-                    # Log response
-                    logger.info(f"Status code: {response.status_code}")
-                    logger.info(f"Headers: {dict(response.headers)}")
-
-                    # Parse response if possible
-                    response_data = {}
-                    if response.data:
-                        try:
-                            response_data = response.get_json()
-                            logger.info("Response JSON:")
-                            logger.info(json.dumps(response_data, indent=2))
-                        except Exception as e:
-                            logger.warning(
-                                f"Could not parse response as JSON: {response.data}"
-                            )
-                            logger.warning(f"Error: {str(e)}")
-
-                    # Assert status code
-                    self.assertEqual(
-                        response.status_code,
-                        case["expected_status"],
-                        f"Expected status {case['expected_status']} but got {response.status_code}",
-                    )
-
-                    # Assert response content
-                    if "expected_response" in case:
-                        for key, expected_value in case["expected_response"].items():
-                            self.assertIn(
-                                key,
-                                response_data,
-                                f"Expected key '{key}' not found in response",
-                            )
-                            self.assertEqual(
-                                response_data[key],
-                                expected_value,
-                                f"Mismatch for key '{key}'. Expected: {expected_value}, Got: {response_data.get(key)}",
-                            )
-
-                    logger.info(f"✓ Test case '{case['name']}' passed")
-
-                except Exception as e:
-                    logger.error(f"Test case '{case['name']}' failed: {str(e)}")
-                    logger.error(traceback.format_exc())
-                    raise
-
-    def test_analyze_endpoint(self):
-        """Test the /api/analyze endpoint."""
-        print("\n" + "=" * 70)
-        print("Testing /api/analyze endpoint")
-        print("=" * 70)
-
-        test_cases = [
-            {
-                "name": "Simple citation in text",
-                "data": {"text": "This is a test citation: 410 U.S. 113 (1973)"},
-                "expected_status": 200,
-            },
-            {
-                "name": "Multiple citations",
-                "data": {
-                    "text": "This text contains multiple citations: 410 U.S. 113 (1973) and 347 U.S. 483 (1954)"
-                },
-                "expected_status": 200,
-            },
-            {
-                "name": "Citation with context",
-                "data": {
-                    "text": "The landmark case Roe v. Wade, 410 U.S. 113 (1973), established important precedents.",
-                    "include_context": True,
-                },
-                "expected_status": 200,
-            },
-            {"name": "Empty text", "data": {"text": ""}, "expected_status": 400},
-        ]
-
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
+    payload = {"citation": citation_text}
+    if case_name:
+        payload["case_name"] = case_name
+    headers = {"Content-Type": "application/json"}
+    try:
+        response = requests.post(api_url, json=payload, headers=headers)
+        print(f"Response status code: {response.status_code}")
         try:
-            for i, test_case in enumerate(test_cases, 1):
-                with self.subTest(test_case["name"]):
-                    print(f"\n{'*'*50}")
-                    print(f"TEST CASE {i}: {test_case['name']}")
-                    print(f"Input: {test_case['data']}")
-
-                    # Make the request
-                    print("Sending request to /casestrainer/api/analyze...")
-                    # Try with and without the /casestrainer prefix
-                    endpoints = [
-                        "/api/analyze",  # Try without prefix first
-                        "/casestrainer/api/analyze"  # Then with prefix
-                    ]
-                    
-                    response = None
-                    for endpoint in endpoints:
-                        print(f"Trying endpoint: {endpoint}")
-                        response = self.client.post(
-                            endpoint,
-                            json=test_case["data"],
-                            headers={"Content-Type": "application/json"},
-                        )
-                        if response.status_code != 404:  # If not found, try next endpoint
-                            print(f"Using endpoint: {endpoint} (Status: {response.status_code})")
-                            break
-                    else:
-                        self.fail("No valid endpoint found for /api/analyze")
-
-                    print(f"Response status code: {response.status_code}")
-                    print(f"Response headers: {dict(response.headers)}")
-
-                    # Check the response status code
-                    self.assertEqual(
-                        response.status_code,
-                        test_case["expected_status"],
-                        f"Expected status {test_case['expected_status']} but got {response.status_code}",
-                    )
-
-                    # Parse the response if it's JSON
-                    content_type = response.headers.get("Content-Type", "")
-                    if "application/json" in content_type:
-                        try:
-                            response_data = response.get_json()
-                            print(
-                                f"Response data: {json.dumps(response_data, indent=2)}"
-                            )
-
-                            # Check each expected field in the response
-                            if response.status_code == 200:
-                                self.assertIn("status", response_data)
-                                self.assertIn("results", response_data)
-                                self.assertIsInstance(response_data["results"], list)
-
-                                for result in response_data["results"]:
-                                    self.assertIsInstance(result, dict)
-                                    self.assertIn("citation", result)
-                                    self.assertIn("exists", result)
-                                    self.assertIn("method", result)
-
-                            print("✓ Test case passed")
-
-                        except Exception as e:
-                            error_msg = f"Failed to parse JSON response: {str(e)}\nResponse text: {response.data.decode()}"
-                            print(error_msg)
-                            self.fail(error_msg)
-                    else:
-                        error_msg = f"Unexpected content type: {content_type}\nResponse: {response.data.decode()}"
-                        print(error_msg)
-                        self.fail(error_msg)
-
+            result = response.json()
+            print(f"Response JSON: {json.dumps(result, indent=2)}")
         except Exception as e:
-            print(f"\nERROR in test execution: {str(e)}")
-            print(f"Error type: {type(e).__name__}")
-            import traceback
-
-            traceback.print_exc()
-            raise
-        finally:
-            print("\n" + "=" * 70)
-            print("TEST COMPLETED")
-            print("=" * 70)
-
-    def test_analyze_endpoint(self):
-        """Test the /api/analyze endpoint with various inputs."""
-        self.logger.info("\n" + "="*80)
-        self.logger.info("TESTING ANALYZE ENDPOINT")
-        self.logger.info("="*80)
-        
-        # Log available routes for debugging
-        self.logger.debug("Available routes:")
-        for rule in self.app.url_map.iter_rules():
-            self.logger.debug(f"{rule.endpoint}: {rule.rule} {list(rule.methods - {'OPTIONS', 'HEAD'})}")
-        
-        # Check available methods for the endpoint
-        try:
-            print("\nTesting available methods for /api/analyze:")
-            with self.client as client:
-                response = client.open(
-                    method='OPTIONS',
-                    path='/api/analyze',
-                    headers={"Content-Type": "application/json"}
-                )
-                print(f"Allowed methods: {response.headers.get('Allow', 'N/A')}")
-                print(f"Status code: {response.status_code}")
-                print(f"Headers: {dict(response.headers)}")
-        except Exception as e:
-            print(f"Error getting allowed methods: {e}")
-            raise
-            
-        # Define test cases
-        test_cases = [
-            {
-                "name": "Text with citation",
-                "data": {
-                    "text": "This is a test case citation: 123 F.3d 456 (9th Cir. 1995)",
-                    "source": "test"
-                },
-                "method": "POST",
-                "endpoint": "/api/analyze",
-                "expected_status": 200,
-                "expected_keys": ["citations", "metadata"]
-            },
-            {
-                "name": "Empty text",
-                "data": {
-                    "text": "",
-                    "source": "test"
-                },
-                "method": "POST",
-                "endpoint": "/api/analyze",
-                "expected_status": 200,
-                "expected_keys": ["citations", "metadata"]
-            },
-            {
-                "name": "Text with no citations",
-                "data": {
-                    "text": "This text contains no citations.",
-                    "source": "test"
-                },
-                "method": "POST",
-                "endpoint": "/api/analyze",
-                "expected_status": 200,
-                "expected_keys": ["citations", "metadata"]
-            }
-        ]
-        
-        # Run test cases
-        for case in test_cases:
-            with self.subTest(case["name"]):
-                print(f"\nTest case: {case['name']}")
-                print(f"Endpoint: {case['endpoint']}")
-                print(f"Method: {case['method']}")
-                print(f"Data: {json.dumps(case['data'], indent=2)}")
-                
-                response = None
-                try:
-                    # Make the request
-                    with self.client as client:
-                        response = client.open(
-                            method=case["method"],
-                            path=case['endpoint'],
-                            json=case["data"],
-                            headers={"Content-Type": "application/json"}
-                        )
-                    
-                    # Print response details
-                    print(f"Status code: {response.status_code}")
-                    print(f"Response headers: {dict(response.headers)}")
-
-                    try:
-                        response_data = response.get_json()
-                        print("Response:")
-                        print(json.dumps(response_data, indent=2))
-
-                        # Verify response structure
-                        required_fields = case.get("expected_keys", [])
-                        
-                        # Check for expected keys in response
-                        for field in required_fields:
-                            self.assertIn(field, response_data, f"Response missing required field: {field}")
-                            
-                        # If we have citations, verify their structure
-                        if "citations" in response_data:
-                            self.assertIsInstance(
-                                response_data["citations"], 
-                                list,
-                                "Citations should be a list"
-                            )
-                            
-                            # Verify each citation in the list
-                            for citation in response_data["citations"]:
-                                self.assertIsInstance(
-                                    citation, 
-                                    dict,
-                                    "Each citation should be a dictionary"
-                                )
-                                self.assertIn(
-                                    "text", 
-                                    citation,
-                                    "Citation is missing 'text' field"
-                                )
-                                self.assertIn(
-                                    "valid", 
-                                    citation,
-                                    "Citation is missing 'valid' field"
-                                )
-                                self.assertIn(
-                                    "verified", 
-                                    citation,
-                                    "Citation is missing 'verified' field"
-                                )
-                        
-                        # Check metadata structure if present
-                        if "metadata" in response_data:
-                            self.assertIsInstance(
-                                response_data["metadata"], 
-                                dict,
-                                "Metadata should be a dictionary"
-                            )
-                        
-                        # Check status code
-                        self.assertEqual(
-                            response.status_code, 
-                            case["expected_status"],
-                            f"Expected status {case['expected_status']} but got {response.status_code}"
-                        )
-                        
-                    except json.JSONDecodeError as e:
-                        self.fail(f"Failed to decode JSON response: {str(e)}\nRaw response: {response.data if response else 'No response'}")
-                    except Exception as e:
-                        self.fail(f"Error processing response: {str(e)}")
-                        
-                except Exception as e:
-                    print(f"Error in test case '{case['name']}': {str(e)}")
-                    import traceback
-                    traceback.print_exc()
-                    raise
-
-    def test_verify_citation(self):
-        """Test the verify-citation endpoint with various inputs."""
-        self.logger.info("\n" + "="*80)
-        self.logger.info("TESTING VERIFY-CITATION ENDPOINT")
-        self.logger.info("="*80)
-        
-        # Log available routes for debugging
-        self.logger.debug("Available routes:")
-        for rule in self.app.url_map.iter_rules():
-            self.logger.debug(f"{rule.endpoint}: {rule.rule} {list(rule.methods - {'OPTIONS', 'HEAD'})}")
-        
-        # Check available methods for the endpoint
-        try:
-            print("\nTesting available methods for /verify-citation:")
-            with self.client as client:
-                response = client.open(
-                    method='OPTIONS',
-                    path='/verify-citation',
-                    headers={"Content-Type": "application/json"}
-                )
-                print(f"Allowed methods: {response.headers.get('Allow', 'N/A')}")
-                print(f"Status code: {response.status_code}")
-                print(f"Headers: {dict(response.headers)}")
-        except Exception as e:
-            print(f"Error getting allowed methods: {e}")
-            raise
-            
-        # Define test cases
-        test_cases = [
-            {
-                "name": "Simple citation string",
-                "data": {"citation": "410 U.S. 113 (1973)"},
-                "method": "POST",
-                "endpoint": "/verify-citation",
-                "expected_status": 200
-            },
-            {
-                "name": "Citation with case name",
-                "data": {"citation": "410 U.S. 113", "case_name": "Roe v. Wade"},
-                "method": "POST",
-                "endpoint": "/verify-citation",
-                "expected_status": 200
-            },
-            {
-                "name": "Empty citation",
-                "data": {"citation": ""},
-                "method": "POST",
-                "endpoint": "/verify-citation",
-                "expected_status": 400
-            }
-        ]
-        
-        # Run test cases
-        for case in test_cases:
-            with self.subTest(case["name"]):
-                print(f"\nTest case: {case['name']}")
-                print(f"Endpoint: {case['endpoint']}")
-                print(f"Method: {case['method']}")
-                print(f"Data: {json.dumps(case['data'], indent=2)}")
-                
-                try:
-                    # Make the request
-                    with self.client as client:
-                        response = client.open(
-                            method=case["method"],
-                            path=case['endpoint'],
-                            json=case["data"],
-                            headers={"Content-Type": "application/json"}
-                        )
-                    
-                    # Print response details
-                    print(f"Status code: {response.status_code}")
-                    print(f"Response headers: {dict(response.headers)}")
-
-                    try:
-                        response_data = response.get_json()
-                        print("Response:")
-                        print(json.dumps(response_data, indent=2))
-
-                        # Verify response structure
-                        required_fields = [
-                            "citation",
-                            "verified",
-                            "error",
-                            "metadata",
-                            "backdrop",
-                        ]
-                        for field in required_fields:
-                            self.assertIn(
-                                field, response_data, f"Missing required field: {field}"
-                            )
-
-                        # Additional checks for successful responses
-                        if response.status_code == 200:
-                            self.assertIsInstance(response_data["verified"], bool)
-                            self.assertIsInstance(response_data["metadata"], dict)
-
-                        # Check status code
-                        self.assertEqual(
-                            response.status_code,
-                            case["expected_status"],
-                            f"Expected status {case['expected_status']} but got {response.status_code}"
-                        )
-
-                    except Exception as e:
-                        print(f"Failed to parse JSON response: {str(e)}")
-                        print(f"Raw response: {response.data}")
-
-                except Exception as e:
-                    print(f"Error in test case '{case['name']}': {str(e)}")
-                    import traceback
-                    traceback.print_exc()
-                    raise
+            print(f"Error parsing JSON: {e}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
+    except Exception as e:
+        print(f"Request failed: {e}")
 
 
-def run_tests():
-    """Run all tests and return the test result."""
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler("test.log")],
-    )
+def test_analyze_text(citation_text):
+    """Test the /casestrainer/api/analyze endpoint with pasted text."""
+    logger.info(f"\n{'='*80}")
+    logger.info(f"TESTING CITATION ANALYSIS FOR TEXT: {citation_text}")
+    logger.info(f"{'='*80}\n")
 
-    logger = logging.getLogger(__name__)
-    logger.info("Starting test suite...")
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
+    headers = {"Content-Type": "application/json"}
+
+    # Log the request details
+    logger.debug(f"Sending request to {api_url}")
+    logger.debug(f"Request headers: {headers}")
+    logger.debug(f'Request payload: {{"text": "{citation_text[:100]}..."}}')
 
     try:
-        # Set up test suite
-        test_suite = unittest.TestLoader().loadTestsFromTestCase(TestCitationAPI)
+        # Send as JSON with the correct Content-Type header
+        start_time = time.time()
+        response = requests.post(api_url, json={"text": citation_text}, headers=headers)
+        elapsed_time = time.time() - start_time
 
-        # Run tests with verbosity
-        test_runner = unittest.TextTestRunner(verbosity=2, stream=sys.stdout)
-        test_result = test_runner.run(test_suite)
+        # Log response details
+        logger.info(f"Response received in {elapsed_time:.2f} seconds")
+        logger.info(f"Response status code: {response.status_code}")
+        logger.debug(f"Response headers: {dict(response.headers)}")
 
-        # Log test results
-        logger.info(f"Tests run: {test_result.testsRun}")
-        logger.info(f"Errors: {len(test_result.errors)}")
-        logger.info(f"Failures: {len(test_result.failures)}")
-        logger.info(f"Skipped: {len(test_result.skipped)}")
+        try:
+            result = response.json()
+            logger.info("Successfully parsed JSON response")
 
-        # Return True if all tests passed, False otherwise
-        return test_result.wasSuccessful()
+            # Log detailed citation results
+            if "results" in result:
+                logger.info(
+                    f"Found {len(result['results'])} citation(s) in the response"
+                )
+                for i, citation_result in enumerate(result["results"], 1):
+                    logger.info(f"\n--- Citation {i} ---")
+
+                    # Log basic citation info
+                    if "citation" in citation_result:
+                        citation = citation_result["citation"]
+                        logger.info(f"Citation text: {citation.get('text', 'N/A')}")
+                        logger.info(f"Case name: {citation.get('name', 'N/A')}")
+                        logger.info(f"Valid: {citation.get('valid', 'N/A')}")
+
+                        # Log metadata if available
+                        if "metadata" in citation:
+                            logger.info("Metadata:")
+                            for key, value in citation["metadata"].items():
+                                if value:  # Only log non-null values
+                                    logger.info(f"  {key}: {value}")
+
+                    # Log verification details
+                    if "details" in citation_result:
+                        logger.info("Verification details:")
+                        for key, value in citation_result["details"].items():
+                            logger.info(f"  {key}: {value}")
+
+                    logger.info(f"Exists: {citation_result.get('exists', 'N/A')}")
+                    logger.info(f"Method: {citation_result.get('method', 'N/A')}")
+
+            logger.debug(f"Full response JSON:\n{json.dumps(result, indent=2)}")
+            return result
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse JSON response: {e}")
+            # Safely log the raw response text to avoid Unicode encoding errors
+            try:
+                logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text[:1000].encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(f"Raw response (first 1000 chars, safe): {safe_text}")
+        except Exception as e:
+            logger.exception(f"Unexpected error processing response: {e}")
+            # Safely log the raw response text to avoid Unicode encoding errors
+            try:
+                logger.error(f"Raw response (first 1000 chars): {response.text[:1000]}")
+            except UnicodeEncodeError:
+                # If Unicode fails, log a safe version
+                safe_text = response.text[:1000].encode('cp1252', errors='replace').decode('cp1252')
+                logger.error(f"Raw response (first 1000 chars, safe): {safe_text}")
+
+    except requests.exceptions.RequestException as e:
+        logger.exception(f"Request failed: {e}")
     except Exception as e:
-        logger.error(f"Error running tests: {str(e)}", exc_info=True)
-        return False
+        logger.exception(f"Unexpected error: {e}")
+
+    return None
 
 
-def main():
-    print("Starting test execution...")
-
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler("test.log", mode="w"),
-        ],
-    )
-
-    logger = logging.getLogger(__name__)
-
+def test_analyze_url(url):
+    """Test the /casestrainer/api/analyze endpoint with a URL input."""
+    print(f"Testing /casestrainer/api/analyze endpoint with URL: {url}")
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
+    headers = {"Content-Type": "application/json"}
     try:
-        # Create a test suite
-        test_suite = unittest.TestLoader().loadTestsFromTestCase(TestCitationAPI)
-
-        # Run the tests
-        test_runner = unittest.TextTestRunner(verbosity=2)
-        test_result = test_runner.run(test_suite)
-
-        # Print summary
-        print("\n" + "=" * 70)
-        print(f"Tests run: {test_result.testsRun}")
-        print(f"Errors: {len(test_result.errors)}")
-        print(f"Failures: {len(test_result.failures)}")
-        print(f"Skipped: {len(test_result.skipped)}")
-        print("=" * 70)
-
-        return test_result.wasSuccessful()
+        # Send as JSON with the correct Content-Type header
+        response = requests.post(api_url, json={"url": url}, headers=headers)
+        print(f"Response status code: {response.status_code}")
+        try:
+            result = response.json()
+            print(f"Response JSON: {json.dumps(result, indent=2)}")
+            return result
+        except Exception as e:
+            print(f"Error parsing JSON: {e}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
     except Exception as e:
-        logger.error(f"Error running tests: {str(e)}", exc_info=True)
-        return False
+        print(f"Request failed: {e}")
+    return None
+
+
+def test_analyze_file(file_path):
+    """Test the /casestrainer/api/analyze endpoint with a file upload."""
+    print(f"Testing /casestrainer/api/analyze endpoint with file: {file_path}")
+    api_url = "http://127.0.0.1:5000/casestrainer/api/analyze"
+    try:
+        with open(file_path, "rb") as f:
+            # Read the file content and send it as text in the JSON payload
+            file_content = f.read().decode("utf-8")
+
+        # Send as JSON with the file content
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(
+            api_url,
+            json={"text": file_content, "filename": os.path.basename(file_path)},
+            headers=headers,
+        )
+
+        print(f"Response status code: {response.status_code}")
+        try:
+            result = response.json()
+            print(f"Response JSON: {json.dumps(result, indent=2)}")
+            return result
+        except Exception as e:
+            print(f"Error parsing JSON: {e}")
+            # Safely print the raw response to avoid Unicode encoding errors
+            try:
+                print(f"Raw response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Raw response (safe): {safe_text}")
+    except Exception as e:
+        print(f"File operation or request failed: {e}")
+    return None
+
+
+# Deprecated: test_analyze_brief used legacy endpoint and polling, which is no longer supported
+# def test_analyze_brief(file_path):
+#     ...
+
+
+def test_analyze_brief(file_path):
+    """Test the analyze endpoint with a brief file."""
+    print(f"Testing analyze endpoint with file: {file_path}")
+
+    # Check if file exists
+    if not os.path.isfile(file_path):
+        print(f"File not found: {file_path}")
+        return
+
+    # CaseStrainer API endpoint
+    api_url = "http://127.0.0.1:5001/analyze"
+
+    # Prepare the file for upload
+    with open(file_path, "rb") as f:
+        files = {"file": (os.path.basename(file_path), f, "application/pdf")}
+
+        # Make the request to the CaseStrainer API
+        print(f"Sending file to CaseStrainer API at {api_url}")
+        response = requests.post(api_url, files=files)
+
+        # Check response status
+        print(f"Response status code: {response.status_code}")
+        print(f"Response headers: {response.headers}")
+
+        try:
+            result = response.json()
+            print(f"Response JSON: {json.dumps(result, indent=2)}")
+
+            # If analysis started successfully, poll for results
+            if result.get("status") == "success" and "analysis_id" in result:
+                analysis_id = result["analysis_id"]
+                print(f"Analysis started with ID: {analysis_id}")
+
+                # Poll for analysis results
+                status_url = f"http://127.0.0.1:5001/status?id={analysis_id}"
+                max_attempts = 60
+                attempts = 0
+
+                while attempts < max_attempts:
+                    time.sleep(3)  # Wait 3 seconds between polls
+                    print(f"Checking status (attempt {attempts+1}/{max_attempts})...")
+
+                    status_response = requests.get(status_url)
+                    status_result = status_response.json()
+
+                    print(f"Status response: {json.dumps(status_result, indent=2)}")
+
+                    # Check if analysis is complete
+                    if status_result.get("completed", False):
+                        print("Analysis completed!")
+
+                        # Save the results to a file
+                        results_file = f"{os.path.splitext(file_path)[0]}_results.json"
+                        with open(results_file, "w", encoding="utf-8") as rf:
+                            json.dump(status_result, rf, indent=2)
+                        print(f"Results saved to {results_file}")
+
+                        # Extract unconfirmed citations
+                        results = status_result.get("results", {})
+                        citation_results = results.get("citation_results", [])
+
+                        unconfirmed = []
+                        for citation in citation_results:
+                            if not citation.get("is_confirmed", False):
+                                unconfirmed.append(
+                                    {
+                                        "citation_text": citation.get(
+                                            "citation_text", ""
+                                        ),
+                                        "confidence": citation.get("confidence", 0),
+                                        "explanation": citation.get("explanation", ""),
+                                    }
+                                )
+
+                        print(f"\nFound {len(unconfirmed)} unconfirmed citations:")
+                        for i, citation in enumerate(unconfirmed, 1):
+                            print(f"  {i}. {citation['citation_text']}")
+                            print(f"     Confidence: {citation['confidence']}")
+                            print(f"     Explanation: {citation['explanation']}")
+
+                        return
+
+                    # Print progress
+                    progress = status_result.get("progress", 0)
+                    total_steps = status_result.get("total_steps", 1)
+                    message = status_result.get("message", "")
+                    print(f"Progress: {progress}/{total_steps} - {message}")
+
+                    attempts += 1
+
+                print("Timeout waiting for analysis to complete")
+            else:
+                print(
+                    f"Analysis failed to start: {result.get('message', 'Unknown error')}"
+                )
+
+        except json.JSONDecodeError:
+            # Safely print the invalid JSON response to avoid Unicode encoding errors
+            try:
+                print(f"Invalid JSON response: {response.text}")
+            except UnicodeEncodeError:
+                # If Unicode fails, print a safe version
+                safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                print(f"Invalid JSON response (safe): {safe_text}")
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    print("\n==== Testing /casestrainer/api/verify_citation (single citation) ====")
+    test_verify_citation("347 U.S. 483")
+
+    # Test with a known good text file first
+    test_file = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "test_files",
+        "test.txt",
+    )
+    if os.path.exists(test_file):
+        print("\n==== Testing /casestrainer/api/analyze (file upload) ====")
+        test_analyze_file(test_file)
+    else:
+        print("\n==== Skipping file upload test - test file not found ====")
+        print(f"Expected test file at: {test_file}")
+
+    print("\n==== Testing /casestrainer/api/analyze (pasted text) ====")
+    test_analyze_text("Brown v. Board of Education, 347 U.S. 483 (1954)")
+
+    print("\n==== Testing /casestrainer/api/analyze (URL input) ====")
+    test_analyze_url(
+        "https://www.supremecourt.gov/opinions/USReports/347/347.US.483.pdf"
+    )
+
+    # If a file path is provided, use file analysis with the unified endpoint
+    if len(sys.argv) == 2:
+        file_path = sys.argv[1]
+        test_analyze_file(file_path)
+    else:
+        print(
+            "No file argument provided. Running text citation analysis test with sample citation."
+        )
+        sample_citation = "347 U.S. 483"
+        test_analyze_text(sample_citation)
+        print(
+            "\nTo test a different citation, edit test_api.py or pass a file path as an argument."
+        )

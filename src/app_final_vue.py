@@ -33,10 +33,15 @@ def setup_logging():
         
     except Exception as e:
         # Fallback basic logging if configuration fails
+        # Use project root logs directory
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        logs_dir = os.path.join(project_root, "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        
         logging.basicConfig(
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
+            handlers=[logging.StreamHandler(), logging.FileHandler(os.path.join(logs_dir, "app.log"))],
         )
         logger = logging.getLogger(__name__)
         logger.warning(f"Failed to configure logging: {e}. Using basic logging configuration.")
@@ -83,10 +88,24 @@ except ImportError as e:
     raise
 
 try:
-    from src.citation_utils import extract_all_citations, verify_citation
+    from src.citation_api import citation_api
+    logger.info("Successfully imported citation_api blueprint")
+except ImportError as e:
+    logger.error(f"Failed to import citation_api blueprint: {e}")
+    citation_api = None
+
+try:
+    from src.citation_utils import extract_all_citations
     logger.info("Successfully imported citation utilities")
 except ImportError as e:
     logger.error(f"Failed to import citation utilities: {e}")
+    raise
+
+try:
+    from src.database_manager import get_database_manager
+    logger.info("Successfully imported database manager")
+except ImportError as e:
+    logger.error(f"Failed to import database manager: {e}")
     raise
 
 # Global flag for enhanced validator - now always true since it's integrated into vue_api
@@ -115,6 +134,9 @@ thread_local = threading.local()
 _app_instance = None
 
 print("Python executable:", sys.executable)
+
+logger.info(f"[STARTUP] ALLOWED_EXTENSIONS in use: {ALLOWED_EXTENSIONS}")
+print(f"[STARTUP] ALLOWED_EXTENSIONS in use: {ALLOWED_EXTENSIONS}")
 
 def setup_secure_upload_directory():
     """
@@ -171,6 +193,47 @@ def setup_secure_upload_directory():
         logger.error(f"Failed to setup upload directory: {e}")
         return False
 
+# Add Flask after_request handler to log all JSON responses
+def log_json_responses(response):
+    print("DEBUG: log_json_responses called")  # DEBUG PRINT
+    try:
+        # Only log JSON responses
+        if response.content_type == 'application/json':
+            # Get the response data
+            response_data = response.get_data(as_text=True)
+            
+            # Try to parse and pretty-print the JSON for better logging
+            try:
+                import json
+                parsed_data = json.loads(response_data)
+                formatted_json = json.dumps(parsed_data, indent=2, ensure_ascii=False)
+                
+                # Log the response with context
+                logger.info("=" * 80)
+                logger.info("JSON RESPONSE BEING SENT TO FRONTEND")
+                logger.info("=" * 80)
+                logger.info(f"Endpoint: {request.endpoint}")
+                logger.info(f"Method: {request.method}")
+                logger.info(f"URL: {request.url}")
+                logger.info(f"Status Code: {response.status_code}")
+                logger.info(f"Content-Type: {response.content_type}")
+                logger.info(f"Response Size: {len(response_data)} characters")
+                logger.info("-" * 80)
+                logger.info("RESPONSE BODY:")
+                logger.info(formatted_json)
+                logger.info("=" * 80)
+                
+            except json.JSONDecodeError:
+                # If JSON parsing fails, log the raw response
+                logger.warning("Failed to parse JSON response, logging raw data:")
+                logger.info(f"Raw response: {response_data}")
+                
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in log_json_responses: {str(e)}")
+        return response
+
 def create_app():
     """Create and configure the Flask application."""
     global _app_instance
@@ -196,6 +259,11 @@ def create_app():
     
     # Register blueprints with consistent prefixes
     app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
+    
+    # Register citation_api blueprint for data endpoints
+    if citation_api:
+        app.register_blueprint(citation_api, url_prefix='/casestrainer/api')
+        logger.info("Registered citation_api blueprint")
     
     # Configure CORS
     cors_origins = os.getenv('CORS_ORIGINS', 'https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080').split(',')
@@ -313,6 +381,9 @@ def create_app():
     def test():
         return 'test route is working!'
 
+    # Register the after_request handler at the app level
+    app.after_request(log_json_responses)
+
     # Store the instance
     _app_instance = app
     logger.info("Application initialization completed successfully")
@@ -322,6 +393,9 @@ def create_app():
 def get_wsgi_application():
     """WSGI server entry point for production servers."""
     return create_app()
+
+# Create the Flask app instance for WSGI servers
+app = create_app()
 
 # Main execution block
 if __name__ == "__main__":

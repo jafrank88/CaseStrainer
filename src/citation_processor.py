@@ -1,10 +1,13 @@
 """
 Enhanced Citation Processor for CaseStrainer
 
+DEPRECATED: This module is deprecated. Use src.unified_citation_processor instead.
+
 This module provides a robust way to process and validate legal citations
 using eyecite and external APIs with caching, retries, and parallel processing.
 """
 
+import warnings
 import functools
 import logging
 import re
@@ -32,7 +35,6 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.config import get_config_value, configure_logging
-from src.extract_case_name import extract_case_name_from_text, find_shared_case_name_for_citations
 from src.cache_manager import get_cache_manager
 from src.enhanced_case_name_extractor import EnhancedCaseNameExtractor
 
@@ -41,6 +43,18 @@ if not logging.getLogger().hasHandlers():
     configure_logging()
 
 logger = logging.getLogger(__name__)
+
+def deprecated_warning(func):
+    """Decorator to show deprecation warnings."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.warn(
+            f"{func.__name__} is deprecated. Use src.unified_citation_processor.UnifiedCitationProcessor instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return func(*args, **kwargs)
+    return wrapper
 
 def extract_date_from_context(text: str, citation_start: int, citation_end: int, context_window: int = 200) -> Optional[str]:
     """
@@ -290,143 +304,28 @@ class CitationProcessor:
 
         return cleaned.strip()
 
-    def extract_citations(self, text: str, extract_case_names: bool = True) -> List[Dict[str, Any]]:
+    def extract_citations(self, text: str) -> List[Dict]:
         """
-        Extract citations from text with enhanced case name extraction.
+        Extract citations from text using the unified extractor.
         
         Args:
-            text: The text to extract citations from
-            extract_case_names: Whether to extract case names using enhanced method
+            text: Text to extract citations from
             
         Returns:
-            List of dictionaries with citation and case name information
+            List of citation dictionaries with metadata
         """
-        try:
-            # Clean the text
-            cleaned_text = clean_text(
-                text, steps=["all_whitespace", "inline_whitespace", "underscores"]
-            )
-
-            # Extract citations with context
-            citations = get_citations(
-                cleaned_text, tokenizer=AhocorasickTokenizer(), remove_ambiguous=True
-            )
-
-            # Resolve citations to group duplicates
-            resolved_citations = resolve_citations(citations)
-            
-            # Convert to enhanced format with case names
-            enhanced_citations = []
-            for citation in resolved_citations:
-                citation_str = str(citation)
-                
-                # Extract the actual citation text (not the full eyecite object)
-                if hasattr(citation, 'citation'):
-                    # For eyecite citations, get the actual citation text
-                    if hasattr(citation.citation, 'groups'):
-                        # This is a FullCaseCitation object, extract the text
-                        volume = citation.citation.groups.get('volume', '')
-                        reporter = citation.citation.groups.get('reporter', '')
-                        page = citation.citation.groups.get('page', '')
-                        actual_citation_text = f"{volume} {reporter} {page}".strip()
-                    else:
-                        actual_citation_text = str(citation.citation)
-                else:
-                    actual_citation_text = citation_str
-                
-                # Create citation object with position info for shared case name detection
-                citation_obj = {
-                    'citation': actual_citation_text,
-                    'start_index': getattr(citation, 'start', None),
-                    'end_index': getattr(citation, 'end', None),
-                }
-                enhanced_citations.append(citation_obj)
-            
-            # Use enhanced case name extraction if available
-            if self.enhanced_case_name_extractor and extract_case_names:
-                try:
-                    enhanced_results = self.enhanced_case_name_extractor.extract_enhanced_case_names(text)
-                    
-                    # Create a mapping of citations to enhanced results
-                    enhanced_map = {result['citation']: result for result in enhanced_results}
-                    
-                    # Combine results
-                    results = []
-                    for citation_info in enhanced_citations:
-                        citation = citation_info['citation']
-                        enhanced_result = enhanced_map.get(citation, {})
-                        
-                        result = {
-                            'citation': citation,
-                            'case_name': enhanced_result.get('case_name'),  # Extracted from document
-                            'canonical_case_name': enhanced_result.get('canonical_name'),  # From API
-                            'confidence': enhanced_result.get('confidence', 0.0),
-                            'method': enhanced_result.get('method', 'none'),
-                            'extracted_name': enhanced_result.get('extracted_name'),  # Document text
-                            'position': citation_info.get('start_index'),
-                            'verified': enhanced_result.get('canonical_name') is not None,
-                            'similarity': enhanced_result.get('similarity_score', 0.0) if enhanced_result.get('canonical_name') and enhanced_result.get('extracted_name') else None,
-                            'canonical_source': enhanced_result.get('source', 'none'),  # Track source of canonical name
-                            'citation_url': self.enhanced_case_name_extractor.get_citation_url(citation) if self.enhanced_case_name_extractor else None,
-                            'url_source': self._get_url_source(citation) if self.enhanced_case_name_extractor else None,
-                            'extracted_date': extract_date_from_context(
-                                text, 
-                                citation_info.get('start_index', 0), 
-                                citation_info.get('end_index', 0)
-                            ) if citation_info.get('start_index') is not None else None
-                        }
-                        results.append(result)
-                    
-                    return results
-                    
-                except Exception as e:
-                    # Fallback to original method if enhanced extraction fails
-                    self.logger.warning(f"Enhanced case name extraction failed: {e}. Falling back to original method.")
-                    return self._extract_citations_fallback(text, enhanced_citations)
-            else:
-                # Use fallback method if enhanced extractor not available
-                return self._extract_citations_fallback(text, enhanced_citations)
-
-        except Exception as e:
-            self.logger.error(f"Error extracting citations: {str(e)}", exc_info=True)
-            return []
-
-    def _extract_citations_fallback(self, text: str, enhanced_citations: List[Dict]) -> List[Dict[str, Any]]:
-        """Fallback method for citation extraction when enhanced extractor is not available."""
-        try:
-            # Use the original case name extraction method
-            from src.extract_case_name import extract_case_name_from_text
-            
-            results = []
-            for citation_info in enhanced_citations:
-                citation = citation_info['citation']
-                
-                # Extract case name using original method
-                case_name = extract_case_name_from_text(text, citation)
-                
-                result = {
-                    'citation': citation,
-                    'case_name': case_name,
-                    'canonical_case_name': None,
-                    'confidence': 0.7 if case_name else 0.0,
-                    'method': 'fallback',
-                    'extracted_name': case_name,
-                    'position': citation_info.get('start_index'),
-                    'verified': False,
-                    'similarity': None,
-                    'extracted_date': extract_date_from_context(
-                        text, 
-                        citation_info.get('start_index', 0), 
-                        citation_info.get('end_index', 0)
-                    ) if citation_info.get('start_index') is not None else None
-                }
-                results.append(result)
-            
-            return results
-            
-        except Exception as e:
-            self.logger.error(f"Error in fallback citation extraction: {str(e)}", exc_info=True)
-            return []
+        from src.citation_extractor import CitationExtractor
+        
+        # Initialize extractor with case name extraction enabled
+        extractor = CitationExtractor(
+            use_eyecite=True,
+            use_regex=True,
+            context_window=1000,
+            deduplicate=True,
+            extract_case_names=True
+        )
+        
+        return extractor.extract(text)
 
     def _validate_locally(self, citation_text: Union[str, Any]) -> Dict[str, Any]:
         """Perform local validation when API is unavailable."""
@@ -442,6 +341,9 @@ class CitationProcessor:
                 (r"(\d+)\s+F\.?(:?\s*\d*[a-z]*)?\s+\d+", "Federal Reporter"),
                 (r"(\d+)\s+S\.?\s*Ct\.?\s+\d+", "Supreme Court Reporter"),
                 (r"(\d+)\s+L\.?\s*Ed\.?\s*\d+", "Lawyers Edition"),
+                # Washington State citations (normalized to Wash.)
+                (r"(\d+)\s+Wash\.?\s*(?:2d|3d|App\.?)?\s+\d+", "Washington Reports"),
+                (r"(\d+)\s+Wn\.?\s*(?:2d|3d|App\.?)?\s+\d+", "Washington Reports"),
             ]
 
             for pattern, reporter in patterns:
@@ -637,8 +539,8 @@ class CitationProcessor:
 
         # Try to use the new batch CourtListener API if available
         try:
-            from src.citation_verification import CitationVerifier
-            verifier = CitationVerifier()
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
             self.logger.info("Using CourtListener batch API for citation verification.")
             batch_results = verifier.verify_citations_batch_courtlistener(citations)
             
@@ -709,59 +611,16 @@ class CitationProcessor:
 
     def extract_citations_streaming(self, text: str, chunk_size: int = 100000, extract_case_names: bool = True) -> List[Dict[str, Any]]:
         """
-        Extract citations from large text using streaming approach to manage memory.
-        
+        Extract citations from large text in streaming fashion using the unified extractor.
         Args:
-            text: The text to extract citations from
-            chunk_size: Size of text chunks to process (default: 100KB)
-            extract_case_names: Whether to extract case names
-            
+            text (str): The text to extract citations from
+            chunk_size (int): Size of each chunk (unused, kept for compatibility)
+            extract_case_names (bool): Whether to extract case names (unused, handled by unified extractor)
         Returns:
-            List of citation dictionaries
+            List[Dict[str, Any]]: List of extracted citation dicts
         """
-        if not text:
-            return []
-        
-        self.logger.info(f"Processing text of {len(text)} characters in streaming mode")
-        
-        # For small texts, use regular extraction
-        if len(text) <= chunk_size:
-            return self.extract_citations(text, extract_case_names)
-        
-        # For very large texts, use chunked processing
-        citations = []
-        seen_citations = set()  # Track unique citations to avoid duplicates
-        chunk_overlap = 5000  # Overlap between chunks to catch citations that span boundaries
-        
-        # Process text in chunks with overlap
-        for i in range(0, len(text), chunk_size - chunk_overlap):
-            chunk = text[i:i + chunk_size]
-            
-            # Skip empty chunks
-            if not chunk.strip():
-                continue
-                
-            # Extract citations from this chunk
-            chunk_citations = self.extract_citations(chunk, extract_case_names)
-            
-            # Filter out duplicates and add to results
-            for citation in chunk_citations:
-                citation_text = citation.get('citation', '')
-                if citation_text and citation_text not in seen_citations:
-                    seen_citations.add(citation_text)
-                    citations.append(citation)
-            
-            # Memory management: clear chunk data
-            del chunk
-            del chunk_citations
-            
-            # Early termination: if we've found a reasonable number of citations, stop
-            if len(citations) > 1000:  # Arbitrary limit to prevent excessive processing
-                self.logger.info(f"Early termination: found {len(citations)} citations")
-                break
-        
-        self.logger.info(f"Streaming extraction complete: found {len(citations)} unique citations")
-        return citations
+        from src.unified_citation_extractor import extract_all_citations
+        return extract_all_citations(text, logger=self.logger)
 
     def process_large_document(self, file_path: str, extract_case_names: bool = True) -> Dict[str, Any]:
         """
@@ -851,8 +710,11 @@ class CitationProcessor:
             return "none"
         
         try:
-            # Get the URL first
-            url = self.enhanced_case_name_extractor.get_citation_url(citation)
+            # Get the URL first - add proper None check
+            url = None
+            if hasattr(self.enhanced_case_name_extractor, 'get_citation_url'):
+                url = self.enhanced_case_name_extractor.get_citation_url(citation)
+            
             if not url:
                 return "none"
             
@@ -889,7 +751,7 @@ if __name__ == "__main__":
 
         # Extract citations
         citations = processor.extract_citations(text)
-        self.logger.info(f"Extracted {len(citations)} citations")
+        processor.logger.info(f"Extracted {len(citations)} citations")
 
         # Validate citations
         citation_texts = [str(citation) for citation in citations]
@@ -897,6 +759,6 @@ if __name__ == "__main__":
 
         # Print results
         for result in results:
-            self.logger.info(f"{result['citation']}: {'Valid' if result['valid'] else 'Invalid'}")
+            processor.logger.info(f"{result['citation']}: {'Valid' if result['valid'] else 'Invalid'}")
             if result.get("error"):
-                self.logger.error(f"  Error: {result['error']}")
+                processor.logger.error(f"  Error: {result['error']}")

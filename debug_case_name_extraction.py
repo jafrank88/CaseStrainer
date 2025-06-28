@@ -12,7 +12,6 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.citation_processor import CitationProcessor
-from src.extract_case_name import extract_case_name_from_text, find_shared_case_name_for_citations
 
 def test_case_name_extraction():
     """Test case name extraction for problematic citations"""
@@ -83,16 +82,6 @@ def test_shared_case_name_detection():
     
     print(f"Test text: {test_text}")
     print(f"Citations: {[c['citation'] for c in citations]}")
-    
-    # Test shared case name detection
-    shared_names = find_shared_case_name_for_citations(test_text, citations)
-    
-    print(f"\nShared case names found:")
-    for citation, case_name in shared_names.items():
-        print(f"  '{citation}' -> '{case_name}'")
-    
-    if not shared_names:
-        print("  No shared case names detected")
     
     # Test individual extraction
     print(f"\nIndividual case name extraction:")

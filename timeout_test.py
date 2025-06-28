@@ -4,9 +4,15 @@ import time
 import json
 import logging
 from pathlib import Path
+import os
 
 # Set up logging to both console and file
-log_file = "timeout_test.log"
+# Use project root logs directory
+project_root = os.path.dirname(os.path.abspath(__file__))
+logs_dir = os.path.join(project_root, "logs")
+os.makedirs(logs_dir, exist_ok=True)
+
+log_file = os.path.join(logs_dir, "timeout_test.log")
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

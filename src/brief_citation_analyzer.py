@@ -161,7 +161,11 @@ def process_brief(brief_url, processed_briefs):
             return []
 
         # Extract text from the brief using the CaseStrainer function
-        brief_text = extract_text_from_file(brief_path)
+        brief_text_result = extract_text_from_file(brief_path)
+        if isinstance(brief_text_result, tuple):
+            brief_text, _ = brief_text_result
+        else:
+            brief_text = brief_text_result
         if not brief_text:
             print(f"No text extracted from brief: {brief_url}")
             return []

@@ -1,0 +1,263 @@
+CaseStrainer Codebase Cleanup Report
+==================================================
+Generated: 2025-06-25T18:01:05.198843
+Dry run: False
+
+Operations:
+--------------------
+Moved file: src\app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\app.py
+Moved file: src\vue_api_endpoints (new).py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\vue_api_endpoints (new).py
+Moved file: src\enhanced_multi_source_verifier.py.backup
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\enhanced_multi_source_verifier.py.backup
+Moved file: debug_app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\debug_app.py
+Moved file: minimal_app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\minimal_app.py
+Moved file: minimal_app_5001.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\minimal_app_5001.py
+Moved file: run_minimal_5000.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\run_minimal_5000.py
+Moved file: simple_app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\deprecated\simple_app.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_api.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_api.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_api_fix.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_api_fix.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_app.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_case_name_extraction.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_case_name_extraction.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_citation_grouping.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_citation_grouping.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_citation_verification.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_citation_verification.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_cluster_api.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_cluster_api.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_courtlistener.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_courtlistener.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_courtlistener_suite.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_courtlistener_suite.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_enhanced_verifier.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_enhanced_verifier.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_fetch_url.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_fetch_url.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_flask.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_flask.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_health.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_health.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_hyperscan.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_hyperscan.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_import.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_import.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_multi_source_verifier.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_multi_source_verifier.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_opinion_api.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_opinion_api.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_pdf_extraction.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_pdf_extraction.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_simple_verifier.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_simple_verifier.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_specific_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_specific_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_unconfirmed.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_unconfirmed.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_unverified_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_unverified_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_url_endpoint.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_url_endpoint.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_vue_frontend.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_vue_frontend.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\test_washington_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\test_washington_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\debug_routes.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\debug_routes.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\check_app.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\check_app.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\check_multitool_data.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\check_multitool_data.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\check_multitool_tab.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\check_multitool_tab.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\check_routes.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\check_routes.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\check_routes_simple.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\check_routes_simple.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\verify_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\verify_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\verify_citations_with_api.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\verify_citations_with_api.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\verify_database_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\verify_database_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\verify_unconfirmed_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\tests\verify_unconfirmed_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\process_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\process_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\process_c_drive_wa_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\process_c_drive_wa_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\process_downloaded_wa_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\process_downloaded_wa_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\process_existing_wa_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\process_existing_wa_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\process_wa_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\process_wa_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\extract_case_name.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\extract_case_name.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\extract_unverified_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\extract_unverified_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\extract_wa_briefs_slow.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\extract_wa_briefs_slow.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\extract_wa_court_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\extract_wa_court_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\analyze_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\analyze_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\analyze_citation_problems.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\analyze_citation_problems.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\analyze_confirmed_cases.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\analyze_confirmed_cases.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\analyze_more_briefs.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\analyze_more_briefs.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\analyze_verification_results.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\analyze_verification_results.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\find_more_citations.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\find_more_citations.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\update_citation_json_files.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\update_citation_json_files.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\sample_citation_analyzer.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\sample_citation_analyzer.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\sample_citation_extractor.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\sample_citation_extractor.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\eyecite_extractor.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\eyecite_extractor.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\eyecite_handler.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\eyecite_handler.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\legal_database_scraper.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\legal_database_scraper.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\enhanced_legal_scraper.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\enhanced_legal_scraper.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\enhanced_case_name_extractor.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\enhanced_case_name_extractor.py
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\citation_extractor.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\scripts\citation_extractor.py
+Moved file: src\config.json
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\config\config.json
+Moved file: src\config_prod.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\config\config_prod.py
+Moved file: src\config_dev.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\config\config_dev.py
+Moved file: src\logging_config.py
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\config\logging_config.py
+Moved file: src\langsearch_cache.db
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\data\langsearch_cache.db
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\case_name_debug.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\case_name_debug.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\app.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\app.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\backend_error.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\backend_error.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\backend_output.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\backend_output.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\casestrainer.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\casestrainer.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\casestrainer_deploy.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\casestrainer_deploy.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\casestrainer_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\casestrainer_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\case_name_debug.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\case_name_debug.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\citation_correction.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\citation_correction.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\citation_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\citation_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\citation_verification.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\citation_verification.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\comprehensive_url_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\comprehensive_url_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deployment.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_122814.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deployment_20250529_122814.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_122951.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deployment_20250529_122951.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_123139.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deployment_20250529_123139.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deployment_20250529_123455.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deployment_20250529_123455.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\deprecation_log_20250606_075710.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\deprecation_log_20250606_075710.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\direct_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\direct_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\flask.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\flask.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\flask_debug.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\flask_debug.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\flask_stderr.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\flask_stderr.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\flask_stdout.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\flask_stdout.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\flask_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\flask_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\import_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\import_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\minimal_5000.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\minimal_5000.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\minimal_app.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\minimal_app.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\minimal_app_5001.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\minimal_app_5001.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\minimal_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\minimal_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\monitor_flask_20250603_105600.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\monitor_flask_20250603_105600.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\monitor_flask_20250603_110457.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\monitor_flask_20250603_110457.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\run_cs_output.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\run_cs_output.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\server.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\server.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_api.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_api.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_citation_validation.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_citation_validation.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_log_20250610_202130.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_log_20250610_202130.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_log_20250610_202422.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_log_20250610_202422.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_suite.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_suite.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_suite_comprehensive.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_suite_comprehensive.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_suite_simple.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_suite_simple.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\test_verifier.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\test_verifier.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\timeout_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\timeout_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\url_analyzer_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\url_analyzer_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\url_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\url_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\validator_integration_test.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\validator_integration_test.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\wa_briefs_processing.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\wa_briefs_processing.log
+Moved file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\wsgi.log
+  -> C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\logs\wsgi.log
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\src\citation_verification_result.json
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\app_final_vue.py.bak
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx.conf.bak
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\run_cs_corrupted.bak
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\start_casestrainer.bat.bak
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\launcher.ps1.backup
+Deleted file: C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\start_development.bat.backup
+
+Errors:
+----------
+ERROR: Error moving src\citations.db: [WinError 1224] The requested operation cannot be performed on a file with a user-mapped section open
+
+Total operations: 128
+Total errors: 1

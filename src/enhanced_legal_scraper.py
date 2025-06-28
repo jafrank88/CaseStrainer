@@ -25,72 +25,84 @@ from src.legal_database_scraper import LegalDatabaseScraper
 class EnhancedLegalScraper:
     """Enhanced scraper that uses search engines to find case detail pages."""
     
-    def __init__(self, use_google: bool = True, use_bing: bool = True, cache_results: bool = True):
+    def __init__(self, use_duckduckgo: bool = True, use_google: bool = True, use_bing: bool = True, cache_results: bool = True):
+        """
+        Initialize the enhanced legal scraper.
+        
+        Args:
+            use_duckduckgo: Whether to use DuckDuckGo search
+            use_google: Whether to use Google search
+            use_bing: Whether to use Bing search
+            cache_results: Whether to cache search results
+        """
+        self.logger = logging.getLogger(__name__)
+        self.use_duckduckgo = use_duckduckgo
+        self.use_google = use_google
+        self.use_bing = use_bing
+        self.cache_results = cache_results
+        
+        # Initialize DuckDuckGo
+        try:
+            from duckduckgo_search import DDGS
+            self.ddgs = DDGS
+            self.duckduckgo_available = True
+        except ImportError:
+            self.ddgs = None
+            self.duckduckgo_available = False
+            self.logger.warning("DuckDuckGo search not available - install duckduckgo-search package")
+        
+        # Initialize session for HTTP requests
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
-        self.use_google = use_google
-        self.use_bing = use_bing
-        self.cache_results = cache_results
-        self.logger = logging.getLogger(__name__)
         
-        # Initialize the detail page scraper
+        # Initialize detail scraper
         self.detail_scraper = LegalDatabaseScraper()
         
-        # Legal database domains and their search patterns
+        # Legal databases configuration
         self.legal_databases = {
-            'vLex': {
-                'domain': 'vlex.com',
-                'search_patterns': ['vlex.com', 'vlex.com/sites'],
-                'detail_patterns': ['vlex.com/sites', 'vlex.com/case']
+            'courtlistener': {
+                'domain': 'courtlistener.com',
+                'detail_patterns': ['/opinion/', '/cluster/'],
+                'name': 'CourtListener'
             },
-            'CaseMine': {
-                'domain': 'casemine.com',
-                'search_patterns': ['casemine.com'],
-                'detail_patterns': ['casemine.com/judgement', 'casemine.com/case']
-            },
-            'Casetext': {
-                'domain': 'casetext.com',
-                'search_patterns': ['casetext.com'],
-                'detail_patterns': ['casetext.com/case', 'casetext.com/decision']
-            },
-            'Leagle': {
-                'domain': 'leagle.com',
-                'search_patterns': ['leagle.com'],
-                'detail_patterns': ['leagle.com/decision', 'leagle.com/case']
-            },
-            'Justia': {
+            'justia': {
                 'domain': 'justia.com',
-                'search_patterns': ['justia.com', 'law.justia.com'],
-                'detail_patterns': ['justia.com/cases', 'law.justia.com/cases']
+                'detail_patterns': ['/cases/', '/opinions/'],
+                'name': 'Justia'
             },
-            'FindLaw': {
+            'findlaw': {
                 'domain': 'findlaw.com',
-                'search_patterns': ['findlaw.com'],
-                'detail_patterns': ['findlaw.com/caselaw', 'findlaw.com/case']
+                'detail_patterns': ['/caselaw/', '/opinions/'],
+                'name': 'FindLaw'
             },
-            'OpenJurist': {
-                'domain': 'openjurist.org',
-                'search_patterns': ['openjurist.org'],
-                'detail_patterns': ['openjurist.org']
+            'casetext': {
+                'domain': 'casetext.com',
+                'detail_patterns': ['/case/', '/opinion/'],
+                'name': 'CaseText'
             },
-            'Harvard Caselaw': {
-                'domain': 'case.law',
-                'search_patterns': ['case.law'],
-                'detail_patterns': ['case.law']
+            'leagle': {
+                'domain': 'leagle.com',
+                'detail_patterns': ['/case/', '/opinion/'],
+                'name': 'Leagle'
             },
-            'Google Books': {
-                'domain': 'books.google.com',
-                'search_patterns': ['books.google.com'],
-                'detail_patterns': ['books.google.com/books']
+            'supreme_court': {
+                'domain': 'supreme.justia.com',
+                'detail_patterns': ['/cases/', '/opinions/'],
+                'name': 'Supreme Court'
+            },
+            'cornell': {
+                'domain': 'law.cornell.edu',
+                'detail_patterns': ['/supremecourt/', '/opinions/'],
+                'name': 'Cornell Law'
             }
         }
     
     def search_for_case(self, citation: str, database_name: str) -> List[Dict[str, Any]]:
         """
         Search for a case on a specific legal database using search engines.
-        First, try the two-step CourtListener process. Only if not verified, proceed to Google/Bing.
+        First, try the two-step CourtListener process. Only if not verified, proceed to DuckDuckGo -> Bing -> Google.
         """
         if database_name not in self.legal_databases:
             self.logger.warning(f"Unknown database: {database_name}")
@@ -100,11 +112,11 @@ class EnhancedLegalScraper:
         try:
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
-            cl_result = verifier._verify_with_courtlistener(citation)
+            cl_result = verifier.verify_citation_unified_workflow(citation)
             if cl_result.get("verified") and cl_result.get("url"):
                 # Return as a search result format for downstream compatibility
                 return [{
-                    'title': cl_result.get('case_name', ''),
+                    'title': cl_result.get('canonical_name', cl_result.get('case_name', '')),
                     'url': cl_result.get('url', ''),
                     'snippet': '',
                     'source': 'courtlistener',
@@ -116,16 +128,24 @@ class EnhancedLegalScraper:
         
         database_info = self.legal_databases[database_name]
         results = []
-        # Create search queries for both Google and Bing
+        # Create search queries for all search engines
         search_queries = self._create_search_queries(citation, database_info)
-        # Search using Google
-        if self.use_google:
-            google_results = self._search_google(search_queries)
-            results.extend(google_results)
-        # Search using Bing
+        
+        # 1. Try DuckDuckGo first
+        if self.use_duckduckgo:
+            duckduckgo_results = self._search_duckduckgo(search_queries)
+            results.extend(duckduckgo_results)
+        
+        # 2. Try Bing second
         if self.use_bing:
             bing_results = self._search_bing(search_queries)
             results.extend(bing_results)
+        
+        # 3. Try Google as fallback
+        if self.use_google:
+            google_results = self._search_google(search_queries)
+            results.extend(google_results)
+        
         # Filter and rank results
         filtered_results = self._filter_and_rank_results(results, database_info)
         return filtered_results
@@ -168,6 +188,28 @@ class EnhancedLegalScraper:
                 time.sleep(1)
             except Exception as e:
                 self.logger.error(f"Error searching Google: {e}")
+        return results
+    
+    def _search_duckduckgo(self, queries: List[str]) -> List[Dict[str, Any]]:
+        """Search using DuckDuckGo."""
+        results = []
+        if not self.duckduckgo_available:
+            return results
+            
+        for query in queries:
+            try:
+                with self.ddgs() as ddgs:
+                    search_results = list(ddgs.text(query, max_results=5))
+                    for result in search_results:
+                        results.append({
+                            'title': result.get('title', ''),
+                            'url': result.get('link', ''),
+                            'snippet': result.get('body', ''),
+                            'source': 'duckduckgo'
+                        })
+                time.sleep(1)  # Be respectful
+            except Exception as e:
+                self.logger.error(f"Error searching DuckDuckGo: {e}")
         return results
     
     def _search_bing(self, queries: List[str]) -> List[Dict[str, Any]]:
@@ -248,10 +290,10 @@ class EnhancedLegalScraper:
             # --- Two-step CourtListener process first ---
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
-            cl_result = verifier._verify_with_courtlistener(citation)
+            cl_result = verifier.verify_citation_unified_workflow(citation)
             if cl_result.get("verified") and cl_result.get("url"):
                 return {
-                    'canonical_name': cl_result.get('case_name', ''),
+                    'canonical_name': cl_result.get('canonical_name', cl_result.get('case_name', '')),
                     'url': cl_result.get('url', ''),
                     'parallel_citations': cl_result.get('parallel_citations', []),
                     'year': cl_result.get('date_filed', ''),
