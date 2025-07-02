@@ -19,13 +19,345 @@ exit /b 1
 # Final Working CaseStrainer Launcher - All fixes integrated
 
 param(
-    [ValidateSet("Development", "Production", "Menu")]
+    [ValidateSet("Development", "Production", "DockerDevelopment", "DockerProduction", "Menu")]
     [string]$Environment = "Menu",
     [switch]$NoMenu,
     [switch]$Help,
     [switch]$SkipBuild,
+    [switch]$ForceBuild,
     [switch]$VerboseLogging
 )
+
+function Start-DockerMode {
+    param(
+        [string]$DockerMode = "Development"
+    )
+    
+    Write-Host "`n=== Starting Docker Mode ($DockerMode) ===`n" -ForegroundColor Green
+    
+    # Check if Docker Desktop is running
+    Write-Host "Checking Docker Desktop status..." -ForegroundColor Yellow
+    $dockerStatus = Test-DockerDesktopStatus
+    if (-not $dockerStatus.Running) {
+        Write-Host "Docker Desktop is not running. Attempting to start..." -ForegroundColor Yellow
+        if (-not (Start-DockerDesktop)) {
+            Write-Host "❌ Failed to start Docker Desktop. Docker mode cannot continue." -ForegroundColor Red
+            return $false
+        }
+        Start-Sleep -Seconds 10  # Wait for Docker to fully initialize
+    }
+    
+    # Determine which docker-compose file to use
+    $dockerComposeFile = "docker-compose.yml"
+    if ($DockerMode -eq "Development") {
+        # Use the development-specific docker-compose file
+        if (Test-Path "docker-compose.dev.yml") {
+            $dockerComposeFile = "docker-compose.dev.yml"
+        } else {
+            $dockerComposeFile = "docker-compose.yml"
+        }
+    } elseif ($DockerMode -eq "Production") {
+        $dockerComposeFile = "docker-compose.prod.yml"
+    }
+    
+    # Check if docker-compose file exists
+    $dockerComposePath = Join-Path $PSScriptRoot $dockerComposeFile
+    if (-not (Test-Path $dockerComposePath)) {
+        Write-Host "❌ $dockerComposeFile not found at: $dockerComposePath" -ForegroundColor Red
+        Write-Host "Please ensure the Docker Compose file is present in the project root." -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Check if Dockerfile exists
+    $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
+    if (-not (Test-Path $dockerfilePath)) {
+        Write-Host "❌ Dockerfile not found at: $dockerfilePath" -ForegroundColor Red
+        Write-Host "Please ensure the Dockerfile is present in the project root." -ForegroundColor Yellow
+        return $false
+    }
+    
+    Write-Host "✅ Docker environment ready" -ForegroundColor Green
+    Write-Host "Using Docker Compose file: $dockerComposeFile" -ForegroundColor Cyan
+    
+    # Check SSL certificates for development mode
+    if ($DockerMode -eq "Development") {
+        Write-Host "`nChecking SSL certificates..." -ForegroundColor Yellow
+        $sslCertPath = Join-Path $PSScriptRoot "nginx\ssl\WolfCertBundle.crt"
+        $sslKeyPath = Join-Path $PSScriptRoot "ssl\wolf.law.uw.edu.key"
+        
+        if (-not (Test-Path $sslCertPath)) {
+            Write-Host "⚠️  SSL certificate not found: $sslCertPath" -ForegroundColor Yellow
+            Write-Host "   SSL features will be disabled" -ForegroundColor Yellow
+        } else {
+            Write-Host "✅ SSL certificate found: $sslCertPath" -ForegroundColor Green
+        }
+        
+        if (-not (Test-Path $sslKeyPath)) {
+            Write-Host "⚠️  SSL private key not found: $sslKeyPath" -ForegroundColor Yellow
+            Write-Host "   SSL features will be disabled" -ForegroundColor Yellow
+        } else {
+            Write-Host "✅ SSL private key found: $sslKeyPath" -ForegroundColor Green
+        }
+    }
+    
+    try {
+        # --- Build Vue frontend and copy to Docker html and static directories ---
+        Write-Host "`n=== Building Vue frontend ===`n" -ForegroundColor Cyan
+        Push-Location "$PSScriptRoot\casestrainer-vue-new"
+        
+        # Check if we can write to the directories before building (for future Vue build)
+        $dockerHtmlStatic = "$PSScriptRoot\docker\html\static"
+        $projectStatic = "$PSScriptRoot\static"
+        
+        # Clean up any test files that might exist
+        $testFileDocker = Join-Path $dockerHtmlStatic "__write_test.txt"
+        $testFileProject = Join-Path $projectStatic "__write_test.txt"
+        try { if (Test-Path $testFileDocker) { Remove-Item $testFileDocker -Force } } catch {}
+        try { if (Test-Path $testFileProject) { Remove-Item $testFileProject -Force } } catch {}
+        
+        # Check if Vue build is needed
+        $buildNeeded = Test-VueBuildNeeded
+        
+        if ($buildNeeded) {
+            Write-Host "Building Vue frontend for Docker..." -ForegroundColor Cyan
+            
+            $vueBuildSuccess = $false
+            try {
+                # Clear NODE_ENV to avoid Vite issues
+                $originalNodeEnv = $env:NODE_ENV
+                $env:NODE_ENV = $null
+                
+                # Use a timeout to prevent hanging
+                $buildTimeout = 300  # 5 minutes
+                $buildStartTime = Get-Date
+                
+                Write-Host "Starting npm build with $buildTimeout second timeout..." -ForegroundColor Yellow
+                
+                # Run npm build with timeout and proper output handling
+                $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -WorkingDirectory "$PSScriptRoot\casestrainer-vue-new" -NoNewWindow -PassThru -RedirectStandardOutput "$PSScriptRoot\logs\npm_build_docker.log" -RedirectStandardError "$PSScriptRoot\logs\npm_build_docker_error.log"
+                
+                # Wait for process with timeout
+                $processExited = $buildProcess.WaitForExit($buildTimeout * 1000)
+                
+                if (-not $processExited) {
+                    Write-Host "⚠️  npm build timed out after $buildTimeout seconds" -ForegroundColor Yellow
+                    Write-Host "   Killing build process..." -ForegroundColor Yellow
+                    try { $buildProcess.Kill() } catch {}
+                    $vueBuildSuccess = $false
+                } elseif ($buildProcess.ExitCode -eq 0) {
+                    Write-Host "✅ Vue build completed successfully" -ForegroundColor Green
+                    $buildDuration = (Get-Date) - $buildStartTime
+                    Write-Host "   Build time: $($buildDuration.TotalSeconds.ToString('F1')) seconds" -ForegroundColor Gray
+                    $vueBuildSuccess = $true
+                } else {
+                    Write-Host "❌ Vue build failed with exit code: $($buildProcess.ExitCode)" -ForegroundColor Red
+                    Write-Host "   Check logs: logs\npm_build_docker.log" -ForegroundColor Yellow
+                    $vueBuildSuccess = $false
+                }
+                
+            } catch {
+                Write-Host "❌ Vue build failed: $($_.Exception.Message)" -ForegroundColor Red
+                $vueBuildSuccess = $false
+            } finally {
+                $env:NODE_ENV = $originalNodeEnv
+            }
+            
+            if (-not $vueBuildSuccess) {
+                Write-Host "⚠️  Vue build failed - Docker Compose will use existing static files" -ForegroundColor Yellow
+        Write-Host "   You can manually run 'cd casestrainer-vue-new && npm run build' if needed" -ForegroundColor Gray
+            }
+        } else {
+            Write-Host "✅ Using existing Vue build - no rebuild needed" -ForegroundColor Green
+        }
+        Pop-Location
+
+        Write-Host "`n=== Vue Build Process Completed ===" -ForegroundColor Green
+        Write-Host "Now starting Docker Compose services..." -ForegroundColor Cyan
+        
+        # Build and start all services with Docker Compose
+        Write-Host "`nBuilding and starting CaseStrainer with Docker Compose..." -ForegroundColor Cyan
+        
+        # Build the images first
+        Write-Host "Building Docker images..." -ForegroundColor Yellow
+        $buildProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "build" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+        
+        if ($buildProcess.ExitCode -ne 0) {
+            Write-Host "❌ Docker build failed" -ForegroundColor Red
+            return $false
+        }
+        
+        Write-Host "✅ Docker images built successfully" -ForegroundColor Green
+        
+        # Start all services
+        Write-Host "Starting all services..." -ForegroundColor Yellow
+        $startProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "up", "-d" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+        
+        if ($startProcess.ExitCode -ne 0) {
+            Write-Host "❌ Failed to start Docker services" -ForegroundColor Red
+            return $false
+        }
+        
+        Write-Host "✅ All Docker services started successfully" -ForegroundColor Green
+        
+        # Wait for services to be ready
+        Write-Host "`nWaiting for services to be ready..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 15
+        
+        # Check service status
+        Write-Host "`nChecking service status..." -ForegroundColor Yellow
+        Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "ps" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait | Out-Null
+        
+        # Test backend health
+        Write-Host "`nTesting backend health..." -ForegroundColor Yellow
+        $healthCheckAttempts = 0
+        $maxHealthCheckAttempts = 8
+        
+        # Use port 5001 for Production, 5000 for Development
+        if ($DockerMode -eq "Production") {
+            $backendHealthUrl = "http://localhost:5001/casestrainer/api/health"
+        } else {
+            $backendHealthUrl = "http://localhost:5000/casestrainer/api/health"
+        }
+        
+        while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+            try {
+                $response = Invoke-RestMethod -Uri $backendHealthUrl -TimeoutSec 5
+                if ($response.status -eq "healthy") {
+                    Write-Host "✅ Backend is healthy and responding!" -ForegroundColor Green
+                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
+                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
+                    break
+                }
+            } catch {
+                $healthCheckAttempts++
+                if ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
+                    Write-Host "Backend not ready yet, waiting... (attempt $healthCheckAttempts/$maxHealthCheckAttempts)" -ForegroundColor Yellow
+                    Start-Sleep -Seconds 5
+                } else {
+                    Write-Host "⚠️  Backend started but health check failed after $maxHealthCheckAttempts attempts" -ForegroundColor Yellow
+                    Write-Host "The backend may still be starting up. Check the logs if issues persist." -ForegroundColor Yellow
+                }
+            }
+        }
+        
+        # Test nginx and SSL for development mode
+        if ($DockerMode -eq "Development") {
+            Write-Host "`nTesting nginx and SSL..." -ForegroundColor Yellow
+            $nginxHealthAttempts = 0
+            $maxNginxAttempts = 5
+            
+            while ($nginxHealthAttempts -lt $maxNginxAttempts) {
+                try {
+                    # Test HTTP redirect
+                    $httpResponse = Invoke-WebRequest -Uri "http://localhost:80" -TimeoutSec 5 -MaximumRedirection 0 -ErrorAction Stop
+                    if ($httpResponse.StatusCode -eq 301) {
+                        Write-Host "✅ HTTP to HTTPS redirect working" -ForegroundColor Green
+                    }
+                    
+                    # Test HTTPS API endpoint
+                    $httpsResponse = Invoke-RestMethod -Uri "https://localhost/casestrainer/api/health" -TimeoutSec 5 -SkipCertificateCheck
+                    if ($httpsResponse.status -eq "healthy") {
+                        Write-Host "✅ Nginx SSL proxy working correctly!" -ForegroundColor Green
+                        Write-Host "  HTTPS API: https://localhost/casestrainer/api/health" -ForegroundColor Green
+                        break
+                    }
+                } catch {
+                    $nginxHealthAttempts++
+                    if ($nginxHealthAttempts -lt $maxNginxAttempts) {
+                        Write-Host "Nginx not ready yet, waiting... (attempt $nginxHealthAttempts/$maxNginxAttempts)" -ForegroundColor Yellow
+                        Start-Sleep -Seconds 3
+                    } else {
+                        Write-Host "⚠️  Nginx started but SSL health check failed after $maxNginxAttempts attempts" -ForegroundColor Yellow
+                        Write-Host "SSL features may not be working. Check nginx logs if issues persist." -ForegroundColor Yellow
+                    }
+                }
+            }
+        }
+        
+        # Show service URLs based on mode
+        Write-Host "`n=== Docker Mode ($DockerMode) Ready ===`n" -ForegroundColor Green
+        
+        if ($DockerMode -eq "Development") {
+            Write-Host "Backend API:    http://localhost:5000/casestrainer/api/" -ForegroundColor Green
+            Write-Host "Redis:          localhost:$($config.RedisPort)" -ForegroundColor Green
+            Write-Host "Frontend Dev:   http://localhost:5173/" -ForegroundColor Green
+            Write-Host "Nginx (HTTP):   http://localhost:80/" -ForegroundColor Green
+            Write-Host "Nginx (HTTPS):  https://localhost:443/" -ForegroundColor Green
+            Write-Host "Main Frontend:  https://localhost/casestrainer/" -ForegroundColor Green
+            Write-Host "API Health:     https://localhost/casestrainer/api/health" -ForegroundColor Green
+        } elseif ($DockerMode -eq "Production") {
+            Write-Host "Backend API:    http://localhost:5001/casestrainer/api/" -ForegroundColor Green
+            Write-Host "Redis:          localhost:$($config.RedisPort)" -ForegroundColor Green
+            Write-Host "Frontend Prod:  http://localhost:8080/" -ForegroundColor Green
+            Write-Host "Nginx (HTTP):   http://localhost:80/" -ForegroundColor Green
+            Write-Host "Nginx (HTTPS):  https://localhost:443/" -ForegroundColor Green
+            Write-Host "Main Frontend:  https://localhost/casestrainer/" -ForegroundColor Green
+            Write-Host "API Health:     https://localhost/casestrainer/api/health" -ForegroundColor Green
+        }
+        
+        Write-Host "`nDocker Commands:" -ForegroundColor Cyan
+        Write-Host "  View logs:    docker-compose -f $dockerComposeFile logs [service]" -ForegroundColor Gray
+        Write-Host "  Stop all:     docker-compose -f $dockerComposeFile down" -ForegroundColor Gray
+        Write-Host "  Restart:      docker-compose -f $dockerComposeFile restart [service]" -ForegroundColor Gray
+        Write-Host "`nPress Ctrl+C to stop all services" -ForegroundColor Yellow
+        
+        # Show final status report
+        Show-FinalStatusReport -Environment "Docker"
+        
+        # Open browser based on mode
+        try {
+            if ($DockerMode -eq "Development") {
+                Start-Process "http://localhost:5173/"
+            } elseif ($DockerMode -eq "Production") {
+                Start-Process "https://localhost/casestrainer/"
+            } else {
+                Start-Process "http://localhost:5000/casestrainer/api/health"
+            }
+        } catch {
+            Write-Host "Could not open browser automatically" -ForegroundColor Yellow
+        }
+
+        # Docker production: check nginx container health
+        if ($DockerMode -eq "Production") {
+            Write-Host "\nChecking nginx container health..." -ForegroundColor Yellow
+            $nginxContainer = docker ps --filter "name=casestrainer-nginx-prod" --format "{{.Status}}"
+            if ($nginxContainer -and $nginxContainer -like "Up*") {
+                Write-Host "Nginx container is UP and running." -ForegroundColor Green
+            } else {
+                Write-Host "Nginx container is NOT running!" -ForegroundColor Red
+            }
+        }
+        
+        # Always show the URLs at the end, regardless of any issues
+        Write-Host "\n=== Final Service URLs ===" -ForegroundColor Green
+        Write-Host "Backend API:    http://localhost:5000/casestrainer/api/" -ForegroundColor Green
+        
+        if ($DockerMode -eq "Development") {
+            Write-Host "Frontend Dev:   http://localhost:5173/" -ForegroundColor Green
+            Write-Host "Redis:          localhost:$($config.RedisPort)" -ForegroundColor Green
+        } elseif ($DockerMode -eq "Production") {
+            Write-Host "Frontend Prod:  http://localhost:8080/" -ForegroundColor Green
+            Write-Host "Redis:          localhost:$($config.RedisPort)" -ForegroundColor Green
+            Write-Host "Nginx (HTTP):   http://localhost:80/" -ForegroundColor Green
+            Write-Host "Nginx (HTTPS):  https://localhost:443/" -ForegroundColor Green
+            Write-Host "Main Frontend:  https://localhost/casestrainer/" -ForegroundColor Green
+        }
+        
+        Write-Host "\nDocker Commands:" -ForegroundColor Cyan
+        Write-Host "  View logs:    docker-compose -f $dockerComposeFile logs [service]" -ForegroundColor Gray
+        Write-Host "  Stop all:     docker-compose -f $dockerComposeFile down" -ForegroundColor Gray
+        Write-Host "  Restart:      docker-compose -f $dockerComposeFile restart [service]" -ForegroundColor Gray
+        Write-Host "\nPress Ctrl+C to stop all services" -ForegroundColor Yellow
+        
+        return $true
+        
+    } catch {
+        Write-Host "❌ Docker mode failed: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
 
 # Global variables for process tracking
 $script:BackendProcess = $null
@@ -43,6 +375,38 @@ $script:LastRestartTime = $null
 $script:MonitoringEnabled = $false
 $script:CrashLogFile = $null
 
+# Helper function to check if Vue build is needed
+function Test-VueBuildNeeded {
+    param(
+        [string]$FrontendPath = "casestrainer-vue-new"
+    )
+    
+    # If ForceBuild is specified, always build
+    if ($ForceBuild) {
+        Write-Host "Vue build needed: ForceBuild parameter specified" -ForegroundColor Yellow
+        return $true
+    }
+    
+    $distPath = Join-Path $PSScriptRoot "$FrontendPath\dist"
+    $indexHtmlPath = Join-Path $distPath "index.html"
+    
+    # Check if dist directory and index.html exist
+    if (-not (Test-Path $distPath) -or -not (Test-Path $indexHtmlPath)) {
+        Write-Host "Vue build needed: dist directory or index.html missing" -ForegroundColor Yellow
+        return $true
+    }
+    
+    # Check if dist is older than 1 hour (3600 seconds)
+    $distAge = (Get-Date) - (Get-Item $indexHtmlPath).LastWriteTime
+    if ($distAge.TotalSeconds -gt 3600) {
+        Write-Host "Vue build needed: dist is older than 1 hour ($($distAge.TotalMinutes.ToString('F1')) minutes)" -ForegroundColor Yellow
+        return $true
+    }
+    
+    Write-Host "Vue build not needed: dist is recent ($($distAge.TotalMinutes.ToString('F1')) minutes old)" -ForegroundColor Green
+    return $false
+}
+
 # Configuration
 $config = @{
     # Paths
@@ -52,10 +416,10 @@ $config = @{
     NginxExe = "nginx.exe"
     
     # SSL Configuration
-    SSL_CERT = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\WolfCertBundle.crt"
-    SSL_KEY = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\wolf.law.uw.edu.key"
+    SSL_CERT = "D:\dev\casestrainer\ssl\WolfCertBundle.crt"
+    SSL_KEY = "D:\dev\casestrainer\ssl\wolf.law.uw.edu.key"
     
-    # Ports
+    # Ports (set dynamically below)
     BackendPort = 5000
     FrontendDevPort = 5173
     ProductionPort = 443
@@ -64,14 +428,48 @@ $config = @{
     CORS_ORIGINS = "https://wolf.law.uw.edu"
     DatabasePath = "data/citations.db"
     
-    # Redis
+    # Redis (set dynamically below)
     RedisExe = "C:\Program Files\Redis\redis-server.exe"  # Update this path if your redis-server.exe is elsewhere
     RedisPort = 6379
+}
+
+# Dynamically set ports for Production
+if ($Environment -eq "Production" -or $Environment -eq "DockerProduction") {
+    $config.BackendPort = 5001
+    $config.RedisPort = 6380
+} else {
+    $config.BackendPort = 5000
+    $config.RedisPort = 6379
 }
 
 # Define venv Python and Waitress paths
 $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
 $waitressExe = Join-Path $PSScriptRoot ".venv\Scripts\waitress-serve.exe"
+
+# --- VENV CHECK START ---
+# Check if we're running in the correct virtual environment
+$currentPython = (Get-Command python).Source
+$venvPythonPath = (Resolve-Path $venvPython).Path
+
+if ($currentPython -ne $venvPythonPath -and !$env:VIRTUAL_ENV) {
+    Write-Host "ERROR: Python virtual environment not activated!" -ForegroundColor Red
+    Write-Host "Current Python: $currentPython" -ForegroundColor Yellow
+    Write-Host "Expected Python: $venvPythonPath" -ForegroundColor Yellow
+    Write-Host "Please activate the .venv before running this script:" -ForegroundColor Cyan
+    Write-Host "  .venv\Scripts\Activate.ps1" -ForegroundColor White
+    Write-Host "  OR" -ForegroundColor White
+    Write-Host "  .\.venv\Scripts\activate" -ForegroundColor White
+    Write-Host ""
+    $continue = Read-Host "Continue anyway? (y/N)"
+    if ($continue -ne 'y') {
+        Write-Host "Exiting..." -ForegroundColor Yellow
+        exit 1
+    }
+    Write-Host "Continuing with system Python (not recommended for production)" -ForegroundColor Yellow
+} else {
+    Write-Host "✅ Python virtual environment is active" -ForegroundColor Green
+}
+# --- VENV CHECK END ---
 
 # Ensure venv exists
 if (!(Test-Path $venvPython)) {
@@ -85,7 +483,7 @@ if (!(Test-Path $venvPython)) {
 function Test-DockerDesktopStatus {
     # Check if Docker Desktop is running
     try {
-        $dockerInfo = docker info 2>&1
+        docker info 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
             return @{ Running = $true; Message = "Docker Desktop is running and accessible" }
         } else {
@@ -179,9 +577,9 @@ function Start-DockerDesktop {
 function Stop-RedisDocker {
     Write-Host "Attempting to stop Redis Docker container..." -ForegroundColor Cyan
     try {
-        $container = docker ps -a --filter "name=redis" --format "{{.ID}}"
+        $container = docker ps -a --filter "name=casestrainer-redis" --format "{{.ID}}"
         if ($container) {
-            docker stop redis | Out-Null
+            docker stop casestrainer-redis | Out-Null
             Write-Host "Redis Docker container stopped." -ForegroundColor Green
             return $true
         } else {
@@ -197,13 +595,13 @@ function Stop-RedisDocker {
 function Start-RedisDocker {
     Write-Host "Attempting to start Redis Docker container..." -ForegroundColor Cyan
     try {
-        $container = docker ps -a --filter "name=redis" --format "{{.ID}}"
+        $container = docker ps -a --filter "name=casestrainer-redis" --format "{{.ID}}"
         if ($container) {
-            docker start redis | Out-Null
+            docker start casestrainer-redis | Out-Null
             Write-Host "Redis Docker container started." -ForegroundColor Green
             return $true
         } else {
-            Write-Host "No Redis Docker container found to start. Please create one with: docker run --name redis -d -p 6379:6379 redis" -ForegroundColor Yellow
+            Write-Host "No Redis Docker container found to start. Please create one with: docker run --name casestrainer-redis -d -p 6379:6379 redis" -ForegroundColor Yellow
             return $false
         }
     } catch {
@@ -213,32 +611,81 @@ function Start-RedisDocker {
 }
 
 function Start-RQWorker {
+    param(
+        [string]$Environment = "Development",
+        [switch]$UseDocker = $false
+    )
+    
     Write-Host "Starting RQ worker..." -ForegroundColor Cyan
-    try {
-        # Check if Redis is available
-        $redisTest = docker ps --filter "name=redis" --format "{{.Status}}" 2>$null
-        if (-not $redisTest) {
-            Write-Host "Redis container not running. Starting Redis first..." -ForegroundColor Yellow
-            if (-not (Start-RedisDocker)) {
-                Write-Host "Failed to start Redis. RQ worker cannot start." -ForegroundColor Red
+    
+    if ($UseDocker) {
+        Write-Host "Using Docker Compose for RQ worker..." -ForegroundColor Yellow
+        try {
+            # Check if docker-compose.yml exists
+            $dockerComposePath = Join-Path $PSScriptRoot "docker-compose.yml"
+            if (-not (Test-Path $dockerComposePath)) {
+                Write-Host "docker-compose.yml not found at: $dockerComposePath" -ForegroundColor Red
                 return $false
             }
-            Start-Sleep -Seconds 3
-        }
-        
-        # Start RQ worker using the Windows-compatible script
-        $rqWorkerScript = Join-Path $PSScriptRoot "src\rq_worker_windows.py"
-        if (Test-Path $rqWorkerScript) {
-            $script:RQWorkerProcess = Start-Process -FilePath $venvPython -ArgumentList $rqWorkerScript, "worker", "casestrainer" -NoNewWindow -PassThru
-            Write-Host "RQ worker started (PID: $($script:RQWorkerProcess.Id))" -ForegroundColor Green
-            return $true
-        } else {
-            Write-Host "RQ worker script not found at: $rqWorkerScript" -ForegroundColor Red
+            
+            # Start Redis and RQ worker using docker-compose
+            Write-Host "Starting Redis and RQ worker with Docker Compose..." -ForegroundColor Yellow
+            $dockerComposeArgs = @("up", "-d", "redis", "rqworker")
+            $process = Start-Process -FilePath "docker-compose" -ArgumentList $dockerComposeArgs -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+            
+            if ($process.ExitCode -eq 0) {
+                Write-Host "✅ RQ worker started successfully with Docker Compose" -ForegroundColor Green
+                Write-Host "To view logs: docker-compose logs rqworker" -ForegroundColor Gray
+                return $true
+            } else {
+                Write-Host "❌ Failed to start RQ worker with Docker Compose" -ForegroundColor Red
+                return $false
+            }
+        } catch {
+            Write-Host "Failed to start RQ worker with Docker: $($_.Exception.Message)" -ForegroundColor Red
             return $false
         }
-    } catch {
-        Write-Host "Failed to start RQ worker: $($_.Exception.Message)" -ForegroundColor Red
-        return $false
+    } else {
+        # Local mode (existing logic)
+        try {
+            # Check if Redis is available
+            $redisTest = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+            if (-not $redisTest) {
+                Write-Host "Redis container not running. Starting Redis first..." -ForegroundColor Yellow
+                if (-not (Start-RedisDocker)) {
+                    Write-Host "Failed to start Redis. RQ worker cannot start." -ForegroundColor Red
+                    return $false
+                }
+                Start-Sleep -Seconds 3
+            }
+            
+            # Create log files for RQ worker based on environment
+            if ($Environment -eq "Development") {
+                $rqLogPath = Join-Path $script:LogDirectory "rq_worker_dev.log"
+                $rqErrorPath = Join-Path $script:LogDirectory "rq_worker_dev_error.log"
+            } else {
+                $rqLogPath = Join-Path $script:LogDirectory "rq_worker.log"
+                $rqErrorPath = Join-Path $script:LogDirectory "rq_worker_error.log"
+            }
+            
+            # Start RQ worker using the standard script (Linux-compatible)
+            $rqWorkerScript = Join-Path $PSScriptRoot "src\rq_worker.py"
+            if (Test-Path $rqWorkerScript) {
+                # Set environment variable for RQ worker
+                $env:CASTRAINER_ENV = $Environment.ToLower()
+                $script:RQWorkerProcess = Start-Process -FilePath $venvPython -ArgumentList $rqWorkerScript, "worker", "casestrainer" -NoNewWindow -PassThru -RedirectStandardOutput $rqLogPath -RedirectStandardError $rqErrorPath
+                Write-Host "RQ worker started (PID: $($script:RQWorkerProcess.Id))" -ForegroundColor Green
+                Write-Host "RQ worker logs: $rqLogPath" -ForegroundColor Gray
+                Write-Host "RQ worker errors: $rqErrorPath" -ForegroundColor Gray
+                return $true
+            } else {
+                Write-Host "RQ worker script not found at: $rqWorkerScript" -ForegroundColor Red
+                return $false
+            }
+        } catch {
+            Write-Host "Failed to start RQ worker: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
     }
 }
 
@@ -339,7 +786,7 @@ function Start-AutoRestartServices {
         
         # Step 3: Start RQ Worker
         Write-Host "`nStep 3: Starting RQ Worker..." -ForegroundColor Yellow
-        if (Start-RQWorker) {
+        if (Start-RQWorker -Environment $Environment) {
             Write-Host "✅ RQ Worker started successfully" -ForegroundColor Green
             $restartSteps += "RQ Worker"
         } else {
@@ -350,28 +797,58 @@ function Start-AutoRestartServices {
         # Step 4: Restart main application services
         Write-Host "`nStep 4: Restarting main services..." -ForegroundColor Yellow
         
-        # Clean up existing services before restarting
-        Cleanup-ServicesForRestart
-        
-        if ($Environment -eq "Development") {
-            # Restart development services
-            if (Start-DevelopmentMode) {
-                Write-Host "✅ Development services restarted successfully" -ForegroundColor Green
-                $restartSteps += "Development Services"
-                $success = $true
-            } else {
-                Write-Host "❌ Failed to restart development services" -ForegroundColor Red
-                Write-CrashLog "Auto-restart failed: Could not restart development services" -Level "ERROR"
+        if ($Environment -like "*Docker*") {
+            # Restart Docker services
+            Write-Host "Restarting Docker services..." -ForegroundColor Yellow
+            
+            # Determine which docker-compose file to use
+            $dockerComposeFile = "docker-compose.yml"
+            if ($Environment -eq "DockerDevelopment") {
+                $dockerComposeFile = "docker-compose.dev.yml"
+            } elseif ($Environment -eq "DockerProduction") {
+                $dockerComposeFile = "docker-compose.prod.yml"
             }
-        } elseif ($Environment -eq "Production") {
-            # Restart production services
-            if (Start-ProductionMode) {
-                Write-Host "✅ Production services restarted successfully" -ForegroundColor Green
-                $restartSteps += "Production Services"
-                $success = $true
-            } else {
-                Write-Host "❌ Failed to restart production services" -ForegroundColor Red
-                Write-CrashLog "Auto-restart failed: Could not restart production services" -Level "ERROR"
+            
+            # Restart Docker services
+            try {
+                $restartProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "restart" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+                
+                if ($restartProcess.ExitCode -eq 0) {
+                    Write-Host "✅ Docker services restarted successfully" -ForegroundColor Green
+                    $restartSteps += "Docker Services"
+                    $success = $true
+                } else {
+                    Write-Host "❌ Failed to restart Docker services" -ForegroundColor Red
+                    Write-CrashLog "Auto-restart failed: Could not restart Docker services" -Level "ERROR"
+                }
+            } catch {
+                Write-Host "❌ Error restarting Docker services: $($_.Exception.Message)" -ForegroundColor Red
+                Write-CrashLog "Auto-restart failed: Docker restart error: $($_.Exception.Message)" -Level "ERROR"
+            }
+        } else {
+            # Clean up existing services before restarting
+            Remove-ServicesForRestart
+            
+            if ($Environment -eq "Development") {
+                # Restart development services
+                if (Start-DevelopmentMode) {
+                    Write-Host "✅ Development services restarted successfully" -ForegroundColor Green
+                    $restartSteps += "Development Services"
+                    $success = $true
+                } else {
+                    Write-Host "❌ Failed to restart development services" -ForegroundColor Red
+                    Write-CrashLog "Auto-restart failed: Could not restart development services" -Level "ERROR"
+                }
+            } elseif ($Environment -eq "Production") {
+                # Restart production services
+                if (Start-ProductionMode) {
+                    Write-Host "✅ Production services restarted successfully" -ForegroundColor Green
+                    $restartSteps += "Production Services"
+                    $success = $true
+                } else {
+                    Write-Host "❌ Failed to restart production services" -ForegroundColor Red
+                    Write-CrashLog "Auto-restart failed: Could not restart production services" -Level "ERROR"
+                }
             }
         }
         
@@ -414,11 +891,19 @@ function Test-ServiceHealth {
     
     try {
         # Test backend health
-        if ($script:BackendProcess -and !$script:BackendProcess.HasExited) {
+        # For Docker environments, always check the health endpoint regardless of process status
+        $shouldCheckBackend = $true
+        
+        # For native Windows environments, check if the process exists
+        if ($Environment -notlike "*Docker*" -and $script:BackendProcess) {
+            $shouldCheckBackend = !$script:BackendProcess.HasExited
+        }
+        
+        if ($shouldCheckBackend) {
             # Retry logic for backend health check
             for ($i = 1; $i -le 3; $i++) {
                 try {
-                    $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+                    $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
                     if ($response.status -eq "healthy") {
                         $healthStatus.Backend = $true
                         break # Exit loop on success
@@ -431,8 +916,16 @@ function Test-ServiceHealth {
         }
         
         # Test frontend (development mode only)
-        if ($Environment -eq "Development") {
-            if ($script:FrontendProcess -and !$script:FrontendProcess.HasExited) {
+        if ($Environment -eq "Development" -or $Environment -eq "DockerDevelopment") {
+            # For Docker environments, always check the frontend endpoint
+            $shouldCheckFrontend = $true
+            
+            # For native Windows environments, check if the process exists
+            if ($Environment -eq "Development" -and $script:FrontendProcess) {
+                $shouldCheckFrontend = !$script:FrontendProcess.HasExited
+            }
+            
+            if ($shouldCheckFrontend) {
                 # Retry logic for frontend health check
                 for ($i = 1; $i -le 3; $i++) {
                     try {
@@ -450,40 +943,86 @@ function Test-ServiceHealth {
         }
         
         # Test Nginx (production mode only)
-        if ($Environment -eq "Production") {
-            if ($script:NginxProcess -and !$script:NginxProcess.HasExited) {
-                # Check if Nginx is listening on port 443
+        if ($Environment -eq "Production" -or $Environment -eq "DockerProduction") {
+            if ($Environment -like "*Docker*") {
+                # For Docker environments, check if Nginx container is running and responding
                 try {
-                    $listening = netstat -ano | findstr ":443" | findstr "LISTENING"
-                    if ($listening) {
-                        $healthStatus.Nginx = $true
+                    $nginxContainer = docker ps --filter "name=casestrainer-nginx-prod" --format "{{.Names}}" 2>&1
+                    if ($nginxContainer -like "*casestrainer-nginx-prod*") {
+                        # Test if Nginx is responding on port 80
+                        $response = Invoke-WebRequest -Uri "http://localhost:80" -TimeoutSec 5 -ErrorAction Stop
+                        if ($response.StatusCode -eq 200 -or $response.StatusCode -eq 301 -or $response.StatusCode -eq 302) {
+                            $healthStatus.Nginx = $true
+                        } else {
+                            $healthStatus.Nginx = $false
+                            Write-Host "Nginx returned status code $($response.StatusCode) on port 80 (expected 200, 301, or 302)" -ForegroundColor Yellow
+                        }
                     } else {
                         $healthStatus.Nginx = $false
+                        Write-Host "Nginx container not running" -ForegroundColor Yellow
                     }
                 } catch {
                     $healthStatus.Nginx = $false
+                    Write-Host "Nginx health check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                }
+            } else {
+                # For native Windows environments, check if Nginx process exists and is listening
+                if ($script:NginxProcess -and !$script:NginxProcess.HasExited) {
+                    try {
+                        $listening = netstat -ano | findstr ":443" | findstr "LISTENING"
+                        if ($listening) {
+                            $healthStatus.Nginx = $true
+                        } else {
+                            $healthStatus.Nginx = $false
+                        }
+                    } catch {
+                        $healthStatus.Nginx = $false
+                    }
                 }
             }
         }
         
         # Test Redis
         try {
-            $testConnection = python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('OK')" 2>&1
+            # Use different Redis ports based on environment
+            $redisPort = 6379  # Default for native Windows and Docker Production
+            if ($Environment -eq "DockerDevelopment") {
+                $redisPort = 6379  # All modes use standard Redis port 6379
+            }
+            
+            python -c "import redis; r = redis.Redis(host='localhost', port=$redisPort, db=0); r.ping(); print('OK')" 2>&1 | Out-Null
             $healthStatus.Redis = $LASTEXITCODE -eq 0
         } catch {
             $healthStatus.Redis = $false
         }
         
         # Test RQ Worker
-        $rqWorkerProcesses = Get-Process python -ErrorAction SilentlyContinue | 
-            Where-Object { $_.CommandLine -like '*rq worker*' }
-        $healthStatus.RQWorker = $rqWorkerProcesses.Count -gt 0
+        if ($Environment -like "*Docker*") {
+            # For Docker environments, check if RQ worker container is running
+            try {
+                # Use different container names based on environment
+                $rqContainerName = "casestrainer-rqworker-dev"
+                if ($Environment -eq "DockerProduction") {
+                    $rqContainerName = "casestrainer-rqworker-prod"
+                }
+                
+                $rqContainer = docker ps --filter "name=$rqContainerName" --format "{{.Names}}" 2>&1
+                $healthStatus.RQWorker = $rqContainer -like "*$rqContainerName*"
+            } catch {
+                $healthStatus.RQWorker = $false
+            }
+        } else {
+            # For native Windows environments, check for Python processes
+            $rqWorkerProcesses = Get-Process python -ErrorAction SilentlyContinue | 
+                Where-Object { $_.CommandLine -like '*rq worker*' }
+            $healthStatus.RQWorker = $rqWorkerProcesses.Count -gt 0
+        }
         
         # Overall health (all critical services must be healthy)
         $criticalServices = @($healthStatus.Backend)
-        if ($Environment -eq "Development") {
+        if ($Environment -eq "Development" -or $Environment -eq "DockerDevelopment") {
             $criticalServices += $healthStatus.Frontend
-        } elseif ($Environment -eq "Production") {
+        } elseif ($Environment -eq "Production" -or $Environment -eq "DockerProduction") {
             $criticalServices += $healthStatus.Nginx
         }
         
@@ -667,23 +1206,36 @@ function Show-Menu {
     Write-Host "    - Nginx reverse proxy with SSL"
     Write-Host ""
     
-    Write-Host " 3. Check Server Status" -ForegroundColor Yellow
-    Write-Host " 4. Stop All Services" -ForegroundColor Red
-    Write-Host " 5. Restart Development Backend" -ForegroundColor Yellow
-    Write-Host " 6. Restart Production Backend" -ForegroundColor Yellow
-    Write-Host " 7. View Logs" -ForegroundColor Yellow
-    Write-Host " 8. View LangSearch Cache" -ForegroundColor Yellow
-    Write-Host " 9. Redis/RQ Management (Background Tasks)" -ForegroundColor Yellow
-    Write-Host "10. Help" -ForegroundColor Cyan
-    Write-Host "11. View Citation Cache Info" -ForegroundColor Yellow
-    Write-Host "12. Clear Unverified Citation Cache" -ForegroundColor Yellow
-    Write-Host "13. Clear All Citation Cache" -ForegroundColor Red
-    Write-Host "14. View Non-CourtListener Verified Citation Cache" -ForegroundColor Yellow
-    Write-Host "15. Service Monitoring Status" -ForegroundColor Blue
+            Write-Host " 3. Docker Development Mode (with SSL)" -ForegroundColor Green
+            Write-Host "    - Complete Docker Compose deployment with SSL support"
+        Write-Host "    - Redis, Backend, RQ Worker, Frontend, and Nginx in containers"
+        Write-Host "    - HTTPS access via proper SSL certificates"
+    Write-Host "    - Hot reload for frontend development"
+    Write-Host ""
+    
+    Write-Host " 4. Docker Production Mode" -ForegroundColor Green
+    Write-Host "    - Complete Docker Compose deployment"
+    Write-Host "    - Redis, Backend, RQ Worker, Frontend Prod, and Nginx in containers"
+    Write-Host "    - Production-ready with SSL support"
+    Write-Host ""
+    
+    Write-Host " 5. Check Server Status" -ForegroundColor Yellow
+    Write-Host " 6. Stop All Services" -ForegroundColor Red
+    Write-Host " 7. Restart Development Backend (with Redis)" -ForegroundColor Yellow
+    Write-Host " 8. Restart Production Backend (with Redis)" -ForegroundColor Yellow
+    Write-Host " 9. View Logs" -ForegroundColor Yellow
+    Write-Host "10. View LangSearch Cache" -ForegroundColor Yellow
+    Write-Host "11. Redis/RQ Management (Background Tasks)" -ForegroundColor Yellow
+    Write-Host "12. Help" -ForegroundColor Cyan
+    Write-Host "13. View Citation Cache Info" -ForegroundColor Yellow
+    Write-Host "14. Clear Unverified Citation Cache" -ForegroundColor Yellow
+    Write-Host "15. Clear All Citation Cache" -ForegroundColor Red
+    Write-Host "16. View Non-CourtListener Verified Citation Cache" -ForegroundColor Yellow
+    Write-Host "17. Service Monitoring Status" -ForegroundColor Blue
     Write-Host " 0. Exit" -ForegroundColor Gray
     Write-Host ""
     
-    $selection = Read-Host "Select an option (0-15)"
+    $selection = Read-Host "Select an option (0-17)"
     return $selection
 }
 
@@ -693,12 +1245,14 @@ function Show-Help {
     Write-Host "Usage:"
     Write-Host "  .\launcher.ps1 [Options]`n"
     Write-Host "Options:"
-    Write-Host "  -Environment <Development|Production|Menu>"
+    Write-Host "  -Environment <Development|Production|DockerDevelopment|DockerProduction|Menu>"
     Write-Host "      Select environment directly (default: Menu)`n"
     Write-Host "  -NoMenu"
     Write-Host "      Run without showing the interactive menu`n"
     Write-Host "  -SkipBuild"
     Write-Host "      Skip frontend build in production mode`n"
+    Write-Host "  -ForceBuild"
+    Write-Host "      Force rebuild frontend even if recent build exists`n"
     Write-Host "  -VerboseLogging"
     Write-Host "      Enable detailed logging output`n"
     Write-Host "  -Help"
@@ -707,7 +1261,10 @@ function Show-Help {
     Write-Host "  .\launcher.ps1                           # Show interactive menu"
     Write-Host "  .\launcher.ps1 -Environment Development  # Start in Development mode"
     Write-Host "  .\launcher.ps1 -Environment Production   # Start in Production mode"
+    Write-Host "  .\launcher.ps1 -Environment DockerDevelopment   # Start in Docker Development mode"
+    Write-Host "  .\launcher.ps1 -Environment DockerProduction    # Start in Docker Production mode"
     Write-Host "  .\launcher.ps1 -NoMenu -Env Production -SkipBuild   # Quick production start`n"
+    Write-Host "  .\launcher.ps1 -NoMenu -Env Production -ForceBuild  # Force rebuild frontend`n"
     Write-Host "Press any key to return to the menu..." -NoNewline
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
@@ -733,7 +1290,7 @@ function Show-ServerStatus {
         
         # Test backend health
         try {
-            $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
             Write-Host "  Status: $($response.status)" -ForegroundColor Green
             Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
         } catch {
@@ -786,7 +1343,7 @@ function Show-ServerStatus {
         Write-Host "  Development: http://localhost:5173/" -ForegroundColor Green
     }
     if ($backendProcesses) {
-        Write-Host "  API Direct: http://localhost:5000/casestrainer/api/health" -ForegroundColor Green
+        Write-Host "  API Direct: http://localhost:$($config.BackendPort)/casestrainer/api/health" -ForegroundColor Green
     }
     
     Write-Host "`nPress any key to return to the menu..." -NoNewline
@@ -1375,14 +1932,24 @@ function Show-UnverifiedCitationCache {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
+function Clear-PythonCache {
+    Write-Host "Clearing Python .pyc files and __pycache__ directories..." -ForegroundColor Yellow
+    Get-ChildItem -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -Recurse -Directory -Filter __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "Python cache cleared." -ForegroundColor Green
+}
+
+# In Start-DevelopmentMode and Start-ProductionMode, call Clear-PythonCache before starting backend
 function Start-DevelopmentMode {
     Write-Host "`n=== Starting Development Mode ===`n" -ForegroundColor Green
-    
+    Clear-PythonCache
     # Set environment variables
     $env:FLASK_ENV = "development"
+    $env:CASTRAINER_ENV = "development"
     $env:FLASK_APP = $config.BackendPath
     $env:PYTHONPATH = $PSScriptRoot
     $env:NODE_ENV = ""  # Clear NODE_ENV for Vite
+    $env:COURTLISTENER_API_KEY = "***REDACTED_COURTLISTENER_KEY***"
     
     # Create data directory
     $dataDir = Split-Path $config.DatabasePath -Parent
@@ -1391,6 +1958,10 @@ function Start-DevelopmentMode {
     }
     
     Write-Host "Starting Flask backend in development mode..." -ForegroundColor Cyan
+    
+    # Create log files for backend
+    $backendLogPath = Join-Path $script:LogDirectory "backend_dev.log"
+    $backendErrorPath = Join-Path $script:LogDirectory "backend_dev_error.log"
     
     # Start Flask in development mode with CORS
     $flaskScript = @"
@@ -1424,15 +1995,17 @@ if __name__ == '__main__':
     $flaskScript | Out-File -FilePath $tempScript -Encoding UTF8
     
     try {
-        $script:BackendProcess = Start-Process -FilePath $venvPython -ArgumentList $tempScript -NoNewWindow -PassThru
+        $script:BackendProcess = Start-Process -FilePath $venvPython -ArgumentList $tempScript -NoNewWindow -PassThru -RedirectStandardOutput $backendLogPath -RedirectStandardError $backendErrorPath
         Write-Host "Backend started (PID: $($script:BackendProcess.Id))" -ForegroundColor Green
+        Write-Host "Backend logs: $backendLogPath" -ForegroundColor Gray
+        Write-Host "Backend errors: $backendErrorPath" -ForegroundColor Gray
         
         # Wait for backend to start
         Start-Sleep -Seconds 5
         
         # Test backend
         try {
-            $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
+            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
             Write-Host "Backend health check: $($response.status)" -ForegroundColor Green
         } catch {
             Write-Host "Backend health check failed: $($_.Exception.Message)" -ForegroundColor Yellow
@@ -1440,7 +2013,7 @@ if __name__ == '__main__':
         
         # Start RQ worker for task processing
         Write-Host "`nStarting RQ worker..." -ForegroundColor Cyan
-        if (-not (Start-RQWorker)) {
+        if (-not (Start-RQWorker -Environment "Development")) {
             Write-Host "Warning: RQ worker failed to start. Tasks may not be processed." -ForegroundColor Yellow
         }
         
@@ -1509,11 +2082,16 @@ if __name__ == '__main__':
         
         # Start dev server using cmd.exe to handle npm properly
         Write-Host "Starting dev server in $frontendPath..." -ForegroundColor Yellow
-        $script:FrontendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm", "run", "dev" -WorkingDirectory $frontendPath -NoNewWindow -PassThru
+        
+        # Create log file for frontend
+        $frontendLogPath = Join-Path $script:LogDirectory "frontend_dev.log"
+        
+        $script:FrontendProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm", "run", "dev" -WorkingDirectory $frontendPath -NoNewWindow -PassThru -RedirectStandardOutput $frontendLogPath
         if (!$script:FrontendProcess) {
             throw "Failed to start frontend process"
         }
         Write-Host "Frontend started (PID: $($script:FrontendProcess.Id))" -ForegroundColor Green
+        Write-Host "Frontend logs: $frontendLogPath" -ForegroundColor Gray
         
     } catch {
         Write-Host "Failed to start frontend: $($_.Exception.Message)" -ForegroundColor Red
@@ -1530,6 +2108,9 @@ if __name__ == '__main__':
     Write-Host "Backend API:    http://localhost:$($config.BackendPort)/casestrainer/api/" -ForegroundColor Green
     Write-Host "`nPress Ctrl+C to stop all services" -ForegroundColor Yellow
     
+    # Show final status report
+    Show-FinalStatusReport -Environment "Development"
+    
     # Open browser
     try {
         Start-Process "http://localhost:$($config.FrontendDevPort)/"
@@ -1542,16 +2123,16 @@ if __name__ == '__main__':
 
 function Start-ProductionMode {
     Write-Host "`n=== Starting Production Mode ===`n" -ForegroundColor Green
-    
-    Initialize-LogDirectory
-    
+    Clear-PythonCache
     # Set environment variables
     $env:FLASK_ENV = "production"
+    $env:CASTRAINER_ENV = "production"
     $env:FLASK_APP = $config.BackendPath
     $env:CORS_ORIGINS = $config.CORS_ORIGINS
     $env:DATABASE_PATH = $config.DatabasePath
     $env:LOG_LEVEL = "INFO"
     $env:PYTHONPATH = $PSScriptRoot
+    $env:COURTLISTENER_API_KEY = "***REDACTED_COURTLISTENER_KEY***"
     
     # Create data directory
     $dataDir = Split-Path $config.DatabasePath -Parent
@@ -1561,33 +2142,54 @@ function Start-ProductionMode {
     
     # Build frontend unless skipped
     if (!$SkipBuild) {
+        # Check if Vue build is needed
+        $buildNeeded = Test-VueBuildNeeded
+        
+        if ($buildNeeded) {
         Write-Host "Building frontend for production..." -ForegroundColor Cyan
         
-        Push-Location (Join-Path $PSScriptRoot $config.FrontendPath)
+            $vueBuildSuccess = $false
         try {
             # Clear NODE_ENV to avoid Vite issues
             $originalNodeEnv = $env:NODE_ENV
             $env:NODE_ENV = $null
             
-            # Skip npm ci to avoid file lock issues, just run build directly
-            # npm ci 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_install.log"
-            # if ($LASTEXITCODE -ne 0) {
-            #     throw "npm ci failed"
-            # }
-            
-            npm run build 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_build.log"
-            if ($LASTEXITCODE -ne 0) {
-                throw "npm build failed"
-            }
-            
-            Write-Host "Frontend build completed" -ForegroundColor Green
+                # Use a timeout to prevent hanging
+                $buildTimeout = 300  # 5 minutes
+                $buildStartTime = Get-Date
+                
+                Write-Host "Starting npm build with $buildTimeout second timeout..." -ForegroundColor Yellow
+                
+                # Run npm build with timeout and proper output handling
+                $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -WorkingDirectory (Join-Path $PSScriptRoot $config.FrontendPath) -NoNewWindow -PassThru -RedirectStandardOutput (Join-Path $script:LogDirectory "npm_build.log") -RedirectStandardError (Join-Path $script:LogDirectory "npm_build_error.log")
+                
+                # Wait for process with timeout
+                $processExited = $buildProcess.WaitForExit($buildTimeout * 1000)
+                
+                if (-not $processExited) {
+                    Write-Host "⚠️  npm build timed out after $buildTimeout seconds" -ForegroundColor Yellow
+                    Write-Host "   Killing build process..." -ForegroundColor Yellow
+                    try { $buildProcess.Kill() } catch {}
+                    throw "npm build timed out"
+                } elseif ($buildProcess.ExitCode -eq 0) {
+                    Write-Host "✅ Frontend build completed successfully" -ForegroundColor Green
+                    $buildDuration = (Get-Date) - $buildStartTime
+                    Write-Host "   Build time: $($buildDuration.TotalSeconds.ToString('F1')) seconds" -ForegroundColor Gray
+                    $vueBuildSuccess = $true
+                } else {
+                    Write-Host "❌ npm build failed with exit code: $($buildProcess.ExitCode)" -ForegroundColor Red
+                    Write-Host "   Check logs: $script:LogDirectory\npm_build.log" -ForegroundColor Yellow
+                    throw "npm build failed with exit code: $($buildProcess.ExitCode)"
+                }
             
         } catch {
             Write-Host "Frontend build failed: $($_.Exception.Message)" -ForegroundColor Red
             return $false
         } finally {
             $env:NODE_ENV = $originalNodeEnv
-            Pop-Location
+            }
+        } else {
+            Write-Host "✅ Using existing Vue build - no rebuild needed" -ForegroundColor Green
         }
     }
     
@@ -1622,7 +2224,7 @@ function Start-ProductionMode {
         
         # Test backend health
         try {
-            $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
+            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
             Write-Host "Backend health check: $($response.status)" -ForegroundColor Green
         } catch {
             Write-Host "Backend health check failed" -ForegroundColor Yellow
@@ -1630,7 +2232,7 @@ function Start-ProductionMode {
         
         # Start RQ worker for task processing
         Write-Host "`nStarting RQ worker..." -ForegroundColor Cyan
-        if (-not (Start-RQWorker)) {
+        if (-not (Start-RQWorker -Environment "Production")) {
             Write-Host "Warning: RQ worker failed to start. Tasks may not be processed." -ForegroundColor Yellow
         }
         
@@ -1773,6 +2375,9 @@ function Start-ProductionMode {
     Write-Host "API Direct:  http://localhost:$($config.BackendPort)/casestrainer/api/" -ForegroundColor Green
     Write-Host "`nPress Ctrl+C to stop all services" -ForegroundColor Yellow
     
+    # Show final status report
+    Show-FinalStatusReport -Environment "Production"
+    
     # Open browser with external URL instead of localhost
     try {
         Start-Process "https://wolf.law.uw.edu/casestrainer/"
@@ -1820,7 +2425,7 @@ function Stop-Services {
     Write-Host "All services stopped" -ForegroundColor Green
 }
 
-function Cleanup-ServicesForRestart {
+function Remove-ServicesForRestart {
     Write-CrashLog "Cleaning up services for restart" -Level "INFO"
     Write-Host "Cleaning up services for restart..." -ForegroundColor Yellow
     
@@ -1855,6 +2460,18 @@ function Cleanup-ServicesForRestart {
 function Restart-DevelopmentBackend {
     Clear-Host
     Write-Host "`n=== Restarting Development Backend ===`n" -ForegroundColor Cyan
+    
+    # First, ensure Redis is running
+    Write-Host "Checking Redis status..." -ForegroundColor Yellow
+    $redisStarted = Start-RedisDocker
+    if (-not $redisStarted) {
+        Write-Host "❌ Failed to start Redis. Backend restart may not work properly." -ForegroundColor Red
+        Write-Host "Consider using Option 1 (Development Mode) for a complete restart." -ForegroundColor Yellow
+        Write-Host "`nPress any key to return..." -NoNewline
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        return
+    }
+    Write-Host "✅ Redis is running" -ForegroundColor Green
     
     # Check if backend is currently running
     $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
@@ -1900,11 +2517,13 @@ function Restart-DevelopmentBackend {
         
         while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
             try {
-                $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+                $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
                 if ($response.status -eq "healthy") {
                     Write-Host "✅ Development backend is healthy and responding!" -ForegroundColor Green
                     Write-Host "  Status: $($response.status)" -ForegroundColor Green
                     Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
                     break
                 }
             } catch {
@@ -1932,6 +2551,18 @@ function Restart-DevelopmentBackend {
 function Restart-ProductionBackend {
     Clear-Host
     Write-Host "`n=== Restarting Production Backend ===`n" -ForegroundColor Cyan
+    
+    # First, ensure Redis is running
+    Write-Host "Checking Redis status..." -ForegroundColor Yellow
+    $redisStarted = Start-RedisDocker
+    if (-not $redisStarted) {
+        Write-Host "❌ Failed to start Redis. Backend restart may not work properly." -ForegroundColor Red
+        Write-Host "Consider using Option 2 (Production Mode) for a complete restart." -ForegroundColor Yellow
+        Write-Host "`nPress any key to return..." -NoNewline
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+        return
+    }
+    Write-Host "✅ Redis is running" -ForegroundColor Green
     
     # Check if backend is currently running
     $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
@@ -1980,11 +2611,13 @@ function Restart-ProductionBackend {
         
         while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
             try {
-                $response = Invoke-RestMethod -Uri "http://127.0.0.1:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
+                $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
                 if ($response.status -eq "healthy") {
                     Write-Host "✅ Production backend is healthy and responding!" -ForegroundColor Green
                     Write-Host "  Status: $($response.status)" -ForegroundColor Green
                     Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
                     break
                 }
             } catch {
@@ -2009,6 +2642,137 @@ function Restart-ProductionBackend {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
+# Status Report Function
+function Show-FinalStatusReport {
+    param(
+        [string]$Environment = "Development"
+    )
+    
+    Write-Host ""
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+    Write-Host "                    CASE STRAINER STATUS REPORT" -ForegroundColor Cyan
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+    
+    $report = @()
+    
+    # Redis Status
+    $redisStatus = "❌ DOWN"
+    $redisContainer = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+    if ($redisContainer) {
+        $redisStatus = "✅ RUNNING"
+    }
+    $report += [PSCustomObject]@{
+        Service = "Redis"
+        Status = $redisStatus
+        URL = "localhost:$($config.RedisPort)"
+        LogFile = "Docker logs: docker logs casestrainer-redis"
+    }
+    
+    # Backend Status
+    $backendStatus = "❌ DOWN"
+    $backendUrl = "N/A"
+    $backendLogFile = "N/A"
+    
+    if ($script:BackendProcess -and !$script:BackendProcess.HasExited) {
+        $backendStatus = "✅ RUNNING"
+        $backendUrl = "http://localhost:$($config.BackendPort)/casestrainer/api/"
+        if ($Environment -eq "Development") {
+            $backendLogFile = "logs/backend_dev.log"
+        } else {
+            $backendLogFile = "logs/backend.log"
+        }
+    }
+    $report += [PSCustomObject]@{
+        Service = "Backend"
+        Status = $backendStatus
+        URL = $backendUrl
+        LogFile = $backendLogFile
+    }
+    
+    # RQ Worker Status
+    $rqStatus = "❌ DOWN"
+    $rqLogFile = "N/A"
+    if ($script:RQWorkerProcess -and !$script:RQWorkerProcess.HasExited) {
+        $rqStatus = "✅ RUNNING"
+        if ($Environment -eq "Development") {
+            $rqLogFile = "logs/rq_worker_dev.log"
+        } else {
+            $rqLogFile = "logs/rq_worker.log"
+        }
+    }
+    $report += [PSCustomObject]@{
+        Service = "RQ Worker"
+        Status = $rqStatus
+        URL = "Background Process"
+        LogFile = $rqLogFile
+    }
+    
+    # Frontend Status (Development only)
+    if ($Environment -eq "Development") {
+        $frontendStatus = "❌ DOWN"
+        $frontendUrl = "N/A"
+        $frontendLogFile = "N/A"
+        
+        if ($script:FrontendProcess -and !$script:FrontendProcess.HasExited) {
+            $frontendStatus = "✅ RUNNING"
+            $frontendUrl = "http://localhost:$($config.FrontendDevPort)/"
+            $frontendLogFile = "logs/frontend_dev.log"
+        }
+        $report += [PSCustomObject]@{
+            Service = "Frontend (Dev)"
+            Status = $frontendStatus
+            URL = $frontendUrl
+            LogFile = $frontendLogFile
+        }
+    }
+    
+    # Nginx Status (Production only)
+    if ($Environment -eq "Production") {
+        $nginxStatus = "❌ DOWN"
+        $nginxUrl = "N/A"
+        $nginxLogFile = "N/A"
+        
+        if ($script:NginxProcess -and !$script:NginxProcess.HasExited) {
+            $nginxStatus = "✅ RUNNING"
+            $nginxUrl = "https://localhost:$($config.ProductionPort)/casestrainer/"
+            $nginxLogFile = "$($config.NginxPath)/logs/error.log"
+        }
+        $report += [PSCustomObject]@{
+            Service = "Nginx"
+            Status = $nginxStatus
+            URL = $nginxUrl
+            LogFile = $nginxLogFile
+        }
+    }
+    
+    # Display the report
+    $report | Format-Table -AutoSize -Property Service, Status, URL, LogFile
+    
+    # Summary
+    $runningServices = ($report | Where-Object { $_.Status -eq "✅ RUNNING" }).Count
+    $totalServices = $report.Count
+    
+    Write-Host ""
+    Write-Host ("-" * 80) -ForegroundColor Gray
+    Write-Host "SUMMARY: $runningServices/$totalServices services running" -ForegroundColor $(if ($runningServices -eq $totalServices) { "Green" } else { "Yellow" })
+    
+    # Quick access URLs
+    Write-Host ""
+    Write-Host "QUICK ACCESS:" -ForegroundColor Cyan
+    if ($Environment -eq "Development") {
+        Write-Host "  Frontend: http://localhost:$($config.FrontendDevPort)/" -ForegroundColor White
+        Write-Host "  Backend API: http://localhost:$($config.BackendPort)/casestrainer/api/health" -ForegroundColor White
+        Write-Host "  Redis:          localhost:$($config.RedisPort)" -ForegroundColor White
+    } else {
+        Write-Host "  Application: https://localhost:$($config.ProductionPort)/casestrainer/" -ForegroundColor White
+        Write-Host "  External: https://wolf.law.uw.edu/casestrainer/" -ForegroundColor White
+        Write-Host "  Redis:          localhost:$($config.RedisPort)" -ForegroundColor White
+    }
+    
+    Write-Host ""
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+}
+
 # Main execution
 try {
     # Initialize crash logging
@@ -2028,19 +2792,21 @@ try {
             switch ($selection) {
                 '1' { $Environment = "Development"; break }
                 '2' { $Environment = "Production"; break }
-                '3' { Show-ServerStatus; continue }
-                '4' { Stop-AllServices; continue }
-                '5' { Restart-DevelopmentBackend; continue }
-                '6' { Restart-ProductionBackend; continue }
-                '7' { Show-Logs; continue }
-                '8' { Show-LangSearchCache; continue }
-                '9' { Show-RedisDockerStatus; continue }
-                '10' { Show-Help; continue }
-                '11' { Show-CitationCacheInfo; continue }
-                '12' { Clear-UnverifiedCitationCache; continue }
-                '13' { Clear-AllCitationCache; continue }
-                '14' { Show-UnverifiedCitationCache; continue }
-                '15' { Show-MonitoringStatus; continue }
+                '3' { $Environment = "DockerDevelopment"; break }
+                '4' { $Environment = "DockerProduction"; break }
+                '5' { Show-ServerStatus; continue }
+                '6' { Stop-AllServices; continue }
+                '7' { Restart-DevelopmentBackend; continue }
+                '8' { Restart-ProductionBackend; continue }
+                '9' { Show-Logs; continue }
+                '10' { Show-LangSearchCache; continue }
+                '11' { Show-RedisDockerStatus; continue }
+                '12' { Show-Help; continue }
+                '13' { Show-CitationCacheInfo; continue }
+                '14' { Clear-UnverifiedCitationCache; continue }
+                '15' { Clear-AllCitationCache; continue }
+                '16' { Show-UnverifiedCitationCache; continue }
+                '17' { Show-MonitoringStatus; continue }
                 '0' { exit 0 }
                 default { 
                     Write-Host "`nInvalid selection. Please try again." -ForegroundColor Red
@@ -2094,6 +2860,164 @@ try {
             }
             $success = Start-ProductionMode
         }
+        "DockerDevelopment" {
+            Write-CrashLog "Starting Docker Development mode" -Level "INFO"
+            $success = Start-DockerMode -DockerMode "Development"
+            if ($success) {
+                Write-Host "\n=== Docker Development Mode URLs ===" -ForegroundColor Green
+                Write-Host "Backend API:    http://localhost:5000/casestrainer/api/" -ForegroundColor Green
+                Write-Host "Frontend Dev:   http://localhost:5173/" -ForegroundColor Green
+                Write-Host "Redis:          localhost:$($config.RedisPort)" -ForegroundColor Green
+                # --- Ensure frontend-dev is up ---
+                Write-Host "\nEnsuring frontend-dev container is running..." -ForegroundColor Cyan
+                $frontendDevResult = Start-Process -FilePath "docker-compose" -ArgumentList "up", "-d", "frontend-dev" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+                if ($frontendDevResult.ExitCode -eq 0) {
+                    Write-Host "✅ frontend-dev container started/restarted successfully" -ForegroundColor Green
+                } else {
+                    Write-Host "❌ Failed to start/restart frontend-dev container" -ForegroundColor Red
+                }
+            }
+        }
+        "DockerProduction" {
+            Write-CrashLog "Starting Docker Production mode" -Level "INFO"
+            # --- CLEANUP: Stop and remove any existing containers that could conflict ---
+            Write-Host "\nCleaning up old Docker containers..." -ForegroundColor Yellow
+            docker stop casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
+            docker rm casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
+            Write-Host "✅ Cleanup complete.\n" -ForegroundColor Green
+            # 1. Build Vue frontend
+            Write-Host "\n=== Building Vue frontend for production ===\n" -ForegroundColor Cyan
+            Push-Location "$PSScriptRoot\casestrainer-vue-new"
+            npm install
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "ERROR: npm install failed" -ForegroundColor Red
+                Pop-Location
+                exit 1
+            }
+            npm run build
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "ERROR: npm build failed" -ForegroundColor Red
+                Pop-Location
+                exit 1
+            }
+            Pop-Location
+            Write-Host "✅ Vue frontend build complete" -ForegroundColor Green
+
+            # 2. Check SSL cert/key
+            Write-Host "\nChecking SSL certificates for production..." -ForegroundColor Yellow
+            $sslCertPath = Join-Path $PSScriptRoot "nginx\ssl\WolfCertBundle.crt"
+            $sslKeyPath = Join-Path $PSScriptRoot "ssl\wolf.law.uw.edu.key"
+            if (-not (Test-Path $sslCertPath)) {
+                Write-Host "⚠️  SSL certificate not found: $sslCertPath" -ForegroundColor Yellow
+            } else {
+                Write-Host "✅ SSL certificate found: $sslCertPath" -ForegroundColor Green
+            }
+            if (-not (Test-Path $sslKeyPath)) {
+                Write-Host "⚠️  SSL private key not found: $sslKeyPath" -ForegroundColor Yellow
+            } else {
+                Write-Host "✅ SSL private key found: $sslKeyPath" -ForegroundColor Green
+            }
+
+            # 3. Start Docker Compose (prod)
+            $dockerComposeFile = "docker-compose.prod.yml"
+            Write-Host "\nBuilding and starting CaseStrainer production with Docker Compose..." -ForegroundColor Cyan
+            $buildProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "build" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+            if ($buildProcess.ExitCode -ne 0) {
+                Write-Host "❌ Docker build failed" -ForegroundColor Red
+                exit 1
+            }
+            Write-Host "✅ Docker images built successfully" -ForegroundColor Green
+            $startProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "up", "-d" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+            if ($startProcess.ExitCode -ne 0) {
+                Write-Host "❌ Failed to start Docker services" -ForegroundColor Red
+                exit 1
+            }
+            Write-Host "✅ All Docker services started successfully" -ForegroundColor Green
+            Write-Host "\nWaiting for services to be ready..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 15
+
+            # 4. Health checks for backend, nginx, rqworker
+            Write-Host "\nChecking backend health..." -ForegroundColor Yellow
+            $backendHealthy = $false
+            for ($i = 1; $i -le 8; $i++) {
+                try {
+                    $response = Invoke-RestMethod -Uri "http://localhost:5001/casestrainer/api/health" -TimeoutSec 5
+                    if ($response.status -eq "healthy") {
+                        Write-Host "✅ Backend is healthy and responding!" -ForegroundColor Green
+                        $backendHealthy = $true
+                        break
+                    }
+                } catch {}
+                Write-Host "Backend not ready yet, waiting... (attempt $i/8)" -ForegroundColor Yellow
+                Start-Sleep -Seconds 5
+            }
+            if (-not $backendHealthy) {
+                Write-Host "⚠️  Backend health check failed after 8 attempts" -ForegroundColor Yellow
+            }
+
+            Write-Host "\nChecking nginx SSL health..." -ForegroundColor Yellow
+            $nginxHealthy = $false
+            for ($i = 1; $i -le 8; $i++) {
+                try {
+                    $httpsResponse = Invoke-RestMethod -Uri "https://localhost/casestrainer/api/health" -TimeoutSec 5 -SkipCertificateCheck
+                    if ($httpsResponse.status -eq "healthy") {
+                        Write-Host "✅ Nginx SSL proxy working correctly!" -ForegroundColor Green
+                        $nginxHealthy = $true
+                        break
+                    }
+                } catch {
+                    Write-Host "Nginx SSL health check attempt $i failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                }
+                Write-Host "Nginx not ready yet, waiting... (attempt $i/8)" -ForegroundColor Yellow
+                Start-Sleep -Seconds 5
+            }
+            if (-not $nginxHealthy) {
+                Write-Host "⚠️  Nginx SSL health check failed after 8 attempts" -ForegroundColor Yellow
+            }
+
+            Write-Host "\nChecking RQ Worker health..." -ForegroundColor Yellow
+            $rqHealthy = $false
+            for ($i = 1; $i -le 5; $i++) {
+                $rqStatus = docker ps --filter "name=casestrainer-rqworker-prod" --format "{{.Status}}"
+                if ($rqStatus -like "Up*") {
+                    Write-Host "✅ RQ Worker is running" -ForegroundColor Green
+                    $rqHealthy = $true
+                    break
+                }
+                Write-Host "RQ Worker not ready yet, waiting... (attempt $i/5)" -ForegroundColor Yellow
+                Start-Sleep -Seconds 3
+            }
+            if (-not $rqHealthy) {
+                Write-Host "⚠️  RQ Worker health check failed after 5 attempts" -ForegroundColor Yellow
+            }
+
+            # 5. Show URLs
+            Write-Host "\n=== Docker Production Mode Ready ===\n" -ForegroundColor Green
+            Write-Host "Backend API:    http://localhost:5001/casestrainer/api/" -ForegroundColor Green
+            Write-Host "Frontend Prod:  http://localhost:8080/" -ForegroundColor Green
+            Write-Host "Nginx (HTTP):   http://localhost:80/" -ForegroundColor Green
+            Write-Host "Nginx (HTTPS):  https://localhost:443/" -ForegroundColor Green
+            Write-Host "Main Frontend:  https://localhost/casestrainer/" -ForegroundColor Green
+            Write-Host "API Health:     https://localhost/casestrainer/api/health" -ForegroundColor Green
+            Write-Host "\nDocker Commands:" -ForegroundColor Cyan
+            Write-Host "  View logs:    docker-compose -f $dockerComposeFile logs [service]" -ForegroundColor Gray
+            Write-Host "  Stop all:     docker-compose -f $dockerComposeFile down" -ForegroundColor Gray
+            Write-Host "  Restart:      docker-compose -f $dockerComposeFile restart [service]" -ForegroundColor Gray
+            Write-Host "\nPress Ctrl+C to stop all services" -ForegroundColor Yellow
+            try {
+                Start-Process "https://localhost/casestrainer/"
+            } catch {
+                Write-Host "Could not open browser automatically" -ForegroundColor Yellow
+            }
+            $success = $true
+            Write-Host "\nEnsuring frontend-prod container is running..." -ForegroundColor Cyan
+            $frontendProdResult = Start-Process -FilePath "docker-compose" -ArgumentList "restart", "frontend-prod" -WorkingDirectory $PSScriptRoot -NoNewWindow -PassThru -Wait
+            if ($frontendProdResult.ExitCode -eq 0) {
+                Write-Host "✅ frontend-prod container started/restarted successfully" -ForegroundColor Green
+            } else {
+                Write-Host "❌ Failed to start/restart frontend-prod container" -ForegroundColor Red
+            }
+        }
     }
     
     if ($success) {
@@ -2126,8 +3050,8 @@ try {
                         # Add more detailed logging to identify the failed service
                         $failedServices = @()
                         if (-not $health.Backend) { $failedServices += "Backend" }
-                        if ($currentEnv -eq "Development" -and -not $health.Frontend) { $failedServices += "Frontend" }
-                        if ($currentEnv -eq "Production" -and -not $health.Nginx) { $failedServices += "Nginx" }
+                        if (($currentEnv -eq "Development" -or $currentEnv -eq "DockerDevelopment") -and -not $health.Frontend) { $failedServices += "Frontend" }
+                        if (($currentEnv -eq "Production" -or $currentEnv -eq "DockerProduction") -and -not $health.Nginx) { $failedServices += "Nginx" }
 
                         $failMsg = "Service health check failed for critical services: $($failedServices -join ', ')"
                         Write-CrashLog $failMsg -Level "WARN"
