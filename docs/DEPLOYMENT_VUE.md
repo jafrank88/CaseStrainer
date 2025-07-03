@@ -4,7 +4,7 @@
 
 ## Quick Start for New Contributors
 
-- **Use only `start_casestrainer.bat` to start/restart the backend and Nginx.**
+- **Use `launcher.ps1` to start/restart all services in any environment.**
 - **Build the Vue.js frontend with `build_and_deploy_vue.bat`.**
 - **All API endpoints must use the `/casestrainer/api/` prefix.**
 - **Copy `.env.example` to `.env` and fill in your secrets.**
@@ -17,11 +17,11 @@
   pre-commit run --all-files
   ```
 - **Check logs** in the `logs/` directory if issues arise
-- **Nginx logs** are in `nginx-1.27.5/logs/`
+- **Docker logs** are available via `docker logs <container-name>`
 
 ---
 
-This guide provides comprehensive instructions for deploying the Vue.js version of CaseStrainer to the production server at https://wolf.law.uw.edu/casestrainer/.
+This guide provides comprehensive instructions for deploying the Vue.js version of CaseStrainer using Docker containers and the PowerShell launcher.
 
 ## Overview
 
@@ -29,11 +29,14 @@ The Vue.js version of CaseStrainer represents a complete modernization of the ap
 
 - A modern, responsive user interface built with Vue 3 and Composition API
 - Clear separation between frontend and backend (API-driven architecture)
+- Docker containerization for consistent deployment
+- Auto-restart system with health monitoring
+- Redis-based task queue for background processing
 - Improved maintainability and extensibility
 - Support for all existing features plus planned enhancements
 - Located in the `casestrainer-vue-new/` directory
 
-**IMPORTANT: The Vue.js frontend and backend API are now working correctly and deployed at https://wolf.law.uw.edu/casestrainer/**
+**IMPORTANT: The Vue.js frontend and backend API are now working correctly and deployed with Docker containers**
 
 ### Frontend Structure
 
@@ -55,19 +58,231 @@ casestrainer-vue-new/
 
 - **Python 3.8+** with pip
 - **Node.js 16+** and npm 8+ (LTS recommended)
-- **Windows Nginx 1.27.5** (included in repository)
+- **Docker Desktop** for Windows with WSL 2 backend
 - **Git** for version control
-- **Port 5000** available for Flask
-- **Ports 80/443** available for Nginx (production)
+- **PowerShell** (included with Windows)
+
+### System Requirements
+
+- **RAM**: Minimum 4GB, Recommended 8GB+
+- **Storage**: 2GB free space
+- **Network**: Internet connection for API calls
+- **Ports**: 5000, 5001, 6379 (Redis), 443, 80 (production)
+
+## Deployment Options
+
+### 1. Docker Production (Recommended)
+
+```powershell
+.\launcher.ps1 -Environment DockerProduction
+```
+
+This starts the complete production stack:
+
+- **Backend**: Containerized Flask app with Waitress WSGI server
+- **Frontend**: Nginx container serving Vue.js build
+- **Redis**: Dedicated container with persistence
+- **RQ Workers**: Multiple worker containers for background tasks
+- **Nginx**: Reverse proxy with SSL support
+- **Health Checks**: Automatic monitoring and recovery
+
+### 2. Docker Development
+
+```powershell
+.\launcher.ps1 -Environment DockerDevelopment
+```
+
+This starts a development environment with:
+
+- **Backend**: Containerized Flask development server
+- **Frontend**: Containerized Vue.js dev server with hot reload
+- **Redis**: Dedicated container
+- **Volume mounts**: Live code changes
+
+### 3. Local Development
+
+```powershell
+.\launcher.ps1 -Environment Development
+```
+
+This starts local services:
+
+- **Backend**: Flask development server on port 5000
+- **Frontend**: Vue.js dev server on port 5173
+- **Redis**: Local or Docker container
+
+### 4. Local Production
+
+```powershell
+.\launcher.ps1 -Environment Production
+```
+
+This starts local production services:
+
+- **Backend**: Flask app with Waitress WSGI
+- **Frontend**: Built and served by Flask
+- **Nginx**: Reverse proxy on port 443
+
+## Docker Configuration
+
+### Production Stack (`docker-compose.prod.yml`)
+
+```yaml
+services:
+  # Data Layer
+  redis:
+    image: redis:7-alpine
+    container_name: casestrainer-redis-prod
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data_prod:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+
+  # Application Layer
+  backend:
+    build: .
+    container_name: casestrainer-backend-prod
+    command: waitress-serve --port=5000 --threads=2 src.app_final_vue:app
+    ports:
+      - "5001:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    environment:
+      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+
+  # Background Workers
+  rqworker:
+    build: .
+    container_name: casestrainer-rqworker-prod
+    command: python src/rq_worker.py worker casestrainer
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - CASTRAINER_ENV=production
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+
+  # Frontend Production Build
+  frontend-prod:
+    build: 
+      context: ./casestrainer-vue-new
+      dockerfile: Dockerfile.prod
+    container_name: casestrainer-frontend-prod
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+
+  # Infrastructure Layer
+  nginx:
+    image: nginx:alpine
+    container_name: casestrainer-nginx-prod
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./ssl:/etc/nginx/ssl
+      - ./static:/var/www/html
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend-prod:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80/health || exit 1"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+```
+
+### Environment Configuration
+
+Create `.env.production` for Docker production:
+
+```ini
+# Flask Configuration
+FLASK_APP=src.app_final_vue
+FLASK_ENV=production
+SECRET_KEY=your-production-secret-key
+
+# API Keys
+COURTLISTENER_API_KEY=your-courtlistener-api-key
+LANGSEARCH_API_KEY=your-langsearch-api-key
+
+# Database
+DATABASE_FILE=/app/data/citations.db
+
+# Redis
+REDIS_URL=redis://casestrainer-redis-prod:6379/0
+
+# Email (UW SMTP)
+MAIL_SERVER=smtp.uw.edu
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-netid
+MAIL_PASSWORD=your-password
+MAIL_DEFAULT_SENDER=your-netid@uw.edu
+
+# Worker Environment
+CASTRAINER_ENV=production
+```
 
 ## Files and Components
 
-1. **Backend API (`vue_api.py`)** - Flask Blueprint with all API endpoints
-2. **Application Entry Point (`app_vue.py`)** - Main Flask application serving Vue.js frontend and API
-3. **Vue.js Frontend** - Located in the `casestrainer-vue` directory
-4. **Deployment Scripts**:
-   - `build_and_deploy_vue.bat` - Builds and deploys the Vue.js frontend
-   - **All other batch scripts are deprecated. Use only `start_casestrainer.bat` for startup/restart and `build_and_deploy_vue.bat` for frontend build/deploy.**
+1. **Backend API (`src/vue_api_endpoints.py`)** - Flask Blueprint with all API endpoints
+2. **Application Entry Point (`src/app_final_vue.py`)** - Main Flask application serving Vue.js frontend and API
+3. **Vue.js Frontend** - Located in the `casestrainer-vue-new` directory
+4. **Docker Configuration**:
+   - `docker-compose.prod.yml` - Production Docker stack
+   - `docker-compose.dev.yml` - Development Docker stack
+   - `Dockerfile` - Backend container definition
+   - `casestrainer-vue-new/Dockerfile.prod` - Frontend container definition
+5. **Launcher Script**:
+   - `launcher.ps1` - PowerShell launcher with auto-restart capabilities
 
 ## Deployment Steps
 
@@ -81,7 +296,7 @@ pip install -r requirements.txt
 
 ### 2. Build and Deploy the Vue.js Frontend
 
-Run the build script to compile the Vue.js frontend and copy it to the correct location:
+Run the build script to compile the Vue.js frontend:
 
 ```bash
 .\build_and_deploy_vue.bat
@@ -94,89 +309,120 @@ This script will:
 
 > **Note**: This step requires Node.js and npm to be installed. If you don't have them, you can download from https://nodejs.org/.
 
-### 3. API Path and Prefix Consistency
+### 3. Configure Environment
 
-- All API endpoints are available under `/casestrainer/api/`.
-
-### API Base Path
-
-All API endpoints are accessed under the `/api/` prefix. For example:
-- `https://wolf.law.uw.edu/casestrainer/api/analyze`
-- `http://localhost:5000/api/analyze`
-
-**Troubleshooting:**
-If you encounter 404 or path errors, ensure your Nginx/proxy configuration is correctly handling the `/casestrainer` prefix and forwarding requests to the backend with the correct path.
-
-### Startup Script
-
-Always use `start_casestrainer.bat` to start or restart the application. All other batch files are archived and unsupported.
-- The Vue.js frontend and Nginx proxy must use the `/casestrainer` prefix for all routes.
-- If you encounter 404 or path errors, check both frontend and Nginx configuration for prefix consistency.
-
-### 4. Security Checklist
-- All secrets and sensitive configuration must be stored in `.env` and referenced via `config.py`.
-- `.env` and other sensitive files must be included in `.gitignore` and never committed.
-- Use pre-commit hooks to scan for secrets before pushing code.
-
-### 5. Running Backend Tests
-- (To be filled in after test script is added)
-
-### 6. Configure the Environment
-
-Ensure the application is configured to run on port 5000 and listen on all interfaces (0.0.0.0):
+Create the production environment file:
 
 ```bash
-set HOST=0.0.0.0
-set PORT=5000
-set USE_WAITRESS=True
+copy .env.example .env.production
 ```
 
-### 4. Start the Application
+Edit `.env.production` and set your configuration:
 
-Start the CaseStrainer application with the Vue.js frontend using the dedicated script for Nginx deployment:
+```ini
+# Flask Configuration
+FLASK_APP=src.app_final_vue
+FLASK_ENV=production
+SECRET_KEY=your-production-secret-key
 
-```bash
-.\start_for_nginx.bat
+# API Keys
+COURTLISTENER_API_KEY=your-courtlistener-api-key
+LANGSEARCH_API_KEY=your-langsearch-api-key
+
+# Database
+DATABASE_FILE=/app/data/citations.db
+
+# Redis
+REDIS_URL=redis://casestrainer-redis-prod:6379/0
+
+# Email (UW SMTP)
+MAIL_SERVER=smtp.uw.edu
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-netid
+MAIL_PASSWORD=your-password
+MAIL_DEFAULT_SENDER=your-netid@uw.edu
 ```
 
-This script will:
-- Check for and stop any conflicting processes (including Windows Nginx)
-- Ensure Docker and the Nginx container are running
-- Start the application on port 5000 with host 0.0.0.0
-- Configure the application to use the Waitress WSGI server for production deployment
+### 4. Start Docker Production Stack
 
-Alternatively, you can use the updated start script:
+Use the launcher to start the complete production stack:
 
-```bash
-.\start_casestrainer_updated.bat
+```powershell
+.\launcher.ps1 -Environment DockerProduction
 ```
+
+This will:
+- Build Docker images if needed
+- Start all containers with proper dependencies
+- Configure health checks and monitoring
+- Set up auto-restart capabilities
 
 ### 5. Verify the Deployment
 
 After deployment, verify that the application is working correctly:
 
-1. Visit https://wolf.law.uw.edu/casestrainer/
-2. Confirm that the modern Vue.js interface loads
-3. Test key features:
+1. **Check container status**:
+   ```powershell
+   docker ps
+   ```
+
+2. **Check health status**:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   ```
+
+3. **Test endpoints**:
+   - Backend health: `http://localhost:5001/casestrainer/api/health`
+   - Frontend: `http://localhost:8080/`
+   - Production: `https://localhost/casestrainer/`
+
+4. **Test key features**:
    - Citation verification
    - Unconfirmed citations view
    - Multitool confirmed citations
    - Citation network visualization
    - ML classifier (if implemented)
 
-## Docker Nginx Configuration
+## API Path and Prefix Consistency
 
-The application is accessed through a Docker Nginx container that proxies requests to the Flask application.
+- All API endpoints are available under `/casestrainer/api/`.
 
-Key points:
-- The Docker container name is `docker-nginx-1`
-- Nginx is configured to forward requests from `/casestrainer/` to the Flask application on port 5000
-- The Flask application uses a `PrefixMiddleware` to handle the `/casestrainer/` prefix
+### API Base Path
 
-**VERIFIED CONFIGURATION:**
-- The Docker Nginx container is correctly configured to proxy requests to 10.158.120.151:5000
-- The configuration file is located at `/etc/nginx/conf.d/casestrainer.conf` in the Docker container
-- The application must run on port 5000 (not 5001 or any other port) to work with the Nginx proxy
+All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+- `https://your-domain.com/casestrainer/api/analyze`
+- `http://localhost:5001/casestrainer/api/analyze`
+
+**Troubleshooting:**
+If you encounter 404 or path errors, ensure your Nginx/proxy configuration is correctly handling the `/casestrainer` prefix and forwarding requests to the backend with the correct path.
+
+## Health Checks and Monitoring
+
+### Health Check Endpoints
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Backend Health** | http://localhost:5001/casestrainer/api/health | API server status |
+| **Frontend (Dev)** | http://localhost:5173/ | Vue.js development server |
+| **Production** | https://localhost/casestrainer/ | Production build |
+
+### Health Check Criteria
+
+- **Backend**: Responds to health API calls with timeout protection
+- **Frontend**: Serves web pages correctly
+- **Redis**: Accepts connections and responds to ping
+- **RQ Worker**: Process is running and connected to Redis
+- **Nginx**: Serves static files and proxies API calls
+
+### Monitoring Dashboard
+
+The system provides real-time monitoring through:
+
+1. **Console Output**: Real-time status updates
+2. **Crash Logs**: Detailed error tracking
+3. **Health Checks**: Automated service validation
+4. **Docker Logs**: Container-specific logs
 
 ## Troubleshooting
 
@@ -184,99 +430,140 @@ Key points:
 
 If you see a 502 Bad Gateway error when accessing the application:
 
-1. Ensure the Flask application is running on port 5000
-2. Verify that it's listening on all interfaces (`0.0.0.0`, not just `127.0.0.1`)
+1. **Check container status**:
    ```bash
-   netstat -ano | findstr :5000
-   ```
-   You should see `0.0.0.0:5000` in the output, not `127.0.0.1:5000`
-
-3. Check that the Docker Nginx container is running:
-   ```bash
-   docker ps | findstr nginx
+   docker ps -a
    ```
 
-4. Verify the Nginx configuration is correctly pointing to your server IP and port 5000:
+2. **Check backend logs**:
    ```bash
-   docker exec docker-nginx-1 cat /etc/nginx/conf.d/casestrainer.conf
-   ```
-   Ensure the proxy_pass line shows: `proxy_pass http://10.158.120.151:5000/;`
-
-5. If the Nginx configuration is incorrect, update it and reload:
-   ```bash
-   docker exec docker-nginx-1 sh -c "sed -i 's/proxy_pass http:\/\/10.158.120.151:8080\//proxy_pass http:\/\/10.158.120.151:5000\//g' /etc/nginx/conf.d/casestrainer.conf"
-   docker exec docker-nginx-1 nginx -s reload
-   ```
-   
-6. Run the update_nginx_config.bat script to automatically update the Nginx configuration:
-   ```bash
-   .\update_nginx_config.bat
+   docker logs casestrainer-backend-prod
    ```
 
-### Vue.js Build Issues
-
-If you encounter issues building the Vue.js frontend:
-
-1. Ensure Node.js and npm are installed and in your PATH
-2. Try clearing the npm cache:
+3. **Verify backend is running**:
    ```bash
-   npm cache clean --force
-   ```
-3. Delete the `node_modules` directory and reinstall dependencies:
-   ```bash
-   cd casestrainer-vue
-   rm -rf node_modules
-   npm install
+   curl -f http://localhost:5001/casestrainer/api/health
    ```
 
-## API Endpoints
-
-The Vue.js frontend communicates with the backend through these API endpoints:
-
-- `/api/analyze` - Analyze briefs for citations (unified endpoint for text, file, URL, and single citation)
-- `/api/unconfirmed_citations_data` - Get unconfirmed citations
-- `/api/confirmed_with_multitool_data` - Get citations confirmed with multiple tools
-- `/api/citation_network_data` - Get citation network visualization data
-- `/api/train_ml_classifier` - Train the ML classifier
-- `/api/classify_citation` - Classify a citation using ML
-- `/api/test_citations` - Get test citations
-
-## Updating the Application
-
-To update the application:
-
-1. Pull the latest changes from the repository:
+4. **Check Nginx configuration**:
    ```bash
-   git pull origin main
+   docker exec casestrainer-nginx-prod nginx -t
    ```
 
-2. Rebuild the Vue.js frontend:
+### Container Issues
+
+1. **Container won't start**:
    ```bash
-   .\build_and_deploy_vue.bat
+   docker logs <container-name>
+   docker-compose -f docker-compose.prod.yml up -d
    ```
 
-3. Restart the application:
+2. **Health check failures**:
    ```bash
-   .\start_vue.bat
+   docker inspect <container-name> | grep -A 10 Health
    ```
 
-## Rollback Procedure
-
-If you need to roll back to the original version:
-
-1. Stop the Vue.js version:
+3. **Resource issues**:
    ```bash
-   taskkill /F /IM python.exe
+   docker stats
    ```
 
-2. Start the original version:
-   ```bash
-   python app_final.py --host=0.0.0.0 --port=5000
+### Common Issues
+
+- **Port conflicts**: Ensure ports 5000, 5001, 6379, 443, 80 are available
+- **Redis connection errors**: Check if Redis container is running
+- **Frontend not loading**: Verify Vue.js build is complete
+- **Health check failures**: Recent fixes implemented - check launcher logs
+
+### Emergency Procedures
+
+1. **Stop all services**:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   # Select option 4: Stop All Services
    ```
 
-## Security Considerations
+2. **Restart Docker Desktop**:
+   - Close Docker Desktop
+   - Restart Docker Desktop
+   - Wait for it to become available
 
-- API keys for CourtListener and LangSearch are stored in `config.json`
-- The application uses HTTPS through the Nginx proxy
-- Ensure file permissions are set correctly on the server
-- Keep all dependencies updated to patch security vulnerabilities
+3. **Clean restart**:
+   ```bash
+   docker-compose -f docker-compose.prod.yml down
+   docker system prune -f
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+## Security Checklist
+
+- [ ] All secrets and sensitive configuration stored in `.env.production`
+- [ ] `.env.production` and other sensitive files included in `.gitignore`
+- [ ] SSL certificates properly configured in Nginx
+- [ ] API keys secured and not committed to version control
+- [ ] Pre-commit hooks installed for secret scanning
+- [ ] Health checks implemented for all services
+- [ ] Resource limits configured for containers
+- [ ] Logging configured for security monitoring
+
+## Performance Optimization
+
+### Docker Resource Limits
+
+```yaml
+# Backend container
+mem_limit: 2g
+mem_reservation: 1g
+
+# RQ Worker containers
+mem_limit: 1g
+mem_reservation: 512m
+```
+
+### Waitress Configuration
+
+```python
+# Production WSGI server
+waitress-serve --port=5000 --threads=2 src.app_final_vue:app
+```
+
+### Redis Persistence
+
+```yaml
+# Redis container with persistence
+volumes:
+  - redis_data_prod:/data
+```
+
+## Backup and Recovery
+
+### Database Backup
+
+```bash
+# Backup SQLite database
+docker exec casestrainer-backend-prod sqlite3 /app/data/citations.db ".backup /app/data/citations_backup.db"
+
+# Copy backup to host
+docker cp casestrainer-backend-prod:/app/data/citations_backup.db ./data/
+```
+
+### Configuration Backup
+
+```bash
+# Backup environment files
+cp .env.production .env.production.backup
+
+# Backup Docker volumes
+docker run --rm -v casestrainer_redis_data_prod:/data -v $(pwd):/backup alpine tar czf /backup/redis_backup.tar.gz -C /data .
+```
+
+## Support
+
+For issues and feature requests, please create an issue in the GitHub repository.
+
+### Getting Help
+
+1. **Check logs**: `logs/` directory and Docker logs
+2. **Health checks**: Use launcher menu option 5
+3. **Documentation**: Review this guide and other docs
+4. **GitHub issues**: Report bugs and request features

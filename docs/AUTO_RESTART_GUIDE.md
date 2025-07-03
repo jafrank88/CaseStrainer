@@ -31,7 +31,7 @@ Before using CaseStrainer with auto-restart, ensure you have:
 - **RAM**: Minimum 4GB, Recommended 8GB+
 - **Storage**: 2GB free space
 - **Network**: Internet connection for API calls
-- **Ports**: 5000, 5173, 6379 (Redis), 443 (production)
+- **Ports**: 5000, 5001, 6379 (Redis), 443 (production)
 
 ## Quick Start
 
@@ -53,6 +53,8 @@ When the menu appears, select:
 
 - **Option 1**: Development Mode (recommended for testing)
 - **Option 2**: Production Mode (for production use)
+- **Option 3**: Docker Development Mode (containerized development)
+- **Option 4**: Docker Production Mode (full containerized production)
 
 ### 4. Handle Redis Setup (if needed)
 
@@ -144,7 +146,7 @@ Select **Option 5** to see:
 ```
 === Service Health Check ===
 
-Environment: Development
+Environment: DockerProduction
 Backend: HEALTHY
 Frontend: HEALTHY
 Redis: HEALTHY
@@ -179,17 +181,26 @@ From main menu, select **Option 5** (View Logs)
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Backend Health** | http://localhost:5000/casestrainer/api/health | API server status |
+| **Backend Health** | http://localhost:5001/casestrainer/api/health | API server status |
 | **Frontend (Dev)** | http://localhost:5173/ | Vue.js development server |
 | **Production** | https://localhost:443/casestrainer/ | Production build |
 
 ### Health Check Criteria
 
-- **Backend**: Responds to health API calls
+- **Backend**: Responds to health API calls with timeout protection
 - **Frontend**: Serves web pages correctly
 - **Redis**: Accepts connections and responds to ping
 - **RQ Worker**: Process is running and connected to Redis
 - **Nginx**: Serves static files and proxies API calls
+
+### Health Check Improvements
+
+Recent improvements to health checks include:
+
+1. **Timeout Protection**: Health checks now have 3-second timeouts to prevent hanging
+2. **Robust Connection Testing**: Uses `Test-NetConnection` instead of HTTP requests for basic connectivity
+3. **Threading-Based Timeouts**: Windows-compatible timeout implementation for RQ worker checks
+4. **Better Error Handling**: Graceful degradation when services are unavailable
 
 ### Monitoring Dashboard
 
@@ -198,255 +209,296 @@ The system provides real-time monitoring through:
 1. **Console Output**: Real-time status updates
 2. **Crash Logs**: Detailed error tracking
 3. **Health Checks**: Automated service validation
-4. **Progress Tracking**: Task processing status
+4. **Docker Logs**: Container-specific logs
+
+## Docker Production Health Checks
+
+### Backend Health Check
+
+The backend health check now includes timeout protection:
+
+```python
+def check_redis():
+    """Check Redis connection with timeout."""
+    try:
+        redis_conn.ping()
+        return "ok"
+    except Exception as e:
+        logger.warning(f"Redis check failed: {e}")
+        return "down"
+
+def check_db():
+    """Check database connection with timeout."""
+    try:
+        conn = sqlite3.connect(DATABASE_FILE, timeout=3)
+        conn.execute('SELECT 1')
+        conn.close()
+        return "ok"
+    except Exception as e:
+        logger.warning(f"Database check failed: {e}")
+        return "down"
+
+def check_rq_worker():
+    """Check RQ worker with threading-based timeout."""
+    try:
+        if RQ_AVAILABLE:
+            from rq import Worker
+            import threading
+            import time
+            
+            result = {"status": "down", "error": None}
+            
+            def worker_check():
+                try:
+                    workers = Worker.all(connection=redis_conn)
+                    result["status"] = "ok" if workers else "down"
+                except Exception as e:
+                    result["status"] = "down"
+                    result["error"] = str(e)
+            
+            thread = threading.Thread(target=worker_check)
+            thread.daemon = True
+            thread.start()
+            thread.join(timeout=3)  # 3-second timeout
+            
+            if thread.is_alive():
+                logger.warning("RQ worker check timed out")
+                return "timeout"
+            
+            return result["status"]
+    except Exception as e:
+        logger.warning(f"RQ worker check failed: {e}")
+        return "down"
+```
+
+### Docker Health Check Configuration
+
+```yaml
+# Backend container health check
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
+  interval: 60s
+  timeout: 30s
+  retries: 8
+  start_period: 180s
+
+# Redis container health check
+healthcheck:
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 60s
+  timeout: 30s
+  retries: 8
+  start_period: 180s
+
+# RQ Worker health check
+healthcheck:
+  test: ["CMD", "python", "src/healthcheck_rq.py"]
+  interval: 60s
+  timeout: 30s
+  retries: 8
+  start_period: 180s
+```
 
 ## Troubleshooting
 
-### Common Issues and Solutions
+### Health Check Failures
 
-#### Docker Desktop Issues
+If health checks are failing:
 
-**Problem**: Docker Desktop won't start automatically
-**Solution**: 
-1. Start Docker Desktop manually
-2. Wait for it to fully load
-3. Restart CaseStrainer
+1. **Check service status**:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   ```
 
-**Problem**: Docker containers not starting
-**Solution**:
-1. Check Docker Desktop is running
-2. Ensure ports 6379 is available
-3. Use "Force Auto-Restart Recovery" option
+2. **View detailed logs**:
+   ```powershell
+   # From launcher menu, select Option 5 (View Logs)
+   # Or check Docker logs directly
+   docker logs casestrainer-backend-prod
+   docker logs casestrainer-redis-prod
+   ```
 
-#### Port Conflicts
+3. **Test connectivity manually**:
+   ```powershell
+   # Test backend health
+   Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -TimeoutSec 5
+   
+   # Test Redis connection
+   docker exec casestrainer-redis-prod redis-cli ping
+   ```
 
-**Problem**: "Port already in use" errors
-**Solution**:
-1. Check what's using the ports: `netstat -ano | findstr :5000`
-2. Stop conflicting applications
-3. Restart CaseStrainer
+### Common Issues
 
-#### Node.js Issues
+1. **Docker Desktop not running**:
+   - The launcher will prompt to start Docker Desktop
+   - Wait 30-60 seconds for Docker to become available
 
-**Problem**: Vue.js frontend won't start
-**Solution**:
-1. Ensure Node.js and npm are installed
-2. Check npm is in PATH: `npm --version`
-3. Clear node_modules and reinstall: `npm ci`
+2. **Port conflicts**:
+   - Ensure ports 5000, 5001, 6379, 443, 80 are available
+   - Stop conflicting services
 
-#### Python Issues
+3. **Health check timeouts**:
+   - Recent improvements should prevent hanging
+   - Check if services are overloaded
 
-**Problem**: Backend won't start
-**Solution**:
-1. Ensure Python virtual environment exists
-2. Check Python path: `python --version`
-3. Reinstall dependencies: `pip install -r requirements.txt`
-
-### If Auto-Restart Fails
-
-1. **Check crash logs**: View the crash log file for detailed error information
-2. **Manual recovery**: Use "Force Auto-Restart Recovery" option
-3. **Check Docker**: Ensure Docker Desktop is running
-4. **Check ports**: Ensure ports 5000, 5173, and 6379 are available
-5. **Restart manually**: Stop all services and restart the launcher
+4. **Redis connection issues**:
+   - Verify Redis container is running
+   - Check Redis logs for errors
 
 ### Emergency Procedures
 
-#### System Unresponsive
-1. Press **Ctrl+C** to stop the launcher
-2. Run: `.\launcher.ps1 -Environment Development -NoMenu`
-3. This bypasses the menu and starts directly in development mode
+1. **Stop all services**:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   # Select option 4: Stop All Services
+   ```
 
-#### Complete Reset
-1. Stop all services: `.\launcher.ps1` → Option 4
-2. Clear logs: Delete `logs\` directory
-3. Restart Docker Desktop manually
-4. Start fresh: `.\launcher.ps1`
+2. **Restart Docker Desktop**:
+   - Close Docker Desktop
+   - Restart Docker Desktop
+   - Wait for it to become available
+
+3. **Clean restart**:
+   ```bash
+   docker-compose -f docker-compose.prod.yml down
+   docker system prune -f
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
 
 ## Configuration
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `FLASK_ENV` | Flask environment | `development` |
-| `NODE_ENV` | Node.js environment | `development` |
-| `REDIS_HOST` | Redis host | `localhost` |
-| `REDIS_PORT` | Redis port | `6379` |
+Key environment variables for auto-restart:
 
-### Auto-Restart Settings
+```ini
+# Auto-restart configuration
+AUTO_RESTART_ENABLED=true
+MAX_RESTART_ATTEMPTS=5
+HEALTH_CHECK_INTERVAL=30
+RESTART_DELAY=10
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `AutoRestartEnabled` | Enable/disable auto-restart | `true` |
-| `MaxRestartAttempts` | Maximum restart attempts | `5` |
-| `RestartDelaySeconds` | Delay between restarts | `10` |
-| `HealthCheckInterval` | Health check frequency | `30` |
+# Service ports
+BACKEND_PORT=5001
+FRONTEND_PORT=5173
+REDIS_PORT=6379
+NGINX_PORT=443
+```
 
-### Customizing Auto-Restart
+### Launcher Configuration
 
-To modify auto-restart settings, edit the launcher script:
+The launcher uses these default settings:
 
 ```powershell
-# In launcher.ps1, modify these variables:
-$script:AutoRestartEnabled = $true
-$script:MaxRestartAttempts = 5
-$script:RestartDelaySeconds = 10
-$script:HealthCheckInterval = 30
+# Health check configuration
+$config.HealthCheckInterval = 30  # seconds
+$config.MaxRestartAttempts = 5
+$config.RestartDelay = 10  # seconds
+
+# Service ports
+$config.BackendPort = 5001
+$config.FrontendPort = 5173
+$config.RedisPort = 6379
 ```
 
 ## Log Files
 
-### Log File Locations
+### Crash Logs
 
-| Log Type | Location | Description |
-|----------|----------|-------------|
-| **Crash Logs** | `logs\crash_log_YYYYMMDD_HHMMSS.log` | Auto-restart events and errors |
-| **Backend Logs** | `logs\backend.log` | Flask/Waitress server logs |
-| **Frontend Logs** | `logs\npm_build.log` | Vue.js build and dev server logs |
-| **Nginx Logs** | `nginx-1.27.5\logs\` | Web server access and error logs |
+Crash logs are stored in the `logs/` directory:
 
-### Log File Format
+```
+logs/
+├── crash_log_20250622_192247.log
+├── crash_log_20250623_143022.log
+└── backend_health_diag.log
+```
+
+### Log Format
 
 Crash logs include:
-- Timestamp
-- Log level (INFO, WARN, ERROR, DEBUG)
-- Event description
-- Exception details (if applicable)
-- Stack traces (for errors)
 
-Example log entry:
 ```
-[2025-06-22 19:22:47] [INFO] Starting Development mode
-[2025-06-22 19:22:54] [WARN] Docker Desktop not running, attempting to start
-[2025-06-22 19:23:15] [INFO] Docker Desktop started successfully
+2025-06-22T19:22:47.123Z [INFO] Auto-restart enabled
+2025-06-22T19:22:47.456Z [WARN] Backend health check failed: Connection timeout
+2025-06-22T19:22:47.789Z [INFO] Attempting to restart backend service
+2025-06-22T19:22:57.012Z [INFO] Backend service restarted successfully
 ```
 
-### Log Management
+### Log Analysis
 
-- **View logs**: Use menu option 5
-- **Clear logs**: Use monitoring menu option 4
-- **Log rotation**: Logs are automatically timestamped
-- **Log size**: Monitor log file sizes to prevent disk space issues
-
-## Emergency Procedures
-
-### Complete System Failure
-
-If the system becomes completely unresponsive:
-
-1. **Force Stop**: Press `Ctrl+C` multiple times
-2. **Kill Processes**: Use Task Manager to end Python and Node.js processes
-3. **Restart Docker**: Restart Docker Desktop manually
-4. **Clear Ports**: Restart computer if ports remain locked
-5. **Fresh Start**: Run launcher with `-NoMenu` flag
-
-### Data Recovery
-
-If you need to recover from a crash:
-
-1. **Check crash logs**: Look for the most recent crash log
-2. **Identify the issue**: Read the error messages
-3. **Manual recovery**: Use the specific recovery steps for the identified issue
-4. **Verify data**: Check that your citation cache and database are intact
-
-### Backup and Restore
-
-Before making changes:
-
-1. **Backup data**: Copy `data\` directory
-2. **Backup logs**: Copy `logs\` directory
-3. **Backup config**: Copy any custom configuration files
-4. **Test changes**: Test in development mode first
-
-## Quick Reference Commands
-
-### Starting CaseStrainer
+To analyze logs:
 
 ```powershell
-# Normal start with menu
-.\launcher.ps1
+# View recent crash log
+Get-Content "logs\crash_log_$(Get-Date -Format 'yyyyMMdd').log" -Tail 50
 
-# Direct development mode
-.\launcher.ps1 -Environment Development -NoMenu
+# Search for errors
+Select-String -Path "logs\*.log" -Pattern "ERROR|WARN"
 
-# Direct production mode
-.\launcher.ps1 -Environment Production -NoMenu
-
-# Skip frontend build in production
-.\launcher.ps1 -Environment Production -NoMenu -SkipBuild
+# Monitor health checks
+Select-String -Path "logs\*.log" -Pattern "health|Health"
 ```
 
-### Service Management
+## Performance Monitoring
+
+### Resource Usage
+
+Monitor resource usage:
 
 ```powershell
-# Stop all services
-.\launcher.ps1 → Option 4
+# Docker container stats
+docker stats
 
-# View service status
-.\launcher.ps1 → Option 3
-
-# View logs
-.\launcher.ps1 → Option 5
-
-# Redis management
-.\launcher.ps1 → Option 7
-
-# Auto-restart management
-.\launcher.ps1 → Option 13
+# System resource usage
+Get-Process | Where-Object {$_.ProcessName -like "*python*" -or $_.ProcessName -like "*node*"}
 ```
 
-### Health Checks
+### Health Check Performance
 
-```powershell
-# Backend health
-Invoke-RestMethod -Uri "http://localhost:5000/casestrainer/api/health"
+Health check performance metrics:
 
-# Redis connection
-python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('OK')"
+- **Average response time**: < 1 second
+- **Timeout threshold**: 3 seconds
+- **Success rate**: > 95%
+- **Recovery time**: < 30 seconds
 
-# Docker status
-docker info
-```
+## Best Practices
 
-## Support and Maintenance
+### Production Deployment
 
-### Regular Maintenance
+1. **Use Docker Production mode** for production deployments
+2. **Monitor resource usage** regularly
+3. **Set up log rotation** to prevent disk space issues
+4. **Configure alerts** for critical failures
+5. **Test recovery procedures** regularly
 
-- **Weekly**: Check crash logs for recurring issues
-- **Monthly**: Clear old log files
-- **Quarterly**: Update dependencies
-- **As needed**: Monitor disk space usage
+### Development
 
-### Performance Monitoring
+1. **Use Development mode** for local development
+2. **Enable debug logging** for troubleshooting
+3. **Test health checks** after making changes
+4. **Monitor crash logs** during development
 
-- **Memory usage**: Monitor Python and Node.js processes
-- **Disk space**: Check log file sizes
-- **Network**: Monitor API response times
-- **Docker**: Check container resource usage
+### Maintenance
 
-### Updates and Upgrades
+1. **Regular log cleanup** to prevent disk space issues
+2. **Update dependencies** regularly
+3. **Test auto-restart** after updates
+4. **Backup configuration** before major changes
 
-When updating CaseStrainer:
+## Support
 
-1. **Backup**: Create backup of data and configuration
-2. **Test**: Test in development mode first
-3. **Gradual**: Update one component at a time
-4. **Monitor**: Watch for issues after updates
-5. **Rollback**: Keep previous version available
+For issues with the auto-restart system:
 
----
+1. **Check crash logs** in the `logs/` directory
+2. **Test health checks** manually
+3. **Review Docker logs** for container-specific issues
+4. **Create GitHub issue** with detailed error information
 
-## Summary
+### Getting Help
 
-The CaseStrainer auto-restart system provides:
-
-- **Automatic recovery** from service failures
-- **Comprehensive monitoring** of all components
-- **Detailed logging** for troubleshooting
-- **Flexible configuration** for different environments
-- **Emergency procedures** for critical failures
-
-The system is designed to be self-healing and will automatically recover from most common failures, ensuring maximum uptime for your CaseStrainer application.
-
-For additional support, check the crash logs and use the built-in health check and recovery tools. 
+1. **Documentation**: Review this guide and other docs
+2. **Logs**: Check crash logs and Docker logs
+3. **Health checks**: Use launcher menu option 5
+4. **GitHub issues**: Report bugs and request features 
