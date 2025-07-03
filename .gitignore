@@ -66,6 +66,9 @@ python-hyperscan/
 hyperscan/
 vcpkg/
 
+# Vue.js specific
+casestrainer-vue-backup/
+
 #----------------------------------------------
 # FILES TO EXCLUDE
 #----------------------------------------------
@@ -190,3 +193,9 @@ temp-vue-fix/
 temp/
 temp_logs/
 test_logs/
+dist/
+.pytest_cache/
+.coverage
+coverage.xml
+*.csv
+*.tar.gz
