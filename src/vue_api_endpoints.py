@@ -1,5 +1,15 @@
 """
-Vue.js API Endpoints for CaseStrainer
+CaseStrainer Canonical API Endpoints
+===================================
+
+POST   /casestrainer/api/analyze         - Analyze and validate citations (file, text, or URL input)
+GET    /casestrainer/api/task_status/<task_id> - Check processing status/results for async tasks
+GET    /casestrainer/api/health          - Health check endpoint
+GET    /casestrainer/api/version         - Application version info
+GET    /casestrainer/api/server_stats    - (Optional) Server statistics
+GET    /casestrainer/api/db_stats        - (Optional) Database statistics
+
+All other endpoints are deprecated and should not be used in production.
 
 This module provides the API endpoints needed by the Vue.js frontend
 for the Multitool Confirmed and Unconfirmed Citations tabs.
@@ -41,8 +51,8 @@ from flask_cors import CORS
 import requests
 from src.citation_utils import extract_all_citations
 from src.file_utils import extract_text_from_file
-from citation_utils import deduplicate_citations
-from enhanced_validator_production import make_error_response
+from src.citation_utils import deduplicate_citations
+from src.enhanced_validator_production import make_error_response
 import tempfile
 # Use EnhancedMultiSourceVerifier for multi-source citation verification
 # try:
@@ -56,7 +66,7 @@ import tempfile
 from rq import Queue
 from redis import Redis
 from rq import get_current_job
-from citation_processor import CitationProcessor
+from src.citation_processor import CitationProcessor
 import sqlite3
 import redis
 import threading
@@ -106,41 +116,18 @@ def log_json_responses(response):
     This ensures we capture all JSON output regardless of which endpoint generates it.
     """
     try:
-        # Log all responses for debugging
-        logger.info(f"[JSON_LOGGER] Processing response: endpoint={request.endpoint}, method={request.method}, status={response.status_code}, content_type={response.content_type}")
-        
         # Only log JSON responses
         if response.content_type == 'application/json':
             # Get the response data
             response_data = response.get_data(as_text=True)
             
-            # Try to parse and pretty-print the JSON for better logging
-            try:
-                import json
-                parsed_data = json.loads(response_data)
-                formatted_json = json.dumps(parsed_data, indent=2, ensure_ascii=False)
-                
-                # Log the response with context
-                logger.info("=" * 80)
-                logger.info("JSON RESPONSE BEING SENT TO FRONTEND")
-                logger.info("=" * 80)
-                logger.info(f"Endpoint: {request.endpoint}")
-                logger.info(f"Method: {request.method}")
-                logger.info(f"URL: {request.url}")
-                logger.info(f"Status Code: {response.status_code}")
-                logger.info(f"Content-Type: {response.content_type}")
-                logger.info(f"Response Size: {len(response_data)} characters")
-                logger.info("-" * 80)
-                logger.info("RESPONSE BODY:")
-                logger.info(formatted_json)
-                logger.info("=" * 80)
-                
-            except json.JSONDecodeError:
-                # If JSON parsing fails, log the raw response
-                logger.warning("Failed to parse JSON response, logging raw data:")
-                logger.info(f"Raw response: {response_data}")
-        else:
-            logger.info(f"[JSON_LOGGER] Skipping non-JSON response: content_type={response.content_type}")
+            # Limit response data to 200 characters for logging
+            truncated_data = response_data[:200] + "..." if len(response_data) > 200 else response_data
+            
+            # Log minimal information
+            logger.info(f"[RESPONSE] {request.method} {request.endpoint} -> {response.status_code} ({len(response_data)} chars)")
+            if len(response_data) > 200:
+                logger.info(f"[RESPONSE] Body (truncated): {truncated_data}")
                 
         return response
         
@@ -156,7 +143,7 @@ try:
 except ImportError as e:
     logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
     logger.warning("Falling back to CitationVerifier")
-    from citation_verification import CitationVerifier
+    from src.citation_verification import CitationVerifier
     RateLimitError = Exception  # Fallback for compatibility
 
 try:
@@ -176,9 +163,8 @@ except Exception as e:
 # Initialize global variables
 logger.info("Initializing global variables...")
 try:
+    # Remove active_requests for persistent state, but keep as fallback if Redis is unavailable
     active_requests = {}
-    request_timestamps = []
-    request_timestamps_lock = Lock()
     
     # Constants - OPTIMIZED for better performance
     COURTLISTENER_RATE_LIMIT = 180  # requests per minute
@@ -193,14 +179,34 @@ try:
     
     # Redis configuration
     try:
-        redis_conn = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+        # Use REDIS_URL environment variable if available, otherwise fallback to localhost
+        # Use standard Redis port 6379 for all environments
+        default_redis_url = 'redis://casestrainer-redis-prod:6379/0'
+        redis_url = os.environ.get('REDIS_URL', default_redis_url)
+        if redis_url.startswith('redis://'):
+            # Parse redis://host:port/db format
+            from urllib.parse import urlparse
+            parsed = urlparse(redis_url)
+            redis_host = parsed.hostname or 'localhost'
+            redis_port = parsed.port or 6379
+            redis_db = int(parsed.path.lstrip('/')) if parsed.path else 0
+        else:
+            # Fallback to localhost
+            redis_host = 'localhost'
+            redis_port = 6379
+            redis_db = 0
+            
+        redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
         redis_conn.ping()  # Test connection
         REDIS_AVAILABLE = True
-        logger.info("[REDIS] Redis connection successful")
+        logger.info(f"[REDIS] Redis connection successful to {redis_host}:{redis_port}")
     except Exception as e:
         logger.warning(f"[REDIS] Redis not available: {e}")
         REDIS_AVAILABLE = False
         redis_conn = None
+    
+    # Set Redis task tracking based on Redis availability
+    REDIS_TASK_TRACKING = REDIS_AVAILABLE
     
     TASK_CLEANUP_INTERVAL = 60  # seconds
     TASK_TTL = 300  # seconds (5 minutes in memory)
@@ -217,29 +223,60 @@ except Exception as e:
 
 def check_redis():
     try:
+        # Add timeout to prevent hanging
         redis_conn.ping()
         return "ok"
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Redis check failed: {e}")
         return "down"
 
 def check_db():
     try:
-        conn = sqlite3.connect(os.path.join(os.getcwd(), 'data', 'citations.db'))
+        conn = sqlite3.connect(os.path.join(os.getcwd(), 'data', 'citations.db'), timeout=3)
         conn.execute('SELECT 1')
         conn.close()
         return "ok"
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Database check failed: {e}")
         return "down"
 
 def check_rq_worker():
     try:
         if RQ_AVAILABLE:
             from rq import Worker
-            workers = Worker.all(connection=redis_conn)
-            return "ok" if workers else "down"
+            import threading
+            import time
+            
+            # Use threading-based timeout for Windows compatibility
+            result = {"status": "down", "error": None}
+            
+            def worker_check():
+                try:
+                    workers = Worker.all(connection=redis_conn)
+                    result["status"] = "ok" if workers else "down"
+                except Exception as e:
+                    result["status"] = "down"
+                    result["error"] = str(e)
+            
+            # Start the check in a separate thread
+            thread = threading.Thread(target=worker_check)
+            thread.daemon = True
+            thread.start()
+            
+            # Wait for up to 3 seconds
+            thread.join(timeout=3)
+            
+            if thread.is_alive():
+                logger.warning("RQ worker check timed out")
+                return "timeout"
+            else:
+                if result["error"]:
+                    logger.warning(f"RQ worker check failed: {result['error']}")
+                return result["status"]
         else:
             return "ok" if worker_thread and worker_thread.is_alive() else "down"
-    except Exception:
+    except Exception as e:
+        logger.warning(f"check_rq_worker exception: {e}")
         return "down"
 
 def is_rq_available():
@@ -267,7 +304,7 @@ def health_check():
             'database': check_db(),
             'rq_worker': check_rq_worker(),
             'environment': WORKER_ENV,
-            'version': '2.0.0'
+            'version': '0.5.6'
         })
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -293,10 +330,23 @@ def process_text():
         if not text.strip():
             return jsonify({'error': 'No text provided', 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 400
         # Forward the text to /analyze as JSON
-        analyze_url = request.url_root.rstrip('/') + '/analyze'
+        analyze_url = request.url_root.rstrip('/') + '/casestrainer/api/analyze'
         headers = {"Content-Type": "application/json", "X-Forwarded-For": "internal-process-text"}
         resp = requests.post(analyze_url, json={"type": "text", "text": text}, headers=headers)
-        response_json = resp.json()
+        
+        # Check if the response is valid JSON
+        try:
+            response_json = resp.json()
+        except ValueError as e:
+            # If response is not valid JSON, return the raw response with error info
+            return jsonify({
+                'error': f'Invalid JSON response from /analyze: {str(e)}',
+                'raw_response': resp.text,
+                'status_code': resp.status_code,
+                'deprecated': True,
+                'message': 'This endpoint is deprecated. Please use /analyze.'
+            }), 500
+        
         response_json['deprecated'] = True
         response_json['message'] = 'This endpoint is deprecated. Please use /analyze.'
         return make_response(jsonify(response_json), resp.status_code)
@@ -310,33 +360,10 @@ def server_stats():
         stats = {
             'timestamp': time.time(),
             'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'active_requests': len(active_requests),
-            'rq_available': is_rq_available()  # PATCH: dynamic check
+            'rq_available': is_rq_available(),
+            'queue_length': queue.count if RQ_AVAILABLE and queue else 'N/A',
+            'worker_health': check_rq_worker(),
         }
-        
-        if not RQ_AVAILABLE and 'get_server_stats' in globals():
-            try:
-                server_stats = get_server_stats()
-                stats.update(server_stats)
-                
-                # Add detailed worker info
-                stats['worker_thread_alive'] = worker_thread.is_alive() if worker_thread else False
-                stats['worker_running'] = worker_running
-                stats['queue_size'] = task_queue.qsize() if task_queue else 0
-                
-                # Calculate uptime in different formats
-                uptime_seconds = stats.get('uptime_seconds', 0)
-                stats['uptime_hours'] = round(uptime_seconds / 3600, 2)
-                stats['uptime_days'] = round(uptime_seconds / 86400, 2)
-                
-                # Add stability indicators
-                stats['stability_score'] = 'excellent' if uptime_seconds > 3600 else 'good' if uptime_seconds > 300 else 'starting'
-                stats['needs_restart'] = uptime_seconds > 86400  # Flag if running more than 24 hours
-                
-            except Exception as e:
-                logger.error(f"Error getting server stats: {e}")
-                stats['error'] = str(e)
-        
         return jsonify(stats)
     except Exception as e:
         logger.error(f"Server stats failed: {str(e)}")
@@ -358,12 +385,25 @@ def handle_error(error):
 
 # Set up Redis connection and RQ queue
 try:
-    redis_host = os.environ.get('REDIS_HOST', 'localhost')
-    redis_port = int(os.environ.get('REDIS_PORT', 6379))
-    redis_db = int(os.environ.get('REDIS_DB', 0))
+    # Use REDIS_URL environment variable if available, otherwise fallback to localhost
+    # Use standard Redis port 6379 for all environments
+    default_redis_url = 'redis://casestrainer-redis-prod:6379/0'
+    redis_url = os.environ.get('REDIS_URL', default_redis_url)
+    if redis_url.startswith('redis://'):
+        # Parse redis://host:port/db format
+        from urllib.parse import urlparse
+        parsed = urlparse(redis_url)
+        redis_host = parsed.hostname or 'localhost'
+        redis_port = parsed.port or 6379
+        redis_db = int(parsed.path.lstrip('/')) if parsed.path else 0
+    else:
+        # Fallback to localhost
+        redis_host = 'localhost'
+        redis_port = 6379
+        redis_db = 0
     
     redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
-    queue = Queue('casestrainer', connection=redis_conn)
+    queue = Queue('casestrainer', connection=redis_conn, result_ttl=3600)  # Keep results for 1 hour
     
     # Force threading fallback on Windows due to RQ compatibility issues
     import platform
@@ -395,376 +435,187 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize RQ queue: {e}")
     RQ_AVAILABLE = False
-    queue = None
 
-# Windows-compatible fallback: Simple threading-based task queue
-if not RQ_AVAILABLE:
-    import threading
-    import queue as python_queue
+
+# FIX: Disable worker thread to prevent blocking
+# This is a temporary fix to allow the API endpoints to work
+
+# Disable the problematic worker thread
+worker_thread = None
+worker_running = False
+task_queue = None
+
+# Override the worker initialization
+def initialize_worker():
+    """Initialize worker thread (disabled for now)"""
+    global worker_thread, worker_running, task_queue
     
-    # Simple in-memory task queue for Windows compatibility
-    task_queue = python_queue.Queue()
+    # Disable worker thread to prevent blocking
     worker_thread = None
     worker_running = False
+    task_queue = None
     
-    # Restart tracking
-    server_start_time = time.time()
-    restart_count = 0
-    
-    def get_timestamp():
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    def get_uptime():
-        uptime_seconds = time.time() - server_start_time
-        hours = int(uptime_seconds // 3600)
-        minutes = int((uptime_seconds % 3600) // 60)
-        seconds = int(uptime_seconds % 60)
-        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-    
-    def worker_loop():
-        global worker_running
-        worker_running = True
-        timestamp = get_timestamp()
-        uptime = get_uptime()
-        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Thread-based worker started (uptime: {uptime})")  # Immediate output
-        logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker started (uptime: {uptime})")
-        
-        # Initialize the verifier for database expansion
-        try:
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
-            logger.info(f"{WORKER_LABEL} [WORKER] Initialized EnhancedMultiSourceVerifier for database expansion")
-        except Exception as e:
-            logger.error(f"{WORKER_LABEL} [WORKER] Failed to initialize verifier for database expansion: {e}")
-            verifier = None
-        
-        # Track when we last expanded the database to avoid too frequent calls
-        last_expansion_time = 0
-        expansion_interval = 300  # 5 minutes between expansion attempts
-        
-        while worker_running:
-            try:
-                # Get next task from queue (with timeout)
-                try:
-                    task = task_queue.get(timeout=1.0)
-                    timestamp = get_timestamp()
-                    uptime = get_uptime()
-                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()}) (uptime: {uptime})")  # Immediate output
-                    logger.info(f"{WORKER_LABEL} [WORKER] Got task from queue: {task[0]} (queue size now: {task_queue.qsize()}) (uptime: {uptime})")
-                except python_queue.Empty:
-                    # Check if we should expand the database (only if enough time has passed)
-                    current_time = time.time()
-                    if (verifier and 
-                        current_time - last_expansion_time > expansion_interval and 
-                        task_queue.qsize() == 0):
-                        
-                        try:
-                            timestamp = get_timestamp()
-                            uptime = get_uptime()
-                            print(f"{WORKER_LABEL} [{timestamp}] [WORKER] No tasks in queue, expanding database... (uptime: {uptime})")
-                            logger.info(f"{WORKER_LABEL} [WORKER] No tasks in queue, expanding database... (uptime: {uptime})")
-                            
-                            # Try to expand database with up to 5 new verifications
-                            expanded_count = verifier.expand_database_from_unverified(limit=5)
-                            
-                            if expanded_count > 0:
-                                timestamp = get_timestamp()
-                                uptime = get_uptime()
-                                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Expanded database with {expanded_count} new verifications (uptime: {uptime})")
-                                logger.info(f"{WORKER_LABEL} [WORKER] Expanded database with {expanded_count} new verifications (uptime: {uptime})")
-                            
-                            last_expansion_time = current_time
-                            
-                        except Exception as e:
-                            timestamp = get_timestamp()
-                            uptime = get_uptime()
-                            print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Database expansion failed: {e} (uptime: {uptime})")
-                            logger.error(f"{WORKER_LABEL} [WORKER] Database expansion failed: {e} (uptime: {uptime})")
-                    
-                    # Log every 30 seconds that we're still alive
-                    if int(time.time()) % 30 == 0:
-                        timestamp = get_timestamp()
-                        uptime = get_uptime()
-                        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] No tasks in queue, waiting... (uptime: {uptime})")  # Immediate output
-                        logger.debug(f"{WORKER_LABEL} [WORKER] No tasks in queue, waiting... (uptime: {uptime})")
-                    continue
-                
-                task_id, task_type, task_data = task
-                timestamp = get_timestamp()
-                uptime = get_uptime()
-                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Processing task {task_id} of type {task_type} (uptime: {uptime})")  # Immediate output
-                logger.info(f"{WORKER_LABEL} [WORKER] Processing task {task_id} of type {task_type} (uptime: {uptime})")
-                
-                # Update task status to processing
-                if task_id in active_requests:
-                    active_requests[task_id]['status'] = 'processing'
-                    active_requests[task_id]['progress'] = 10
-                
-                try:
-                    # Process the task using the same function
-                    timestamp = get_timestamp()
-                    uptime = get_uptime()
-                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Calling process_citation_task for {task_id} (uptime: {uptime})")  # Immediate output
-                    result = process_citation_task(task_id, task_type, task_data)
-                    
-                    # Update task status with results
-                    if task_id in active_requests:
-                        logger.info(f"{WORKER_LABEL} [WORKER] Storing results for task {task_id}")
-                        logger.info(f"{WORKER_LABEL} [WORKER] Result keys: {list(result.keys())}")
-                        logger.info(f"{WORKER_LABEL} [WORKER] Citations count: {len(result.get('citations', []))}")
-                        
-                        active_requests[task_id].update({
-                            'status': 'completed',
-                            'results': result.get('results', result.get('citations', [])),  # Store 'results' for frontend
-                            'citations': result.get('citations', []),  # Keep 'citations' for backward compatibility
-                            'metadata': result.get('metadata', {}),
-                            'end_time': time.time(),
-                            'progress': 100,
-                            'total_citations': result.get('total_citations', 0),
-                            'verified_citations': result.get('verified_citations', 0)
-                        })
-                        
-                        logger.info(f"{WORKER_LABEL} [WORKER] Updated active_requests[{task_id}] keys: {list(active_requests[task_id].keys())}")
-                        logger.info(f"{WORKER_LABEL} [WORKER] Results count: {len(active_requests[task_id].get('results', []))}")
-                        logger.info(f"{WORKER_LABEL} [WORKER] Citations count: {len(active_requests[task_id].get('citations', []))}")
-                        
-                        # Persist result in Redis
-                        if REDIS_AVAILABLE and redis_conn:
-                            try:
-                                redis_conn.setex(f"task_result:{task_id}", REDIS_TASK_TTL, json.dumps(active_requests[task_id]))
-                                logger.info(f"[REDIS] Persisted completed task {task_id} to Redis")
-                            except Exception as e:
-                                logger.warning(f"[REDIS] Failed to persist task {task_id} in Redis: {e}")
-                    else:
-                        logger.warning(f"{WORKER_LABEL} [WORKER] Task {task_id} not found in active_requests")
-                    
-                except Exception as e:
-                    timestamp = get_timestamp()
-                    uptime = get_uptime()
-                    print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Error processing task {task_id}: {e} (uptime: {uptime})")  # Immediate output
-                    logger.error(f"{WORKER_LABEL} [WORKER] Error processing task {task_id}: {e} (uptime: {uptime})")
-                    if task_id in active_requests:
-                        active_requests[task_id].update({
-                            'status': 'failed',
-                            'error': str(e),
-                            'end_time': time.time(),
-                            'progress': 0
-                        })
-                        
-                        # Persist failed result in Redis
-                        if REDIS_AVAILABLE and redis_conn:
-                            try:
-                                redis_conn.setex(f"task_result:{task_id}", REDIS_TASK_TTL, json.dumps(active_requests[task_id]))
-                                logger.info(f"[REDIS] Persisted failed task {task_id} to Redis")
-                            except Exception as redis_e:
-                                logger.warning(f"[REDIS] Failed to persist failed task {task_id} in Redis: {redis_e}")
-                
-                finally:
-                    task_queue.task_done()
-                    
-            except Exception as e:
-                timestamp = get_timestamp()
-                uptime = get_uptime()
-                print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Worker loop error: {e} (uptime: {uptime})")  # Immediate output
-                logger.error(f"{WORKER_LABEL} [WORKER] Worker loop error: {e} (uptime: {uptime})")
-                time.sleep(1)
-        
-        timestamp = get_timestamp()
-        uptime = get_uptime()
-        print(f"{WORKER_LABEL} [{timestamp}] [WORKER] Thread-based worker stopped (uptime: {uptime})")  # Immediate output
-        logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker stopped (uptime: {uptime})")
-    
-    # Start worker thread
-    worker_thread = threading.Thread(target=worker_loop, daemon=True)
-    worker_thread.start()
-    timestamp = get_timestamp()
-    uptime = get_uptime()
-    logger.info(f"{WORKER_LABEL} [WORKER] Thread-based worker started (uptime: {uptime})")
+    print("Worker thread disabled to prevent blocking")
+    return True
 
-    # Add a function to check if worker is running
-    def is_worker_running():
-        return worker_thread.is_alive() and worker_running
-    
-    # Add restart tracking function
-    def get_server_stats():
-        return {
-            'start_time': server_start_time,
-            'uptime': get_uptime(),
-            'uptime_seconds': time.time() - server_start_time,
-            'restart_count': restart_count,
-            'worker_alive': is_worker_running()
-        }
+# Override the worker loop
+def worker_loop():
+    """Worker loop (disabled)"""
+    print("Worker loop disabled")
+    return
+
+# Override the is_worker_running function
+def is_worker_running():
+    """Check if worker is running (always False for now)"""
+    return False
+
+# Override the get_server_stats function
+def get_server_stats():
+    """Get server stats (simplified)"""
+    return {
+        'start_time': time.time(),
+        'uptime': '00:00:00',
+        'uptime_seconds': 0,
+        'restart_count': 0,
+        'worker_alive': False,
+        'worker_disabled': True
+    }
 
 def process_citation_task(task_id, task_type, task_data):
     """
     Unified citation verification task with progress tracking for file, url, and text.
+    Now supports chunked progress and ETA for large documents.
     """
-    logger = logging.getLogger(__name__)
     logger.info(f"[TASK] Starting citation verification task {task_id}")
     print(f"[DEBUG] process_citation_task called with task_id={task_id}, task_type={task_type}")
     print(f"[DEBUG] task_data: {task_data}")
-    
-    job = None
+    import math
     try:
-        job = queue.fetch_job(task_id)
-    except Exception as e:
-        logger.error(f"[TASK] Error fetching job {task_id}: {e}")
-    try:
-        print(f"{WORKER_LABEL} [PROCESS] Starting process_citation_task for {task_id} of type {task_type}")
-        # Initialize RQ connection for job updates
-        try:
-            redis_host = os.environ.get('REDIS_HOST', 'localhost')
-            redis_port = int(os.environ.get('REDIS_PORT', 6379))
-            redis_db = int(os.environ.get('REDIS_DB', 0))
-            redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
-            rq_queue = Queue('casestrainer', connection=redis_conn)
-            job = rq_queue.fetch_job(task_id)
-        except Exception as e:
-            logger.warning(f"{WORKER_LABEL} [PROCESS] Could not connect to Redis for job updates: {e}")
-            job = None
-        logger = logging.getLogger(__name__)
-        # Progress tracking
-        if job:
-            job.meta['progress'] = 0
-            job.meta['status'] = 'Starting...'
-            job.meta['current_step'] = 'Initializing'
-            job.save_meta()
-        
-        from src.document_processing import process_document
-        print(f"[DEBUG] Imported process_document successfully")
-        
-        # Prepare input parameters for unified processing
         result = None
+        text = None
+        total_chunks = 1
+        chunk_size = 3000  # characters per chunk (tune as needed)
+        start_time = time.time()
         if task_type == 'file':
             file_path = task_data.get('file_path')
-            if not file_path:
-                raise ValueError("No file path provided")
-            print(f"[DEBUG] Processing file: {file_path}")
-            result = process_document(file_path=file_path, extract_case_names=True)
-        elif task_type == 'url':
-            url = task_data.get('url')
-            if not url:
-                raise ValueError("No URL provided")
-            print(f"[DEBUG] Processing URL: {url}")
-            result = process_document(url=url, extract_case_names=True)
+            filename = task_data.get('filename', 'unknown')
+            file_ext = task_data.get('file_ext', '')
+            logger.info(f"[TASK] Processing file: {filename} at {file_path}")
+            from src.file_utils import extract_text_from_file
+            text = extract_text_from_file(file_path, file_ext=file_ext)
         elif task_type == 'text':
-            text = task_data.get('text')
-            if not text:
-                raise ValueError("No text provided")
-            print(f"[DEBUG] Processing text (length: {len(text)})")
-            result = process_document(content=text, extract_case_names=True)
+            text = task_data.get('text', '')
+            logger.info(f"[TASK] Processing text input (length: {len(text)})")
+        elif task_type == 'url':
+            url = task_data.get('url', '')
+            logger.info(f"[TASK] Processing URL: {url}")
+            if not url:
+                result = {
+                    'status': 'failed',
+                    'error': 'No URL provided',
+                    'citations': [],
+                    'case_names': []
+                }
+            else:
+                from src.enhanced_validator_production import extract_text_from_url
+                url_result = extract_text_from_url(url)
+                text = url_result.get('text', '')
+        # If text is available, process in chunks
+        if text is not None:
+            if not text.strip():
+                result = {
+                    'status': 'failed',
+                    'error': 'No text content extracted',
+                    'citations': [],
+                    'case_names': []
+                }
+            else:
+                # Split text into chunks
+                chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+                total_chunks = len(chunks)
+                all_citations = []
+                all_case_names = []
+                for idx, chunk in enumerate(chunks):
+                    from src.document_processing import process_document
+                    chunk_result = process_document(content=chunk, extract_case_names=True)
+                    all_citations.extend(chunk_result.get('citations', []))
+                    all_case_names.extend(chunk_result.get('case_names', []))
+                    # Update progress in Redis
+                    progress = int(((idx+1)/total_chunks)*100)
+                    set_task_status(task_id, 'processing', {
+                        'progress': progress,
+                        'current_chunk': idx+1,
+                        'total_chunks': total_chunks,
+                        'start_time': start_time,
+                        'type': task_type
+                    })
+                # After all chunks, aggregate results
+                result = {
+                    'status': 'success',
+                    'citations': all_citations,
+                    'case_names': list(set(all_case_names)),
+                    'statistics': {},
+                    'summary': {},
+                    'extraction_metadata': {
+                        'text_length': len(text),
+                        'total_chunks': total_chunks
+                    }
+                }
+        # Debug log the result before deciding what to do
+        logger.info(f"[DEBUG] process_citation_task result for {task_id}: {result}")
+        print(f"[DEBUG] process_citation_task result for {task_id}: {result}")
+        # CRITICAL DEBUG: This should definitely show up
+        print(f"CRITICAL DEBUG: Task {task_id} result status: {result.get('status') if result else 'None'}")
+        logger.error(f"CRITICAL DEBUG: Task {task_id} result status: {result.get('status') if result else 'None'}")
+        # Always update status and result in Redis (or fallback)
+        if result and result.get('status') == 'failed':
+            set_task_status(task_id, 'failed', {'error': result.get('error', 'Unknown error')})
+            logger.error(f"[WORKER] Task {task_id} failed, error written to Redis: {result.get('error', 'Unknown error')}")
+            logger.info(f"[WORKER] Set task {task_id} status to failed")
         else:
-            logger.error(f"Unknown task type: {task_type}")
-            raise ValueError(f"Unknown task type: {task_type}")
-        
-        print(f"[DEBUG] process_document result: success={result.get('success')}, citations={len(result.get('citations', []))}, case_names={len(result.get('case_names', []))}")
-        logger.info(f"[DEBUG] process_document result: success={result.get('success')}, citations={len(result.get('citations', []))}, case_names={len(result.get('case_names', []))}")
-        
-        if not result.get('success', False):
-            error_msg = result.get('error', 'Unknown processing error')
-            logger.error(f"[RQ WORKER] Processing error for task {task_id}: {error_msg}")
-            return {'status': 'error', 'error': error_msg, 'metadata': result}
-        
-        # Process the citations to ensure they have the expected structure
-        citations = result.get('citations', [])
-        logger.info(f"[DEBUG] Processing {len(citations)} citations from process_document result")
-        logger.info(f"[DEBUG] Raw citations from process_document: {citations}")
-        for i, citation in enumerate(citations, 1):
-            logger.info(f"[DEBUG] Citation {i} from process_document: {citation.get('citation', 'N/A')}")
-        
-        processed_citations = []
-        
-        for citation in citations:
-            # Ensure each citation has the required fields
-            processed_citation = {
-                'citation': citation.get('citation', ''),
-                'case_name': citation.get('case_name', 'N/A'),
-                'extracted_case_name': citation.get('extracted_case_name', 'N/A'),
-                'canonical_name': citation.get('canonical_name', 'N/A'),
-                'hinted_case_name': citation.get('hinted_case_name', 'N/A'),
-                'canonical_date': citation.get('canonical_date', ''),
-                'extracted_date': citation.get('extracted_date', ''),
-                'court': citation.get('court', ''),
-                'docket_number': citation.get('docket_number', ''),
-                'url': citation.get('url', ''),
-                'confidence': citation.get('confidence', 'medium'),
-                'context': citation.get('context', ''),
-                'method': citation.get('method', 'regex'),
-                'pattern': citation.get('pattern', ''),
-                'verified': citation.get('verified', 'false'),
-                'valid': citation.get('valid', 'false'),
-                'source': citation.get('source', 'Unknown')
-            }
-            processed_citations.append(processed_citation)
-        
-        logger.info(f"[DEBUG] Processed {len(processed_citations)} citations for final result")
-        logger.info(f"[DEBUG] Raw processed_citations: {processed_citations}")
-        for i, citation in enumerate(processed_citations, 1):
-            logger.info(f"[DEBUG] Processed citation {i}: {citation.get('citation', 'N/A')} (verified={citation.get('verified', 'false')})")
-        
-        # Progress update
-        if job:
-            job.meta['progress'] = 100
-            job.meta['status'] = 'Completed successfully'
-            job.meta['current_step'] = 'Complete'
-            job.save_meta()
-            if task_id in active_requests:
-                active_requests[task_id].update({
-                    'progress': 100,
-                    'status': 'Completed successfully',
-                    'current_step': 'Complete',
-                    'elapsed_time': int(time.time() - active_requests[task_id].get('start_time', time.time())),
-                    'end_time': time.time()
-                })
-        logger.info(f"{WORKER_LABEL} [RQ WORKER] Task {task_id} completed successfully")
-        
-        final_result = {
-            'results': processed_citations,  # Use 'results' to match frontend expectation
-            'citations': processed_citations,  # Keep 'citations' for backward compatibility
-            'case_names': result.get('case_names', []),
-            'status': 'success',
-            'metadata': result.get('extraction_metadata', {}),
-            'statistics': result.get('statistics', {}),
-            'summary': result.get('summary', {})
-        }
-        
-        # Store results in active_requests so task_status endpoint can find them
-        if task_id in active_requests:
-            active_requests[task_id].update({
-                'results': processed_citations,
-                'citations': processed_citations,
+            set_task_status(task_id, 'completed', {'progress': 100, 'current_step': 'Complete'})
+            logger.info(f"[DEBUG] Calling set_task_result for {task_id} with result: {result}")
+            print(f"[DEBUG] Calling set_task_result for {task_id} with result: {result}")
+            # Create the task result data structure
+            task_result_data = {
+                'task_id': task_id,
+                'type': task_type,
+                'status': 'completed',
+                'results': result.get('citations', []),
+                'citations': result.get('citations', []),
                 'case_names': result.get('case_names', []),
                 'metadata': result.get('extraction_metadata', {}),
                 'statistics': result.get('statistics', {}),
-                'summary': result.get('summary', {})
-            })
-            logger.info(f"{WORKER_LABEL} [WORKER] Stored results in active_requests for task {task_id}: {len(processed_citations)} citations")
-            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}] keys: {list(active_requests[task_id].keys())}")
-            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}]['results'] length: {len(active_requests[task_id].get('results', []))}")
-            logger.info(f"{WORKER_LABEL} [WORKER] active_requests[{task_id}]: {active_requests[task_id]}")
-        else:
-            logger.warning(f"{WORKER_LABEL} [WORKER] Task {task_id} not found in active_requests, cannot store results")
-        
-        print(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
-        logger.info(f"[DEBUG] Returning final result: citations={len(final_result['results'])}, case_names={len(final_result['case_names'])}")
-        # Log the full response_data sent to the frontend
-        print(f"[DEBUG] About to log response to frontend")
-        logger.info(f"[DEBUG] About to log response to frontend")
-        print(f"[DEBUG] Final result type: {type(final_result)}")
-        logger.info(f"[DEBUG] Final result type: {type(final_result)}")
-        print(f"[DEBUG] Final result keys: {list(final_result.keys())}")
-        logger.info(f"[DEBUG] Final result keys: {list(final_result.keys())}")
-        try:
-            logger.info(f"[ANALYZE] Response to frontend: {json.dumps(final_result, indent=2, ensure_ascii=False)}")
-            print(f"[DEBUG] Logged response to frontend")
-            logger.info(f"[DEBUG] Logged response to frontend")
-        except Exception as e:
-            print(f"[DEBUG] Error logging response: {e}")
-            logger.error(f"[ANALYZE] Error logging response: {e}")
-        return final_result
+                'summary': result.get('summary', {}),
+                'start_time': start_time,
+                'end_time': time.time(),
+                'progress': 100,
+                'current_step': 'Complete',
+                'total_chunks': total_chunks
+            }
+            # Debug: Check if the data is JSON serializable
+            try:
+                import json
+                test_json = json.dumps(task_result_data)
+                logger.info(f"[DEBUG] Task result data is JSON serializable: {test_json[:200]}...")
+                print(f"[DEBUG] Task result data is JSON serializable: {test_json[:200]}...")
+            except Exception as json_error:
+                logger.error(f"[DEBUG] Task result data is NOT JSON serializable: {json_error}")
+                print(f"[DEBUG] Task result data is NOT JSON serializable: {json_error}")
+                # Try to identify the problematic field
+                for key, value in task_result_data.items():
+                    try:
+                        json.dumps({key: value})
+                    except Exception as field_error:
+                        logger.error(f"[DEBUG] Field '{key}' is not JSON serializable: {field_error}")
+                        print(f"[DEBUG] Field '{key}' is not JSON serializable: {field_error}")
+            set_task_result(task_id, task_result_data)
+            logger.info(f"[WORKER] Task {task_id} completed, result written to Redis")
+            logger.info(f"[WORKER] Set task {task_id} status to completed and stored result")
+        return result
     except Exception as e:
         logger.error(f"Error processing citation task {task_id}: {str(e)}")
-        print(f"[DEBUG] Exception in process_citation_task: {str(e)}")
+        set_task_status(task_id, 'failed', {'error': str(e)})
         return {'status': 'failed', 'error': str(e)}
 
 @vue_api.route('/analyze', methods=['POST', 'OPTIONS'])
@@ -782,11 +633,13 @@ def analyze():
     text = None
 
     try:
-        # Log request details for debugging
-        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Received {request.method} request to /api/analyze")
-        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Headers: {dict(request.headers)}")
-        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Form data: {request.form.to_dict() if request.form else 'No form data'}")
-        current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Files: {list(request.files.keys()) if request.files else 'No files'}")
+        logger = current_app.logger
+        logger.info(f"[ANALYZE] Request method: {request.method}")
+        logger.info(f"[ANALYZE] Request headers: {dict(request.headers)}")
+        try:
+            logger.info(f"[ANALYZE] Request body: {request.get_data(as_text=True)[:1000]}")
+        except Exception as e:
+            logger.warning(f"[ANALYZE] Could not log request body: {e}")
         
         # Handle OPTIONS request for CORS preflight
         if request.method == 'OPTIONS':
@@ -818,21 +671,17 @@ def analyze():
         if 'file' in request.files or 'file' in request.form or (request.is_json and 'file' in data):
             file = request.files.get('file')
             if not file:
-                return make_error_response(
-                    "input_validation",
-                    "No file provided",
-                    status_code=400
-                )
-            
+                return jsonify({
+                    'status': 'error',
+                    'message': 'No file provided'
+                }), 400
             # Comprehensive file validation
             is_valid, error_message = validate_file_upload(file)
             if not is_valid:
-                return make_error_response(
-                    "file_validation",
-                    error_message,
-                    status_code=400
-                )
-            
+                return jsonify({
+                    'status': 'error',
+                    'message': error_message
+                }), 400
             filename = secure_filename(file.filename)
             file_ext = os.path.splitext(filename)[1].lower()
             temp_file_path = None
@@ -841,7 +690,6 @@ def analyze():
                 with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
                     file.save(temp_file.name)
                     temp_file_path = temp_file.name
-                    
                 # Add task to queue
                 task = {
                     'task_id': task_id,
@@ -853,30 +701,33 @@ def analyze():
                     }
                 }
                 # Initialize task in active_requests
-                active_requests[task_id] = {
-                    'status': 'queued',
-                    'start_time': time.time(),
-                    'type': 'file',
-                    'data': task['data'],
-                    'metadata': {
-                        'source_type': 'file',
-                        'source_name': filename,
-                        'file_type': file_ext,
-                        'timestamp': datetime.utcnow().isoformat() + "Z",
-                        'user_agent': request.headers.get("User-Agent")
-                    }
-                }
-                
+                set_task_status(task_id, 'queued', task['data'])
                 # Enqueue task
+                current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
                 if RQ_AVAILABLE and queue:
-                    queue.enqueue(process_citation_task, task_id, 'file', task['data'])
-                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added file task {task_id} to RQ")
+                    job = queue.enqueue(process_citation_task, task_id, 'file', task['data'])
+                    logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
+                    if not job:
+                        logger.error(f"[ANALYZE] Failed to enqueue task {task_id}: job is None")
+                        return make_error_response(
+                            "enqueue_error",
+                            f"Failed to enqueue task {task_id}",
+                            status_code=500
+                        )
+                    # Store the job ID mapping in Redis using the global connection
+                    try:
+                        redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
+                        logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
+                    except Exception as e:
+                        logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
+                    logger.info(f"[ANALYZE] Added file task {task_id} to RQ")
                 else:
-                    # Use fallback threading queue
-                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding file task {task_id} to threading queue (queue size: {task_queue.qsize()})")
-                    task_queue.put((task_id, 'file', task['data']))
-                    current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added file task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
-                
+                    queue_size = task_queue.qsize() if task_queue else 'N/A'
+                    current_app.logger.info(f"[ANALYZE] Adding file task {task_id} to threading queue (queue size: {queue_size})")
+                    if task_queue:
+                        task_queue.put((task_id, 'file', task['data']))
+                    new_queue_size = task_queue.qsize() if task_queue else 'N/A'
+                    current_app.logger.info(f"[ANALYZE] Added file task {task_id} to threading queue (new queue size: {new_queue_size})")
                 # Return immediate response with task ID
                 return jsonify({
                     'status': 'processing',
@@ -890,21 +741,18 @@ def analyze():
                         'user_agent': request.headers.get("User-Agent")
                     }
                 })
-                
             except Exception as e:
-                # Clean up temporary file if it exists
                 if temp_file_path and os.path.exists(temp_file_path):
                     try:
                         os.remove(temp_file_path)
                     except:
                         pass
-                return make_error_response(
-                    "file_upload",
-                    f"Failed to handle file upload: {str(e)}",
-                    status_code=400,
-                    source_type="file",
-                    source_name=filename
-                )
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Failed to handle file upload: {str(e)}',
+                    'source_type': 'file',
+                    'source_name': filename
+                }), 400
 
         # Handle text input
         elif input_type == 'text' or ('text' in data and data['text']):
@@ -937,12 +785,25 @@ def analyze():
                 try:
                     # Import the enhanced validator and complex citation integration
                     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-                    from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
-                    verifier = EnhancedMultiSourceVerifier()
+                    try:
+                        from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
+                        integrator = ComplexCitationIntegrator()
+                        results = integrator.process_text_with_complex_citations_original(text_trimmed)
+                    except ImportError as import_error:
+                        current_app.logger.warning(f"[ANALYZE] ComplexCitationIntegrator not available: {import_error}")
+                        # Fallback to simple verification
+                        verifier = EnhancedMultiSourceVerifier()
+                        results = verifier.verify_citation(text_trimmed)
+                        if isinstance(results, dict):
+                            results = [results]
+                        # Simple formatting for fallback
+                        def format_complex_citation_for_frontend(result):
+                            return {
+                                'display_text': result.get('citation', ''),
+                                'complex_features': {},
+                                'parallel_info': {}
+                            }
                     
-                    # Use complex citation processing for better handling of complex citations
-                    integrator = ComplexCitationIntegrator()
-                    results = integrator.process_text_with_complex_citations_original(text_trimmed)
                     processing_time = time.time() - start_time
                     
                     # Extract results and statistics
@@ -988,6 +849,7 @@ def analyze():
                             'display_text': formatted_result.get('display_text', ''),
                             'complex_features': formatted_result.get('complex_features', {}),
                             'parallel_info': formatted_result.get('parallel_info', {}),
+                            'parallel_citations': result.get('parallel_citations', []),
                             'metadata': {
                                 'source_type': 'citation',
                                 'source_name': 'single_citation',
@@ -1031,41 +893,97 @@ def analyze():
                 }
             }
             # Initialize task in active_requests
-            active_requests[task_id] = {
-                'status': 'queued',
-                'start_time': time.time(),
-                'type': 'text',
-                'data': task['data'],
-                'metadata': {
-                    'source_type': 'text',
-                    'source_name': 'pasted_text',
-                    'timestamp': datetime.utcnow().isoformat() + "Z",
-                    'user_agent': request.headers.get("User-Agent")
-                }
-            }
+            set_task_status(task_id, 'queued', task['data'])
             
             # Enqueue task
+            current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
             if RQ_AVAILABLE and queue:
-                queue.enqueue(process_citation_task, task_id, 'text', task['data'])
-                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to RQ")
-            else:
+                try:
+                    job = queue.enqueue(process_citation_task, task_id, 'text', task['data'])
+                    logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
+                    if not job:
+                        logger.error(f"[ANALYZE] Failed to enqueue task {task_id}: job is None")
+                        return make_error_response(
+                            "enqueue_error",
+                            f"Failed to enqueue task {task_id}",
+                            status_code=500
+                        )
+                    # Store the job ID mapping in Redis using the global connection
+                    try:
+                        redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
+                        logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
+                    except Exception as e:
+                        logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
+                    logger.info(f"[ANALYZE] Added text task {task_id} to RQ")
+                except Exception as e:
+                    logger.error(f"[ANALYZE] Exception during enqueue for {task_id}: {e}", exc_info=True)
+                    return make_error_response(
+                        "enqueue_error",
+                        f"Exception during enqueue: {e}",
+                        status_code=500
+                    )
+                # Return immediate response with task ID for queued tasks
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'Text received, processing started',
+                    'metadata': {
+                        'source_type': 'text',
+                        'source_name': 'pasted_text',
+                        'timestamp': datetime.utcnow().isoformat() + "Z",
+                        'user_agent': request.headers.get("User-Agent")
+                    }
+                })
+            elif task_queue is not None:
                 # Use fallback threading queue
-                current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {task_queue.qsize()})")
-                task_queue.put((task_id, 'text', task['data']))
-                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
-            
-            # Return immediate response with task ID
-            return jsonify({
-                'status': 'processing',
-                'task_id': task_id,
-                'message': 'Text received, processing started',
-                'metadata': {
-                    'source_type': 'text',
-                    'source_name': 'pasted_text',
-                    'timestamp': datetime.utcnow().isoformat() + "Z",
-                    'user_agent': request.headers.get("User-Agent")
-                }
-            })
+                queue_size = task_queue.qsize() if task_queue else 'N/A'
+                current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {queue_size})")
+                if task_queue:
+                    task_queue.put((task_id, 'text', task['data']))
+                new_queue_size = task_queue.qsize() if task_queue else 'N/A'
+                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {new_queue_size})")
+                # Return immediate response with task ID for queued tasks
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'Text received, processing started',
+                    'metadata': {
+                        'source_type': 'text',
+                        'source_name': 'pasted_text',
+                        'timestamp': datetime.utcnow().isoformat() + "Z",
+                        'user_agent': request.headers.get("User-Agent")
+                    }
+                })
+            else:
+                # Worker thread is disabled, process immediately
+                current_app.logger.info(f"[ANALYZE] Worker thread disabled, processing task {task_id} immediately")
+                try:
+                    # Process the task immediately
+                    result = process_citation_task(task_id, 'text', task['data'])
+                    if result and result.get('status') == 'success':
+                        return jsonify({
+                            'status': 'completed',
+                            'task_id': task_id,
+                            'results': result.get('results', []),
+                            'citations': result.get('citations', []),
+                            'case_names': result.get('case_names', []),
+                            'metadata': result.get('metadata', {}),
+                            'statistics': result.get('statistics', {}),
+                            'summary': result.get('summary', {})
+                        })
+                    else:
+                        return make_error_response(
+                            "processing_error",
+                            f"Task processing failed: {result.get('error', 'Unknown error')}",
+                            status_code=500
+                        )
+                except Exception as e:
+                    current_app.logger.error(f"[ANALYZE] Error processing task {task_id} immediately: {str(e)}")
+                    return make_error_response(
+                        "processing_error",
+                        f"Error processing task: {str(e)}",
+                        status_code=500
+                    )
 
         # Handle URL input
         elif input_type == 'url' or ('url' in data and data['url']):
@@ -1091,49 +1009,79 @@ def analyze():
                 }
             }
             # Initialize task in active_requests
-            active_requests[task_id] = {
-                'status': 'queued',
-                'start_time': time.time(),
-                'type': 'url',
-                'data': task['data'],
-                'metadata': {
-                    'source_type': 'url',
-                    'source_name': url,
-                    'timestamp': datetime.utcnow().isoformat() + "Z",
-                    'user_agent': request.headers.get("User-Agent")
-                }
-            }
+            set_task_status(task_id, 'queued', task['data'])
             
             # Enqueue task
+            current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
             if RQ_AVAILABLE and queue:
                 # URL tasks can take longer due to web scraping, so use a longer timeout
-                queue.enqueue(process_citation_task, task_id, 'url', task['data'], job_timeout=600)  # 10 minutes
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to RQ with 10-minute timeout")
-            else:
+                job = queue.enqueue(process_citation_task, task_id, 'url', task['data'], job_timeout=600)  # 10 minutes
+                # Store the job ID mapping in Redis using the global connection
+                try:
+                    redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
+                    logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
+                except Exception as e:
+                    logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
+                logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to RQ with 10-minute timeout")
+            elif task_queue is not None:
                 # Use fallback threading queue
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding URL task {task_id} to threading queue (queue size: {task_queue.qsize()})")
-                task_queue.put((task_id, 'url', task['data']))
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to threading queue (new queue size: {task_queue.qsize()})")
+                queue_size = task_queue.qsize() if task_queue else 'N/A'
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding URL task {task_id} to threading queue (queue size: {queue_size})")
+                if task_queue:
+                    task_queue.put((task_id, 'url', task['data']))
+                new_queue_size = task_queue.qsize() if task_queue else 'N/A'
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to threading queue (new queue size: {new_queue_size})")
+            else:
+                # Worker thread is disabled, process immediately
+                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Worker thread disabled, processing URL task {task_id} immediately")
+                try:
+                    # Process the task immediately
+                    result = process_citation_task(task_id, 'url', task['data'])
+                    if result and result.get('status') == 'success':
+                        return jsonify({
+                            'status': 'completed',
+                            'task_id': task_id,
+                            'results': result.get('results', []),
+                            'citations': result.get('citations', []),
+                            'case_names': result.get('case_names', []),
+                            'metadata': result.get('metadata', {}),
+                            'statistics': result.get('statistics', {}),
+                            'summary': result.get('summary', {})
+                        })
+                    else:
+                        return make_error_response(
+                            "processing_error",
+                            f"URL task processing failed: {result.get('error', 'Unknown error')}",
+                            status_code=500
+                        )
+                except Exception as e:
+                    current_app.logger.error(f"{WORKER_LABEL} [ANALYZE] Error processing URL task {task_id} immediately: {str(e)}")
+                    return make_error_response(
+                        "processing_error",
+                        f"Error processing URL task: {str(e)}",
+                        status_code=500
+                    )
             
-            # Return immediate response with task ID
-            return jsonify({
-                'status': 'processing',
-                'task_id': task_id,
-                'message': 'URL received, processing started',
-                'metadata': {
-                    'source_type': 'url',
-                    'source_name': url,
-                    'timestamp': datetime.utcnow().isoformat() + "Z",
-                    'user_agent': request.headers.get("User-Agent")
-                }
-            })
+            # Return immediate response with task ID (only for queued tasks)
+            if (RQ_AVAILABLE and queue) or (task_queue is not None):
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'URL received, processing started',
+                    'metadata': {
+                        'source_type': 'url',
+                        'source_name': url,
+                        'timestamp': datetime.utcnow().isoformat() + "Z",
+                        'user_agent': request.headers.get("User-Agent")
+                    }
+                })
             
         else:
-            return make_error_response(
-                "input_validation",
-                "No valid input provided",
-                status_code=400
-            )
+            # Fallback: if no valid input was processed, return an error response
+            return jsonify({
+                'status': 'error',
+                'message': 'Invalid or missing input. Please provide text, file, or URL.'
+            }), 400
 
     except Exception as e:
         current_app.logger.error(f"{WORKER_LABEL} [ANALYZE] Error: {str(e)}", exc_info=True)
@@ -1147,288 +1095,167 @@ def analyze():
 @vue_api.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
     """
-    Check the status of an asynchronous processing task.
-    Returns the current status and any available results.
+    Get the status and result of an async analysis task.
+    Always return a consistent response structure.
+    Now includes progress and ETA fields when processing.
     """
     try:
-        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Checking status for task {task_id}")
-        
-        # Check if task exists in active_requests
-        if task_id not in active_requests:
-            # Try Redis before returning 404
-            if REDIS_AVAILABLE and redis_conn:
-                try:
-                    redis_result = redis_conn.get(f"task_result:{task_id}")
-                    if redis_result:
-                        task_status = json.loads(redis_result)
-                        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} loaded from Redis")
-                    else:
-                        current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} not found in memory or Redis")
-                        return make_error_response(
-                            "task_not_found",
-                            f"Task {task_id} not found",
-                            status_code=404
-                        )
-                except Exception as e:
-                    current_app.logger.error(f"[REDIS] Error loading task {task_id} from Redis: {e}")
-                    return make_error_response(
-                        "task_not_found",
-                        f"Task {task_id} not found",
-                        status_code=404
-                    )
-            else:
-                current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} not found")
-                return make_error_response(
-                    "task_not_found",
-                    f"Task {task_id} not found",
-                    status_code=404
+        # 1. Check Redis for completed result first
+        try:
+            redis_result = redis_conn.get(f"task_result:{task_id}")
+            if redis_result:
+                result_data = json.loads(redis_result)
+                current_app.logger.info(f"[TASK_STATUS] Redis result for {task_id}: status={result_data.get('status')}, progress={result_data.get('progress')}, step={result_data.get('current_step')}")
+                is_completed = (
+                    result_data.get('status') == 'completed' or
+                    result_data.get('progress') == 100 or
+                    result_data.get('current_step') == 'Complete'
                 )
-        else:
-            task_status = active_requests[task_id]
-        
-        current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} status: {task_status['status']}")
-        
-        # Always calculate and include progress and time estimates
-        start_time = task_status.get('start_time', time.time())
-        elapsed_time = time.time() - start_time
-        
-        # Calculate progress based on status and elapsed time
-        if task_status['status'] == 'queued':
-            # For queued tasks, show minimal progress
-            progress = 5
-            status_message = 'Waiting in queue...'
-            current_step = 'Queue'
-        elif task_status['status'] == 'processing':
-            # For processing tasks, estimate progress based on elapsed time and task type
-            task_type = task_status.get('type', 'text')
-            if task_type == 'file':
-                estimated_total = 60  # 60 seconds for file processing
-            elif task_type == 'url':
-                estimated_total = 120  # 120 seconds for URL processing
-            else:  # text
-                estimated_total = 20  # 20 seconds for text processing
-            
-            progress = min(int((elapsed_time / estimated_total) * 90), 90)  # Cap at 90% until complete
-            status_message = task_status.get('status_message', 'Processing citations...')
-            current_step = task_status.get('current_step', 'Citation extraction and verification')
-        elif task_status['status'] == 'completed':
-            progress = 100
-            status_message = 'Processing complete'
-            current_step = 'Complete'
-        elif task_status['status'] == 'failed':
-            progress = 0
-            status_message = task_status.get('error', 'Processing failed')
-            current_step = 'Failed'
-        else:
-            progress = 0
-            status_message = 'Unknown status'
-            current_step = 'Unknown'
-        
-        # Calculate remaining time
-        remaining_time = _estimate_time_remaining({
-            'type': task_status.get('type', 'text'),
-            'progress': progress,
-            'start_time': start_time
-        })
-        
-        # Define processing steps based on task type
-        task_type = task_status.get('type', 'text')
-        if task_type == 'file':
-            steps = [
-                ['File upload and validation', 5],
-                ['Text extraction', 15],
-                ['Citation extraction', 10],
-                ['Citation verification', 25],
-                ['Results compilation', 5]
-            ]
-        elif task_type == 'url':
-            steps = [
-                ['URL validation', 2],
-                ['Content download', 30],
-                ['Text extraction', 15],
-                ['Citation extraction', 10],
-                ['Citation verification', 50],
-                ['Results compilation', 13]
-            ]
-        else:  # text
-            steps = [
-                ['Text validation', 2],
-                ['Citation extraction', 8],
-                ['Citation verification', 8],
-                ['Results compilation', 2]
-            ]
-        
-        # Calculate estimated total time
-        estimated_total_time = sum(step[1] for step in steps)
-        
-        # Build detailed step progress for frontend
-        step_progress_list = []
-        step_start = 0
-        for i, (step_name, step_time) in enumerate(steps):
-            step_dict = {'step': step_name, 'estimated_time': step_time}
-            if current_step == step_name:
-                # Current step: estimate progress
-                step_elapsed = elapsed_time - step_start
-                progress = min(100, int((step_elapsed / step_time) * 100)) if step_time > 0 else 0
-                step_dict['progress'] = progress
-                step_dict['status'] = 'In Progress'
-            elif current_step == 'Complete':
-                # All steps are completed
-                step_dict['progress'] = 100
-                step_dict['status'] = 'Completed'
-            elif current_step == 'Failed':
-                # All steps are failed
-                step_dict['progress'] = 0
-                step_dict['status'] = 'Failed'
-            else:
-                # Check if this step is before the current step
-                try:
-                    current_step_index = [s[0] for s in steps].index(current_step)
-                    if i < current_step_index:
-                        # Completed steps
-                        step_dict['progress'] = 100
-                        step_dict['status'] = 'Completed'
-                    else:
-                        # Pending steps
-                        step_dict['progress'] = 0
-                        step_dict['status'] = 'Pending'
-                except ValueError:
-                    # Current step not found in steps list, treat as pending
-                    step_dict['progress'] = 0
-                    step_dict['status'] = 'Pending'
-            step_progress_list.append(step_dict)
-            step_start += step_time
+                if is_completed:
+                    current_app.logger.info(f"[TASK_STATUS] Task {task_id} is completed, returning result from Redis")
+                    return jsonify({
+                        'status': 'completed',
+                        'task_id': task_id,
+                        'citations': result_data.get('citations', []),
+                        'statistics': result_data.get('statistics', {}),
+                        'summary': result_data.get('summary', {}),
+                        'progress': 100,
+                        'eta_seconds': 0,
+                        'message': 'Analysis completed'
+                    })
+                else:
+                    # Still processing, show progress and ETA
+                    eta = _estimate_time_remaining(result_data)
+                    return jsonify({
+                        'status': 'processing',
+                        'task_id': task_id,
+                        'progress': result_data.get('progress', 0),
+                        'current_chunk': result_data.get('current_chunk', 0),
+                        'total_chunks': result_data.get('total_chunks', 1),
+                        'eta_seconds': eta,
+                        'message': 'Task is still processing',
+                        'citations': [],
+                        'statistics': {},
+                        'summary': {}
+                    })
+        except Exception as redis_error:
+            current_app.logger.warning(f"Redis check failed for task {task_id}: {redis_error}")
 
-        # Update task status with progress info
-        task_status.update({
-            'progress': progress,
-            'status_message': status_message,
-            'current_step': current_step,
-            'elapsed_time': int(elapsed_time),
-            'remaining_time': remaining_time,
-            'estimated_total_time': estimated_total_time,
-            'steps': step_progress_list  # Use detailed step progress
-        })
-        
-        # Add progress tracking for queued tasks
-        if task_status['status'] == 'queued':
-            # If more than 2 seconds have passed, update status to processing
-            if elapsed_time > 2:
-                estimated_progress = min(int(elapsed_time * 5), 85)  # Conservative progress estimate
-                # Preserve existing results when updating status
-                existing_results = active_requests[task_id].get('results', [])
-                existing_citations = active_requests[task_id].get('citations', [])
-                existing_case_names = active_requests[task_id].get('case_names', [])
-                existing_metadata = active_requests[task_id].get('metadata', {})
-                existing_statistics = active_requests[task_id].get('statistics', {})
-                existing_summary = active_requests[task_id].get('summary', {})
-                
-                active_requests[task_id].update({
+        # 2. Then check if task exists in active_requests
+        if task_id in active_requests:
+            task_info = active_requests[task_id]
+            # If still processing
+            if task_info['status'] in ('queued', 'processing'):
+                return jsonify({
                     'status': 'processing',
-                    'progress': estimated_progress,
-                    'status_message': 'Processing citations...',
-                    'current_step': 'Citation extraction and verification',
-                    # Preserve existing results
-                    'results': existing_results,
-                    'citations': existing_citations,
-                    'case_names': existing_case_names,
-                    'metadata': existing_metadata,
-                    'statistics': existing_statistics,
-                    'summary': existing_summary
+                    'task_id': task_id,
+                    'message': 'Task is still processing',
+                    'citations': [],
+                    'statistics': {},
+                    'summary': {}
                 })
-                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} updated to processing (elapsed: {elapsed_time:.1f}s, progress: {estimated_progress}%)")
-        
-        # Return the complete task status
-        response_data = {
-            'task_id': task_id,
-            'status': task_status['status'],
-            'progress': progress,
-            'status_message': status_message,
-            'current_step': current_step,
-            'elapsed_time': int(elapsed_time),
-            'remaining_time': remaining_time,
-            'estimated_total_time': estimated_total_time,
-            'steps': step_progress_list,  # Use detailed step progress
-            'type': task_type
-        }
-        
-        # Always include citations/results if present
-        if task_status['status'] == 'completed':
-            # Prefer 'results', fallback to 'citations', always include at least an empty list
-            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task {task_id} completed, checking for results")
-            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task status keys: {list(task_status.keys())}")
-            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Task status: {task_status}")
-            
-            # First check active_requests for results
-            if 'results' in task_status:
-                response_data['results'] = task_status['results']
-                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'results' field, count: {len(task_status['results'])}")
-                current_app.logger.info(f"[TASK_STATUS_DEBUG] task_status['results'] length: {len(task_status['results'])}")
-                current_app.logger.info(f"[TASK_STATUS_DEBUG] task_status['results'] keys: {list(task_status['results'][0].keys()) if task_status['results'] else 'EMPTY'}")
-            elif 'citations' in task_status:
-                response_data['results'] = task_status['citations']
-                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'citations' field, count: {len(task_status['citations'])}")
+            # If completed
+            if task_info['status'] == 'completed':
+                result = task_info.get('result', {})
+                return jsonify({
+                    'status': 'completed',
+                    'task_id': task_id,
+                    'citations': result.get('citations', []),
+                    'statistics': result.get('statistics', {}),
+                    'summary': result.get('summary', {}),
+                    'message': result.get('message', 'Analysis completed')
+                })
+            # If failed
+            if task_info['status'] == 'failed':
+                return jsonify({
+                    'status': 'error',
+                    'task_id': task_id,
+                    'message': task_info.get('error', 'Task failed'),
+                    'citations': [],
+                    'statistics': {},
+                    'summary': {}
+                }), 500
+
+        # 3. If not in active_requests, check RQ job result as fallback
+        try:
+            job_id = redis_conn.get(f"task_to_job:{task_id}")
+            if job_id:
+                job_id = job_id.decode('utf-8') if isinstance(job_id, bytes) else job_id
+                current_app.logger.info(f"[TASK_STATUS] Found job ID {job_id} for task {task_id}")
+                job = queue.fetch_job(job_id)
             else:
-                # If no results in active_requests, try to get from RQ job
-                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] No results in active_requests, checking RQ job")
-                try:
-                    # Try to get the RQ job result
-                    if REDIS_AVAILABLE and redis_conn:
-                        rq_queue = Queue('casestrainer', connection=redis_conn)
-                        job = rq_queue.fetch_job(task_id)
-                        if job and job.result:
-                            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Found RQ job result for task {task_id}")
-                            current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] RQ job result keys: {list(job.result.keys())}")
-                            
-                            # Extract results from RQ job
-                            if 'results' in job.result:
-                                response_data['results'] = job.result['results']
-                                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'results' field from RQ job, count: {len(job.result['results'])}")
-                                
-                                # Update active_requests for future requests
-                                if task_id in active_requests:
-                                    active_requests[task_id]['results'] = job.result['results']
-                                    current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Updated active_requests with RQ job results")
-                            elif 'citations' in job.result:
-                                response_data['results'] = job.result['citations']
-                                current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Using 'citations' field from RQ job, count: {len(job.result['citations'])}")
-                                
-                                # Update active_requests for future requests
-                                if task_id in active_requests:
-                                    active_requests[task_id]['citations'] = job.result['citations']
-                                    current_app.logger.info(f"{WORKER_LABEL} [TASK_STATUS] Updated active_requests with RQ job citations")
-                            else:
-                                response_data['results'] = []
-                                current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] RQ job has no results or citations")
-                        else:
-                            response_data['results'] = []
-                            current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] No RQ job or job result found for task {task_id}")
-                    else:
-                        response_data['results'] = []
-                        current_app.logger.warning(f"{WORKER_LABEL} [TASK_STATUS] Redis not available, cannot check RQ job")
-                except Exception as e:
-                    current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Error checking RQ job for task {task_id}: {str(e)}")
-                    response_data['results'] = []
-        elif task_status['status'] == 'failed' and 'error' in task_status:
-            response_data['error'] = task_status['error']
-        
-        # Log the full response_data sent to the frontend
-        current_app.logger.info(f"[ANALYZE] Response to frontend: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
-        
-        # Add explicit logging for debugging
-        current_app.logger.info(f"[TASK_STATUS_DEBUG] About to return JSON response for task {task_id}")
-        current_app.logger.info(f"[TASK_STATUS_DEBUG] Response data keys: {list(response_data.keys())}")
-        current_app.logger.info(f"[TASK_STATUS_DEBUG] Results count: {len(response_data.get('results', []))}")
-        
-        return jsonify(response_data)
-        
+                current_app.logger.info(f"[TASK_STATUS] No job ID mapping found for task {task_id}, trying direct fetch")
+                job = queue.fetch_job(task_id)
+
+            if job and job.is_finished:
+                result = job.result
+                if result and isinstance(result, dict):
+                    return jsonify({
+                        'status': 'completed',
+                        'task_id': task_id,
+                        'citations': result.get('citations', []),
+                        'statistics': result.get('statistics', {}),
+                        'summary': result.get('summary', {}),
+                        'message': 'Analysis completed'
+                    })
+                elif result and isinstance(result, list):
+                    return jsonify({
+                        'status': 'completed',
+                        'task_id': task_id,
+                        'citations': result,
+                        'statistics': {},
+                        'summary': {},
+                        'message': 'Analysis completed'
+                    })
+            elif job and job.is_failed:
+                return jsonify({
+                    'status': 'error',
+                    'task_id': task_id,
+                    'message': f'Task failed: {job.exc_info}',
+                    'citations': [],
+                    'statistics': {},
+                    'summary': {}
+                }), 500
+            elif job and job.is_started:
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'Task is still processing',
+                    'citations': [],
+                    'statistics': {},
+                    'summary': {}
+                })
+            elif job:
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'Task is still processing',
+                    'citations': [],
+                    'statistics': {},
+                    'summary': {}
+                })
+        except Exception as redis_error:
+            current_app.logger.warning(f"Redis check failed for task {task_id}: {redis_error}")
+
+        # 4. Task not found
+        return jsonify({
+            'status': 'error',
+            'message': 'Task ID not found',
+            'task_id': task_id,
+            'citations': [],
+            'statistics': {},
+            'summary': {}
+        }), 404
+
     except Exception as e:
-        current_app.logger.error(f"{WORKER_LABEL} [TASK_STATUS] Error checking task {task_id}: {str(e)}")
-        return make_error_response(
-            "internal_error",
-            f"Error checking task status: {str(e)}",
-            status_code=500
-        )
+        return jsonify({
+            'status': 'error',
+            'task_id': task_id,
+            'message': f'Exception: {str(e)}',
+            'citations': [],
+            'statistics': {},
+            'summary': {}
+        }), 500
 
 def _estimate_time_remaining(task_status):
     """
@@ -1615,10 +1442,11 @@ def validate_file_upload(file):
             return False, "Invalid filename"
         # Check file extension (allow multiple dots, only check final extension)
         if '.' not in filename:
-            return False, f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+            return False, "Invalid file type. Allowed types: .pdf, .doc, .docx, .txt"
         file_ext = filename.rsplit('.', 1)[1].lower()
-        if file_ext not in ALLOWED_EXTENSIONS:
-            return False, f"Invalid file type. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}"
+        allowed_exts = {'pdf', 'doc', 'docx', 'txt'}
+        if file_ext not in allowed_exts:
+            return False, "Invalid file type. Allowed types: .pdf, .doc, .docx, .txt"
         # Additional security checks
         suspicious_patterns = ['..', '\\', '/', ':', '*', '?', '"', '<', '>', '|']
         if any(pattern in file.filename for pattern in suspicious_patterns):
@@ -1629,18 +1457,11 @@ def validate_file_upload(file):
             'doc': 'application/msword',
             'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'txt': 'text/plain',
-            'rtf': 'application/rtf',
-            'odt': 'application/vnd.oasis.opendocument.text',
-            'html': 'text/html',
-            'htm': 'text/html'
         }
         if file_ext in allowed_mime_types:
             expected_mime = allowed_mime_types[file_ext]
             if hasattr(file, 'content_type') and file.content_type:
-                # For html, htm, rtf, odt, allow any content_type (browsers may send text/plain or octet-stream)
-                if file_ext in ['html', 'htm', 'rtf', 'odt']:
-                    pass  # skip strict content_type check
-                elif file.content_type != expected_mime:
+                if file.content_type != expected_mime:
                     logger.warning(f"File content type mismatch: expected {expected_mime}, got {file.content_type}")
         return True, None
     except Exception as e:
@@ -1851,3 +1672,95 @@ def enrich_citation_with_database_fields(citation_result):
     except Exception as e:
         logger.warning(f"Could not enrich citation with database fields: {e}")
         return citation_result
+
+# Helper functions for Redis task status/results
+
+def set_task_status(task_id, status, data=None):
+    if REDIS_TASK_TRACKING and redis_conn:
+        try:
+            key = f"task_status:{task_id}"
+            value = {"status": status}
+            if data:
+                value.update(data)
+            redis_conn.setex(key, 3600, json.dumps(value))
+        except Exception as e:
+            logger.warning(f"[REDIS] Failed to set task status for {task_id}: {e}")
+    else:
+        active_requests[task_id] = {"status": status, **(data or {})}
+
+def get_task_status(task_id):
+    if REDIS_TASK_TRACKING and redis_conn:
+        try:
+            key = f"task_status:{task_id}"
+            value = redis_conn.get(key)
+            if value:
+                return json.loads(value)
+        except Exception as e:
+            logger.warning(f"[REDIS] Failed to get task status for {task_id}: {e}")
+    return active_requests.get(task_id)
+
+def set_task_result(task_id, result):
+    logger.info(f"[DEBUG] set_task_result called for {task_id} with result: {result}")
+    print(f"[DEBUG] set_task_result called for {task_id} with result: {result}")
+    
+    if REDIS_TASK_TRACKING and redis_conn:
+        try:
+            key = f"task_result:{task_id}"
+            logger.info(f"[DEBUG] About to serialize result to JSON for {task_id}")
+            print(f"[DEBUG] About to serialize result to JSON for {task_id}")
+            
+            # Try to serialize the result
+            try:
+                json_str = json.dumps(result)
+                logger.info(f"[DEBUG] JSON serialization successful for {task_id}: {json_str[:100]}...")
+                print(f"[DEBUG] JSON serialization successful for {task_id}: {json_str[:100]}...")
+            except Exception as json_error:
+                logger.error(f"[DEBUG] JSON serialization failed for {task_id}: {json_error}")
+                print(f"[DEBUG] JSON serialization failed for {task_id}: {json_error}")
+                # Try to identify the problematic field
+                for key_name, value in result.items():
+                    try:
+                        json.dumps({key_name: value})
+                    except Exception as field_error:
+                        logger.error(f"[DEBUG] Field '{key_name}' is not JSON serializable: {field_error}")
+                        print(f"[DEBUG] Field '{key_name}' is not JSON serializable: {field_error}")
+                raise json_error
+            
+            # Store in Redis
+            redis_conn.setex(key, 3600, json_str)
+            logger.info(f"[DEBUG] set_task_result wrote result to Redis key {key}")
+            print(f"[DEBUG] set_task_result wrote result to Redis key {key}")
+            
+            # Verify it was stored
+            stored_value = redis_conn.get(key)
+            if stored_value:
+                logger.info(f"[DEBUG] Verified result stored in Redis for {task_id}")
+                print(f"[DEBUG] Verified result stored in Redis for {task_id}")
+            else:
+                logger.error(f"[DEBUG] Failed to verify result storage for {task_id}")
+                print(f"[DEBUG] Failed to verify result storage for {task_id}")
+                
+        except Exception as e:
+            logger.error(f"[REDIS] Failed to set task result for {task_id}: {e}")
+            print(f"[REDIS] Failed to set task result for {task_id}: {e}")
+            import traceback
+            logger.error(f"[REDIS] Traceback: {traceback.format_exc()}")
+            print(f"[REDIS] Traceback: {traceback.format_exc()}")
+    else:
+        logger.info(f"[DEBUG] Using in-memory storage for {task_id}")
+        print(f"[DEBUG] Using in-memory storage for {task_id}")
+        active_requests[task_id] = {"status": "completed", "result": result}
+
+def get_task_result(task_id):
+    if REDIS_TASK_TRACKING and redis_conn:
+        try:
+            key = f"task_result:{task_id}"
+            value = redis_conn.get(key)
+            if value:
+                return json.loads(value)
+        except Exception as e:
+            logger.warning(f"[REDIS] Failed to get task result for {task_id}: {e}")
+    task = active_requests.get(task_id)
+    if task and task.get("status") == "completed":
+        return task.get("result")
+    return None

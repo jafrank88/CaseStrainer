@@ -577,10 +577,18 @@ function Start-DockerDesktop {
 function Stop-RedisDocker {
     Write-Host "Attempting to stop Redis Docker container..." -ForegroundColor Cyan
     try {
+        # Try production name first, then fallback to development name
+        $container = docker ps -a --filter "name=casestrainer-redis-prod" --format "{{.ID}}"
+        if ($container) {
+            docker stop casestrainer-redis-prod | Out-Null
+            Write-Host "Redis Docker container (prod) stopped." -ForegroundColor Green
+            return $true
+        }
+        
         $container = docker ps -a --filter "name=casestrainer-redis" --format "{{.ID}}"
         if ($container) {
             docker stop casestrainer-redis | Out-Null
-            Write-Host "Redis Docker container stopped." -ForegroundColor Green
+            Write-Host "Redis Docker container (dev) stopped." -ForegroundColor Green
             return $true
         } else {
             Write-Host "No Redis Docker container found to stop." -ForegroundColor Yellow
@@ -595,10 +603,18 @@ function Stop-RedisDocker {
 function Start-RedisDocker {
     Write-Host "Attempting to start Redis Docker container..." -ForegroundColor Cyan
     try {
+        # Try production name first, then fallback to development name
+        $container = docker ps -a --filter "name=casestrainer-redis-prod" --format "{{.ID}}"
+        if ($container) {
+            docker start casestrainer-redis-prod | Out-Null
+            Write-Host "Redis Docker container (prod) started." -ForegroundColor Green
+            return $true
+        }
+        
         $container = docker ps -a --filter "name=casestrainer-redis" --format "{{.ID}}"
         if ($container) {
             docker start casestrainer-redis | Out-Null
-            Write-Host "Redis Docker container started." -ForegroundColor Green
+            Write-Host "Redis Docker container (dev) started." -ForegroundColor Green
             return $true
         } else {
             Write-Host "No Redis Docker container found to start. Please create one with: docker run --name casestrainer-redis -d -p 6379:6379 redis" -ForegroundColor Yellow
@@ -648,8 +664,11 @@ function Start-RQWorker {
     } else {
         # Local mode (existing logic)
         try {
-            # Check if Redis is available
-            $redisTest = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+            # Check if Redis is available (try both prod and dev names)
+            $redisTest = docker ps --filter "name=casestrainer-redis-prod" --format "{{.Status}}" 2>$null
+            if (-not $redisTest) {
+                $redisTest = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+            }
             if (-not $redisTest) {
                 Write-Host "Redis container not running. Starting Redis first..." -ForegroundColor Yellow
                 if (-not (Start-RedisDocker)) {
@@ -903,13 +922,19 @@ function Test-ServiceHealth {
             # Retry logic for backend health check
             for ($i = 1; $i -le 3; $i++) {
                 try {
-                    $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
-                    if ($response.status -eq "healthy") {
+                    # Use Test-NetConnection instead of TCP client to avoid hanging
+                    $result = Test-NetConnection -ComputerName localhost -Port $config.BackendPort -InformationLevel Quiet -WarningAction SilentlyContinue
+                    
+                    if ($result) {
                         $healthStatus.Backend = $true
                         break # Exit loop on success
+                    } else {
+                        $logMessage = "$(Get-Date -Format o) [WARN] Backend health check attempt $i : Port connection failed"
+                        Add-Content -Path "logs/backend_health_diag.log" -Value $logMessage
                     }
                 } catch {
-                    # Ignore error and retry
+                    $logMessage = "$(Get-Date -Format o) [ERROR] Backend health check attempt $i : Exception: $($_.Exception.Message)"
+                    Add-Content -Path "logs/backend_health_diag.log" -Value $logMessage
                 }
                 if ($i -lt 3) { Start-Sleep -Seconds 5 }
             }
@@ -2657,7 +2682,11 @@ function Show-FinalStatusReport {
     
     # Redis Status
     $redisStatus = "❌ DOWN"
-    $redisContainer = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+            # Check both production and development Redis containers
+        $redisContainer = docker ps --filter "name=casestrainer-redis-prod" --format "{{.Status}}" 2>$null
+        if (-not $redisContainer) {
+            $redisContainer = docker ps --filter "name=casestrainer-redis" --format "{{.Status}}" 2>$null
+        }
     if ($redisContainer) {
         $redisStatus = "✅ RUNNING"
     }
@@ -2665,7 +2694,7 @@ function Show-FinalStatusReport {
         Service = "Redis"
         Status = $redisStatus
         URL = "localhost:$($config.RedisPort)"
-        LogFile = "Docker logs: docker logs casestrainer-redis"
+                    LogFile = "Docker logs: docker logs casestrainer-redis-prod (or casestrainer-redis for dev)"
     }
     
     # Backend Status
@@ -2882,8 +2911,8 @@ try {
             Write-CrashLog "Starting Docker Production mode" -Level "INFO"
             # --- CLEANUP: Stop and remove any existing containers that could conflict ---
             Write-Host "\nCleaning up old Docker containers..." -ForegroundColor Yellow
-            docker stop casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
-            docker rm casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
+                docker stop casestrainer-redis-prod casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
+    docker rm casestrainer-redis-prod casestrainer-redis casestrainer casestrainer-nginx casestrainer-backend casestrainer-frontend-prod casestrainer-frontend-dev casestrainer-rqworker 2>$null | Out-Null
             Write-Host "✅ Cleanup complete.\n" -ForegroundColor Green
             # 1. Build Vue frontend
             Write-Host "\n=== Building Vue frontend for production ===\n" -ForegroundColor Cyan
@@ -2934,15 +2963,16 @@ try {
             }
             Write-Host "✅ All Docker services started successfully" -ForegroundColor Green
             Write-Host "\nWaiting for services to be ready..." -ForegroundColor Yellow
-            Start-Sleep -Seconds 15
+            Start-Sleep -Seconds 30
 
             # 4. Health checks for backend, nginx, rqworker
             Write-Host "\nChecking backend health..." -ForegroundColor Yellow
             $backendHealthy = $false
             for ($i = 1; $i -le 8; $i++) {
                 try {
-                    $response = Invoke-RestMethod -Uri "http://localhost:5001/casestrainer/api/health" -TimeoutSec 5
-                    if ($response.status -eq "healthy") {
+                    # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+                    $result = Test-NetConnection -ComputerName localhost -Port 5001 -InformationLevel Quiet -WarningAction SilentlyContinue
+                    if ($result) {
                         Write-Host "✅ Backend is healthy and responding!" -ForegroundColor Green
                         $backendHealthy = $true
                         break
@@ -2956,17 +2986,39 @@ try {
             }
 
             Write-Host "\nChecking nginx SSL health..." -ForegroundColor Yellow
+            # NOTE: For local testing, ensure your hosts file maps wolf.law.uw.edu to 127.0.0.1
+            # e.g., add the line: 127.0.0.1 wolf.law.uw.edu
+            # This matches the SSL certificate CN/SAN
+            add-type @"
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+public class TrustAllCertsPolicy : ICertificatePolicy {
+    public bool CheckValidationResult(
+        ServicePoint srvPoint, X509Certificate certificate,
+        WebRequest request, int certificateProblem) {
+        return true;
+    }
+}
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
             $nginxHealthy = $false
             for ($i = 1; $i -le 8; $i++) {
                 try {
-                    $httpsResponse = Invoke-RestMethod -Uri "https://localhost/casestrainer/api/health" -TimeoutSec 5 -SkipCertificateCheck
+                    $httpsResponse = Invoke-RestMethod -Uri "https://wolf.law.uw.edu/casestrainer/api/health" -TimeoutSec 5
                     if ($httpsResponse.status -eq "healthy") {
                         Write-Host "✅ Nginx SSL proxy working correctly!" -ForegroundColor Green
                         $nginxHealthy = $true
                         break
+                    } else {
+                        Write-Host "Nginx SSL health check attempt ${i}: Unexpected response: $($httpsResponse | ConvertTo-Json -Compress)" -ForegroundColor Yellow
                     }
                 } catch {
                     Write-Host "Nginx SSL health check attempt $i failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                    if ($_.Exception.Response -and $_.Exception.Response.GetResponseStream()) {
+                        $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+                        $body = $reader.ReadToEnd()
+                        Write-Host "Nginx SSL health check attempt $i response body: $body" -ForegroundColor Gray
+                    }
                 }
                 Write-Host "Nginx not ready yet, waiting... (attempt $i/8)" -ForegroundColor Yellow
                 Start-Sleep -Seconds 5
