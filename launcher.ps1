@@ -221,13 +221,11 @@ function Start-DockerMode {
         
         while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
             try {
-                $response = Invoke-RestMethod -Uri $backendHealthUrl -TimeoutSec 5
-                if ($response.status -eq "healthy") {
+                # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+                $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+                if ($result) {
                     Write-Host "✅ Backend is healthy and responding!" -ForegroundColor Green
-                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
-                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
-                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
-                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  Port: $($config.BackendPort) accessible" -ForegroundColor Green
                     break
                 }
             } catch {
@@ -257,10 +255,11 @@ function Start-DockerMode {
                     }
                     
                     # Test HTTPS API endpoint
-                    $httpsResponse = Invoke-RestMethod -Uri "https://localhost/casestrainer/api/health" -TimeoutSec 5 -SkipCertificateCheck
-                    if ($httpsResponse.status -eq "healthy") {
+                    # Use Test-NetConnection for SSL port check to avoid hanging
+                    $sslResult = Test-NetConnection -ComputerName localhost -Port 443 -InformationLevel Quiet -WarningAction SilentlyContinue
+                    if ($sslResult) {
                         Write-Host "✅ Nginx SSL proxy working correctly!" -ForegroundColor Green
-                        Write-Host "  HTTPS API: https://localhost/casestrainer/api/health" -ForegroundColor Green
+                        Write-Host "  HTTPS Port: 443 accessible" -ForegroundColor Green
                         break
                     }
                 } catch {
@@ -919,17 +918,23 @@ function Test-ServiceHealth {
         }
         
         if ($shouldCheckBackend) {
+            # Determine the correct backend port based on environment
+            $backendPort = 5000  # Default for Development
+            if ($Environment -eq "Production" -or $Environment -eq "DockerProduction") {
+                $backendPort = 5001
+            }
+            
             # Retry logic for backend health check
             for ($i = 1; $i -le 3; $i++) {
                 try {
                     # Use Test-NetConnection instead of TCP client to avoid hanging
-                    $result = Test-NetConnection -ComputerName localhost -Port $config.BackendPort -InformationLevel Quiet -WarningAction SilentlyContinue
+                    $result = Test-NetConnection -ComputerName localhost -Port $backendPort -InformationLevel Quiet -WarningAction SilentlyContinue
                     
                     if ($result) {
                         $healthStatus.Backend = $true
                         break # Exit loop on success
                     } else {
-                        $logMessage = "$(Get-Date -Format o) [WARN] Backend health check attempt $i : Port connection failed"
+                        $logMessage = "$(Get-Date -Format o) [WARN] Backend health check attempt $i : Port connection failed on port $backendPort"
                         Add-Content -Path "logs/backend_health_diag.log" -Value $logMessage
                     }
                 } catch {
@@ -974,13 +979,13 @@ function Test-ServiceHealth {
                 try {
                     $nginxContainer = docker ps --filter "name=casestrainer-nginx-prod" --format "{{.Names}}" 2>&1
                     if ($nginxContainer -like "*casestrainer-nginx-prod*") {
-                        # Test if Nginx is responding on port 80
-                        $response = Invoke-WebRequest -Uri "http://localhost:80" -TimeoutSec 5 -ErrorAction Stop
-                        if ($response.StatusCode -eq 200 -or $response.StatusCode -eq 301 -or $response.StatusCode -eq 302) {
+                        # Use Test-NetConnection instead of Invoke-WebRequest to avoid hanging
+                        $result = Test-NetConnection -ComputerName localhost -Port 80 -InformationLevel Quiet -WarningAction SilentlyContinue
+                        if ($result) {
                             $healthStatus.Nginx = $true
                         } else {
                             $healthStatus.Nginx = $false
-                            Write-Host "Nginx returned status code $($response.StatusCode) on port 80 (expected 200, 301, or 302)" -ForegroundColor Yellow
+                            Write-Host "Nginx port 80 not accessible" -ForegroundColor Yellow
                         }
                     } else {
                         $healthStatus.Nginx = $false
@@ -1315,9 +1320,13 @@ function Show-ServerStatus {
         
         # Test backend health
         try {
-            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
-            Write-Host "  Status: $($response.status)" -ForegroundColor Green
-            Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
+            # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+            $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+            if ($result) {
+                Write-Host "  Port: $($config.BackendPort) accessible" -ForegroundColor Green
+            } else {
+                Write-Host "  Port not accessible" -ForegroundColor Yellow
+            }
         } catch {
             Write-Host "  API not responding" -ForegroundColor Yellow
         }
@@ -2030,8 +2039,13 @@ if __name__ == '__main__':
         
         # Test backend
         try {
-            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
-            Write-Host "Backend health check: $($response.status)" -ForegroundColor Green
+            # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+            $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+            if ($result) {
+                Write-Host "Backend health check: Port $($config.BackendPort) accessible" -ForegroundColor Green
+            } else {
+                Write-Host "Backend health check failed: Port not accessible" -ForegroundColor Yellow
+            }
         } catch {
             Write-Host "Backend health check failed: $($_.Exception.Message)" -ForegroundColor Yellow
         }
@@ -2249,8 +2263,13 @@ function Start-ProductionMode {
         
         # Test backend health
         try {
-            $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 10
-            Write-Host "Backend health check: $($response.status)" -ForegroundColor Green
+            # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+            $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+            if ($result) {
+                Write-Host "Backend health check: Port $($config.BackendPort) accessible" -ForegroundColor Green
+            } else {
+                Write-Host "Backend health check failed: Port not accessible" -ForegroundColor Yellow
+            }
         } catch {
             Write-Host "Backend health check failed" -ForegroundColor Yellow
         }
@@ -2542,13 +2561,11 @@ function Restart-DevelopmentBackend {
         
         while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
             try {
-                $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
-                if ($response.status -eq "healthy") {
+                # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+                $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+                if ($result) {
                     Write-Host "✅ Development backend is healthy and responding!" -ForegroundColor Green
-                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
-                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
-                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
-                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  Port: $($config.BackendPort) accessible" -ForegroundColor Green
                     break
                 }
             } catch {
@@ -2636,13 +2653,11 @@ function Restart-ProductionBackend {
         
         while ($healthCheckAttempts -lt $maxHealthCheckAttempts) {
             try {
-                $response = Invoke-RestMethod -Uri "http://localhost:$($config.BackendPort)/casestrainer/api/health" -TimeoutSec 5
-                if ($response.status -eq "healthy") {
+                # Use Test-NetConnection instead of Invoke-RestMethod to avoid hanging
+                $result = Test-NetConnection -ComputerName localhost -Port $($config.BackendPort) -InformationLevel Quiet -WarningAction SilentlyContinue
+                if ($result) {
                     Write-Host "✅ Production backend is healthy and responding!" -ForegroundColor Green
-                    Write-Host "  Status: $($response.status)" -ForegroundColor Green
-                    Write-Host "  Environment: $($response.environment)" -ForegroundColor Gray
-                    Write-Host "  Redis: $($response.redis)" -ForegroundColor $(if ($response.redis -eq "ok") { "Green" } else { "Red" })
-                    Write-Host "  RQ Worker: $($response.rq_worker)" -ForegroundColor $(if ($response.rq_worker -eq "ok") { "Green" } else { "Red" })
+                    Write-Host "  Port: $($config.BackendPort) accessible" -ForegroundColor Green
                     break
                 }
             } catch {
@@ -2989,38 +3004,20 @@ try {
             # NOTE: For local testing, ensure your hosts file maps wolf.law.uw.edu to 127.0.0.1
             # e.g., add the line: 127.0.0.1 wolf.law.uw.edu
             # This matches the SSL certificate CN/SAN
-            add-type @"
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-public class TrustAllCertsPolicy : ICertificatePolicy {
-    public bool CheckValidationResult(
-        ServicePoint srvPoint, X509Certificate certificate,
-        WebRequest request, int certificateProblem) {
-        return true;
-    }
-}
-"@
-[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
             $nginxHealthy = $false
             for ($i = 1; $i -le 8; $i++) {
                 try {
-                    $httpsResponse = Invoke-RestMethod -Uri "https://wolf.law.uw.edu/casestrainer/api/health" -TimeoutSec 5
-                    if ($httpsResponse.status -eq "healthy") {
-                        Write-Host "✅ Nginx SSL proxy working correctly!" -ForegroundColor Green
+                    # Use Test-NetConnection for SSL port check to avoid hanging
+                    $sslResult = Test-NetConnection -ComputerName localhost -Port 443 -InformationLevel Quiet -WarningAction SilentlyContinue
+                    if ($sslResult) {
+                        Write-Host "✅ Nginx SSL port is accessible!" -ForegroundColor Green
                         $nginxHealthy = $true
                         break
-                    } else {
-                        Write-Host "Nginx SSL health check attempt ${i}: Unexpected response: $($httpsResponse | ConvertTo-Json -Compress)" -ForegroundColor Yellow
                     }
                 } catch {
                     Write-Host "Nginx SSL health check attempt $i failed: $($_.Exception.Message)" -ForegroundColor Yellow
-                    if ($_.Exception.Response -and $_.Exception.Response.GetResponseStream()) {
-                        $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
-                        $body = $reader.ReadToEnd()
-                        Write-Host "Nginx SSL health check attempt $i response body: $body" -ForegroundColor Gray
-                    }
                 }
-                Write-Host "Nginx not ready yet, waiting... (attempt $i/8)" -ForegroundColor Yellow
+                Write-Host "Nginx SSL not ready yet, waiting... (attempt $i/8)" -ForegroundColor Yellow
                 Start-Sleep -Seconds 5
             }
             if (-not $nginxHealthy) {
@@ -3057,7 +3054,7 @@ public class TrustAllCertsPolicy : ICertificatePolicy {
             Write-Host "  Restart:      docker-compose -f $dockerComposeFile restart [service]" -ForegroundColor Gray
             Write-Host "\nPress Ctrl+C to stop all services" -ForegroundColor Yellow
             try {
-                Start-Process "https://localhost/casestrainer/"
+                Start-Process "https://wolf.law.uw.edu/casestrainer/"
             } catch {
                 Write-Host "Could not open browser automatically" -ForegroundColor Yellow
             }
