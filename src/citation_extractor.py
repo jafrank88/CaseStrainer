@@ -413,7 +413,7 @@ class CitationExtractor:
         return unique_case_names
 
     def _group_parallel_citations(self, citation_objs, text):
-        """Group citations that are part of the same parallel citation."""
+        """Group citations that are part of the same parallel citation, but also return each as a separate entry for verification."""
         if not citation_objs:
             return citation_objs
         
@@ -443,9 +443,13 @@ class CitationExtractor:
                 
                 break
             
-            # If we have multiple citations in the group, combine them
             if len(group) > 1:
-                # Combine all citations in the group
+                # Add each component as a separate entry for verification
+                for obj in group:
+                    component_obj = obj.copy()
+                    component_obj['is_parallel_component'] = True
+                    grouped.append(component_obj)
+                # Also add the combined group for context/cluster display
                 combined_citation = ', '.join([obj['citation'] for obj in group])
                 combined_obj = {
                     'citation': combined_citation,
@@ -453,6 +457,7 @@ class CitationExtractor:
                     'end_index': group[-1]['end_index'],
                     'pattern': 'parallel',
                     'is_parallel': True,
+                    'is_parallel_group': True,
                     'components': group
                 }
                 grouped.append(combined_obj)
