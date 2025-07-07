@@ -2627,7 +2627,13 @@ class EnhancedMultiSourceVerifier:
         Unified workflow for citation verification with optimized method prioritization.
         """
         def is_fully_verified(result):
-            return bool(result.get("url")) and bool(result.get("canonical_date"))
+            # For CourtListener results, require both url and canonical_date
+            # For web search results, just require url
+            if result.get("verification_method") in ["courtlistener_api", "courtlistener"]:
+                return bool(result.get("url")) and bool(result.get("canonical_date"))
+            else:
+                # For web search results, just require url
+                return bool(result.get("url"))
 
         try:
             self.logger.info(f"[DEBUG] verify_citation_unified_workflow: Starting verification for citation '{citation}'")
