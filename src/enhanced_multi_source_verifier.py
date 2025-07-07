@@ -2421,6 +2421,149 @@ class EnhancedMultiSourceVerifier:
             self.logger.error(f"[Google Scholar] Error searching for '{citation}': {e}")
             return {'verified': 'false', 'error': str(e)}
 
+    def _search_leagle(self, citation: str) -> dict:
+        """Search Leagle for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_url = f"https://www.leagle.com/search?q={quote_plus(citation)}"
+            
+            self.logger.info(f"[Leagle] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'Leagle',
+                            'url': search_url,
+                            'confidence': 0.85,
+                            'method': 'leagle'
+                        }
+            
+            self.logger.info(f"[Leagle] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in Leagle'}
+            
+        except Exception as e:
+            self.logger.debug(f"Leagle search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _search_bing(self, citation: str) -> dict:
+        """Search Bing for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_query = f'"{citation}" legal case'
+            search_url = f"https://www.bing.com/search?q={quote_plus(search_query)}"
+            
+            self.logger.info(f"[Bing] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'Bing',
+                            'url': search_url,
+                            'confidence': 0.7,
+                            'method': 'bing'
+                        }
+            
+            self.logger.info(f"[Bing] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in Bing'}
+            
+        except Exception as e:
+            self.logger.debug(f"Bing search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _search_duckduckgo(self, citation: str) -> dict:
+        """Search DuckDuckGo for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_query = f'"{citation}" legal case'
+            search_url = f"https://duckduckgo.com/?q={quote_plus(search_query)}"
+            
+            self.logger.info(f"[DuckDuckGo] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'DuckDuckGo',
+                            'url': search_url,
+                            'confidence': 0.7,
+                            'method': 'duckduckgo'
+                        }
+            
+            self.logger.info(f"[DuckDuckGo] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in DuckDuckGo'}
+            
+        except Exception as e:
+            self.logger.debug(f"DuckDuckGo search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
     def _parallel_search_legal_sites(self, citation, max_workers=4):
         """
         Search multiple legal sites in parallel for a citation.
@@ -3142,36 +3285,47 @@ class EnhancedMultiSourceVerifier:
                         )
                     
                     if result.get('verified') == 'true':
-                        result['verification_method'] = method_name
+                        result['verification_method'] = 'optimized_web_searcher'
                         return result
                 except Exception as e:
                     self.logger.debug(f"Optimized searcher failed: {e}")
             
-            # Fallback to original methods if optimized searcher is not available
+            # Enhanced fallback methods with more sources
             search_methods = []
             
             # Check if it's a state court citation
             if self._is_state_court_citation(citation):
+                # For state court citations, try legal databases first
                 search_methods.extend([
                     ('justia', self._search_justia),
                     ('findlaw', self._search_findlaw),
-                    ('google_scholar', self._search_google_scholar)
+                    ('leagle', self._search_leagle),
+                    ('google_scholar', self._search_google_scholar),
+                    ('bing', self._search_bing),
+                    ('duckduckgo', self._search_duckduckgo)
                 ])
             else:
                 # For federal citations, try Google Scholar first
                 search_methods.extend([
                     ('google_scholar', self._search_google_scholar),
                     ('justia', self._search_justia),
-                    ('findlaw', self._search_findlaw)
+                    ('findlaw', self._search_findlaw),
+                    ('leagle', self._search_leagle),
+                    ('bing', self._search_bing),
+                    ('duckduckgo', self._search_duckduckgo)
                 ])
             
             # Try each method in order
             for method_name, method_func in search_methods:
                 try:
+                    self.logger.info(f"[DEBUG] _optimized_web_search: Trying {method_name} for '{citation}'")
                     result = method_func(citation)
                     if result.get('verified'):
                         result['verification_method'] = method_name
+                        self.logger.info(f"[DEBUG] _optimized_web_search: {method_name} succeeded for '{citation}'")
                         return result
+                    else:
+                        self.logger.debug(f"[DEBUG] _optimized_web_search: {method_name} failed for '{citation}': {result.get('error', 'No error message')}")
                 except Exception as e:
                     self.logger.debug(f"Method {method_name} failed for {citation}: {e}")
                     continue
