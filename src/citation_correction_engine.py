@@ -10,7 +10,12 @@ import logging
 import sqlite3
 import re
 from datetime import datetime
-import Levenshtein
+try:
+    import Levenshtein
+    LEVENSHTEIN_AVAILABLE = True
+except ImportError:
+    LEVENSHTEIN_AVAILABLE = False
+    print("Warning: Levenshtein module not available, using difflib fallback")
 import sys
 from typing import List, Dict, Any, Optional
 from difflib import SequenceMatcher
@@ -540,15 +545,20 @@ class CitationCorrectionEngine:
         norm1 = self._normalize_citation(citation1)
         norm2 = self._normalize_citation(citation2)
 
-        # Calculate Levenshtein distance
-        distance = Levenshtein.distance(norm1, norm2)
-        max_len = max(len(norm1), len(norm2))
-
-        if max_len == 0:
-            return 0.0
-
-        # Convert distance to similarity score (0 to 1)
-        similarity = 1.0 - (distance / max_len)
+        # Calculate similarity using available method
+        if LEVENSHTEIN_AVAILABLE:
+            # Use Levenshtein distance
+            distance = Levenshtein.distance(norm1, norm2)
+            max_len = max(len(norm1), len(norm2))
+            
+            if max_len == 0:
+                return 0.0
+            
+            # Convert distance to similarity score (0 to 1)
+            similarity = 1.0 - (distance / max_len)
+        else:
+            # Use difflib as fallback
+            similarity = SequenceMatcher(None, norm1, norm2).ratio()
 
         # Extract components
         comp1 = self._extract_citation_components(citation1)

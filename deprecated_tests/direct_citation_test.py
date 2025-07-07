@@ -32,7 +32,7 @@ def test_citation_verification(citation_text):
     """Test citation verification for a given citation."""
     try:
         # Import the necessary functions
-        from citation_utils import extract_citations_from_text, verify_citation
+        from src.citation_utils import extract_citations_from_text, verify_citation
 
         logger.info(f"Testing citation: {citation_text}")
 

@@ -62,7 +62,12 @@ export default {
     };
     const emitAnalyze = () => {
       if (!file.value) return;
-      emit('analyze', { file: file.value });
+      const formData = new FormData();
+      formData.append('file', file.value);
+      formData.append('type', 'file');
+      // If you have options, add them here (example: analysis options)
+      // formData.append('options', JSON.stringify(options));
+      emit('analyze', formData);
     };
     return {
       file,

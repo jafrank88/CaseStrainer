@@ -1,0 +1,9 @@
+upstream backend {
+    server casestrainer-backend:5000;
+}
+
+server {
+    listen 80;
+    server_name wolf.law.uw.edu;
+    return 301 https://$host$request_uri;
+} 

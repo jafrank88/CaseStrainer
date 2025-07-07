@@ -107,7 +107,7 @@ def test_old_vs_new():
         print("OLD METHOD (verify_citation):")
         print("-" * 40)
         try:
-            old_result = verifier.verify_citation(citation)
+            old_result = verifier.verify_citation_unified_workflow(citation)
             print(f"✓ Result: {old_result.get('verified', False)}")
             print(f"✓ Case Name: {old_result.get('case_name', 'N/A')}")
             print(f"✓ Extracted Case Name: {old_result.get('extracted_case_name', 'N/A')}")

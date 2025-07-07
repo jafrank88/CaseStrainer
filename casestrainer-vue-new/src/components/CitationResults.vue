@@ -1,5 +1,17 @@
 <template>
   <div class="citation-results">
+    <!-- Progress Bar and ETA -->
+    <ProcessingProgress
+      v-if="loading || (progress > 0 && progress < 100)"
+      :totalProgress="progress"
+      :elapsedTime="null"
+      :remainingTime="etaSeconds"
+      :currentStep="`Chunk ${currentChunk} of ${totalChunks}`"
+      :currentStepProgress="progress"
+      :processingSteps="[]"
+    ></ProcessingProgress>
+    <!-- Optionally compute elapsed time if available -->
+    
     <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="loading-spinner"></div>
@@ -23,6 +35,10 @@
             <div class="stat-item">
               <span class="stat-number">{{ results.citations.length }}</span>
               <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">{{ totalParallelCitations }}</span>
+              <span class="stat-label">Parallel</span>
             </div>
             <div class="stat-item verified">
               <span class="stat-number">{{ validCount }}</span>
@@ -165,13 +181,22 @@
                       title="View case details"
                     >
                       {{ getMainCitationText(cluster.primary) }}
+                      <span v-if="cluster.primary.year"> ({{ cluster.primary.year }})</span>
                     </a>
                     <span v-else class="citation-text">
                       {{ getMainCitationText(cluster.primary) }}
+                      <span v-if="cluster.primary.year"> ({{ cluster.primary.year }})</span>
                     </span>
                     <!-- Complex Citation Indicator -->
                     <span v-if="cluster.isComplex" class="complex-indicator" title="Complex citation with multiple components">
                       🔗
+                    </span>
+                  </div>
+                  <!-- Parallel Citations as tags/sub-list -->
+                  <div v-if="cluster.parallels && cluster.parallels.length > 0" class="parallel-citations-row">
+                    <span class="parallel-citations-label">Parallel Citations:</span>
+                    <span v-for="(parallel, idx) in cluster.parallels" :key="parallel.citation" class="parallel-citation-tag">
+                      {{ parallel.citation }}
                     </span>
                   </div>
                 </div>
@@ -237,13 +262,11 @@
 
                 <!-- Parallel Citations -->
                 <div v-if="cluster.parallels.length > 0" class="detail-section">
-                  <h4 class="section-title">Parallel Citations in This Cluster</h4>
-                  <div class="parallel-citations">
-                    <div v-for="(parallel, index) in cluster.parallels" :key="index" class="parallel-citation-item">
-                      <span class="parallel-badge" title="Parallel citation">🔗 Parallel</span>
-                      <span class="parallel-citation-text">{{ parallel.citation }}</span>
-                      <span v-if="parallel.verified === 'true_by_parallel'" class="inherited-badge" title="Verified by association with primary">✓ Inherited</span>
-                    </div>
+                  <h4 class="section-title">Linked Citations</h4>
+                  <div class="linked-citations">
+                    <span v-for="(linked, idx) in [cluster.primary, ...cluster.parallels]" :key="linked.citation" class="linked-citation-tag">
+                      {{ linked.citation }}
+                    </span>
                   </div>
                 </div>
 
@@ -290,35 +313,6 @@
                     <div class="detail-row" v-if="cluster.primary.complex_metadata.year">
                       <span class="detail-label">Year:</span> 
                       <span class="detail-value">{{ cluster.primary.complex_metadata.year }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Parallel Citations (if any) -->
-            <div v-if="cluster.parallels.length > 0" class="parallel-citations-section">
-              <div v-for="parallel in cluster.parallels" :key="parallel.citation" :class="['citation-item', 'parallel-item', { verified: parallel.verified, invalid: !parallel.verified }]">
-                <div class="citation-header">
-                  <div class="citation-main">
-                    <!-- Parallel Citation Badge -->
-                    <div class="parallel-badge" title="Parallel citation">
-                      🔗 Parallel
-                    </div>
-                    
-                    <!-- Inherited Status Badge -->
-                    <div v-if="parallel.verified === 'true_by_parallel'" class="inherited-badge" title="Verified by association with primary">
-                      ✓ Inherited
-                    </div>
-                    
-                    <!-- Case Name (inherited from primary) -->
-                    <div class="case-name">
-                      <span>{{ getCaseName(parallel) || 'Unknown Case' }}</span>
-                    </div>
-                    
-                    <!-- Citation Text -->
-                    <div class="citation-link">
-                      <span class="citation-text">{{ getMainCitationText(parallel) }}</span>
                     </div>
                   </div>
                 </div>
@@ -467,20 +461,6 @@
               <pre>{{ formatJson(selectedCitation.verification_result) }}</pre>
             </div>
           </div>
-
-          <!-- Parallel Citations -->
-          <div class="detail-section" v-if="getOtherParallelCitations(selectedCitation) && getOtherParallelCitations(selectedCitation).length > 0">
-            <h4>Additional Parallel Citations</h4>
-            <div class="parallel-citations">
-              <span 
-                v-for="(parallel, index) in getOtherParallelCitations(selectedCitation)" 
-                :key="index"
-                class="parallel-citation"
-              >
-                {{ formatParallelCitation(parallel) }}
-              </span>
-            </div>
-          </div>
         </div>
         <div class="modal-footer">
           <button @click="closeCitationDetails" class="btn btn-secondary">Close</button>
@@ -492,6 +472,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import ProcessingProgress from './ProcessingProgress.vue';
 
 const props = defineProps({
   results: {
@@ -518,6 +499,22 @@ const itemsPerPage = 50;
 const selectedCitation = ref(null);
 const expandedCitations = ref(new Set());
 const scoreTooltipGroup = ref(null);
+
+// Add state for progress/ETA
+const progress = ref(0);
+const etaSeconds = ref(null);
+const currentChunk = ref(0);
+const totalChunks = ref(1);
+
+// Watch for results or loading changes to update progress/ETA
+watch(() => props.results, (newVal) => {
+  if (newVal && typeof newVal.progress === 'number') {
+    progress.value = newVal.progress;
+    etaSeconds.value = newVal.eta_seconds;
+    currentChunk.value = newVal.current_chunk || 0;
+    totalChunks.value = newVal.total_chunks || 1;
+  }
+});
 
 // Computed properties
 const validCount = computed(() => {
@@ -597,10 +594,11 @@ const groupedCitations = computed(() => {
 // New computed property for citation clusters
 const citationClusters = computed(() => {
   if (!props.results?.citations) return [];
-  
+
   // Group citations by primary citation
   const clusters = new Map();
   
+  // Process main citations
   paginatedCitations.value.forEach(citation => {
     const primaryCitation = citation.primary_citation || citation.citation;
     
@@ -625,6 +623,37 @@ const citationClusters = computed(() => {
     if (citation.is_complex_citation) {
       cluster.isComplex = true;
     }
+    
+    // Process parallel citations within this citation
+    if (citation.parallels && Array.isArray(citation.parallels)) {
+      citation.parallels.forEach(parallel => {
+        if (parallel && parallel.citation && parallel.is_parallel_citation) {
+          // Check if this parallel is already in the cluster
+          const existingParallel = cluster.parallels.find(p => p.citation === parallel.citation);
+          if (!existingParallel) {
+            cluster.parallels.push(parallel);
+          }
+        }
+      });
+    }
+  });
+
+  // Merge in backend 'parallel_citations' field if present
+  clusters.forEach(cluster => {
+    // Use a set to deduplicate by citation string
+    const seen = new Set(cluster.parallels.map(p => p.citation));
+    if (cluster.primary && Array.isArray(cluster.primary.parallel_citations) && cluster.primary.parallel_citations.length > 0) {
+      cluster.primary.parallel_citations.forEach(parallel => {
+        if (parallel && parallel.citation && !seen.has(parallel.citation)) {
+          cluster.parallels.push(parallel);
+          seen.add(parallel.citation);
+        }
+      });
+    }
+    // Deduplicate again just in case
+    cluster.parallels = cluster.parallels.filter((parallel, idx, arr) =>
+      parallel && parallel.citation && arr.findIndex(p => p.citation === parallel.citation) === idx
+    );
   });
   
   // Convert to array and sort by verification status
@@ -640,6 +669,19 @@ const citationClusters = computed(() => {
       const bText = b.primary?.citation || '';
       return aText.localeCompare(bText);
     });
+});
+
+// Add computed property for total parallel citations
+const totalParallelCitations = computed(() => {
+  if (!props.results?.citations) return 0;
+  let count = 0;
+  // Count all unique parallel citations in all clusters
+  citationClusters.value.forEach(cluster => {
+    if (cluster.parallels && cluster.parallels.length > 0) {
+      count += cluster.parallels.length;
+    }
+  });
+  return count;
 });
 
 // Methods
@@ -658,9 +700,14 @@ const openCitation = (url) => {
 
 // Helper functions for enhanced data structure compatibility
 const getCaseName = (citation) => {
-  const caseName = citation.case_name || citation.metadata?.case_name || citation.group_metadata?.case_name || null;
-  console.log('getCaseName called for citation:', citation.citation, 'returning:', caseName);
-  return caseName;
+  // Canonical case name (from API or database)
+  const canonical = citation.case_name || citation.metadata?.case_name || citation.group_metadata?.case_name;
+  if (canonical && canonical !== 'N/A' && canonical.trim() !== '') return canonical;
+  // Extracted case name (from document text)
+  const extracted = citation.extracted_case_name || null;
+  if (extracted && extracted !== 'N/A' && extracted.trim() !== '') return extracted;
+  // Fallback
+  return 'N/A';
 };
 
 const getExtractedCaseName = (citation) => {

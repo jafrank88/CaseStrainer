@@ -1,70 +1,109 @@
 #!/usr/bin/env python3
 """
-Simple test to check the API endpoint directly.
+Simple API test for the running backend
 """
 
 import requests
 import json
-import time
+import os
 
-def test_api_simple():
-    """Test the API endpoint directly."""
-    
-    print("=== Simple API Test ===")
-    
-    # Test case with a valid citation that should trigger immediate response
-    test_case = {
-        "name": "Valid U.S. citation (should be immediate)",
-        "text": "347 U.S. 483"
-    }
-    
-    base_url = "http://localhost:5000/casestrainer/api"
-    
-    print(f"Testing: {test_case['name']}")
-    print(f"Input: {test_case['text']}")
-    
-    start_time = time.time()
-    
+def test_health():
+    """Test the health endpoint"""
     try:
-        response = requests.post(
-            f"{base_url}/analyze",
-            json={
-                "text": test_case['text'],
-                "type": "text"
-            },
-            timeout=5  # Very short timeout
-        )
-        
-        response_time = time.time() - start_time
-        print(f"Response time: {response_time:.2f}s")
+        print("Testing health endpoint...")
+        response = requests.get("http://10.158.120.151:5000/casestrainer/api/health", timeout=10)
         print(f"Status: {response.status_code}")
+        print(f"Response: {response.text}")
+        return response.status_code == 200
+    except Exception as e:
+        print(f"Health check failed: {e}")
+        return False
+
+def test_file_upload():
+    """Test file upload"""
+    try:
+        pdf_path = "gov.uscourts.wyd.64014.141.0_1.pdf"
+        if not os.path.exists(pdf_path):
+            print(f"File not found: {pdf_path}")
+            return False
+            
+        print(f"Uploading file: {pdf_path}")
+        with open(pdf_path, 'rb') as f:
+            files = {'file': (pdf_path, f, 'application/pdf')}
+            response = requests.post(
+                "http://10.158.120.151:5000/casestrainer/api/analyze",
+                files=files,
+                timeout=30
+            )
+        
+        print(f"Upload status: {response.status_code}")
+        print(f"Response: {response.text}")
         
         if response.status_code == 200:
-            data = response.json()
-            
-            if data.get('task_id'):
-                print("⚠ Async response - task queued")
-                print(f"Task ID: {data['task_id']}")
-            else:
-                print("✅ Immediate response")
-                citations = data.get('citations', [])
-                print(f"Found {len(citations)} citations:")
-                
-                for j, citation in enumerate(citations, 1):
-                    print(f"\n  Citation {j}:")
-                    print(f"    Citation: {citation.get('citation', 'N/A')}")
-                    print(f"    Verified: {citation.get('verified', False)}")
-                    print(f"    Case Name: {citation.get('case_name', 'None')}")
-                    print(f"    Extracted Case Name: {citation.get('extracted_case_name', 'None')}")
-                    print(f"    Canonical Case Name: {citation.get('canonical_name', 'None')}")
+            result = response.json()
+            task_id = result.get('task_id')
+            print(f"Task ID: {task_id}")
+            return task_id
         else:
-            print(f"❌ Error: {response.status_code}")
-            print(f"Response: {response.text}")
+            return None
             
-    except requests.exceptions.Timeout:
-        print(f"❌ Request timed out after {time.time() - start_time:.2f}s")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Upload failed: {e}")
+        return None
+
+def test_task_status(task_id):
+    """Test task status polling"""
+    if not task_id:
+        return False
+        
+    try:
+        print(f"Polling task status: {task_id}")
+        response = requests.get(
+            f"http://10.158.120.151:5000/casestrainer/api/task_status/{task_id}",
+            timeout=10
+        )
+        
+        print(f"Status check: {response.status_code}")
+        if response.status_code == 200:
+            result = response.json()
+            print(f"Task status: {result.get('status')}")
+            return result.get('status') == 'completed'
+        else:
+            print(f"Status check failed: {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"Status check failed: {e}")
+        return False
+
+def main():
+    print("🧪 Simple API Test")
+    print("=" * 30)
+    
+    # Test health
+    if not test_health():
+        print("❌ Health check failed")
+        return
+    
+    print("✅ Health check passed")
+    
+    # Test file upload
+    task_id = test_file_upload()
+    if task_id:
+        print(f"✅ Upload successful, task ID: {task_id}")
+        
+        # Test task status
+        import time
+        print("Waiting for task completion...")
+        for i in range(10):
+            time.sleep(2)
+            if test_task_status(task_id):
+                print("✅ Task completed successfully!")
+                break
+        else:
+            print("⏰ Task timeout")
+    else:
+        print("❌ Upload failed")
 
 if __name__ == "__main__":
-    test_api_simple() 
+    main() 

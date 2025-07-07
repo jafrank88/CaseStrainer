@@ -107,7 +107,7 @@ def test_verifier():
 
         print(f"\nTesting citation: {citation} ({case_name})")
         try:
-            result = verifier.verify_citation(citation, case_name)
+            result = verifier.verify_citation_unified_workflow(citation, case_name)
 
             found = result.get("found", False)
             confidence = result.get("confidence", 0)

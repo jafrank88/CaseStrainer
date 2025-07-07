@@ -10,7 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from citation_extractor import CitationExtractor
 from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 from complex_citation_integration import ComplexCitationIntegrator
-from citation_utils import clean_and_validate_citations
+from src.citation_utils import clean_and_validate_citations
 
 def test_specific_citation():
     """Test the specific citation that's not being verified properly."""

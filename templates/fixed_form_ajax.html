@@ -964,13 +964,8 @@
             function pollForResults(analysisId) {
                 logProgress(`Polling for results of analysis: ${analysisId}`);
                 
-                // Get the base URL path from the current location
-                const basePath = window.location.pathname.endsWith('/') ? 
-                    window.location.pathname : 
-                    window.location.pathname + '/';
-                
-                // Construct the status endpoint relative to the current path
-                const statusPath = basePath + 'status';
+                // Use the correct status API endpoint
+                const statusPath = '/casestrainer/api/status';
                 
                 logProgress(`Using status endpoint: ${statusPath}`);
                 
@@ -1101,13 +1096,8 @@
                     }
                     
                     // Send request to server
-                    // Get the base URL path from the current location
-                    const basePath = window.location.pathname.endsWith('/') ? 
-                        window.location.pathname : 
-                        window.location.pathname + '/';
-                    
-                    // Construct the analyze endpoint relative to the current path
-                    const analyzePath = basePath + 'analyze';
+                    // Use the correct API endpoint
+                    const analyzePath = '/casestrainer/api/analyze';
                     
                     logProgress(`Using API endpoint: ${analyzePath}`);
                     

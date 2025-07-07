@@ -1,0 +1,69 @@
+upstream backend {
+    server backend:5000;
+}
+
+# HTTP server for development
+server {
+    listen 80;
+    server_name localhost;
+    
+    # API routes
+    location /casestrainer/api/ {
+        proxy_pass http://backend:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+
+    # Static files (uploads, etc.)
+    location /casestrainer/uploads/ {
+        proxy_pass http://backend:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Serve static Vue frontend for /casestrainer/
+    location /casestrainer/ {
+        alias /var/www/html/;
+        index index.html;
+        try_files $uri $uri/ /casestrainer/index.html;
+    }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+
+    # Default location
+    location / {
+        return 200 'Nginx is working! Try /casestrainer/\n';
+        add_header Content-Type text/plain;
+    }
+}
+
+# HTTPS server for testing
+server {
+    listen 8443 ssl;
+    server_name localhost;
+
+    # SSL configuration - using test certificates
+    ssl_certificate /etc/nginx/ssl/WolfCertBundle.crt;
+    ssl_certificate_key /etc/nginx/ssl/wolf.law.uw.edu.key;
+    
+    # Basic SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    
+    location / {
+        return 200 'HTTPS is working!\n';
+        add_header Content-Type text/plain;
+    }
+} 

@@ -121,11 +121,10 @@ class EnhancedCitationExtractor:
             # Extract case name
             case_name = self._extract_case_name(block)
             
-            # Extract primary citation
-            primary_citation = self._extract_primary_citation(block)
-            
-            # Extract parallel citations
-            parallel_citations = self._extract_parallel_citations(block)
+            # Extract all citations (primary + parallels)
+            all_citations = self._extract_parallel_citations(block)
+            primary_citation = all_citations[0] if all_citations else None
+            parallel_citations = all_citations[1:] if len(all_citations) > 1 else []
             
             # Extract pinpoint pages
             pinpoint_pages = self._extract_pinpoint_pages(block)
@@ -200,7 +199,9 @@ class EnhancedCitationExtractor:
             match = re.search(pattern, text)
             if match:
                 volume, page = match.groups()
-                return f"{volume} {pattern_name.replace('_', '.')} {page}"
+                # Properly format reporter names
+                reporter_name = self._format_reporter_name(pattern_name)
+                return f"{volume} {reporter_name} {page}"
         return None
     
     def _extract_parallel_citations(self, text: str) -> List[str]:
@@ -212,11 +213,25 @@ class EnhancedCitationExtractor:
             matches = re.finditer(pattern, text)
             for match in matches:
                 volume, page = match.groups()
-                citation = f"{volume} {pattern_name.replace('_', '.')} {page}"
+                # Properly format reporter names
+                reporter_name = self._format_reporter_name(pattern_name)
+                citation = f"{volume} {reporter_name} {page}"
                 if citation not in parallel_citations:
                     parallel_citations.append(citation)
         
         return parallel_citations
+    
+    def _format_reporter_name(self, pattern_name: str) -> str:
+        """Format reporter name from pattern name to proper citation format."""
+        reporter_mapping = {
+            'wn_app': 'Wn. App.',
+            'wn2d': 'Wn.2d',
+            'p3d': 'P.3d',
+            'p2d': 'P.2d',
+            'us': 'U.S.',
+            'f3d': 'F.3d',
+        }
+        return reporter_mapping.get(pattern_name, pattern_name.replace('_', '.'))
     
     def _extract_pinpoint_pages(self, text: str) -> List[str]:
         """Extract pinpoint page numbers."""

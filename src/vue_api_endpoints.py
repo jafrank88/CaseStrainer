@@ -162,6 +162,10 @@ except Exception as e:
 
 # Initialize global variables
 logger.info("Initializing global variables...")
+
+# Global application start time for uptime tracking
+APP_START_TIME = time.time()
+
 try:
     # Remove active_requests for persistent state, but keep as fallback if Redis is unavailable
     active_requests = {}
@@ -292,19 +296,60 @@ def is_rq_available():
         logger.warning(f"is_rq_available check failed: {e}")
         return False
 
+def get_uptime():
+    """Calculate and format application uptime."""
+    uptime_seconds = time.time() - APP_START_TIME
+    
+    days = int(uptime_seconds // 86400)
+    hours = int((uptime_seconds % 86400) // 3600)
+    minutes = int((uptime_seconds % 3600) // 60)
+    seconds = int(uptime_seconds % 60)
+    
+    if days > 0:
+        formatted = f"{days}d {hours:02d}:{minutes:02d}:{seconds:02d}"
+    elif hours > 0:
+        formatted = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    else:
+        formatted = f"{minutes:02d}:{seconds:02d}"
+    
+    return {
+        'seconds': int(uptime_seconds),
+        'minutes': int(uptime_seconds // 60),
+        'hours': hours,
+        'days': days,
+        'formatted': formatted,
+        'human_readable': _format_uptime_human(uptime_seconds)
+    }
+
+def _format_uptime_human(seconds):
+    """Format uptime in human-readable format."""
+    if seconds < 60:
+        return f"{int(seconds)} seconds"
+    elif seconds < 3600:
+        return f"{int(seconds // 60)} minutes"
+    elif seconds < 86400:
+        return f"{int(seconds // 3600)} hours, {int((seconds % 3600) // 60)} minutes"
+    else:
+        days = int(seconds // 86400)
+        hours = int((seconds % 86400) // 3600)
+        return f"{days} days, {hours} hours"
+
 @vue_api.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for the Vue API."""
     try:
+        uptime = get_uptime()
         return jsonify({
             'status': 'healthy',
             'service': 'CaseStrainer Vue API',
             'timestamp': datetime.now().isoformat(),
+            'uptime': uptime,
+            'server_uptime': uptime['seconds'],  # For compatibility with monitoring systems
             'redis': check_redis(),
             'database': check_db(),
             'rq_worker': check_rq_worker(),
             'environment': WORKER_ENV,
-            'version': '0.5.6'
+            'version': '0.5.7'
         })
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -357,9 +402,12 @@ def process_text():
 def server_stats():
     """Detailed server statistics and restart tracking endpoint."""
     try:
+        uptime = get_uptime()
         stats = {
             'timestamp': time.time(),
             'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'uptime': uptime,
+            'server_uptime': uptime['seconds'],  # For compatibility with monitoring systems
             'rq_available': is_rq_available(),
             'queue_length': queue.count if RQ_AVAILABLE and queue else 'N/A',
             'worker_health': check_rq_worker(),
@@ -472,10 +520,11 @@ def is_worker_running():
 # Override the get_server_stats function
 def get_server_stats():
     """Get server stats (simplified)"""
+    uptime = get_uptime()
     return {
-        'start_time': time.time(),
-        'uptime': '00:00:00',
-        'uptime_seconds': 0,
+        'start_time': APP_START_TIME,
+        'uptime': uptime['formatted'],
+        'uptime_seconds': uptime['seconds'],
         'restart_count': 0,
         'worker_alive': False,
         'worker_disabled': True
@@ -502,7 +551,13 @@ def process_citation_task(task_id, task_type, task_data):
             file_ext = task_data.get('file_ext', '')
             logger.info(f"[TASK] Processing file: {filename} at {file_path}")
             from src.file_utils import extract_text_from_file
-            text = extract_text_from_file(file_path, file_ext=file_ext)
+            text_result = extract_text_from_file(file_path, file_ext=file_ext)
+            # extract_text_from_file returns (text, case_name) tuple
+            if isinstance(text_result, tuple):
+                text, case_name = text_result
+            else:
+                text = text_result
+                case_name = None
         elif task_type == 'text':
             text = task_data.get('text', '')
             logger.info(f"[TASK] Processing text input (length: {len(text)})")
@@ -612,10 +667,31 @@ def process_citation_task(task_id, task_type, task_data):
             set_task_result(task_id, task_result_data)
             logger.info(f"[WORKER] Task {task_id} completed, result written to Redis")
             logger.info(f"[WORKER] Set task {task_id} status to completed and stored result")
+        # Clean up uploaded file after processing
+        if task_type == 'file' and task_data.get('file_path'):
+            try:
+                file_path = task_data['file_path']
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    logger.info(f"[TASK] Cleaned up uploaded file: {file_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"[TASK] Failed to clean up file {file_path}: {cleanup_error}")
+        
         return result
     except Exception as e:
         logger.error(f"Error processing citation task {task_id}: {str(e)}")
         set_task_status(task_id, 'failed', {'error': str(e)})
+        
+        # Clean up uploaded file even on error
+        if task_type == 'file' and task_data.get('file_path'):
+            try:
+                file_path = task_data['file_path']
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    logger.info(f"[TASK] Cleaned up uploaded file after error: {file_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"[TASK] Failed to clean up file {file_path} after error: {cleanup_error}")
+        
         return {'status': 'failed', 'error': str(e)}
 
 @vue_api.route('/analyze', methods=['POST', 'OPTIONS'])
@@ -686,10 +762,10 @@ def analyze():
             file_ext = os.path.splitext(filename)[1].lower()
             temp_file_path = None
             try:
-                # Save uploaded file to a temporary file
-                with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
-                    file.save(temp_file.name)
-                    temp_file_path = temp_file.name
+                # Save uploaded file to shared uploads directory instead of temp file
+                unique_filename = f"{uuid.uuid4()}{file_ext}"
+                temp_file_path = os.path.join('/app/uploads', unique_filename)
+                file.save(temp_file_path)
                 # Add task to queue
                 task = {
                     'task_id': task_id,
@@ -745,8 +821,9 @@ def analyze():
                 if temp_file_path and os.path.exists(temp_file_path):
                     try:
                         os.remove(temp_file_path)
-                    except:
-                        pass
+                        logger.info(f"[ANALYZE] Cleaned up uploaded file after error: {temp_file_path}")
+                    except Exception as cleanup_error:
+                        logger.warning(f"[ANALYZE] Failed to clean up file {temp_file_path} after error: {cleanup_error}")
                 return jsonify({
                     'status': 'error',
                     'message': f'Failed to handle file upload: {str(e)}',
@@ -826,6 +903,19 @@ def analyze():
                     # Format results for frontend
                     formatted_citations = []
                     for result in results:
+                        # --- BEGIN PATCH ---
+                        # If canonical_citation is a list with more than one entry, add the extras to parallel_citations
+                        canonical_citations = result.get('canonical_citation')
+                        citation_value = result.get('citation')
+                        if isinstance(canonical_citations, list):
+                            # Remove the main citation from the list, if present
+                            parallels = [c for c in canonical_citations if c != citation_value]
+                            if 'parallel_citations' not in result or not result['parallel_citations']:
+                                result['parallel_citations'] = parallels
+                            elif isinstance(result['parallel_citations'], list):
+                                # Merge, deduplicate
+                                result['parallel_citations'] = list(set(result['parallel_citations'] + parallels))
+                        # --- END PATCH ---
                         formatted_result = format_complex_citation_for_frontend(result)
                         formatted_citations.append({
                             'citation': result.get('citation', text_trimmed),
@@ -1442,21 +1532,24 @@ def validate_file_upload(file):
             return False, "Invalid filename"
         # Check file extension (allow multiple dots, only check final extension)
         if '.' not in filename:
-            return False, "Invalid file type. Allowed types: .pdf, .doc, .docx, .txt"
+            return False, "Invalid file type. Allowed types: .txt, .md, .docx, .pdf, .rtf, .html, .htm"
         file_ext = filename.rsplit('.', 1)[1].lower()
-        allowed_exts = {'pdf', 'doc', 'docx', 'txt'}
+        allowed_exts = {'txt', 'md', 'docx', 'pdf', 'rtf', 'html', 'htm'}
         if file_ext not in allowed_exts:
-            return False, "Invalid file type. Allowed types: .pdf, .doc, .docx, .txt"
+            return False, "Invalid file type. Allowed types: .txt, .md, .docx, .pdf, .rtf, .html, .htm"
         # Additional security checks
-        suspicious_patterns = ['..', '\\', '/', ':', '*', '?', '"', '<', '>', '|']
+        suspicious_patterns = ['..', '\\', '/', '*', '?', '"', '<', '>', '|']
         if any(pattern in file.filename for pattern in suspicious_patterns):
             return False, "Invalid filename: contains suspicious characters"
         # Check file content type (basic validation)
         allowed_mime_types = {
             'pdf': 'application/pdf',
-            'doc': 'application/msword',
             'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'txt': 'text/plain',
+            'md': 'text/markdown',
+            'rtf': 'text/rtf',
+            'html': 'text/html',
+            'htm': 'text/html',
         }
         if file_ext in allowed_mime_types:
             expected_mime = allowed_mime_types[file_ext]

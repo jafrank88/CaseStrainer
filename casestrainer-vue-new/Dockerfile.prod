@@ -1,0 +1,32 @@
+# Build stage
+FROM node:18-alpine AS build-stage
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build the app
+ENV VITE_APP_ENV=production
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine AS production-stage
+
+# Copy built app to nginx
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy wait-for-backend script
+COPY wait-for-backend.sh /wait-for-backend.sh
+RUN chmod +x /wait-for-backend.sh
+
+EXPOSE 80
+
+CMD ["/wait-for-backend.sh"]

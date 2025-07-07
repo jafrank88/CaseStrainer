@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import PDF processing libraries
 try:
-    from pdf_handler import extract_text_from_pdf, PDFHandler
+    from src.pdf_handler import extract_text_from_pdf, PDFHandler
 except ImportError:
     extract_text_from_pdf = None
 
@@ -101,7 +101,8 @@ def convert_pdf_to_markdown(pdf_path):
                         content = f.read()
                     logger.debug(f"[PDF2MD_DEBUG] Successfully read Markdown content from temp file: {len(content)} characters")
                     if content:
-                        logger.debug(f"[PDF2MD_DEBUG] First 200 characters of content: {content[:200].replace('\n', ' ')}...")
+                        content_preview = content[:200].replace('\n', ' ')
+                        logger.debug(f"[PDF2MD_DEBUG] First 200 characters of content: {content_preview}...")
                     return content
                 else:
                     logger.warning(f"[PDF2MD_DEBUG] pdf2md command failed with return code {result.returncode}")
@@ -125,14 +126,19 @@ def convert_pdf_to_markdown(pdf_path):
                 logger.debug(f"[PDF2MD_DEBUG] pdfminer extraction took {elapsed_time:.2f} seconds")
                 logger.debug(f"[PDF2MD_DEBUG] pdfminer extracted text: {len(text) if text else 0} characters")
                 if text:
-                    logger.debug(f"[PDF2MD_DEBUG] First 200 characters of extracted text: {text[:200].replace('\n', ' ')}...")
-                # Convert to basic markdown by preserving paragraphs
-                paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
-                result = '\n\n'.join(paragraphs)
-                logger.debug(f"[PDF2MD_DEBUG] pdfminer formatted to Markdown: {len(result)} characters")
-                if result:
-                    logger.debug(f"[PDF2MD_DEBUG] First 200 characters of formatted Markdown: {result[:200].replace('\n', ' ')}...")
-                return result
+                    text_preview = text[:200].replace('\n', ' ')
+                    logger.debug(f"[PDF2MD_DEBUG] First 200 characters of extracted text: {text_preview}...")
+                    # Convert to basic markdown by preserving paragraphs
+                    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+                    result = '\n\n'.join(paragraphs)
+                    logger.debug(f"[PDF2MD_DEBUG] pdfminer formatted to Markdown: {len(result)} characters")
+                    if result:
+                        result_preview = result[:200].replace('\n', ' ')
+                        logger.debug(f"[PDF2MD_DEBUG] First 200 characters of formatted Markdown: {result_preview}...")
+                    return result
+                else:
+                    logger.warning("[PDF2MD_DEBUG] pdfminer extracted text is empty")
+                    return None
             except Exception as e:
                 logger.warning(f"[PDF2MD_DEBUG] pdfminer failed: {str(e)}", exc_info=True)
         

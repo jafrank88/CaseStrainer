@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from citation_extractor import extract_citation_text_from_eyecite
-from citation_utils import validate_potential_citation, clean_and_validate_citations
+from src.citation_utils import validate_potential_citation, clean_and_validate_citations
 from document_processing import extract_and_verify_citations
 
 def test_eyecite_extraction_filtering():

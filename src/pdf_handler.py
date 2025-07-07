@@ -34,7 +34,7 @@ class PDFExtractionConfig:
     timeout: int = 25
     quick_test_timeout: int = 5
     max_text_length: int = 200
-    preferred_method: PDFExtractionMethod = PDFExtractionMethod.PYPDF2
+    preferred_method: PDFExtractionMethod = PDFExtractionMethod.PDFMINER
     use_fallback: bool = True
     clean_text: bool = True
     debug: bool = False
@@ -211,7 +211,8 @@ class PDFHandler:
                 all_texts=True
             )
             
-            text = pdfminer_extract_text(file_path, laparams=laparams)
+            # Use pdfminer_extract_text without custom laparams to avoid tuple return
+            text = pdfminer_extract_text(file_path)
             
             if not text or not text.strip():
                 return None, "No text could be extracted with pdfminer"
@@ -367,7 +368,7 @@ class PDFHandler:
         for pattern in patterns:
             matches = re.finditer(pattern, text, re.IGNORECASE)
             for match in matches:
-                if pattern.startswith('In\s+re'):
+                if pattern.startswith(r'In\s+re'):
                     # For "In re" cases, return the case name
                     case_name = match.group(1).strip()
                 else:
@@ -380,7 +381,7 @@ class PDFHandler:
                 case_name = clean_case_name(case_name)
                 
                 # Filter out very short or very long case names
-                if 5 <= len(case_name) <= 200:
+                if case_name and 5 <= len(case_name) <= 200:
                     # Use canonical validation function
                     if is_valid_case_name(case_name):
                         # Additional filtering to avoid header/footer text

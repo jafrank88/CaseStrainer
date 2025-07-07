@@ -75,21 +75,7 @@ def serve_vue_static(path):
 # API endpoints for testing
 @app.route("/casestrainer/api/upload", methods=["POST"])
 def api_upload():
-    """Handle file upload submissions."""
-    logger.info("Received file upload request")
-    return {
-        "success": True,
-        "message": "File received and processed successfully",
-        "citations": [
-            {"text": "410 U.S. 113", "valid": True, "name": "Roe v. Wade"},
-            {
-                "text": "347 U.S. 483",
-                "valid": True,
-                "name": "Brown v. Board of Education",
-            },
-            {"text": "5 U.S. 137", "valid": True, "name": "Marbury v. Madison"},
-        ],
-    }
+    return {"error": "This endpoint is deprecated. Use /casestrainer/api/analyze."}, 410
 
 
 @app.route("/casestrainer/api/text", methods=["POST"])

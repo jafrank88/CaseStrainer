@@ -230,8 +230,8 @@ def process_brief(brief_url, processed_briefs, verifier):
         # Verify each citation using the MultiSourceVerifier
         unverified_citations = []
         for citation in citations:
-            # Verify the citation
-            result = verifier.verify_citation(citation)
+            # Verify the citation using the new unified workflow
+            result = verifier.verify_citation_unified_workflow(citation)
 
             # If the citation is not verified, add it to the list
             if not result.get("verified", False):

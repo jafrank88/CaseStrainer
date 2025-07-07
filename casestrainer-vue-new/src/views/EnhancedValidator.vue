@@ -18,45 +18,124 @@
 
       <!-- Processing Progress Section -->
       <div v-if="showLoading && !showTimer" class="processing-section mb-4">
-        <div class="card">
+        <div class="card processing-card">
           <div class="card-body text-center">
-            <h5 class="card-title">
-              <i class="fas fa-cog fa-spin me-2"></i>
-              Processing Citations
-            </h5>
-            <div class="spinner-border text-info mt-3" role="status">
-              <span class="visually-hidden">Processing...</span>
+            <div class="processing-header">
+              <div class="spinner-container">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
               </div>
-            <div class="mt-2">Processing citations...</div>
+              <h5 class="card-title mt-3">
+                <i class="fas fa-cog fa-spin me-2 text-primary"></i>
+                <i class="bi bi-gear-fill spinning me-2 text-primary" style="display: none;"></i>
+                Processing Citations
+              </h5>
+            </div>
+            <div class="processing-content">
+              <p class="text-muted mb-3">Extracting and analyzing citations from your document...</p>
+              
+              <!-- Animated progress dots -->
+              <div class="progress-dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              
+              <!-- Processing steps -->
+              <div class="processing-steps mt-4">
+                <div class="step active">
+                  <i class="bi bi-file-earmark-text text-primary"></i>
+                  <span>Document Analysis</span>
+                </div>
+                <div class="step">
+                  <i class="bi bi-search text-muted"></i>
+                  <span>Citation Extraction</span>
+                </div>
+                <div class="step">
+                  <i class="bi bi-check-circle text-muted"></i>
+                  <span>Verification</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
             
       <!-- Enhanced Progress Bar for >20 citations -->
       <div v-if="showLoading && showTimer" class="processing-section mb-4">
-        <div class="card">
+        <div class="card processing-card">
           <div class="card-body text-center">
-            <h5 class="card-title">
-              <i class="fas fa-cog fa-spin me-2"></i>
-              Processing Citations
-            </h5>
-            <div class="spinner-border text-info mt-3" role="status">
-              <span class="visually-hidden">Processing...</span>
+            <div class="processing-header">
+              <div class="spinner-container">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
+              </div>
+              <h5 class="card-title mt-3">
+                <i class="fas fa-cog fa-spin me-2 text-primary"></i>
+                <i class="bi bi-gear-fill spinning me-2 text-primary" style="display: none;"></i>
+                Processing Citations
+              </h5>
             </div>
-            <div class="mt-2">Processing {{ progressCurrent }} of {{ progressTotal }} citations...</div>
-            <div class="progress mt-3" style="height: 1.5rem;">
-              <div class="progress-bar progress-bar-striped progress-bar-animated" :class="progressBarClass" role="progressbar"
-                :style="{ width: progressPercent + '%' }" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
-                {{ progressPercent }}%
+            <div class="processing-content">
+              <div class="progress-info mb-3">
+                <div class="progress-stats">
+                  <span class="stat">
+                    <i class="bi bi-list-ol text-primary"></i>
+                    {{ progressCurrent }} of {{ progressTotal }} citations
+                  </span>
+                  <span class="stat">
+                    <i class="bi bi-clock text-primary"></i>
+                    {{ formatTime(elapsedTime) }} elapsed
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Enhanced Progress Bar -->
+              <div class="progress-container">
+                <div class="progress" style="height: 1.5rem; border-radius: 0.75rem;">
+                  <div 
+                    class="progress-bar progress-bar-striped progress-bar-animated" 
+                    :class="progressBarClass" 
+                    role="progressbar"
+                    :style="{ width: progressPercent + '%' }" 
+                    :aria-valuenow="progressPercent" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100"
+                  >
+                    <span class="progress-text">{{ progressPercent }}%</span>
+                  </div>
+                </div>
+                <div class="progress-label mt-2">
+                  <small class="text-muted">
+                    {{ progressPercent === 100 ? 'Finalizing results...' : 'Processing citations...' }}
+                  </small>
+                </div>
+              </div>
+              
+              <!-- Processing steps with progress -->
+              <div class="processing-steps mt-4">
+                <div class="step" :class="{ active: progressPercent < 33 }">
+                  <i class="bi bi-file-earmark-text" :class="progressPercent < 33 ? 'text-primary' : 'text-success'"></i>
+                  <span>Document Analysis</span>
+                </div>
+                <div class="step" :class="{ active: progressPercent >= 33 && progressPercent < 66 }">
+                  <i class="bi bi-search" :class="progressPercent >= 33 && progressPercent < 66 ? 'text-primary' : progressPercent >= 66 ? 'text-success' : 'text-muted'"></i>
+                  <span>Citation Extraction</span>
+                </div>
+                <div class="step" :class="{ active: progressPercent >= 66 }">
+                  <i class="bi bi-check-circle" :class="progressPercent >= 66 ? 'text-primary' : 'text-muted'"></i>
+                  <span>Verification</span>
+                </div>
               </div>
             </div>
-            <div v-if="progressPercent === 100 && !results" class="mt-2 text-muted">Finalizing results...</div>
           </div>
         </div>
       </div>
 
       <!-- Results Section -->
-      <div v-if="results && !showLoading" class="results-container">
+      <div v-if="results" class="results-container">
         <CitationResults
           :results="results"
           @apply-correction="applyCorrection"
@@ -72,12 +151,38 @@
           <i class="error-icon">❌</i>
           <h3>Analysis Failed</h3>
           <p>{{ error }}</p>
+          
+          <!-- File Upload Option for History Issues -->
+          <div v-if="showFileUpload" class="mt-4">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                  <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                  Re-upload File
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-3">
+                  To analyze your file, please upload it again using the form below.
+                </p>
+                <UnifiedInput 
+                  @analyze="handleUnifiedAnalyze"
+                  :is-analyzing="isLoading"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- No Results State -->
       <div v-if="!results && !showLoading && !error" class="no-results-state text-center mt-5">
         <p class="lead">No results to display.<br />Please return to the home page to start a new analysis.</p>
+        
+        <!-- Recent Inputs Section -->
+        <div class="mt-4">
+          <RecentInputs @load-input="loadRecentInput" />
+        </div>
       </div>
     </div>
   </div>
@@ -88,7 +193,7 @@ import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useLoadingState } from '@/composables/useLoadingState';
-import api from '@/api/api';
+import api, { analyze } from '@/api/api';
 import { useProcessingTime } from '../composables/useProcessingTime';
 
 // Components
@@ -96,6 +201,7 @@ import CitationResults from '@/components/CitationResults.vue';
 import UnifiedInput from '@/components/UnifiedInput.vue';
 import Toast from '@/components/Toast.vue';
 import SkeletonLoader from '@/components/SkeletonLoader.vue';
+import RecentInputs from '@/components/RecentInputs.vue';
 
 export default {
   name: 'EnhancedValidator',
@@ -103,7 +209,8 @@ export default {
     CitationResults,
     UnifiedInput,
     Toast,
-    SkeletonLoader
+    SkeletonLoader,
+    RecentInputs
   },
   setup() {
     // ===== REACTIVE STATE =====
@@ -199,6 +306,9 @@ export default {
     });
     let progressTimer = null;
 
+    // Add showFileUpload reactive state
+    const showFileUpload = ref(false);
+
     // ===== HELPER FUNCTIONS =====
     function formatTime(seconds) {
       if (!seconds || seconds < 0) return '0s';
@@ -232,38 +342,39 @@ export default {
     // Helper: Normalize citations for frontend display
     function normalizeCitations(citations) {
       console.log('Normalizing citations:', citations);
+      console.log('Citations type:', typeof citations);
+      console.log('Citations length:', citations ? citations.length : 'null/undefined');
       
       return (citations || []).map(citation => {
-        // For the new backend structure, citations come directly with case_name, canonical_date, etc.
-        // We need to add the verified property based on whether we have canonical data
-        const hasCanonicalData = citation.case_name && citation.case_name !== 'N/A' && 
-                                citation.canonical_date && citation.canonical_date !== 'N/A';
-        
-        // A citation is considered verified if it has canonical case name and date
-        const isVerified = hasCanonicalData;
-        
+        // Convert citation array to string
+        let citationText = citation.citation;
+        if (Array.isArray(citationText)) {
+          citationText = citationText.join('; ');
+        }
+
+        // Convert verified to boolean
+        let verified = false;
+        if (typeof citation.verified === 'string') {
+          verified = citation.verified === 'true' || citation.verified === 'true_by_parallel';
+        } else {
+          verified = !!citation.verified;
+        }
+
         // Calculate citation score (0-4)
         let score = 0;
-        
-        // 2 points for canonical case name found (increased from 1)
         if (citation.case_name && citation.case_name !== 'N/A') {
           score += 2;
         }
-        
-        // 1 point for hinted name similarity to canonical name
         if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' && 
             citation.case_name && citation.case_name !== 'N/A') {
-          // Simple similarity check - if extracted name contains key parts of canonical name
           const canonicalWords = citation.case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
           const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
           const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
           const similarity = commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
-          if (similarity >= 0.5) { // 50% similarity threshold
+          if (similarity >= 0.5) {
             score += 1;
           }
         }
-        
-        // 1 point for year matching between extracted and canonical
         if (citation.extracted_date && citation.canonical_date) {
           const extractedYear = citation.extracted_date.toString().substring(0, 4);
           const canonicalYear = citation.canonical_date.toString().substring(0, 4);
@@ -271,32 +382,24 @@ export default {
             score += 1;
           }
         }
-        
-        // Determine score color (updated for 0-4 scale)
         let scoreColor = 'red';
         if (score === 4) scoreColor = 'green';
         else if (score === 3) scoreColor = 'green';
         else if (score === 2) scoreColor = 'yellow';
         else if (score === 1) scoreColor = 'orange';
-        
+
         const normalizedCitation = {
           ...citation,
-          // Ensure we have the citation text
-          citation: citation.citation || citation.text || 'Unknown citation',
-          // Add verification status
-          verified: isVerified,
-          valid: isVerified,
-          // Add scoring
+          citation: citationText,
+          verified: verified,
+          valid: verified,
           score: score,
           scoreColor: scoreColor,
-          // Map case name fields
           case_name: citation.case_name || 'N/A',
           extracted_case_name: citation.extracted_case_name || 'N/A',
           hinted_case_name: citation.hinted_case_name || 'N/A',
-          // Map date fields
           canonical_date: citation.canonical_date || null,
           extracted_date: citation.extracted_date || null,
-          // Add metadata for compatibility
           metadata: {
             case_name: citation.case_name,
             canonical_date: citation.canonical_date,
@@ -305,7 +408,6 @@ export default {
             method: citation.method,
             pattern: citation.pattern
           },
-          // Add details for compatibility
           details: {
             case_name: citation.case_name,
             canonical_date: citation.canonical_date,
@@ -315,8 +417,6 @@ export default {
             pattern: citation.pattern
           }
         };
-        
-        // Debug logging for case names
         console.log('Normalized citation:', {
           citation: normalizedCitation.citation,
           case_name: normalizedCitation.case_name,
@@ -324,7 +424,6 @@ export default {
           verified: normalizedCitation.verified,
           score: normalizedCitation.score
         });
-        
         return normalizedCitation;
       });
     }
@@ -540,7 +639,7 @@ export default {
     const analyzeInput = async (input, type) => {
       try {
         if (type === 'file') {
-          await handleFileAnalyze({ file: input });
+          await handleFileAnalyze(input);
         } else if (type === 'url') {
           await handleUrlAnalyze({ url: input });
         } else if (type === 'text') {
@@ -555,9 +654,18 @@ export default {
     // ===== RESULT HANDLERS =====
     const handleResults = (responseData) => {
       try {
+        console.log('handleResults called with:', responseData);
+        
+        // Check what fields are available in the response
+        console.log('Response fields:', Object.keys(responseData));
+        console.log('validation_results:', responseData.validation_results);
+        console.log('citations:', responseData.citations);
+        
         const rawCitations = (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0)
           ? responseData.validation_results
           : (responseData.citations || []);
+        
+        console.log('Raw citations to normalize:', rawCitations);
         
         results.value = {
           ...responseData,
@@ -565,10 +673,18 @@ export default {
           timestamp: new Date().toISOString()
         };
         
+        console.log('Results set to:', results.value);
+        
         isLoading.value = false;
         error.value = null;
         hasActiveRequest.value = false;
         activeRequestId.value = null;
+        
+        console.log('Loading states after setting results:');
+        console.log('- isLoading.value:', isLoading.value);
+        console.log('- isGlobalLoading.value:', isGlobalLoading.value);
+        console.log('- hasActiveRequest.value:', hasActiveRequest.value);
+        console.log('- showLoading.value:', showLoading.value);
         
         // Complete processing
         if (typeof isGlobalLoading !== 'undefined' && isGlobalLoading.value !== undefined) {
@@ -608,65 +724,40 @@ export default {
       results.value = null;
       
       try {
-        // Send text data to the analyze endpoint
-        const response = await api.post('/analyze', {
+        // Use the analyze function which handles async responses properly
+        const responseData = await analyze({
           text: text,
           type: 'text'
-        }, {
-          timeout: 300000 // 5 minutes for text processing
         });
         
-        // Check if this is an async response with task_id
-        if (response.data.status === 'processing' && response.data.task_id) {
-          // Handle async processing
-          hasActiveRequest.value = true;
-          activeRequestId.value = response.data.task_id;
-          // Start polling for status updates
-          if (!pollInterval.value) {
-            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
-          }
-        } else {
-          // Handle immediate response
-          handleResults(response.data);
-          isLoading.value = false;
-        }
+        // The analyze function handles polling internally, so we just need to handle the results
+        handleResults(responseData);
+        isLoading.value = false;
       } catch (err) {
         handleError(err);
       }
     };
 
-    const handleFileAnalyze = async ({ file }) => {
+    const handleFileAnalyze = async (input) => {
       isLoading.value = true;
       error.value = null;
       results.value = null;
-      
       try {
-        // Create FormData for file upload
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Send file directly to the analyze endpoint
-        const response = await api.post('/analyze', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          timeout: 300000 // 5 minutes for file processing
-        });
-        
-        // Check if this is an async response with task_id
-        if (response.data.status === 'processing' && response.data.task_id) {
-          // Handle async processing
-          hasActiveRequest.value = true;
-          activeRequestId.value = response.data.task_id;
-          // Start polling for status updates
-          if (!pollInterval.value) {
-            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
-          }
+        let formData;
+        if (input instanceof FormData) {
+          formData = input;
         } else {
-          // Handle immediate response
-          handleResults(response.data);
-          isLoading.value = false;
+          formData = new FormData();
+          formData.append('file', input.file);
+          formData.append('type', 'file');
         }
+        
+        // Use the analyze function which handles async responses properly
+        const responseData = await analyze(formData);
+        
+        // The analyze function handles polling internally, so we just need to handle the results
+        handleResults(responseData);
+        isLoading.value = false;
       } catch (err) {
         handleError(err);
       }
@@ -678,28 +769,15 @@ export default {
       results.value = null;
       
       try {
-        // Send URL data to the analyze endpoint
-        const response = await api.post('/analyze', {
+        // Use the analyze function which handles async responses properly
+        const responseData = await analyze({
           url: url,
           type: 'url'
-        }, {
-          timeout: 300000 // 5 minutes for URL processing
         });
         
-        // Check if this is an async response with task_id
-        if (response.data.status === 'processing' && response.data.task_id) {
-          // Handle async processing
-          hasActiveRequest.value = true;
-          activeRequestId.value = response.data.task_id;
-          // Start polling for status updates
-          if (!pollInterval.value) {
-            pollInterval.value = setInterval(() => pollTaskStatus(response.data.task_id), 2000);
-          }
-        } else {
-          // Handle immediate response
-          handleResults(response.data);
-          isLoading.value = false;
-        }
+        // The analyze function handles polling internally, so we just need to handle the results
+        handleResults(responseData);
+        isLoading.value = false;
       } catch (err) {
         handleError(err);
       }
@@ -739,7 +817,28 @@ export default {
     onMounted(() => {
       let input = { ...route.query };
       
-      // Check for task_id first (async processing)
+      // Check for results in router state first (from HomeView)
+      if (router.currentRoute.value.state && router.currentRoute.value.state.results) {
+        console.log('Found results in router state:', router.currentRoute.value.state.results);
+        const responseData = router.currentRoute.value.state.results;
+        
+        // Handle the results directly
+        if (responseData.citations && responseData.citations.length > 0) {
+          results.value = {
+            citations: normalizeCitations(responseData.citations),
+            metadata: responseData.metadata || {},
+            total_citations: responseData.citations.length,
+            verified_count: responseData.citations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
+            unverified_count: responseData.citations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
+          };
+          showToast('Citation analysis completed successfully!', 'success');
+        } else {
+          error.value = 'No citations found in the provided text or document.';
+        }
+        return;
+      }
+      
+      // Check for task_id (async processing)
       if (input.task_id) {
         console.log('Found task_id, starting polling:', input.task_id);
         activeRequestId.value = input.task_id;
@@ -751,8 +850,24 @@ export default {
       // Check localStorage for recent input if no query params
       if ((!input.text && !input.url && !input.fileName) && localStorage.getItem('lastCitationInput')) {
         try {
-          input = JSON.parse(localStorage.getItem('lastCitationInput'));
+          const storedInput = JSON.parse(localStorage.getItem('lastCitationInput'));
+          
+          // Don't restore file uploads from localStorage since they can't be properly restored
+          if (storedInput.fileName) {
+            console.log('Found file upload in localStorage, skipping restoration:', storedInput.fileName);
+            // Clear the fileName to prevent future issues
+            delete storedInput.fileName;
+            if (Object.keys(storedInput).length === 0) {
+              localStorage.removeItem('lastCitationInput');
+            } else {
+              localStorage.setItem('lastCitationInput', JSON.stringify(storedInput));
+            }
+            input = {};
+          } else {
+            input = storedInput;
+          }
         } catch (e) {
+          console.warn('Error parsing localStorage input:', e);
           input = {};
         }
       }
@@ -770,8 +885,11 @@ export default {
         } else if (input.url) {
           handleUrlAnalyze({ url: input.url });
         } else if (input.fileName) {
-          // For files, we can't restore the actual file, so show an error
-          error.value = 'File upload not available from history. Please upload the file again.';
+          // This should not happen anymore since we prevent file uploads from being loaded from localStorage
+          // But just in case, handle it gracefully
+          console.warn('Unexpected file upload in input:', input.fileName);
+          error.value = `File "${input.fileName}" was previously uploaded but cannot be restored from history. Please upload the file again to analyze it.`;
+          showFileUpload.value = true;
         }
       } else {
         // No input found, show no results
@@ -788,6 +906,22 @@ export default {
           }
         }, 2000); // 2 seconds per citation
       }
+
+      // Check if Font Awesome is loaded
+      setTimeout(() => {
+        const faIcons = document.querySelectorAll('.fas.fa-cog.fa-spin');
+        const biIcons = document.querySelectorAll('.bi.bi-gear-fill.spinning');
+        
+        faIcons.forEach((faIcon, index) => {
+          if (getComputedStyle(faIcon).fontFamily.indexOf('FontAwesome') === -1) {
+            // Font Awesome not loaded, show Bootstrap icon
+            faIcon.style.display = 'none';
+            if (biIcons[index]) {
+              biIcons[index].style.display = 'inline-block';
+            }
+          }
+        });
+      }, 100);
     });
     
     onUnmounted(() => {
@@ -851,6 +985,19 @@ export default {
       clearFallbackTimer();
     }
 
+    // Handle loading recent input
+    const loadRecentInput = (input) => {
+      // Navigate back to home with the input data
+      router.push({ 
+        path: '/', 
+        query: { 
+          tab: input.tab,
+          ...(input.tab === 'paste' && input.text ? { text: input.text } : {}),
+          ...(input.tab === 'url' && input.url ? { url: input.url } : {})
+        }
+      });
+    };
+
     // ===== RETURN STATEMENT =====
     return {
       // State
@@ -909,6 +1056,12 @@ export default {
       progressTotal,
       progressPercent,
       progressBarClass,
+      
+      // Recent inputs
+      loadRecentInput,
+
+      // Show file upload option
+      showFileUpload,
     };
   }
 };
@@ -942,77 +1095,234 @@ export default {
   padding: 1.5rem;
 }
 
-.progress-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+.processing-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
-.progress-header {
+.processing-header {
+  margin-bottom: 2rem;
+}
+
+.spinner-container {
   display: flex;
-  align-items: center;
   justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25rem;
+}
+
+.processing-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.processing-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0.75rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.step.active {
+  opacity: 1;
+  background: rgba(0, 123, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.step i {
+  font-size: 1.5rem;
+}
+
+.step span {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.progress-info {
   margin-bottom: 1.5rem;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.progress-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.progress-container {
+  margin: 1.5rem 0;
+}
+
+.progress {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 123, 255, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-text {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.progress-label {
+  text-align: center;
+}
+
+/* Enhanced spinner animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.progress-bar-container {
-  margin-bottom: 1.5rem;
+.spinner-border {
+  animation: spin 1s linear infinite !important;
 }
 
-.progress-bar {
-  background: #f3f3f3;
-  border-radius: 10px;
-  height: 20px;
+/* Font Awesome spinning animation */
+.fa-spin {
+  animation: spin 2s linear infinite !important;
 }
 
-.progress-fill {
-  background: #007bff;
-  border-radius: 10px;
-  height: 100%;
+/* Additional spinning animations */
+.spinning {
+  animation: spin 1.5s linear infinite;
 }
 
-.progress-text {
-  text-align: center;
-  font-weight: bold;
+/* Enhanced pulse animation for dots */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
-.current-step {
-  text-align: center;
-  margin-bottom: 1.5rem;
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
-.time-info {
-  text-align: center;
-  margin-bottom: 1.5rem;
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-.error-message {
-  text-align: center;
-  margin-bottom: 1.5rem;
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
-.retry-btn {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
+/* Card hover effects */
+.processing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .processing-steps {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .step {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .progress-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .results-container {

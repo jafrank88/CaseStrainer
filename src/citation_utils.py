@@ -4,7 +4,7 @@ import time
 import logging
 import sys
 from typing import List, Dict, Any, Optional
-from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
+from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -202,7 +202,7 @@ def extract_citations_from_file(filepath, logger=logger):
         return []
 
 
-def get_citation_context(text, citation_text, context_size=100):
+def get_citation_context(text, citation_text, context_size=250):
     """
     Extract context around a citation in the text.
 
@@ -550,14 +550,16 @@ def batch_validate_citations_optimized(citations, api_key=None):
     def validate_single_citation(citation):
         try:
             # Try primary verification method first (CourtListener API)
-            result = verify_citation(citation, DEFAULT_API_KEY=api_key)
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+            result = verifier.verify_citation_unified_workflow(citation)
             
             # If successful, return immediately (no need to try other methods)
-            if result.get("found", False):
+            if result.get("verified", False):
                 return {
                     "citation": citation,
                     "exists": True,
-                    "method": result.get("method", "CourtListener API"),
+                    "method": result.get("verification_method", "CourtListener API"),
                     "error": None,
                     "data": result,
                 }
@@ -566,7 +568,7 @@ def batch_validate_citations_optimized(citations, api_key=None):
             return {
                 "citation": citation,
                 "exists": False,
-                "method": result.get("method", "CourtListener API"),
+                "method": result.get("verification_method", "CourtListener API"),
                 "error": result.get("error_message", "Citation not found"),
                 "data": result,
             }
@@ -644,12 +646,14 @@ def batch_validate_citations(citations, api_key=None):
     results = []
     for citation in cleaned_citations:
         try:
-            result = verify_citation(citation, DEFAULT_API_KEY=api_key)
+            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            verifier = EnhancedMultiSourceVerifier()
+            result = verifier.verify_citation_unified_workflow(citation)
             results.append(
                 {
                     "citation": citation,
-                    "exists": result.get("exists", False),
-                    "method": result.get("method", "unknown"),
+                    "exists": result.get("verified", False),
+                    "method": result.get("verification_method", "unknown"),
                     "error": None,
                     "data": result,
                 }

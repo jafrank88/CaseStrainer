@@ -1,5 +1,20 @@
 # CaseStrainer API Documentation
 
+## ⚠️ **IMPORTANT: Canonical vs Deprecated Endpoints**
+
+**Canonical Endpoints (Use These):**
+- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis
+- `GET /casestrainer/api/health` - Health check
+- `GET /casestrainer/api/version` - Version information
+- `GET /casestrainer/api/task_status/<task_id>` - Task status
+- `GET /casestrainer/api/server_stats` - Server statistics
+- `GET /casestrainer/api/db_stats` - Database statistics
+
+**Deprecated Endpoints (Do NOT Use):**
+- `POST /casestrainer/api/process-text` - Deprecated, forwards to `/analyze`
+- `POST /casestrainer/api/analyze-document` - Deprecated, forwards to `/analyze`
+- All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
+
 ## Overview
 CaseStrainer provides a comprehensive API for legal citation verification and analysis. The system uses the enhanced `EnhancedMultiSourceVerifier` with CourtListener API integration, volume range validation, format analysis, and likelihood scoring.
 
@@ -24,11 +39,11 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 - **Hinted Extraction**: Use canonical names to find context-specific mentions
 - **Date Extraction**: Extract dates from citation strings
 
-## API Endpoints
+## ✅ **Canonical API Endpoints**
 
 ### POST `/casestrainer/api/analyze`
 
-Analyze text for legal citations and verify them using the enhanced verification system.
+**Main endpoint for all document analysis** - This is the only endpoint you should use for citation verification and document analysis.
 
 #### Request
 ```json
@@ -107,6 +122,16 @@ Analyze text for legal citations and verify them using the enhanced verification
   "status": "success"
 }
 ```
+
+## ❌ **Deprecated Endpoints (Do NOT Use)**
+
+The following endpoints are deprecated and should not be used in new code:
+
+- `POST /casestrainer/api/process-text` - Deprecated, forwards to `/analyze`
+- `POST /casestrainer/api/analyze-document` - Deprecated, forwards to `/analyze`
+- All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
+
+**Warning**: These deprecated endpoints will be removed in future versions.
 
 ## Enhanced Features
 
@@ -196,80 +221,4 @@ curl -X POST http://localhost:5000/casestrainer/api/analyze \
 - `canonical_date`: Canonical date from CourtListener
 
 ### **Enhanced Analysis**
-- `format_analysis`: Detailed format validation results
-- `likelihood_score`: Likelihood of being a real case (0.0-1.0)
-- `explanation`: Detailed explanation of verification result
-- `error`: Error message if verification failed
-
-### **Metadata**
-- `url`: CourtListener opinion URL
-- `court`: Court name
-- `docket_number`: Docket number
-- `source`: Verification source (courtlistener, enhanced_verifier)
-- `metadata`: Processing metadata (timing, source info)
-
-## Error Handling
-
-### **HTTP Status Codes**
-- `200`: Success
-- `400`: Bad request (invalid JSON, missing required fields)
-- `500`: Internal server error
-
-### **Error Response Format**
-```json
-{
-  "error": "Error message",
-  "status": "error",
-  "details": "Additional error details"
-}
-```
-
-## Rate Limiting
-
-The API includes built-in rate limiting:
-- **Requests per minute**: 60
-- **Concurrent requests**: 10
-- **Retry logic**: Automatic retry with exponential backoff
-
-## Caching
-
-API responses are cached for 1 hour to improve performance:
-- **Cache TTL**: 3600 seconds
-- **Cache key**: Citation text + parameters
-- **Cache invalidation**: Automatic after TTL expires
-
-## Performance
-
-Typical response times:
-- **Valid citations**: 0.5-2.0 seconds
-- **Invalid citations**: 0.1-0.5 seconds
-- **Cache hits**: < 0.1 seconds
-
-## Migration from Legacy Verifiers
-
-### **For Developers**
-```python
-# OLD (deprecated)
-from docker.src.multi_source_verifier_unused import MultiSourceVerifier
-verifier = MultiSourceVerifier()
-result = verifier.verify_citation(citation)
-
-# NEW (canonical)
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-verifier = EnhancedMultiSourceVerifier()
-result = verifier.verify_citation_unified_workflow(citation)
-```
-
-### **Benefits of Migration**
-- **Faster**: CourtListener API vs. multiple web searches
-- **More Reliable**: Single, well-tested implementation
-- **Better Error Reporting**: Detailed explanations and likelihood scores
-- **Volume Validation**: Comprehensive validation for all reporter series
-- **Format Analysis**: Detailed pattern matching and validation
-
-## Support
-
-For questions or issues:
-- **Documentation**: See `VERIFIER_CONSOLIDATION_SUMMARY.md`
-- **Legacy Code**: See `docker/src/deprecated_verifiers/README.md`
-- **Issues**: Create an issue in the repository 
+- `

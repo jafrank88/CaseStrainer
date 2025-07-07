@@ -267,16 +267,24 @@ class EnhancedMultiSourceVerifier:
                 self.optimized_searcher = None
 
     def _load_config(self):
-        """Load configuration from config.json."""
+        """Load configuration from config.json and environment variables."""
         config_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "config.json"
         )
+        config = {}
         try:
             with open(config_path, "r") as f:
-                return json.load(f)
+                config = json.load(f)
         except Exception as e:
             logger.error(f"Error loading config: {e}")
-            return {}
+            config = {}
+        
+        # Override with environment variables (environment takes precedence)
+        if os.environ.get("COURTLISTENER_API_KEY"):
+            config["courtlistener_api_key"] = os.environ.get("COURTLISTENER_API_KEY")
+            config["COURTLISTENER_API_KEY"] = os.environ.get("COURTLISTENER_API_KEY")
+        
+        return config
 
     def _init_database(self):
         """Initialize SQLite database with proper schema."""
@@ -960,6 +968,9 @@ class EnhancedMultiSourceVerifier:
         # Don't add space between reporter and page if it's a reporter abbreviation like P.3d, F.3d
         result = re.sub(r'([A-Za-z]+\.)(\d+)(?!d)', r'\1 \2', result)  # Add space between reporter and page, but not if followed by 'd'
         
+        # Apply Washington citation normalization
+        result = self._normalize_washington_citation(result)
+        
         return result
 
     def _lookup_citation(self, citation: str) -> dict:
@@ -1474,7 +1485,7 @@ class EnhancedMultiSourceVerifier:
         return True
 
     def _process_courtlistener_result(
-        self, original_citation: str, result: dict
+        self, original_citation: str, result: dict, extracted_case_name: str = None, hinted_case_name: str = None, extracted_date: str = None
     ) -> dict:
         """
         Process and format CourtListener API result.
@@ -1525,11 +1536,15 @@ class EnhancedMultiSourceVerifier:
                 self.logger.info(f"  - Final URL: {url}")
                 self.logger.info(f"  - Parallel citations found: {len(parallel_citations)}")
                 
+                # Normalize the citation for the canonical form
+                normalized_citation = self._normalize_washington_citation(original_citation)
+                
                 processed_result = {
                     "verified": "true",
                     "case_name": case_name,
                     "canonical_name": case_name,  # Use extracted case name as canonical name
-                    "citation": result.get("citation", original_citation),
+                    "citation": original_citation,  # Keep original citation for reference
+                    "canonical_citation": normalized_citation,  # Use normalized citation as canonical
                     "url": url,  # Ensure URL is set
                     "canonical_date": canonical_date,
                     "court": result.get("court", ""),
@@ -1537,7 +1552,11 @@ class EnhancedMultiSourceVerifier:
                     "source": "CourtListener",
                     "confidence": result.get("confidence", 0.9),
                     "parallel_citations": parallel_citations,
-                    "verification_method": "courtlistener_api"
+                    "verification_method": "courtlistener_api",
+                    # Always include extracted/hinted fields, defaulting to 'N/A' if missing
+                    "extracted_case_name": extracted_case_name if extracted_case_name else "N/A",
+                    "hinted_case_name": hinted_case_name if hinted_case_name else "N/A",
+                    "extracted_date": extracted_date if extracted_date else "N/A",
                 }
                 
                 # Log the final processed result
@@ -1548,9 +1567,14 @@ class EnhancedMultiSourceVerifier:
                 # Log failed verification
                 error_msg = result.get('error', 'Unknown error')
                 self.logger.info(f"[CourtListener] Verification failed for '{original_citation}': {error_msg}")
+                
+                # Normalize the citation even for failed verification
+                normalized_citation = self._normalize_washington_citation(original_citation)
+                
                 return {
                     "verified": "false",
                     "citation": original_citation,
+                    "canonical_citation": normalized_citation,
                     "error": error_msg,
                     "source": "CourtListener",
                     "verification_method": "courtlistener_api"
@@ -1558,9 +1582,14 @@ class EnhancedMultiSourceVerifier:
                 
         except Exception as e:
             self.logger.error(f"[CourtListener] Error processing result for '{original_citation}': {e}")
+            
+            # Normalize the citation even for error cases
+            normalized_citation = self._normalize_washington_citation(original_citation)
+            
             return {
                 "verified": "false",
                 "citation": original_citation,
+                "canonical_citation": normalized_citation,
                 "error": f"Processing error: {str(e)}",
                 "source": "CourtListener",
                 "verification_method": "courtlistener_api"
@@ -2450,10 +2479,13 @@ class EnhancedMultiSourceVerifier:
         return session
 
     def verify_citation_unified_workflow(self, citation: str, extracted_case_name: str = None, 
-                                       hinted_case_name: str = None) -> dict:
+                                       hinted_case_name: str = None, extracted_date: str = None) -> dict:
         """
         Unified workflow for citation verification with optimized method prioritization.
         """
+        def is_fully_verified(result):
+            return bool(result.get("url")) and bool(result.get("canonical_date"))
+
         try:
             self.logger.info(f"[DEBUG] verify_citation_unified_workflow: Starting verification for citation '{citation}'")
             
@@ -2470,7 +2502,7 @@ class EnhancedMultiSourceVerifier:
                     "url": None,
                     "extracted_case_name": extracted_case_name,
                     "hinted_case_name": hinted_case_name,
-                    "extracted_date": None,
+                    "extracted_date": extracted_date,
                     "canonical_date": None,
                     "error": "Invalid citation format: Unrecognized citation format",
                     "all_citations": [clean_citation],
@@ -2488,17 +2520,26 @@ class EnhancedMultiSourceVerifier:
             
             # 3. Try CourtListener API first (highest success rate)
             self.logger.info(f"[DEBUG] verify_citation_unified_workflow: Trying CourtListener API for '{clean_citation}'")
-            courtlistener_result = self._try_courtlistener_api(clean_citation, extracted_case_name, hinted_case_name)
+            courtlistener_result = self._try_courtlistener_api(clean_citation, extracted_case_name, hinted_case_name, extracted_date)
             self.logger.info(f"[DEBUG] verify_citation_unified_workflow: CourtListener result: {json.dumps(courtlistener_result, indent=2)}")
             
-            if courtlistener_result.get('verified') == 'true':
+            # Enforce strict verification logic
+            if is_fully_verified(courtlistener_result):
+                courtlistener_result["verified"] = "true"
+            else:
+                courtlistener_result["verified"] = "false"
+            if courtlistener_result["verified"] == "true":
                 self.logger.info(f"[DEBUG] verify_citation_unified_workflow: CourtListener verification successful, returning result")
                 return courtlistener_result
             
             # 4. Try optimized web search with method prioritization
             self.logger.info(f"[DEBUG] verify_citation_unified_workflow: CourtListener failed, trying web search")
             web_search_result = self._optimized_web_search(clean_citation, extracted_case_name)
-            if web_search_result.get('verified') == 'true':
+            if is_fully_verified(web_search_result):
+                web_search_result["verified"] = "true"
+            else:
+                web_search_result["verified"] = "false"
+            if web_search_result["verified"] == "true":
                 return web_search_result
             
             # 5. Return failure result
@@ -2509,7 +2550,7 @@ class EnhancedMultiSourceVerifier:
                 "url": None,
                 "extracted_case_name": extracted_case_name,
                 "hinted_case_name": hinted_case_name,
-                "extracted_date": None,
+                "extracted_date": extracted_date,
                 "canonical_date": None,
                 "error": "Citation could not be verified by any source",
                 "all_citations": [clean_citation],
@@ -2533,7 +2574,7 @@ class EnhancedMultiSourceVerifier:
                 "url": None,
                 "extracted_case_name": extracted_case_name,
                 "hinted_case_name": hinted_case_name,
-                "extracted_date": None,
+                "extracted_date": extracted_date,
                 "canonical_date": None,
                 "error": f"Verification error: {str(e)}",
                 "all_citations": [citation],
@@ -2899,10 +2940,15 @@ class EnhancedMultiSourceVerifier:
                                 
                                 self.logger.info(f"[Justia] Found match for '{clean_citation}': {case_name} {full_url}")
                                 
+                                # Normalize the citation for the canonical form
+                                normalized_citation = self._normalize_washington_citation(clean_citation)
+                                
                                 return {
                                     'verified': 'true',
                                     'case_name': case_name,
                                     'canonical_name': case_name,
+                                    'citation': clean_citation,
+                                    'canonical_citation': normalized_citation,
                                     'url': full_url,
                                     'source': 'Justia',
                                     'confidence': 0.8,
@@ -2914,25 +2960,36 @@ class EnhancedMultiSourceVerifier:
                     except Exception as e:
                         self.logger.debug(f"Error getting case page {full_url}: {e}")
                         # Fall back to basic result
+                        normalized_citation = self._normalize_washington_citation(clean_citation)
                         return {
                             'verified': 'true',
                             'case_name': link_text,
+                            'citation': clean_citation,
+                            'canonical_citation': normalized_citation,
                             'url': full_url,
                             'source': 'Justia',
                             'confidence': 0.7,
                             'verification_method': 'justia_search'
                         }
             
+            # Normalize the citation even for failed verification
+            normalized_citation = self._normalize_washington_citation(clean_citation)
             return {
                 'verified': 'false',
+                'citation': clean_citation,
+                'canonical_citation': normalized_citation,
                 'source': 'Justia',
                 'url': None,
                 'method': 'justia_search'
             }
             
         except Exception as e:
+            # Normalize the citation even for error cases
+            normalized_citation = self._normalize_washington_citation(citation)
             return {
                 'verified': 'false',
+                'citation': citation,
+                'canonical_citation': normalized_citation,
                 'source': 'Justia',
                 'url': None,
                 'method': 'justia_search',
@@ -2945,15 +3002,36 @@ class EnhancedMultiSourceVerifier:
             # Handle eyecite object strings
             if "FullCaseCitation(" in citation_obj:
                 match = re.search(r"FullCaseCitation\('([^']+)'", citation_obj)
-                return match.group(1) if match else citation_obj
+                citation = match.group(1) if match else citation_obj
             elif "ShortCaseCitation(" in citation_obj:
                 match = re.search(r"ShortCaseCitation\('([^']+)'", citation_obj)
-                return match.group(1) if match else citation_obj
+                citation = match.group(1) if match else citation_obj
             elif "FullLawCitation(" in citation_obj:
                 match = re.search(r"FullLawCitation\('([^']+)'", citation_obj)
-                return match.group(1) if match else citation_obj
-            return citation_obj
+                citation = match.group(1) if match else citation_obj
+            else:
+                citation = citation_obj
+            
+            # Apply Washington citation normalization
+            citation = self._normalize_washington_citation(citation)
+            return citation
         return str(citation_obj)
+
+    def _normalize_washington_citation(self, citation: str) -> str:
+        """Normalize Washington citations from Wn. to Wash. format."""
+        if not citation:
+            return citation
+            
+        # Wn.2d -> Wash. 2d
+        citation = re.sub(r'\bWn\.2d\b', 'Wash. 2d', citation)
+        # Wn.3d -> Wash. 3d  
+        citation = re.sub(r'\bWn\.3d\b', 'Wash. 3d', citation)
+        # Wn. App. -> Wash. App.
+        citation = re.sub(r'\bWn\. App\.\b', 'Wash. App.', citation)
+        # Wn. -> Wash. (for any remaining Wn. that aren't part of the above patterns)
+        citation = re.sub(r'\bWn\.\b', 'Wash.', citation)
+        
+        return citation
 
     def is_valid_citation_format(self, citation: str) -> bool:
         """Flexible citation format validation supporting case names, parallel citations, pinpoints, and hyphenated pages."""
@@ -2999,7 +3077,7 @@ class EnhancedMultiSourceVerifier:
             
         return False
 
-    def _try_courtlistener_api(self, citation: str, extracted_case_name: str = None, hinted_case_name: str = None) -> dict:
+    def _try_courtlistener_api(self, citation: str, extracted_case_name: str = None, hinted_case_name: str = None, extracted_date: str = None) -> dict:
         """Try CourtListener API with optimized approach."""
         try:
             # Use the existing CourtListener verification method
@@ -3013,20 +3091,31 @@ class EnhancedMultiSourceVerifier:
                 # Include the extracted and hinted case names in the result
                 result['extracted_case_name'] = extracted_case_name
                 result['hinted_case_name'] = hinted_case_name
+                result['extracted_date'] = extracted_date
                 return result
             else:
                 self.logger.info(f"[DEBUG] _try_courtlistener_api: Verification failed, returning {'verified': 'false'}")
+                # Normalize the citation even for failed verification
+                normalized_citation = self._normalize_washington_citation(citation)
                 return {
                     'verified': 'false',
+                    'citation': citation,
+                    'canonical_citation': normalized_citation,
                     'extracted_case_name': extracted_case_name,
-                    'hinted_case_name': hinted_case_name
+                    'hinted_case_name': hinted_case_name,
+                    'extracted_date': extracted_date
                 }
         except Exception as e:
             self.logger.debug(f"CourtListener API failed for {citation}: {e}")
+            # Normalize the citation even for error cases
+            normalized_citation = self._normalize_washington_citation(citation)
             return {
                 'verified': 'false',
+                'citation': citation,
+                'canonical_citation': normalized_citation,
                 'extracted_case_name': extracted_case_name,
-                'hinted_case_name': hinted_case_name
+                'hinted_case_name': hinted_case_name,
+                'extracted_date': extracted_date
             }
 
     def _optimized_web_search(self, citation: str, case_name: str = None) -> dict:
@@ -3087,8 +3176,20 @@ class EnhancedMultiSourceVerifier:
                     self.logger.debug(f"Method {method_name} failed for {citation}: {e}")
                     continue
             
-            return {'verified': 'false'}
+            # Normalize the citation even for failed verification
+            normalized_citation = self._normalize_washington_citation(citation)
+            return {
+                'verified': 'false',
+                'citation': citation,
+                'canonical_citation': normalized_citation
+            }
             
         except Exception as e:
             self.logger.debug(f"Optimized web search failed for {citation}: {e}")
-            return {'verified': 'false'}
+            # Normalize the citation even for error cases
+            normalized_citation = self._normalize_washington_citation(citation)
+            return {
+                'verified': 'false',
+                'citation': citation,
+                'canonical_citation': normalized_citation
+            }

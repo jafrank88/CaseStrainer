@@ -2,9 +2,7 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 // Get base URL from environment variables
-const baseURL = import.meta.env.DEV 
-  ? '/casestrainer/api'  // Use relative path in development
-  : (import.meta.env.VITE_API_BASE_URL || '/casestrainer/api');  // Use configured URL in production
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -317,6 +315,18 @@ export const analyze = async (requestData) => {
             baseURL,
             endpoint: '/analyze'
         });
+        
+        // If it's FormData, log its contents
+        if (requestData instanceof FormData) {
+            console.log('FormData contents:');
+            for (let [key, value] of requestData.entries()) {
+                if (value instanceof File) {
+                    console.log(`- ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+                } else {
+                    console.log(`- ${key}: ${value}`);
+                }
+            }
+        }
 
         // If requestData is FormData (file upload), don't set Content-Type header
         // Otherwise, use application/json for other requests
@@ -339,8 +349,20 @@ export const analyze = async (requestData) => {
             headers: response.headers
         });
         
-        // If we get a 202 Accepted, start polling
-        if (response.status === 202 && response.data.task_id) {
+        // Log the actual response data structure
+        console.log('Response data details:', {
+            hasCitations: !!response.data.citations,
+            citationsLength: response.data.citations ? response.data.citations.length : 0,
+            hasValidationResults: !!response.data.validation_results,
+            validationResultsLength: response.data.validation_results ? response.data.validation_results.length : 0,
+            hasError: !!response.data.error,
+            error: response.data.error,
+            status: response.data.status,
+            message: response.data.message
+        });
+        
+        // If we get a processing status with task_id, start polling
+        if (response.data.status === 'processing' && response.data.task_id) {
             console.log('Starting polling for task:', {
                 taskId: response.data.task_id,
                 status: response.data.status,

@@ -62,7 +62,7 @@ def test_citation_flow(citation="534 F.3d 1290"):
         print(f"   API Result: {json.dumps(api_result, indent=2) if api_result else 'None'}")
         
         print(f"\n8. FINAL VERIFICATION (main method):")
-        final_result = verifier.verify_citation(citation)
+        final_result = verifier.verify_citation_unified_workflow(citation)
         print(f"   Final Result: {json.dumps(final_result, indent=2) if final_result else 'None'}")
         
         print(f"\n9. ANALYSIS:")

@@ -78,7 +78,7 @@ from eyecite import get_citations
 from eyecite.tokenizers import HyperscanTokenizer, AhocorasickTokenizer
 
 # Import our robust PDF handler
-from pdf_handler import extract_text_from_pdf
+from src.pdf_handler import extract_text_from_pdf
 
 app = Flask(__name__)
 

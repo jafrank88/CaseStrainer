@@ -39,7 +39,7 @@ ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "rtf", "odt", "html", "htm"}
 
 # Cache settings
 CACHE_TYPE = "redis"
-CACHE_REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+CACHE_REDIS_URL = os.environ.get("REDIS_URL", "redis://casestrainer-redis-prod:6379/0")
 CACHE_DEFAULT_TIMEOUT = 3600  # 1 hour
 
 # Session settings

@@ -61,33 +61,31 @@ api = Blueprint('api', __name__)
 # Register the after_request handler to log all JSON responses
 api.after_request(log_json_responses)
 
-@api.route('/analyze-document', methods=['POST'])
-def analyze_document():
+@api.route('/analyze', methods=['GET', 'POST', 'OPTIONS'])
+def analyze_deprecated():
     """
-    Deprecated: Forwards file upload to /analyze endpoint. Use /analyze instead.
+    Deprecated: Forwards all requests to /casestrainer/api/analyze. Use /casestrainer/api/analyze instead.
     """
     try:
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file part in the request', 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 400
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'error': 'No selected file', 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 400
-        # Forward the file to /analyze as multipart/form-data
-        file.seek(0)
-        files = {'file': (file.filename, file.stream, file.mimetype)}
-        # Forward any additional form data if needed
-        data = dict(request.form)
-        # Build the internal URL (assume same host, port)
-        analyze_url = request.url_root.rstrip('/') + '/analyze'
-        # Forward the request
-        resp = requests.post(analyze_url, files=files, data=data, headers={"X-Forwarded-For": "internal-analyze-document"})
-        # Return the response from /analyze, with a deprecation warning
-        response_json = resp.json()
-        response_json['deprecated'] = True
-        response_json['message'] = 'This endpoint is deprecated. Please use /analyze.'
-        return make_response(jsonify(response_json), resp.status_code)
+        # Forward the request to the new endpoint
+        if request.method == 'POST':
+            if request.is_json:
+                data = request.get_json()
+                analyze_url = request.url_root.rstrip('/') + '/casestrainer/api/analyze'
+                resp = requests.post(analyze_url, json=data, headers={"X-Forwarded-For": "internal-analyze-deprecated"})
+            else:
+                data = dict(request.form)
+                files = request.files
+                analyze_url = request.url_root.rstrip('/') + '/casestrainer/api/analyze'
+                resp = requests.post(analyze_url, data=data, files=files, headers={"X-Forwarded-For": "internal-analyze-deprecated"})
+            response_json = resp.json()
+            response_json['deprecated'] = True
+            response_json['message'] = 'This endpoint is deprecated. Please use /casestrainer/api/analyze.'
+            return make_response(jsonify(response_json), resp.status_code)
+        else:
+            return jsonify({'error': 'Only POST is supported', 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /casestrainer/api/analyze.'}), 405
     except Exception as e:
-        return jsonify({'error': str(e), 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /analyze.'}), 500
+        return jsonify({'error': str(e), 'deprecated': True, 'message': 'This endpoint is deprecated. Please use /casestrainer/api/analyze.'}), 500
 
 # Add more API routes here
 

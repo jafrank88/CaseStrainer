@@ -24,7 +24,7 @@ from src.extract_case_name import (
 # Import the main regex patterns from citation_utils
 from src.citation_utils import extract_citations_from_text
 
-from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted
+from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted, extract_year_from_line
 
 from src.citation_normalizer import normalize_citation
 
@@ -185,10 +185,14 @@ class CitationExtractor:
                 except Exception as e:
                     if debug:
                         debug_info['warnings'].append(f"regex extraction failed for {name}: {e}")
+        
+        # Group citations that are part of the same parallel citation
+        if self.deduplicate:
+            all_citation_objs = self._group_parallel_citations(all_citation_objs, original_text)
         # Now build results with shared case names if available
         for obj in all_citation_objs:
             citation_str = obj['citation']
-            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': ''}
+            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
             if self.extract_case_names:
                 case_name_triple = extract_case_name_triple(text, citation_str)
             context_val = self._get_context(text, citation_str) if (self.context_window or 200) else ""
@@ -202,7 +206,7 @@ class CitationExtractor:
                 'extracted_case_name': case_name_triple['extracted_name'] or '',
                 'hinted_case_name': case_name_triple['hinted_name'] or '',
                 'canonical_date': case_name_triple['canonical_date'] or '',
-                'extracted_date': extract_year_from_line(text) or '',
+                'extracted_date': case_name_triple['extracted_date'] or '',
             }
             results.append(entry)
         if debug:
@@ -230,17 +234,23 @@ class CitationExtractor:
                         if self.deduplicate and citation_str in seen:
                             continue
                         seen.add(citation_str)
+                        
+                        # Get case name triple for eyecite citations too
+                        case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
+                        if self.extract_case_names:
+                            case_name_triple = extract_case_name_triple(text, citation_str)
+                        
                         entry = {
                             'citation': citation_str,
                             'method': 'eyecite',
                             'pattern': 'eyecite',
                             'confidence': 'medium',
-                            'case_name': '',
+                            'case_name': case_name_triple['case_name'],
                             'context': self._get_context(text, citation_str) if (self.context_window or 200) else "",
-                            'extracted_case_name': '',
-                            'hinted_case_name': '',
-                            'canonical_date': '',
-                            'extracted_date': extract_year_from_line(text) or '',
+                            'extracted_case_name': case_name_triple['extracted_name'],
+                            'hinted_case_name': case_name_triple['hinted_name'],
+                            'canonical_date': case_name_triple['canonical_date'],
+                            'extracted_date': case_name_triple['extracted_date'],
                         }
                         results.append(entry)
                 else:
@@ -401,6 +411,57 @@ class CitationExtractor:
                 unique_case_names.append(case_name)
         
         return unique_case_names
+
+    def _group_parallel_citations(self, citation_objs, text):
+        """Group citations that are part of the same parallel citation."""
+        if not citation_objs:
+            return citation_objs
+        
+        # Sort by start position
+        citation_objs.sort(key=lambda x: x['start_index'])
+        
+        grouped = []
+        i = 0
+        while i < len(citation_objs):
+            current = citation_objs[i]
+            group = [current]
+            
+            # Look for citations that are close together and might be parallel
+            j = i + 1
+            while j < len(citation_objs):
+                next_citation = citation_objs[j]
+                
+                # Check if citations are close together (within 50 characters)
+                if next_citation['start_index'] - current['end_index'] <= 50:
+                    # Check if they're separated by commas or other separators
+                    between_text = text[current['end_index']:next_citation['start_index']]
+                    if re.search(r'[,;]\s*', between_text):
+                        group.append(next_citation)
+                        current = next_citation
+                        j += 1
+                        continue
+                
+                break
+            
+            # If we have multiple citations in the group, combine them
+            if len(group) > 1:
+                # Combine all citations in the group
+                combined_citation = ', '.join([obj['citation'] for obj in group])
+                combined_obj = {
+                    'citation': combined_citation,
+                    'start_index': group[0]['start_index'],
+                    'end_index': group[-1]['end_index'],
+                    'pattern': 'parallel',
+                    'is_parallel': True,
+                    'components': group
+                }
+                grouped.append(combined_obj)
+            else:
+                grouped.append(current)
+            
+            i = j
+        
+        return grouped
 
     def _is_valid_case_name(self, case_name: str) -> bool:
         """

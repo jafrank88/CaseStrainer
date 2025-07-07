@@ -394,6 +394,19 @@ function Start-DockerProduction {
             if ($startProcess.ExitCode -eq 0) {
                 Write-Host "OK Docker containers started successfully" -ForegroundColor Green
                 
+                # Reload nginx to ensure proper routing with container names
+                Write-Host "Reloading nginx configuration..." -ForegroundColor Yellow
+                try {
+                    $nginxReload = docker exec casestrainer-nginx-prod nginx -s reload 2>$null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "OK Nginx configuration reloaded successfully" -ForegroundColor Green
+                    } else {
+                        Write-Warning "Nginx reload failed (this may be normal if nginx is not running yet)"
+                    }
+                } catch {
+                    Write-Warning "Could not reload nginx: $($_.Exception.Message)"
+                }
+                
                 # Enhanced health checks with timeout
                 if (Wait-ForServices -TimeoutMinutes 5) {
                     Show-ServiceUrls

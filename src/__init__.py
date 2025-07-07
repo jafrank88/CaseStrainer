@@ -7,7 +7,7 @@ from .config import configure_logging
 
 configure_logging()
 
-__version__ = "0.5.5"
+__version__ = "0.5.7"
 
 # Explicitly export configure_logging
 __all__ = ["configure_logging"]
@@ -34,7 +34,7 @@ def _lazy_import():
 
     # Import other modules
     from .citation_api import citation_api
-    from .citation_utils import (
+    from src.citation_utils import (
         extract_all_citations,
         extract_citations_from_text,
         verify_citation,

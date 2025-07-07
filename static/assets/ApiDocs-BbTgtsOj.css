@@ -1,0 +1,30 @@
+
+h1[data-v-42b36d55] {
+  color: #2563eb;
+}
+.card[data-v-42b36d55] {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+.card-header[data-v-42b36d55] {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+pre[data-v-42b36d55] {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  font-size: 0.875rem;
+  overflow-x: auto;
+}
+code[data-v-42b36d55] {
+  background-color: #f1f3f4;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+.table th[data-v-42b36d55] {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}

@@ -2,10 +2,25 @@
 
 This document lists all active API endpoints in the CaseStrainer application after the cleanup of duplicate endpoints.
 
+## ⚠️ **IMPORTANT: Canonical vs Deprecated Endpoints**
+
+**Canonical Endpoints (Use These):**
+- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis
+- `GET /casestrainer/api/health` - Health check
+- `GET /casestrainer/api/version` - Version information
+- `GET /casestrainer/api/task_status/<task_id>` - Task status
+- `GET /casestrainer/api/server_stats` - Server statistics
+- `GET /casestrainer/api/db_stats` - Database statistics
+
+**Deprecated Endpoints (Do NOT Use):**
+- `POST /casestrainer/api/process-text` - Deprecated, forwards to `/analyze`
+- `POST /casestrainer/api/analyze-document` - Deprecated, forwards to `/analyze`
+- All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
+
 ## Base URL
 All API endpoints are prefixed with `/casestrainer/api/`
 
-## Main Endpoints
+## ✅ **Canonical Endpoints**
 
 ### `/analyze` (POST)
 **Unified endpoint for all document analysis**
@@ -72,17 +87,19 @@ All API endpoints are prefixed with `/casestrainer/api/`
 - **Input**: JSON with citation text
 - **Response**: JSON with reprocessing results
 
-## Deprecated Endpoints (Forwarding)
+## ❌ **Deprecated Endpoints (Do NOT Use)**
 
 ### `/analyze-document` (POST) - DEPRECATED
 - **Status**: Deprecated, forwards to `/analyze`
 - **Purpose**: Legacy file upload endpoint
 - **Note**: Use `/analyze` instead
+- **Warning**: This endpoint will be removed in a future version
 
 ### `/process-text` (POST) - DEPRECATED
 - **Status**: Deprecated, forwards to `/analyze`
 - **Purpose**: Legacy text processing endpoint
 - **Note**: Use `/analyze` instead
+- **Warning**: This endpoint will be removed in a future version
 
 ## Frontend Routes
 
@@ -133,5 +150,6 @@ No rate limiting is currently implemented.
 
 - All endpoints are prefixed with `/casestrainer/api/` when accessed through the main application
 - The main `/analyze` endpoint handles all input types (file, text, URL) in a unified way
-- Deprecated endpoints forward to the main `/analyze` endpoint for backward compatibility
-- The application uses Redis and RQ for async task processing 
+- **Deprecated endpoints forward to the main `/analyze` endpoint for backward compatibility but should not be used in new code**
+- The application uses Redis and RQ for async task processing
+- **All deprecated endpoints will be removed in future versions** 

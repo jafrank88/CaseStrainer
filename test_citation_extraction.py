@@ -1,61 +1,70 @@
 #!/usr/bin/env python3
-"""
-Simple test script to check citation extraction and normalization
-"""
+"""Test citation extraction from PDF."""
 
-import sys
-import os
-import logging
-from src.enhanced_validator_production import extract_text_from_url
-from src.citation_processor import CitationProcessor
+from src.citation_extractor import CitationExtractor
+from src.file_utils import extract_text_from_file
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-def test_citation_extraction(url):
-    """Test citation extraction from a URL."""
-    print(f"Testing citation extraction from: {url}")
-    print("=" * 60)
+def test_citation_extraction():
+    """Test citation extraction from the uploaded PDF."""
+    print("=== TESTING CITATION EXTRACTION ===")
     
-    # Step 1: Extract text from URL
-    print("Step 1: Extracting text from URL...")
-    try:
-        text_result = extract_text_from_url(url)
-        if text_result.get('status') != 'success':
-            print(f"Error extracting text: {text_result.get('error')}")
-            return
-        
-        extracted_text = text_result.get('text', '')
-        print(f"Successfully extracted {len(extracted_text)} characters of text")
-        print(f"First 500 characters: {extracted_text[:500]}...")
-    except Exception as e:
-        print(f"Error extracting text: {e}")
-        return
+    # Extract text from PDF
+    text, case_name = extract_text_from_file('/app/uploads/gov.uscourts.wyd.64014.141.0_1.pdf')
+    print(f"Extracted {len(text)} characters of text")
+    print(f"Case name: {case_name}")
     
-    # Step 2: Extract citations
-    print("Step 2: Extracting citations...")
-    try:
-        from src.citation_extractor import extract_all_citations
-        citations = extract_all_citations(extracted_text, logger=logger)
-        
-        print(f"Found {len(citations)} citations:")
-        for i, citation_info in enumerate(citations, 1):
-            citation = citation_info['citation']
-            source = citation_info.get('source', 'unknown')
-            print(f"  {i}. {citation} (source: {source})")
-        
-        # Convert to list of strings for verification
-        citation_strings = [citation_info['citation'] for citation_info in citations]
-        
-    except Exception as e:
-        logger.error(f"Error extracting citations: {e}")
-        return
+    # Check for citation patterns in text
+    import re
+    print("\n=== CHECKING FOR CITATION PATTERNS ===")
+    
+    # F.3d patterns
+    f3d_patterns = [
+        r'\b\d+\s+F\.3d\s+\d+\b',
+        r'\b\d+\s+F\.\s*3d\s+\d+\b',
+        r'\b\d+\s+F\.\s*3rd\s+\d+\b',
+    ]
+    
+    for pattern in f3d_patterns:
+        matches = re.findall(pattern, text)
+        print(f"Pattern '{pattern}': {len(matches)} matches")
+        if matches:
+            print(f"  Examples: {matches[:3]}")
+    
+    # WL patterns
+    wl_patterns = [
+        r'\b\d{4}\s+WL\s+\d+\b',
+        r'\b\d{4}\s*WL\s*\d+\b',
+    ]
+    
+    for pattern in wl_patterns:
+        matches = re.findall(pattern, text)
+        print(f"Pattern '{pattern}': {len(matches)} matches")
+        if matches:
+            print(f"  Examples: {matches[:3]}")
+    
+    # Use the citation extractor
+    print("\n=== USING CITATION EXTRACTOR ===")
+    extractor = CitationExtractor()
+    citations = extractor.extract(text)
+    print(f"Citation extractor found {len(citations)} citations")
+    
+    for i, citation in enumerate(citations[:10]):
+        citation_text = citation.get('citation', citation.get('citation_text', 'Unknown'))
+        print(f"  {i+1}. {citation_text}")
+    
+    # Show sample of text around F.3d and WL
+    print("\n=== TEXT SAMPLES ===")
+    f3d_pos = text.find('F.3d')
+    if f3d_pos != -1:
+        start = max(0, f3d_pos - 50)
+        end = min(len(text), f3d_pos + 50)
+        print(f"F.3d context: ...{text[start:end]}...")
+    
+    wl_pos = text.find('WL')
+    if wl_pos != -1:
+        start = max(0, wl_pos - 50)
+        end = min(len(text), wl_pos + 50)
+        print(f"WL context: ...{text[start:end]}...")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python test_citation_extraction.py <URL>")
-        sys.exit(1)
-    
-    url = sys.argv[1]
-    test_citation_extraction(url) 
+    test_citation_extraction() 

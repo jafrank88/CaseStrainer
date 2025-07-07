@@ -1,43 +1,67 @@
-import requests
+#!/usr/bin/env python3
+"""
+Quick test for PDF file
+"""
+
+import os
 import sys
-from urllib3.exceptions import MaxRetryError, NewConnectionError
 
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-def test_endpoint(url):
+def main():
+    print("🧪 Quick PDF Test")
+    print("=" * 30)
+    
+    # Check if file exists
+    pdf_path = "gov.uscourts.wyd.64014.141.0_1.pdf"
+    if os.path.exists(pdf_path):
+        print(f"✅ File exists: {pdf_path}")
+        print(f"📁 File size: {os.path.getsize(pdf_path)} bytes")
+    else:
+        print(f"❌ File not found: {pdf_path}")
+        return
+    
+    # Try to import and test extraction
     try:
-        response = requests.get(f"http://localhost:5000{url}", timeout=5)
-        print(f"URL: {url}")
-        print(f"Status: {response.status_code}")
-        print(
-            f"Response: {response.text[:200]}..."
-            if len(response.text) > 200
-            else f"Response: {response.text}"
-        )
-        return True
-    except (
-        requests.exceptions.RequestException,
-        ConnectionError,
-        MaxRetryError,
-        NewConnectionError,
-    ) as e:
-        print(f"Error connecting to {url}: {e}")
-        return False
+        print("\n📖 Testing imports...")
+        from file_utils import extract_text_from_file
+        print("✅ file_utils imported successfully")
+        
+        from citation_utils import extract_all_citations
+        print("✅ citation_utils imported successfully")
+        
+        print("\n📖 Extracting text from PDF...")
+        text = extract_text_from_file(pdf_path)
+        
+        if text:
+            print(f"✅ Text extraction successful!")
+            print(f"📝 Text length: {len(text)} characters")
+            print(f"📄 First 200 characters:")
+            print("-" * 40)
+            print(text[:200])
+            print("-" * 40)
+            
+            print("\n🔍 Extracting citations...")
+            citations = extract_all_citations(text)
+            print(f"📚 Found {len(citations)} citations")
+            
+            if citations:
+                print("\n📋 Citations found:")
+                for i, citation in enumerate(citations[:5], 1):  # Show first 5
+                    print(f"  {i}. {citation}")
+                if len(citations) > 5:
+                    print(f"  ... and {len(citations) - 5} more")
+            else:
+                print("📚 No citations found")
+                
+        else:
+            print("❌ No text extracted")
+            
     except Exception as e:
-        print(f"Unexpected error with {url}: {e}")
-        return False
-
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    endpoints = ["/casestrainer/api/version", "/casestrainer/api/health"]
-
-    print("Testing API endpoints...")
-    results = [test_endpoint(ep) for ep in endpoints]
-
-    if not any(results):
-        print(
-            "\nNone of the endpoints responded successfully. The server may not be running or is not accessible."
-        )
-        print(
-            "Please ensure the server is running and accessible at http://localhost:5000"
-        )
-        sys.exit(1)
+    main()

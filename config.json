@@ -1,16 +1,16 @@
 {
-    "SECRET_KEY": "case_strainer_production_key_2025_05_28_v1",
+    "SECRET_KEY": "CHANGE_THIS_IN_PRODUCTION",
     "BASE_URL": "http://localhost:5000",
     "API_BASE_URL": "http://localhost:5000/api",
-    "COURTLISTENER_API_KEY": "***REDACTED_COURTLISTENER_KEY***",
+    "COURTLISTENER_API_KEY": "CHANGE_THIS_IN_PRODUCTION",
     "COURTLISTENER_API_URL": "https://www.courtlistener.com/api/rest/v4/",
     "ALLOWED_EXTENSIONS": ["txt", "pdf", "doc", "docx", "rtf", "odt", "html", "htm"],
     "UPLOAD_FOLDER": "uploads",
     "SESSION_FOLDER": "casestrainer_sessions",
     "LOG_LEVEL": "INFO",
     "LOG_FILE": "logs/casestrainer.log",
-    "courtlistener_api_key": "***REDACTED_COURTLISTENER_KEY***",
-    "langsearch_api_key": "***REDACTED_LANGSEARCH_KEY***",
+    "courtlistener_api_key": "CHANGE_THIS_IN_PRODUCTION",
+    "langsearch_api_key": "CHANGE_THIS_IN_PRODUCTION",
     "SESSION_CONFIG": {
         "SESSION_TYPE": "filesystem",
         "SESSION_FILE_DIR": "casestrainer_sessions",
@@ -34,17 +34,17 @@
             "enabled": false,
             "smtp_server": "smtp.gmail.com",
             "smtp_port": 587,
-            "username": "your-email@gmail.com",
-            "password": "your-app-password",
+            "username": "CHANGE_THIS_IN_PRODUCTION",
+            "password": "CHANGE_THIS_IN_PRODUCTION",
             "recipients": ["admin@example.com"]
         },
         "slack": {
             "enabled": false,
-            "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+            "webhook_url": "CHANGE_THIS_IN_PRODUCTION"
         },
         "discord": {
             "enabled": false,
-            "webhook_url": "https://discord.com/api/webhooks/YOUR/WEBHOOK/URL"
+            "webhook_url": "CHANGE_THIS_IN_PRODUCTION"
         }
     }
 } 

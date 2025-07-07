@@ -1,260 +1,193 @@
 # CaseStrainer
 
-A web application for extracting, analyzing, and validating legal citations from legal documents.
+A production-ready legal citation analysis and verification system with Docker deployment, Vue.js frontend, and Flask backend.
 
-## 📁 Project Structure
+## 🚀 Quick Start
 
-- `casestrainer-vue-new/` - Current Vue.js frontend (Vite + Vue 3)
-  - Uses modern tooling and best practices
-  - Active development happens here
-- `src/` - Backend source code
-  - `app_final_vue.py` - Main Flask application
-  - `vue_api_endpoints.py` - Vue.js API endpoints
-  - `citation_api.py` - Citation API endpoints
-- `docs/` - Documentation
-- `docker-compose.prod.yml` - Production Docker configuration
-- `launcher.ps1` - PowerShell launcher with auto-restart capabilities
-
-## ✨ Features
-
-### Modern Web Interface
-
-- Built with Vue 3 Composition API and Vite
-- Responsive design for all devices
-- Real-time citation verification
-
-### Document Processing
-
-- Extract citations from PDF, DOCX, and text files
-- Process multiple document formats
-- Clean and normalize extracted text
-
-### Citation Analysis
-
-- Validate citations against CourtListener API v4
-- Cross-reference with legal databases
-- Generate citation networks
-
-### User Experience
-
-- Intuitive drag-and-drop interface
-- Real-time feedback and progress tracking
-- Exportable results in multiple formats
-
-### Production Features
-
-- Docker containerization with health checks
-- Auto-restart system with service monitoring
-- Redis-based task queue for background processing
-- Nginx reverse proxy for production deployment
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Python 3.8+** with pip
-- **Node.js 16+** (LTS recommended)
-- **Windows 10/11** or **Windows Server 2019/2022**
-- **Docker Desktop** (for production deployment)
-- **Git** for version control
-
-### Quick Start
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/jafrank88/CaseStrainer.git
-   cd CaseStrainer
-   ```
-
-2. **Start with launcher (Recommended)**
-
-   ```powershell
-   .\launcher.ps1
-   ```
-
-   Choose your environment:
-   - **Development**: Local development with hot reload
-   - **Production**: Production deployment with Nginx
-   - **DockerDevelopment**: Docker-based development
-   - **DockerProduction**: Full Docker production stack
-
-3. **Manual Setup (Alternative)**
-
-   ```bash
-   # Set up Python environment
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   
-   # Set up Vue.js frontend
-   cd casestrainer-vue-new
-   npm install
-   npm run build
-   cd ..
-   ```
-
-## 🚀 Deployment Options
-
-### Development Mode
+### Production Deployment (Recommended)
 
 ```powershell
-.\launcher.ps1 -Environment Development
-```
-
-- Backend: `http://localhost:5000`
-- Frontend: `http://localhost:5173`
-- Redis: Local or Docker container
-
-### Production Mode
-
-```powershell
-.\launcher.ps1 -Environment Production
-```
-
-- Backend: `http://localhost:5000`
-- Frontend: Built and served by Flask
-- Nginx: Reverse proxy on port 443
-
-### Docker Production (Recommended)
-
-```powershell
+# Start production deployment with Docker
 .\launcher.ps1 -Environment DockerProduction
 ```
 
-- Backend: Containerized with Waitress WSGI
-- Frontend: Nginx container serving Vue.js build
-- Redis: Dedicated container with persistence
-- RQ Workers: Multiple worker containers for background tasks
-- Health checks: Automatic monitoring and recovery
+This will:
+- Build the Vue.js frontend
+- Start all Docker containers (Nginx, Frontend, Backend, Redis, RQ Workers)
+- Configure SSL and routing
+- Make the application available at https://wolf.law.uw.edu/casestrainer/
 
-## ⚙️ Configuration
+### Manual Docker Deployment
+
+```powershell
+# Build and start all services
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Check service status
+docker-compose -f docker-compose.prod.yml ps
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+```
+
+## 🏗️ Architecture
+
+CaseStrainer uses a modern microservices architecture:
+
+- **Nginx**: SSL termination and reverse proxy (ports 80/443)
+- **Frontend**: Vue.js application served by Nginx (port 8080)
+- **Backend**: Flask API server with Waitress WSGI (port 5001)
+- **Redis**: Task queue and caching (port 6380)
+- **RQ Workers**: Background task processing (3 instances)
+
+## ✨ Features
+
+### Citation Analysis
+- **Multi-format Support**: PDF, DOCX, RTF, and text files
+- **Enhanced Extraction**: Advanced case name and date extraction
+- **Parallel Citations**: Detection and display of parallel citations (e.g., "302 P.3d 156")
+- **Verification**: CourtListener API integration for citation verification
+- **Complex Citations**: Handling of complex citations with multiple components
+
+### Production Features
+- **Docker Deployment**: Complete containerized production setup
+- **Async Processing**: Redis-based task queue for large documents
+- **Health Monitoring**: Comprehensive health checks and monitoring
+- **SSL/TLS**: Production-ready SSL configuration
+- **Resource Management**: CPU and memory limits for stability
+
+### User Interface
+- **Modern Vue.js Frontend**: Responsive web interface
+- **Real-time Progress**: Progress tracking for long-running operations
+- **Detailed Results**: Comprehensive citation analysis with metadata
+- **Export Options**: Copy results and download functionality
+
+## 📋 Requirements
+
+- Docker and Docker Compose
+- Node.js 16+ (for frontend development)
+- Python 3.8+ (for backend development)
+- CourtListener API key
+- LangSearch API key
+
+## 🔧 Configuration
+
+### API Keys
+Create `config.json` in the project root:
+```json
+{
+  "courtlistener_api_key": "your_courtlistener_api_key_here",
+  "langsearch_api_key": "your_langsearch_api_key_here"
+}
+```
 
 ### Environment Variables
+- `VITE_APP_ENV`: Set to "production" for production builds
+- `NODE_ENV`: Set to "production" for optimized builds
 
-Create a `.env` file in the project root:
+## 🚀 Deployment
 
-```ini
-# Flask Configuration
-FLASK_APP=src.app_final_vue
-FLASK_ENV=production
-SECRET_KEY=your-secret-key-here
+### Production Deployment
+1. **Using Launcher Script** (Recommended):
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction
+   ```
 
-# API Keys
-COURTLISTENER_API_KEY=your-courtlistener-api-key
-LANGSEARCH_API_KEY=your-langsearch-api-key
+2. **Manual Deployment**:
+   ```powershell
+   docker-compose -f docker-compose.prod.yml up -d --build
+   ```
 
-# Database
-DATABASE_FILE=data/citations.db
+3. **Access Application**: https://wolf.law.uw.edu/casestrainer/
 
-# Redis (for Docker)
-REDIS_URL=redis://casestrainer-redis-prod:6379/0
+### Development Setup
+```powershell
+# Start development environment
+.\launcher.ps1 -Environment DockerDevelopment
 
-# Email (UW SMTP)
-MAIL_SERVER=smtp.uw.edu
-MAIL_PORT=587
-MAIL_USE_TLS=True
-MAIL_USERNAME=your-netid
-MAIL_PASSWORD=your-password
-MAIL_DEFAULT_SENDER=your-netid@uw.edu
+# Or manual development setup
+docker-compose -f docker-compose.yml up -d
 ```
 
-### Setting Up API Keys
-
-1. **CourtListener API**
-   - Get your API key from [CourtListener](https://www.courtlistener.com/api/)
-   - Only v4 of the API is supported
-
-2. **Other Services**
-   - LangSearch (optional): Set `LANGSEARCH_API_KEY`
-   - Other integrations: Refer to respective documentation
-
-## 🛠 Development
-
-### Project Structure
-
-```text
-CaseStrainer/
-├── casestrainer-vue-new/  # Vue 3 frontend
-│   ├── src/               # Source files
-│   ├── public/            # Static files
-│   └── package.json       # Frontend dependencies
-├── src/                   # Backend source code
-│   ├── app_final_vue.py   # Main Flask application
-│   ├── vue_api_endpoints.py # Vue.js API endpoints
-│   ├── citation_api.py    # Citation API endpoints
-│   └── config.py          # Configuration management
-├── docker-compose.prod.yml # Production Docker setup
-├── launcher.ps1           # PowerShell launcher
-├── docs/                  # Documentation
-└── logs/                  # Application logs
-```
-
-### API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/casestrainer/api/analyze` | POST | Analyze and validate citations |
-| `/casestrainer/api/task_status/<task_id>` | GET | Check processing status |
-| `/casestrainer/api/health` | GET | Health check |
-| `/casestrainer/api/version` | GET | Application version |
-| `/casestrainer/api/server_stats` | GET | Server statistics |
-
-### Common Tasks
-
-```bash
-# Run tests
-pytest
-
-# Lint code
-ruff check .
-
-# Format code
-ruff format .
-
-# Build frontend
-cd casestrainer-vue-new
-npm run build
-cd ..
-
-# Start Docker production
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## 🔧 Troubleshooting
-
-### Health Check Issues
-
-If services fail health checks:
-
-1. **Check logs**: `logs/` directory contains detailed logs
-2. **Restart services**: Use launcher menu option 4 (Stop All Services)
-3. **Docker issues**: Restart Docker Desktop and try again
-4. **Port conflicts**: Ensure ports 5000, 5001, 6379, 443 are available
+## 🔍 Troubleshooting
 
 ### Common Issues
+- **404 Errors**: Check container status and rebuild frontend
+- **500 Errors**: Check Redis connection and backend logs
+- **Assets Not Loading**: Verify Nginx asset routing configuration
+- **Parallel Citations Missing**: Rebuild frontend and backend containers
 
-- **502 Bad Gateway**: Backend not running or port mismatch
-- **Redis connection errors**: Docker Desktop not running
-- **Frontend not loading**: Vue.js build not updated
-- **Health check failures**: Recent fixes implemented - check launcher logs
+### Health Checks
+```powershell
+# Check all containers
+docker ps
+
+# Check backend health
+curl http://localhost:5001/casestrainer/api/health
+
+# Check Redis connection
+docker exec casestrainer-redis-prod redis-cli ping
+
+# Check frontend
+curl http://localhost:8080/casestrainer/
+```
+
+### Logs
+```powershell
+# Backend logs
+docker logs casestrainer-backend-prod
+
+# Frontend logs
+docker logs casestrainer-frontend-prod
+
+# Nginx logs
+docker logs casestrainer-nginx-prod
+
+# Redis logs
+docker logs casestrainer-redis-prod
+```
+
+For detailed troubleshooting, see [TROUBLESHOOTING.md](deployment/TROUBLESHOOTING.md).
 
 ## 📚 Documentation
 
-- [Development Guide](docs/DEVELOPMENT.md) - Development setup and guidelines
-- [Deployment Guide](docs/DEPLOYMENT_VUE.md) - Production deployment instructions
-- [Auto-Restart Guide](docs/AUTO_RESTART_GUIDE.md) - Service monitoring and recovery
-- [API Documentation](docs/API_DOCUMENTATION.md) - API reference
-- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Deployment Guide](deployment/DEPLOYMENT.md) - Complete deployment instructions
+- [Troubleshooting Guide](deployment/TROUBLESHOOTING.md) - Common issues and solutions
+- [API Documentation](docs/API_DOCUMENTATION.md) - Backend API reference
+- [Changelog](CHANGELOG.md) - Version history and changes
+
+## 🔄 Recent Updates (v1.2.0)
+
+### Fixed Issues
+- **Parallel Citations**: Fixed frontend display of parallel citations
+- **Case Name Extraction**: Enhanced case name and date extraction logic
+- **Asset Loading**: Fixed 404 errors for frontend assets
+- **Container Networking**: Fixed frontend container startup issues
+
+### Improvements
+- **Documentation**: Comprehensive troubleshooting and deployment guides
+- **Backend Processing**: Improved citation processing pipeline
+- **Error Handling**: Better error handling and logging throughout
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests and linting
+4. Test in Docker environment
 5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For issues or questions:
+1. Check the [troubleshooting guide](deployment/TROUBLESHOOTING.md)
+2. Review the [deployment documentation](deployment/DEPLOYMENT.md)
+3. Contact the system administrator with specific error messages and logs
+
+---
+
+**CaseStrainer v1.2.0** - Production-ready legal citation analysis system 

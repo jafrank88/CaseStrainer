@@ -5,7 +5,7 @@ import requests
 import json
 from eyecite import get_citations
 from eyecite.resolve import resolve_citations
-from pdf_handler import extract_text_from_pdf  # Import at module level
+from src.pdf_handler import extract_text_from_pdf  # Import at module level
 import urllib.parse
 
 

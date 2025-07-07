@@ -3,9 +3,9 @@ version: '3.8'
 services:
   frontend:
     build: .
-    container_name: casestrainer-vue
+    container_name: casestrainer-vue-standalone
     ports:
-      - "5173:5173"
+      - "5175:5173"
     volumes:
       - .:/app
       - /app/node_modules

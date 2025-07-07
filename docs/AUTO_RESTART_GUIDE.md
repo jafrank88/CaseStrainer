@@ -54,9 +54,45 @@ When the menu appears, select:
 - **Option 1**: Development Mode (recommended for testing)
 - **Option 2**: Production Mode (for production use)
 - **Option 3**: Docker Development Mode (containerized development)
-- **Option 4**: Docker Production Mode (full containerized production)
+- **Option 4**: Docker Production Mode (full containerized production with comprehensive network cleanup and advanced diagnostics)
 
-### 4. Handle Redis Setup (if needed)
+### 4. Docker-Specific Diagnostics (Option 4)
+
+Option 4 now includes comprehensive Docker diagnostics that help identify restart issues:
+
+#### **Docker Daemon & System Checks**
+- Docker daemon status and version
+- Container resource usage (CPU, memory, network I/O)
+- Docker system resource usage
+- Port conflict detection
+
+#### **Network Diagnostics**
+- Docker network inspection
+- Container-to-container connectivity tests
+- DNS resolution within containers
+- Direct IP connectivity verification
+- Network event monitoring
+
+#### **Container Health Monitoring**
+- Container health status
+- Restart history analysis
+- Recent Docker events
+- Resource pressure detection
+- Error log scanning
+
+#### **Restart-Specific Diagnostics**
+- Container restart frequency analysis
+- Memory/CPU pressure detection
+- Network connectivity issues
+- DNS resolution problems
+- IP address conflicts
+
+#### **Actionable Recommendations**
+- Automatic issue detection and reporting
+- Specific troubleshooting commands
+- Quick fix suggestions based on detected problems
+
+### 5. Handle Redis Setup (if needed)
 
 If Docker Desktop isn't running, you'll see:
 

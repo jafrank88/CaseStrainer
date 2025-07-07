@@ -229,12 +229,16 @@ export const useAnalysisService = () => {
       if (content instanceof File || content instanceof Blob) {
          const fd = new FormData();
          fd.append("file", content);
-         fd.append("type", type);
-         fd.append("options", JSON.stringify(enhancedOptions));
+         fd.append("type", "file");
+         if (options && Object.keys(options).length > 0) {
+           fd.append("options", JSON.stringify(options));
+         }
          response = await currentApi.post('/analyze', fd, { timeout: CONSTANTS.PROCESSING_TIMEOUT, headers: {} });
       } else if (content instanceof FormData) {
-         content.append("type", type);
-         content.append("options", JSON.stringify(enhancedOptions));
+         if (!content.has('type')) content.append('type', type);
+         if (options && Object.keys(options).length > 0 && !content.has('options')) {
+           content.append('options', JSON.stringify(options));
+         }
          response = await currentApi.post('/analyze', content, { timeout: CONSTANTS.PROCESSING_TIMEOUT, headers: {} });
       } else {
          response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });

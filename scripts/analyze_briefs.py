@@ -176,7 +176,7 @@ def analyze_brief(brief, verifier):
         unverified_citations = []
         for citation in citations:
             # Verify the citation
-            result = verifier.verify_citation(citation)
+            result = verifier.verify_citation_unified_workflow(citation)
 
             # If the citation is not verified, add it to the list
             if not result.get("verified", False):

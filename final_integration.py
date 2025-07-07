@@ -167,7 +167,7 @@ class FinalCitationProcessor:
         
         try:
             # Use the existing verification method
-            result = self.existing_verifier.verify_citation(citation)
+            result = self.existing_verifier.verify_citation_unified_workflow(citation)
             return {
                 'citation': citation,
                 'verified': result.get('verified', False),
@@ -198,7 +198,7 @@ class FinalCitationProcessor:
         
         try:
             # For now, just try the regular verification since the case name method might not exist
-            result = self.existing_verifier.verify_citation(citation)
+            result = self.existing_verifier.verify_citation_unified_workflow(citation)
             return {
                 'citation': citation,
                 'case_name': case_name,
@@ -232,7 +232,7 @@ class FinalCitationProcessor:
             # Try to use the citation processor's verification method
             # This might need to be adapted based on the actual method name
             if hasattr(self.citation_processor, 'verify_citation'):
-                result = self.citation_processor.verify_citation(citation)
+                result = self.citation_processor.verify_citation_unified_workflow(citation)
             elif hasattr(self.citation_processor, 'process_citation'):
                 result = self.citation_processor.process_citation(citation)
             else:

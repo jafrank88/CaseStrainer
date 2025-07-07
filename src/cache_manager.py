@@ -80,22 +80,49 @@ class UnifiedCacheManager:
             }
     
     def _init_redis(self):
-        """Initialize Redis connection."""
-        try:
-            redis_config = self.config['redis']
-            self.redis_client = redis.Redis(
-                host=redis_config['host'],
-                port=redis_config['port'],
-                decode_responses=False,  # Keep as bytes for compression
-                socket_connect_timeout=5,
-                socket_timeout=5
-            )
-            # Test connection
-            self.redis_client.ping()
-            logger.info("Redis connection established")
-        except Exception as e:
-            logger.error(f"Redis connection failed: {e}")
-            self.redis_client = None
+        """Initialize Redis connection with retry mechanism."""
+        import time
+        max_retries = 5
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                # Use REDIS_URL environment variable if available, otherwise fallback to localhost
+                redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+                if redis_url.startswith('redis://'):
+                    # Parse redis://host:port/db format
+                    from urllib.parse import urlparse
+                    parsed = urlparse(redis_url)
+                    redis_host = parsed.hostname or 'localhost'
+                    redis_port = parsed.port or 6379
+                    redis_db = int(parsed.path.lstrip('/')) if parsed.path else 0
+                else:
+                    # Fallback to localhost
+                    redis_host = 'localhost'
+                    redis_port = 6379
+                    redis_db = 0
+                
+                self.redis_client = redis.Redis(
+                    host=redis_host,
+                    port=redis_port,
+                    db=redis_db,
+                    decode_responses=False,
+                    socket_connect_timeout=5,
+                    socket_timeout=5
+                )
+                # Test connection
+                self.redis_client.ping()
+                logger.info(f"Redis connection established on attempt {attempt + 1} to {redis_host}:{redis_port}")
+                return
+            except Exception as e:
+                logger.warning(f"Redis connection attempt {attempt + 1} failed: {e}")
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying Redis connection in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    logger.error(f"Redis connection failed after {max_retries} attempts: {e}")
+                    self.redis_client = None
     
     def _init_database(self):
         """Initialize SQLite database with proper schema."""

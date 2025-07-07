@@ -10,7 +10,7 @@ try:
     print("Successfully imported vue_api blueprint from vue_api_endpoints.py")
 except ImportError as e:
     try:
-        from vue_api_endpoints import vue_api as api_blueprint
+        from src.vue_api_endpoints import vue_api as api_blueprint
         print("Successfully imported vue_api blueprint from vue_api_endpoints.py")
     except ImportError as e2:
         print(f"Failed to import vue_api blueprint: {e2}")

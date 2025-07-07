@@ -218,12 +218,20 @@ class DatabaseManager:
         cursor.execute("PRAGMA table_info(citations)")
         existing_columns = {row[1] for row in cursor.fetchall()}
         
-        # Citations table indexes
+        # Citations table indexes - only create on existing columns
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_text ON citations(citation_text)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_case_name ON citations(case_name)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_year ON citations(year)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_court ON citations(court)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_found ON citations(found)')
+        
+        if 'case_name' in existing_columns:
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_case_name ON citations(case_name)')
+        
+        if 'year' in existing_columns:
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_year ON citations(year)')
+        
+        if 'court' in existing_columns:
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_court ON citations(court)')
+        
+        if 'found' in existing_columns:
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_found ON citations(found)')
         
         # Handle different column names for verification status
         if 'is_verified' in existing_columns:
@@ -237,10 +245,12 @@ class DatabaseManager:
         elif 'created_at' in existing_columns:
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_created ON citations(created_at)')
         
-        # Composite indexes for common queries
-        if 'is_verified' in existing_columns:
+        # Composite indexes for common queries - only create if both columns exist
+        if 'is_verified' in existing_columns and 'found' in existing_columns:
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_found_verified ON citations(found, is_verified)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_year_court ON citations(year, court)')
+        
+        if 'year' in existing_columns and 'court' in existing_columns:
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_year_court ON citations(year, court)')
         
         # API cache indexes
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_cache_key ON api_cache(cache_key)')

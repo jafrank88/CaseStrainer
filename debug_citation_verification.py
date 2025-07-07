@@ -72,7 +72,7 @@ def test_citation_verification(citation: str):
     print(f"   Testing full verification...")
     
     # Test full verification
-    full_result = verifier.verify_citation(citation)
+    full_result = verifier.verify_citation_unified_workflow(citation)
     print(f"   Full Verification Result: {json.dumps(full_result, indent=2)}")
     
     print(f"\n6. URL GENERATION:")

@@ -1,37 +1,45 @@
 #!/usr/bin/env python3
+"""
+Test script to verify parallel citation extraction fix.
+"""
 
 import sys
-import traceback
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from complex_citation_integration import ComplexCitationIntegrator
 
 def test_parallel_citations():
-    print("Testing parallel citation handling...")
+    """Test parallel citation extraction."""
+    print("Testing parallel citation extraction...")
     
-    try:
-        from src.document_processing import process_document
-        print("Import successful")
+    # Test text with parallel citations
+    test_text = """A trial court's decision granting or denying a motion to seal court records is 
+reviewed for abuse of discretion. State v. Richardson, 177 Wn.2d 351, 357, 302 
+P.3d 156 (2013)."""
+    
+    integrator = ComplexCitationIntegrator()
+    results = integrator.process_text_with_complex_citations_original(test_text)
+    
+    print(f"Found {len(results)} citations")
+    
+    for i, result in enumerate(results, 1):
+        print(f"\nCitation {i}:")
+        print(f"  Citation: {result.get('citation', 'N/A')}")
+        print(f"  Case name: {result.get('case_name', 'N/A')}")
+        print(f"  Verified: {result.get('verified', 'N/A')}")
+        print(f"  Is complex: {result.get('is_complex_citation', False)}")
+        print(f"  Is parallel: {result.get('is_parallel_citation', False)}")
+        print(f"  Parallel citations: {result.get('parallel_citations', [])}")
+        print(f"  Parallels field: {result.get('parallels', [])}")
         
-        # Test with a manually constructed long citation string
-        test_citation = '410 U.S. 113, 93 S. Ct. 705, 35 L. Ed. 2d 147, 1973 U.S. LEXIS 159'
-        print(f"Processing document with citation string: {test_citation}")
-        result = process_document(content=f'Test with {test_citation}')
-        print("Document processing completed")
-        
-        print(f'Total citations: {len(result.get("citations", []))}')
-        print('Sample citations:')
-        
-        for i, citation in enumerate(result.get('citations', [])[:10], 1):
-            print(f'  {i}. {citation.get("citation", "N/A")} (verified={citation.get("verified", "N/A")})')
-            if citation.get('is_parallel_citation'):
-                print(f'      -> Parallel citation of: {citation.get("primary_citation", "N/A")}')
-        
-        # Check verification statistics
-        verified_count = sum(1 for c in result.get('citations', []) if c.get('verified') in ['true', 'true_by_parallel'])
-        total_count = len(result.get('citations', []))
-        print(f'\nVerification summary: {verified_count}/{total_count} citations verified')
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        traceback.print_exc()
+        # Check if this citation has parallel citations
+        if result.get('parallel_citations'):
+            print(f"  ✅ Has parallel citations: {result['parallel_citations']}")
+        elif result.get('parallels'):
+            print(f"  ✅ Has parallels field: {len(result['parallels'])} items")
+        else:
+            print(f"  ❌ No parallel citations found")
 
 if __name__ == "__main__":
     test_parallel_citations() 

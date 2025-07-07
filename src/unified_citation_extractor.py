@@ -49,7 +49,7 @@ class UnifiedCitationExtractor:
                  chunk_overlap: int = 40,
                  normalize_washington: bool = True,
                  extract_context: bool = False,
-                 context_window: int = 200):
+                 context_window: int = 250):
         """
         Initialize the unified citation extractor.
         
@@ -156,33 +156,70 @@ class UnifiedCitationExtractor:
         return normalized
     
     def extract_with_regex(self, text: str) -> List[CitationResult]:
-        """Extract citations using regex patterns."""
+        """Extract citations using regex patterns, including full case name and year."""
         if not self.use_regex:
             return []
-            
+        
         logger.info("Starting regex citation extraction...")
         start_time = time.time()
-        
         found_citations = set()
         results = []
+
+        # Working pattern that successfully matches case citations
+        # Pattern: ^(.+? v\.[^,\n]+), (.+) \((\d{4})\)$
+        # Group 1: Case name, Group 2: Citation(s), Group 3: Year
+        working_case_pattern = re.compile(
+            r"^(.+? v\.[^,\n]+), (.+) \((\d{4})\)$", 
+            re.MULTILINE
+        )
         
+        print(f"[DEBUG] Trying working pattern: {working_case_pattern.pattern}")
+        matches = list(working_case_pattern.finditer(text))
+        print(f"[DEBUG] Working pattern matches found: {len(matches)}")
+        
+        for match in matches:
+            case_name = match.group(1).strip()
+            citation = match.group(2).strip()
+            year = match.group(3).strip()
+            key = f"{case_name}|{citation}|{year}"
+            
+            if key not in found_citations:
+                found_citations.add(key)
+                
+                # Get context (2 lines before the match)
+                start_pos = match.start()
+                context_start = max(0, start_pos - 200)  # 200 chars before
+                context_end = start_pos
+                context = text[context_start:context_end]
+                
+                # Create full citation string
+                full_citation = f"{case_name}, {citation} ({year})"
+                
+                results.append(CitationResult(
+                    citation=full_citation,
+                    source="regex_full",
+                    original=None,
+                    context=context,
+                    line_number=self._get_line_number(text, start_pos),
+                    confidence=0.95
+                ))
+                print(f"[REGEX_FULL] Found: {case_name}, {citation}, {year}")
+                print(f"[REGEX_FULL] Full citation: {full_citation}")
+        # Fallback to original patterns for other citations
         for pattern in self.regex_patterns:
             matches = re.finditer(pattern, text)
             for match in matches:
                 citation = match.group(0).strip()
                 if citation not in found_citations:
                     found_citations.add(citation)
-                    
                     # Normalize Washington citations
                     normalized_citation = self.normalize_washington_citations(citation)
-                    
                     # Extract context if requested
                     context = None
                     if self.extract_context:
                         start = max(0, match.start() - self.context_window)
                         end = min(len(text), match.end() + self.context_window)
                         context = text[start:end]
-                    
                     results.append(CitationResult(
                         citation=normalized_citation,
                         source="regex",
@@ -191,7 +228,6 @@ class UnifiedCitationExtractor:
                         line_number=self._get_line_number(text, match.start()),
                         confidence=0.8  # Regex confidence
                     ))
-        
         logger.info(f"Regex extraction found {len(results)} citations in {time.time() - start_time:.2f}s")
         return results
     

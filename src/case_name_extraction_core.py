@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 # --- Utility imports from canonical module ---
 from src.extract_case_name import clean_case_name, is_valid_case_name, expand_abbreviations
+from src.extract_case_name import extract_case_name_hinted
 
 # --- Canonical Name ---
 def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]:
@@ -45,10 +46,11 @@ def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]
     return ''
 
 # --- Extracted Name ---
-def extract_case_name_from_text(text: str, citation: str, context_window: int = 500, canonical_name: str = None) -> str:
+def extract_case_name_from_text(text: str, citation: str, context_window: int = 100, canonical_name: str = None) -> str:
     """
     Extract case name from text around the citation.
     Returns cleaned/validated result.
+    Uses narrow 100-character context window by default.
     """
     try:
         from src.extract_case_name import extract_case_name_from_text as extract_func
@@ -61,37 +63,111 @@ def extract_case_name_from_text(text: str, citation: str, context_window: int = 
     return ""
 
 # --- Hinted Name ---
-def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
+#def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
+#    """
+#    Extract hinted case name using canonical name as reference.
+#    Returns cleaned/validated result.
+#    """
+#    try:
+#        from src.extract_case_name import extract_case_name_hinted as hinted_func
+#        hinted = hinted_func(text, citation, canonical_name, api_key)
+#        if hinted and is_valid_case_name(hinted):
+#            return clean_case_name(hinted)
+#    except Exception as e:
+#        logger.warning(f"Failed to extract hinted case name: {e}")
+#    return ""
+
+# --- Triple Extraction ---
+def extract_year_from_line(line: str) -> str:
     """
-    Extract hinted case name using canonical name as reference.
-    Returns cleaned/validated result.
+    Extracts a 4-digit year in parentheses from a line, e.g., (2020)
+    This is a simple fallback method
     """
-    try:
-        from src.extract_case_name import extract_case_name_hinted as hinted_func
-        hinted = hinted_func(text, citation, canonical_name, api_key)
-        if hinted and is_valid_case_name(hinted):
-            return clean_case_name(hinted)
-    except Exception as e:
-        logger.warning(f"Failed to extract hinted case name: {e}")
+    match = re.search(r'\((\d{4})\)', line)
+    if match:
+        return match.group(1)
+    return ""
+
+def extract_year_after_last_citation(line: str) -> str:
+    """
+    Extract year that appears after the last citation or page number in a line.
+    Handles patterns like:
+    - name, citation, year
+    - name, citation, page, year  
+    - name, citation, page, citation, year
+    - name, citation, citation, year (parallel citations)
+    - name, citation, page, citation, page, year
+    etc.
+    
+    Args:
+        line: The line containing citations and year
+        
+    Returns:
+        The year as a string, or empty string if not found
+    """
+    if not line:
+        return ""
+    
+    # Citation patterns to find
+    citation_patterns = [
+        r'\d+\s+[A-Z][a-z]*\.?\d*\s+\d+',  # 123 Wn.2d 456, 123 P.3d 789
+        r'\d+\s+[A-Z]\.[a-z]*\.?\d*\s+\d+',  # 123 U.S. 456
+        r'\d+\s+[A-Z][a-z]+\d+\s+\d+',  # 123 Wash2d 456
+        r'\d+\s+[A-Z][a-z]+\s+\d+',  # 123 Wash 456
+    ]
+    
+    # Page number patterns (pinpoint citations)
+    page_patterns = [
+        r',\s*\d+',  # , 459
+        r'at\s+\d+',  # at 459
+    ]
+    
+    # Find all matches and their positions
+    all_matches = []
+    
+    # Find citations
+    for pattern in citation_patterns:
+        for match in re.finditer(pattern, line):
+            all_matches.append((match.end(), match.group(), 'citation'))
+    
+    # Find page numbers
+    for pattern in page_patterns:
+        for match in re.finditer(pattern, line):
+            all_matches.append((match.end(), match.group(), 'page'))
+    
+    # Sort by position (end of match)
+    all_matches.sort(key=lambda x: x[0])
+    
+    if not all_matches:
+        # No citations found, fall back to simple year extraction
+        return extract_year_from_line(line)
+    
+    # Get the position after the last citation/page
+    last_position = all_matches[-1][0]
+    
+    # Look for year in parentheses after the last citation/page
+    remaining_text = line[last_position:]
+    year_match = re.search(r'\((\d{4})\)', remaining_text)
+    
+    if year_match:
+        return year_match.group(1)
+    
+    # If no year in parentheses, look for any 4-digit year
+    year_match = re.search(r'\b(19|20)\d{2}\b', remaining_text)
+    if year_match:
+        return year_match.group(0)
     
     return ""
 
-# --- Triple Extraction ---
-def extract_case_name_triple(text: str, citation: str, api_key: str = None, context_window: int = 500) -> Dict[str, str]:
+def extract_case_name_triple(text: str, citation: str, api_key: str = None, context_window: int = 100) -> dict:
     """
-    Extract all three pieces: canonical, extracted, and hinted case names.
-    Always returns cleaned/validated results.
-    
-    Improved logic:
-    - If no canonical name (case not verified), show extracted name as case name
-    - If canonical name exists, use it to improve extracted name and make that the final case name
-    - Also extracts canonical date from CourtListener API
+    Extract canonical, extracted, and hinted case names, plus canonical and extracted dates.
+    Returns canonical_name, extracted_name, hinted_name, case_name, canonical_date, and extracted_date.
+    Uses narrow 100-character context window by default.
     """
-    # Get canonical name and date from CourtListener
     canonical_result = get_canonical_case_name_with_date(citation, api_key)
     canonical_name = ""
     canonical_date = ""
-    
     if canonical_result:
         if isinstance(canonical_result, dict):
             canonical_name = canonical_result.get('case_name', '') or ''
@@ -99,44 +175,43 @@ def extract_case_name_triple(text: str, citation: str, api_key: str = None, cont
         else:
             canonical_name = canonical_result or ''
     
-    extracted_name = extract_case_name_from_text(text, citation, context_window, canonical_name=canonical_name) or ""
-    hinted_name = extract_case_name_hinted(text, citation, canonical_name, api_key) or ""
-
-    # Debug output for extraction
-    if not extracted_name:
-        logger.info(f"[extract_case_name_triple] No extracted_name found for citation '{citation}' in text context.")
-        extracted_name = "N/A"
-    else:
-        logger.info(f"[extract_case_name_triple] Extracted name for citation '{citation}': {extracted_name}")
-    if not hinted_name:
-        logger.info(f"[extract_case_name_triple] No hinted_name found for citation '{citation}' in text context.")
-        hinted_name = "N/A"
-    else:
-        logger.info(f"[extract_case_name_triple] Hinted name for citation '{citation}': {hinted_name}")
-
-    case_name = ""
-    similarity_hinted = 0
-    similarity_extracted = 0
+    extracted_name = extract_case_name_from_text(text, citation, canonical_name=canonical_name) or ""
+    
+    # Extract hinted name using canonical name as hint
+    hinted_name = ""
     if canonical_name:
+        try:
+            hinted_name = extract_case_name_hinted(text, citation, canonical_name, api_key) or ""
+        except Exception as e:
+            logger.warning(f"Failed to extract hinted case name: {e}")
+    
+    # Determine the best case name to use
+    case_name = ""
+    if canonical_name and canonical_name != "N/A":
         case_name = canonical_name
-    elif hinted_name != "N/A" and canonical_name:
-        similarity_hinted = fuzz.ratio(hinted_name, canonical_name)
-        similarity_extracted = fuzz.ratio(extracted_name, canonical_name) if extracted_name != "N/A" else 0
-        if similarity_hinted > similarity_extracted:
-            case_name = hinted_name
-        else:
-            case_name = extracted_name
-    elif extracted_name != "N/A":
+    elif extracted_name and extracted_name != "N/A":
         case_name = extracted_name
+    elif hinted_name and hinted_name != "N/A":
+        case_name = hinted_name
     else:
         case_name = "N/A"
-
+    
+    # Try to extract a year from the line containing the citation
+    extracted_date = ""
+    for line in text.splitlines():
+        if citation in line:
+            # Use the new robust year extraction function
+            extracted_date = extract_year_after_last_citation(line)
+            if extracted_date:
+                break
+    
     return {
         'canonical_name': canonical_name or "N/A",
-        'extracted_name': extracted_name,
-        'hinted_name': hinted_name,
+        'extracted_name': extracted_name or "N/A",
+        'hinted_name': hinted_name or "N/A",
         'case_name': case_name,
-        'canonical_date': canonical_date or "N/A"
+        'canonical_date': canonical_date or "N/A",
+        'extracted_date': extracted_date or "N/A"
     }
 
 def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Optional[dict]:

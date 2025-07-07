@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Inputs Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recent Inputs Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Recent Inputs Storage</h3>
+        <button class="test-button" onclick="addTestInputs()">Add Test Inputs</button>
+        <button class="test-button" onclick="showRecentInputs()">Show Recent Inputs</button>
+        <button class="test-button" onclick="clearRecentInputs()">Clear Recent Inputs</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'casestrainer_recent_inputs';
+        
+        function addTestInputs() {
+            const testInputs = [
+                {
+                    tab: 'text',
+                    text: 'This is a test text input with some legal citations like 200 Wn.2d 72, 514 P.3d 643',
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    tab: 'url',
+                    url: 'https://example.com/legal-document.pdf',
+                    timestamp: new Date(Date.now() - 60000).toISOString() // 1 minute ago
+                },
+                {
+                    tab: 'file',
+                    fileName: 'test-document.pdf',
+                    timestamp: new Date(Date.now() - 120000).toISOString() // 2 minutes ago
+                },
+                {
+                    tab: 'text',
+                    text: 'Another test text input with different content',
+                    timestamp: new Date(Date.now() - 180000).toISOString() // 3 minutes ago
+                }
+            ];
+            
+            // Get existing inputs
+            let existingInputs = [];
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    existingInputs = JSON.parse(saved);
+                }
+            } catch (error) {
+                console.error('Error loading existing inputs:', error);
+            }
+            
+            // Add new inputs to beginning
+            testInputs.forEach(input => {
+                // Remove duplicates
+                existingInputs = existingInputs.filter(existing => 
+                    !(existing.tab === input.tab && 
+                      ((existing.tab === 'text' && existing.text === input.text) ||
+                       (existing.tab === 'url' && existing.url === input.url) ||
+                       (existing.tab === 'file' && existing.fileName === input.fileName)))
+                );
+                
+                existingInputs.unshift(input);
+            });
+            
+            // Keep only last 10
+            existingInputs = existingInputs.slice(0, 10);
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(existingInputs));
+                document.getElementById('result').innerHTML = `
+                    <strong>Success!</strong> Added ${testInputs.length} test inputs.<br>
+                    Total recent inputs: ${existingInputs.length}
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <strong>Error!</strong> Failed to save inputs: ${error.message}
+                `;
+            }
+        }
+        
+        function showRecentInputs() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) {
+                    document.getElementById('result').innerHTML = '<strong>No recent inputs found.</strong>';
+                    return;
+                }
+                
+                const inputs = JSON.parse(saved);
+                let html = '<strong>Recent Inputs:</strong><br><br>';
+                
+                inputs.forEach((input, index) => {
+                    const time = new Date(input.timestamp).toLocaleString();
+                    html += `
+                        <div style="margin: 10px 0; padding: 10px; border: 1px solid #eee; border-radius: 4px;">
+                            <strong>${index + 1}. ${input.tab.toUpperCase()}</strong><br>
+                            ${input.tab === 'text' ? `Text: ${input.text.substring(0, 50)}...` : ''}
+                            ${input.tab === 'url' ? `URL: ${input.url}` : ''}
+                            ${input.tab === 'file' ? `File: ${input.fileName}` : ''}<br>
+                            <small>Time: ${time}</small>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('result').innerHTML = html;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <strong>Error!</strong> Failed to load inputs: ${error.message}
+                `;
+            }
+        }
+        
+        function clearRecentInputs() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('result').innerHTML = '<strong>Success!</strong> Recent inputs cleared.';
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <strong>Error!</strong> Failed to clear inputs: ${error.message}
+                `;
+            }
+        }
+        
+        // Show current inputs on page load
+        window.onload = function() {
+            showRecentInputs();
+        };
+    </script>
+</body>
+</html> 

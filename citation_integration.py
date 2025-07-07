@@ -166,8 +166,7 @@ class IntegratedCitationProcessor:
             }
         
         try:
-            # This is a placeholder - you'll need to adapt this to your actual verification method
-            result = self.existing_verifier.verify_citation(citation)
+            result = self.existing_verifier.verify_citation_unified_workflow(citation)
             return {
                 'citation': citation,
                 'verified': result.get('verified', False),
@@ -230,7 +229,7 @@ class IntegratedCitationProcessor:
         
         try:
             # This is a placeholder - you'll need to adapt this to your actual verification method
-            result = self.citation_processor.verify_citation(citation)
+            result = self.citation_processor.verify_citation_unified_workflow(citation)
             return {
                 'citation': citation,
                 'verified': result.get('verified', False),

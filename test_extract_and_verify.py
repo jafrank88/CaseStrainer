@@ -69,7 +69,7 @@ def test_extract_and_verify():
         print(f"Verifying: {citation_text}")
         
         # Verify the citation
-        verification_result = verifier.verify_citation(
+        verification_result = verifier.verify_citation_unified_workflow(
             citation_text, 
             use_cache=False, 
             use_database=False, 

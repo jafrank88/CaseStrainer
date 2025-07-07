@@ -37,7 +37,7 @@ def main():
     
     for variant in citation_variants:
         print(f"\nVerifying variant: {variant}")
-        result = verifier.verify_citation(variant, use_cache=False, use_database=False, use_api=True, force_refresh=True)
+        result = verifier.verify_citation_unified_workflow(variant, use_cache=False, use_database=False, use_api=True, force_refresh=True)
         print(json.dumps(result, indent=2, default=str))
         print("-" * 60)
     

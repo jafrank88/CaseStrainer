@@ -4,4 +4,4 @@ verifier = EnhancedMultiSourceVerifier()
 
 # Example usage (replace with actual logic as needed)
 def verify_citations(citations):
-    return [verifier.verify_citation(c) for c in citations] 
+    return [verifier.verify_citation_unified_workflow(c) for c in citations] 

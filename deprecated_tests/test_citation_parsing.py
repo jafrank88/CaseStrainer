@@ -10,7 +10,7 @@ import os
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from citation_utils import extract_citations_from_text
+from src.citation_utils import extract_citations_from_text
 from citation_verification import CitationVerifier
 
 def test_regional_reporter_parsing():

@@ -1,12 +1,83 @@
-node_modules
-npm-debug.log
-.DS_Store
-.git
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Build outputs
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# Git
+.git/
 .gitignore
-.vscode
-.env.local
-.env.*.local
+.gitattributes
+
+# Documentation
 *.md
+README*
+CHANGELOG*
+LICENSE*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+cypress/
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Logs
 *.log
-.cache
-dist
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Lock files
+package-lock.json
+yarn.lock
+
+# Archive files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Keep only essential files
+!package.json
+!vite.config.js
+!vite.config.ts
+!src/
+!public/
+!index.html

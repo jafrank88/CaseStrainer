@@ -195,38 +195,19 @@ def setup_secure_upload_directory():
 
 # Add Flask after_request handler to log all JSON responses
 def log_json_responses(response):
-    print("DEBUG: log_json_responses called")  # DEBUG PRINT
+    """Log JSON responses with minimal verbosity"""
     try:
         # Only log JSON responses
         if response.content_type == 'application/json':
-            # Get the response data
             response_data = response.get_data(as_text=True)
             
-            # Try to parse and pretty-print the JSON for better logging
-            try:
-                import json
-                parsed_data = json.loads(response_data)
-                formatted_json = json.dumps(parsed_data, indent=2, ensure_ascii=False)
-                
-                # Log the response with context
-                logger.info("=" * 80)
-                logger.info("JSON RESPONSE BEING SENT TO FRONTEND")
-                logger.info("=" * 80)
-                logger.info(f"Endpoint: {request.endpoint}")
-                logger.info(f"Method: {request.method}")
-                logger.info(f"URL: {request.url}")
-                logger.info(f"Status Code: {response.status_code}")
-                logger.info(f"Content-Type: {response.content_type}")
-                logger.info(f"Response Size: {len(response_data)} characters")
-                logger.info("-" * 80)
-                logger.info("RESPONSE BODY:")
-                logger.info(formatted_json)
-                logger.info("=" * 80)
-                
-            except json.JSONDecodeError:
-                # If JSON parsing fails, log the raw response
-                logger.warning("Failed to parse JSON response, logging raw data:")
-                logger.info(f"Raw response: {response_data}")
+            # Limit response data to 200 characters for logging
+            truncated_data = response_data[:200] + "..." if len(response_data) > 200 else response_data
+            
+            # Log minimal information
+            logger.info(f"[RESPONSE] {request.method} {request.endpoint} -> {response.status_code} ({len(response_data)} chars)")
+            if len(response_data) > 200:
+                logger.info(f"[RESPONSE] Body (truncated): {truncated_data}")
                 
         return response
         
@@ -248,8 +229,8 @@ def create_app():
     # Configure the Flask application
     app = Flask(
         __name__,
-        static_folder=str(Path(project_root) / "casestrainer-vue-new" / "dist"),
-        template_folder=str(Path(project_root) / "casestrainer-vue-new" / "dist"),
+        static_folder=str(Path(project_root) / "static"),
+        template_folder=str(Path(project_root) / "static"),
         static_url_path="/casestrainer"
     )
 
@@ -286,7 +267,7 @@ def create_app():
     @app.route('/casestrainer/', defaults={'path': ''})
     @app.route('/casestrainer/<path:path>')
     def serve_vue_app(path):
-        vue_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'casestrainer-vue-new', 'dist'))
+        vue_dist_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
         
         # Security: Prevent directory traversal attacks
         if '..' in path or path.startswith('/'):
@@ -404,7 +385,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default=os.getenv("HOST", "0.0.0.0"), help="Host to bind to")
     parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "5000")), help="Port to run the server on")
     parser.add_argument("--debug", action="store_true", default=os.getenv("FLASK_DEBUG", "").lower() == "true", help="Enable debug mode")
-    parser.add_argument("--use-waitress", action="store_true", default=True, help="Use Waitress server")
+    parser.add_argument("--use-waitress", action="store_true", default=False, help="Use Waitress server")
     args = parser.parse_args()
 
     # Log startup information

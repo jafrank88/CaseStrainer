@@ -1,0 +1,4 @@
+2025-06-30 18:54:43,230 - __main__ - INFO - Starting CaseStrainer application...
+2025-06-30 18:54:43,230 - __main__ - INFO - Python version: 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]
+2025-06-30 18:54:43,231 - __main__ - INFO - Current working directory: D:\dev\casestrainer
+2025-06-30 18:54:43,232 - __main__ - INFO - Python path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'D:\\dev\\casestrainer\\.venv', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\src', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\win32', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\win32\\lib', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\Pythonwin']

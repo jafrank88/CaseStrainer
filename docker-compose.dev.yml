@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  # Data Layer
+  redis:
+    image: redis:7-alpine
+    container_name: casestrainer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Application Layer
+  backend:
+    build: .
+    container_name: casestrainer-backend
+    command: python src/app_final_vue.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://casestrainer-redis:6379/0
+      - FLASK_ENV=development
+      - CASTRAINER_ENV=development
+      - PYTHONPATH=/app
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  rqworker:
+    build: .
+    container_name: casestrainer-rqworker
+    command: python src/rq_worker.py worker casestrainer
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://casestrainer-redis:6379/0
+      - CASTRAINER_ENV=development
+      - PYTHONPATH=/app
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Layer (Development only)
+  frontend-dev:
+    build: 
+      context: ./casestrainer-vue-new
+      dockerfile: Dockerfile.dev
+    container_name: casestrainer-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./casestrainer-vue-new:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge 

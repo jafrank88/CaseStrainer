@@ -2,7 +2,8 @@
 let state = {
     isProcessing: false,
     settings: {
-        apiEndpoint: 'http://localhost:5000/api/analyze'
+        // Canonical endpoint for both dev and production (proxied by Nginx)
+        apiEndpoint: '/casestrainer/api/analyze'
     }
 };
 

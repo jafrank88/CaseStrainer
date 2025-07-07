@@ -185,7 +185,7 @@ def process_brief(brief_url, processed_briefs, multi_source_verifier):
                 continue
 
             # Verify the citation
-            result = multi_source_verifier.verify_citation(citation_text, use_database=True)
+            result = multi_source_verifier.verify_citation_unified_workflow(citation_text, use_database=True)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):

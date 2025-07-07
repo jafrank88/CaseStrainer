@@ -19,29 +19,65 @@ This comprehensive guide provides instructions for deploying CaseStrainer to pro
 CaseStrainer is currently deployed with the following architecture:
 
 1. **External Access**: https://wolf.law.uw.edu/casestrainer/
-2. **Nginx Proxy**: Docker container (`docker-nginx-1`) handling external requests
-3. **Application Server**: Python Flask application running on port 5000
+2. **Docker Nginx Proxy**: Container handling SSL termination and routing
+3. **Frontend Container**: Vue.js application served by Nginx
+4. **Backend Container**: Python Flask application with Waitress WSGI server
+5. **Redis Container**: Background task processing and caching
+6. **RQ Worker Containers**: Multiple workers for async citation processing
 
-## Docker Nginx Configuration
+## Docker Production Setup
 
-The application is accessible through a Docker Nginx container that handles SSL termination and proxies requests to the application server.
+The application uses Docker Compose for production deployment with the following services:
 
-- **Container Name**: `docker-nginx-1`
-- **Ports**: 80 (HTTP) and 443 (HTTPS)
-- **Configuration File**: `/etc/nginx/conf.d/casestrainer.conf`
-- **Proxy Target**: Forwards requests from `/casestrainer/` to `http://10.158.120.151:5000/`
+- **Nginx**: SSL termination and reverse proxy (ports 80/443)
+- **Frontend**: Vue.js application (port 8080)
+- **Backend**: Flask API server (port 5001)
+- **Redis**: Task queue and caching (port 6380)
+- **RQ Workers**: Background task processing (3 instances)
 
-## Application Server
+## Quick Start (Recommended)
 
-The CaseStrainer application runs as a Python Flask application using Cheroot as the WSGI server.
+### Using the Launcher Script
+
+```powershell
+# Start production deployment
+.\launcher.ps1 -Environment DockerProduction
+```
+
+This will:
+- Build the Vue.js frontend
+- Start all Docker containers
+- Configure SSL and routing
+- Make the application available at https://wolf.law.uw.edu/casestrainer/
+
+### Manual Docker Deployment
+
+```powershell
+# Build and start all services
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Check service status
+docker-compose -f docker-compose.prod.yml ps
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+```
+
+## Legacy Windows Native Setup
+
+For non-Docker deployments, the application can run directly on Windows:
+
+### Application Server
+
+The CaseStrainer application runs as a Python Flask application using Waitress as the WSGI server.
 
 - **Host**: 0.0.0.0 (IMPORTANT: Must listen on all interfaces, not just localhost)
 - **Port**: 5000
 - **Startup Command**: `python src/app_final_vue.py --host 0.0.0.0 --port 5000`
 
-## Important Notes About Current Setup
+### Important Notes About Legacy Setup
 
-1. **Port Configuration**: The application must run on port 5000 to match the Docker Nginx configuration.
+1. **Port Configuration**: The application must run on port 5000 to match the Nginx configuration.
 
 2. **Multiple Nginx Instances**: There are two Nginx installations on the system:
    - Docker Nginx container (active and handling requests)
@@ -63,8 +99,10 @@ The key dependencies include:
 - PyPDF2
 - pdfminer.six
 - requests
-- cheroot
+- waitress
 - eyecite
+- redis
+- rq
 
 ### 2. Configure API Keys
 
@@ -78,6 +116,22 @@ Create or update the `config.json` file in the project root:
 ```
 
 ## Deployment Steps
+
+### Docker Production (Recommended)
+
+1. **Start with launcher**:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction
+   ```
+
+2. **Or manual deployment**:
+   ```powershell
+   docker-compose -f docker-compose.prod.yml up -d --build
+   ```
+
+3. **Access the application**: https://wolf.law.uw.edu/casestrainer/
+
+### Legacy Windows Native
 
 1. **Stop any running Windows Nginx instances**:
    ```powershell
@@ -104,6 +158,42 @@ Create or update the `config.json` file in the project root:
 
 5. **Access the application**: https://wolf.law.uw.edu/casestrainer/
 
+## Troubleshooting
+
+### Common Issues
+
+#### 1. 404 Errors on Frontend
+- **Cause**: Frontend container not serving assets correctly
+- **Solution**: Rebuild frontend container: `docker-compose -f docker-compose.prod.yml build frontend-prod`
+
+#### 2. 500 Errors on API Calls
+- **Cause**: Redis container stopped or backend can't connect
+- **Solution**: Start Redis: `docker start casestrainer-redis-prod`
+
+#### 3. Frontend Stuck on "Waiting for backend"
+- **Cause**: Container networking issue
+- **Solution**: Rebuild frontend: `docker-compose -f docker-compose.prod.yml build frontend-prod`
+
+#### 4. Assets Not Loading (JS/CSS 404)
+- **Cause**: Nginx not routing `/assets/` requests correctly
+- **Solution**: Restart Nginx: `docker restart casestrainer-nginx-prod`
+
+### Health Checks
+
+```powershell
+# Check all containers
+docker ps
+
+# Check backend health
+curl http://localhost:5001/casestrainer/api/health
+
+# Check Redis connection
+docker exec casestrainer-redis-prod redis-cli ping
+
+# Check frontend
+curl http://localhost:8080/casestrainer/
+```
+
 ## Maintenance and Updates
 
 ### Updating the Application
@@ -113,19 +203,25 @@ Create or update the `config.json` file in the project root:
    git pull origin main
    ```
 
-2. Install any new dependencies:
-   ```bash
-   pip install -r requirements.txt
+2. Rebuild and restart Docker services:
+   ```powershell
+   docker-compose -f docker-compose.prod.yml down
+   docker-compose -f docker-compose.prod.yml up -d --build
    ```
 
-3. Restart the application following the deployment steps above.
+3. Or use the launcher:
+   ```powershell
+   .\launcher.ps1 -Environment DockerProduction
+   ```
 
 ### Monitoring
 
 Monitor the application logs for errors and performance issues:
 
-- Application logs are output to the console
-- Nginx logs can be viewed with `docker logs docker-nginx-1`
+- **Backend logs**: `docker logs casestrainer-backend-prod`
+- **Frontend logs**: `docker logs casestrainer-frontend-prod`
+- **Nginx logs**: `docker logs casestrainer-nginx-prod`
+- **Redis logs**: `docker logs casestrainer-redis-prod`
 
 ## Security Considerations
 
@@ -134,6 +230,8 @@ Monitor the application logs for errors and performance issues:
 2. **SSL/TLS**: The current setup uses SSL/TLS for secure communication. Ensure certificates are kept up to date.
 
 3. **File Uploads**: The application validates file types and implements proper error handling for file uploads.
+
+4. **Container Security**: All containers run with appropriate resource limits and health checks.
 
 ## Contact and Support
 

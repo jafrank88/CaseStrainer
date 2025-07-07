@@ -38,10 +38,12 @@ if not os.path.exists("logs"):
 
 # API endpoints
 BASE_URL = "http://127.0.0.1:5000"
-VALIDATE_ENDPOINT = f"{BASE_URL}/enhanced-validate-citation"
-CONTEXT_ENDPOINT = f"{BASE_URL}/citation-context"
-CLASSIFY_ENDPOINT = f"{BASE_URL}/classify-citation"
-SUGGEST_ENDPOINT = f"{BASE_URL}/suggest-citation-corrections"
+ANALYZE_ENDPOINT = f"{BASE_URL}/casestrainer/api/analyze"
+# Note: The following endpoints are deprecated and should not be used
+# VALIDATE_ENDPOINT = f"{BASE_URL}/enhanced-validate-citation"  # DEPRECATED
+# CONTEXT_ENDPOINT = f"{BASE_URL}/citation-context"  # DEPRECATED
+# CLASSIFY_ENDPOINT = f"{BASE_URL}/classify-citation"  # DEPRECATED
+# SUGGEST_ENDPOINT = f"{BASE_URL}/suggest-citation-corrections"  # DEPRECATED
 
 # Test data
 LANDMARK_CASES = [

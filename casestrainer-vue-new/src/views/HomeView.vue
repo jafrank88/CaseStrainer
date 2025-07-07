@@ -79,6 +79,7 @@
                 >
                   <input 
                     ref="fileInput"
+                    id="fileInput"
                     type="file" 
                     @change="onFileChange" 
                     :disabled="isAnalyzing"
@@ -89,13 +90,13 @@
                     <i class="bi bi-cloud-upload fs-1 text-muted mb-3"></i>
                     <p class="mb-2">Click to browse or drag & drop</p>
                     <p class="text-muted small">Supports: PDF, DOC, DOCX, TXT (max 50MB)</p>
-          </div>
+                  </div>
                   <div v-else class="file-info">
                     <i class="bi bi-file-earmark-text fs-3 text-primary me-3"></i>
                     <div class="file-details">
                       <strong>{{ selectedFile.name }}</strong>
                       <span class="text-muted">{{ formatFileSize(selectedFile.size) }}</span>
-        </div>
+                    </div>
                     <button 
                       v-if="!isAnalyzing"
                       @click.stop="clearFile" 
@@ -103,15 +104,15 @@
                     >
                       <i class="bi bi-x"></i>
                     </button>
-        </div>
+                  </div>
                 </div>
                 <div v-if="fileError" class="text-danger mt-2">
                   <i class="bi bi-exclamation-triangle me-1"></i>
                   {{ fileError }}
+                </div>
               </div>
             </div>
-          </div>
-          
+
             <!-- URL Upload Tab -->
             <div v-if="activeTab === 'url'" class="my-tab-pane">
               <div class="form-group mb-4">
@@ -137,32 +138,7 @@
           </div>
           
           <!-- Recent Inputs Section -->
-          <div v-if="recentInputs.length > 0" class="mb-4">
-            <label class="form-label">Recent Inputs</label>
-            <div class="recent-inputs">
-              <div 
-                v-for="(input, index) in recentInputs" 
-                :key="index"
-                class="recent-input-item"
-                @click="loadRecentInput(input)"
-              >
-                <div class="recent-input-content">
-                  <div class="recent-input-title">
-                    <i :class="getInputIcon(input.tab)" class="me-2"></i>
-                    {{ getInputTitle(input) }}
-                  </div>
-                  <div class="recent-input-preview">{{ getInputPreview(input) }}</div>
-                </div>
-                <button 
-                  @click.stop="removeRecentInput(index)"
-                  class="btn btn-sm btn-outline-secondary"
-                  title="Remove from history"
-                >
-                  <i class="bi bi-x"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+          <RecentInputs @load-input="loadRecentInput" />
           
           <!-- Analyze Button -->
           <div class="mt-5">
@@ -177,15 +153,17 @@
             </button>
           </div>
         </div>
-        </div>
       </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import api from '@/api/api';
+import { useRouter, useRoute } from 'vue-router';
+import { analyze } from '@/api/api';
+import RecentInputs from '@/components/RecentInputs.vue';
+import { useRecentInputs } from '@/composables/useRecentInputs';
 
     const router = useRouter();
 const activeTab = ref('paste');
@@ -198,16 +176,20 @@ const fileError = ref('');
 const urlError = ref('');
 
 // Recent Inputs
-const recentInputs = ref([]);
+const { addRecentInput } = useRecentInputs();
 
-// Load recent inputs from localStorage on mount
+// Load input from URL parameters (for recent input navigation)
 onMounted(() => {
-  const saved = localStorage.getItem('recentCitationInputs');
-  if (saved) {
-    try {
-      recentInputs.value = JSON.parse(saved).slice(0, 5); // Keep only last 5
-    } catch (e) {
-      console.error('Error loading recent inputs:', e);
+  const route = useRoute();
+  if (route.query.tab) {
+    activeTab.value = route.query.tab;
+    
+    if (route.query.text) {
+      textContent.value = route.query.text;
+    }
+    
+    if (route.query.url) {
+      urlContent.value = route.query.url;
     }
   }
 });
@@ -310,10 +292,10 @@ const validateInput = () => {
 const loadRecentInput = (input) => {
   activeTab.value = input.tab;
   switch (input.tab) {
-        case 'paste':
+    case 'paste':
       textContent.value = input.text || '';
-          break;
-        case 'url':
+      break;
+    case 'url':
       urlContent.value = input.url || '';
       break;
     case 'file':
@@ -322,64 +304,6 @@ const loadRecentInput = (input) => {
       break;
   }
   validateInput();
-};
-
-const removeRecentInput = (index) => {
-  recentInputs.value.splice(index, 1);
-  saveRecentInputs();
-};
-
-const saveRecentInputs = () => {
-  localStorage.setItem('recentCitationInputs', JSON.stringify(recentInputs.value));
-};
-
-const addToRecentInputs = (inputData) => {
-  // Remove duplicates
-  recentInputs.value = recentInputs.value.filter(input => 
-    !(input.tab === inputData.tab && 
-      ((input.tab === 'paste' && input.text === inputData.text) ||
-       (input.tab === 'url' && input.url === inputData.url) ||
-       (input.tab === 'file' && input.fileName === inputData.fileName)))
-  );
-  
-  // Add to beginning
-  recentInputs.value.unshift(inputData);
-  
-  // Keep only last 5
-  recentInputs.value = recentInputs.value.slice(0, 5);
-  
-  saveRecentInputs();
-};
-
-const getInputIcon = (tab) => {
-  switch (tab) {
-    case 'paste': return 'bi bi-clipboard-text';
-    case 'file': return 'bi bi-file-earmark-text';
-    case 'url': return 'bi bi-link-45deg';
-    default: return 'bi bi-question-circle';
-  }
-};
-
-const getInputTitle = (input) => {
-  switch (input.tab) {
-    case 'paste': return 'Text Input';
-    case 'file': return `File: ${input.fileName}`;
-    case 'url': return 'URL Input';
-    default: return 'Unknown Input';
-  }
-};
-
-const getInputPreview = (input) => {
-  switch (input.tab) {
-    case 'paste': 
-      return input.text ? input.text.substring(0, 60) + (input.text.length > 60 ? '...' : '') : '';
-    case 'file': 
-      return input.fileName || 'Unknown file';
-    case 'url': 
-      return input.url || '';
-    default: 
-      return '';
-  }
 };
 
 const onFileChange = (event) => {
@@ -420,7 +344,11 @@ const handleFile = (file) => {
 
 const triggerFileInput = () => {
   if (!isAnalyzing.value) {
-    document.getElementById('fileInput')?.click();
+    // Use Vue ref instead of getElementById
+    const fileInputElement = document.getElementById('fileInput');
+    if (fileInputElement) {
+      fileInputElement.click();
+    }
   }
 };
 
@@ -455,11 +383,16 @@ const analyzeContent = async () => {
       timestamp: new Date().toISOString()
     };
     
-    // Save to recent inputs
-    addToRecentInputs(inputData);
-    
-    // Save to localStorage for results page
-    localStorage.setItem('lastCitationInput', JSON.stringify(inputData));
+    // Save to recent inputs (but don't save file uploads to localStorage since they can't be restored)
+    if (activeTab.value !== 'file') {
+      addRecentInput(inputData);
+      
+      // Save to localStorage for results page (only for text and URL inputs)
+      localStorage.setItem('lastCitationInput', JSON.stringify(inputData));
+    } else {
+      // For file uploads, only save to recent inputs but not to localStorage
+      addRecentInput(inputData);
+    }
 
     let response;
     
@@ -467,7 +400,7 @@ const analyzeContent = async () => {
     switch (activeTab.value) {
       case 'paste':
         if (textContent.value.trim()) {
-          response = await api.post('/analyze', {
+          response = await analyze({
             text: textContent.value.trim(),
             type: 'text'
           });
@@ -476,7 +409,7 @@ const analyzeContent = async () => {
         
       case 'url':
         if (urlContent.value.trim()) {
-          response = await api.post('/analyze', {
+          response = await analyze({
             url: urlContent.value.trim(),
             type: 'url'
           });
@@ -487,39 +420,27 @@ const analyzeContent = async () => {
         if (selectedFile.value) {
           const formData = new FormData();
           formData.append('file', selectedFile.value);
-          response = await api.post('/analyze', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
+          formData.append('type', 'file');
+          response = await analyze(formData);
         }
-          break;
+        break;
     }
 
-    if (response && response.data) {
-      // Check if this is an async response with task_id
-      if (response.data.status === 'processing' && response.data.task_id) {
-        // Navigate to enhanced validator with task_id for polling
-        router.push({ 
-          path: '/enhanced-validator', 
-          query: { 
-            tab: activeTab.value,
-            task_id: response.data.task_id,
-            ...(activeTab.value === 'paste' && textContent.value.trim() ? { text: textContent.value.trim() } : {}),
-            ...(activeTab.value === 'url' && urlContent.value.trim() ? { url: urlContent.value.trim() } : {})
-          }
-        });
-      } else {
-        // Immediate response - navigate with results
-          router.push({ 
-            path: '/enhanced-validator', 
-            query: { 
-            tab: activeTab.value,
-            ...(activeTab.value === 'paste' && textContent.value.trim() ? { text: textContent.value.trim() } : {}),
-            ...(activeTab.value === 'url' && urlContent.value.trim() ? { url: urlContent.value.trim() } : {})
-          }
-        });
-      }
+    if (response) {
+      // The analyze function handles both sync and async responses
+      // If it's an async response, it will have already polled for results
+      // So we can always navigate to the results page with the results
+      router.push({ 
+        path: '/enhanced-validator', 
+        query: { 
+          tab: activeTab.value,
+          ...(activeTab.value === 'paste' && textContent.value.trim() ? { text: textContent.value.trim() } : {}),
+          ...(activeTab.value === 'url' && urlContent.value.trim() ? { url: urlContent.value.trim() } : {})
+        },
+        state: { 
+          results: response 
+        }
+      });
     }
   } catch (error) {
     console.error('Analysis error:', error);
@@ -777,5 +698,45 @@ const analyzeContent = async () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.processing-content {
+  text-align: center;
+}
+
+.progress-container {
+  margin-top: 1rem;
+}
+
+.progress {
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #1976d2;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 </style>

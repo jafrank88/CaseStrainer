@@ -45,6 +45,7 @@
         >
           <input 
             ref="fileInput"
+            id="fileInput"
             type="file" 
             @change="onFileChange" 
             :disabled="isAnalyzing"
@@ -149,6 +150,9 @@
       </div>
     </div>
 
+    <!-- Recent Inputs Section -->
+    <RecentInputs @load-input="loadRecentInput" />
+    
     <!-- Input Area for Quick Citation and Text -->
     <div class="input-area-bottom" v-if="inputMode === 'text' || inputMode === 'quick'">
       <!-- Text Input -->
@@ -197,6 +201,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import RecentInputs from './RecentInputs.vue';
 
 const props = defineProps({
   isAnalyzing: { type: Boolean, default: false }
@@ -415,11 +420,38 @@ function emitAnalyze() {
   } else if (inputMode.value === 'url') {
     emit('analyze', { url: url.value, type: 'url' });
   } else if (inputMode.value === 'file') {
-    emit('analyze', { file: file.value, type: 'file' });
+    // Always send FormData with 'type' and optional 'options'
+    const formData = new FormData();
+    formData.append('file', file.value);
+    formData.append('type', 'file');
+    // If you have options, add them here (example: analysis options)
+    // formData.append('options', JSON.stringify(options));
+    emit('analyze', formData);
   } else if (inputMode.value === 'quick') {
     emit('analyze', { text: quickCitation.value.trim(), type: 'text', quick: true });
     quickCitation.value = '';
   }
+}
+
+function loadRecentInput(input) {
+  // Update the input mode and values based on the recent input
+  inputMode.value = input.tab;
+  
+  switch (input.tab) {
+    case 'text':
+      text.value = input.text || '';
+      break;
+    case 'url':
+      url.value = input.url || '';
+      break;
+    case 'file':
+      // For files, we can't restore the actual file, but we can show a message
+      console.log('File input selected:', input.fileName);
+      break;
+  }
+  
+  // Trigger validation
+  validateCurrentInput();
 }
 
 function formatFileSize(bytes) {
