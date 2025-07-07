@@ -3320,7 +3320,7 @@ class EnhancedMultiSourceVerifier:
                 try:
                     self.logger.info(f"[DEBUG] _optimized_web_search: Trying {method_name} for '{citation}'")
                     result = method_func(citation)
-                    if result.get('verified'):
+                    if result.get('verified') == 'true':
                         result['verification_method'] = method_name
                         self.logger.info(f"[DEBUG] _optimized_web_search: {method_name} succeeded for '{citation}'")
                         return result
