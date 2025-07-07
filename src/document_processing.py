@@ -619,11 +619,16 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
     # Initialize verifier
     verifier = EnhancedMultiSourceVerifier()
     
-    # Step 1: Verify every citation individually
+    # Step 1: Verify every citation individually (skip combined citations)
     verified_citations = []
     for citation_data in citations:
         citation_text = citation_data.get('citation', citation_data.get('citation_text', ''))
         if not citation_text:
+            continue
+            
+        # Skip combined citations (they have is_parallel_group=True)
+        if citation_data.get('is_parallel_group', False):
+            logger.info(f"[VERIFY] Skipping combined citation for verification: {citation_text}")
             continue
             
         # Get extracted case name and date from the citation data
@@ -680,6 +685,29 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
                     citation['verified'] = True  # Also set verified to true for UI consistency
                     citation['source'] = 'verified_by_parallel'
                     logger.info(f"[VERIFY] Citation '{citation.get('citation')}' marked as verified_by_parallel")
+    
+    # Step 3: Add back combined citations for display purposes
+    for citation_data in citations:
+        if citation_data.get('is_parallel_group', False):
+            # Find the components of this combined citation
+            group_id = citation_data.get('parallel_group_id')
+            if group_id is not None:
+                # Check if any component is verified
+                component_verified = any(
+                    citation.get('verified', False) 
+                    for citation in verified_citations 
+                    if citation.get('parallel_group_id') == group_id
+                )
+                
+                # Create combined citation result
+                combined_result = {
+                    **citation_data,
+                    'verified': component_verified,
+                    'source': 'combined_display',
+                    'verified_by_parallel': component_verified,
+                    'context': citation_data.get('context', text)
+                }
+                verified_citations.append(combined_result)
     
     logger.info(f"[VERIFY] Completed verification with fallback logic. {len(verified_citations)} citations processed.")
     return verified_citations
