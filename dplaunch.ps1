@@ -244,9 +244,13 @@ function Start-DockerProduction {
             
             # Clear npm cache
             Write-Host "Clearing npm cache..." -ForegroundColor Yellow
-            $cacheProcess = Start-Process -FilePath "npm" -ArgumentList "cache", "clean", "--force" -Wait -NoNewWindow -PassThru
-            if ($cacheProcess.ExitCode -ne 0) {
-                Write-Warning "Failed to clear npm cache, continuing anyway..."
+            try {
+                $cacheProcess = Start-Process -FilePath "npm" -ArgumentList "cache", "clean", "--force" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                if ($cacheProcess.ExitCode -ne 0) {
+                    Write-Warning "Failed to clear npm cache, continuing anyway..."
+                }
+            } catch {
+                Write-Warning "Could not clear npm cache: $($_.Exception.Message). Continuing anyway..."
             }
             
             Write-Host "Running npm install (this may take a few minutes)..." -ForegroundColor Yellow
@@ -254,19 +258,27 @@ function Start-DockerProduction {
             Write-Host "  cd casestrainer-vue-new && npm install --verbose" -ForegroundColor Gray
             
             # Run npm install with timeout
-            $installProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru
-            if ($installProcess.ExitCode -ne 0) {
-                Write-Host "ERROR npm install failed. Trying with verbose output..." -ForegroundColor Red
-                $verboseProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--verbose" -Wait -NoNewWindow -PassThru
-                if ($verboseProcess.ExitCode -ne 0) {
-                    throw "npm install failed with exit code $($verboseProcess.ExitCode). Check your internet connection and npm configuration."
+            try {
+                $installProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                if ($installProcess.ExitCode -ne 0) {
+                    Write-Host "ERROR npm install failed. Trying with verbose output..." -ForegroundColor Red
+                    $verboseProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--verbose" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                    if ($verboseProcess.ExitCode -ne 0) {
+                        throw "npm install failed with exit code $($verboseProcess.ExitCode). Check your internet connection and npm configuration."
+                    }
                 }
+            } catch {
+                throw "npm install failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
             }
             
             Write-Host "Running npm build..." -ForegroundColor Yellow
-            $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru
-            if ($buildProcess.ExitCode -ne 0) {
-                throw "npm build failed with exit code $($buildProcess.ExitCode)"
+            try {
+                $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                if ($buildProcess.ExitCode -ne 0) {
+                    throw "npm build failed with exit code $($buildProcess.ExitCode)"
+                }
+            } catch {
+                throw "npm build failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
             }
             
             Write-Host "OK Vue frontend built successfully" -ForegroundColor Green
@@ -298,7 +310,7 @@ function Start-DockerProduction {
                     # Start auto-restart monitoring if enabled
                     if ($script:AutoRestartEnabled) {
                         Start-ServiceMonitoring
-                        Write-Host "`n🔄 Auto-restart monitoring enabled" -ForegroundColor Magenta
+                        Write-Host "`nAuto-restart monitoring enabled" -ForegroundColor Magenta
                     }
                     
                     # Open browser
