@@ -317,7 +317,8 @@ class ComplexCitationIntegrator:
         # Process each complex citation
         for complex_citation in complex_citations:
             logger.info(f"[process_text_with_complex_citations_original] Processing complex citation: {complex_citation.case_name}")
-            
+            primary_result = None
+            parallel_results = []
             # Verify the primary citation
             if complex_citation.primary_citation:
                 try:
@@ -325,7 +326,6 @@ class ComplexCitationIntegrator:
                         complex_citation.primary_citation,
                         extracted_case_name=complex_citation.case_name
                     )
-                    
                     # Create enhanced result with parallel citations
                     enhanced_result = primary_result.copy()
                     enhanced_result['is_complex_citation'] = True
@@ -336,43 +336,11 @@ class ComplexCitationIntegrator:
                     enhanced_result['publication_status'] = complex_citation.publication_status
                     enhanced_result['year'] = complex_citation.year
                     enhanced_result['context'] = context if context is not None else text
-                    
                     results.append(enhanced_result)
-                    
-                    # If there are parallel citations, verify them too
-                    for parallel_citation in complex_citation.parallel_citations:
-                        try:
-                            parallel_result = verifier.verify_citation_unified_workflow(
-                                parallel_citation,
-                                extracted_case_name=complex_citation.case_name
-                            )
-                            
-                            # Mark as parallel citation
-                            parallel_result['is_parallel_citation'] = True
-                            parallel_result['primary_citation'] = complex_citation.primary_citation
-                            parallel_result['is_complex_citation'] = True
-                            parallel_result['context'] = context if context is not None else text
-                            
-                            results.append(parallel_result)
-                            
-                        except Exception as e:
-                            logger.error(f"Error verifying parallel citation '{parallel_citation}': {e}")
-                            # Add unverified parallel citation
-                            results.append({
-                                'citation': parallel_citation,
-                                'verified': 'false',
-                                'case_name': complex_citation.case_name,
-                                'is_parallel_citation': True,
-                                'primary_citation': complex_citation.primary_citation,
-                                'is_complex_citation': True,
-                                'context': context if context is not None else text,
-                                'error': str(e)
-                            })
-                    
                 except Exception as e:
                     logger.error(f"Error verifying primary citation '{complex_citation.primary_citation}': {e}")
                     # Add unverified primary citation
-                    results.append({
+                    primary_result = {
                         'citation': complex_citation.primary_citation,
                         'verified': 'false',
                         'case_name': complex_citation.case_name,
@@ -380,7 +348,49 @@ class ComplexCitationIntegrator:
                         'parallel_citations': complex_citation.parallel_citations,
                         'context': context if context is not None else text,
                         'error': str(e)
-                    })
+                    }
+                    results.append(primary_result)
+            # If there are parallel citations, verify them too
+            for parallel_citation in complex_citation.parallel_citations:
+                try:
+                    parallel_result = verifier.verify_citation_unified_workflow(
+                        parallel_citation,
+                        extracted_case_name=complex_citation.case_name
+                    )
+                    # Mark as parallel citation
+                    parallel_result['is_parallel_citation'] = True
+                    parallel_result['primary_citation'] = complex_citation.primary_citation
+                    parallel_result['is_complex_citation'] = True
+                    parallel_result['context'] = context if context is not None else text
+                    results.append(parallel_result)
+                    parallel_results.append(parallel_result)
+                except Exception as e:
+                    logger.error(f"Error verifying parallel citation '{parallel_citation}': {e}")
+                    # Add unverified parallel citation
+                    unverified_parallel = {
+                        'citation': parallel_citation,
+                        'verified': 'false',
+                        'case_name': complex_citation.case_name,
+                        'is_parallel_citation': True,
+                        'primary_citation': complex_citation.primary_citation,
+                        'is_complex_citation': True,
+                        'context': context if context is not None else text,
+                        'error': str(e)
+                    }
+                    results.append(unverified_parallel)
+                    parallel_results.append(unverified_parallel)
+            # --- Fallback logic: if primary is not verified, but any parallel is, mark as verified_by_parallel ---
+            if primary_result and primary_result.get('verified') != 'true':
+                for pr in parallel_results:
+                    if pr.get('verified') == 'true':
+                        # Find the enhanced_result in results and update it
+                        for r in results:
+                            if r.get('citation') == complex_citation.primary_citation:
+                                r['verified'] = 'true_by_parallel'
+                                r['verified_by_parallel'] = True
+                                r['parallel_verified'] = pr.get('citation')
+                                r['parallel_verified_result'] = pr
+                        break
         
         # If no complex citations found, fall back to basic extraction
         if not complex_citations:
