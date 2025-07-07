@@ -7,7 +7,7 @@ import os
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 import requests
 from urllib.parse import urlparse
 import re
@@ -412,45 +412,8 @@ def process_document(
             else:
                 logger.info(f"[DEBUG] All target citations found: {found_targets}")
             
-            # Verify citations with enhanced logic
-            verifier = EnhancedMultiSourceVerifier()
-            verified_citations = []
-            
-            for citation_data in extracted_citations:
-                citation_text = citation_data.get('citation', citation_data.get('citation_text', ''))
-                if not citation_text:
-                    continue
-                    
-                # Get extracted case name and date from the citation data
-                extracted_case_name = citation_data.get('case_name', '')
-                extracted_date = citation_data.get('date', '')
-                
-                # Verify citation with extracted information
-                verification_result = verifier.verify_citation_unified_workflow(
-                    citation_text,
-                    extracted_case_name=extracted_case_name,
-                    extracted_date=extracted_date
-                )
-                
-                # Always include the citation, even if verification fails
-                if not verification_result.get('verified'):
-                    # If verification failed, still include the original citation data
-                    verification_result = {
-                        'verified': False,
-                        'citation': citation_text,
-                        'case_name': citation_data.get('case_name', 'N/A'),
-                        'source': 'extraction_only',
-                        'error': verification_result.get('error', 'Verification failed'),
-                        'extraction_confidence': citation_data.get('confidence', 'medium'),
-                        'extraction_method': citation_data.get('method', 'regex')
-                    }
-                
-                # Add context and other metadata
-                verification_result['context'] = citation_data.get('context', text)
-                verification_result['extracted_case_name'] = extracted_case_name
-                verification_result['extracted_date'] = extracted_date
-                
-                verified_citations.append(verification_result)
+            # Use the new simplified verification approach with fallback logic
+            verified_citations = verify_citations_with_fallback(extracted_citations, text)
             
             # Convert to the expected format
             result = {
@@ -631,3 +594,92 @@ def extract_and_verify_citations(text, use_enhanced=True, logger=None):
     logger.info(f"✅ [ANALYZE] Returning response with {len(citations)} citations")
     
     return citations
+
+
+def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dict]:
+    """
+    Verify all citations individually, then apply fallback logic for parallel citations.
+    
+    This simplified approach:
+    1. Verifies every citation individually 
+    2. Groups citations by parallel_group_id for fallback logic
+    3. If a citation fails but one of its parallels succeeds, marks it as verified_by_parallel
+    
+    Args:
+        citations: List of citation dictionaries from extraction
+        text: Original text for context
+        
+    Returns:
+        List of verified citations with fallback logic applied
+    """
+    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    
+    logger.info(f"[VERIFY] Starting verification of {len(citations)} citations")
+    
+    # Initialize verifier
+    verifier = EnhancedMultiSourceVerifier()
+    
+    # Step 1: Verify every citation individually
+    verified_citations = []
+    for citation_data in citations:
+        citation_text = citation_data.get('citation', citation_data.get('citation_text', ''))
+        if not citation_text:
+            continue
+            
+        # Get extracted case name and date from the citation data
+        extracted_case_name = citation_data.get('case_name', '')
+        extracted_date = citation_data.get('date', '')
+        
+        # Verify citation with extracted information
+        verification_result = verifier.verify_citation_unified_workflow(
+            citation_text,
+            extracted_case_name=extracted_case_name,
+            extracted_date=extracted_date
+        )
+        
+        # Merge verification result with original citation data
+        merged_result = {
+            **citation_data,
+            'verified': verification_result.get('verified', False),
+            'url': verification_result.get('url', ''),
+            'court': verification_result.get('court', ''),
+            'docket_number': verification_result.get('docket_number', ''),
+            'canonical_date': verification_result.get('canonical_date', ''),
+            'source': verification_result.get('source', 'Unknown'),
+            'confidence': verification_result.get('confidence', 0.0),
+            'error': verification_result.get('error', ''),
+            'canonical_name': verification_result.get('canonical_name', ''),
+            'extracted_case_name': extracted_case_name,
+            'extracted_date': extracted_date,
+            'context': citation_data.get('context', text),
+            'verified_by_parallel': False  # Will be set in step 2
+        }
+        
+        verified_citations.append(merged_result)
+    
+    # Step 2: Apply fallback logic for parallel citations
+    # Group citations by parallel_group_id
+    parallel_groups = {}
+    for citation in verified_citations:
+        group_id = citation.get('parallel_group_id')
+        if group_id is not None:
+            if group_id not in parallel_groups:
+                parallel_groups[group_id] = []
+            parallel_groups[group_id].append(citation)
+    
+    # Apply fallback logic: if any citation in a group is verified, mark unverified ones as verified_by_parallel
+    for group_id, group_citations in parallel_groups.items():
+        # Check if any citation in the group is verified
+        any_verified = any(citation.get('verified', False) for citation in group_citations)
+        
+        if any_verified:
+            # Mark unverified citations in the group as verified_by_parallel
+            for citation in group_citations:
+                if not citation.get('verified', False):
+                    citation['verified_by_parallel'] = True
+                    citation['verified'] = True  # Also set verified to true for UI consistency
+                    citation['source'] = 'verified_by_parallel'
+                    logger.info(f"[VERIFY] Citation '{citation.get('citation')}' marked as verified_by_parallel")
+    
+    logger.info(f"[VERIFY] Completed verification with fallback logic. {len(verified_citations)} citations processed.")
+    return verified_citations

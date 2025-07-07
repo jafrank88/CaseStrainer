@@ -413,7 +413,10 @@ class CitationExtractor:
         return unique_case_names
 
     def _group_parallel_citations(self, citation_objs, text):
-        """Group citations that are part of the same parallel citation, but also return each as a separate entry for verification."""
+        """
+        Group citations that are part of the same parallel citation for display purposes.
+        Each citation will be verified individually, but they're grouped for UI display.
+        """
         if not citation_objs:
             return citation_objs
         
@@ -444,11 +447,13 @@ class CitationExtractor:
                 break
             
             if len(group) > 1:
-                # Add each component as a separate entry for verification
+                # Add each component as a separate entry for individual verification
                 for obj in group:
                     component_obj = obj.copy()
                     component_obj['is_parallel_component'] = True
+                    component_obj['parallel_group_id'] = len(grouped)  # Add group ID for clustering
                     grouped.append(component_obj)
+                
                 # Also add the combined group for context/cluster display
                 combined_citation = ', '.join([obj['citation'] for obj in group])
                 combined_obj = {
@@ -458,10 +463,14 @@ class CitationExtractor:
                     'pattern': 'parallel',
                     'is_parallel': True,
                     'is_parallel_group': True,
+                    'parallel_group_id': len(grouped) - len(group),  # Reference to first component
                     'components': group
                 }
                 grouped.append(combined_obj)
             else:
+                # Single citation, not part of a parallel group
+                current['is_parallel_component'] = False
+                current['parallel_group_id'] = None
                 grouped.append(current)
             
             i = j
