@@ -195,7 +195,8 @@
                   <!-- Parallel Citations as tags/sub-list -->
                   <div v-if="cluster.parallels && cluster.parallels.length > 0" class="parallel-citations-row">
                     <span class="parallel-citations-label">Parallel Citations:</span>
-                    <span v-for="(parallel, idx) in cluster.parallels" :key="parallel.citation" class="parallel-citation-tag">
+                    <span v-for="(parallel, idx) in cluster.parallels" :key="parallel.citation" 
+                          :class="['parallel-citation-tag', { 'verified-bold': parallel.verified }]">
                       {{ parallel.citation }}
                     </span>
                   </div>
@@ -264,7 +265,8 @@
                 <div v-if="cluster.parallels.length > 0" class="detail-section">
                   <h4 class="section-title">Linked Citations</h4>
                   <div class="linked-citations">
-                    <span v-for="(linked, idx) in [cluster.primary, ...cluster.parallels]" :key="linked.citation" class="linked-citation-tag">
+                    <span v-for="(linked, idx) in [cluster.primary, ...cluster.parallels]" :key="linked.citation" 
+                          :class="['linked-citation-tag', { 'verified-bold': linked.verified }]">
                       {{ linked.citation }}
                     </span>
                   </div>
@@ -289,7 +291,8 @@
                     <div class="detail-row" v-if="cluster.primary.complex_metadata.parallel_citations && cluster.primary.complex_metadata.parallel_citations.length > 0">
                       <span class="detail-label">Parallel Citations:</span> 
                       <div class="detail-value">
-                        <span v-for="(parallel, index) in cluster.primary.complex_metadata.parallel_citations" :key="index" class="parallel-citation-tag">
+                        <span v-for="(parallel, index) in cluster.primary.complex_metadata.parallel_citations" :key="index" 
+                              :class="['parallel-citation-tag', { 'verified-bold': isParallelVerified(parallel, cluster.parallels) }]">
                           {{ parallel }}
                         </span>
                       </div>
@@ -1008,6 +1011,17 @@ const hideScoreTooltip = () => {
 
 const toggleScoreTooltip = (group) => {
   scoreTooltipGroup.value = scoreTooltipGroup.value === group ? null : group;
+};
+
+const isParallelVerified = (parallel, clusterParallels) => {
+  // Check if the parallel citation is in the current cluster's parallels
+  const parallelObj = clusterParallels.find(p => p.citation === parallel);
+  // If it's in the cluster, check if it's verified
+  if (parallelObj) {
+    return parallelObj.verified;
+  }
+  // If not in the cluster, it's not verified
+  return false;
 };
 </script>
 
@@ -1752,6 +1766,18 @@ const toggleScoreTooltip = (group) => {
   color: #1565c0;
 }
 
+.parallel-citation-tag.verified-bold {
+  font-weight: bold;
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}
+
+.parallel-citation-tag.verified-bold:hover {
+  background: #c3e6cb;
+  color: #0f5132;
+}
+
 .complex-citation-info .detail-row {
   margin-bottom: 8px;
 }
@@ -1887,5 +1913,10 @@ const toggleScoreTooltip = (group) => {
 .parallel-citation-text {
   font-family: monospace;
   color: #495057;
+}
+
+.parallel-citation-text.verified-bold {
+  font-weight: bold;
+  color: #155724;
 }
 </style>
