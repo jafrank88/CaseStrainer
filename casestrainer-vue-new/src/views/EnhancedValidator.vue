@@ -656,16 +656,13 @@ export default {
       try {
         console.log('handleResults called with:', responseData);
         
-        // Check what fields are available in the response
-        console.log('Response fields:', Object.keys(responseData));
-        console.log('validation_results:', responseData.validation_results);
-        console.log('citations:', responseData.citations);
-        
-        const rawCitations = (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0)
-          ? responseData.validation_results
-          : (responseData.citations || []);
-        
-        console.log('Raw citations to normalize:', rawCitations);
+        // --- FIX: Always use citations or validation_results ---
+        let rawCitations = [];
+        if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
+          rawCitations = responseData.citations;
+        } else if (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0) {
+          rawCitations = responseData.validation_results;
+        }
         
         results.value = {
           ...responseData,
@@ -821,15 +818,20 @@ export default {
       if (router.currentRoute.value.state && router.currentRoute.value.state.results) {
         console.log('Found results in router state:', router.currentRoute.value.state.results);
         const responseData = router.currentRoute.value.state.results;
-        
-        // Handle the results directly
-        if (responseData.citations && responseData.citations.length > 0) {
+        // --- FIX: Always use citations or validation_results ---
+        let rawCitations = [];
+        if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
+          rawCitations = responseData.citations;
+        } else if (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0) {
+          rawCitations = responseData.validation_results;
+        }
+        if (rawCitations.length > 0) {
           results.value = {
-            citations: normalizeCitations(responseData.citations),
-            metadata: responseData.metadata || {},
-            total_citations: responseData.citations.length,
-            verified_count: responseData.citations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
-            unverified_count: responseData.citations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
+            ...responseData,
+            citations: normalizeCitations(rawCitations),
+            total_citations: rawCitations.length,
+            verified_count: rawCitations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
+            unverified_count: rawCitations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
           };
           showToast('Citation analysis completed successfully!', 'success');
         } else {
