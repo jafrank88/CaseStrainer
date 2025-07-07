@@ -246,10 +246,29 @@ function Start-DockerProduction {
             Write-Host "Clearing npm cache..." -ForegroundColor Yellow
             try {
                 # Try to find npm in PATH or common locations
-                $npmPath = Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-                if (-not $npmPath) {
+                $npmCommand = Get-Command npm -ErrorAction SilentlyContinue
+                if ($npmCommand) {
+                    $npmSource = $npmCommand.Source
+                    # If it's a .ps1 file, look for .cmd or .exe in the same directory
+                    if ($npmSource -like "*.ps1") {
+                        $npmDir = Split-Path $npmSource -Parent
+                        $npmCmd = Join-Path $npmDir "npm.cmd"
+                        $npmExe = Join-Path $npmDir "npm.exe"
+                        if (Test-Path $npmCmd) {
+                            $npmPath = $npmCmd
+                        } elseif (Test-Path $npmExe) {
+                            $npmPath = $npmExe
+                        } else {
+                            $npmPath = $npmSource  # Fallback to .ps1 if no .cmd/.exe found
+                        }
+                    } else {
+                        $npmPath = $npmSource
+                    }
+                } else {
                     # Try common npm installation paths
                     $possiblePaths = @(
+                        "D:\Node\npm.cmd",
+                        "D:\Node\npm.exe",
                         "$env:APPDATA\npm\npm.cmd",
                         "$env:APPDATA\npm\npm.exe",
                         "$env:ProgramFiles\nodejs\npm.cmd",
@@ -285,9 +304,28 @@ function Start-DockerProduction {
             try {
                 # Use the same npm path detection as cache clearing
                 if (-not $npmPath) {
-                    $npmPath = Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
-                    if (-not $npmPath) {
+                    $npmCommand = Get-Command npm -ErrorAction SilentlyContinue
+                    if ($npmCommand) {
+                        $npmSource = $npmCommand.Source
+                        # If it's a .ps1 file, look for .cmd or .exe in the same directory
+                        if ($npmSource -like "*.ps1") {
+                            $npmDir = Split-Path $npmSource -Parent
+                            $npmCmd = Join-Path $npmDir "npm.cmd"
+                            $npmExe = Join-Path $npmDir "npm.exe"
+                            if (Test-Path $npmCmd) {
+                                $npmPath = $npmCmd
+                            } elseif (Test-Path $npmExe) {
+                                $npmPath = $npmExe
+                            } else {
+                                $npmPath = $npmSource  # Fallback to .ps1 if no .cmd/.exe found
+                            }
+                        } else {
+                            $npmPath = $npmSource
+                        }
+                    } else {
                         $possiblePaths = @(
+                            "D:\Node\npm.cmd",
+                            "D:\Node\npm.exe",
                             "$env:APPDATA\npm\npm.cmd",
                             "$env:APPDATA\npm\npm.exe",
                             "$env:ProgramFiles\nodejs\npm.cmd",
