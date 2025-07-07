@@ -245,9 +245,33 @@ function Start-DockerProduction {
             # Clear npm cache
             Write-Host "Clearing npm cache..." -ForegroundColor Yellow
             try {
-                $cacheProcess = Start-Process -FilePath "npm" -ArgumentList "cache", "clean", "--force" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                if ($cacheProcess.ExitCode -ne 0) {
-                    Write-Warning "Failed to clear npm cache, continuing anyway..."
+                # Try to find npm in PATH or common locations
+                $npmPath = Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+                if (-not $npmPath) {
+                    # Try common npm installation paths
+                    $possiblePaths = @(
+                        "$env:APPDATA\npm\npm.cmd",
+                        "$env:APPDATA\npm\npm.exe",
+                        "$env:ProgramFiles\nodejs\npm.cmd",
+                        "$env:ProgramFiles\nodejs\npm.exe",
+                        "$env:ProgramFiles (x86)\nodejs\npm.cmd",
+                        "$env:ProgramFiles (x86)\nodejs\npm.exe"
+                    )
+                    foreach ($path in $possiblePaths) {
+                        if (Test-Path $path) {
+                            $npmPath = $path
+                            break
+                        }
+                    }
+                }
+                
+                if ($npmPath) {
+                    $cacheProcess = Start-Process -FilePath $npmPath -ArgumentList "cache", "clean", "--force" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                    if ($cacheProcess.ExitCode -ne 0) {
+                        Write-Warning "Failed to clear npm cache, continuing anyway..."
+                    }
+                } else {
+                    Write-Warning "Could not find npm executable, skipping cache clear..."
                 }
             } catch {
                 Write-Warning "Could not clear npm cache: $($_.Exception.Message). Continuing anyway..."
@@ -259,13 +283,38 @@ function Start-DockerProduction {
             
             # Run npm install with timeout
             try {
-                $installProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                if ($installProcess.ExitCode -ne 0) {
-                    Write-Host "ERROR npm install failed. Trying with verbose output..." -ForegroundColor Red
-                    $verboseProcess = Start-Process -FilePath "npm" -ArgumentList "install", "--verbose" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                    if ($verboseProcess.ExitCode -ne 0) {
-                        throw "npm install failed with exit code $($verboseProcess.ExitCode). Check your internet connection and npm configuration."
+                # Use the same npm path detection as cache clearing
+                if (-not $npmPath) {
+                    $npmPath = Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
+                    if (-not $npmPath) {
+                        $possiblePaths = @(
+                            "$env:APPDATA\npm\npm.cmd",
+                            "$env:APPDATA\npm\npm.exe",
+                            "$env:ProgramFiles\nodejs\npm.cmd",
+                            "$env:ProgramFiles\nodejs\npm.exe",
+                            "$env:ProgramFiles (x86)\nodejs\npm.cmd",
+                            "$env:ProgramFiles (x86)\nodejs\npm.exe"
+                        )
+                        foreach ($path in $possiblePaths) {
+                            if (Test-Path $path) {
+                                $npmPath = $path
+                                break
+                            }
+                        }
                     }
+                }
+                
+                if ($npmPath) {
+                    $installProcess = Start-Process -FilePath $npmPath -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                    if ($installProcess.ExitCode -ne 0) {
+                        Write-Host "ERROR npm install failed. Trying with verbose output..." -ForegroundColor Red
+                        $verboseProcess = Start-Process -FilePath $npmPath -ArgumentList "install", "--verbose" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                        if ($verboseProcess.ExitCode -ne 0) {
+                            throw "npm install failed with exit code $($verboseProcess.ExitCode). Check your internet connection and npm configuration."
+                        }
+                    }
+                } else {
+                    throw "Could not find npm executable. Please ensure Node.js and npm are properly installed."
                 }
             } catch {
                 throw "npm install failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
@@ -273,9 +322,13 @@ function Start-DockerProduction {
             
             Write-Host "Running npm build..." -ForegroundColor Yellow
             try {
-                $buildProcess = Start-Process -FilePath "npm" -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                if ($buildProcess.ExitCode -ne 0) {
-                    throw "npm build failed with exit code $($buildProcess.ExitCode)"
+                if ($npmPath) {
+                    $buildProcess = Start-Process -FilePath $npmPath -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                    if ($buildProcess.ExitCode -ne 0) {
+                        throw "npm build failed with exit code $($buildProcess.ExitCode)"
+                    }
+                } else {
+                    throw "Could not find npm executable. Please ensure Node.js and npm are properly installed."
                 }
             } catch {
                 throw "npm build failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
