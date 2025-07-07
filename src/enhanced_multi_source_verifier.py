@@ -1739,7 +1739,7 @@ class EnhancedMultiSourceVerifier:
                     return result
 
             return {
-                "verified": False,
+                "verified": "false",
                 "source": "Database",
                 "error": "Citation not found in database",
                 "citation": citation,
@@ -1748,7 +1748,7 @@ class EnhancedMultiSourceVerifier:
         except Exception as e:
             logger.error(f"Database lookup error for citation '{citation}': {e}")
             return {
-                "verified": False,
+                "verified": "false",
                 "source": "Database",
                 "error": f"Database error: {str(e)}",
                 "citation": citation,
@@ -1887,7 +1887,7 @@ class EnhancedMultiSourceVerifier:
         except Exception as e:
             logger.error(f"Error formatting database match: {e}")
             return {
-                "verified": False,
+                "verified": "false",
                 "source": "Database",
                 "error": f"Error processing database match: {str(e)}",
                 "original_citation": original_citation,
@@ -2032,7 +2032,7 @@ class EnhancedMultiSourceVerifier:
         except Exception as e:
             self.logger.error(f"Error in _verify_with_web_search: {e}")
             return {
-                'verified': False,
+                'verified': 'false',
                 'error': f'Web search error: {str(e)}',
                 'verification_method': 'web_search'
             }
@@ -2562,6 +2562,152 @@ class EnhancedMultiSourceVerifier:
             
         except Exception as e:
             self.logger.debug(f"DuckDuckGo search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _search_casemine(self, citation: str) -> dict:
+        """Search CaseMine for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_url = f"https://www.casemine.com/search?q={quote_plus(citation)}"
+            
+            self.logger.info(f"[CaseMine] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'CaseMine',
+                            'url': search_url,
+                            'confidence': 0.9,
+                            'method': 'casemine'
+                        }
+            
+            self.logger.info(f"[CaseMine] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in CaseMine'}
+            
+        except Exception as e:
+            self.logger.debug(f"CaseMine search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _search_casetext(self, citation: str) -> dict:
+        """Search Casetext for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_url = f"https://casetext.com/search?q={quote_plus(citation)}"
+            
+            self.logger.info(f"[Casetext] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            # Casetext may return 410 (shutdown) or other status codes
+            if response.status_code == 410:
+                self.logger.info(f"[Casetext] Service is no longer available (410 status)")
+                return {'verified': 'false', 'error': 'Casetext service is no longer available'}
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'Casetext',
+                            'url': search_url,
+                            'confidence': 0.9,
+                            'method': 'casetext'
+                        }
+            
+            self.logger.info(f"[Casetext] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in Casetext'}
+            
+        except Exception as e:
+            self.logger.debug(f"Casetext search failed for {citation}: {e}")
+            return {'verified': 'false', 'error': str(e)}
+
+    def _search_vlex(self, citation: str) -> dict:
+        """Search vLex for legal citations."""
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            from urllib.parse import quote_plus
+            
+            search_url = f"https://vlex.com/sites/search?q={quote_plus(citation)}"
+            
+            self.logger.info(f"[vLex] Searching for '{citation}' at: {search_url}")
+            
+            response = requests.get(search_url, timeout=10, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            })
+            
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Look for citation patterns in the results
+                page_text = soup.get_text()
+                
+                # Check if citation appears in the results
+                citation_clean = re.sub(r'[^\w\s\.]', '', citation)
+                patterns = [
+                    rf'\b{re.escape(citation)}\b',
+                    rf'\b{re.escape(citation_clean)}\b',
+                    rf'\b{re.escape(citation.lower())}\b',
+                    rf'\b{re.escape(citation.upper())}\b'
+                ]
+                
+                for pattern in patterns:
+                    if re.search(pattern, page_text, re.IGNORECASE):
+                        return {
+                            'verified': 'true',
+                            'source': 'vLex',
+                            'url': search_url,
+                            'confidence': 0.9,
+                            'method': 'vlex'
+                        }
+            
+            self.logger.info(f"[vLex] No match found for '{citation}'")
+            return {'verified': 'false', 'error': 'Citation not found in vLex'}
+            
+        except Exception as e:
+            self.logger.debug(f"vLex search failed for {citation}: {e}")
             return {'verified': 'false', 'error': str(e)}
 
     def _parallel_search_legal_sites(self, citation, max_workers=4):
@@ -3306,6 +3452,9 @@ class EnhancedMultiSourceVerifier:
                     ('justia', self._search_justia),
                     ('findlaw', self._search_findlaw),
                     ('leagle', self._search_leagle),
+                    ('casemine', self._search_casemine),
+                    ('casetext', self._search_casetext),
+                    ('vlex', self._search_vlex),
                     ('google_scholar', self._search_google_scholar),
                     ('bing', self._search_bing),
                     ('duckduckgo', self._search_duckduckgo)
@@ -3317,6 +3466,9 @@ class EnhancedMultiSourceVerifier:
                     ('justia', self._search_justia),
                     ('findlaw', self._search_findlaw),
                     ('leagle', self._search_leagle),
+                    ('casemine', self._search_casemine),
+                    ('casetext', self._search_casetext),
+                    ('vlex', self._search_vlex),
                     ('bing', self._search_bing),
                     ('duckduckgo', self._search_duckduckgo)
                 ])
