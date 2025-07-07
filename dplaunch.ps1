@@ -419,7 +419,7 @@ function Start-DockerProduction {
                     
                     # Open browser
                     try {
-                        Start-Process "https://localhost/casestrainer/"
+                        Start-Process "https://wolf.law.uw.edu/casestrainer/"
                     } catch {
                         Write-Host "Could not open browser automatically" -ForegroundColor Yellow
                     }
