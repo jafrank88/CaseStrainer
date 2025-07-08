@@ -34,10 +34,10 @@ sys.path.insert(0, project_dir)
 os.environ.setdefault('FLASK_ENV', 'production')
 
 # Import the application after path is set
-from app import create_app
+from src.app_final_vue import create_app
 
 # Create the application instance for WSGI servers
-application = create_app('production')
+application = create_app()
 
 if __name__ == "__main__":
     try:

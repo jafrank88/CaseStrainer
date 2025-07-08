@@ -426,7 +426,6 @@ class ComplexCitationIntegrator:
         for res in results:
             # Ensure extraction fields are always present
             res['extracted_case_name'] = res.get('extracted_case_name') or res.get('case_name') or 'N/A'
-            res['hinted_case_name'] = res.get('hinted_case_name') or 'N/A'
             res['extracted_date'] = res.get('extracted_date') or res.get('year') or 'N/A'
             # Use case_name as the cluster key to group all citations for the same case
             key = (res.get('case_name') or '').strip().lower()
@@ -473,7 +472,6 @@ class ComplexCitationIntegrator:
                             'primary_citation': main.get('citation'),
                             'case_name': main.get('case_name'),
                             'extracted_case_name': main.get('extracted_case_name', 'N/A'),
-                            'hinted_case_name': main.get('hinted_case_name', 'N/A'),
                             'extracted_date': main.get('extracted_date', 'N/A'),
                         })
             
@@ -492,6 +490,19 @@ class ComplexCitationIntegrator:
                     unique_parallels.append(parallel)
             
             main = main.copy()  # avoid mutating original
+            # Patch: ensure each parallel has 'verified' and 'true_by_parallel' fields
+            for parallel in unique_parallels:
+                # If this parallel is the one that caused the main to be 'true_by_parallel', set true_by_parallel
+                if main.get('verified') == 'true_by_parallel' and main.get('parallel_verified') == parallel.get('citation'):
+                    parallel['true_by_parallel'] = True
+                else:
+                    parallel['true_by_parallel'] = False
+                # Ensure 'verified' is present and is 'true', 'false', or 'true_by_parallel'
+                if 'verified' not in parallel:
+                    parallel['verified'] = 'false'
+                # If this parallel is itself verified, set 'true_by_parallel' to False (only for main)
+                if parallel.get('verified') == 'true':
+                    parallel['true_by_parallel'] = False
             main['parallels'] = unique_parallels
             clustered_results.append(main)
 

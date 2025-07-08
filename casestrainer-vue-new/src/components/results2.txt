@@ -1,0 +1,946 @@
+{
+    "citations": [
+        {
+            "all_citations": [
+                "200 Wash. 2d 72, 514 P.3d 643"
+            ],
+            "canonical_citation": "200 Wash. 2d 72, 514 P.3d 643",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "200 Wash. 2d 72, 514 P.3d 643",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "canonical_citation": "171 Wash. 2d 486 256 P.3d 321",
+            "canonical_date": "2011-05-12",
+            "canonical_name": "Carlsen v. Global Client Solutions, LLC",
+            "case_name": "Carlsen v. Global Client Solutions, LLC",
+            "citation": "171 Wash. 2d 486 256 P.3d 321",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Carlsen v. Global Client Solutions, LLC",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "171 Wash. 2d 486",
+                    "page": "486",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "171"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "146 Wash. 2d 1 43 P.3d 4",
+            "canonical_date": "2002-03-28",
+            "canonical_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+            "case_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+            "citation": "146 Wash. 2d 1 43 P.3d 4",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "146 Wash. 2d 1",
+                    "page": "1",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "146"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "all_citations": [
+                "38 U.S.C. \u00a7\u00a7 4301-4335"
+            ],
+            "canonical_citation": "38 U.S.C. \u00a7\u00a7 4301-4335",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "mployment Rights Act of 1994 (USERRA), 38 U.S.C. \u00a7\u00a7 4301-4335. Relevant to the certified question, Bearden alleged the city violated 38 U.S.C. \u00a7 4316(d) and 20 C.F.R. \u00a7 1002.153(a) by denying him accrued leave, including paid military leave under RCW 38.40.060, while he was absent for military service. The district court granted summary judgment to the defendants. As to the paid military leave statute, the court agreed with the city and concluded Bearden was not entitled to paid military leave during his third leave because he was not \u201cscheduled to work\u201d ",
+            "error": "Invalid citation format: Unrecognized citation format",
+            "explanation": "Invalid citation format: Unrecognized citation format",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": "Unrecognized citation format",
+                "format_type": "unknown",
+                "is_valid_format": false,
+                "is_valid_volume": false
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.1,
+            "primary_citation": "38 U.S.C. \u00a7\u00a7 4301-4335",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "38 U.S.C. \u00a7 4316"
+            ],
+            "canonical_citation": "38 U.S.C. \u00a7 4316",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "mployment Rights Act of 1994 (USERRA), 38 U.S.C. \u00a7\u00a7 4301-4335. Relevant to the certified question, Bearden alleged the city violated 38 U.S.C. \u00a7 4316(d) and 20 C.F.R. \u00a7 1002.153(a) by denying him accrued leave, including paid military leave under RCW 38.40.060, while he was absent for military service. The district court granted summary judgment to the defendants. As to the paid military leave statute, the court agreed with the city and concluded Bearden was not entitled to paid military leave during his third leave because he was not \u201cscheduled to work\u201d on any day he was on military leave during the October 2020-September 2021 military fisc",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "38 U.S.C. \u00a7 4316",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "20 C.F.R. \u00a7 1002.153"
+            ],
+            "canonical_citation": "20 C.F.R. \u00a7 1002.153",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "mployment Rights Act of 1994 (USERRA), 38 U.S.C. \u00a7\u00a7 4301-4335. Relevant to the certified question, Bearden alleged the city violated 38 U.S.C. \u00a7 4316(d) and 20 C.F.R. \u00a7 1002.153(a) by denying him accrued leave, including paid military leave under RCW 38.40.060, while he was absent for military service. The district court granted summary judgment to the defendants. As to the paid military leave statute, the court agreed with the city and concluded Bearden was not entitled to paid military leave during his third leave because he was not \u201cscheduled to work\u201d on any day he was on military leave during the October 2020-September 2021 military fiscal year. Dkt. 23 (Excerpts o",
+            "error": "Invalid citation format: Unrecognized citation format",
+            "explanation": "Invalid citation format: Unrecognized citation format",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": "Unrecognized citation format",
+                "format_type": "unknown",
+                "is_valid_format": false,
+                "is_valid_volume": false
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.1,
+            "primary_citation": "20 C.F.R. \u00a7 1002.153",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "canonical_citation": "54 Wash. App. 305 773 P.2d 421",
+            "canonical_date": "1989-05-24",
+            "canonical_name": "Washington Federation of State Employees v. State Personnel Board",
+            "case_name": "Washington Federation of State Employees v. State Personnel Board",
+            "citation": "54 Wash. App. 305 773 P.2d 421",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Washington Federation of State Employees v. State Personnel Board",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "773 P.2d 421",
+                    "page": "421",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "773"
+                },
+                {
+                    "category": 2,
+                    "citation": "54 Wash. App. 305",
+                    "page": "305",
+                    "reporter": "Wash. App.",
+                    "url": "",
+                    "volume": "54"
+                },
+                {
+                    "category": 2,
+                    "citation": "1989 Wash. App. LEXIS 148",
+                    "page": "148",
+                    "reporter": "Wash. App. LEXIS",
+                    "url": "",
+                    "volume": "1989"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1301402/washington-federation-of-state-employees-v-state-personnel-board/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "88 Wash. 2d 221 559 P.2d 548",
+            "canonical_date": "1977-01-07",
+            "canonical_name": "State v. Wanrow",
+            "case_name": "State v. Wanrow",
+            "citation": "88 Wash. 2d 221 559 P.2d 548",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. Wanrow",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "559 P.2d 548",
+                    "page": "548",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "559"
+                },
+                {
+                    "category": 2,
+                    "citation": "88 Wash. 2d 221",
+                    "page": "221",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "88"
+                },
+                {
+                    "category": 2,
+                    "citation": "1977 Wash. LEXIS 750",
+                    "page": "750",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1977"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1455776/state-v-wanrow/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "104 Wash. 2d 353 705 P.2d 1195",
+            "canonical_date": "1986-02-11",
+            "canonical_name": "Public Utility District No. 1 v. Washington Public Power Supply System",
+            "case_name": "Public Utility District No. 1 v. Washington Public Power Supply System",
+            "citation": "104 Wash. 2d 353 705 P.2d 1195",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Public Utility District No. 1 v. Washington Public Power Supply System",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "705 P.2d 1195",
+                    "page": "1195",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "705"
+                },
+                {
+                    "category": 2,
+                    "citation": "104 Wash. 2d 353",
+                    "page": "353",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "104"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1115637/public-utility-district-no-1-v-washington-public-power-supply-system/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "142 Wash. 2d 801 16 P.3d 583",
+            "canonical_date": "2001-01-18",
+            "canonical_name": "Cockle v. Department of Labor & Industries",
+            "case_name": "Cockle v. Department of Labor & Industries",
+            "citation": "142 Wash. 2d 801 16 P.3d 583",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Cockle v. Department of Labor & Industries",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "142 Wash. 2d 801",
+                    "page": "801",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "142"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4907632/cockle-v-department-of-labor-industries/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "125 Wash. 2d 305 884 P.2d 920",
+            "canonical_date": "1994-11-22",
+            "canonical_name": "Timberline Air Service, Inc. v. BELL HELICOPTER TEXTRON, INC.",
+            "case_name": "Timberline Air Service, Inc. v. BELL HELICOPTER TEXTRON, INC.",
+            "citation": "125 Wash. 2d 305 884 P.2d 920",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Timberline Air Service, Inc. v. BELL HELICOPTER TEXTRON, INC.",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "884 P.2d 920",
+                    "page": "920",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "884"
+                },
+                {
+                    "category": 2,
+                    "citation": "125 Wash. 2d 305",
+                    "page": "305",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "125"
+                },
+                {
+                    "category": 2,
+                    "citation": "1994 Wash. LEXIS 697",
+                    "page": "697",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1994"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/2611875/timberline-air-service-inc-v-bell-helicopter-textron-inc/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "all_citations": [
+                "199 Wash. 2d 1, 502 P.3d 825"
+            ],
+            "canonical_citation": "199 Wash. 2d 1, 502 P.3d 825",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "199 Wash. 2d 1, 502 P.3d 825",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "canonical_citation": "149 Wash. 2d 444 69 P.3d 318",
+            "canonical_date": "2003-05-22",
+            "canonical_name": "State v. J.P.",
+            "case_name": "State v. J.P.",
+            "citation": "149 Wash. 2d 444 69 P.3d 318",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. J.P.",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "149 Wash. 2d 444",
+                    "page": "444",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "149"
+                },
+                {
+                    "category": 3,
+                    "citation": "69 P.3d 318",
+                    "page": "318",
+                    "reporter": "P.3d",
+                    "url": "",
+                    "volume": "69"
+                },
+                {
+                    "category": 2,
+                    "citation": "2003 Wash. LEXIS 367",
+                    "page": "367",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "2003"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "128 Wash. 2d 537 909 P.2d 1303 125 Wash. 2d 146 881 P.2d 1040",
+            "canonical_date": "1996-02-01",
+            "canonical_name": "Whatcom County v. City of Bellingham",
+            "case_name": "Whatcom County v. City of Bellingham",
+            "citation": "128 Wash. 2d 537 909 P.2d 1303 125 Wash. 2d 146 881 P.2d 1040",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Whatcom County v. City of Bellingham",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "909 P.2d 1303",
+                    "page": "1303",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "909"
+                },
+                {
+                    "category": 2,
+                    "citation": "128 Wash. 2d 537",
+                    "page": "537",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "128"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1250944/whatcom-county-v-city-of-bellingham/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "118 Wash. 2d 551 825 P.2d 314",
+            "canonical_date": "1992-03-05",
+            "canonical_name": "State v. Elgin",
+            "case_name": "State v. Elgin",
+            "citation": "118 Wash. 2d 551 825 P.2d 314",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. Elgin",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "825 P.2d 314",
+                    "page": "314",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "825"
+                },
+                {
+                    "category": 2,
+                    "citation": "118 Wash. 2d 551",
+                    "page": "551",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "118"
+                },
+                {
+                    "category": 2,
+                    "citation": "1992 Wash. LEXIS 49",
+                    "page": "49",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1992"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/2618263/state-v-elgin/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "123 Wash. 2d 451 869 P.2d 56",
+            "canonical_date": "1994-03-10",
+            "canonical_name": "State v. Board of Yakima County Commissioners",
+            "case_name": "State v. Board of Yakima County Commissioners",
+            "citation": "123 Wash. 2d 451 869 P.2d 56",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. Board of Yakima County Commissioners",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "869 P.2d 56",
+                    "page": "56",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "869"
+                },
+                {
+                    "category": 2,
+                    "citation": "123 Wash. 2d 451",
+                    "page": "451",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "123"
+                },
+                {
+                    "category": 2,
+                    "citation": "1994 Wash. LEXIS 134",
+                    "page": "134",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1994"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1229830/state-v-board-of-yakima-county-commissioners/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "148 Wash. 2d 723",
+            "canonical_date": "2003-02-20",
+            "canonical_name": "State v. Delgado",
+            "case_name": "State v. Delgado",
+            "citation": "148 Wash. 2d 723",
+            "confidence": 0.9,
+            "context": "",
+            "court": "Washington Supreme Court",
+            "docket_number": "No. 71969-1",
+            "extracted_case_name": "State v. Delgado",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "all_citations": [
+                "38 U.S.C. \u00a7 4316"
+            ],
+            "canonical_citation": "38 U.S.C. \u00a7 4316",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "rden\u2019s absence for military service\u2014or any authority indicating how that should affect his entitlement to paid military leave under RCW 38.40.060. But see Dkt. 35, at 129-34 (declaration of Dani Smith) (attaching military orders requiring Bearden to report for training or duty). Moreover, under USERRA, a person who is absent from a position of employment by reason of service in the uniformed services is \u201cdeemed to be on furlough or leave of absence while performing such service.\u201d 38 U.S.C. \u00a7 4316(b)(1)(A). Entitlement to benefits while on such leave of absence \u201cis not dependent on how the employer characterizes the employee\u2019s status during a period of service.\u201d 20 C.F.R. \u00a7 1002.149. Though Bearden was also employed by the Army, the record indicates he continued to be an employee of the city while on 12 Bearden v. City of Ocean Shores et al. No. 103121-1 leave of absence for military service. The city\u2019s argument about the duration of Bearden\u2019s military service is similarly unavailing. Th",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "38 U.S.C. \u00a7 4316",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "20 C.F.R. \u00a7 1002.149"
+            ],
+            "canonical_citation": "20 C.F.R. \u00a7 1002.149",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "-34 (declaration of Dani Smith) (attaching military orders requiring Bearden to report for training or duty). Moreover, under USERRA, a person who is absent from a position of employment by reason of service in the uniformed services is \u201cdeemed to be on furlough or leave of absence while performing such service.\u201d 38 U.S.C. \u00a7 4316(b)(1)(A). Entitlement to benefits while on such leave of absence \u201cis not dependent on how the employer characterizes the employee\u2019s status during a period of service.\u201d 20 C.F.R. \u00a7 1002.149. Though Bearden was also employed by the Army, the record indicates he continued to be an employee of the city while on 12 Bearden v. City of Ocean Shores et al. No. 103121-1 leave of absence for military service. The city\u2019s argument about the duration of Bearden\u2019s military service is similarly unavailing. The plain language of RCW 38.40.060 places no temporal limit on eligibility for paid military leave but, rather, provides that public employees are eligible for paid military leave \u201ceach year",
+            "error": "Invalid citation format: Unrecognized citation format",
+            "explanation": "Invalid citation format: Unrecognized citation format",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": "Unrecognized citation format",
+                "format_type": "unknown",
+                "is_valid_format": false,
+                "is_valid_volume": false
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.1,
+            "primary_citation": "20 C.F.R. \u00a7 1002.149",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "38 U.S.C. \u00a7 4312"
+            ],
+            "canonical_citation": "38 U.S.C. \u00a7 4312",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "e extent the city worries a person might go on active military duty for year after year, even decades, only to return to their public employer and claim all the benefits they might have accrued in the intervening years, that hypothetical is not presented by the facts or certified question in this case. Even so, USERRA generally limits reemployment rights to a maximum of five years\u2019 cumulative absence, so it appears there are legal guardrails in place to account for such a hypothetical scenario. 38 U.S.C. \u00a7 4312(a)(2); see also RCW 73.16.035(1)(e) (four years). 13 Bearden v. City of Ocean Shores et al. No. 103121-1 that the legislature means exactly what it says.\u201d DeSean v. Sanger, 2 Wn.3d 329, 335, 536 P.3d 191 (2023) (citing State v. Delgado, 148 Wn.2d 723, 727, 63 P.3d 792 (2003)); see also, e.g., Duke v. Boyd, 133 Wn.2d 80, 87, 942 P.2d 351",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "38 U.S.C. \u00a7 4312",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "canonical_citation": "153 Wash. 2d 614 106 P.3d 196 148 Wash. 2d 338 60 P.3d 586 141 Wash. 2d 139 3 P.3d 741",
+            "canonical_date": "2005-02-10",
+            "canonical_name": "State v. Roggenkamp",
+            "case_name": "State v. Roggenkamp",
+            "citation": "153 Wash. 2d 614 106 P.3d 196 148 Wash. 2d 338 60 P.3d 586 141 Wash. 2d 139 3 P.3d 741",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. Roggenkamp",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "153 Wash. 2d 614",
+                    "page": "614",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "153"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "162 Wash. 2d 210 173 P.3d 885",
+            "canonical_date": "2007-11-15",
+            "canonical_name": "Densley v. Department of Retirement Systems",
+            "case_name": "Densley v. Department of Retirement Systems",
+            "citation": "162 Wash. 2d 210 173 P.3d 885",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Densley v. Department of Retirement Systems",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "162 Wash. 2d 210",
+                    "page": "210",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "162"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4908756/densley-v-department-of-retirement-systems/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "182 Wash. 2d 342 340 P.3d 849",
+            "canonical_date": "2015-01-08",
+            "canonical_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+            "case_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+            "citation": "182 Wash. 2d 342 340 P.3d 849",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "182 Wash. 2d 342",
+                    "page": "342",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "182"
+                },
+                {
+                    "category": 3,
+                    "citation": "340 P.3d 849",
+                    "page": "849",
+                    "reporter": "P.3d",
+                    "url": "",
+                    "volume": "340"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "168 Wash. 2d 256 226 P.3d 131",
+            "canonical_date": "2010-02-18",
+            "canonical_name": "State v. Gonzalez",
+            "case_name": "State v. Gonzalez",
+            "citation": "168 Wash. 2d 256 226 P.3d 131",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State v. Gonzalez",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 2,
+                    "citation": "168 Wash. 2d 256",
+                    "page": "256",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "168"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/4909032/state-v-gonzalez/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "116 Wash. 2d 1 802 P.2d 784",
+            "canonical_date": "1991-01-03",
+            "canonical_name": "American Legion Post No. 32 v. City of Walla Walla",
+            "case_name": "American Legion Post No. 32 v. City of Walla Walla",
+            "citation": "116 Wash. 2d 1 802 P.2d 784",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "American Legion Post No. 32 v. City of Walla Walla",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "802 P.2d 784",
+                    "page": "784",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "802"
+                },
+                {
+                    "category": 2,
+                    "citation": "116 Wash. 2d 1",
+                    "page": "1",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "116"
+                },
+                {
+                    "category": 2,
+                    "citation": "1991 Wash. LEXIS 1",
+                    "page": "1",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1991"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "canonical_citation": "99 Wash. 2d 232 662 P.2d 38",
+            "canonical_date": "1983-04-07",
+            "canonical_name": "State Ex Rel. Graham v. Northshore School District No. 417",
+            "case_name": "State Ex Rel. Graham v. Northshore School District No. 417",
+            "citation": "99 Wash. 2d 232 662 P.2d 38",
+            "confidence": 0.9,
+            "context": "",
+            "court": "",
+            "docket_number": "",
+            "extracted_case_name": "State Ex Rel. Graham v. Northshore School District No. 417",
+            "extracted_date": "",
+            "hinted_case_name": null,
+            "parallel_citations": [
+                {
+                    "category": 3,
+                    "citation": "662 P.2d 38",
+                    "page": "38",
+                    "reporter": "P.2d",
+                    "url": "",
+                    "volume": "662"
+                },
+                {
+                    "category": 2,
+                    "citation": "99 Wash. 2d 232",
+                    "page": "232",
+                    "reporter": "Wash. 2d",
+                    "url": "",
+                    "volume": "99"
+                },
+                {
+                    "category": 2,
+                    "citation": "1983 Wash. LEXIS 1439",
+                    "page": "1439",
+                    "reporter": "Wash. LEXIS",
+                    "url": "",
+                    "volume": "1983"
+                }
+            ],
+            "source": "CourtListener",
+            "url": "https://www.courtlistener.com/opinion/2612288/state-ex-rel-graham-v-northshore-school-district-no-417/",
+            "verification_method": "courtlistener_api",
+            "verified": "true"
+        },
+        {
+            "all_citations": [
+                "196 Wash. 2d 1, 468 P.3d 1056"
+            ],
+            "canonical_citation": "196 Wash. 2d 1, 468 P.3d 1056",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "196 Wash. 2d 1, 468 P.3d 1056",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "535 P.3d 418"
+            ],
+            "canonical_citation": "535 P.3d 418",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "such an award \u201c[i]f applicable law grants to a party the right to recover reasonable attorney fees or expenses on review\u201d before this court). USERRA permits an employee to recover reasonable attorney fees and expenses if they prevail in an action or proceeding to enforce their rights under that federal statute. 38 U.S.C. \u00a7 4323(h)(2). Attorney fees may be awarded in the context of a certified question, but only if the requesting party prevails. E.g., Nelson v. P.S.C., Inc., 2 Wn.3d 227, 243-44, 535 P.3d 418 (2023). 22 Bearden v. City of Ocean Shores et al. No. 103121-1 Bearden is not entitle",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "535 P.3d 418",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "38 U.S.C. \u00a7 4323"
+            ],
+            "canonical_citation": "38 U.S.C. \u00a7 4323",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "lement to paid military leave under subsection .060(1). Last, Bearden requests an award of attorney fees and expenses should he prevail on the certified question. RAP 18.1(a) (permitting such an award \u201c[i]f applicable law grants to a party the right to recover reasonable attorney fees or expenses on review\u201d before this court). USERRA permits an employee to recover reasonable attorney fees and expenses if they prevail in an action or proceeding to enforce their rights under that federal statute. 38 U.S.C. \u00a7 4323(h)(2). Attorney fees may be awarded in the context of a certified question, but only if the requesting party prevails. E.g., Nelson v. P.S.C., Inc., 2 Wn.3d 227, 243-44, 535 P.3d 418 (2023). 22 Bearden v. City of Ocean Shores et al. No. 103121-1 Bearden is not entitle",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "38 U.S.C. \u00a7 4323",
+            "url": null,
+            "verified": "false"
+        },
+        {
+            "all_citations": [
+                "197 Wash. 2d 535, 484 P.3d 1251"
+            ],
+            "canonical_citation": "197 Wash. 2d 535, 484 P.3d 1251",
+            "canonical_date": null,
+            "case_name": "N/A",
+            "context": "",
+            "error": "Citation could not be verified by any source",
+            "explanation": "Citation format is valid but not found in searched databases",
+            "extracted_case_name": "N/A",
+            "extracted_date": "",
+            "format_analysis": {
+                "error": null,
+                "format_type": "valid",
+                "is_valid_format": true,
+                "is_valid_volume": true
+            },
+            "hinted_case_name": null,
+            "likelihood_score": 0.5,
+            "primary_citation": "197 Wash. 2d 535, 484 P.3d 1251",
+            "url": null,
+            "verified": "false"
+        }
+    ],
+    "eta_seconds": 0,
+    "message": "Analysis completed",
+    "progress": 100,
+    "statistics": {},
+    "status": "completed",
+    "summary": {},
+    "task_id": "a42af85c-9437-4484-975c-c4078cc8e11f"
+}

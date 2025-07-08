@@ -143,6 +143,9 @@ def calculate_similarity(name1: str, name2: str) -> float:
 def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Group multiple citations that refer to the same case.
+    
+    CONSERVATIVE APPROACH: Only group citations that are explicitly together in the source text.
+    This prevents merging different cases that happen to have similar names or dates.
 
     Args:
         citations: List of citation dictionaries, each with 'citation', 'case_name', etc.
@@ -153,15 +156,34 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
     if not citations:
         return []
 
-    # Group by case name similarity
+    # First, filter out U.S.C. and C.F.R. citations completely
+    filtered_citations = []
+    for citation in citations:
+        citation_text = citation.get("citation", "")
+        # Comprehensive U.S.C. and C.F.R. filtering
+        if any(pattern in citation_text.upper() for pattern in [
+            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "UNITED STATES CODE",
+            "C.F.R.", "CFR", "C.F.R", "CODE OF FEDERAL REGULATIONS",
+            "§", "SECTION", "TITLE", "CHAPTER"
+        ]):
+            continue  # Skip U.S.C. and C.F.R. citations entirely
+        filtered_citations.append(citation)
+    
+    if not filtered_citations:
+        return []
+
+    # CONSERVATIVE GROUPING: Only group citations that are explicitly together in source text
+    # Look for citations that appear in the same text block or are separated by commas/semicolons
     grouped_citations = []
     processed_indices = set()
 
-    for i, citation in enumerate(citations):
+    for i, citation in enumerate(filtered_citations):
         if i in processed_indices:
             continue
 
         case_name = citation.get("case_name", "")
+        citation_text = citation.get("citation", "")
+        context = citation.get("context", "")
 
         # If no case name or unknown case, can't group, so add as is
         if (
@@ -180,14 +202,17 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
         group["alternate_citations"] = []
         processed_indices.add(i)
 
-        # Find similar case names
-        for j, other in enumerate(citations):
+        # CONSERVATIVE APPROACH: Only group citations that are explicitly together
+        # Check for citations that appear in the same context block or are separated by punctuation
+        for j, other in enumerate(filtered_citations):
             if j in processed_indices:
                 continue
 
             other_case_name = other.get("case_name", "")
+            other_citation_text = other.get("citation", "")
+            other_context = other.get("context", "")
 
-            # Skip citations with unknown case names - they should never be grouped
+            # Skip citations with unknown case names
             if (
                 not other_case_name
                 or other_case_name == "Unknown case"
@@ -195,19 +220,51 @@ def group_citations_by_case(citations: List[Dict[str, Any]]) -> List[Dict[str, A
             ):
                 continue
 
+            # STRICT GROUPING CRITERIA:
+            # 1. Same case name (exact match or very high similarity)
+            # 2. Same context block (within 200 characters)
+            # 3. Explicitly separated by commas/semicolons in source text
+            
+            # Check for exact case name match first
+            if case_name == other_case_name:
+                # Check if they're in the same context block
+                if context and other_context:
+                    # If contexts are similar or overlapping, they might be the same case
+                    context_similarity = calculate_similarity(context, other_context)
+                    if context_similarity > 0.8:  # Very high similarity threshold
+                        # Additional check: are they explicitly separated by punctuation?
+                        # Look for patterns like "case_name, citation1, citation2"
+                        combined_text = f"{citation_text} {other_citation_text}"
+                        if re.search(r'[,;]\s*', combined_text) or context_similarity > 0.9:
+                            group["alternate_citations"].append({
+                                "citation": other.get("citation", ""),
+                                "case_name": other.get("case_name", ""),
+                                "url": other.get("url", ""),
+                                "source": other.get("source", ""),
+                                "similarity": context_similarity,
+                            })
+                            processed_indices.add(j)
+                            continue
+
+            # Check for very high similarity (0.95+) but only if they're in the same context
             similarity = calculate_similarity(case_name, other_case_name)
-            if similarity >= 0.7:  # Threshold for considering same case
-                # Add as alternate citation
-                group["alternate_citations"].append(
-                    {
-                        "citation": other.get("citation", ""),
-                        "case_name": other.get("case_name", ""),
-                        "url": other.get("url", ""),
-                        "source": other.get("source", ""),
-                        "similarity": similarity,
-                    }
-                )
-                processed_indices.add(j)
+            if similarity >= 0.95:  # Much higher threshold
+                # Additional requirement: they must be in the same context block
+                if context and other_context:
+                    context_similarity = calculate_similarity(context, other_context)
+                    if context_similarity > 0.7:  # High context similarity
+                        # Check for explicit grouping indicators
+                        combined_context = f"{context} {other_context}"
+                        if re.search(r'[,;]\s*', combined_context):
+                            group["alternate_citations"].append({
+                                "citation": other.get("citation", ""),
+                                "case_name": other.get("case_name", ""),
+                                "url": other.get("url", ""),
+                                "source": other.get("source", ""),
+                                "similarity": similarity,
+                            })
+                            processed_indices.add(j)
+                            continue
 
         grouped_citations.append(group)
 
@@ -220,13 +277,31 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
     For each group, propagate canonical fields from the best-verified citation (prefer CourtListener).
     Attach all parallel citation objects (not just strings) to the group, each with all relevant metadata fields.
     Propagate all relevant metadata fields from the best-verified/most complete citation in the group to all parallel citations.
+    
+    CONSERVATIVE APPROACH: Only group citations that are explicitly together in the source text.
     """
     if not citations:
         return []
 
+    # First, filter out U.S.C. and C.F.R. citations completely
+    filtered_citations = []
+    for citation in citations:
+        citation_text = citation.get("citation", "")
+        # Comprehensive U.S.C. and C.F.R. filtering
+        if any(pattern in citation_text.upper() for pattern in [
+            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "UNITED STATES CODE",
+            "C.F.R.", "CFR", "C.F.R", "CODE OF FEDERAL REGULATIONS",
+            "§", "SECTION", "TITLE", "CHAPTER"
+        ]):
+            continue  # Skip U.S.C. and C.F.R. citations entirely
+        filtered_citations.append(citation)
+    
+    if not filtered_citations:
+        return []
+
     # Group by canonical URL (prefer 'citation_url', fallback to 'url')
     url_groups: Dict[str, List[int]] = {}
-    for i, citation in enumerate(citations):
+    for i, citation in enumerate(filtered_citations):
         url = citation.get("citation_url") or citation.get("url") or ""
         if url:
             if url not in url_groups:
@@ -238,15 +313,30 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
 
     # List of metadata fields to propagate
     propagate_fields = [
-        "case_name", "extracted_case_name", "hinted_case_name", "extracted_date", "date_filed", "canonical_date", "court", "docket_number", "url", "citation_url", "opinion_type", "precedential", "judge", "confidence", "source"
+        "case_name", "extracted_case_name", "extracted_date", "date_filed", "canonical_date", "court", "docket_number", "url", "citation_url", "opinion_type", "precedential", "judge", "confidence", "source"
     ]
 
     for url, indices in url_groups.items():
+        # CONSERVATIVE APPROACH: Only group if citations are explicitly together in source text
+        # Check if all citations in this group have similar context
+        if len(indices) > 1:
+            contexts = [filtered_citations[idx].get("context", "") for idx in indices]
+            # Only group if contexts are very similar (indicating they're from the same text block)
+            context_similarity = min(calculate_similarity(contexts[0], ctx) for ctx in contexts[1:]) if len(contexts) > 1 else 1.0
+            if context_similarity < 0.8:  # If contexts are too different, don't group
+                # Add each citation individually
+                for idx in indices:
+                    citation_copy = filtered_citations[idx].copy()
+                    citation_copy["parallel_citations"] = [citation_copy]
+                    grouped_citations.append(citation_copy)
+                    processed_indices.add(idx)
+                continue
+
         # Use the best-verified/most complete citation as primary (prefer CourtListener, then others, then most fields)
         best_idx = indices[0]
         max_fields = 0
         for idx in indices:
-            c = citations[idx]
+            c = filtered_citations[idx]
             # Prefer CourtListener
             if c.get("source", "").lower() == "courtlistener":
                 best_idx = idx
@@ -256,13 +346,13 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
             if non_empty_fields > max_fields:
                 max_fields = non_empty_fields
                 best_idx = idx
-        primary = citations[best_idx].copy()
+        primary = filtered_citations[best_idx].copy()
         processed_indices.update(indices)
 
         # Propagate all relevant fields from the primary to each parallel citation object
         parallel_citation_objs = []
         for idx in indices:
-            parallel = citations[idx].copy()
+            parallel = filtered_citations[idx].copy()
             for field in propagate_fields:
                 if not parallel.get(field) and primary.get(field):
                     parallel[field] = primary[field]
@@ -274,7 +364,7 @@ def group_citations_by_url(citations: List[Dict[str, Any]]) -> List[Dict[str, An
         grouped_citations.append(primary)
 
     # Add any remaining citations that weren't grouped (no URL)
-    for i, citation in enumerate(citations):
+    for i, citation in enumerate(filtered_citations):
         if i not in processed_indices:
             citation_copy = citation.copy()
             citation_copy["parallel_citations"] = [citation_copy]

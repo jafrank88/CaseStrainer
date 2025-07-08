@@ -108,6 +108,91 @@ if SENTRY_DSN and sentry_sdk:
         environment=os.environ.get("ENVIRONMENT", "production"),
     )
 
+# ============================================================================
+# CITATION PROCESSING SETTINGS (ADDED FOR CITATIONSERVICE)
+# ============================================================================
+
+# Citation extraction settings for CitationService
+CITATION_CONTEXT_WINDOW: int = int(get_config_value("CITATION_CONTEXT_WINDOW", "300"))
+CITATION_CHUNK_SIZE: int = int(get_config_value("CITATION_CHUNK_SIZE", "5000"))
+MIN_CITATION_CONFIDENCE: float = float(get_config_value("MIN_CITATION_CONFIDENCE", "0.7"))
+
+# Immediate processing thresholds for CitationService
+IMMEDIATE_PROCESSING_MAX_LENGTH: int = int(get_config_value("IMMEDIATE_PROCESSING_MAX_LENGTH", "50"))
+IMMEDIATE_PROCESSING_MAX_WORDS: int = int(get_config_value("IMMEDIATE_PROCESSING_MAX_WORDS", "10"))
+
+# Citation extraction timeout
+CITATION_EXTRACTION_TIMEOUT: int = int(get_config_value("CITATION_EXTRACTION_TIMEOUT", "120"))
+
+# ============================================================================
+# HELPER FUNCTIONS FOR CITATIONSERVICE
+# ============================================================================
+
+def get_citation_config() -> dict:
+    """
+    Get citation processing configuration for CitationService.
+    """
+    return {
+        'context_window': CITATION_CONTEXT_WINDOW,
+        'chunk_size': CITATION_CHUNK_SIZE,
+        'min_confidence': MIN_CITATION_CONFIDENCE,
+        'immediate_max_length': IMMEDIATE_PROCESSING_MAX_LENGTH,
+        'immediate_max_words': IMMEDIATE_PROCESSING_MAX_WORDS,
+        'extraction_timeout': CITATION_EXTRACTION_TIMEOUT
+    }
+
+def get_external_api_config() -> dict:
+    """
+    Get external API configuration for CitationService.
+    """
+    return {
+        'courtlistener': {
+            'api_key': COURTLISTENER_API_KEY,
+            'api_url': COURTLISTENER_API_URL
+        },
+        'langsearch': {
+            'api_key': LANGSEARCH_API_KEY
+        }
+    }
+
+def get_file_config() -> dict:
+    """
+    Get file processing configuration for CitationService.
+    """
+    return {
+        'upload_folder': UPLOAD_FOLDER,
+        'allowed_extensions': ALLOWED_EXTENSIONS,
+        'max_content_length': MAX_CONTENT_LENGTH
+    }
+
+# ============================================================================
+# TESTING THE CONFIG ADDITIONS
+# ============================================================================
+
+def test_config_additions():
+    """Test that the new config additions work correctly."""
+    print("Testing config additions...")
+    
+    # Test citation config
+    citation_config = get_citation_config()
+    print(f"Citation config: {citation_config}")
+    
+    # Test API config  
+    api_config = get_external_api_config()
+    print(f"API config: {api_config}")
+    
+    # Test file config
+    file_config = get_file_config()
+    print(f"File config: {file_config}")
+    
+    # Test individual values
+    print(f"Context window: {CITATION_CONTEXT_WINDOW}")
+    print(f"Chunk size: {CITATION_CHUNK_SIZE}")
+    print(f"Immediate max length: {IMMEDIATE_PROCESSING_MAX_LENGTH}")
+    print(f"CourtListener API key: {'✓ Set' if COURTLISTENER_API_KEY else '✗ Not set'}")
+    
+    print("Config test complete!")
+
 
 def configure_logging(log_level: int = logging.INFO) -> None:
     """
@@ -141,8 +226,10 @@ def configure_logging(log_level: int = logging.INFO) -> None:
     except ImportError:
         COLORAMA_AVAILABLE = False
 
+    # Use ISO 8601 format with timezone for consistent timestamps
     formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"  # FIXED: Removed %f and %z for compatibility
     )
     file_handler.setFormatter(formatter)
     file_handler.setLevel(log_level)
@@ -179,3 +266,45 @@ def configure_logging(log_level: int = logging.INFO) -> None:
     root_logger.handlers.clear()
     root_logger.addHandler(file_handler)
     root_logger.addHandler(stream_handler)
+
+    # Configure specific loggers based on environment variables
+    configure_specific_loggers()
+
+
+def configure_specific_loggers() -> None:
+    """
+    Configure specific loggers based on environment variables.
+    This allows fine-grained control over logging levels for different components.
+    """
+    # Configure case_name_extraction logger
+    case_name_log_level = os.environ.get("LOG_LEVEL_CASE_NAME_EXTRACTION", "WARNING")
+    try:
+        # Convert string level to logging constant
+        level_map = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "ERROR": logging.ERROR,
+            "CRITICAL": logging.CRITICAL
+        }
+        case_name_level = level_map.get(case_name_log_level.upper(), logging.WARNING)
+        
+        case_name_logger = logging.getLogger("case_name_extraction")
+        case_name_logger.setLevel(case_name_level)
+        
+        # Log the configuration
+        root_logger = logging.getLogger()
+        root_logger.info(f"Configured case_name_extraction logger to level: {case_name_log_level} ({case_name_level})")
+        
+    except Exception as e:
+        # Fallback to warning if configuration fails
+        logging.getLogger().warning(f"Failed to configure case_name_extraction logger: {e}")
+        case_name_logger = logging.getLogger("case_name_extraction")
+        case_name_logger.setLevel(logging.WARNING)
+
+# ============================================================================
+# MAIN BLOCK FOR TESTING
+# ============================================================================
+
+if __name__ == "__main__":
+    test_config_additions()

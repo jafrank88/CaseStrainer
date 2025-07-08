@@ -1,9 +1,36 @@
+#!/usr/bin/env python3
+"""
+Citation Extractor Module
+
+This module provides citation extraction and processing capabilities.
+
+DEPRECATED: This module is deprecated. All functionality has been integrated
+into the unified pipeline (UnifiedCitationProcessor). Use the unified processor
+instead.
+
+This module will be removed in a future version.
+"""
+
 import warnings
+warnings.warn(
+    "src.citation_extractor is deprecated. All functionality has been integrated "
+    "into UnifiedCitationProcessor. Use the unified pipeline instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import re
-import time
 import logging
-from typing import List, Dict, Optional, Any, Union
-from rapidfuzz import fuzz
+from typing import List, Dict, Any, Optional, Union
+from dataclasses import dataclass
+from datetime import datetime
+import time
+import json
+import requests
+from urllib.parse import quote_plus
+import unicodedata
+import string
+from difflib import SequenceMatcher
 
 try:
     from eyecite import get_citations, resolve_citations
@@ -192,7 +219,7 @@ class CitationExtractor:
         # Now build results with shared case names if available
         for obj in all_citation_objs:
             citation_str = obj['citation']
-            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
+            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
             if self.extract_case_names:
                 case_name_triple = extract_case_name_triple(text, citation_str)
             context_val = self._get_context(text, citation_str) if (self.context_window or 200) else ""
@@ -204,7 +231,6 @@ class CitationExtractor:
                 'case_name': case_name_triple['case_name'],
                 'context': context_val or '',
                 'extracted_case_name': case_name_triple['extracted_name'] or '',
-                'hinted_case_name': case_name_triple['hinted_name'] or '',
                 'canonical_date': case_name_triple['canonical_date'] or '',
                 'extracted_date': case_name_triple['extracted_date'] or '',
             }
@@ -236,7 +262,7 @@ class CitationExtractor:
                         seen.add(citation_str)
                         
                         # Get case name triple for eyecite citations too
-                        case_name_triple = {'canonical_name': '', 'extracted_name': '', 'hinted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
+                        case_name_triple = {'canonical_name': '', 'extracted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
                         if self.extract_case_names:
                             case_name_triple = extract_case_name_triple(text, citation_str)
                         
@@ -248,7 +274,6 @@ class CitationExtractor:
                             'case_name': case_name_triple['case_name'],
                             'context': self._get_context(text, citation_str) if (self.context_window or 200) else "",
                             'extracted_case_name': case_name_triple['extracted_name'],
-                            'hinted_case_name': case_name_triple['hinted_name'],
                             'canonical_date': case_name_triple['canonical_date'],
                             'extracted_date': case_name_triple['extracted_date'],
                         }
@@ -265,12 +290,37 @@ class CitationExtractor:
                     debug_info['warnings'].append(f"eyecite extraction failed: {e}")
 
         print(f"\nExtraction complete. Found {len(results)} total citations.")
+        
+        # Post-processing: Filter out U.S.C. and C.F.R. citations
+        filtered_results = []
+        for result in results:
+            citation_str = result.get('citation', '')
+            # Comprehensive U.S.C. and C.F.R. filtering - check multiple variations
+            if any(pattern in citation_str.upper() for pattern in [
+                "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "UNITED STATES CODE",
+                "C.F.R.", "CFR", "C.F.R", "CODE OF FEDERAL REGULATIONS",
+                "§", "SECTION", "TITLE", "CHAPTER"
+            ]):
+                continue  # Skip U.S.C. and C.F.R. citations
+            
+            # Additional check for section symbols and statute patterns
+            if re.search(r'\d+\s+U\.?\s*S\.?\s*C\.?\s*[§]?\s*\d+', citation_str, re.IGNORECASE):
+                continue  # Skip U.S.C. citations with section symbols
+            
+            # Check for C.F.R. patterns
+            if re.search(r'\d+\s+C\.?\s*F\.?\s*R\.?\s*[§]?\s*\d+', citation_str, re.IGNORECASE):
+                continue  # Skip C.F.R. citations
+            
+            filtered_results.append(result)
+        
+        print(f"Filtered out U.S.C. and C.F.R. citations. Final count: {len(filtered_results)} citations.")
+        
         if debug:
-            debug_info['stats']['total_citations'] = len(results)
+            debug_info['stats']['total_citations'] = len(filtered_results)
             debug_info['stats']['processing_time'] = time.time() - start_time
-            debug_info['citations'] = results
+            debug_info['citations'] = filtered_results
             return debug_info
-        return results
+        return filtered_results
 
     def _get_context(self, text: str, citation: str) -> str:
         """Return a window of context around the first occurrence of the citation. Default window is 1000 if not set."""
@@ -602,6 +652,13 @@ def extract_citation_text_from_eyecite(citation_obj):
         "InfraCitation("
     ]):
         return ""  # Return empty string for short citations to filter them out
+    
+    # Filter out U.S.C. and C.F.R. citations
+    if any(pattern in citation_str for pattern in [
+        "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA",
+        "C.F.R.", "CFR", "C.F.R"
+    ]):
+        return ""  # Return empty string for U.S.C. and C.F.R. citations to filter them out
     
     # Extract citation from FullCaseCitation format
     import re

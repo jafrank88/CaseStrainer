@@ -151,6 +151,17 @@ export default {
       default: null
     }
   },
+  mounted() {
+    // Component mounted successfully
+  },
+  watch: {
+    totalProgress(newVal) {
+      // Progress updated
+    },
+    remainingTime(newVal) {
+      // Remaining time updated
+    }
+  },
   computed: {
     currentStepElapsed() {
       const step = this.processingSteps.find(s => s.step === this.currentStep)

@@ -93,7 +93,7 @@ RESPONSE BODY:
   "database": "ok",
   "rq_worker": "ok",
   "environment": "production",
-          "version": "0.5.7"
+          "version": "0.5.8"
 }
 ================================================================================
 ```

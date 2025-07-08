@@ -45,9 +45,10 @@ from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 from src.cache_manager import get_cache_manager
 from src.config import get_config_value
 from src.enhanced_case_name_extractor import EnhancedCaseNameExtractor
+from src.case_name_extraction_core import extract_case_name_triple
+import warnings
 
 logger = logging.getLogger(__name__)
-
 @dataclass
 class CitationResult:
     """Structured result for a single citation."""
@@ -55,8 +56,10 @@ class CitationResult:
     case_name: Optional[str] = None
     canonical_name: Optional[str] = None
     extracted_case_name: Optional[str] = None
+    extracted_date: Optional[str] = None
     verified: bool = False
     url: Optional[str] = None
+    canonical_urls: List[str] = None  # Multiple canonical URLs from different sources
     court: Optional[str] = None
     docket_number: Optional[str] = None
     canonical_date: Optional[str] = None
@@ -88,6 +91,8 @@ class CitationResult:
             self.docket_numbers = []
         if self.case_history is None:
             self.case_history = []
+        if self.canonical_urls is None:
+            self.canonical_urls = []
         if self.metadata is None:
             self.metadata = {}
 
@@ -155,45 +160,30 @@ class DateExtractor:
     """Date extraction utilities from CitationProcessor."""
     
     @staticmethod
-    def extract_date_from_context(text: str, citation_start: int, citation_end: int, context_window: int = 200) -> Optional[str]:
+    def extract_date_from_context(text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
         """
-        Extract date from context around a citation.
-        
-        Args:
-            text: The full text document
-            citation_start: Start position of the citation
-            citation_end: End position of the citation
-            context_window: Number of characters to look before and after citation
-            
-        Returns:
-            Extracted date string in ISO format (YYYY-MM-DD) or None if not found
+        Extract date from context around a citation. Now with expanded patterns and larger window.
+        Enhanced: If no date is found by regex, scan the 50 characters after the citation for a 4-digit year in parentheses or after a comma/semicolon.
         """
         try:
-            # Define context boundaries
             context_start = max(0, citation_start - context_window)
             context_end = min(len(text), citation_end + context_window)
-            
-            # Extract context around citation
             context_before = text[context_start:citation_start]
             context_after = text[citation_end:context_end]
             full_context = context_before + context_after
-            
-            # Date patterns to look for
+
+            # Expanded date patterns
             date_patterns = [
-                # ISO format: 2024-01-15
-                r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b',
-                # US format: 01/15/2024, 1/15/2024
-                r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b',
-                # US format with month names: January 15, 2024, Jan 15, 2024
+                r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b',  # ISO
+                r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b',  # US
                 r'\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),?\s+(\d{4})\b',
-                # Year only: (2024)
-                r'\((\d{4})\)',
-                # Year in citation context: decided in 2024
-                r'(?:decided|filed|issued|released)\s+(?:in\s+)?(\d{4})\b',
-                # Simple year pattern near citation
-                r'\b(19|20)\d{2}\b'
+                r'\((\d{4})\)',  # (2024)
+                r'(?:decided|filed|issued|released|argued|submitted|entered|adjudged|rendered|delivered|opinion\s+filed)\s+(?:on\s+)?(?:the\s+)?(?:day\s+of\s+)?([A-Za-z]+\s+\d{1,2},?\s+\d{4}|\d{4})',
+                r'\b(19|20)\d{2}\b',  # year
+                r'\b(\d{4})\s+Wash\.\s+App\.',  # e.g. 1989 Wash. App.
+                r'\b(\d{4})\s+LEXIS\b',  # e.g. 1989 LEXIS
+                r'\b(\d{4})\s+WL\b',  # e.g. 1989 WL
             ]
-            
             month_map = {
                 'january': '01', 'jan': '01',
                 'february': '02', 'feb': '02',
@@ -208,139 +198,164 @@ class DateExtractor:
                 'november': '11', 'nov': '11',
                 'december': '12', 'dec': '12'
             }
-            
             for pattern in date_patterns:
                 matches = re.finditer(pattern, full_context, re.IGNORECASE)
                 for match in matches:
                     groups = match.groups()
-                    
                     if len(groups) == 3:
-                        # Full date pattern
                         if pattern == r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b':
-                            # ISO format
                             year, month, day = groups
                         elif pattern == r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b':
-                            # US format
                             month, day, year = groups
                         elif 'January|February' in pattern:
-                            # Month name format
                             month_name, day, year = groups
                             month = month_map.get(month_name.lower(), '01')
                         else:
                             continue
-                            
-                        # Validate and format
                         try:
                             year = int(year)
                             month = int(month)
                             day = int(day)
-                            
                             if 1900 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
                                 return f"{year:04d}-{month:02d}-{day:02d}"
                         except (ValueError, TypeError):
                             continue
-                            
                     elif len(groups) == 1:
-                        # Year only pattern
                         year = groups[0]
                         try:
                             year_int = int(year)
                             if 1900 <= year_int <= 2100:
-                                return f"{year_int:04d}-01-01"  # Default to January 1st
+                                return f"{year_int:04d}-01-01"
                         except (ValueError, TypeError):
                             continue
-            
+            # --- NEW FALLBACK: scan after citation for (YYYY) or , YYYY or ; YYYY ---
+            after = text[citation_end:citation_end+50]
+            # Try (YYYY)
+            m = re.search(r'\((19|20)\d{2}\)', after)
+            if m:
+                return f"{m.group(1)}-01-01"
+            # Try , YYYY or ; YYYY
+            m = re.search(r'[;,]\s*(19|20)\d{2}', after)
+            if m:
+                return f"{m.group(1)}-01-01"
+            # Try just a 4-digit year
+            m = re.search(r'(19|20)\d{2}', after)
+            if m:
+                return f"{m.group(1)}-01-01"
             return None
-            
         except Exception as e:
             logger.warning(f"Error extracting date from context: {e}")
             return None
 
 class EnhancedRegexExtractor:
-    """Enhanced regex extraction with comprehensive patterns from CitationExtractor."""
+    """Enhanced regex extractor with comprehensive patterns from enhanced_citation_processor."""
     
     def __init__(self):
-        self.patterns = self._get_comprehensive_patterns()
+        self._init_patterns()
     
-    def _get_comprehensive_patterns(self) -> Dict[str, Any]:
-        """Return comprehensive regex patterns for different citation formats."""
-        return {
-            # U.S. Supreme Court - comprehensive patterns
-            'us': re.compile(r"\b\d+\s+U\.?\s*S\.?\s+\d+\b"),
-            'us_alt': re.compile(r"\b\d+\s+U\.\s*S\.\s+\d+\b"),
-            'us_alt2': re.compile(r"\b\d+\s+United\s+States\s+\d+\b"),
-            
-            # Federal Reporter - comprehensive patterns
-            'f2d': re.compile(r"\b\d+\s+F\.2d\s+\d+\b"),
-            'f3d': re.compile(r"\b\d+\s+F\.3d\s+\d+\b"),
-            'f4th': re.compile(r"\b\d+\s+F\.4th\s+\d+\b"),
-            'f_supp': re.compile(r"\b\d+\s+F\.\s*Supp\.\s+\d+\b"),
-            'f_supp2d': re.compile(r"\b\d+\s+F\.\s*Supp\.\s*2d\s+\d+\b"),
-            'f_supp3d': re.compile(r"\b\d+\s+F\.\s*Supp\.\s*3d\s+\d+\b"),
-            
-            # Supreme Court Reporter
-            'sct': re.compile(r"\b\d+\s+S\.\s*Ct\.\s+\d+\b"),
-            'sct_alt': re.compile(r"\b\d+\s+Sup\.\s*Ct\.\s+\d+\b"),
-            
-            # Lawyers' Edition
-            'led': re.compile(r"\b\d+\s+L\.\s*Ed\.\s+\d+\b"),
-            'led2d': re.compile(r"\b\d+\s+L\.\s*Ed\.\s*2d\s+\d+\b"),
-            
-            # Washington State Reports - comprehensive patterns
-            'wn2d': re.compile(r"\b\d+\s+Wn\.2d\s+\d+\b"),
-            'wn_app': re.compile(r"\b\d+\s+Wn\.\s*App\.\s+\d+\b"),
-            'wn_app2d': re.compile(r"\b\d+\s+Wn\.\s*App\.\s*2d\s+\d+\b"),
-            'wn_generic': re.compile(r"\b\d+\s+Wn\.\s+\d+\b"),
-            'wash2d': re.compile(r"\b\d+\s+Wash\.2d\s+\d+\b"),
-            'wash_app': re.compile(r"\b\d+\s+Wash\.\s*App\.\s+\d+\b"),
-            'wash_generic': re.compile(r"\b\d+\s+Wash\.\s+\d+\b"),
-            
-            # Pacific Reporter - comprehensive patterns
-            'p2d': re.compile(r"\b\d+\s+P\.2d\s+\d+\b"),
-            'p3d': re.compile(r"\b\d+\s+P\.3d\s+\d+\b"),
-            'p_generic': re.compile(r"\b\d+\s+P\.\s+\d+\b"),
-            
-            # Regional Reporters - comprehensive patterns
-            'a2d': re.compile(r"\b\d+\s+A\.2d\s+\d+\b"),
-            'a3d': re.compile(r"\b\d+\s+A\.3d\s+\d+\b"),
-            'a_generic': re.compile(r"\b\d+\s+A\.\s+\d{2,}\b"),
-            'ne2d': re.compile(r"\b\d+\s+N\.E\.2d\s+\d+\b"),
-            'ne3d': re.compile(r"\b\d+\s+N\.E\.3d\s+\d+\b"),
-            'ne_generic': re.compile(r"\b\d+\s+N\.E\.\s+\d{2,}\b"),
-            'nw2d': re.compile(r"\b\d+\s+N\.W\.2d\s+\d+\b"),
-            'nw3d': re.compile(r"\b\d+\s+N\.W\.3d\s+\d+\b"),
-            'nw_generic': re.compile(r"\b\d+\s+N\.W\.\s+\d{2,}\b"),
-            'se2d': re.compile(r"\b\d+\s+S\.E\.2d\s+\d+\b"),
-            'se3d': re.compile(r"\b\d+\s+S\.E\.3d\s+\d+\b"),
-            'se_generic': re.compile(r"\b\d+\s+S\.E\.\s+\d{2,}\b"),
-            'sw2d': re.compile(r"\b\d+\s+S\.W\.2d\s+\d+\b"),
-            'sw3d': re.compile(r"\b\d+\s+S\.W\.3d\s+\d+\b"),
-            'sw_generic': re.compile(r"\b\d+\s+S\.W\.\s+\d{2,}\b"),
-            
-            # California Reports
-            'cal2d': re.compile(r"\b\d+\s+Cal\.2d\s+\d+\b"),
-            'cal3d': re.compile(r"\b\d+\s+Cal\.3d\s+\d+\b"),
-            'cal4th': re.compile(r"\b\d+\s+Cal\.4th\s+\d+\b"),
-            'cal_generic': re.compile(r"\b\d+\s+Cal\.\s+\d{2,}\b"),
-            
-            # Westlaw and LEXIS
-            'westlaw': re.compile(r"\b\d{4}\s+WL\s+\d+\b"),
-            'lexis': re.compile(r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d+\b"),
-            
-            # State Reports (generic pattern) - more specific
-            'state': re.compile(r"\b\d+\s+[A-Z][a-z]+\.\s+\d+\b"),
-            
-            # Year-based citations
-            'year_citation': re.compile(r"\b\d{4}\s+U\.S\.\s+\d+\b"),
-            'year_citation_alt': re.compile(r"\b\d{4}\s+[A-Z][a-z]+\.\s+\d+\b"),
+    def _init_patterns(self):
+        """Initialize comprehensive regex patterns including enhanced patterns."""
+        
+        # Comprehensive list of reporter abbreviations (from enhanced_citation_processor)
+        self.REPORTERS = [
+            # Short forms (most common in real citations)
+            "Wash. 2d", "Wash. App.", "Wn.2d", "Wn. App.", "Cal. App.", "N.Y. App. Div.",
+            "P.3d", "P.2d", "F.3d", "F.2d", "U.S.", "S. Ct.", "L. Ed.", "A.2d", "So. 2d",
+            "Ill. App. Ct.", "Tex. App.", "Wis. 2d", "Va. App.", "Md. App.", "Ala. Civ. App.",
+            "Ala. Crim. App.", "Ariz. App.", "Colo. App.", "Conn. App.", "Fla. Dist. Ct. App.",
+            "Ga. App.", "Haw. App.", "Idaho App.", "Ind. App.", "Iowa App.", "Kan. App.",
+            "Ky. App.", "La. App.", "Mass. App.", "Mich. App.", "Minn. App.", "Miss. App.",
+            "Mo. App.", "Neb. App.", "N.J. Super. App. Div.", "N.M. App.", "N.C. App.",
+            "N.D. App.", "Ohio App.", "Okla. Crim. App.", "Okla. Civ. App.", "Or. App.",
+            "Pa. Super.", "S.C. App.", "S.D. App.", "Tenn. App.", "Tex. Crim. App.",
+            "Utah App.", "Vt. App.", "Wis. App.", "Wyo. App.",
+            # Long forms (for completeness)
+            "Wash. Ct. App.", "Cal. Ct. App.", "N.Y. Ct. App. Div.", "Va. Ct. App.", "Md. Ct. App.",
+            "Ill. App. Ct.", "Ala. Ct. Civ. App.", "Ala. Ct. Crim. App.", "Ariz. Ct. App.",
+            "Colo. Ct. App.", "Conn. Ct. App.", "Fla. Dist. Ct. App.", "Ga. Ct. App.", "Haw. Ct. App.",
+            "Idaho Ct. App.", "Ind. Ct. App.", "Iowa Ct. App.", "Kan. Ct. App.", "Ky. Ct. App.",
+            "La. Ct. App.", "Mass. Ct. App.", "Mich. Ct. App.", "Minn. Ct. App.", "Miss. Ct. App.",
+            "Mo. Ct. App.", "Neb. Ct. App.", "N.J. Super. Ct. App. Div.", "N.M. Ct. App.",
+            "N.C. Ct. App.", "N.D. Ct. App.", "Ohio Ct. App.", "Okla. Ct. Crim. App.",
+            "Okla. Ct. Civ. App.", "Or. Ct. App.", "Pa. Super. Ct.", "S.C. Ct. App.", "S.D. Ct. App.",
+            "Tenn. Ct. App.", "Tex. Ct. Crim. App.", "Utah Ct. App.", "Vt. Ct. App.", "Wis. Ct. App.", "Wyo. Ct. App."
+        ]
+        
+        # Build dynamic reporter regex
+        escaped_reporters = [re.escape(r) for r in self.REPORTERS]
+        self.reporter_pattern = "|".join(escaped_reporters)
+        
+        # Enhanced primary patterns (from enhanced_citation_processor)
+        self.primary_patterns = {
+            # Washington patterns
+            'wn_app': r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b',
+            'wn2d': r'\b(\d+)\s+Wn\.2d\s+(\d+)\b',
+            'wash2d': r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)\b',
+            'wash_app': r'\b(\d+)\s+Wash\.\s*App\.\s+(\d+)\b',
+            # Pacific Reporter patterns
+            'p3d': r'\b(\d+)\s+P\.3d\s+(\d+)\b',
+            'p2d': r'\b(\d+)\s+P\.2d\s+(\d+)\b',
+            # Federal patterns
+            'us': r'\b(\d+)\s+U\.\s*S\.\s+(\d+)\b',
+            'f3d': r'\b(\d+)\s+F\.3d\s+(\d+)\b',
+            'f2d': r'\b(\d+)\s+F\.2d\s+(\d+)\b',
+            'f_supp': r'\b(\d+)\s+F\.\s*Supp\.\s+(\d+)\b',
+            'f_supp2d': r'\b(\d+)\s+F\.\s*Supp\.\s*2d\s+(\d+)\b',
+            # Supreme Court patterns
+            's_ct': r'\b(\d+)\s+S\.\s*Ct\.\s+(\d+)\b',
+            'l_ed': r'\b(\d+)\s+L\.\s*Ed\.\s+(\d+)\b',
+            'l_ed2d': r'\b(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+)\b',
+            # Atlantic Reporter patterns
+            'a2d': r'\b(\d+)\s+A\.2d\s+(\d+)\b',
+            'a3d': r'\b(\d+)\s+A\.3d\s+(\d+)\b',
+            # Southern Reporter patterns
+            'so2d': r'\b(\d+)\s+So\.\s*2d\s+(\d+)\b',
+            'so3d': r'\b(\d+)\s+So\.\s*3d\s+(\d+)\b',
+            # Additional variants for robustness
+            'wash_2d_alt': r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)\b',
+            'wash_app_alt': r'\b(\d+)\s+Wash\.\s*App\.\s+(\d+)\b',
+            'wn2d_alt': r'\b(\d+)\s+Wn\.2d\s+(\d+)\b',
+            'wn_app_alt': r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b',
+            'p3d_alt': r'\b(\d+)\s+P\.3d\s+(\d+)\b',
+            'p2d_alt': r'\b(\d+)\s+P\.2d\s+(\d+)\b',
         }
+        
+        # Enhanced case name pattern (from enhanced_citation_processor)
+        self.case_name_pattern = r'\b([A-Z][A-Za-z\s\.,&\'\"\(\)]+v\.\s+[A-Z][A-Za-z\s\.,&\'\"\(\)]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)'
+        
+        # Enhanced pinpoint page pattern
+        self.pinpoint_pattern = r',\s*(\d+)(?=\s*[,;]|\s*\(|\s*$)'
+        
+        # Enhanced docket number pattern
+        self.docket_pattern = r'No\.\s*([0-9\-]+)'
+        
+        # Enhanced case history pattern
+        self.history_pattern = r'\(([A-Za-z\s]+(?:I|II|III|IV|V|VI|VII|VIII|IX|X))\)'
+        
+        # Enhanced publication status pattern
+        self.status_pattern = r'\((unpublished|published|memorandum|per\s+curiam)\)'
+        
+        # Enhanced year pattern
+        self.year_pattern = r'\((\d{4})\)'
+        
+        # Enhanced complex citation block patterns (from enhanced_citation_processor)
+        self.complex_block_patterns = [
+            # Pattern for case name followed by multiple citations
+            r'[A-Z][A-Za-z\s\.,&\'\"\(\)]+v\.\s+[A-Z][A-Za-z\s\.,&\'\"\(\)]+?,\s+\d+\s+[A-Za-z\.\s]+\d+.*?(?=\n|\.|;)',
+            # Pattern for multiple citations separated by commas
+            r'\d+\s+[A-Za-z\.\s]+\d+.*?(?:,\s*\d+\s+[A-Za-z\.\s]+\d+).*?(?=\n|\.|;)',
+            # Pattern for citations with docket numbers
+            r'\d+\s+[A-Za-z\.\s]+\d+.*?No\.\s*[0-9\-]+.*?(?=\n|\.|;)',
+            # Pattern for citations with case history
+            r'\d+\s+[A-Za-z\.\s]+\d+.*?\([A-Za-z\s]+(?:I|II|III|IV|V|VI|VII|VIII|IX|X)\).*?(?=\n|\.|;)',
+        ]
     
     def extract_citations(self, text: str) -> List[Dict[str, Any]]:
         """Extract citations using comprehensive regex patterns."""
         citations = []
         seen = set()
         
-        for name, pattern in self.patterns.items():
+        for name, pattern in self.primary_patterns.items():
             try:
                 matches = list(pattern.finditer(text))
                 for match in matches:
@@ -630,7 +645,11 @@ class EyeciteProcessor:
             citations = get_citations(text, tokenizer=tokenizer)
             results = []
             for citation in citations:
-                citation_str = str(citation)
+                # Extract the clean citation string from the eyecite object
+                if hasattr(citation, 'citation') and citation.citation:
+                    citation_str = citation.citation
+                else:
+                    citation_str = str(citation)
                 # Extract case name from eyecite metadata if available
                 case_name = None
                 if hasattr(citation, 'metadata') and citation.metadata:
@@ -757,38 +776,6 @@ class APIVerifier:
             'source': 'CourtListener'
         }
 
-class CaseNameExtractor:
-    """Extracts case names from citation context."""
-    
-    def extract_case_name(self, text: str, citation: str) -> Optional[str]:
-        """Extract case name from context around a citation."""
-        try:
-            # Find citation in text
-            citation_index = text.find(citation)
-            if citation_index == -1:
-                return None
-            
-            # Get context before citation
-            context_start = max(0, citation_index - 500)
-            context = text[context_start:citation_index]
-            
-            # Look for case name patterns
-            case_patterns = [
-                r'([A-Z][A-Za-z\s\.,&\'\"\(\)]+v\.\s+[A-Z][A-Za-z\s\.,&\'\"\(\)]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
-                r'([A-Z][A-Za-z\s\.,&\'\"\(\)]+v\.\s+[A-Z][A-Za-z\s\.,&\'\"\(\)]+?)\s*,\s*\d+',
-            ]
-            
-            for pattern in case_patterns:
-                match = re.search(pattern, context, re.IGNORECASE)
-                if match:
-                    return match.group(1).strip()
-            
-            return None
-            
-        except Exception as e:
-            logger.warning(f"Case name extraction failed: {e}")
-            return None
-
 class CitationGrouper:
     """Groups citations by case similarity."""
     
@@ -859,11 +846,12 @@ class UnifiedCitationProcessor:
         self.complex_detector = ComplexCitationDetector()
         self.eyecite_processor = EyeciteProcessor()
         self.api_verifier = APIVerifier()
-        self.case_name_extractor = CaseNameExtractor()
+        # DEPRECATED: self.case_name_extractor = CaseNameExtractor()
         self.citation_grouper = CitationGrouper()
         self.verifier = EnhancedMultiSourceVerifier()
         self.cache_manager = get_cache_manager()
         self._init_patterns()
+        warnings.warn("CaseNameExtractor is deprecated. Use extract_case_name_triple from src.case_name_extraction_core instead.", DeprecationWarning)
     
     def _init_patterns(self):
         """Initialize regex patterns for different citation components."""
@@ -1111,106 +1099,101 @@ class UnifiedCitationProcessor:
         return unique_results
     
     def extract_citations(self, text: str) -> List[CitationResult]:
-        """Extract all citations using multiple methods."""
-        citations = []
+        """
+        Extract citations from text using multiple methods.
         
-        # Method 1: Complex citation detection
-        if self.complex_detector.is_complex_citation(text):
-            complex_data = self.complex_detector.parse_complex_citation(text)
+        Args:
+            text: The text to extract citations from
             
-            # Create primary citation
-            if complex_data['primary_citation']:
-                primary = CitationResult(
-                    citation=complex_data['primary_citation'],
-                    case_name=complex_data['case_name'],
-                    year=complex_data['year'],
-                    is_complex=True,
-                    parallel_citations=complex_data['parallel_citations'],
-                    pinpoint_pages=complex_data['pinpoint_pages'],
-                    docket_numbers=complex_data['docket_numbers'],
-                    case_history=complex_data['case_history'],
-                    publication_status=complex_data['publication_status'],
-                    method='complex',
-                    confidence=0.9
-                )
-                citations.append(primary)
-                
-                # Add parallel citations
-                for parallel_citation in complex_data['parallel_citations']:
-                    parallel = CitationResult(
-                        citation=parallel_citation,
-                        case_name=complex_data['case_name'],
-                        year=complex_data['year'],
-                        is_complex=True,
-                        is_parallel=True,
-                        primary_citation=complex_data['primary_citation'],
-                        method='complex'
-                    )
-                    citations.append(parallel)
+        Returns:
+            List of CitationResult objects
+        """
+        if not text:
+            return []
+        
+        all_citations = []
+        
+        # Method 1: Regex extraction
+        if hasattr(self, 'extract_regex_citations'):
+            regex_citations = self.extract_regex_citations(text)
+            all_citations.extend(regex_citations)
         
         # Method 2: Eyecite extraction
-        eyecite_results = self.eyecite_processor.extract_eyecite_citations(text)
-        citations.extend(eyecite_results)
+        if hasattr(self, 'eyecite_processor'):
+            try:
+                eyecite_citations = self.eyecite_processor.extract_citations(text)
+                all_citations.extend(eyecite_citations)
+            except Exception as e:
+                self.logger.warning(f"Eyecite extraction failed: {e}")
         
-        # Method 3: Regex extraction (fallback)
-        regex_results = self.extract_regex_citations(text)
-        citations.extend(regex_results)
+        # COMPREHENSIVE U.S.C. AND C.F.R. FILTERING
+        filtered_citations = []
+        for citation in all_citations:
+            citation_text = citation.citation if hasattr(citation, 'citation') else str(citation)
+            
+            # Comprehensive filtering for U.S.C. and C.F.R. citations
+            if any(pattern in citation_text.upper() for pattern in [
+                "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "UNITED STATES CODE",
+                "C.F.R.", "CFR", "C.F.R", "CODE OF FEDERAL REGULATIONS",
+                "§", "SECTION", "TITLE", "CHAPTER"
+            ]):
+                continue  # Skip U.S.C. and C.F.R. citations
+            
+            # Additional regex checks for statute patterns
+            if re.search(r'\d+\s+U\.?\s*S\.?\s*C\.?\s*[§]?\s*\d+', citation_text, re.IGNORECASE):
+                continue  # Skip U.S.C. citations with section symbols
+            
+            if re.search(r'\d+\s+C\.?\s*F\.?\s*R\.?\s*[§]?\s*\d+', citation_text, re.IGNORECASE):
+                continue  # Skip C.F.R. citations
+            
+            filtered_citations.append(citation)
         
-        # Method 4: Enhanced case name extraction for citations without case names
-        for citation in citations:
-            if not citation.case_name and citation.citation:
-                try:
-                    # Extract case name from context around the citation
-                    context_start = max(0, citation.start_index - 500 if citation.start_index else 0)
-                    context_end = min(len(text), citation.end_index + 500 if citation.end_index else len(text))
-                    context = text[context_start:context_end]
-                    
-                    # Use the case name extractor
-                    if self.case_name_extractor:
-                        extracted_name = self.case_name_extractor.extract_case_name(context, citation.citation)
-                        if extracted_name:
-                            citation.case_name = extracted_name
-                except Exception as e:
-                    logger.warning(f"Error extracting case name for {citation.citation}: {e}")
+        # CONSERVATIVE GROUPING: Only group citations that are explicitly together in source text
+        # This prevents merging different cases that happen to have similar names
+        if len(filtered_citations) > 1:
+            grouped_citations = self.group_parallel_citations(filtered_citations)
+            return grouped_citations
         
-        # Remove duplicates based on citation text
-        seen = set()
-        unique_citations = []
-        for citation in citations:
-            if citation.citation not in seen:
-                seen.add(citation.citation)
-                unique_citations.append(citation)
-        
-        return unique_citations
+        return filtered_citations
     
     def verify_citations(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
-        """Verify citations using the enhanced verifier."""
-        verified_citations = []
-        
+        """
+        Verify and enrich citations with canonical and extracted case names and dates.
+        """
+        import logging
+        logger = logging.getLogger("case_name_extraction")
         for citation in citations:
             try:
-                result = self.verifier.verify_citation_unified_workflow(
-                    citation.citation,
-                    extracted_case_name=citation.case_name,
-                    full_text=text
-                )
+                # Use enhanced extraction functions for better results
+                from src.enhanced_case_name_extraction import extract_case_name_enhanced
+                from src.enhanced_date_extraction import extract_year_near_citation_enhanced
                 
-                citation.verified = result.get('verified', False)
-                citation.url = result.get('url')
-                citation.court = result.get('court')
-                citation.docket_number = result.get('docket_number')
-                citation.canonical_date = result.get('date_filed')
-                citation.source = result.get('source', 'Local')
-                citation.confidence = result.get('confidence', 0.5)
+                # Enhanced case name extraction
+                case_name_result = extract_case_name_enhanced(text, citation.citation)
+                if case_name_result:
+                    citation.extracted_case_name = case_name_result.cleaned_name
+                    citation.case_name = case_name_result.cleaned_name
+                    citation.confidence = case_name_result.confidence
+                else:
+                    # Fallback to original method
+                    triple = extract_case_name_triple(text, citation.citation)
+                    citation.canonical_name = triple.get('canonical_name')
+                    citation.extracted_case_name = triple.get('extracted_name')
+                    citation.hinted_case_name = triple.get('hinted_name')
+                    citation.case_name = triple.get('case_name')
+                    citation.canonical_date = triple.get('canonical_date')
+                    citation.extracted_date = triple.get('extracted_date')
                 
-                verified_citations.append(citation)
+                # Enhanced date extraction
+                extracted_date = extract_year_near_citation_enhanced(text, citation.citation)
+                if extracted_date:
+                    citation.extracted_date = extracted_date
+                    citation.year = extracted_date
                 
+                logger.debug(f"[UnifiedCitationProcessor] Citation: {citation.citation} | canonical: {citation.canonical_name} | extracted: {citation.extracted_case_name} | hinted: {citation.hinted_case_name} | date: {citation.canonical_date} | extracted_date: {citation.extracted_date}")
             except Exception as e:
-                logger.warning(f"Verification failed for {citation.citation}: {e}")
-                citation.error = str(e)
-                verified_citations.append(citation)
-        
-        return verified_citations
+                logger.warning(f"[UnifiedCitationProcessor] Failed to extract case name/date for {citation.citation}: {e}")
+        return citations
     
     def calculate_statistics(self, citations: List[CitationResult]) -> CitationStatistics:
         """Calculate comprehensive statistics."""
@@ -1254,66 +1237,28 @@ class UnifiedCitationProcessor:
         )
     
     def format_for_frontend(self, citations: List[CitationResult]) -> List[Dict[str, Any]]:
-        """Format results for frontend display."""
+        """Format results for frontend display, always showing both canonical and extracted names/dates."""
         formatted_results = []
-        
         for citation in citations:
-            # Create display text that prominently shows parallel citations
-            display_parts = []
-            
-            # Add case name prominently
-            if citation.case_name:
-                display_parts.append(f"<strong>{citation.case_name}</strong>")
-            
-            # Add primary citation
-            display_parts.append(citation.citation)
-            
-            # Add pinpoint pages
-            if citation.pinpoint_pages:
-                display_parts.extend(citation.pinpoint_pages)
-            
-            # Add parallel citations prominently (not in dropdown)
-            if citation.parallel_citations:
-                parallel_text = ", ".join(citation.parallel_citations)
-                display_parts.append(f"<em>Parallel: {parallel_text}</em>")
-            
-            # Add year
-            if citation.year:
-                display_parts.append(f"({citation.year})")
-            
-            # Add case history
-            if citation.case_history:
-                display_parts.extend([f"({history})" for history in citation.case_history])
-            
-            # Add publication status
-            if citation.publication_status:
-                display_parts.append(f"({citation.publication_status})")
-            
-            # Add docket numbers
-            if citation.docket_numbers:
-                docket_text = ", ".join(citation.docket_numbers)
-                display_parts.append(f"<em>Docket: {docket_text}</em>")
-            
-            # For parallel citations, show they belong to the primary
-            if citation.is_parallel and citation.primary_citation:
-                display_parts.append(f"<em>(Parallel to {citation.primary_citation})</em>")
-            
             formatted_result = {
                 'citation': citation.citation,
                 'valid': citation.verified,
                 'verified': citation.verified,
-                'case_name': citation.case_name,
-                'extracted_case_name': citation.extracted_case_name,
-                'canonical_name': citation.canonical_name,
-                'canonical_date': citation.canonical_date,
-                'court': citation.court,
-                'docket_number': citation.docket_number,
+                'case_name': citation.case_name if citation.case_name else 'N/A',
+                'extracted_case_name': citation.extracted_case_name if getattr(citation, 'extracted_case_name', None) else 'N/A',
+                'extracted_date': citation.extracted_date if getattr(citation, 'extracted_date', None) else 'N/A',
+                'canonical_name': citation.canonical_name if citation.canonical_name else 'N/A',
+                'canonical_date': citation.canonical_date if citation.canonical_date else 'N/A',
+                'court': citation.court if citation.court else 'N/A',
+                'docket_number': citation.docket_number if citation.docket_number else 'N/A',
                 'confidence': citation.confidence,
                 'source': citation.source,
                 'url': citation.url,
+                'canonical_urls': citation.canonical_urls,
                 'is_complex_citation': citation.is_complex,
                 'is_parallel_citation': citation.is_parallel,
-                'display_text': ' '.join(display_parts),
+                'display_text': citation.citation,  # Simplified for clarity
+                'case_name_color': '#228B22' if citation.verified else '#B22222',
                 'complex_features': {
                     'has_parallel_citations': bool(citation.parallel_citations),
                     'has_case_history': bool(citation.case_history),
@@ -1333,17 +1278,14 @@ class UnifiedCitationProcessor:
                     'error': citation.error
                 }
             }
-            
             formatted_results.append(formatted_result)
-        
         return formatted_results
     
     def extract_regex_citations(self, text: str) -> List[CitationResult]:
         """Extract citations using comprehensive regex patterns."""
         citations = []
         seen = set()
-        
-        # Use all comprehensive patterns
+        first_citation_found = False
         for pattern_name, pattern in self.primary_patterns.items():
             try:
                 matches = list(pattern.finditer(text))
@@ -1352,19 +1294,60 @@ class UnifiedCitationProcessor:
                     if citation_str in seen:
                         continue
                     seen.add(citation_str)
-                    
                     # Extract date from context if available
                     extracted_date = None
                     if match.start() is not None and match.end() is not None:
                         extracted_date = DateExtractor.extract_date_from_context(
                             text, match.start(), match.end()
                         )
-                    
-                    # Extract context around citation
-                    context_start = max(0, match.start() - 200)
-                    context_end = min(len(text), match.end() + 200)
-                    context = text[context_start:context_end]
-                    
+                    # For first citation, check if context is only case name or empty
+                    if not first_citation_found:
+                        context_start = max(0, match.start() - 200)
+                        context = text[context_start:match.start()].strip()
+                        # Find case name as text up to first comma or citation
+                        comma_idx = text.find(',')
+                        if comma_idx != -1 and comma_idx < match.start():
+                            case_name_literal = text[:comma_idx].strip()
+                        else:
+                            case_name_literal = text[:match.start()].strip()
+                        # If context is empty or matches the case name, treat as N/A
+                        if not context or context == case_name_literal:
+                            context = 'N/A'
+                        extracted_case_name = case_name_literal
+                        first_citation_found = True
+                    else:
+                        # For subsequent citations, use normal context window
+                        context_start = max(0, match.start() - 200)
+                        context_end = min(len(text), match.end() + 200)
+                        context = text[context_start:context_end]
+                        # Fallback for extracted_case_name: 5 non-stop words before citation
+                        extracted_case_name = None
+                        candidates = self.extract_case_name_candidates(text, citation_str)
+                        if candidates:
+                            extracted_case_name = candidates[0]
+                        else:
+                            stopwords = set([
+                                'the', 'of', 'and', 'a', 'an', 'in', 'to', 'for', 'on', 'at', 'by', 'with', 'from', 'as', 'is', 'was', 'were', 'be', 'been', 'are', 'or', 'that', 'this', 'it', 'but', 'not', 'which', 'who', 'whom', 'whose', 'can', 'could', 'should', 'would', 'may', 'might', 'will', 'shall', 'do', 'does', 'did', 'so', 'if', 'than', 'then', 'there', 'here', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'only', 'own', 'same', 'too', 'very', 's', 't', 'just', 'don', 'now'
+                            ])
+                            fallback_context = text[max(0, match.start()-200):match.start()]
+                            words = fallback_context.split()
+                            non_stop = []
+                            for word in reversed(words):
+                                if word.lower() not in stopwords and word.isalpha():
+                                    non_stop.append(word)
+                                if len(non_stop) == 5:
+                                    break
+                            non_stop = list(reversed(non_stop))
+                            if non_stop:
+                                literal_case = ' '.join(non_stop)
+                                if not (literal_case.lower().startswith('in re') or literal_case.lower().startswith('ex parte')):
+                                    extracted_case_name = literal_case
+                    # Fallback for extracted_date: scan after citation for (YYYY)
+                    if not extracted_date:
+                        after = text[match.end():match.end()+50]
+                        m = re.search(r'\((19|20)\d{2}\)', after)
+                        if m:
+                            extracted_date = f"{m.group(1)}-01-01"
                     citation = CitationResult(
                         citation=citation_str,
                         method='regex',
@@ -1373,6 +1356,8 @@ class UnifiedCitationProcessor:
                         start_index=match.start(),
                         end_index=match.end(),
                         context=context,
+                        extracted_case_name=extracted_case_name,
+                        extracted_date=extracted_date,
                         year=extracted_date.split('-')[0] if extracted_date else None,
                         metadata={
                             'extracted_date': extracted_date,
@@ -1380,68 +1365,157 @@ class UnifiedCitationProcessor:
                         }
                     )
                     citations.append(citation)
-                    
             except Exception as e:
                 logger.warning(f"Regex extraction failed for {pattern_name}: {e}")
-        
         return citations
     
     def group_parallel_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
-        """Group citations that are likely parallel citations for the same case."""
-        if not citations:
+        """
+        Group parallel citations that refer to the same case.
+        
+        CONSERVATIVE APPROACH: Only group citations that are explicitly together in the source text.
+        This prevents merging different cases that happen to have similar names or dates.
+        
+        Args:
+            citations: List of CitationResult objects
+            
+        Returns:
+            List of grouped CitationResult objects
+        """
+        if not citations or len(citations) <= 1:
             return citations
         
-        # Group by case name similarity
-        grouped_citations = []
+        # CONSERVATIVE GROUPING: Only group if citations are explicitly together
+        # Look for citations that appear in the same text block or are separated by punctuation
+        
+        grouped = []
         processed = set()
         
         for i, citation in enumerate(citations):
             if i in processed:
                 continue
             
+            # Start a new group
             group = [citation]
             processed.add(i)
             
-            # Find similar citations
+            # Look for citations that are explicitly together with this one
             for j, other in enumerate(citations):
                 if j in processed:
                     continue
                 
-                if self._are_likely_parallel(citation, other):
-                    group.append(other)
-                    processed.add(j)
+                # STRICT GROUPING CRITERIA:
+                # 1. Same case name (exact match or very high similarity)
+                # 2. Same context block (within 200 characters)
+                # 3. Explicitly separated by commas/semicolons in source text
+                
+                # Check for exact case name match first
+                if (citation.case_name and other.case_name and 
+                    citation.case_name == other.case_name):
+                    
+                    # Check if they're in the same context block
+                    if (hasattr(citation, 'context') and hasattr(other, 'context') and
+                        citation.context and other.context):
+                        
+                        # Calculate context similarity
+                        context_similarity = self._calculate_context_similarity(
+                            citation.context, other.context
+                        )
+                        
+                        if context_similarity > 0.8:  # Very high similarity threshold
+                            # Additional check: are they explicitly separated by punctuation?
+                            # Look for patterns like "case_name, citation1, citation2"
+                            combined_text = f"{citation.citation} {other.citation}"
+                            if re.search(r'[,;]\s*', combined_text) or context_similarity > 0.9:
+                                group.append(other)
+                                processed.add(j)
+                                continue
+                
+                # Check for very high similarity (0.95+) but only if they're in the same context
+                elif (citation.case_name and other.case_name):
+                    similarity = self._calculate_case_name_similarity(
+                        citation.case_name, other.case_name
+                    )
+                    
+                    if similarity >= 0.95:  # Much higher threshold
+                        # Additional requirement: they must be in the same context block
+                        if (hasattr(citation, 'context') and hasattr(other, 'context') and
+                            citation.context and other.context):
+                            
+                            context_similarity = self._calculate_context_similarity(
+                                citation.context, other.context
+                            )
+                            
+                            if context_similarity > 0.7:  # High context similarity
+                                # Check for explicit grouping indicators
+                                combined_context = f"{citation.context} {other.context}"
+                                if re.search(r'[,;]\s*', combined_context):
+                                    group.append(other)
+                                    processed.add(j)
+                                    continue
             
-            # If we have a group with multiple citations, mark them as parallel
+            # If we have multiple citations in the group, create a combined result
             if len(group) > 1:
+                # Use the first citation as primary and add others as parallel citations
                 primary = group[0]
-                primary.is_complex = True
                 primary.parallel_citations = [c.citation for c in group[1:]]
-                
-                for parallel_citation in group[1:]:
-                    parallel_citation.is_parallel = True
-                    parallel_citation.primary_citation = primary.citation
-                    parallel_citation.is_complex = True
-                
-                grouped_citations.extend(group)
+                primary.is_parallel = True
+                grouped.append(primary)
             else:
-                grouped_citations.append(citation)
+                # Single citation, no grouping needed
+                grouped.append(group[0])
         
-        return grouped_citations
+        return grouped
     
-    def _are_likely_parallel(self, citation1: CitationResult, citation2: CitationResult) -> bool:
-        """Check if two citations are likely parallel citations for the same case."""
-        # Check if they have the same case name
-        if citation1.case_name and citation2.case_name:
-            if self._normalize_case_name(citation1.case_name) == self._normalize_case_name(citation2.case_name):
-                return True
+    def _calculate_context_similarity(self, context1: str, context2: str) -> float:
+        """Calculate similarity between two context strings."""
+        if not context1 or not context2:
+            return 0.0
         
-        # Check if they have the same year
-        if citation1.year and citation2.year and citation1.year == citation2.year:
-            # Additional check: are they different reporter types?
-            if self._are_different_reporters(citation1.citation, citation2.citation):
-                return True
+        # Simple Jaccard similarity on words
+        words1 = set(context1.lower().split())
+        words2 = set(context2.lower().split())
         
-        return False
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
+    
+    def _calculate_case_name_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two case names."""
+        if not name1 or not name2:
+            return 0.0
+        
+        # Normalize names
+        norm1 = self._normalize_case_name(name1)
+        norm2 = self._normalize_case_name(name2)
+        
+        if not norm1 or not norm2:
+            return 0.0
+        
+        # Check for exact match
+        if norm1 == norm2:
+            return 1.0
+        
+        # Check for one name being a substring of the other
+        if norm1 in norm2 or norm2 in norm1:
+            return 0.8
+        
+        # Get word sets
+        words1 = set(norm1.split())
+        words2 = set(norm2.split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        # Calculate Jaccard similarity
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
     
     def _normalize_case_name(self, case_name: str) -> str:
         """Normalize case name for comparison."""
@@ -1453,37 +1527,163 @@ class UnifiedCitationProcessor:
         normalized = re.sub(r'\s+', ' ', normalized).strip()
         
         return normalized
-    
-    def _are_different_reporters(self, citation1: str, citation2: str) -> bool:
-        """Check if two citations use different reporters."""
-        # Extract reporter from citations
-        reporter1 = self._extract_reporter(citation1)
-        reporter2 = self._extract_reporter(citation2)
-        
-        return reporter1 != reporter2 and reporter1 and reporter2
-    
-    def _extract_reporter(self, citation: str) -> str:
-        """Extract reporter from citation string."""
-        # Common reporter patterns
-        patterns = [
-            r'\bWn\.\s*App\.\b',
-            r'\bWn\.2d\b',
-            r'\bWn\.3d\b',
-            r'\bWash\.\s*App\.\b',
-            r'\bWash\.2d\b',
-            r'\bP\.3d\b',
-            r'\bP\.2d\b',
-            r'\bU\.\s*S\.\b',
-            r'\bF\.3d\b',
-            r'\bF\.2d\b',
-        ]
-        
-        for pattern in patterns:
-            match = re.search(pattern, citation)
-            if match:
-                return match.group(0)
-        
-        return ""
 
 # Global instance for easy access
 unified_processor = UnifiedCitationProcessor() 
+
+# === DEBUGGING INTEGRATION ===
+import logging
+from typing import List
+
+# --- BEGIN ExtractionDebugger ---
+import re
+import logging
+from typing import Dict, List, Optional, Tuple, Any
+import json
+from datetime import datetime
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("citation_debug")
+
+class ExtractionDebugger:
+    """
+    Comprehensive debugging tool for your unified citation extraction pipeline
+    """
+    def __init__(self):
+        self.debug_log = []
+        self.extraction_results = {}
+    def log_step(self, step: str, data: Any, level: str = "info"):
+        timestamp = datetime.now().isoformat()
+        log_entry = {
+            "timestamp": timestamp,
+            "step": step,
+            "data": data,
+            "level": level
+        }
+        self.debug_log.append(log_entry)
+        if level == "error":
+            logger.error(f"{step}: {data}")
+        elif level == "warning":
+            logger.warning(f"{step}: {data}")
+        else:
+            logger.info(f"{step}: {data}")
+    def debug_unified_pipeline(self, text: str, citations: List[str], api_key: str = None) -> Dict:
+        self.log_step("PIPELINE_START", {
+            "text_length": len(text),
+            "citation_count": len(citations),
+            "citations": citations
+        })
+        results = {
+            "input": {
+                "text_preview": text[:300] + "..." if len(text) > 300 else text,
+                "citations": citations
+            },
+            "extraction_results": {},
+            "debug_info": {},
+            "issues_found": [],
+            "recommendations": []
+        }
+        for i, citation in enumerate(citations):
+            self.log_step(f"PROCESSING_CITATION_{i}", citation)
+            citation_result = self._debug_single_citation(text, citation, api_key)
+            results["extraction_results"][citation] = citation_result
+        results["debug_info"] = self._analyze_results(results["extraction_results"])
+        results["issues_found"] = self._identify_issues(results["extraction_results"])
+        results["recommendations"] = self._generate_recommendations(results["issues_found"])
+        return results
+    def _debug_single_citation(self, text: str, citation: str, api_key: str = None) -> Dict:
+        result = {
+            "citation": citation,
+            "stages": {},
+            "final_result": {},
+            "confidence_scores": {},
+            "extraction_methods": {}
+        }
+        # Stage 1: Citation Location Analysis
+        idx = text.find(citation)
+        context = text[max(0, idx-300):idx+len(citation)+300] if idx != -1 else text
+        result["stages"]["context"] = context
+        self.log_step("CONTEXT_WINDOW", {"citation": citation, "context": context})
+        # Stage 2: Case Name Extraction
+        try:
+            from src.case_name_extraction_core import extract_case_name_triple
+            case_name_result = extract_case_name_triple(text, citation, api_key=api_key, context_window=300)
+            result["stages"]["case_name"] = case_name_result
+            self.log_step("CASE_NAME_EXTRACTION", case_name_result)
+        except Exception as e:
+            result["stages"]["case_name"] = {"error": str(e)}
+            self.log_step("CASE_NAME_EXTRACTION_ERROR", str(e), level="error")
+        # Stage 3: Date Extraction
+        try:
+            from src.enhanced_date_extraction import extract_year_near_citation_enhanced
+            year_result = extract_year_near_citation_enhanced(text, citation, context_window=300)
+            result["stages"]["date"] = year_result
+            self.log_step("DATE_EXTRACTION", year_result)
+        except Exception as e:
+            result["stages"]["date"] = {"error": str(e)}
+            self.log_step("DATE_EXTRACTION_ERROR", str(e), level="error")
+        # Stage 4: Canonical Lookup (simulate or call real API if available)
+        try:
+            # This is a placeholder for actual canonical lookup logic
+            result["stages"]["canonical_lookup"] = "(not implemented in debugger)"
+        except Exception as e:
+            result["stages"]["canonical_lookup"] = {"error": str(e)}
+            self.log_step("CANONICAL_LOOKUP_ERROR", str(e), level="error")
+        # Final result summary
+        result["final_result"] = {
+            "case_name": result["stages"].get("case_name"),
+            "date": result["stages"].get("date"),
+            "canonical": result["stages"].get("canonical_lookup")
+        }
+        return result
+    def _analyze_results(self, extraction_results: Dict) -> Dict:
+        # Simple analysis: check for missing names/dates
+        issues = {}
+        for citation, res in extraction_results.items():
+            if not res["final_result"].get("case_name"):
+                issues[citation] = issues.get(citation, []) + ["Missing case name"]
+            if not res["final_result"].get("date"):
+                issues[citation] = issues.get(citation, []) + ["Missing date"]
+        return issues
+    def _identify_issues(self, extraction_results: Dict) -> List[str]:
+        issues = []
+        for citation, res in extraction_results.items():
+            if not res["final_result"].get("case_name"):
+                issues.append(f"Citation {citation}: Missing case name")
+            if not res["final_result"].get("date"):
+                issues.append(f"Citation {citation}: Missing date")
+        return issues
+    def _generate_recommendations(self, issues: List[str]) -> List[str]:
+        recs = []
+        for issue in issues:
+            if "Missing case name" in issue:
+                recs.append("Check case name extraction regex and context window.")
+            if "Missing date" in issue:
+                recs.append("Check date extraction patterns and context window.")
+        return recs
+    def print_debug_report(self, results: Dict):
+        print("\n=== Extraction Debug Report ===")
+        print(json.dumps(results, indent=2, default=str))
+        print("\n=== Debug Log ===")
+        for entry in self.debug_log:
+            print(f"[{entry['timestamp']}] {entry['level'].upper()} {entry['step']}: {entry['data']}")
+
+# Usage example for integration
+def debug_extraction_pipeline(text: str, citations: List[str], api_key: str = None):
+    debugger = ExtractionDebugger()
+    results = debugger.debug_unified_pipeline(text, citations, api_key)
+    debugger.print_debug_report(results)
+    return results
+
+if __name__ == "__main__":
+    # Example: Use a real-world test case
+    sample_text = '''
+    Cockel v. Dep't of Lab. & Indus.,
+    142 Wn.2d 801, 808, 16 P.3d 583 (2002)
+    '''
+    sample_citations = ["142 Wn.2d 801", "16 P.3d 583"]
+    print("Running extraction debugger on sample input...")
+    debug_extraction_pipeline(sample_text, sample_citations)

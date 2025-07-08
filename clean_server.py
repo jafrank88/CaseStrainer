@@ -42,7 +42,7 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "service": "CaseStrainer Clean API",
-        "version": "0.5.7",
+        "version": "0.5.8",
         "timestamp": datetime.utcnow().isoformat(),
         "environment": "production",
         "database": "ok",
@@ -149,7 +149,7 @@ def task_status(task_id):
 def version():
     """Version endpoint"""
     return jsonify({
-        "version": "0.5.7",
+        "version": "0.5.8",
         "build": "clean-server",
         "timestamp": datetime.utcnow().isoformat()
     })

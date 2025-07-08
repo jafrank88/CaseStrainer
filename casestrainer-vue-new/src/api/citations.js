@@ -20,7 +20,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   pollTaskResults(taskId) {
-    return api.get(`/task_status/${taskId}`);
+    return api.get(`/casestrainer/api/analyze/progress/${taskId}`);
   },
 
   /**

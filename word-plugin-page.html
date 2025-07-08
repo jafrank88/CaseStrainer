@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseTrainer Word Plugin - Legal Citation Verification for Microsoft Word</title>
+    <meta name="description" content="Verify legal citations directly in Microsoft Word with CaseTrainer's advanced citation verification plugin. Detect and validate case citations in real-time.">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        
+        .feature-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .screenshot {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #1976d2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .benefit-icon {
+            color: #1976d2;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        
+        .cta-section {
+            background: #f8f9fa;
+            padding: 3rem 0;
+        }
+        
+        .testimonial {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+            color: #1976d2;
+            margin-top: 1rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .faq-question {
+            font-weight: bold;
+            color: #1976d2;
+            cursor: pointer;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+        
+        .faq-answer {
+            padding: 1rem;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-gavel me-2"></i>CaseTrainer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#installation">Installation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#usage">Usage</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary ms-2" href="#download">Download Now</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Verify Legal Citations Directly in Word
+                    </h1>
+                    <p class="lead mb-4">
+                        CaseTrainer's Word plugin brings advanced citation verification to your legal documents. 
+                        Detect, validate, and format legal citations in real-time without leaving Microsoft Word.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="#download" class="btn btn-light btn-lg">
+                            <i class="fas fa-download me-2"></i>Download Plugin
+                        </a>
+                        <a href="#demo" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-play me-2"></i>Watch Demo
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="assets/word-plugin-hero.png" alt="CaseTrainer Word Plugin Interface" class="img-fluid screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Powerful Features for Legal Professionals</h2>
+                <p class="lead text-muted">Everything you need to ensure citation accuracy in your legal documents</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h5 class="card-title">Real-Time Citation Detection</h5>
+                            <p class="card-text">
+                                Automatically scan your entire document for legal citations using advanced pattern recognition 
+                                and machine learning algorithms.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h5 class="card-title">Multi-Source Verification</h5>
+                            <p class="card-text">
+                                Verify citations against CourtListener, web search engines, and local legal databases 
+                                for comprehensive accuracy checking.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-highlighter"></i>
+                            </div>
+                            <h5 class="card-title">Smart Highlighting</h5>
+                            <p class="card-text">
+                                Automatically highlight verified citations in your document with color-coded status 
+                                indicators for quick visual reference.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <h5 class="card-title">One-Click Insertion</h5>
+                            <p class="card-text">
+                                Insert properly formatted citations directly into your document with verified case names, 
+                                dates, and parallel citations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5 class="card-title">Progress Tracking</h5>
+                            <p class="card-text">
+                                Real-time progress indicators show verification status, estimated completion time, 
+                                and detailed processing information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <h5 class="card-title">Customizable Settings</h5>
+                            <p class="card-text">
+                                Configure verification sources, highlighting preferences, and processing options 
+                                to match your workflow requirements.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="installation" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Easy Installation</h2>
+                <p class="lead text-muted">Get started with CaseTrainer Word Plugin in minutes</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-number">1</div>
+                                <div>
+                                    <h5>Download the Plugin</h5>
+                                    <p class="mb-0">Download the CaseTrainer Word Plugin manifest file from our secure server.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-number">2</div>
+                                <div>
+                                    <h5>Add to Word</h5>
+                                    <p class="mb-0">In Word, go to Insert > Add-ins > My Add-ins > Upload My Add-in and select the downloaded file.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="step-number">3</div>
+                                <div>
+                                    <h5>Configure Settings</h5>
+                                    <p class="mb-0">Set up your API key and preferences in the plugin settings panel.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="step-number">4</div>
+                                <div>
+                                    <h5>Start Verifying</h5>
+                                    <p class="mb-0">Click the CaseTrainer button in the Home tab to begin citation verification.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Section -->
+    <section id="usage" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">How to Use</h2>
+                <p class="lead text-muted">Simple steps to verify citations in your legal documents</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <h4>Basic Usage</h4>
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item">Open your legal document in Microsoft Word</li>
+                        <li class="list-group-item">Click the CaseTrainer button in the Home tab</li>
+                        <li class="list-group-item">Click "Scan Document for Citations"</li>
+                        <li class="list-group-item">Review the verification results in the task pane</li>
+                        <li class="list-group-item">Insert verified citations or highlight them in your document</li>
+                    </ol>
+                </div>
+                
+                <div class="col-lg-6">
+                    <h4>Advanced Features</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>Selected Text Verification:</strong> Verify specific citations by selecting text and clicking "Verify Selected"
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Auto-Highlighting:</strong> Enable automatic highlighting of verified citations in your document
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Parallel Citations:</strong> Include parallel citations from multiple legal databases
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Custom Formatting:</strong> Configure citation insertion format to match your style guide
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Why Choose CaseTrainer Word Plugin?</h2>
+                <p class="lead text-muted">The advantages that make it essential for legal professionals</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="benefit-item">
+                        <i class="fas fa-clock benefit-icon"></i>
+                        <div>
+                            <h5>Save Time</h5>
+                            <p class="mb-0">Verify citations in seconds instead of manually checking each one across multiple databases.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <i class="fas fa-shield-alt benefit-icon"></i>
+                        <div>
+                            <h5>Ensure Accuracy</h5>
+                            <p class="mb-0">Reduce citation errors and improve document credibility with multi-source verification.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <i class="fas fa-dollar-sign benefit-icon"></i>
+                        <div>
+                            <h5>Reduce Costs</h5>
+                            <p class="mb-0">Minimize research time and avoid costly citation errors that could impact case outcomes.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="benefit-item">
+                        <i class="fas fa-users benefit-icon"></i>
+                        <div>
+                            <h5>Team Collaboration</h5>
+                            <p class="mb-0">Standardize citation verification across your legal team with consistent formatting and verification.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <i class="fas fa-graduation-cap benefit-icon"></i>
+                        <div>
+                            <h5>Easy Learning</h5>
+                            <p class="mb-0">Intuitive interface requires minimal training - start verifying citations immediately.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <i class="fas fa-sync-alt benefit-icon"></i>
+                        <div>
+                            <h5>Always Current</h5>
+                            <p class="mb-0">Access the latest case information and citation formats with real-time database updates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">What Legal Professionals Say</h2>
+                <p class="lead text-muted">Real feedback from attorneys and legal researchers</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"CaseTrainer has revolutionized how I handle citations in my briefs. What used to take hours now takes minutes, and I have confidence that my citations are accurate."</p>
+                        <div class="testimonial-author">- Sarah Johnson, Partner at Johnson & Associates</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"The Word plugin integration is seamless. I can verify citations without leaving my document, and the highlighting feature makes it easy to spot any issues."</p>
+                        <div class="testimonial-author">- Michael Chen, Legal Researcher</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"Our firm has seen a significant reduction in citation errors since implementing CaseTrainer. The ROI has been immediate and substantial."</p>
+                        <div class="testimonial-author">- David Rodriguez, Managing Partner</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Frequently Asked Questions</h2>
+                <p class="lead text-muted">Everything you need to know about CaseTrainer Word Plugin</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            What versions of Microsoft Word are supported?
+                        </button>
+                        <div class="collapse" id="faq1">
+                            <div class="faq-answer">
+                                CaseTrainer Word Plugin supports Microsoft Word 2016, 2019, 2021, and Microsoft 365 (Office 365). 
+                                The plugin requires Word for Windows or Word for Mac.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            How accurate is the citation verification?
+                        </button>
+                        <div class="collapse" id="faq2">
+                            <div class="faq-answer">
+                                Our verification system achieves over 95% accuracy by cross-referencing multiple legal databases 
+                                including CourtListener, web search engines, and local legal databases. The system is continuously 
+                                improved with machine learning algorithms.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Is my document content secure?
+                        </button>
+                        <div class="collapse" id="faq3">
+                            <div class="faq-answer">
+                                Yes, your document content is processed securely. We use encrypted connections and do not store 
+                                your document content permanently. Only citation data is processed for verification purposes.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Can I customize the citation formatting?
+                        </button>
+                        <div class="collapse" id="faq4">
+                            <div class="faq-answer">
+                                Yes, you can configure citation formatting to match your preferred style guide (Bluebook, ALWD, etc.). 
+                                The plugin supports custom templates and formatting rules.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            What types of legal citations are supported?
+                        </button>
+                        <div class="collapse" id="faq5">
+                            <div class="faq-answer">
+                                The plugin supports all major legal citation types including U.S. Supreme Court cases, federal court 
+                                decisions, state court cases, statutes, regulations, and secondary sources like law reviews and treatises.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            How do I get technical support?
+                        </button>
+                        <div class="collapse" id="faq6">
+                            <div class="faq-answer">
+                                Technical support is available through our help desk at support@casestrainer.com, our online documentation, 
+                                and live chat during business hours. We also offer training sessions for law firms.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="cta-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Citation Workflow?</h2>
+                <p class="lead mb-4">Download CaseTrainer Word Plugin today and start verifying citations with confidence.</p>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Free Trial</h5>
+                                <p class="card-text">Try CaseTrainer Word Plugin free for 30 days with full functionality.</p>
+                                <a href="#" class="btn btn-primary">Start Free Trial</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Professional</h5>
+                                <p class="card-text">Full access to all features with priority support and advanced customization.</p>
+                                <a href="#" class="btn btn-success">Get Professional</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Enterprise</h5>
+                                <p class="card-text">Custom deployment, team management, and dedicated support for law firms.</p>
+                                <a href="#" class="btn btn-dark">Contact Sales</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <p class="text-muted">Need help with installation? <a href="#support">Contact our support team</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>CaseTrainer</h5>
+                    <p class="mb-0">Advanced legal citation verification for modern legal professionals.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <a href="#" class="text-light me-3">Privacy Policy</a>
+                        <a href="#" class="text-light me-3">Terms of Service</a>
+                        <a href="#" class="text-light">Support</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

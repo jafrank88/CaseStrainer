@@ -349,6 +349,10 @@ class OptimizedWebSearcher:
                 task = self.search_leagle(citation, case_name)
             elif method == 'openjurist':
                 task = self.search_openjurist(citation, case_name)
+            elif method == 'descrybe':
+                task = self.search_descrybe(citation, case_name)
+            elif method == 'midpage':
+                task = self.search_midpage(citation, case_name)
             else:
                 continue
             tasks.append((method, task))
@@ -689,4 +693,110 @@ class OptimizedWebSearcher:
         except asyncio.TimeoutError:
             return {"verified": False, "error": "Timeout"}
         except Exception as e:
-            return {"verified": False, "error": str(e)} 
+            return {"verified": False, "error": str(e)}
+
+    async def search_descrybe(self, citation: str, case_name: str = None) -> dict:
+        """Search Descrybe.ai for a legal citation."""
+        from urllib.parse import quote_plus
+        import re
+        
+        start_time = time.time()
+        
+        try:
+            # Clean citation for search
+            clean_citation = citation.replace(' ', '+').replace('.', '')
+            url = f"https://descrybe.ai/search?q={clean_citation}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1"
+            }
+            
+            async with self.session.get(url, headers=headers, timeout=10) as resp:
+                if resp.status != 200:
+                    duration = time.time() - start_time
+                    self._update_stats('descrybe', False, duration)
+                    return {"verified": "false", "error": f"HTTP {resp.status}"}
+                
+                html = await resp.text()
+                # Look for citation in the page content
+                if re.search(re.escape(citation), html, re.IGNORECASE):
+                    duration = time.time() - start_time
+                    self._update_stats('descrybe', True, duration)
+                    return {
+                        "verified": "true",
+                        "source": "descrybe",
+                        "url": str(resp.url),
+                        "confidence": 0.8,
+                        "method": "descrybe"
+                    }
+                
+                duration = time.time() - start_time
+                self._update_stats('descrybe', False, duration)
+                return {"verified": "false", "error": "Citation not found"}
+                
+        except asyncio.TimeoutError:
+            duration = time.time() - start_time
+            self._update_stats('descrybe', False, duration)
+            return {"verified": "false", "error": "Timeout"}
+        except Exception as e:
+            duration = time.time() - start_time
+            self._update_stats('descrybe', False, duration)
+            logger.debug(f"Descrybe search failed: {e}")
+            return {"verified": "false", "error": str(e)}
+
+    async def search_midpage(self, citation: str, case_name: str = None) -> dict:
+        """Search Midpage.ai for a legal citation."""
+        from urllib.parse import quote_plus
+        import re
+        
+        start_time = time.time()
+        
+        try:
+            # Clean citation for search
+            clean_citation = citation.replace(' ', '+').replace('.', '')
+            url = f"https://midpage.ai/search?q={clean_citation}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1"
+            }
+            
+            async with self.session.get(url, headers=headers, timeout=10) as resp:
+                if resp.status != 200:
+                    duration = time.time() - start_time
+                    self._update_stats('midpage', False, duration)
+                    return {"verified": "false", "error": f"HTTP {resp.status}"}
+                
+                html = await resp.text()
+                # Look for citation in the page content
+                if re.search(re.escape(citation), html, re.IGNORECASE):
+                    duration = time.time() - start_time
+                    self._update_stats('midpage', True, duration)
+                    return {
+                        "verified": "true",
+                        "source": "midpage",
+                        "url": str(resp.url),
+                        "confidence": 0.8,
+                        "method": "midpage"
+                    }
+                
+                duration = time.time() - start_time
+                self._update_stats('midpage', False, duration)
+                return {"verified": "false", "error": "Citation not found"}
+                
+        except asyncio.TimeoutError:
+            duration = time.time() - start_time
+            self._update_stats('midpage', False, duration)
+            return {"verified": "false", "error": "Timeout"}
+        except Exception as e:
+            duration = time.time() - start_time
+            self._update_stats('midpage', False, duration)
+            logger.debug(f"Midpage search failed: {e}")
+            return {"verified": "false", "error": str(e)} 

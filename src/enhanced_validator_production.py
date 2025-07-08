@@ -14,7 +14,7 @@ import time
 import uuid
 import traceback
 from src.file_utils import extract_text_from_file
-from src.citation_processor import CitationProcessor
+from src.citation_processor import CaseStrainerCitationProcessor
 from src.citation_correction_engine import CitationCorrectionEngine
 from src.citation_utils import get_citation_context
 import hashlib
@@ -65,14 +65,14 @@ if project_root not in sys.path:
 
 # Now import the modules
 from src.config import configure_logging, UPLOAD_FOLDER, ALLOWED_EXTENSIONS
-from src.citation_processor import CitationProcessor
+from src.citation_processor import CaseStrainerCitationProcessor
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
     configure_logging()
 
 # Initialize the citation processor
-citation_processor = CitationProcessor()
+citation_processor = CaseStrainerCitationProcessor()
 
 logger.info("Loading enhanced_validator_production.py v0.5.5 - Modified 2025-06-10")
 

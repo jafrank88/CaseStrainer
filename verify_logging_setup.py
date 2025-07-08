@@ -62,36 +62,10 @@ def verify_citation_api_logging():
 
 def verify_app_routes_logging():
     """Verify that the app routes blueprints have the after_request handler registered."""
-    try:
-        from app.routes import api, frontend
-        
-        print("\nChecking app routes blueprints...")
-        
-        # Check api blueprint
-        print("API blueprint:")
-        print(f"  Blueprint name: {api.name}")
-        after_request_handlers = getattr(api, 'after_request_funcs', {})
-        print(f"  After request handlers: {len(after_request_handlers)}")
-        for blueprint_name, handlers in after_request_handlers.items():
-            print(f"    - {blueprint_name}: {len(handlers)} handlers")
-            for handler in handlers:
-                print(f"      - {handler.__name__}")
-        
-        # Check frontend blueprint
-        print("Frontend blueprint:")
-        print(f"  Blueprint name: {frontend.name}")
-        after_request_handlers = getattr(frontend, 'after_request_funcs', {})
-        print(f"  After request handlers: {len(after_request_handlers)}")
-        for blueprint_name, handlers in after_request_handlers.items():
-            print(f"    - {blueprint_name}: {len(handlers)} handlers")
-            for handler in handlers:
-                print(f"      - {handler.__name__}")
-        
-        return True
-        
-    except Exception as e:
-        print(f"Error checking app routes: {e}")
-        return False
+    print("\nChecking app routes blueprints...")
+    print("DEPRECATED: app/routes.py has been removed. All routes are now in src/vue_api_endpoints.py")
+    print("✓ No longer checking deprecated app routes")
+    return True
 
 def check_logging_function_exists():
     """Check if the log_json_responses function exists in the modules."""

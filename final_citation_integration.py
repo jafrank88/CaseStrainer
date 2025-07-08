@@ -16,7 +16,7 @@ from typing import Dict, List, Any, Optional
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import the enhanced processor
-from enhanced_citation_processor import EnhancedCitationProcessor, ComplexCitation
+from src.unified_citation_processor import UnifiedCitationProcessor
 
 # Import existing citation verification modules
 try:
@@ -35,7 +35,7 @@ class FinalCitationProcessor:
     
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key
-        self.enhanced_processor = EnhancedCitationProcessor(api_key)
+        self.unified_processor = UnifiedCitationProcessor()
         
         # Initialize existing verification systems
         self.existing_verifier = None
@@ -65,38 +65,27 @@ class FinalCitationProcessor:
     
     def process_text(self, text: str) -> List[Dict[str, Any]]:
         """Process text and return enhanced citation results."""
-        results = []
-        
-        # Use enhanced processor to find complex citations
-        complex_citations = self.enhanced_processor.process_text(text)
-        
-        for citation in complex_citations:
-            # Verify the citation using multiple strategies
-            verification_results = self._verify_citation_with_existing_system(citation)
-            
-            # Format the result
-            result = self._format_result(citation, verification_results)
-            results.append(result)
-        
-        return results
+        # Use unified processor to extract and verify citations
+        result = self.unified_processor.process_text(text)
+        return result.get('results', [])
     
-    def _verify_citation_with_existing_system(self, citation: ComplexCitation) -> Dict[str, Any]:
+    def _verify_citation_with_existing_system(self, citation: Dict) -> Dict[str, Any]:
         """Verify a complex citation using the existing verification system."""
         verification_results = {
-            'citation': citation.full_text,
-            'is_complex': citation.is_complex,
+            'citation': citation.get('full_text'),
+            'is_complex': citation.get('is_complex', False),
             'verification_strategies': [],
             'best_result': None,
             'all_results': []
         }
         
         # Strategy 1: Try primary citation with existing verifier
-        if citation.primary_citation and self.existing_verifier:
+        if citation.get('primary_citation') and self.existing_verifier:
             try:
-                result = self._verify_with_existing_verifier(citation.primary_citation)
+                result = self._verify_with_existing_verifier(citation.get('primary_citation'))
                 verification_results['verification_strategies'].append({
                     'strategy': 'primary_citation_existing',
-                    'citation': citation.primary_citation,
+                    'citation': citation.get('primary_citation'),
                     'result': result
                 })
                 verification_results['all_results'].append(result)
@@ -104,7 +93,7 @@ class FinalCitationProcessor:
                 logger.error(f"Error verifying primary citation: {e}")
         
         # Strategy 2: Try parallel citations with existing verifier
-        for parallel in citation.parallel_citations:
+        for parallel in citation.get('parallel_citations', []):
             if self.existing_verifier:
                 try:
                     result = self._verify_with_existing_verifier(parallel)
@@ -118,14 +107,14 @@ class FinalCitationProcessor:
                     logger.error(f"Error verifying parallel citation: {e}")
         
         # Strategy 3: Try with case name if available
-        if citation.case_name:
-            for citation_text in [citation.primary_citation] + citation.parallel_citations:
+        if citation.get('case_name'):
+            for citation_text in [citation.get('primary_citation')] + citation.get('parallel_citations', []):
                 if citation_text and self.existing_verifier:
                     try:
-                        result = self._verify_with_case_name_existing(citation.case_name, citation_text)
+                        result = self._verify_with_case_name_existing(citation.get('case_name'), citation_text)
                         verification_results['verification_strategies'].append({
                             'strategy': 'with_case_name_existing',
-                            'case_name': citation.case_name,
+                            'case_name': citation.get('case_name'),
                             'citation': citation_text,
                             'result': result
                         })
@@ -135,7 +124,7 @@ class FinalCitationProcessor:
         
         # Strategy 4: Try with citation processor if available
         if self.citation_processor:
-            for citation_text in [citation.primary_citation] + citation.parallel_citations:
+            for citation_text in [citation.get('primary_citation')] + citation.get('parallel_citations', []):
                 if citation_text:
                     try:
                         result = self._verify_with_citation_processor(citation_text)
@@ -264,21 +253,21 @@ class FinalCitationProcessor:
         sorted_results = sorted(results, key=lambda x: (x.get('verified', False), x.get('confidence', 0)), reverse=True)
         return sorted_results[0]
     
-    def _format_result(self, citation: ComplexCitation, verification_results: Dict) -> Dict[str, Any]:
+    def _format_result(self, citation: Dict, verification_results: Dict) -> Dict[str, Any]:
         """Format the result for display and storage."""
         best_result = verification_results.get('best_result', {})
         
         return {
-            'full_text': citation.full_text,
-            'case_name': citation.case_name,
-            'primary_citation': citation.primary_citation,
-            'parallel_citations': citation.parallel_citations,
-            'pinpoint_pages': citation.pinpoint_pages,
-            'docket_numbers': citation.docket_numbers,
-            'case_history': citation.case_history,
-            'publication_status': citation.publication_status,
-            'year': citation.year,
-            'is_complex': citation.is_complex,
+            'full_text': citation.get('full_text'),
+            'case_name': citation.get('case_name'),
+            'primary_citation': citation.get('primary_citation'),
+            'parallel_citations': citation.get('parallel_citations'),
+            'pinpoint_pages': citation.get('pinpoint_pages'),
+            'docket_numbers': citation.get('docket_numbers'),
+            'case_history': citation.get('case_history'),
+            'publication_status': citation.get('publication_status'),
+            'year': citation.get('year'),
+            'is_complex': citation.get('is_complex'),
             
             # Verification results
             'verified': best_result.get('verified', False),
@@ -291,17 +280,17 @@ class FinalCitationProcessor:
             'all_results': verification_results.get('all_results', []),
             
             # Format for compatibility with existing system
-            'citation': citation.primary_citation or citation.full_text,
+            'citation': citation.get('primary_citation') or citation.get('full_text'),
             'method': 'enhanced_processor',
             'pattern': 'complex_citation',
-            'context': citation.full_text[:200] + '...' if len(citation.full_text) > 200 else citation.full_text,
-            'extracted_case_name': citation.case_name or 'N/A',
-            'hinted_case_name': citation.case_name or 'N/A',
-            'extracted_date': citation.year or '',
-            'canonical_name': citation.case_name or 'N/A',
-            'canonical_date': citation.year or 'N/A',
+            'context': citation.get('full_text')[:200] + '...' if len(citation.get('full_text', '')) > 200 else citation.get('full_text'),
+            'extracted_case_name': citation.get('case_name') or 'N/A',
+            'hinted_case_name': citation.get('case_name') or 'N/A',
+            'extracted_date': citation.get('year') or '',
+            'canonical_name': citation.get('case_name') or 'N/A',
+            'canonical_date': citation.get('year') or 'N/A',
             'court': '',
-            'docket_number': citation.docket_numbers[0] if citation.docket_numbers else '',
+            'docket_number': citation.get('docket_numbers', [{}])[0].get('number') if citation.get('docket_numbers') else '',
             'url': '',
             'valid': best_result.get('verified', False),
         }

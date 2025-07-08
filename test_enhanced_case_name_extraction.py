@@ -8,39 +8,18 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.extract_case_name import (
-    # Core extraction functions
-    extract_case_name_from_context_unified,
-    extract_case_name_unified,
-    extract_case_name_triple_from_text,
-    
-    # Validation and cleaning
-    is_valid_case_name,
-    clean_case_name,
-    expand_abbreviations,
-    
-    # Citation URL generation
-    get_citation_url,
-    get_legal_database_url,
-    get_general_legal_search_url,
-    get_google_scholar_url,
-    
-    # CourtListener API integration
-    get_canonical_case_name_from_courtlistener,
-    extract_case_name_from_courtlistener_cluster,
-    extract_canonical_date_from_courtlistener_cluster,
-    
-    # Washington citation variants
-    generate_washington_citation_variants,
-    
-    # Google Scholar integration
-    get_canonical_case_name_from_google_scholar,
-    extract_case_name_from_scholar_result,
-    
-    # Utility functions
-    normalize_citation_format,
-    extract_year_from_line
-)
+from src.case_name_extraction_core import extract_case_name_triple
+
+def test_cockel_case():
+    text = "Cockel v. Dep’t of Lab. & Indus.,\n142 Wn.2d 801, 808, 16 P.3d 583 (2002)"
+    citation = "142 Wn.2d 801, 808, 16 P.3d 583"
+    result = extract_case_name_triple(text, citation)
+    print("Extracted Case Name:", result.get('extracted_name'))
+    print("Case Name Confidence:", result.get('case_name_confidence'))
+    print("Case Name Method:", result.get('case_name_method'))
+    print("Extracted Date:", result.get('extracted_date'))
+
+test_cockel_case()
 
 def test_core_extraction():
     """Test core case name extraction functionality."""

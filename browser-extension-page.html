@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseTrainer Browser Extension - Legal Citation Validation for the Web</title>
+    <meta name="description" content="Verify legal citations directly in your browser with CaseTrainer's browser extension. Highlight, validate, and get authoritative links instantly on any legal document or case page.">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        
+        .feature-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .screenshot {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .demo-section {
+            background: #f8f9fa;
+            padding: 3rem 0;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .citation-demo {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .citation-highlight {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-bottom: 2px solid #2ecc71;
+            padding: 2px 4px;
+            border-radius: 3px;
+            cursor: help;
+        }
+        
+        .citation-highlight.unverified {
+            background-color: rgba(241, 196, 15, 0.2);
+            border-bottom: 2px solid #f1c40f;
+        }
+        
+        .installation-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .browser-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin: 0.25rem;
+            text-decoration: none;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        
+        .browser-badge:hover {
+            background: #e9ecef;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .browser-badge.chrome {
+            border-color: #4285f4;
+            color: #4285f4;
+        }
+        
+        .browser-badge.firefox {
+            border-color: #ff7139;
+            color: #ff7139;
+        }
+        
+        .browser-badge.edge {
+            border-color: #0078d4;
+            color: #0078d4;
+        }
+        
+        .stats-section {
+            background: #2c3e50;
+            color: white;
+            padding: 3rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .testimonial {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 1rem;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .faq-question {
+            font-weight: bold;
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+        
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+        
+        .faq-answer {
+            padding: 1rem;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+        
+        .popup-demo {
+            width: 400px;
+            max-width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        
+        .popup-header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .popup-content {
+            padding: 1rem;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ecc71;
+        }
+        
+        .citation-result {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border-left: 3px solid #2ecc71;
+        }
+        
+        .citation-result.unverified {
+            border-left-color: #f1c40f;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-gavel me-2"></i>CaseTrainer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#installation">Installation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary ms-2" href="#download">Download Now</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">
+                        Verify Legal Citations While You Browse
+                    </h1>
+                    <p class="lead mb-4">
+                        CaseTrainer's browser extension brings real-time citation validation to every legal document, 
+                        case page, and research site you visit. Highlight, verify, and get authoritative links instantly.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="#download" class="btn btn-light btn-lg">
+                            <i class="fab fa-chrome me-2"></i>Chrome
+                        </a>
+                        <a href="#download" class="btn btn-light btn-lg">
+                            <i class="fab fa-firefox me-2"></i>Firefox
+                        </a>
+                        <a href="#download" class="btn btn-light btn-lg">
+                            <i class="fab fa-edge me-2"></i>Edge
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <img src="assets/browser-extension-hero.png" alt="CaseTrainer Browser Extension Interface" class="img-fluid screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Powerful Features for Web-Based Legal Research</h2>
+                <p class="lead text-muted">Transform how you validate citations across the web</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <h5 class="card-title">Real-Time Detection</h5>
+                            <p class="card-text">
+                                Automatically detect legal citations on any webpage using advanced pattern recognition 
+                                and machine learning algorithms.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-highlighter"></i>
+                            </div>
+                            <h5 class="card-title">Smart Highlighting</h5>
+                            <p class="card-text">
+                                Instantly highlight citations with color-coded status indicators - green for verified, 
+                                yellow for unverified citations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h5 class="card-title">Multi-Source Verification</h5>
+                            <p class="card-text">
+                                Verify citations against CourtListener, web search engines, and legal databases 
+                                for comprehensive accuracy checking.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <h5 class="card-title">Authoritative Links</h5>
+                            <p class="card-text">
+                                Get direct links to official case documents, court opinions, and legal databases 
+                                for each verified citation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <h5 class="card-title">Customizable Settings</h5>
+                            <p class="card-text">
+                                Configure auto-validation, highlighting preferences, and API endpoints to match 
+                                your research workflow.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <div class="feature-icon mx-auto">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5 class="card-title">Privacy Focused</h5>
+                            <p class="card-text">
+                                Process citations locally when possible, with secure API calls and no permanent 
+                                storage of your browsing data.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">See It In Action</h2>
+                <p class="lead text-muted">Watch how CaseTrainer transforms your web browsing experience</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="demo-card">
+                        <h4>Live Citation Detection</h4>
+                        <p>Watch as CaseTrainer automatically detects and highlights citations on this page:</p>
+                        
+                        <div class="citation-demo">
+                            <p>
+                                In the landmark case of <span class="citation-highlight">Brown v. Board of Education, 347 U.S. 483 (1954)</span>, 
+                                the Supreme Court held that racial segregation in public schools was unconstitutional. 
+                                This decision was later reinforced by <span class="citation-highlight unverified">Miranda v. Arizona, 384 U.S. 436 (1966)</span>, 
+                                which established important procedural safeguards for criminal defendants.
+                            </p>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Green highlights indicate verified citations, yellow indicates unverified citations
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="popup-demo">
+                        <div class="popup-header">
+                            <img src="assets/icon48.png" alt="CaseTrainer" style="width: 32px; height: 32px; margin-right: 12px;">
+                            <h5 class="mb-0">CaseTrainer</h5>
+                        </div>
+                        <div class="popup-content">
+                            <div class="status-indicator">
+                                <span class="status-dot"></span>
+                                <span>Ready</span>
+                                <button class="btn btn-primary btn-sm ms-auto">Validate Page</button>
+                            </div>
+                            
+                            <h6>Citation Results</h6>
+                            <div class="citation-result">
+                                <div class="fw-bold">Brown v. Board of Education, 347 U.S. 483 (1954)</div>
+                                <small class="text-success">✓ Verified - Brown v. Board of Education</small>
+                            </div>
+                            <div class="citation-result unverified">
+                                <div class="fw-bold">Miranda v. Arizona, 384 U.S. 436 (1966)</div>
+                                <small class="text-warning">⚠ Unverified</small>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">Highlight citations</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label">Auto-validate on page load</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="installation" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Easy Installation</h2>
+                <p class="lead text-muted">Get started with CaseTrainer Browser Extension in minutes</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="installation-step">
+                        <div class="step-number">1</div>
+                        <div>
+                            <h5>Choose Your Browser</h5>
+                            <p class="mb-0">Download the extension for Chrome, Firefox, or Microsoft Edge</p>
+                        </div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">2</div>
+                        <div>
+                            <h5>Install the Extension</h5>
+                            <p class="mb-0">Click the download link and follow your browser's installation prompts</p>
+                        </div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">3</div>
+                        <div>
+                            <h5>Configure Settings</h5>
+                            <p class="mb-0">Set up your API endpoint and preferences in the extension options</p>
+                        </div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">4</div>
+                        <div>
+                            <h5>Start Browsing</h5>
+                            <p class="mb-0">Visit any legal document or case page and click the CaseTrainer icon to validate citations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <h5>Supported Browsers</h5>
+                        <div class="mt-3">
+                            <a href="#" class="browser-badge chrome">
+                                <i class="fab fa-chrome me-2"></i>Chrome 88+
+                            </a>
+                            <a href="#" class="browser-badge firefox">
+                                <i class="fab fa-firefox me-2"></i>Firefox 85+
+                            </a>
+                            <a href="#" class="browser-badge edge">
+                                <i class="fab fa-edge me-2"></i>Edge 88+
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">10K+</span>
+                        <div class="stat-label">Citations Verified</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">95%</span>
+                        <div class="stat-label">Accuracy Rate</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">500+</span>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <div class="stat-label">Browser Support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">What Legal Researchers Say</h2>
+                <p class="lead text-muted">Real feedback from attorneys, law students, and legal professionals</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"CaseTrainer's browser extension has transformed my legal research. I can now verify citations instantly while reading case law online, saving me hours of manual checking."</p>
+                        <div class="testimonial-author">- Jennifer Martinez, Law Student</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"The highlighting feature is brilliant. I can immediately see which citations are verified and which need further research. It's like having a legal research assistant in my browser."</p>
+                        <div class="testimonial-author">- Robert Kim, Associate Attorney</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="testimonial">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <p>"As a legal researcher, I need to verify citations quickly and accurately. CaseTrainer's browser extension does exactly that, and the authoritative links save me from hunting down official sources."</p>
+                        <div class="testimonial-author">- Amanda Foster, Legal Researcher</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Frequently Asked Questions</h2>
+                <p class="lead text-muted">Everything you need to know about CaseTrainer Browser Extension</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            What browsers are supported?
+                        </button>
+                        <div class="collapse" id="faq1">
+                            <div class="faq-answer">
+                                CaseTrainer Browser Extension supports Chrome 88+, Firefox 85+, and Microsoft Edge 88+. 
+                                The extension uses Manifest V3 for modern browser compatibility and security.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            How does the citation detection work?
+                        </button>
+                        <div class="collapse" id="faq2">
+                            <div class="faq-answer">
+                                The extension uses advanced pattern recognition and machine learning algorithms to detect 
+                                legal citations in webpage text. It recognizes various citation formats including U.S. Supreme 
+                                Court cases, federal court decisions, state cases, and statutory citations.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Is my browsing data secure?
+                        </button>
+                        <div class="collapse" id="faq3">
+                            <div class="faq-answer">
+                                Yes, your privacy is protected. The extension only processes citation text and does not store 
+                                your browsing history or personal data. All API calls are encrypted, and no permanent storage 
+                                of your web activity occurs.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            Can I customize the highlighting colors?
+                        </button>
+                        <div class="collapse" id="faq4">
+                            <div class="faq-answer">
+                                Yes, you can customize highlighting preferences in the extension settings. Choose your preferred 
+                                colors for verified and unverified citations, or disable highlighting entirely if preferred.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            What citation databases are used for verification?
+                        </button>
+                        <div class="collapse" id="faq5">
+                            <div class="faq-answer">
+                                The extension verifies citations against multiple sources including CourtListener, web search 
+                                engines, and local legal databases. This multi-source approach ensures comprehensive and 
+                                accurate verification results.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            How do I get support if I encounter issues?
+                        </button>
+                        <div class="collapse" id="faq6">
+                            <div class="faq-answer">
+                                Technical support is available through our help desk at support@casestrainer.com, our online 
+                                documentation, and live chat during business hours. We also provide detailed troubleshooting 
+                                guides for common issues.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="py-5">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="display-5 fw-bold mb-4">Download CaseTrainer Browser Extension</h2>
+                <p class="lead mb-4">Start verifying citations instantly across the web</p>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <i class="fab fa-chrome fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Chrome Extension</h5>
+                                <p class="card-text">Download for Google Chrome and Chromium-based browsers</p>
+                                <a href="#" class="btn btn-primary">Download for Chrome</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <i class="fab fa-firefox fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title">Firefox Add-on</h5>
+                                <p class="card-text">Download for Mozilla Firefox and Firefox-based browsers</p>
+                                <a href="#" class="btn btn-warning">Download for Firefox</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body text-center">
+                                <i class="fab fa-edge fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Edge Extension</h5>
+                                <p class="card-text">Download for Microsoft Edge and Edge-based browsers</p>
+                                <a href="#" class="btn btn-info">Download for Edge</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <p class="text-muted">Current Version: 0.5.5 | <a href="#changelog">View Changelog</a></p>
+                    <p class="text-muted">Need help with installation? <a href="#support">Contact our support team</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>CaseTrainer</h5>
+                    <p class="mb-0">Advanced legal citation verification for modern legal professionals.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        <a href="#" class="text-light me-3">Privacy Policy</a>
+                        <a href="#" class="text-light me-3">Terms of Service</a>
+                        <a href="#" class="text-light">Support</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

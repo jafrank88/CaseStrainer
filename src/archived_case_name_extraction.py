@@ -1,5 +1,22 @@
-# ARCHIVED: Legacy/context/line-based case name extraction functions
-# These are no longer used in the main pipeline. See src/case_name_extraction_core.py for the unified API.
+#!/usr/bin/env python3
+"""
+Archived Case Name Extraction Module
+
+DEPRECATED: This module is archived and deprecated. All functionality has been
+integrated into the unified pipeline (UnifiedCitationProcessor with 
+extract_case_name_triple from src.case_name_extraction_core).
+
+This module will be removed in a future version.
+"""
+
+import warnings
+warnings.warn(
+    "src.archived_case_name_extraction is deprecated and archived. All functionality "
+    "has been integrated into UnifiedCitationProcessor with extract_case_name_triple "
+    "from src.case_name_extraction_core. Use the unified pipeline instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import re
 import string

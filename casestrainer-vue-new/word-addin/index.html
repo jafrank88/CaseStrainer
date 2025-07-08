@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CaseTrainer Citation Verifier</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+
+    <!-- For more information on Fluent UI, visit https://developer.microsoft.com/fluentui -->
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
+</head>
+
+<body class="ms-font-m ms-welcome">
+    <div id="container" class="container-fluid">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <img src="assets/logo.png" alt="CaseTrainer" class="logo-img">
+                <h2>CaseTrainer</h2>
+            </div>
+            <p class="subtitle">Citation Verification for Word</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Document Info -->
+            <div class="document-info">
+                <h5>Current Document</h5>
+                <div id="documentName" class="document-name">Loading...</div>
+                <div id="documentStats" class="document-stats">
+                    <span id="wordCount">0 words</span>
+                    <span id="citationCount">0 citations</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="scanDocument" class="btn btn-primary btn-lg w-100 mb-2">
+                    <i class="fas fa-search"></i> Scan Document for Citations
+                </button>
+                <button id="verifySelected" class="btn btn-secondary btn-lg w-100 mb-2" disabled>
+                    <i class="fas fa-check"></i> Verify Selected Text
+                </button>
+                <button id="insertCitation" class="btn btn-success btn-lg w-100 mb-2" disabled>
+                    <i class="fas fa-plus"></i> Insert Verified Citation
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progressSection" class="progress-section" style="display: none;">
+                <div class="progress-header">
+                    <h6>Processing Document</h6>
+                    <span id="progressText">Scanning...</span>
+                </div>
+                <div class="progress">
+                    <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div class="progress-details">
+                    <span id="progressDetails">Extracting text...</span>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h6>Verification Results</h6>
+                    <button id="clearResults" class="btn btn-sm btn-outline-secondary">Clear</button>
+                </div>
+                <div id="resultsList" class="results-list">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="settings-section">
+                <h6>Settings</h6>
+                <div class="setting-item">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="autoHighlight" class="form-check-input" checked>
+                        Auto-highlight verified citations
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="includeParallels" class="form-check-input" checked>
+                        Include parallel citations
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="form-check-label">
+                        <input type="checkbox" id="webSearch" class="form-check-input" checked>
+                        Enable web search verification
+                    </label>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="status-section">
+                <div id="statusMessage" class="status-message">
+                    Ready to scan document
+                </div>
+                <div id="lastUpdated" class="last-updated">
+                    Last updated: Never
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="https://casestrainer.com/docs" target="_blank">Documentation</a>
+                <a href="https://casestrainer.com/support" target="_blank">Support</a>
+            </div>
+            <div class="version">
+                v1.0.0
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="citationResultTemplate">
+        <div class="citation-result">
+            <div class="citation-header">
+                <span class="citation-text"></span>
+                <span class="verification-status"></span>
+            </div>
+            <div class="citation-details">
+                <div class="case-name"></div>
+                <div class="date"></div>
+                <div class="sources"></div>
+            </div>
+            <div class="citation-actions">
+                <button class="btn btn-sm btn-primary insert-btn">Insert</button>
+                <button class="btn btn-sm btn-secondary view-btn">View Details</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html> 

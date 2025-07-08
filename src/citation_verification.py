@@ -1,72 +1,31 @@
-# DEPRECATED: Use verify_citation from src.enhanced_multi_source_verifier instead of CitationVerifier.
-# The CitationVerifier class and all related methods have been removed.
-
 #!/usr/bin/env python3
 """
-Citation Verification Module for CaseStrainer
+Citation Verification Module
 
-This module provides comprehensive citation verification using multiple methods:
-1. CourtListener Citation Lookup API
-2. CourtListener Opinion Search API
-3. CourtListener Cluster/Docket APIs
-4. LangSearch API (backup)
-5. Google Scholar (backup)
+DEPRECATED: This module is deprecated. All functionality has been integrated
+into the unified pipeline (UnifiedCitationProcessor with EnhancedMultiSourceVerifier).
+Use the unified processor instead.
 
-It implements a fallback mechanism to try different methods if one fails.
+This module will be removed in a future version.
 """
 
-import os
+import warnings
+warnings.warn(
+    "src.citation_verification is deprecated. All functionality has been integrated "
+    "into UnifiedCitationProcessor with EnhancedMultiSourceVerifier. Use the unified pipeline instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import re
+import logging
+from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from datetime import datetime
 import time
 import json
 import requests
-import urllib.parse
-from typing import Optional, Dict, Any, List
-import traceback
-import logging
-from datetime import datetime, timedelta
-import functools
-import threading
-import hashlib
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-# Import rate limiter
-from utils.rate_limiter import courtlistener_limiter
-
-# API endpoints - Updated to use v4 as per requirements
-COURTLISTENER_BASE_URL = "https://www.courtlistener.com/api/rest/v4/"
-COURTLISTENER_CITATION_API = f"{COURTLISTENER_BASE_URL}citation-lookup/"
-COURTLISTENER_SEARCH_API = f"{COURTLISTENER_BASE_URL}search/"
-COURTLISTENER_OPINION_API = f"{COURTLISTENER_BASE_URL}opinions/"
-COURTLISTENER_CLUSTER_API = f"{COURTLISTENER_BASE_URL}clusters/"
-
-# Note: CourtListener API v4 requires specific parameters
-# For citation-lookup, we need to use 'citation' parameter
-GOOGLE_SCHOLAR_URL = "https://scholar.google.com/scholar"
-
-# Flags to track API availability
-COURTLISTENER_AVAILABLE = True
-LANGSEARCH_AVAILABLE = True
-GOOGLE_SCHOLAR_AVAILABLE = True
-
-# Configuration
-MAX_RETRIES = 2  # Reduced from 3 to prevent long waits
-TIMEOUT_SECONDS = 8  # Reduced from 15 to fail faster
-RATE_LIMIT_WAIT = 3  # seconds to wait when rate limited
-MIN_RETRY_DELAY = 0.5  # minimum seconds between retries
-MAX_RETRY_DELAY = 3  # maximum seconds between retries
-
-# Configure logging
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-logs_dir = os.path.join(project_root, "logs")
-if not os.path.exists(logs_dir):
-    os.makedirs(logs_dir)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(os.path.join(logs_dir, 'citation_verification.log'))
-    ]
-)
+from urllib.parse import quote_plus
+import unicodedata
+import string
+from difflib import SequenceMatcher

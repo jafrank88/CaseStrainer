@@ -287,9 +287,8 @@ export default {
     const fallbackError = ref('');
 
     // Add showTimer computed property
-    const showTimer = computed(() => {
-      return citationInfo.value && citationInfo.value.total >= 35;
-    });
+    // Always show the progress bar for clarity
+    const showTimer = computed(() => true);
 
     // Progress bar state
     const progressCurrent = ref(0);
@@ -397,7 +396,6 @@ export default {
           scoreColor: scoreColor,
           case_name: citation.case_name || 'N/A',
           extracted_case_name: citation.extracted_case_name || 'N/A',
-          hinted_case_name: citation.hinted_case_name || 'N/A',
           canonical_date: citation.canonical_date || null,
           extracted_date: citation.extracted_date || null,
           metadata: {
@@ -533,6 +531,21 @@ export default {
               unique: data.unique_citations || 0
             };
           }
+          
+          // Update results object with progress data for CitationResults component
+          results.value = {
+            citations: [],
+            metadata: data.metadata || {},
+            progress: data.progress || 0,
+            eta_seconds: data.eta_seconds || null,
+            current_chunk: data.current_chunk || 0,
+            total_chunks: data.total_chunks || 1,
+            total_citations: data.total_citations || 0,
+            verified_count: 0,
+            unverified_count: 0
+          };
+          
+          console.log('EnhancedValidator: Updated results with progress data:', results.value);
           
           // Continue polling
           if (!pollInterval.value) {
@@ -716,6 +729,12 @@ export default {
 
     // ===== API HANDLER FUNCTIONS =====
     const handleTextAnalyze = async ({ text, options }) => {
+      // Prevent duplicate submissions
+      if (hasActiveRequest.value) {
+        console.log('Request already in progress, ignoring duplicate text analysis');
+        return;
+      }
+      
       isLoading.value = true;
       error.value = null;
       results.value = null;
@@ -736,6 +755,12 @@ export default {
     };
 
     const handleFileAnalyze = async (input) => {
+      // Prevent duplicate submissions
+      if (hasActiveRequest.value) {
+        console.log('Request already in progress, ignoring duplicate file analysis');
+        return;
+      }
+      
       isLoading.value = true;
       error.value = null;
       results.value = null;
@@ -761,6 +786,12 @@ export default {
     };
 
     const handleUrlAnalyze = async ({ url }) => {
+      // Prevent duplicate submissions
+      if (hasActiveRequest.value) {
+        console.log('Request already in progress, ignoring duplicate URL analysis');
+        return;
+      }
+      
       isLoading.value = true;
       error.value = null;
       results.value = null;
@@ -783,6 +814,14 @@ export default {
     // Unified handler for all input types
     function handleUnifiedAnalyze(payload) {
       console.log('handleUnifiedAnalyze payload:', payload);
+      
+      // Prevent duplicate submissions
+      if (hasActiveRequest.value) {
+        console.log('Request already in progress, ignoring duplicate submission');
+        showToast('A request is already in progress. Please wait for it to complete.', 'warning');
+        return;
+      }
+      
       // Reset and start progress tracking for all input types
       resetProcessing();
       setSteps([
@@ -816,7 +855,7 @@ export default {
       
       // Check for results in router state first (from HomeView)
       if (router.currentRoute.value.state && router.currentRoute.value.state.results) {
-        console.log('Found results in router state:', router.currentRoute.value.state.results);
+        console.log('[EnhancedValidator] Using results from router state, skipping new analysis.');
         const responseData = router.currentRoute.value.state.results;
         // --- FIX: Always use citations or validation_results ---
         let rawCitations = [];

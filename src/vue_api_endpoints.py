@@ -66,12 +66,16 @@ import tempfile
 from rq import Queue
 from redis import Redis
 from rq import get_current_job
-from src.citation_processor import CitationProcessor
+from src.citation_processor import CaseStrainerCitationProcessor as CitationProcessor
 import sqlite3
 import redis
 import threading
-from src.document_processing import process_document_input, extract_and_verify_citations
+# Removed extract_and_verify_citations import - now handled by CitationService
 from src.config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+from src.api_validation import validate_file_upload, validate_text_input, validate_url_input
+
+# Import the new CitationService
+from src.api.services.citation_service import CitationService
 
 # PATCH: Disable RQ death penalty on Windows before any RQ import
 import os
@@ -349,7 +353,7 @@ def health_check():
             'database': check_db(),
             'rq_worker': check_rq_worker(),
             'environment': WORKER_ENV,
-            'version': '0.5.7'
+            'version': '0.5.8'
         })
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -420,6 +424,158 @@ def server_stats():
             'timestamp': time.time(),
             'current_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }), 500
+
+@vue_api.route('/task_status/<task_id>', methods=['GET'])
+def get_task_status(task_id):
+    """Get task status and result for async processing."""
+    try:
+        # First check if task is completed and has results
+        result = get_task_result(task_id)
+        if result:
+            return jsonify({
+                'status': 'completed',
+                'task_id': task_id,
+                'results': result.get('results', []),
+                'citations': result.get('citations', []),
+                'case_names': result.get('case_names', []),
+                'metadata': result.get('metadata', {}),
+                'statistics': result.get('statistics', {}),
+                'summary': result.get('summary', {})
+            })
+        
+        # Check if task is still in progress
+        if RQ_AVAILABLE and redis_conn:
+            try:
+                # Check if there's a job ID for this task
+                job_id = redis_conn.get(f"task_to_job:{task_id}")
+                if job_id:
+                    job_id = job_id.decode('utf-8')
+                    from rq import Queue
+                    from rq.job import Job
+                    job = Job.fetch(job_id, connection=redis_conn)
+                    if job.is_finished:
+                        # Job finished but result not stored, try to get from job
+                        job_result = job.result
+                        if job_result:
+                            set_task_result(task_id, job_result)
+                            return jsonify({
+                                'status': 'completed',
+                                'task_id': task_id,
+                                'results': job_result.get('results', []),
+                                'citations': job_result.get('citations', []),
+                                'case_names': job_result.get('case_names', []),
+                                'metadata': job_result.get('metadata', {}),
+                                'statistics': job_result.get('statistics', {}),
+                                'summary': job_result.get('summary', {})
+                            })
+                    elif job.is_failed:
+                        return jsonify({
+                            'status': 'failed',
+                            'task_id': task_id,
+                            'error': str(job.exc_info) if job.exc_info else 'Job failed'
+                        }), 500
+                    else:
+                        # Job is still running
+                        return jsonify({
+                            'status': 'processing',
+                            'task_id': task_id,
+                            'message': 'Task is being processed'
+                        })
+            except Exception as e:
+                logger.warning(f"Error checking RQ job for task {task_id}: {e}")
+        
+        # Check if task is in threading queue
+        if task_queue and task_queue.qsize() > 0:
+            # This is a simplified check - in a real implementation you'd track individual tasks
+            return jsonify({
+                'status': 'queued',
+                'task_id': task_id,
+                'message': 'Task is queued for processing'
+            })
+        
+        # Task not found
+        return jsonify({
+            'status': 'not_found',
+            'task_id': task_id,
+            'message': 'Task not found'
+        }), 404
+        
+    except Exception as e:
+        logger.error(f"Error getting task status for {task_id}: {e}")
+        return jsonify({
+            'status': 'error',
+            'task_id': task_id,
+            'error': str(e)
+        }), 500
+
+@vue_api.route('/version', methods=['GET'])
+def get_version():
+    """Get application version information."""
+    try:
+        version_info = {
+            'version': '2.0.0',
+            'name': 'CaseStrainer',
+            'description': 'Legal Citation Analysis Tool',
+            'uptime': get_uptime(),
+            'environment': WORKER_ENV,
+            'timestamp': datetime.utcnow().isoformat() + "Z"
+        }
+        return jsonify(version_info)
+    except Exception as e:
+        logger.error(f"Error getting version info: {e}")
+        return jsonify({'error': 'Failed to get version info'}), 500
+
+@vue_api.route('/db_stats', methods=['GET'])
+def get_db_stats():
+    """Get database statistics."""
+    try:
+        # Get citation database stats
+        db_path = os.path.join(os.getcwd(), 'data', 'citations.db')
+        stats = {
+            'database': {
+                'path': db_path,
+                'exists': os.path.exists(db_path),
+                'size': os.path.getsize(db_path) if os.path.exists(db_path) else 0
+            },
+            'citations': {
+                'total': 0,
+                'verified': 0,
+                'unverified': 0
+            },
+            'cache': {
+                'redis_available': RQ_AVAILABLE,
+                'active_requests': len(active_requests) if 'active_requests' in globals() else 0
+            },
+            'timestamp': datetime.utcnow().isoformat() + "Z"
+        }
+        
+        # Try to get actual citation counts from database
+        if os.path.exists(db_path):
+            try:
+                import sqlite3
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                
+                # Get total citations
+                cursor.execute("SELECT COUNT(*) FROM citations")
+                stats['citations']['total'] = cursor.fetchone()[0]
+                
+                # Get verified citations
+                cursor.execute("SELECT COUNT(*) FROM citations WHERE verified = 1")
+                stats['citations']['verified'] = cursor.fetchone()[0]
+                
+                # Get unverified citations
+                cursor.execute("SELECT COUNT(*) FROM citations WHERE verified = 0")
+                stats['citations']['unverified'] = cursor.fetchone()[0]
+                
+                conn.close()
+            except Exception as e:
+                logger.warning(f"Error getting database stats: {e}")
+        
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"Error getting database stats: {e}")
+        return jsonify({'error': 'Failed to get database stats'}), 500
 
 # Add error handlers
 @vue_api.errorhandler(Exception)
@@ -530,108 +686,100 @@ def get_server_stats():
         'worker_disabled': True
     }
 
-def process_citation_task(task_id, task_type, task_data):
-    """
-    Unified citation verification task with progress tracking for file, url, and text.
-    Now supports chunked progress and ETA for large documents.
-    """
-    logger.info(f"[TASK] Starting citation verification task {task_id}")
-    print(f"[DEBUG] process_citation_task called with task_id={task_id}, task_type={task_type}")
-    print(f"[DEBUG] task_data: {task_data}")
-    import math
+# --- Task status/result helpers and input hash tracking (Redis-backed, with in-memory fallback) ---
+INPUT_HASH_TTL = 3600  # 1 hour
+input_hash_to_result = {}
+input_hash_to_task = {}
+input_hash_expiry = {}
+
+# Helper: Compute a hash for deduplication
+import hashlib
+
+def compute_input_hash(input_data):
+    if isinstance(input_data, bytes):
+        data = input_data
+    elif isinstance(input_data, str):
+        data = input_data.encode('utf-8')
+    elif hasattr(input_data, 'read'):
+        data = input_data.read()
+        input_data.seek(0)
+    else:
+        data = str(input_data).encode('utf-8')
+    return hashlib.sha256(data).hexdigest()
+
+# Task status/result helpers
+
+def set_task_status(task_id, status, data):
+    key = f"task_status:{task_id}"
+    value = json.dumps({'status': status, 'data': data, 'timestamp': time.time()})
     try:
-        result = None
-        text = None
-        total_chunks = 1
-        chunk_size = 3000  # characters per chunk (tune as needed)
-        start_time = time.time()
-        if task_type == 'file':
-            file_path = task_data.get('file_path')
-            filename = task_data.get('filename', 'unknown')
-            file_ext = task_data.get('file_ext', '')
-            logger.info(f"[TASK] Processing file: {filename} at {file_path}")
-            from src.file_utils import extract_text_from_file
-            text_result = extract_text_from_file(file_path, file_ext=file_ext)
-            # extract_text_from_file returns (text, case_name) tuple
-            if isinstance(text_result, tuple):
-                text, case_name = text_result
-            else:
-                text = text_result
-                case_name = None
-        elif task_type == 'text':
-            text = task_data.get('text', '')
-            logger.info(f"[TASK] Processing text input (length: {len(text)})")
-        elif task_type == 'url':
-            url = task_data.get('url', '')
-            logger.info(f"[TASK] Processing URL: {url}")
-            if not url:
-                result = {
-                    'status': 'failed',
-                    'error': 'No URL provided',
-                    'citations': [],
-                    'case_names': []
-                }
-            else:
-                from src.enhanced_validator_production import extract_text_from_url
-                url_result = extract_text_from_url(url)
-                text = url_result.get('text', '')
-        # If text is available, process in chunks
-        if text is not None:
-            if not text.strip():
-                result = {
-                    'status': 'failed',
-                    'error': 'No text content extracted',
-                    'citations': [],
-                    'case_names': []
-                }
-            else:
-                # Split text into chunks
-                chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
-                total_chunks = len(chunks)
-                all_citations = []
-                all_case_names = []
-                for idx, chunk in enumerate(chunks):
-                    from src.document_processing import process_document
-                    chunk_result = process_document(content=chunk, extract_case_names=True)
-                    all_citations.extend(chunk_result.get('citations', []))
-                    all_case_names.extend(chunk_result.get('case_names', []))
-                    # Update progress in Redis
-                    progress = int(((idx+1)/total_chunks)*100)
-                    set_task_status(task_id, 'processing', {
-                        'progress': progress,
-                        'current_chunk': idx+1,
-                        'total_chunks': total_chunks,
-                        'start_time': start_time,
-                        'type': task_type
-                    })
-                # After all chunks, aggregate results
-                result = {
-                    'status': 'success',
-                    'citations': all_citations,
-                    'case_names': list(set(all_case_names)),
-                    'statistics': {},
-                    'summary': {},
-                    'extraction_metadata': {
-                        'text_length': len(text),
-                        'total_chunks': total_chunks
-                    }
-                }
-        # Debug log the result before deciding what to do
-        logger.info(f"[DEBUG] process_citation_task result for {task_id}: {result}")
-        print(f"[DEBUG] process_citation_task result for {task_id}: {result}")
-        # CRITICAL DEBUG: This should definitely show up
-        print(f"CRITICAL DEBUG: Task {task_id} result status: {result.get('status') if result else 'None'}")
-        logger.error(f"CRITICAL DEBUG: Task {task_id} result status: {result.get('status') if result else 'None'}")
-        # Always update status and result in Redis (or fallback)
-        if result and result.get('status') == 'failed':
+        if REDIS_AVAILABLE and redis_conn:
+            redis_conn.setex(key, INPUT_HASH_TTL, value)
+        else:
+            input_hash_to_result[key] = value
+            input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
+    except Exception as e:
+        logger.warning(f"[set_task_status] Failed to set status for {task_id}: {e}")
+        input_hash_to_result[key] = value
+        input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
+
+def set_task_result(task_id, result):
+    key = f"task_result:{task_id}"
+    value = json.dumps(result)
+    try:
+        if REDIS_AVAILABLE and redis_conn:
+            redis_conn.setex(key, INPUT_HASH_TTL, value)
+        else:
+            input_hash_to_result[key] = value
+            input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
+    except Exception as e:
+        logger.warning(f"[set_task_result] Failed to set result for {task_id}: {e}")
+        input_hash_to_result[key] = value
+        input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
+
+def get_task_result(task_id):
+    key = f"task_result:{task_id}"
+    try:
+        if REDIS_AVAILABLE and redis_conn:
+            value = redis_conn.get(key)
+            if value:
+                return json.loads(value)
+        else:
+            value = input_hash_to_result.get(key)
+            if value:
+                return json.loads(value)
+    except Exception as e:
+        logger.warning(f"[get_task_result] Failed to get result for {task_id}: {e}")
+    return None
+
+def cleanup_input_hashes():
+    now = time.time()
+    expired = [k for k, exp in input_hash_expiry.items() if exp < now]
+    for k in expired:
+        input_hash_to_result.pop(k, None)
+        input_hash_to_task.pop(k, None)
+        input_hash_expiry.pop(k, None)
+
+def process_citation_task(task_id: str, task_type: str, task_data: dict):
+    """
+    Simplified wrapper that delegates to CitationService.
+    This maintains compatibility with your existing queue system.
+    """
+    logger.info(f"[TASK] Processing {task_type} task {task_id}")
+    
+    try:
+        # Use the extracted service
+        citation_service = CitationService()
+        result = citation_service.process_citation_task(task_id, task_type, task_data)
+        
+        # Update task status based on result
+        if result.get('status') == 'failed':
             set_task_status(task_id, 'failed', {'error': result.get('error', 'Unknown error')})
-            logger.error(f"[WORKER] Task {task_id} failed, error written to Redis: {result.get('error', 'Unknown error')}")
-            logger.info(f"[WORKER] Set task {task_id} status to failed")
+            logger.error(f"[TASK] Task {task_id} failed: {result.get('error')}")
         else:
             set_task_status(task_id, 'completed', {'progress': 100, 'current_step': 'Complete'})
-            logger.info(f"[DEBUG] Calling set_task_result for {task_id} with result: {result}")
-            print(f"[DEBUG] Calling set_task_result for {task_id} with result: {result}")
-            # Create the task result data structure
+            
+            # Store the full result
             task_result_data = {
                 'task_id': task_id,
                 'type': task_type,
@@ -639,59 +787,20 @@ def process_citation_task(task_id, task_type, task_data):
                 'results': result.get('citations', []),
                 'citations': result.get('citations', []),
                 'case_names': result.get('case_names', []),
-                'metadata': result.get('extraction_metadata', {}),
+                'metadata': result.get('metadata', {}),
                 'statistics': result.get('statistics', {}),
                 'summary': result.get('summary', {}),
-                'start_time': start_time,
-                'end_time': time.time(),
-                'progress': 100,
-                'current_step': 'Complete',
-                'total_chunks': total_chunks
+                'processing_time': result.get('metadata', {}).get('processing_time', 0)
             }
-            # Debug: Check if the data is JSON serializable
-            try:
-                import json
-                test_json = json.dumps(task_result_data)
-                logger.info(f"[DEBUG] Task result data is JSON serializable: {test_json[:200]}...")
-                print(f"[DEBUG] Task result data is JSON serializable: {test_json[:200]}...")
-            except Exception as json_error:
-                logger.error(f"[DEBUG] Task result data is NOT JSON serializable: {json_error}")
-                print(f"[DEBUG] Task result data is NOT JSON serializable: {json_error}")
-                # Try to identify the problematic field
-                for key, value in task_result_data.items():
-                    try:
-                        json.dumps({key: value})
-                    except Exception as field_error:
-                        logger.error(f"[DEBUG] Field '{key}' is not JSON serializable: {field_error}")
-                        print(f"[DEBUG] Field '{key}' is not JSON serializable: {field_error}")
+            
             set_task_result(task_id, task_result_data)
-            logger.info(f"[WORKER] Task {task_id} completed, result written to Redis")
-            logger.info(f"[WORKER] Set task {task_id} status to completed and stored result")
-        # Clean up uploaded file after processing
-        if task_type == 'file' and task_data.get('file_path'):
-            try:
-                file_path = task_data['file_path']
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-                    logger.info(f"[TASK] Cleaned up uploaded file: {file_path}")
-            except Exception as cleanup_error:
-                logger.warning(f"[TASK] Failed to clean up file {file_path}: {cleanup_error}")
+            logger.info(f"[TASK] Task {task_id} completed successfully")
         
         return result
+        
     except Exception as e:
-        logger.error(f"Error processing citation task {task_id}: {str(e)}")
+        logger.error(f"[TASK] Error in task {task_id}: {e}", exc_info=True)
         set_task_status(task_id, 'failed', {'error': str(e)})
-        
-        # Clean up uploaded file even on error
-        if task_type == 'file' and task_data.get('file_path'):
-            try:
-                file_path = task_data['file_path']
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-                    logger.info(f"[TASK] Cleaned up uploaded file after error: {file_path}")
-            except Exception as cleanup_error:
-                logger.warning(f"[TASK] Failed to clean up file {file_path} after error: {cleanup_error}")
-        
         return {'status': 'failed', 'error': str(e)}
 
 @vue_api.route('/analyze', methods=['POST', 'OPTIONS'])
@@ -742,6 +851,9 @@ def analyze():
         # Initialize task ID for asynchronous processing
         task_id = str(uuid.uuid4())
         current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Assigned task ID: {task_id}")
+
+        # Initialize citation service
+        citation_service = CitationService()
 
         # Handle file upload
         if 'file' in request.files or 'file' in request.form or (request.is_json and 'file' in data):
@@ -846,149 +958,35 @@ def analyze():
                     source_name="pasted_text"
                 )
             
-            # --- Immediate vs Async Response Logic ---
-            # If the input is a short, single citation (less than 50 chars, contains numbers, matches known citation patterns, <= 10 words),
-            # process it synchronously for instant feedback. Otherwise, queue for async processing.
-            # This logic is tuned for optimal user experience and can be adjusted as needed.
-            text_trimmed = text.strip()
-            current_app.logger.info(f"[ANALYZE] Immediate/Async decision: text_len={len(text_trimmed)}, words={len(text_trimmed.split())}, patterns={[w for w in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'L.ED.2D', 'L.ED.3D', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL', 'WN.2D', 'WN.APP.', 'WN. APP.', 'WASH.2D', 'WASH.APP.', 'WASH. APP.'] if w in text_trimmed.upper()]}")
-            if (len(text_trimmed) < 50 and  # Short text
-                any(char.isdigit() for char in text_trimmed) and  # Contains numbers
-                any(word in text_trimmed.upper() for word in ['U.S.', 'F.', 'F.2D', 'F.3D', 'S.CT.', 'L.ED.', 'L.ED.2D', 'L.ED.3D', 'P.2D', 'P.3D', 'A.2D', 'A.3D', 'WL', 'WN.2D', 'WN.APP.', 'WN. APP.', 'WASH.2D', 'WASH.APP.', 'WASH. APP.']) and  # Contains citation patterns
-                len(text_trimmed.split()) <= 10):  # Few words
-                # Immediate (synchronous) response
-                current_app.logger.info(f"[ANALYZE] Using immediate (synchronous) response for citation: {text_trimmed}")
-                
-                try:
-                    # Import the enhanced validator and complex citation integration
-                    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-                    try:
-                        from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
-                        integrator = ComplexCitationIntegrator()
-                        results = integrator.process_text_with_complex_citations_original(text_trimmed)
-                    except ImportError as import_error:
-                        current_app.logger.warning(f"[ANALYZE] ComplexCitationIntegrator not available: {import_error}")
-                        # Fallback to simple verification
-                        verifier = EnhancedMultiSourceVerifier()
-                        results = verifier.verify_citation(text_trimmed)
-                        if isinstance(results, dict):
-                            results = [results]
-                        # Simple formatting for fallback
-                        def format_complex_citation_for_frontend(result):
-                            return {
-                                'display_text': result.get('citation', ''),
-                                'complex_features': {},
-                                'parallel_info': {}
-                            }
-                    
-                    processing_time = time.time() - start_time
-                    
-                    # Extract results and statistics
-                    # The method returns a list directly, not a dictionary
-                    statistics = {
-                        'total_citations': len(results),
-                        'verified_citations': len([r for r in results if r.get('verified') == 'true']),
-                        'unverified_citations': len([r for r in results if r.get('verified') != 'true']),
-                        'parallel_citations': len([r for r in results if r.get('is_parallel_citation')]),
-                        'unique_cases': len(set(r.get('canonical_name', '') for r in results if r.get('canonical_name')))
-                    }
-                    summary = {
-                        'total_citations': len(results),
-                        'verified_citations': len([r for r in results if r.get('verified') == 'true']),
-                        'unverified_citations': len([r for r in results if r.get('verified') != 'true']),
-                        'parallel_citations': len([r for r in results if r.get('is_parallel_citation')]),
-                        'unique_cases': len(set(r.get('canonical_name', '') for r in results if r.get('canonical_name')))
-                    }
-                    
-                    # Format results for frontend
-                    formatted_citations = []
-                    for result in results:
-                        # --- BEGIN PATCH ---
-                        # If canonical_citation is a list with more than one entry, add the extras to parallel_citations
-                        canonical_citations = result.get('canonical_citation')
-                        citation_value = result.get('citation')
-                        if isinstance(canonical_citations, list):
-                            # Remove the main citation from the list, if present
-                            parallels = [c for c in canonical_citations if c != citation_value]
-                            if 'parallel_citations' not in result or not result['parallel_citations']:
-                                result['parallel_citations'] = parallels
-                            elif isinstance(result['parallel_citations'], list):
-                                # Merge, deduplicate
-                                result['parallel_citations'] = list(set(result['parallel_citations'] + parallels))
-                        # --- END PATCH ---
-                        formatted_result = format_complex_citation_for_frontend(result)
-                        formatted_citations.append({
-                            'citation': result.get('citation', text_trimmed),
-                            'valid': result.get('verified', 'false'),
-                            'verified': result.get('verified', 'false'),
-                            'case_name': result.get('case_name', ''),
-                            'extracted_case_name': result.get('extracted_case_name', ''),
-                            'canonical_name': result.get('canonical_name', ''),
-                            'hinted_case_name': result.get('hinted_case_name', ''),
-                            'canonical_date': result.get('canonical_date', ''),
-                            'extracted_date': result.get('extracted_date', ''),
-                            'court': result.get('court', ''),
-                            'docket_number': result.get('docket_number', ''),
-                            'confidence': result.get('confidence', 0.0),
-                            'source': result.get('source', 'Unknown'),
-                            'url': result.get('url', ''),
-                            'details': result.get('details', {}),
-                            'is_complex_citation': result.get('is_complex_citation', False),
-                            'is_parallel_citation': result.get('is_parallel_citation', False),
-                            'complex_metadata': result.get('complex_metadata', {}),
-                            'display_text': formatted_result.get('display_text', ''),
-                            'complex_features': formatted_result.get('complex_features', {}),
-                            'parallel_info': formatted_result.get('parallel_info', {}),
-                            'parallel_citations': result.get('parallel_citations', []),
-                            'metadata': {
-                                'source_type': 'citation',
-                                'source_name': 'single_citation',
-                                'processing_time': processing_time,
-                                'timestamp': datetime.utcnow().isoformat() + "Z",
-                                'user_agent': request.headers.get("User-Agent")
-                            }
-                        })
-                    
-                    response_data = {
-                        'citations': formatted_citations,
-                        'statistics': statistics,
-                        'summary': summary
-                    }
-                    
-                    # Log results
-                    for result in results:
-                        current_app.logger.info(f"[ANALYZE] Citation '{result.get('citation', text_trimmed)}' validation result: {result.get('verified', False)}")
-                        current_app.logger.info(f"[ANALYZE] Is complex citation: {result.get('is_complex_citation', False)}")
-                        current_app.logger.info(f"[ANALYZE] Extracted case name: {result.get('extracted_case_name', 'None')}")
-                        current_app.logger.info(f"[ANALYZE] Canonical case name: {result.get('canonical_name', 'None')}")
-                    # Log the full response_data sent to the frontend
-                    current_app.logger.info(f"[ANALYZE] Response to frontend: {json.dumps(response_data, indent=2, ensure_ascii=False)}")
-                    return jsonify(response_data)
-                    
-                except Exception as e:
-                    current_app.logger.error(f"[ANALYZE] Error validating single citation '{text_trimmed}': {str(e)}")
-                    # Fall back to async processing
-                    current_app.logger.info(f"[ANALYZE] Falling back to async processing for citation: {text_trimmed}")
-                
-            # Continue with async processing for longer text or if single citation validation failed
-            # Async (queued) response
-            current_app.logger.info(f"[ANALYZE] Using async (queued) response for text input: {text_trimmed[:60]}...")
+            # NEW: Use CitationService for immediate/async decision
+            input_data = {'type': 'text', 'text': text}
             
-            # Add task to queue
-            task = {
-                'task_id': task_id,
-                'type': 'text',
-                'data': {
-                    'text': text
+            if citation_service.should_process_immediately(input_data):
+                # NEW: Use CitationService for immediate processing
+                logger.info(f"[ANALYZE] Using immediate processing for: {text[:50]}...")
+                
+                result = citation_service.process_immediately(input_data)
+                
+                if result.get('status') == 'error':
+                    return jsonify(result), 500
+                
+                # Return immediate response
+                return jsonify(result)
+            
+            else:
+                # Continue with async processing
+                logger.info(f"[ANALYZE] Using async processing for text")
+                
+                task = {
+                    'task_id': task_id,
+                    'type': 'text',
+                    'data': {'text': text}
                 }
-            }
-            # Initialize task in active_requests
-            set_task_status(task_id, 'queued', task['data'])
-            
-            # Enqueue task
-            current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
-            if RQ_AVAILABLE and queue:
-                try:
+                
+                set_task_status(task_id, 'queued', task['data'])
+                
+                # Enqueue task
+                if RQ_AVAILABLE and queue:
                     job = queue.enqueue(process_citation_task, task_id, 'text', task['data'])
                     logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
                     if not job:
@@ -998,82 +996,61 @@ def analyze():
                             f"Failed to enqueue task {task_id}",
                             status_code=500
                         )
-                    # Store the job ID mapping in Redis using the global connection
+                    # Store the job ID mapping in Redis
                     try:
-                        redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
-                        logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
+                        redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)
+                        logger.info(f"[ANALYZE] Stored task {task_id} -> job {job.id} mapping")
                     except Exception as e:
                         logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
                     logger.info(f"[ANALYZE] Added text task {task_id} to RQ")
-                except Exception as e:
-                    logger.error(f"[ANALYZE] Exception during enqueue for {task_id}: {e}", exc_info=True)
-                    return make_error_response(
-                        "enqueue_error",
-                        f"Exception during enqueue: {e}",
-                        status_code=500
-                    )
-                # Return immediate response with task ID for queued tasks
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'Text received, processing started',
-                    'metadata': {
-                        'source_type': 'text',
-                        'source_name': 'pasted_text',
-                        'timestamp': datetime.utcnow().isoformat() + "Z",
-                        'user_agent': request.headers.get("User-Agent")
-                    }
-                })
-            elif task_queue is not None:
-                # Use fallback threading queue
-                queue_size = task_queue.qsize() if task_queue else 'N/A'
-                current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {queue_size})")
-                if task_queue:
-                    task_queue.put((task_id, 'text', task['data']))
-                new_queue_size = task_queue.qsize() if task_queue else 'N/A'
-                current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {new_queue_size})")
-                # Return immediate response with task ID for queued tasks
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'Text received, processing started',
-                    'metadata': {
-                        'source_type': 'text',
-                        'source_name': 'pasted_text',
-                        'timestamp': datetime.utcnow().isoformat() + "Z",
-                        'user_agent': request.headers.get("User-Agent")
-                    }
-                })
-            else:
-                # Worker thread is disabled, process immediately
-                current_app.logger.info(f"[ANALYZE] Worker thread disabled, processing task {task_id} immediately")
-                try:
-                    # Process the task immediately
-                    result = process_citation_task(task_id, 'text', task['data'])
-                    if result and result.get('status') == 'success':
-                        return jsonify({
-                            'status': 'completed',
-                            'task_id': task_id,
-                            'results': result.get('results', []),
-                            'citations': result.get('citations', []),
-                            'case_names': result.get('case_names', []),
-                            'metadata': result.get('metadata', {}),
-                            'statistics': result.get('statistics', {}),
-                            'summary': result.get('summary', {})
-                        })
-                    else:
+                elif task_queue is not None:
+                    # Use fallback threading queue
+                    queue_size = task_queue.qsize() if task_queue else 'N/A'
+                    current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {queue_size})")
+                    if task_queue:
+                        task_queue.put((task_id, 'text', task['data']))
+                    new_queue_size = task_queue.qsize() if task_queue else 'N/A'
+                    current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {new_queue_size})")
+                else:
+                    # Worker thread is disabled, process immediately
+                    current_app.logger.info(f"[ANALYZE] Worker thread disabled, processing task {task_id} immediately")
+                    try:
+                        result = process_citation_task(task_id, 'text', task['data'])
+                        if result and result.get('status') == 'success':
+                            return jsonify({
+                                'status': 'completed',
+                                'task_id': task_id,
+                                'results': result.get('results', []),
+                                'citations': result.get('citations', []),
+                                'case_names': result.get('case_names', []),
+                                'metadata': result.get('metadata', {}),
+                                'statistics': result.get('statistics', {}),
+                                'summary': result.get('summary', {})
+                            })
+                        else:
+                            return make_error_response(
+                                "processing_error",
+                                f"Task processing failed: {result.get('error', 'Unknown error')}",
+                                status_code=500
+                            )
+                    except Exception as e:
+                        current_app.logger.error(f"[ANALYZE] Error processing task {task_id} immediately: {str(e)}")
                         return make_error_response(
                             "processing_error",
-                            f"Task processing failed: {result.get('error', 'Unknown error')}",
+                            f"Error processing task: {str(e)}",
                             status_code=500
                         )
-                except Exception as e:
-                    current_app.logger.error(f"[ANALYZE] Error processing task {task_id} immediately: {str(e)}")
-                    return make_error_response(
-                        "processing_error",
-                        f"Error processing task: {str(e)}",
-                        status_code=500
-                    )
+                
+                return jsonify({
+                    'status': 'processing',
+                    'task_id': task_id,
+                    'message': 'Text received, processing started',
+                    'metadata': {
+                        'source_type': 'text',
+                        'source_name': 'pasted_text',
+                        'timestamp': datetime.utcnow().isoformat() + "Z"
+                    }
+                })
 
         # Handle URL input
         elif input_type == 'url' or ('url' in data and data['url']):
@@ -1125,7 +1102,6 @@ def analyze():
                 # Worker thread is disabled, process immediately
                 current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Worker thread disabled, processing URL task {task_id} immediately")
                 try:
-                    # Process the task immediately
                     result = process_citation_task(task_id, 'url', task['data'])
                     if result and result.get('status') == 'success':
                         return jsonify({
@@ -1152,7 +1128,7 @@ def analyze():
                         status_code=500
                     )
             
-            # Return immediate response with task ID (only for queued tasks)
+            # Return immediate response with task ID for queued tasks
             if (RQ_AVAILABLE and queue) or (task_queue is not None):
                 return jsonify({
                     'status': 'processing',
@@ -1180,680 +1156,6 @@ def analyze():
             f"Server error: {str(e)}",
             status_code=500
         )
-
-
-@vue_api.route('/task_status/<task_id>', methods=['GET'])
-def task_status(task_id):
-    """
-    Get the status and result of an async analysis task.
-    Always return a consistent response structure.
-    Now includes progress and ETA fields when processing.
-    """
-    try:
-        # 1. Check Redis for completed result first
-        try:
-            redis_result = redis_conn.get(f"task_result:{task_id}")
-            if redis_result:
-                result_data = json.loads(redis_result)
-                current_app.logger.info(f"[TASK_STATUS] Redis result for {task_id}: status={result_data.get('status')}, progress={result_data.get('progress')}, step={result_data.get('current_step')}")
-                is_completed = (
-                    result_data.get('status') == 'completed' or
-                    result_data.get('progress') == 100 or
-                    result_data.get('current_step') == 'Complete'
-                )
-                if is_completed:
-                    current_app.logger.info(f"[TASK_STATUS] Task {task_id} is completed, returning result from Redis")
-                    return jsonify({
-                        'status': 'completed',
-                        'task_id': task_id,
-                        'citations': result_data.get('citations', []),
-                        'statistics': result_data.get('statistics', {}),
-                        'summary': result_data.get('summary', {}),
-                        'progress': 100,
-                        'eta_seconds': 0,
-                        'message': 'Analysis completed'
-                    })
-                else:
-                    # Still processing, show progress and ETA
-                    eta = _estimate_time_remaining(result_data)
-                    return jsonify({
-                        'status': 'processing',
-                        'task_id': task_id,
-                        'progress': result_data.get('progress', 0),
-                        'current_chunk': result_data.get('current_chunk', 0),
-                        'total_chunks': result_data.get('total_chunks', 1),
-                        'eta_seconds': eta,
-                        'message': 'Task is still processing',
-                        'citations': [],
-                        'statistics': {},
-                        'summary': {}
-                    })
-        except Exception as redis_error:
-            current_app.logger.warning(f"Redis check failed for task {task_id}: {redis_error}")
-
-        # 2. Then check if task exists in active_requests
-        if task_id in active_requests:
-            task_info = active_requests[task_id]
-            # If still processing
-            if task_info['status'] in ('queued', 'processing'):
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'Task is still processing',
-                    'citations': [],
-                    'statistics': {},
-                    'summary': {}
-                })
-            # If completed
-            if task_info['status'] == 'completed':
-                result = task_info.get('result', {})
-                return jsonify({
-                    'status': 'completed',
-                    'task_id': task_id,
-                    'citations': result.get('citations', []),
-                    'statistics': result.get('statistics', {}),
-                    'summary': result.get('summary', {}),
-                    'message': result.get('message', 'Analysis completed')
-                })
-            # If failed
-            if task_info['status'] == 'failed':
-                return jsonify({
-                    'status': 'error',
-                    'task_id': task_id,
-                    'message': task_info.get('error', 'Task failed'),
-                    'citations': [],
-                    'statistics': {},
-                    'summary': {}
-                }), 500
-
-        # 3. If not in active_requests, check RQ job result as fallback
-        try:
-            job_id = redis_conn.get(f"task_to_job:{task_id}")
-            if job_id:
-                job_id = job_id.decode('utf-8') if isinstance(job_id, bytes) else job_id
-                current_app.logger.info(f"[TASK_STATUS] Found job ID {job_id} for task {task_id}")
-                job = queue.fetch_job(job_id)
-            else:
-                current_app.logger.info(f"[TASK_STATUS] No job ID mapping found for task {task_id}, trying direct fetch")
-                job = queue.fetch_job(task_id)
-
-            if job and job.is_finished:
-                result = job.result
-                if result and isinstance(result, dict):
-                    return jsonify({
-                        'status': 'completed',
-                        'task_id': task_id,
-                        'citations': result.get('citations', []),
-                        'statistics': result.get('statistics', {}),
-                        'summary': result.get('summary', {}),
-                        'message': 'Analysis completed'
-                    })
-                elif result and isinstance(result, list):
-                    return jsonify({
-                        'status': 'completed',
-                        'task_id': task_id,
-                        'citations': result,
-                        'statistics': {},
-                        'summary': {},
-                        'message': 'Analysis completed'
-                    })
-            elif job and job.is_failed:
-                return jsonify({
-                    'status': 'error',
-                    'task_id': task_id,
-                    'message': f'Task failed: {job.exc_info}',
-                    'citations': [],
-                    'statistics': {},
-                    'summary': {}
-                }), 500
-            elif job and job.is_started:
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'Task is still processing',
-                    'citations': [],
-                    'statistics': {},
-                    'summary': {}
-                })
-            elif job:
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'Task is still processing',
-                    'citations': [],
-                    'statistics': {},
-                    'summary': {}
-                })
-        except Exception as redis_error:
-            current_app.logger.warning(f"Redis check failed for task {task_id}: {redis_error}")
-
-        # 4. Task not found
-        return jsonify({
-            'status': 'error',
-            'message': 'Task ID not found',
-            'task_id': task_id,
-            'citations': [],
-            'statistics': {},
-            'summary': {}
-        }), 404
-
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'task_id': task_id,
-            'message': f'Exception: {str(e)}',
-            'citations': [],
-            'statistics': {},
-            'summary': {}
-        }), 500
-
-def _estimate_time_remaining(task_status):
-    """
-    Estimate time remaining based on task type and current progress.
-    Returns estimated seconds remaining or None if cannot estimate.
-    """
-    try:
-        task_type = task_status.get('type', 'unknown')
-        progress = task_status.get('progress', 0)
-        start_time = task_status.get('start_time', time.time())
-        current_time = time.time()
-        elapsed = current_time - start_time
-        
-        if progress <= 0:
-            return None
-            
-        # Estimate based on task type and progress
-        if task_type == 'file':
-            # File processing: 30-120 seconds typical
-            estimated_total = 60
-        elif task_type == 'text':
-            # Text processing: 10-30 seconds typical
-            estimated_total = 20
-        elif task_type == 'url':
-            # URL processing: 60-300 seconds typical (includes download)
-            estimated_total = 120
-        else:
-            estimated_total = 60
-            
-        if progress >= 100:
-            return 0
-            
-        remaining = (estimated_total * (100 - progress) / 100) - elapsed
-        return max(0, int(remaining))
-        
-    except Exception:
-        return None
-
-@vue_api.route('/version', methods=['GET'])
-def version():
-    """Version endpoint to return the current application version."""
-    try:
-        from src import __version__
-        return jsonify({
-            'version': __version__,
-            'status': 'ok',
-            'timestamp': datetime.now().isoformat()
-        })
-    except Exception as e:
-        logger.error(f"Version endpoint error: {str(e)}")
-        return jsonify({
-            'version': 'unknown',
-            'status': 'error',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }), 500
-
-@vue_api.route('/processing_progress', methods=['GET'])
-def processing_progress():
-    """
-    Compatibility endpoint for old static JavaScript frontend.
-    Returns a simplified progress response that matches the expected format.
-    """
-    try:
-        # Get the total parameter from the request (used by old frontend)
-        total_citations = request.args.get('total', 0, type=int)
-        
-        # Check if there are any active requests
-        if not active_requests:
-            # No active processing
-            return jsonify({
-                'status': 'success',
-                'processed_citations': 0,
-                'total_citations': total_citations,
-                'is_complete': True
-            })
-        
-        # Find the most recent active request
-        latest_task_id = None
-        latest_start_time = 0
-        
-        for task_id, task_status in active_requests.items():
-            start_time = task_status.get('start_time', 0)
-            if start_time > latest_start_time:
-                latest_start_time = start_time
-                latest_task_id = task_id
-        
-        if not latest_task_id:
-            return jsonify({
-                'status': 'success',
-                'processed_citations': 0,
-                'total_citations': total_citations,
-                'is_complete': True
-            })
-        
-        # Get the latest task status
-        task_status = active_requests[latest_task_id]
-        status = task_status.get('status', 'unknown')
-        
-        # Calculate progress based on status
-        if status == 'completed':
-            # Task is complete
-            citations = task_status.get('results', []) or task_status.get('citations', [])
-            processed_count = len(citations) if citations else 0
-            
-            return jsonify({
-                'status': 'success',
-                'processed_citations': processed_count,
-                'total_citations': max(total_citations, processed_count),
-                'is_complete': True
-            })
-        
-        elif status == 'failed':
-            # Task failed
-            return jsonify({
-                'status': 'success',
-                'processed_citations': 0,
-                'total_citations': total_citations,
-                'is_complete': True
-            })
-        
-        elif status in ['queued', 'processing']:
-            # Task is still processing
-            # Estimate progress based on elapsed time
-            start_time = task_status.get('start_time', time.time())
-            elapsed_time = time.time() - start_time
-            
-            task_type = task_status.get('type', 'text')
-            if task_type == 'file':
-                estimated_total = 60  # 60 seconds for file processing
-            elif task_type == 'url':
-                estimated_total = 120  # 120 seconds for URL processing
-            else:  # text
-                estimated_total = 20  # 20 seconds for text processing
-            
-            # Calculate estimated progress (cap at 90% until complete)
-            estimated_progress = min(int((elapsed_time / estimated_total) * 90), 90)
-            processed_count = int((estimated_progress / 100) * total_citations) if total_citations > 0 else 0
-            
-            return jsonify({
-                'status': 'success',
-                'processed_citations': processed_count,
-                'total_citations': total_citations,
-                'is_complete': False
-            })
-        
-        else:
-            # Unknown status
-            return jsonify({
-                'status': 'success',
-                'processed_citations': 0,
-                'total_citations': total_citations,
-                'is_complete': False
-            })
-            
-    except Exception as e:
-        logger.error(f"Processing progress endpoint error: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'error': str(e),
-            'processed_citations': 0,
-            'total_citations': 0,
-            'is_complete': False
-        }), 500
-
-# Add comprehensive file upload security validation
-def validate_file_upload(file):
-    """
-    Comprehensive file upload security validation.
-    Returns (is_valid, error_message) tuple.
-    """
-    try:
-        if not file or not file.filename:
-            return False, "No file provided"
-        file.seek(0, 2)
-        file_size = file.tell()
-        file.seek(0)
-        if file_size > MAX_CONTENT_LENGTH:
-            return False, f"File too large. Maximum size is {MAX_CONTENT_LENGTH // (1024*1024)}MB"
-        if file_size == 0:
-            return False, "File is empty"
-        filename = secure_filename(file.filename)
-        if not filename or filename == '':
-            return False, "Invalid filename"
-        # Check file extension (allow multiple dots, only check final extension)
-        if '.' not in filename:
-            return False, "Invalid file type. Allowed types: .txt, .md, .docx, .pdf, .rtf, .html, .htm"
-        file_ext = filename.rsplit('.', 1)[1].lower()
-        allowed_exts = {'txt', 'md', 'docx', 'pdf', 'rtf', 'html', 'htm'}
-        if file_ext not in allowed_exts:
-            return False, "Invalid file type. Allowed types: .txt, .md, .docx, .pdf, .rtf, .html, .htm"
-        # Additional security checks
-        suspicious_patterns = ['..', '\\', '/', '*', '?', '"', '<', '>', '|']
-        if any(pattern in file.filename for pattern in suspicious_patterns):
-            return False, "Invalid filename: contains suspicious characters"
-        # Check file content type (basic validation)
-        allowed_mime_types = {
-            'pdf': 'application/pdf',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'txt': 'text/plain',
-            'md': 'text/markdown',
-            'rtf': 'text/rtf',
-            'html': 'text/html',
-            'htm': 'text/html',
-        }
-        if file_ext in allowed_mime_types:
-            expected_mime = allowed_mime_types[file_ext]
-            if hasattr(file, 'content_type') and file.content_type:
-                if file.content_type != expected_mime:
-                    logger.warning(f"File content type mismatch: expected {expected_mime}, got {file.content_type}")
-        return True, None
-    except Exception as e:
-        logger.error(f"File validation error: {str(e)}")
-        return False, f"File validation failed: {str(e)}"
-
-# Add utility function for masking sensitive data in logs
-def mask_sensitive_data(data, mask_char='*', visible_chars=4):
-    """
-    Safely mask sensitive data like API keys in logs.
-    Shows only the first and last few characters.
-    """
-    if not data or len(data) <= visible_chars * 2:
-        return mask_char * len(data) if data else ''
-    
-    return data[:visible_chars] + mask_char * (len(data) - visible_chars * 2) + data[-visible_chars:]
-
-def safe_log_sensitive_data(logger_func, message, sensitive_data, mask_char='*', visible_chars=4):
-    """
-    Safely log messages that might contain sensitive data.
-    """
-    if sensitive_data:
-        masked_data = mask_sensitive_data(sensitive_data, mask_char, visible_chars)
-        logger_func(f"{message}: {masked_data}")
-    else:
-        logger_func(f"{message}: None")
-
-# Add comprehensive input validation functions
-def validate_text_input(text):
-    """
-    Comprehensive text input validation.
-    Returns (is_valid, error_message) tuple.
-    """
-    try:
-        # Check if text exists and is a string
-        if not text or not isinstance(text, str):
-            return False, "No valid text provided"
-        
-        # Check text length (reasonable limits for legal documents)
-        text_trimmed = text.strip()
-        if len(text_trimmed) == 0:
-            return False, "Text is empty after trimming"
-        
-        if len(text_trimmed) > 1000000:  # 1MB limit for text
-            return False, "Text is too long. Maximum length is 1,000,000 characters"
-        
-        # Check for suspicious patterns (basic XSS prevention)
-        suspicious_patterns = [
-            '<script', 'javascript:', 'vbscript:', 'onload=', 'onerror=',
-            'data:text/html', 'data:application/javascript'
-        ]
-        
-        text_lower = text_trimmed.lower()
-        for pattern in suspicious_patterns:
-            if pattern in text_lower:
-                return False, f"Text contains suspicious content: {pattern}"
-        
-        # Check for excessive whitespace or control characters
-        if len(text_trimmed) > 0 and text_trimmed.isspace():
-            return False, "Text contains only whitespace"
-        
-        # Count control characters (excluding newlines and tabs)
-        control_chars = sum(1 for c in text_trimmed if ord(c) < 32 and c not in '\n\r\t')
-        if control_chars > len(text_trimmed) * 0.1:  # More than 10% control chars
-            return False, "Text contains too many control characters"
-        
-        return True, None
-        
-    except Exception as e:
-        logger.error(f"Text validation error: {str(e)}")
-        return False, f"Text validation failed: {str(e)}"
-
-def validate_url_input(url):
-    """
-    Comprehensive URL input validation.
-    Returns (is_valid, error_message) tuple.
-    """
-    try:
-        # Check if URL exists and is a string
-        if not url or not isinstance(url, str):
-            return False, "No valid URL provided"
-        
-        url_trimmed = url.strip()
-        if len(url_trimmed) == 0:
-            return False, "URL is empty after trimming"
-        
-        if len(url_trimmed) > 2048:  # Standard URL length limit
-            return False, "URL is too long. Maximum length is 2048 characters"
-        
-        # Basic URL format validation
-        if not url_trimmed.startswith(('http://', 'https://')):
-            return False, "URL must start with http:// or https://"
-        
-        # Check for suspicious patterns
-        suspicious_patterns = [
-            'javascript:', 'vbscript:', 'data:', 'file:', 'ftp://',
-            'localhost', '127.0.0.1', '0.0.0.0', '::1'
-        ]
-        
-        url_lower = url_trimmed.lower()
-        for pattern in suspicious_patterns:
-            if pattern in url_lower:
-                return False, f"URL contains suspicious content: {pattern}"
-        
-        # Try to parse the URL to ensure it's valid
-        try:
-            from urllib.parse import urlparse
-            parsed = urlparse(url_trimmed)
-            if not parsed.netloc:
-                return False, "Invalid URL format"
-        except Exception:
-            return False, "Invalid URL format"
-        
-        return True, None
-        
-    except Exception as e:
-        logger.error(f"URL validation error: {str(e)}")
-        return False, f"URL validation failed: {str(e)}"
-
-def enrich_citation_with_database_fields(citation_result):
-    """
-    Enrich a citation result with all available database fields.
-    
-    Args:
-        citation_result (dict): The citation result from verification
-        
-    Returns:
-        dict: Enriched citation result with database fields
-    """
-    try:
-        from src.database_manager import get_database_manager
-        
-        db_manager = get_database_manager()
-        citation_text = citation_result.get('citation', '')
-        
-        logger.info(f"[enrich_citation_with_database_fields] Incoming citation: {citation_text}, verified: {citation_result.get('verified')}")
-        
-        if not citation_text:
-            return citation_result
-        
-        # Query the database for this citation with flexible column handling
-        query = """
-            SELECT id, citation_text, case_name, year, court, reporter, volume, page,
-                   parallel_citations, verification_result, verification_source, 
-                   verification_confidence, found, is_verified
-            FROM citations 
-            WHERE citation_text = ?
-        """
-        
-        # Add timestamp columns if they exist
-        try:
-            # Try to get timestamp columns
-            timestamp_query = """
-                SELECT created_at, updated_at, last_verified_at, verification_count, error_count
-                FROM citations 
-                WHERE citation_text = ?
-            """
-            timestamp_results = db_manager.execute_query(timestamp_query, (citation_text,))
-            if timestamp_results:
-                # Add timestamp fields to the main query
-                query = """
-                    SELECT id, citation_text, case_name, year, court, reporter, volume, page,
-                           parallel_citations, verification_result, verification_source, 
-                           verification_confidence, found, is_verified,
-                           created_at, updated_at, last_verified_at, verification_count, error_count
-                    FROM citations 
-                    WHERE citation_text = ?
-                """
-        except Exception as e:
-            logger.debug(f"Timestamp columns not available: {e}")
-        
-        results = db_manager.execute_query(query, (citation_text,))
-        
-        if results:
-            db_record = results[0]
-            
-            logger.info(f"[enrich_citation_with_database_fields] Database record for {citation_text}: is_verified={db_record.get('is_verified')}, verification_result={db_record.get('verification_result')}")
-            
-            # Add database fields to the citation result, but DO NOT overwrite 'verified'
-            enriched_result = citation_result.copy()
-            enriched_result.update({
-                'db_id': db_record.get('id'),
-                'db_case_name': db_record.get('case_name'),
-                'db_year': db_record.get('year'),
-                'db_court': db_record.get('court'),
-                'db_reporter': db_record.get('reporter'),
-                'db_volume': db_record.get('volume'),
-                'db_page': db_record.get('page'),
-                'db_parallel_citations': db_record.get('parallel_citations'),
-                'db_verification_result': db_record.get('verification_result'),
-                'db_verification_source': db_record.get('verification_source'),
-                'db_verification_confidence': db_record.get('verification_confidence'),
-                'db_found': db_record.get('found'),
-                'db_is_verified': db_record.get('is_verified'),
-                'db_created_at': db_record.get('created_at'),
-                'db_updated_at': db_record.get('updated_at'),
-                'db_last_verified_at': db_record.get('last_verified_at'),
-                'db_verification_count': db_record.get('verification_count'),
-                'db_error_count': db_record.get('error_count')
-            })
-            # DO NOT overwrite 'verified' field
-            logger.info(f"[enrich_citation_with_database_fields] Final result for {citation_text}: verified={enriched_result.get('verified')}, db_is_verified={enriched_result.get('db_is_verified')}")
-            return enriched_result
-        else:
-            logger.info(f"[enrich_citation_with_database_fields] No database record found for {citation_text}, returning original result")
-            return citation_result
-            
-    except Exception as e:
-        logger.warning(f"Could not enrich citation with database fields: {e}")
-        return citation_result
-
-# Helper functions for Redis task status/results
-
-def set_task_status(task_id, status, data=None):
-    if REDIS_TASK_TRACKING and redis_conn:
-        try:
-            key = f"task_status:{task_id}"
-            value = {"status": status}
-            if data:
-                value.update(data)
-            redis_conn.setex(key, 3600, json.dumps(value))
-        except Exception as e:
-            logger.warning(f"[REDIS] Failed to set task status for {task_id}: {e}")
-    else:
-        active_requests[task_id] = {"status": status, **(data or {})}
-
-def get_task_status(task_id):
-    if REDIS_TASK_TRACKING and redis_conn:
-        try:
-            key = f"task_status:{task_id}"
-            value = redis_conn.get(key)
-            if value:
-                return json.loads(value)
-        except Exception as e:
-            logger.warning(f"[REDIS] Failed to get task status for {task_id}: {e}")
-    return active_requests.get(task_id)
-
-def set_task_result(task_id, result):
-    logger.info(f"[DEBUG] set_task_result called for {task_id} with result: {result}")
-    print(f"[DEBUG] set_task_result called for {task_id} with result: {result}")
-    
-    if REDIS_TASK_TRACKING and redis_conn:
-        try:
-            key = f"task_result:{task_id}"
-            logger.info(f"[DEBUG] About to serialize result to JSON for {task_id}")
-            print(f"[DEBUG] About to serialize result to JSON for {task_id}")
-            
-            # Try to serialize the result
-            try:
-                json_str = json.dumps(result)
-                logger.info(f"[DEBUG] JSON serialization successful for {task_id}: {json_str[:100]}...")
-                print(f"[DEBUG] JSON serialization successful for {task_id}: {json_str[:100]}...")
-            except Exception as json_error:
-                logger.error(f"[DEBUG] JSON serialization failed for {task_id}: {json_error}")
-                print(f"[DEBUG] JSON serialization failed for {task_id}: {json_error}")
-                # Try to identify the problematic field
-                for key_name, value in result.items():
-                    try:
-                        json.dumps({key_name: value})
-                    except Exception as field_error:
-                        logger.error(f"[DEBUG] Field '{key_name}' is not JSON serializable: {field_error}")
-                        print(f"[DEBUG] Field '{key_name}' is not JSON serializable: {field_error}")
-                raise json_error
-            
-            # Store in Redis
-            redis_conn.setex(key, 3600, json_str)
-            logger.info(f"[DEBUG] set_task_result wrote result to Redis key {key}")
-            print(f"[DEBUG] set_task_result wrote result to Redis key {key}")
-            
-            # Verify it was stored
-            stored_value = redis_conn.get(key)
-            if stored_value:
-                logger.info(f"[DEBUG] Verified result stored in Redis for {task_id}")
-                print(f"[DEBUG] Verified result stored in Redis for {task_id}")
-            else:
-                logger.error(f"[DEBUG] Failed to verify result storage for {task_id}")
-                print(f"[DEBUG] Failed to verify result storage for {task_id}")
-                
-        except Exception as e:
-            logger.error(f"[REDIS] Failed to set task result for {task_id}: {e}")
-            print(f"[REDIS] Failed to set task result for {task_id}: {e}")
-            import traceback
-            logger.error(f"[REDIS] Traceback: {traceback.format_exc()}")
-            print(f"[REDIS] Traceback: {traceback.format_exc()}")
-    else:
-        logger.info(f"[DEBUG] Using in-memory storage for {task_id}")
-        print(f"[DEBUG] Using in-memory storage for {task_id}")
-        active_requests[task_id] = {"status": "completed", "result": result}
-
-def get_task_result(task_id):
-    if REDIS_TASK_TRACKING and redis_conn:
-        try:
-            key = f"task_result:{task_id}"
-            value = redis_conn.get(key)
-            if value:
-                return json.loads(value)
-        except Exception as e:
-            logger.warning(f"[REDIS] Failed to get task result for {task_id}: {e}")
-    task = active_requests.get(task_id)
-    if task and task.get("status") == "completed":
-        return task.get("result")
-    return None
+    finally:
+        # Clean up input hashes after processing
+        cleanup_input_hashes()

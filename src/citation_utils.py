@@ -268,6 +268,13 @@ def validate_potential_citation(citation_text):
         # Check for citations that start with short form indicators
         if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
             return False, "Short form citation indicator"
+        
+        # Filter out U.S.C. and C.F.R. citations
+        if any(pattern in citation_text for pattern in [
+            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA",
+            "C.F.R.", "CFR", "C.F.R"
+        ]):
+            return False, "U.S.C. or C.F.R. citation (excluded from validation)"
     
     # Remove common punctuation and normalize spaces
     cleaned_text = re.sub(r'[.,;]', ' ', citation_text)
@@ -464,11 +471,20 @@ def clean_and_validate_citations(citations):
                 validation_stats["total_removed"] += 1
                 continue  # Skip short citations with 'at' reference
             
-            # Check for citations that start with short form indicators
-            if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
-                validation_stats["malformed"] += 1
-                validation_stats["total_removed"] += 1
-                continue  # Skip short form citation indicators
+                    # Check for citations that start with short form indicators
+        if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
+            validation_stats["malformed"] += 1
+            validation_stats["total_removed"] += 1
+            continue  # Skip short form citation indicators
+        
+        # Filter out U.S.C. and C.F.R. citations
+        if any(pattern in citation_text for pattern in [
+            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA",
+            "C.F.R.", "CFR", "C.F.R"
+        ]):
+            validation_stats["malformed"] += 1
+            validation_stats["total_removed"] += 1
+            continue  # Skip U.S.C. and C.F.R. citations
         
         # Basic citation format validation
         # Look for common citation patterns

@@ -1,6 +1,6 @@
 """
-Unified document processing module for CaseStrainer.
-Handles text extraction from various file formats and input types.
+Enhanced unified document processing module for CaseStrainer.
+Integrates research-based best practices for legal citation extraction.
 """
 
 import os
@@ -13,365 +13,497 @@ from urllib.parse import urlparse
 import re
 import time
 
-# Import text extraction libraries
+# Import text extraction libraries with better error handling
 try:
     from bs4 import BeautifulSoup
     BEAUTIFULSOUP_AVAILABLE = True
 except ImportError:
     BEAUTIFULSOUP_AVAILABLE = False
-    logging.warning("BeautifulSoup not available - HTML/HTM processing will be limited")
+    logging.warning("BeautifulSoup not available - install with: pip install beautifulsoup4")
 
 try:
     from striprtf.striprtf import rtf_to_text
     STRIPRTF_AVAILABLE = True
 except ImportError:
     STRIPRTF_AVAILABLE = False
-    logging.warning("striprtf not available - RTF processing will not work")
+    logging.warning("striprtf not available - install with: pip install striprtf")
 
-# Import existing processing modules
+try:
+    import docx
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+    logging.warning("python-docx not available - install with: pip install python-docx")
+
+# Import enhanced processing modules
 from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
-from src.citation_extractor import CitationExtractor
-from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
+
+# Use the fixed unified processor with eyecite integration
+try:
+    from fixed_unified_citation_processor import (
+        FixedUnifiedCitationProcessor, 
+        TextCleaner,
+        debug_extraction_pipeline
+    )
+    FIXED_PROCESSOR_AVAILABLE = True
+except ImportError:
+    # Fallback to original processor
+    from src.unified_citation_processor import unified_processor
+    FIXED_PROCESSOR_AVAILABLE = False
+    logging.warning("Fixed processor not available - using original processor")
 
 logger = logging.getLogger(__name__)
 
-
-def extract_text_from_html_file(file_path: str) -> str:
+class EnhancedDocumentProcessor:
     """
-    Extract text from HTML/HTM files using BeautifulSoup.
+    Enhanced document processor implementing research-based best practices.
+    """
     
-    Args:
-        file_path: Path to the HTML/HTM file
-        
-    Returns:
-        Extracted text content
-    """
-    if not BEAUTIFULSOUP_AVAILABLE:
-        raise ImportError("BeautifulSoup is required for HTML/HTM processing")
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        
-        # Parse HTML with BeautifulSoup
-        soup = BeautifulSoup(html_content, 'html.parser')
-        
-        # Remove script and style elements
-        for script in soup(["script", "style"]):
-            script.decompose()
-        
-        # Extract text with proper spacing
-        text = soup.get_text(separator='\n', strip=True)
-        
-        # Clean up extra whitespace
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = '\n'.join(chunk for chunk in chunks if chunk)
-        
-        logger.info(f"Successfully extracted {len(text)} characters from HTML file")
-        return text
-        
-    except UnicodeDecodeError:
-        # Try with different encoding
-        with open(file_path, 'r', encoding='latin-1') as f:
-            html_content = f.read()
-        
-        soup = BeautifulSoup(html_content, 'html.parser')
-        for script in soup(["script", "style"]):
-            script.decompose()
-        
-        text = soup.get_text(separator='\n', strip=True)
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = '\n'.join(chunk for chunk in chunks if chunk)
-        
-        logger.info(f"Successfully extracted {len(text)} characters from HTML file using latin-1 encoding")
-        return text
-        
-    except Exception as e:
-        logger.error(f"Error extracting text from HTML file: {str(e)}")
-        raise
-
-
-def extract_text_from_rtf_file(file_path: str) -> str:
-    """
-    Extract text from RTF files using striprtf.
-    
-    Args:
-        file_path: Path to the RTF file
-        
-    Returns:
-        Extracted text content
-    """
-    if not STRIPRTF_AVAILABLE:
-        raise ImportError("striprtf is required for RTF processing")
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            rtf_content = f.read()
-        
-        # Convert RTF to plain text
-        text = rtf_to_text(rtf_content)
-        
-        # Clean up the text
-        text = text.strip()
-        
-        logger.info(f"Successfully extracted {len(text)} characters from RTF file")
-        return text
-        
-    except UnicodeDecodeError:
-        # Try with different encoding
-        with open(file_path, 'r', encoding='latin-1') as f:
-            rtf_content = f.read()
-        
-        text = rtf_to_text(rtf_content)
-        text = text.strip()
-        
-        logger.info(f"Successfully extracted {len(text)} characters from RTF file using latin-1 encoding")
-        return text
-        
-    except Exception as e:
-        logger.error(f"Error extracting text from RTF file: {str(e)}")
-        raise
-
-
-def extract_text_from_odt_file(file_path: str) -> str:
-    """
-    Extract text from ODT files using python-docx or alternative method.
-    
-    Args:
-        file_path: Path to the ODT file
-        
-    Returns:
-        Extracted text content
-    """
-    try:
-        # Try using python-docx first (works for some ODT files)
-        import docx
-        doc = docx.Document(file_path)
-        paragraphs = [paragraph.text for paragraph in doc.paragraphs]
-        text = "\n".join(paragraphs)
-        
-        logger.info(f"Successfully extracted {len(text)} characters from ODT file using python-docx")
-        return text
-        
-    except Exception as e:
-        logger.warning(f"python-docx failed for ODT file: {str(e)}")
-        
-        # Fallback: try to read as text file
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                text = f.read()
-            logger.info(f"Successfully extracted {len(text)} characters from ODT file as text")
-            return text
-        except UnicodeDecodeError:
-            with open(file_path, 'r', encoding='latin-1') as f:
-                text = f.read()
-            logger.info(f"Successfully extracted {len(text)} characters from ODT file as text using latin-1")
-            return text
-        except Exception as e2:
-            logger.error(f"Error extracting text from ODT file: {str(e2)}")
-            raise
-
-
-def extract_text_from_file(file_path: str) -> str:
-    """
-    Extract text from a file based on its extension.
-    
-    Args:
-        file_path: Path to the file
-        
-    Returns:
-        Extracted text content
-    """
-    file_extension = Path(file_path).suffix.lower()
-    
-    try:
-        if file_extension == '.pdf':
-            logger.info("Processing PDF file")
-            handler = PDFHandler(PDFExtractionConfig(
-                preferred_method=PDFExtractionMethod.PDFMINER,
-                use_fallback=False,
-                timeout=30,
-                clean_text=True
-            ))
-            text = handler.extract_text(file_path)
-            if text.startswith("Error:"):
-                raise Exception(text)
-            return text
-            
-        elif file_extension in ['.doc', '.docx']:
-            logger.info("Processing Word document")
-            import docx
-            doc = docx.Document(file_path)
-            paragraphs = [paragraph.text for paragraph in doc.paragraphs]
-            text = "\n".join(paragraphs)
-            return text
-            
-        elif file_extension in ['.html', '.htm']:
-            logger.info("Processing HTML/HTM file")
-            return extract_text_from_html_file(file_path)
-            
-        elif file_extension == '.rtf':
-            logger.info("Processing RTF file")
-            return extract_text_from_rtf_file(file_path)
-            
-        elif file_extension == '.odt':
-            logger.info("Processing ODT file")
-            return extract_text_from_odt_file(file_path)
-            
-        elif file_extension == '.txt':
-            logger.info("Processing text file")
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except UnicodeDecodeError:
-                with open(file_path, 'r', encoding='latin-1') as f:
-                    return f.read()
-                    
+    def __init__(self):
+        if FIXED_PROCESSOR_AVAILABLE:
+            self.processor = FixedUnifiedCitationProcessor()
+            logger.info("Using enhanced processor with eyecite integration")
         else:
-            raise ValueError(f"Unsupported file type: {file_extension}")
-            
-    except Exception as e:
-        logger.error(f"Error extracting text from file {file_path}: {str(e)}")
-        raise
-
-
-def extract_text_from_url(url: str) -> str:
-    """
-    Extract text from a URL, handling different content types including PDFs and other document formats.
+            self.processor = unified_processor
+            logger.info("Using fallback processor")
+        
+        # OCR error correction patterns based on research
+        self.ocr_corrections = {
+            'common_errors': [
+                (r'(\d+)\s*F\s*(\d+)d\s*(\d+)', r'\1 F.\2d \3'),  # Fix missing periods
+                (r'(\d+)\s*U\.S\.C\s*(\d+)', r'\1 U.S.C. § \2'),   # Fix missing section
+                (r'(\d+)\s*F\s*Supp\s*(\d+)', r'\1 F. Supp. \2'),  # Fix abbreviations
+                (r'(\d+)\s*Wn\s*(\d+)d\s*(\d+)', r'\1 Wn.\2d \3'), # Fix Washington citations
+                (r'(\d+)\s*P\s*(\d+)d\s*(\d+)', r'\1 P.\2d \3'),   # Fix Pacific citations
+            ],
+            'character_corrections': {
+                'l': '1',  # lowercase L confused with 1
+                'O': '0',  # uppercase O confused with 0
+                'rn': 'm', # rn combination confused with m
+                'vv': 'w', # double v confused with w
+                'cl': 'd'  # cl combination confused with d
+            }
+        }
     
-    Args:
-        url: URL to extract text from
+    def preprocess_text(self, text: str) -> str:
+        """
+        Preprocess text using research-based cleaning and OCR correction.
+        """
+        if not text:
+            return ""
         
-    Returns:
-        Extracted text content
-    """
-    try:
-        logger.info(f"Fetching content from URL: {url}")
+        # Step 1: Apply OCR corrections
+        corrected_text = self._apply_ocr_corrections(text)
         
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+        # Step 2: Use enhanced text cleaning
+        if FIXED_PROCESSOR_AVAILABLE:
+            cleaned_text = TextCleaner.clean_text(corrected_text, [
+                'whitespace', 'quotes', 'unicode', 'normalize'
+            ])
+        else:
+            # Fallback cleaning
+            cleaned_text = re.sub(r'\s+', ' ', corrected_text).strip()
         
-        response = requests.get(url, headers=headers, timeout=30, stream=True)
-        response.raise_for_status()
+        logger.debug(f"Text preprocessing: {len(text)} -> {len(cleaned_text)} characters")
+        return cleaned_text
+    
+    def _apply_ocr_corrections(self, text: str) -> str:
+        """Apply OCR error corrections based on research findings."""
+        corrected = text
         
-        content_type = response.headers.get('content-type', '').lower()
-        logger.info(f"Content type of URL {url}: {content_type}")
+        # Apply pattern-based corrections
+        for pattern, replacement in self.ocr_corrections['common_errors']:
+            corrected = re.sub(pattern, replacement, corrected)
         
-        # Mapping of content types to file extensions for temporary files
-        content_type_to_extension = {
-            'application/pdf': '.pdf',
-            'application/msword': '.doc',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-            'application/rtf': '.rtf',
-            'application/vnd.oasis.opendocument.text': '.odt'
-        }
+        # Apply character-level corrections in numeric contexts
+        for error, correction in self.ocr_corrections['character_corrections'].items():
+            # Only apply in numeric/citation contexts
+            corrected = re.sub(rf'\b{error}(?=\d)', correction, corrected)
         
-        # Check if the content type corresponds to a supported document format
-        for ct, ext in content_type_to_extension.items():
-            if ct in content_type:
-                # Handle document content by downloading to a temporary file and processing as a file
-                import tempfile
-                with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        temp_file.write(chunk)
-                    temp_file_path = temp_file.name
-                logger.info(f"Downloaded content to temporary file: {temp_file_path}")
+        return corrected
+
+    def extract_text_from_html_file(self, file_path: str) -> str:
+        """Enhanced HTML text extraction with better error handling."""
+        if not BEAUTIFULSOUP_AVAILABLE:
+            raise ImportError("BeautifulSoup is required for HTML processing. Install with: pip install beautifulsoup4")
+        
+        encodings_to_try = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+        
+        for encoding in encodings_to_try:
+            try:
+                with open(file_path, 'r', encoding=encoding) as f:
+                    html_content = f.read()
                 
-                try:
-                    text = extract_text_from_file(temp_file_path)
-                    logger.info(f"Successfully extracted {len(text)} characters from {ct} URL")
-                    logger.info(f"Sample of extracted text (first 500 characters): {text[:500]}...")
-                    return text
-                finally:
-                    os.unlink(temp_file_path)  # Clean up temporary file
-                    logger.info(f"Deleted temporary file: {temp_file_path}")
-        
-        if 'text/html' in content_type:
-            # Parse HTML content
-            if BEAUTIFULSOUP_AVAILABLE:
-                soup = BeautifulSoup(response.text, 'html.parser')
+                # Parse HTML with BeautifulSoup
+                soup = BeautifulSoup(html_content, 'html.parser')
+                
+                # Remove script and style elements
                 for script in soup(["script", "style"]):
                     script.decompose()
+                
+                # Extract text with proper spacing
                 text = soup.get_text(separator='\n', strip=True)
+                
+                # Clean up extra whitespace
                 lines = (line.strip() for line in text.splitlines())
                 chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
                 text = '\n'.join(chunk for chunk in chunks if chunk)
+                
+                logger.info(f"Successfully extracted {len(text)} characters from HTML file using {encoding}")
+                return text
+                
+            except UnicodeDecodeError:
+                logger.debug(f"Failed to decode HTML file with {encoding}, trying next encoding")
+                continue
+            except Exception as e:
+                logger.error(f"Error processing HTML file with {encoding}: {str(e)}")
+                if encoding == encodings_to_try[-1]:  # Last encoding
+                    raise
+                continue
+        
+        raise Exception("Could not decode HTML file with any supported encoding")
+
+    def extract_text_from_rtf_file(self, file_path: str) -> str:
+        """Enhanced RTF text extraction."""
+        if not STRIPRTF_AVAILABLE:
+            raise ImportError("striprtf is required for RTF processing. Install with: pip install striprtf")
+        
+        encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
+        
+        for encoding in encodings_to_try:
+            try:
+                with open(file_path, 'r', encoding=encoding) as f:
+                    rtf_content = f.read()
+                
+                # Convert RTF to plain text
+                text = rtf_to_text(rtf_content)
+                text = text.strip()
+                
+                logger.info(f"Successfully extracted {len(text)} characters from RTF file using {encoding}")
+                return text
+                
+            except UnicodeDecodeError:
+                logger.debug(f"Failed to decode RTF file with {encoding}, trying next encoding")
+                continue
+            except Exception as e:
+                logger.error(f"Error processing RTF file with {encoding}: {str(e)}")
+                if encoding == encodings_to_try[-1]:
+                    raise
+                continue
+        
+        raise Exception("Could not decode RTF file with any supported encoding")
+
+    def extract_text_from_docx_file(self, file_path: str) -> str:
+        """Enhanced DOCX text extraction."""
+        if not DOCX_AVAILABLE:
+            raise ImportError("python-docx is required for DOCX processing. Install with: pip install python-docx")
+        
+        try:
+            doc = docx.Document(file_path)
+            paragraphs = [paragraph.text for paragraph in doc.paragraphs if paragraph.text.strip()]
+            text = "\n".join(paragraphs)
+            
+            logger.info(f"Successfully extracted {len(text)} characters from DOCX file")
+            return text
+            
+        except Exception as e:
+            logger.error(f"Error extracting text from DOCX file: {str(e)}")
+            raise
+
+    def extract_text_from_file(self, file_path: str) -> str:
+        """
+        Enhanced file text extraction with comprehensive error handling.
+        """
+        file_extension = Path(file_path).suffix.lower()
+        
+        try:
+            if file_extension == '.pdf':
+                logger.info("Processing PDF file with enhanced handler")
+                handler = PDFHandler(PDFExtractionConfig(
+                    preferred_method=PDFExtractionMethod.PDFMINER,
+                    use_fallback=True,  # Enable fallback for better reliability
+                    timeout=60,         # Increased timeout
+                    clean_text=True
+                ))
+                text = handler.extract_text(file_path)
+                if text.startswith("Error:"):
+                    raise Exception(text)
+                return text
+                
+            elif file_extension in ['.doc', '.docx']:
+                logger.info("Processing Word document")
+                return self.extract_text_from_docx_file(file_path)
+                
+            elif file_extension in ['.html', '.htm']:
+                logger.info("Processing HTML/HTM file")
+                return self.extract_text_from_html_file(file_path)
+                
+            elif file_extension == '.rtf':
+                logger.info("Processing RTF file")
+                return self.extract_text_from_rtf_file(file_path)
+                
+            elif file_extension == '.txt':
+                logger.info("Processing text file")
+                encodings_to_try = ['utf-8', 'latin-1', 'cp1252']
+                for encoding in encodings_to_try:
+                    try:
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            text = f.read()
+                        logger.info(f"Successfully read text file with {encoding}")
+                        return text
+                    except UnicodeDecodeError:
+                        if encoding == encodings_to_try[-1]:
+                            raise
+                        continue
+                        
             else:
-                # Fallback to raw text
-                text = response.text
+                raise ValueError(f"Unsupported file type: {file_extension}")
+                
+        except Exception as e:
+            logger.error(f"Error extracting text from file {file_path}: {str(e)}")
+            raise
+
+    def extract_text_from_url(self, url: str) -> str:
+        """
+        Enhanced URL text extraction with better error handling and content type detection.
+        """
+        try:
+            logger.info(f"Fetching content from URL: {url}")
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'Connection': 'keep-alive',
+            }
+            
+            # Use session for better connection handling
+            session = requests.Session()
+            session.headers.update(headers)
+            
+            response = session.get(url, timeout=30, stream=True)
+            response.raise_for_status()
+            
+            content_type = response.headers.get('content-type', '').lower()
+            logger.info(f"Content type: {content_type}")
+            
+            # Enhanced content type mapping
+            content_type_handlers = {
+                'application/pdf': ('.pdf', self._handle_pdf_url),
+                'application/msword': ('.doc', self._handle_doc_url),
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ('.docx', self._handle_doc_url),
+                'application/rtf': ('.rtf', self._handle_rtf_url),
+                'text/html': (None, self._handle_html_url),
+                'text/plain': (None, self._handle_text_url),
+            }
+            
+            # Find appropriate handler
+            handler = None
+            for ct_pattern, (ext, handler_func) in content_type_handlers.items():
+                if ct_pattern in content_type:
+                    handler = handler_func
+                    file_ext = ext
+                    break
+            
+            if handler:
+                if file_ext:
+                    # Handle as document - download to temp file
+                    return self._download_and_process(response, file_ext, handler)
+                else:
+                    # Handle as text/html directly
+                    return handler(response)
+            else:
+                # Default to text handling
+                return self._handle_text_url(response)
+                
+        except requests.RequestException as e:
+            logger.error(f"Network error fetching URL {url}: {str(e)}")
+            raise
+        except Exception as e:
+            logger.error(f"Error extracting text from URL {url}: {str(e)}")
+            raise
+
+    def _download_and_process(self, response, file_ext, handler):
+        """Download URL content to temp file and process."""
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+        
+        try:
+            text = self.extract_text_from_file(temp_file_path)
+            logger.info(f"Successfully extracted {len(text)} characters from downloaded file")
+            return text
+        finally:
+            os.unlink(temp_file_path)
+
+    def _handle_html_url(self, response):
+        """Handle HTML URL content."""
+        if BEAUTIFULSOUP_AVAILABLE:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            for script in soup(["script", "style"]):
+                script.decompose()
+            text = soup.get_text(separator='\n', strip=True)
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = '\n'.join(chunk for chunk in chunks if chunk)
         else:
-            # Treat as plain text
             text = response.text
-        
-        logger.info(f"Successfully extracted {len(text)} characters from URL")
-        logger.info(f"Sample of extracted text (first 500 characters): {text[:500]}...")
         return text
-        
-    except Exception as e:
-        logger.error(f"Error extracting text from URL {url}: {str(e)}")
-        raise
 
+    def _handle_text_url(self, response):
+        """Handle plain text URL content."""
+        return response.text
 
-def process_document(
-    content: str = None,
-    file_path: str = None,
-    url: str = None,
-    extract_case_names: bool = True
-) -> Dict[str, Any]:
-    """
-    Process a document and extract citations and case names.
-    
-    Args:
-        content: Direct text content
-        file_path: Path to a file
-        url: URL to fetch content from
-        extract_case_names: Whether to extract case names
+    def _handle_pdf_url(self, temp_file_path):
+        """Handle PDF URL content."""
+        return self.extract_text_from_file(temp_file_path)
+
+    def _handle_doc_url(self, temp_file_path):
+        """Handle DOC/DOCX URL content."""
+        return self.extract_text_from_file(temp_file_path)
+
+    def _handle_rtf_url(self, temp_file_path):
+        """Handle RTF URL content."""
+        return self.extract_text_from_file(temp_file_path)
+
+    def process_document(self, 
+                        content: str = None,
+                        file_path: str = None,
+                        url: str = None,
+                        extract_case_names: bool = True,
+                        debug_mode: bool = False) -> Dict[str, Any]:
+        """
+        Enhanced document processing with research-based improvements.
+        """
+        start_time = time.time()
         
-    Returns:
-        Dictionary containing processing results
-    """
-    try:
-        # Determine input type and extract text
-        if content:
-            logger.info("Processing direct text content")
-            text = content
-            source_type = "text"
-            source_name = "pasted_text"
-        elif file_path:
-            logger.info(f"Processing file: {file_path}")
-            text = extract_text_from_file(file_path)
-            source_type = "file"
-            source_name = Path(file_path).name
-        elif url:
-            logger.info(f"Processing URL: {url}")
-            text = extract_text_from_url(url)
-            source_type = "url"
-            source_name = urlparse(url).netloc
-        else:
-            raise ValueError("Must provide content, file_path, or url")
-        
-        if not text.strip():
-            logger.error("No text content extracted from input")
+        try:
+            # Step 1: Extract text based on input type
+            if content:
+                logger.info("Processing direct text content")
+                text = content
+                source_type = "text"
+                source_name = "pasted_text"
+            elif file_path:
+                logger.info(f"Processing file: {file_path}")
+                text = self.extract_text_from_file(file_path)
+                source_type = "file"
+                source_name = Path(file_path).name
+            elif url:
+                logger.info(f"Processing URL: {url}")
+                text = self.extract_text_from_url(url)
+                source_type = "url"
+                source_name = urlparse(url).netloc
+            else:
+                raise ValueError("Must provide content, file_path, or url")
+
+            if not text.strip():
+                logger.error("No text content extracted from input")
+                return {
+                    "success": False,
+                    "error": "No text content extracted",
+                    "citations": [],
+                    "case_names": []
+                }
+
+            # Step 2: Preprocess text with research-based improvements
+            preprocessed_text = self.preprocess_text(text)
+            logger.info(f"Text preprocessing: {len(text)} -> {len(preprocessed_text)} characters")
+
+            # Step 3: Extract citations using enhanced processor
+            if FIXED_PROCESSOR_AVAILABLE:
+                logger.info("Using enhanced citation extraction with eyecite")
+                processing_result = self.processor.process_text(preprocessed_text, {
+                    'extract_case_names': extract_case_names,
+                    'use_enhanced': True,
+                    'cleaning_steps': ['whitespace', 'quotes', 'unicode']
+                })
+                
+                citations = processing_result.get('results', [])
+                statistics = processing_result.get('statistics')
+                
+                # Convert CitationResult objects to dictionaries for compatibility
+                formatted_citations = []
+                for citation in citations:
+                    if hasattr(citation, '__dict__'):
+                        # It's a CitationResult object
+                        citation_dict = {
+                            'citation': citation.citation,
+                            'case_name': citation.case_name,
+                            'extracted_case_name': citation.extracted_case_name,
+                            'canonical_name': citation.canonical_name,
+                            'extracted_date': citation.extracted_date,
+                            'canonical_date': citation.canonical_date,
+                            'verified': citation.verified,
+                            'court': citation.court,
+                            'confidence': citation.confidence,
+                            'method': citation.method,
+                            'context': citation.context,
+                            'is_parallel': citation.is_parallel,
+                            'parallel_citations': citation.parallel_citations,
+                            'url': citation.url,
+                            'source': citation.source
+                        }
+                    else:
+                        # It's already a dictionary
+                        citation_dict = citation
+                    
+                    formatted_citations.append(citation_dict)
+                
+            else:
+                # Fallback to original extraction
+                logger.warning("Using fallback citation extraction")
+                formatted_citations = self._fallback_extraction(preprocessed_text)
+                statistics = {'total_citations': len(formatted_citations)}
+
+            # Step 4: Extract case names
+            case_names = []
+            if extract_case_names:
+                case_names = self._extract_case_names(formatted_citations, preprocessed_text)
+
+            # Step 5: Debug mode
+            debug_info = {}
+            if debug_mode and formatted_citations:
+                citation_texts = [c.get('citation', '') for c in formatted_citations]
+                debug_info = debug_extraction_pipeline(preprocessed_text, citation_texts)
+
+            processing_time = time.time() - start_time
+            
+            result = {
+                "success": True,
+                "text_length": len(text),
+                "processed_text_length": len(preprocessed_text),
+                "source_type": source_type,
+                "source_name": source_name,
+                "citations": formatted_citations,
+                "case_names": case_names,
+                "statistics": statistics,
+                "processing_time": processing_time,
+                "ocr_corrections_applied": len(text) != len(preprocessed_text),
+                "debug_info": debug_info if debug_mode else None
+            }
+            
+            logger.info(f"✅ Document processing completed in {processing_time:.2f}s")
+            logger.info(f"   Found {len(formatted_citations)} citations, {len(case_names)} case names")
+            
+            return result
+
+        except Exception as e:
+            logger.error(f"Error processing document: {str(e)}", exc_info=True)
             return {
                 "success": False,
-                "error": "No text content extracted",
+                "error": str(e),
                 "citations": [],
-                "case_names": []
+                "case_names": [],
+                "processing_time": time.time() - start_time
             }
-        
-        logger.info(f"Extracted text length: {len(text)} characters")
-        logger.info(f"Sample of extracted text (first 500 characters): {text[:500]}...")
-        
-        # Extract citations and case names using the enhanced extraction logic
+
+    def _fallback_extraction(self, text: str) -> List[Dict]:
+        """Fallback extraction using original processor."""
         try:
-            # Use the enhanced citation extractor with case name and date extraction
             from src.citation_extractor import CitationExtractor
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            
-            # Extract citations with case names and dates
             extractor = CitationExtractor(
                 use_eyecite=True,
                 use_regex=True,
@@ -379,270 +511,93 @@ def process_document(
                 deduplicate=True,
                 extract_case_names=True
             )
-            
-            # Extract citations from text
-            logger.info(f"[DEBUG] Starting citation extraction from text of length {len(text)}")
-            logger.info(f"[DEBUG] Sample text: {text[:500]}...")
-            
-            extracted_citations = extractor.extract(text)
-            
-            # DEBUG: Log all extracted citations before any processing
-            logger.info(f"[DEBUG] Raw extraction returned {len(extracted_citations)} citations")
-            for i, citation in enumerate(extracted_citations, 1):
-                logger.info(f"[DEBUG] Raw citation {i}: {citation}")
-            
-            # DEBUG: Check for specific citations we're looking for
-            target_citations = [
-                "200 Wn.2d 72", "514 P.3d 643",  # Convoyant
-                "171 Wn.2d 486", "256 P.3d 321",  # Carlsen
-                "146 Wn.2d 1", "43 P.3d 4"        # Campbell & Gwinn
-            ]
-            
-            found_targets = []
-            for citation in extracted_citations:
-                citation_text = citation.get('citation', citation.get('citation_text', ''))
-                for target in target_citations:
-                    if target in citation_text:
-                        found_targets.append(target)
-                        logger.info(f"[DEBUG] Found target citation: {target} in {citation_text}")
-            
-            missing_targets = [t for t in target_citations if t not in found_targets]
-            if missing_targets:
-                logger.warning(f"[DEBUG] Missing target citations: {missing_targets}")
-            else:
-                logger.info(f"[DEBUG] All target citations found: {found_targets}")
-            
-            # Use the new simplified verification approach with fallback logic
-            verified_citations = verify_citations_with_fallback(extracted_citations, text)
-            
-            # Convert to the expected format
-            result = {
-                'citations': verified_citations,
-                'case_names': [],
-                'metadata': {
-                    'text_length': len(text),
-                    'citations_found': len(verified_citations),
-                    'extraction_method': 'enhanced_extraction_with_verification'
-                }
-            }
-            
-            initial_citation_count = len(result.get('citations', []))
-            logger.info(f"Initially extracted {initial_citation_count} citations before verification")
-            if initial_citation_count > 0:
-                logger.info(f"All initial citations extracted before verification:")
-                for i, citation in enumerate(result.get('citations', []), 1):
-                    logger.info(f"Citation {i}: {citation.get('citation', 'N/A')}")
-            # DEBUG: Log all extracted citations before verification
-            logger.info(f"[DEBUG] Extracted {initial_citation_count} citations before verification")
-            for i, citation in enumerate(result.get('citations', []), 1):
-                logger.info(f"[DEBUG] Citation {i}: {citation.get('citation', 'N/A')}")
-                
+            return extractor.extract(text)
         except Exception as e:
-            logger.error(f"Error in citation extraction: {str(e)}")
-            # Fallback to empty result
-            result = {
-                'citations': [],
-                'case_names': [],
-                'metadata': {
-                    'text_length': len(text),
-                    'citations_found': 0,
-                    'extraction_method': 'fallback',
-                    'error': str(e)
-                }
-            }
-            initial_citation_count = 0
+            logger.error(f"Fallback extraction failed: {e}")
+            return []
+
+    def _extract_case_names(self, citations: List[Dict], text: str) -> List[str]:
+        """Extract unique case names from citations and text."""
+        case_names = set()
         
-        # Extract case names from citations if they have case_name fields
-        case_names = []
-        if extract_case_names and result.get("citations"):
-            for citation in result.get("citations", []):
-                case_name = citation.get("case_name", "")
-                if case_name and case_name != "N/A" and case_name not in case_names:
-                    case_names.append(case_name)
-            logger.info(f"Extracted {len(case_names)} unique case names from citations")
-        if extract_case_names and not case_names:
-            extractor = CitationExtractor()
-            case_names = extractor._extract_case_names_from_text(text)
-            logger.info(f"Extracted {len(case_names)} unique case names directly from text")
-        # DEBUG: Log the full result returned
-        logger.info(f"[DEBUG] Returning from process_document: success={True}, citations={len(result.get('citations', []))}, case_names={len(case_names)}")
-        return {
-            "success": True,
-            "text_length": len(text),
-            "source_type": source_type,
-            "source_name": source_name,
-            "citations": result.get("citations", []),
-            "case_names": case_names,
-            "extraction_metadata": result.get("metadata", {}),
-            "statistics": result.get("statistics", {}),
-            "summary": result.get("summary", {}),
-            "verification_metadata": result.get("verification_metadata", {})
-        }
+        # Extract from citations
+        for citation in citations:
+            for field in ['case_name', 'extracted_case_name', 'canonical_name']:
+                name = citation.get(field)
+                if name and name != "N/A" and len(name) > 3:
+                    case_names.add(name)
         
-    except Exception as e:
-        logger.error(f"Error processing document: {str(e)}")
-        return {
-            "success": False,
-            "error": str(e),
-            "citations": [],
-            "case_names": []
-        }
-
-
-def process_document_input(input_type, input_value, file_ext=None):
-    """
-    Unified document input handler for file, url, or text.
-    Returns: (text, metadata)
-    """
-    logger = logging.getLogger(__name__)
-    meta = {}
-    text = None
-    try:
-        if input_type == 'file':
-            from src.file_utils import extract_text_from_file
-            text_result = extract_text_from_file(input_value, file_ext=file_ext)
-            if isinstance(text_result, tuple):
-                text, extracted_case_name = text_result
-                meta['extracted_case_name'] = extracted_case_name
-            else:
-                text = text_result
-            meta['source_type'] = 'file'
-            meta['source_name'] = input_value
-        elif input_type == 'url':
-            from src.enhanced_validator_production import extract_text_from_url
-            text_result = extract_text_from_url(input_value)
-            text = text_result.get('text', '')
-            meta['content_type'] = text_result.get('content_type')
-            meta['source_type'] = 'url'
-            meta['source_name'] = input_value
-            meta['status'] = text_result.get('status')
-            meta['error'] = text_result.get('error')
-        elif input_type == 'text':
-            text = input_value
-            meta['source_type'] = 'text'
-            meta['source_name'] = 'pasted_text'
-        else:
-            raise ValueError("Unknown input type")
-        meta['text_length'] = len(text) if text else 0
-    except Exception as e:
-        logger.error(f"[process_document_input] Error processing {input_type}: {e}")
-        meta['error'] = str(e)
-        text = ''
-    return text, meta
-
-
-def extract_and_verify_citations(text, use_enhanced=True, logger=None):
-    """
-    Extract and verify citations from text with performance optimizations.
-    
-    Args:
-        text: Text to extract citations from
-        use_enhanced: Whether to use enhanced extraction
-        logger: Logger instance
+        # If no case names found, try direct extraction
+        if not case_names:
+            try:
+                from src.citation_extractor import CitationExtractor
+                extractor = CitationExtractor()
+                text_case_names = extractor._extract_case_names_from_text(text)
+                case_names.update(text_case_names)
+            except Exception as e:
+                logger.warning(f"Direct case name extraction failed: {e}")
         
-    Returns:
-        List of citation results with verification
-    """
-    if not logger:
-        logger = logging.getLogger(__name__)
-    
-    start_time = time.time()
-    
-    # Extract citations
-    logger.info("🔍 [ANALYZE] Extracting citations...")
-    extractor = CitationExtractor(
-        use_eyecite=True,
-        use_regex=True,
-        context_window=1000,
-        deduplicate=True,
-        extract_case_names=True
+        return list(case_names)
+
+# Create global instance
+enhanced_processor = EnhancedDocumentProcessor()
+
+# Convenience functions for backward compatibility
+def process_document(content: str = None, file_path: str = None, url: str = None, 
+                    extract_case_names: bool = True, debug_mode: bool = False) -> Dict[str, Any]:
+    """Process document using enhanced processor."""
+    return enhanced_processor.process_document(
+        content=content, 
+        file_path=file_path, 
+        url=url, 
+        extract_case_names=extract_case_names,
+        debug_mode=debug_mode
     )
-    
-    citations = extractor.extract(text)
-    extraction_time = time.time() - start_time
-    
-    logger.info(f"✅ [ANALYZE] Extracted {len(citations)} citations in {extraction_time:.2f}s")
-    
-    if not citations:
-        return []
-    
-    # Optimize verification with batch processing
-    logger.info("🔍 [ANALYZE] Verifying citations with optimized batch processing...")
-    verification_start = time.time()
-    
-    # Extract citation texts for batch verification
-    citation_texts = []
-    for citation in citations:
-        citation_text = citation.get('citation', citation.get('citation_text', ''))
-        if citation_text:
-            citation_texts.append(citation_text)
-    
-    # Use optimized batch verification
-    from src.performance_optimizations import batch_verify_optimized
-    verification_results = batch_verify_optimized(citation_texts)
-    
-    # Merge results
-    for i, citation in enumerate(citations):
-        if i < len(verification_results):
-            citation.update(verification_results[i])
-    
-    verification_time = time.time() - verification_start
-    total_time = time.time() - start_time
-    
-    logger.info(f"✅ [ANALYZE] Verification completed in {verification_time:.2f}s")
-    logger.info(f"✅ [ANALYZE] Total processing time: {total_time:.2f}s")
-    logger.info(f"✅ [ANALYZE] Returning response with {len(citations)} citations")
-    
-    return citations
 
+def extract_text_from_file(file_path: str) -> str:
+    """Extract text from file using enhanced methods."""
+    return enhanced_processor.extract_text_from_file(file_path)
 
+def extract_text_from_url(url: str) -> str:
+    """Extract text from URL using enhanced methods."""
+    return enhanced_processor.extract_text_from_url(url)
+
+# For backward compatibility with existing verification function
 def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dict]:
     """
-    Verify all citations individually, then apply fallback logic for parallel citations.
-    
-    This simplified approach:
-    1. Verifies every citation individually 
-    2. Groups citations by parallel_group_id for fallback logic
-    3. If a citation fails but one of its parallels succeeds, marks it as verified_by_parallel
-    
-    Args:
-        citations: List of citation dictionaries from extraction
-        text: Original text for context
-        
-    Returns:
-        List of verified citations with fallback logic applied
+    Maintain compatibility with existing verification logic.
     """
     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
     
     logger.info(f"[VERIFY] Starting verification of {len(citations)} citations")
-    
-    # Initialize verifier
     verifier = EnhancedMultiSourceVerifier()
     
-    # Step 1: Verify every citation individually (skip combined citations)
     verified_citations = []
     for citation_data in citations:
         citation_text = citation_data.get('citation', citation_data.get('citation_text', ''))
         if not citation_text:
             continue
             
-        # Skip combined citations (they have is_parallel_group=True)
         if citation_data.get('is_parallel_group', False):
-            logger.info(f"[VERIFY] Skipping combined citation for verification: {citation_text}")
+            logger.info(f"[VERIFY] Skipping combined citation: {citation_text}")
             continue
-            
-        # Get extracted case name and date from the citation data
+        
+        # Normalize citation
+        from src.citation_extractor import normalize_washington_citations
+        normalized_citation = normalize_washington_citations(citation_text)
+        
+        # Extract additional information
         extracted_case_name = citation_data.get('case_name', '')
         extracted_date = citation_data.get('date', '')
         
-        # Verify citation with extracted information
+        # Verify citation
         verification_result = verifier.verify_citation_unified_workflow(
-            citation_text,
+            normalized_citation,
             extracted_case_name=extracted_case_name,
             extracted_date=extracted_date
         )
         
-        # Merge verification result with original citation data
+        # Merge results
         merged_result = {
             **citation_data,
             'verified': verification_result.get('verified', False),
@@ -657,13 +612,11 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
             'extracted_case_name': extracted_case_name,
             'extracted_date': extracted_date,
             'context': citation_data.get('context', text),
-            'verified_by_parallel': False  # Will be set in step 2
+            'verified_by_parallel': False
         }
-        
         verified_citations.append(merged_result)
     
-    # Step 2: Apply fallback logic for parallel citations
-    # Group citations by parallel_group_id
+    # Apply parallel citation fallback logic
     parallel_groups = {}
     for citation in verified_citations:
         group_id = citation.get('parallel_group_id')
@@ -672,34 +625,26 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
                 parallel_groups[group_id] = []
             parallel_groups[group_id].append(citation)
     
-    # Apply fallback logic: if any citation in a group is verified, mark unverified ones as verified_by_parallel
     for group_id, group_citations in parallel_groups.items():
-        # Check if any citation in the group is verified
         any_verified = any(citation.get('verified', False) for citation in group_citations)
-        
         if any_verified:
-            # Mark unverified citations in the group as verified_by_parallel
             for citation in group_citations:
                 if not citation.get('verified', False):
                     citation['verified_by_parallel'] = True
-                    citation['verified'] = True  # Also set verified to true for UI consistency
+                    citation['verified'] = True
                     citation['source'] = 'verified_by_parallel'
-                    logger.info(f"[VERIFY] Citation '{citation.get('citation')}' marked as verified_by_parallel")
     
-    # Step 3: Add back combined citations for display purposes
+    # Add back combined citations
     for citation_data in citations:
         if citation_data.get('is_parallel_group', False):
-            # Find the components of this combined citation
             group_id = citation_data.get('parallel_group_id')
             if group_id is not None:
-                # Check if any component is verified
                 component_verified = any(
                     citation.get('verified', False) 
                     for citation in verified_citations 
                     if citation.get('parallel_group_id') == group_id
                 )
                 
-                # Create combined citation result
                 combined_result = {
                     **citation_data,
                     'verified': component_verified,
@@ -709,5 +654,5 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
                 }
                 verified_citations.append(combined_result)
     
-    logger.info(f"[VERIFY] Completed verification with fallback logic. {len(verified_citations)} citations processed.")
+    logger.info(f"[VERIFY] Completed verification: {len(verified_citations)} citations processed")
     return verified_citations

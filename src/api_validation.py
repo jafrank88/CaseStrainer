@@ -131,3 +131,27 @@ def validate_file_upload(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+def validate_text_input(text):
+    """Validate that the text input is a non-empty, reasonable-length string with no control characters."""
+    if not isinstance(text, str) or not text.strip():
+        return False, "Text input must be a non-empty string"
+    if len(text) > 100000:  # Arbitrary max length for text input
+        return False, "Text input is too long (max 100,000 characters)"
+    # Check for control characters
+    if re.search(r"[\x00-\x1F\x7F-\xFF]", text):
+        return False, "Text input contains invalid control characters"
+    return True, ""
+
+def validate_url_input(url):
+    """Validate that the URL input is a non-empty, valid http(s) URL."""
+    if not isinstance(url, str) or not url.strip():
+        return False, "URL must be a non-empty string"
+    if len(url) > 2048:
+        return False, "URL is too long (max 2048 characters)"
+    # Basic URL pattern check
+    url_pattern = re.compile(r'^https?://[\w\-\.]+(:\d+)?(/[\w\-\./?%&=]*)?$', re.IGNORECASE)
+    if not url_pattern.match(url):
+        return False, "URL must start with http:// or https:// and be a valid URL"
+    return True, ""

@@ -1,17 +1,41 @@
+#!/usr/bin/env python3
+"""
+Case Name Extraction Module
+
+This module provides various functions for extracting case names from text,
+URLs, and other sources. It includes both literal extraction and canonical
+name lookup capabilities.
+
+DEPRECATED: Most functions in this module are deprecated. The main extraction
+logic has been integrated into the unified pipeline (UnifiedCitationProcessor
+with extract_case_name_triple from src.case_name_extraction_core).
+
+STILL USED: Some functions are still used by the unified pipeline:
+- get_canonical_case_name_from_courtlistener
+- get_canonical_case_name_from_google_scholar
+- extract_case_name_hinted
+- extract_case_name_from_text (and its helpers)
+
+All other functions are deprecated and will be removed in a future version.
+"""
+
+import warnings
+warnings.warn(
+    "src.extract_case_name is deprecated. Most functionality has been integrated "
+    "into UnifiedCitationProcessor with extract_case_name_triple from "
+    "src.case_name_extraction_core. Only API lookup functions remain in use.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import re
-from typing import Optional, Tuple, Dict, List, Any
-import logging
-import string
-from rapidfuzz import fuzz
-import unicodedata
-import difflib
 import requests
-from urllib.parse import urlparse, quote_plus
-import html
 import time
-import json
+from typing import Optional, List, Dict, Any
+from urllib.parse import quote_plus, urlparse
+import logging
 from bs4 import BeautifulSoup
-from src.citation_normalizer import normalize_citation, generate_citation_variants
+import json
 
 # Set up debug logging
 logging.basicConfig(filename='case_name_debug.log', level=logging.DEBUG, 
@@ -631,6 +655,7 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     logger = logging.getLogger("case_name_extraction")
     
     if not text or not citation_text:
+        logger.debug("[extract_case_name_from_text] Empty text or citation_text.")
         return ""
     
     # Normalize all whitespace to spaces
@@ -638,51 +663,61 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     logger.debug(f"[extract_case_name_from_text] Normalized text: '{norm_text[:200]}...'")
     logger.debug(f"[extract_case_name_from_text] Looking for citation: '{citation_text}'")
     
-    # Strategy 1: Use canonical name if provided
-    if canonical_name:
-        logger.debug(f"[extract_case_name_from_text] Using canonical name: '{canonical_name}'")
-        return canonical_name
-    
-    # Strategy 2: Look for case name in narrow context around citation (100 chars)
+    # Strategy 1: Look for case name in narrow context around citation (100 chars)
     citation_index = norm_text.find(citation_text)
     if citation_index != -1:
         # Use narrow context window (100 chars) as requested
         context_before = norm_text[max(0, citation_index - 100):citation_index]
         context_after = norm_text[citation_index:min(len(norm_text), citation_index + 100)]
         full_context = context_before + context_after
+        logger.debug(f"[extract_case_name_from_text] Context before citation: '{context_before}'")
+        logger.debug(f"[extract_case_name_from_text] Context after citation: '{context_after}'")
+        logger.debug(f"[extract_case_name_from_text] Full context (200 chars): '{full_context}'")
         
-        logger.debug(f"[extract_case_name_from_text] Context around citation (100 chars): '{full_context}'")
+        # Strategy 1a: Try hinted extraction first if we have a canonical name
+        if canonical_name:
+            case_name = extract_case_name_hinted(text, citation_text, canonical_name)
+            if case_name:
+                logger.debug(f"[extract_case_name_from_text] Found case name with hinted extraction: '{case_name}'")
+                return case_name
         
-        # Strategy 2a: Try precise extraction first (most accurate)
+        # Strategy 1b: Try precise extraction (most accurate)
         case_name = extract_case_name_precise(context_before, citation_text)
         if case_name:
             logger.debug(f"[extract_case_name_from_text] Found case name with precise extraction: '{case_name}'")
             return case_name
         
-        # Strategy 2b: Look for case name patterns that are directly adjacent to the citation
+        # Strategy 1c: Look for case name patterns that are directly adjacent to the citation
         case_name = extract_case_name_with_date_adjacency(context_before, citation_text)
         if case_name:
             logger.debug(f"[extract_case_name_from_text] Found case name with date adjacency: '{case_name}'")
             return case_name
         
-        # Strategy 2c: Look for case name patterns that are part of complex citations
+        # Strategy 1d: Look for case name patterns that are part of complex citations
         case_name = extract_case_name_from_complex_citation(full_context, citation_text)
         if case_name:
             logger.debug(f"[extract_case_name_from_text] Found case name in complex citation: '{case_name}'")
             return case_name
         
-        # Strategy 2d: Fallback to enhanced context extraction with narrow window
+        # Strategy 1e: Fallback to enhanced context extraction with narrow window
         case_name = extract_case_name_from_context_enhanced(context_before, citation_text)
         if case_name:
             logger.debug(f"[extract_case_name_from_text] Found case name in context: '{case_name}'")
             return case_name
+    else:
+        logger.debug(f"[extract_case_name_from_text] Citation '{citation_text}' not found in text.")
     
-    # Strategy 3: Look for case name in the entire text (global search) as last resort
+    # Strategy 2: Look for case name in the entire text (global search) as last resort
     logger.debug(f"[extract_case_name_from_text] Trying global search...")
     case_name = extract_case_name_global_search(norm_text, citation_text)
     if case_name:
         logger.debug(f"[extract_case_name_from_text] Found case name in global search: '{case_name}'")
         return case_name
+    
+    # Strategy 3: Use canonical name if provided (only as fallback)
+    if canonical_name:
+        logger.debug(f"[extract_case_name_from_text] Using canonical name as fallback: '{canonical_name}'")
+        return canonical_name
     
     logger.debug(f"[extract_case_name_from_text] No case name found")
     return ""
@@ -1167,17 +1202,72 @@ def get_canonical_case_name_from_google_scholar(citation, api_key=None):
 def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
     """
     Extract hinted case name using canonical name as reference.
+    Uses sophisticated variant generation and fuzzy matching.
     Returns cleaned/validated result.
     """
     try:
-        # Use canonical name as a hint to find a close match in the text
-        if canonical_name and canonical_name.lower() in text.lower():
-            return canonical_name
-        # Fallback: try to extract a case name using context
+        if not canonical_name:
+            return ""
+        
+        # Find citation in text to get context
+        citation_index = text.find(citation)
+        if citation_index == -1:
+            return ""
+        
+        # Get context before citation
+        context_before = text[max(0, citation_index - 100):citation_index]
+        
+        # Generate multiple variants from the literal text
+        # Strategy 1: Use the sophisticated hinted name generation
+        hinted_name = best_hinted_name(context_before, canonical_name)
+        if hinted_name:
+            cleaned = clean_case_name(hinted_name)
+            if cleaned and is_valid_case_name(cleaned):
+                return cleaned
+            elif is_valid_case_name(hinted_name):
+                return hinted_name
+        
+        # Strategy 2: Extract multiple variants using regex patterns
+        variants = []
+        
+        # Pattern 1: Extract "In Doe v. Wdae" (with leading "In")
+        match = re.search(r'(In\s+[A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
+        if match:
+            variants.append(match.group(1))
+        
+        # Pattern 2: Extract "Doe v. Wdae" (without leading "In")
+        match = re.search(r'([A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
+        if match:
+            variants.append(match.group(1))
+        
+        # Pattern 3: Extract "Doe v. Wdae." (with trailing period)
+        match = re.search(r'([A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\.\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
+        if match:
+            variants.append(match.group(1))
+        
+        # Strategy 3: Use fuzzy matching to find the best variant
+        from difflib import SequenceMatcher
+        best_variant = ""
+        best_score = 0.0
+        
+        for variant in variants:
+            cleaned_variant = clean_case_name_enhanced(variant)
+            if cleaned_variant and is_valid_case_name(cleaned_variant):
+                score = SequenceMatcher(None, cleaned_variant.lower(), canonical_name.lower()).ratio()
+                if score > best_score:
+                    best_variant = cleaned_variant
+                    best_score = score
+        
+        # Always return the best valid variant if one exists
+        if best_variant:
+            return best_variant
+        
+        # Strategy 4: Fallback to basic extraction
         from src.extract_case_name import extract_case_name_from_text
         hinted = extract_case_name_from_text(text, citation, canonical_name=canonical_name)
         if hinted and is_valid_case_name(hinted):
             return clean_case_name(hinted)
+            
     except Exception as e:
         import logging
         logging.warning(f"Failed to extract hinted case name: {e}")
@@ -1401,8 +1491,11 @@ def best_hinted_name(context_before: str, canonical_name: str) -> str:
     best = ""
     best_score = 0.0
     for name in hinted_names:
-        score = SequenceMatcher(None, name.lower(), canonical_name.lower()).ratio()
-        if score > best_score:
-            best = name
-            best_score = score
+        # Clean the name to remove trailing punctuation
+        cleaned_name = clean_case_name_enhanced(name)
+        if cleaned_name and is_valid_case_name(cleaned_name):
+            score = SequenceMatcher(None, cleaned_name.lower(), canonical_name.lower()).ratio()
+            if score > best_score:
+                best = cleaned_name
+                best_score = score
     return best

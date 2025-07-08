@@ -40,6 +40,7 @@ services:
       - FLASK_ENV=production
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
+      - LOG_LEVEL_CASE_NAME_EXTRACTION=${LOG_LEVEL_CASE_NAME_EXTRACTION:-WARNING}
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs

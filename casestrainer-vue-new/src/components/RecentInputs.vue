@@ -126,12 +126,14 @@ const clearAll = () => {
 .recent-input-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0.75rem;
   border: 1px solid #e9ecef;
   border-radius: 0.5rem;
   background: #f8f9fa;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  text-align: center;
 }
 
 .recent-input-item:hover {
@@ -192,6 +194,17 @@ const clearAll = () => {
   
   .recent-input-time {
     font-size: 0.7rem;
+  }
+  .recent-input-item {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    text-align: center;
+  }
+  .recent-input-actions {
+    margin-left: 0;
+    margin-top: 0.5rem;
   }
 }
 </style> 

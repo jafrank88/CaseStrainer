@@ -5,13 +5,13 @@ This script starts a development server with auto-reload and debug mode enabled.
 """
 
 import os
-from app import create_app
+from src.app_final_vue import create_app
 
 # Set the environment to development
 os.environ['FLASK_ENV'] = 'development'
 
 # Create the application instance
-app = create_app('development')
+app = create_app()
 
 if __name__ == "__main__":
     # Get host and port from config

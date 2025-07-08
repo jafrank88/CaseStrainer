@@ -82,7 +82,7 @@ class SCOTUSPDFCitationExtractor:
             r"\b(\d+)\s+F\.?\s*(?:2d|3d|4th)?\s+(\d+)\b",  # Federal Reporter
             r"\b(\d+)\s+F\.?\s*Supp\.?\s*(?:2d|3d)?\s+(\d+)\b",  # Federal Supplement
             # Add more flexible patterns
-            r"\b(\d+)\s*U\.?\s*S\.?\s*C\.?\s*(\d+)\b",  # More flexible U.S.C.
+            # r"\b(\d+)\s*U\.?\s*S\.?\s*C\.?\s*(\d+)\b",  # More flexible U.S.C. - EXCLUDED: These are statutes, not case citations
             r"\b(\d+)\s*F\.?\s*(?:2d|3d|4th)?\s*App\.?\s*(\d+)\b",  # Federal Appendix
             r"\b(\d+)\s*F\.?\s*R\.?\s*D\.?\s*(\d+)\b",  # Federal Rules Decisions
             r"\b(\d+)\s*F\.?\s*Supp\.?\s*(?:2d|3d)?\s*(\d+)\b",  # More flexible F.Supp.
