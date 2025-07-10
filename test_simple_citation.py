@@ -1,62 +1,50 @@
 #!/usr/bin/env python3
 """
-Simple test to verify citation extraction is working
+Simple test to check citation extraction.
 """
 
 import sys
 import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-# Add project root to path
-project_root = os.path.dirname(os.path.abspath(__file__))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
-def test_citation_extraction():
-    """Test citation extraction with simple text"""
+def test_simple_citation():
+    """Test simple citation extraction."""
+    print("Testing simple citation extraction...")
     
-    test_text = "The court in Smith v. Jones, 123 U.S. 456 (2020) held that..."
+    # Create processor
+    processor = UnifiedCitationProcessor()
     
-    print("Testing citation extraction...")
-    print(f"Test text: {test_text}")
+    # Test text with a simple citation
+    test_text = "347 U.S. 483"
     
-    try:
-        # Test the document processing
-        from src.document_processing import process_document
-        
-        result = process_document(content=test_text, extract_case_names=True)
-        
-        print(f"Result: {result}")
-        print(f"Success: {result.get('success', False)}")
-        print(f"Citations: {len(result.get('citations', []))}")
-        print(f"Case names: {len(result.get('case_names', []))}")
-        
-        if result.get('citations'):
-            print("Citations found:")
-            for i, citation in enumerate(result['citations'], 1):
-                print(f"  {i}. {citation.get('citation', 'N/A')}")
-        
-        if result.get('case_names'):
-            print("Case names found:")
-            for i, case_name in enumerate(result['case_names'], 1):
-                print(f"  {i}. {case_name}")
-        
-        return result.get('success', False) and len(result.get('citations', [])) > 0
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+    print(f"Processing text: {test_text}")
+    
+    # Process the text
+    result = processor.process_text(test_text, extract_case_names=True, verify_citations=True)
+    
+    print(f"Result keys: {list(result.keys())}")
+    print(f"Results found: {len(result.get('results', []))}")
+    print(f"Summary: {result.get('summary')}")
+    
+    # Check if citations were found
+    citations = result.get('results', [])
+    if citations:
+        print(f"\nFound {len(citations)} citations:")
+        for i, citation in enumerate(citations):
+            print(f"  {i+1}. {citation.get('citation', 'N/A')}")
+            print(f"     Verified: {citation.get('verified', 'N/A')}")
+            print(f"     Case name: {citation.get('case_name', 'N/A')}")
+    else:
+        print("\nNo citations found")
+    
+    return len(citations) > 0
 
 if __name__ == "__main__":
-    print("Simple Citation Extraction Test")
-    print("=" * 50)
-    
-    success = test_citation_extraction()
-    
+    success = test_simple_citation()
     if success:
-        print("\n🎉 Test PASSED - Citation extraction is working!")
+        print("\n🎉 Citation extraction test passed!")
     else:
-        print("\n💥 Test FAILED - Citation extraction needs work")
-    
-    print("\nTest completed.") 
+        print("\n❌ Citation extraction test failed!")
+        sys.exit(1) 

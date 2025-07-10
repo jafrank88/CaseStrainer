@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from citation_extractor import CitationExtractor
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from complex_citation_integration import ComplexCitationIntegrator
 from src.citation_utils import clean_and_validate_citations
 
@@ -51,7 +51,7 @@ def test_specific_citation():
     print("\n3. Testing CourtListener API Verification:")
     print("-" * 40)
     
-    verifier = EnhancedMultiSourceVerifier()
+    processor = UnifiedCitationProcessor()
     
     for citation in extracted_citations:
         citation_text = citation['citation']
@@ -59,11 +59,11 @@ def test_specific_citation():
         
         try:
             # Test CourtListener citation lookup
-            cl_result = verifier._verify_with_courtlistener(citation_text)
+            cl_result = processor._verify_with_courtlistener(citation_text)
             print(f"  CourtListener result: {cl_result}")
             
             # Test web search fallback
-            web_result = verifier._verify_with_web_search(citation_text)
+            web_result = processor._verify_with_web_search(citation_text)
             print(f"  Web search result: {web_result}")
             
         except Exception as e:

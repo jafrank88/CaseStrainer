@@ -8,8 +8,8 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.complex_citation_integration import ComplexCitationIntegrator
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: # DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 import logging
 
 # Set up logging

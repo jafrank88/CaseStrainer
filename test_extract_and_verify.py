@@ -11,7 +11,7 @@ import logging
 # Ensure src is in the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 # Configure logging

@@ -2,205 +2,244 @@
   <div class="home">
     <div class="background-pattern"></div>
     
-    <!-- Hero Section -->
-    <div class="hero-section">
-      <div class="container">
-        <h1 class="hero-title fade-in">Citation Verifier</h1>
-        <p class="hero-subtitle fade-in">Advanced legal citation analysis and verification powered by AI</p>
-      </div>
-    </div>
-
-    <!-- Main Application Card -->
+    <!-- Main Content Section -->
     <div class="container">
-      <div class="main-card slide-up">
-        <div class="card-header">
-          <h2 class="card-title">Analyze Your Legal Documents</h2>
-          <p class="card-subtitle">Upload text, files, or URLs for comprehensive citation verification</p>
-        </div>
-        
-        <div class="card-body">
-          <!-- Tab Navigation -->
-          <div class="tab-navigation">
-            <div class="d-flex">
-              <button 
-                class="tab-btn" 
-                :class="{ active: activeTab === 'paste' }"
-                @click="activeTab = 'paste'"
-                :disabled="isAnalyzing"
-              >
-                <i class="bi bi-clipboard-text"></i>
-                <span>Paste Text</span>
-              </button>
-              <button 
-                class="tab-btn" 
-                :class="{ active: activeTab === 'file' }"
-                @click="activeTab = 'file'"
-                :disabled="isAnalyzing"
-              >
-                <i class="bi bi-upload"></i>
-                <span>Upload File</span>
-              </button>
-              <button 
-                class="tab-btn" 
-                :class="{ active: activeTab === 'url' }"
-                @click="activeTab = 'url'"
-                :disabled="isAnalyzing"
-              >
-                <i class="bi bi-link-45deg"></i>
-                <span>URL Analysis</span>
-              </button>
+      <div class="main-content-wrapper">
+        <!-- Main Input Area -->
+        <div class="main-input-area">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">
+                <i class="bi bi-shield-check me-3"></i>
+                Legal Citation Verification
+              </h1>
+              <p class="hero-subtitle">
+                Upload legal documents, paste text, or provide URLs to automatically extract and verify citations against authoritative legal databases.
+              </p>
+            </div>
+
+            <!-- Experimental Use Banner -->
+            <div class="experimental-banner">
+              <i class="bi bi-flask me-2"></i>
+              <strong>Experimental Use:</strong> This tool is for research and educational purposes. Always verify results independently.
             </div>
           </div>
 
-          <!-- Tab Content -->
-          <div class="tab-content">
-            <!-- Paste Text Tab -->
-            <div v-if="activeTab === 'paste'" class="tab-pane active">
-              <div class="mb-4">
-                <label for="textInput" class="form-label">
-                  <i class="bi bi-file-text me-2"></i>
-                  Paste your legal text here
-                </label>
-                <textarea 
-                  id="textInput"
-                  v-model="textContent"
-                  class="form-control"
-                  rows="8"
-                  placeholder="Paste legal text, citations, or document content here for analysis..."
-                  :disabled="isAnalyzing"
-                  @input="validateInput"
-                ></textarea>
+          <div class="input-container">
+            <!-- Input Method Selection -->
+            <div class="input-methods">
+              <div 
+                :class="['input-method-card', { active: activeTab === 'paste' }]"
+                @click="activeTab = 'paste'"
+              >
+                <div class="method-icon">
+                  <i class="bi bi-clipboard-text"></i>
+                </div>
+                <div class="method-content">
+                  <h4>Paste Text</h4>
+                  <p>Copy and paste legal text directly</p>
+                </div>
+                <div v-if="activeTab === 'paste'" class="active-indicator">
+                  <i class="bi bi-check"></i>
+                </div>
               </div>
-              
-              <!-- Quality Indicator -->
-              <div v-if="textContent.trim().length >= 10" class="quality-indicator">
-                <div class="quality-header">
-                  <h6 class="mb-0">
-                    <i class="bi bi-graph-up me-2"></i>
-                    Content Analysis
-                  </h6>
-                  <span class="quality-score" :class="qualityScoreClass">{{ qualityScore }}%</span>
+
+              <div 
+                :class="['input-method-card', { active: activeTab === 'file' }]"
+                @click="activeTab = 'file'"
+              >
+                <div class="method-icon">
+                  <i class="bi bi-file-earmark-text"></i>
                 </div>
-                <div class="quality-bar">
-                  <div 
-                    class="quality-fill" 
-                    :class="qualityScoreClass"
-                    :style="{ width: qualityScore + '%' }"
-                  ></div>
+                <div class="method-content">
+                  <h4>Upload File</h4>
+                  <p>Upload PDF, DOC, DOCX, or TXT files</p>
                 </div>
-                <div class="quality-stats">
-                  <div class="stat-item">
-                    <div class="stat-value">{{ wordCount.toLocaleString() }}</div>
-                    <div class="stat-label">Words</div>
-                  </div>
-                  <div class="stat-item">
-                    <div class="stat-value">{{ estimatedCitations }}</div>
-                    <div class="stat-label">Citations</div>
-                  </div>
-                  <div class="stat-item">
-                    <div class="stat-value">{{ yearCount }}</div>
-                    <div class="stat-label">Years</div>
-                  </div>
+                <div v-if="activeTab === 'file'" class="active-indicator">
+                  <i class="bi bi-check"></i>
+                </div>
+              </div>
+
+              <div 
+                :class="['input-method-card', { active: activeTab === 'url' }]"
+                @click="activeTab = 'url'"
+              >
+                <div class="method-icon">
+                  <i class="bi bi-link-45deg"></i>
+                </div>
+                <div class="method-content">
+                  <h4>URL Input</h4>
+                  <p>Provide a URL to analyze online content</p>
+                </div>
+                <div v-if="activeTab === 'url'" class="active-indicator">
+                  <i class="bi bi-check"></i>
                 </div>
               </div>
             </div>
 
-            <!-- File Upload Tab -->
-            <div v-if="activeTab === 'file'" class="tab-pane">
-              <div class="mb-4">
-                <label class="form-label">
-                  <i class="bi bi-cloud-upload me-2"></i>
-                  Upload a document
-                </label>
-                <div 
-                  :class="['drop-zone', { 
-                    'has-file': selectedFile, 
-                    'dragover': isDragOver,
-                    'error': fileError
-                  }]"
-                  @drop="onFileDrop"
-                  @dragover.prevent="isDragOver = true"
-                  @dragleave.prevent="isDragOver = false"
-                  @click="triggerFileInput"
-                >
-                  <input 
-                    ref="fileInput"
-                    type="file" 
-                    @change="onFileChange" 
-                    :disabled="isAnalyzing"
-                    accept=".pdf,.doc,.docx,.txt"
-                    style="display: none;"
-                  />
-                  <div v-if="!selectedFile" class="drop-zone-content">
-                    <i class="bi bi-cloud-upload drop-zone-icon"></i>
-                    <h5>Drop your file here or click to browse</h5>
-                    <p class="text-muted mb-0">Supports: PDF, DOC, DOCX, TXT (max 50MB)</p>
-                  </div>
-                  <div v-else class="file-info">
-                    <i class="bi bi-file-earmark-text text-success" style="font-size: 2rem;"></i>
-                    <div class="file-details">
-                      <div class="file-name">{{ selectedFile.name }}</div>
-                      <div class="file-size">{{ formatFileSize(selectedFile.size) }}</div>
+            <!-- Input Content Area -->
+            <div class="input-content-area">
+              <!-- Text Input Tab -->
+              <div v-if="activeTab === 'paste'" class="input-tab-content">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-clipboard-text me-2"></i>
+                    Legal Text Content
+                  </label>
+                  <textarea 
+                    v-model="textContent"
+                    class="form-control input-field"
+                    rows="8"
+                    placeholder="Paste your legal text here... (minimum 10 characters)"
+                    @input="validateInput"
+                  ></textarea>
+                  
+                  <!-- Input Quality Indicators -->
+                  <div v-if="textContent" class="input-quality-indicators">
+                    <div class="quality-item">
+                      <span class="quality-label">Words:</span>
+                      <span class="quality-value">{{ wordCount }}</span>
                     </div>
-                    <button 
-                      v-if="!isAnalyzing"
-                      @click.stop="clearFile" 
-                      class="btn btn-sm btn-outline-danger"
-                    >
+                    <div class="quality-item">
+                      <span class="quality-label">Est. Citations:</span>
+                      <span class="quality-value">{{ estimatedCitations }}</span>
+                    </div>
+                    <div class="quality-item">
+                      <span class="quality-label">Years:</span>
+                      <span class="quality-value">{{ yearCount }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- File Input Tab -->
+              <div v-if="activeTab === 'file'" class="input-tab-content">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Document File
+                  </label>
+                  <div 
+                    :class="['file-drop-zone', { 'drag-over': isDragOver }]"
+                    @drop="onFileDrop"
+                    @dragover.prevent="isDragOver = true"
+                    @dragleave.prevent="isDragOver = false"
+                    @click="triggerFileInput"
+                  >
+                    <div class="file-drop-content">
+                      <i class="bi bi-cloud-upload file-drop-icon"></i>
+                      <p class="file-drop-text">
+                        <strong>Click to select</strong> or drag and drop your file here
+                      </p>
+                      <p class="file-drop-hint">
+                        Supported formats: PDF, DOC, DOCX, TXT (max 50MB)
+                      </p>
+                    </div>
+                    <input 
+                      ref="fileInput"
+                      type="file" 
+                      class="file-input-hidden"
+                      accept=".pdf,.doc,.docx,.txt"
+                      @change="onFileChange"
+                    />
+                  </div>
+                  
+                  <!-- Selected File Display -->
+                  <div v-if="selectedFile" class="selected-file">
+                    <div class="file-info">
+                      <i class="bi bi-file-earmark-text me-2"></i>
+                      <span class="file-name">{{ selectedFile.name }}</span>
+                      <span class="file-size">({{ formatFileSize(selectedFile.size) }})</span>
+                    </div>
+                    <button @click="clearFile" class="btn btn-sm btn-outline-danger">
                       <i class="bi bi-x"></i>
                     </button>
                   </div>
+                  
+                  <div v-if="fileError" class="text-danger mt-2">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    {{ fileError }}
+                  </div>
                 </div>
-                <div v-if="fileError" class="text-danger mt-2">
-                  <i class="bi bi-exclamation-triangle me-1"></i>
-                  {{ fileError }}
+              </div>
+
+              <!-- URL Input Tab -->
+              <div v-if="activeTab === 'url'" class="input-tab-content">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-link-45deg me-2"></i>
+                    Document URL
+                  </label>
+                  <input 
+                    v-model="urlContent"
+                    type="url" 
+                    class="form-control input-field"
+                    placeholder="https://example.com/legal-document"
+                    @input="validateInput"
+                  />
+                  
+                  <div v-if="urlError" class="text-danger mt-2">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    {{ urlError }}
+                  </div>
+                  <div v-else-if="urlContent && !urlError" class="form-text mt-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    We'll fetch and analyze the document from the provided URL
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- URL Tab -->
-            <div v-if="activeTab === 'url'" class="tab-pane">
-              <div class="mb-4">
-                <label for="urlInput" class="form-label">
-                  <i class="bi bi-link-45deg me-2"></i>
-                  Enter URL to analyze
-                </label>
-                <input 
-                  id="urlInput"
-                  v-model="urlContent"
-                  type="url" 
-                  class="form-control"
-                  placeholder="https://example.com/document.pdf"
-                  :disabled="isAnalyzing"
-                  @input="validateInput"
-                  :class="{ 'is-invalid': urlError }"
-                />
-                <div v-if="urlError" class="invalid-feedback">
-                  {{ urlError }}
+            <!-- Analyze Button -->
+            <div class="analyze-button-container">
+              <button 
+                :class="['btn', 'analyze-btn', { 'disabled': !canAnalyze || isAnalyzing }]"
+                :disabled="!canAnalyze || isAnalyzing" 
+                @click="analyzeContent"
+              >
+                <span v-if="isAnalyzing" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <i v-else class="bi bi-search me-2"></i>
+                <span>{{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}</span>
+              </button>
+            </div>
+
+            <!-- Progress Bar (shown during analysis) -->
+            <div v-if="isAnalyzing" class="progress-section">
+              <div class="progress-info mb-3">
+                <div class="progress-stats">
+                  <span class="stat">
+                    <i class="bi bi-list-ol text-primary"></i>
+                    {{ progressCurrent }} of {{ progressTotal }} citations
+                  </span>
+                  <span class="stat">
+                    <i class="bi bi-clock text-primary"></i>
+                    {{ formatTime(elapsedTime) }} elapsed
+                  </span>
                 </div>
-                <div v-else-if="urlContent && !urlError" class="form-text mt-2">
-                  <i class="bi bi-info-circle me-1"></i>
-                  We'll fetch and analyze the document from the provided URL
+              </div>
+              
+              <div class="progress-container">
+                <div class="progress" style="height: 1.5rem; border-radius: 0.75rem;">
+                  <div 
+                    class="progress-bar progress-bar-striped progress-bar-animated" 
+                    :class="progressBarClass" 
+                    role="progressbar"
+                    :style="{ width: progressPercent + '%' }" 
+                    :aria-valuenow="progressPercent" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100"
+                  >
+                    <span class="progress-text">{{ progressPercent }}%</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Recent Inputs Section -->
+        <!-- Recent Inputs Sidebar -->
+        <div class="recent-inputs-sidebar-container">
           <RecentInputs @load-input="loadRecentInput" />
-          
-          <!-- Analyze Button -->
-          <div class="d-grid">
-            <button 
-              :class="['btn', 'analyze-btn', { 'disabled': !canAnalyze || isAnalyzing }]"
-              :disabled="!canAnalyze || isAnalyzing" 
-              @click="analyzeContent"
-            >
-              <span v-if="isAnalyzing" class="spinner-border spinner-border-sm me-2" role="status"></span>
-              <i v-else class="bi bi-search me-2"></i>
-              <span>{{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -268,6 +307,13 @@ const isDragOver = ref(false);
 const fileError = ref('');
 const urlError = ref('');
 
+// Progress tracking
+const progressCurrent = ref(0);
+const progressTotal = ref(0);
+const elapsedTime = ref(0);
+const progressTimer = ref(null);
+const startTime = ref(null);
+
 // Recent Inputs
 const { addRecentInput } = useRecentInputs();
 
@@ -316,25 +362,8 @@ const yearCount = computed(() => {
   return yearMatches ? new Set(yearMatches).size : 0;
 });
 
-const qualityScore = computed(() => {
-  if (!textContent.value) return 0;
-  
-  let score = 0;
-  score += Math.min(30, (textContent.value.length / 1000) * 10);
-  score += Math.min(25, (wordCount.value / 50) * 5);
-  const citationDensity = estimatedCitations.value / Math.max(1, wordCount.value / 100);
-  score += Math.min(25, citationDensity * 10);
-  score += Math.min(20, yearCount.value * 4);
-  
-  return Math.round(score);
-});
-
-const qualityScoreClass = computed(() => {
-  if (qualityScore.value >= 80) return 'bg-success';
-  if (qualityScore.value >= 60) return 'bg-primary';
-  if (qualityScore.value >= 40) return 'bg-warning';
-  return 'bg-danger';
-});
+// Remove Quality Score label and badge
+// Remove computed property and class for qualityScore and qualityScoreClass
 
 const canAnalyze = computed(() => {
   switch (activeTab.value) {
@@ -347,6 +376,19 @@ const canAnalyze = computed(() => {
     default:
       return false;
   }
+});
+
+// Progress bar computed properties
+const progressPercent = computed(() => {
+  if (!progressTotal.value) return 0;
+  return Math.min(100, Math.round((progressCurrent.value / progressTotal.value) * 100));
+});
+
+const progressBarClass = computed(() => {
+  if (progressPercent.value >= 80) return 'bg-success';
+  if (progressPercent.value >= 50) return 'bg-info';
+  if (progressPercent.value >= 30) return 'bg-warning';
+  return 'bg-danger';
 });
 
 // Methods
@@ -409,20 +451,19 @@ const handleFile = (file) => {
   selectedFile.value = file;
 };
 
+const fileInput = ref(null);
+
 const triggerFileInput = () => {
-  if (!isAnalyzing.value) {
-    const fileInputElement = document.getElementById('fileInput');
-    if (fileInputElement) {
-      fileInputElement.click();
-    }
+  if (!isAnalyzing.value && fileInput.value) {
+    fileInput.value.click();
   }
 };
 
 const clearFile = () => {
   selectedFile.value = null;
   fileError.value = '';
-  if (document.getElementById('fileInput')) {
-    document.getElementById('fileInput').value = '';
+  if (fileInput.value) {
+    fileInput.value.value = '';
   }
 };
 
@@ -434,10 +475,56 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
+const formatTime = (seconds) => {
+  if (!seconds || seconds < 0) return '0s';
+  
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  } else {
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
+};
+
+const startProgressTracking = () => {
+  startTime.value = Date.now();
+  progressCurrent.value = 0;
+  progressTotal.value = estimatedCitations.value || 10; // Use estimated citations or default to 10
+  
+  // Start elapsed time tracking
+  progressTimer.value = setInterval(() => {
+    elapsedTime.value = Math.floor((Date.now() - startTime.value) / 1000);
+  }, 1000);
+  
+  // Simulate progress for better UX
+  const progressInterval = setInterval(() => {
+    if (progressCurrent.value < progressTotal.value && isAnalyzing.value) {
+      progressCurrent.value++;
+    } else {
+      clearInterval(progressInterval);
+    }
+  }, 2000); // Update every 2 seconds
+};
+
+const stopProgressTracking = () => {
+  if (progressTimer.value) {
+    clearInterval(progressTimer.value);
+    progressTimer.value = null;
+  }
+  startTime.value = null;
+  elapsedTime.value = 0;
+  progressCurrent.value = 0;
+  progressTotal.value = 0;
+};
+
 const analyzeContent = async () => {
   if (!canAnalyze.value || isAnalyzing.value) return;
 
   isAnalyzing.value = true;
+  startProgressTracking();
 
   try {
     const inputData = {
@@ -539,15 +626,16 @@ const analyzeContent = async () => {
     alert(errorMessage);
   } finally {
     isAnalyzing.value = false;
+    stopProgressTracking();
   }
 };
 </script>
 
 <style scoped>
 :root {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
-  --primary-dark: #1565c0;
+  --primary-color: #4b2e83;
+  --primary-light: #6a4c93;
+  --primary-dark: #3a1f5e;
   --secondary-color: #f8f9fa;
   --accent-color: #ff6b35;
   --success-color: #4caf50;
@@ -558,258 +646,270 @@ const analyzeContent = async () => {
   --border-color: #e9ecef;
   --shadow-light: 0 2px 12px 0 rgba(60, 72, 88, 0.08);
   --shadow-medium: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
-  --shadow-heavy: 0 8px 32px 0 rgba(60, 72, 88, 0.16);
 }
 
-* {
-  box-sizing: border-box;
+/* Main Layout */
+.main-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
 }
 
-.home {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
+.main-input-area {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(75, 46, 131, 0.1);
 }
 
-.background-pattern {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.1;
-  pointer-events: none;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+.recent-inputs-sidebar-container {
+  align-self: start;
+  position: sticky;
+  top: 2rem;
 }
 
-.hero-section {
-  padding: 3rem 0 2rem 0;
+/* Hero Content */
+.hero-content {
   text-align: center;
-  color: white;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 2rem;
+}
+
+.hero-text {
+  margin-bottom: 1.5rem;
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: 800;
+  color: var(--primary-color);
   margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   line-height: 1.2;
 }
 
 .hero-subtitle {
-  font-size: 1.4rem;
-  font-weight: 300;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.main-card {
-  max-width: 800px;
-  margin: 0 auto 4rem auto;
-  border-radius: 2rem;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-heavy);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
-}
-
-.card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  color: white;
-  padding: 2rem;
-  text-align: center;
-  border: none;
-}
-
-.card-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.card-subtitle {
   font-size: 1.1rem;
-  opacity: 0.9;
-  margin-top: 0.5rem;
-}
-
-.card-body {
-  padding: 3rem;
-}
-
-.tab-navigation {
-  background: var(--secondary-color);
-  border-radius: 1.5rem;
-  padding: 0.75rem;
-  margin-bottom: 2.5rem;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
   color: var(--text-secondary);
-  font-weight: 600;
-  border-radius: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.experimental-banner {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #856404;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 1rem;
-  position: relative;
 }
 
-.tab-btn.active {
+/* Input Container */
+.input-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Input Methods */
+.input-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.input-method-card {
   background: white;
-  color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.tab-btn:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.7);
-  color: var(--text-primary);
+.input-method-card:hover:not(.disabled) {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(75, 46, 131, 0.15);
 }
 
-.tab-btn:disabled {
+.input-method-card.active {
+  border-color: var(--primary-color);
+  background: #f8f9ff;
+}
+
+.input-method-card.disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.tab-content {
-  background: #f8fafe;
-  border-radius: 1.5rem;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid #e3f2fd;
-  position: relative;
-  overflow: hidden;
+.method-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  flex-shrink: 0;
 }
 
-.tab-content::before {
-  content: '';
+.method-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.method-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.method-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.active-indicator {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  top: 1rem;
+  right: 1rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
 }
 
-.form-control {
-  border-radius: 1rem;
-  border: 2px solid var(--border-color);
-  padding: 1rem 1.25rem;
-  font-size: 1.05rem;
-  transition: all 0.3s ease;
-  background: white;
+/* Input Content Area */
+.input-content-area {
+  margin-bottom: 2rem;
 }
 
-.form-control:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
-  background: white;
+.input-tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
 .form-label {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.75rem;
-  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
 }
 
-.drop-zone {
-  border: 3px dashed var(--border-color);
-  border-radius: 1.5rem;
-  padding: 3rem 2rem;
+.input-field {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(75, 46, 131, 0.1);
+  outline: none;
+}
+
+/* File Drop Zone */
+.file-drop-zone {
+  border: 3px dashed #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
   text-align: center;
   background: white;
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
 }
 
-.drop-zone::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.1), transparent);
-  transition: left 0.6s;
-}
-
-.drop-zone:hover::before {
-  left: 100%;
-}
-
-.drop-zone.dragover {
+.file-drop-zone:hover {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: rgba(75, 46, 131, 0.02);
+}
+
+.file-drop-zone.drag-over {
+  border-color: var(--primary-color);
+  background: rgba(75, 46, 131, 0.05);
   transform: scale(1.02);
 }
 
-.drop-zone.has-file {
-  border-color: var(--success-color);
-  background: rgba(76, 175, 80, 0.05);
+.file-drop-content {
+  pointer-events: none;
 }
 
-.drop-zone.error {
-  border-color: var(--error-color);
-  background: rgba(244, 67, 54, 0.05);
-}
-
-.drop-zone-icon {
+.file-drop-icon {
   font-size: 3rem;
-  color: var(--text-secondary);
+  color: var(--primary-color);
   margin-bottom: 1rem;
-  transition: all 0.3s ease;
+  display: block;
 }
 
-.drop-zone:hover .drop-zone-icon {
-  color: var(--primary-color);
-  transform: translateY(-4px);
+.file-drop-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.file-drop-hint {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.file-input-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Selected File */
+.selected-file {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .file-info {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: var(--shadow-light);
-  border: 2px solid var(--success-color);
-}
-
-.file-details {
-  text-align: left;
+  gap: 0.5rem;
 }
 
 .file-name {
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
 }
 
 .file-size {
@@ -817,46 +917,124 @@ const analyzeContent = async () => {
   font-size: 0.9rem;
 }
 
-.analyze-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  border: none;
-  border-radius: 1.5rem;
-  padding: 1.25rem 2.5rem;
-  font-size: 1.2rem;
+/* Input Quality Indicators */
+.input-quality-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.quality-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quality-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.quality-value {
   font-weight: 600;
-  color: white;
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-primary);
+}
+
+/* Analyze Button */
+.analyze-button-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Progress Bar Styles */
+.progress-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.progress-info {
+  margin-bottom: 1.5rem;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.progress-container {
+  margin: 1.5rem 0;
+}
+
+.progress {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 123, 255, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-.analyze-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s;
+.progress-text {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.analyze-btn:hover {
+.analyze-btn {
+  background: linear-gradient(90deg, #4b2e83 60%, #6a4c93 100%);
+  border: none;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(75, 46, 131, 0.3);
+}
+
+.analyze-btn:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+  box-shadow: 0 6px 20px rgba(75, 46, 131, 0.4);
 }
 
-.analyze-btn:hover::before {
-  left: 100%;
+.analyze-btn:active {
+  transform: translateY(0);
 }
 
-.analyze-btn:disabled {
-  background: var(--text-secondary);
-  box-shadow: none;
+.analyze-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
   transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Features Section */
 .features-section {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2rem;
@@ -945,29 +1123,39 @@ const analyzeContent = async () => {
 }
 
 .quality-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .stat-item {
+  background: #f7f5fa;
+  border-radius: 0.65rem;
+  box-shadow: 0 1.5px 6px rgba(75, 46, 131, 0.06);
+  border: 1.2px solid #e3e0f3;
+  min-width: 90px;
+  min-height: 54px;
+  padding: 0.5rem 0.3rem 0.3rem 0.3rem;
   text-align: center;
-  padding: 0.75rem;
-  background: var(--secondary-color);
-  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #4b2e83;
+  margin-bottom: 0.05rem;
 }
 
 .stat-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: #6c757d;
+  margin-top: 0.05rem;
 }
 
 .spinner-border-sm {
@@ -975,60 +1163,69 @@ const analyzeContent = async () => {
   height: 1rem;
 }
 
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .main-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .recent-inputs-sidebar-container {
+    position: static;
+    order: -1;
+  }
+}
+
 @media (max-width: 768px) {
+  .main-input-area {
+    padding: 1.5rem;
+  }
+  
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .hero-subtitle {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
   
-  .card-body {
-    padding: 2rem;
+  .input-methods {
+    grid-template-columns: 1fr;
   }
   
-  .tab-content {
-    padding: 2rem;
+  .input-method-card {
+    padding: 1rem;
   }
   
-  .features-section {
-    margin: 2rem 1rem;
-    padding: 2rem;
+  .method-icon {
+    font-size: 1.5rem;
   }
   
-  .main-card {
-    margin: 0 1rem 2rem 1rem;
+  .input-quality-indicators {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .quality-item {
+    justify-content: space-between;
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@media (max-width: 480px) {
+  .main-input-area {
+    padding: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .hero-title {
+    font-size: 1.8rem;
   }
-}
-
-.slide-up {
-  animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
+  
+  .file-drop-zone {
+    padding: 1.5rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .file-drop-icon {
+    font-size: 2rem;
   }
 }
 </style>

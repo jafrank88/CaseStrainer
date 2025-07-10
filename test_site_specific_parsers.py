@@ -16,10 +16,10 @@ def test_unified_workflow_parsers():
     """Test the unified workflow with various citation types."""
     
     try:
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         
         # Initialize the verifier
-        verifier = EnhancedMultiSourceVerifier()
+        processor = UnifiedCitationProcessor()
         
         # Test citations that might need different parsing approaches
         test_citations = [
@@ -41,7 +41,7 @@ def test_unified_workflow_parsers():
             
             try:
                 # Use the unified workflow
-                result = verifier.verify_citation_unified_workflow(citation)
+                result = processor.verify_citation_unified_workflow(citation)
                 
                 print(f"Verified: {result.get('verified', False)}")
                 print(f"Source: {result.get('source', 'Unknown')}")

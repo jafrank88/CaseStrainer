@@ -241,7 +241,7 @@ export const useAnalysisService = () => {
          }
          response = await currentApi.post('/analyze', content, { timeout: CONSTANTS.PROCESSING_TIMEOUT, headers: {} });
       } else {
-         response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
+                                       response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
       }
       
       // Clear timeout on success

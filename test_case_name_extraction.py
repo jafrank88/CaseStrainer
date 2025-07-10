@@ -1,236 +1,67 @@
 #!/usr/bin/env python3
 """
-Test script to verify case name extraction in the unified pipeline.
+Test script to verify case name extraction in UnifiedCitationProcessorV2
 """
 
-import os
 import sys
-import re
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
-# Disable API calls for testing
-os.environ['DISABLE_API_CALLS'] = '1'
-
-from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text
-
-def test_case_name_extraction_direct():
-    """Test case name extraction function directly without API calls."""
+def test_case_name_extraction():
+    """Test case name extraction with sample text"""
     
-    test_cases = [
-        {
-            'text': 'In State v. Smith, 123 Wn. App. 456, 789 P.3d 123 (2023), the court held...',
-            'citation': '123 Wn. App. 456',
-            'expected_case_name': 'State v. Smith'
-        },
-        {
-            'text': 'The case of Johnson v. Brown, 456 P.3d 789 (2021) established...',
-            'citation': '456 P.3d 789',
-            'expected_case_name': 'Johnson v. Brown'
-        },
-        {
-            'text': 'As held in Doe v. Roe, 789 Wn.2d 123, 456 P.3d 789 (2020), the standard is...',
-            'citation': '789 Wn.2d 123',
-            'expected_case_name': 'Doe v. Roe'
-        },
-        {
-            'text': 'In the matter of In re Estate of Johnson, 456 P.3d 789 (2022), the court found...',
-            'citation': '456 P.3d 789',
-            'expected_case_name': 'In re Estate of Johnson'
-        },
-        {
-            'text': 'The court in United States v. Wilson, 123 U.S. 456 (1999) ruled...',
-            'citation': '123 U.S. 456',
-            'expected_case_name': 'United States v. Wilson'
-        },
-        {
-            'text': 'People v. Davis, 789 Cal. App. 2d 123 (2020) established...',
-            'citation': '789 Cal. App. 2d 123',
-            'expected_case_name': 'People v. Davis'
-        }
-    ]
+    # Test text with multiple citations and case names
+    test_text = """A federal court may ask this court to answer a question of Washington law 
+when a resolution of that question is necessary to resolve a case before the 
+federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d
+72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review
+de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v.
+Campbell & Gwinn, LLC, 146 Wn.2d 1, 9 (2003)"""
     
-    print("=== Testing Case Name Extraction Directly ===\n")
+    print("Testing case name extraction with sample text:")
+    print("=" * 60)
+    print(test_text)
+    print("=" * 60)
     
-    for i, test_case in enumerate(test_cases, 1):
-        print(f"Test Case {i}:")
-        print(f"Text: {test_case['text']}")
-        print(f"Citation: {test_case['citation']}")
-        print(f"Expected Case Name: {test_case['expected_case_name']}")
+    # Initialize processor with debug mode
+    config = ProcessingConfig(debug_mode=True)
+    processor = UnifiedCitationProcessorV2(config)
+    
+    # Process the text
+    results = processor.process_text(test_text)
+    
+    print(f"\nFound {len(results)} citations:")
+    print("-" * 60)
+    
+    for i, result in enumerate(results, 1):
+        print(f"\nCitation {i}:")
+        print(f"  Citation: {result.citation}")
+        print(f"  Extracted Case Name: {result.extracted_case_name}")
+        print(f"  Extracted Date: {result.extracted_date}")
+        print(f"  Context: {result.context[:100]}...")
+        print(f"  Confidence: {result.confidence}")
         
-        # Test the case name extraction function directly
-        extracted_name = extract_case_name_from_text(test_case['text'], test_case['citation'])
-        print(f"Extracted Case Name: '{extracted_name}'")
-        
-        # Test the full triple extraction
-        print("\n--- Full Triple Extraction ---")
-        result = extract_case_name_triple(test_case['text'], test_case['citation'])
-        print(f"Canonical Name: '{result['canonical_name']}'")
-        print(f"Extracted Name: '{result['extracted_name']}'")
-        print(f"Hinted Name: '{result['hinted_name']}'")
-        print(f"Final Case Name: '{result['case_name']}'")
-        
-        # Check if extraction worked
-        if extracted_name and extracted_name != "N/A":
-            print("✅ PASS - Case name extraction worked")
+        if result.is_cluster:
+            print(f"  Type: CLUSTER (size: {len(result.cluster_members)})")
         else:
-            print("❌ FAIL - Case name extraction failed")
-        
-        print("\n" + "="*80 + "\n")
-
-def test_case_name_patterns():
-    """Test different case name patterns."""
+            print(f"  Type: SINGLE")
     
-    patterns = [
-        ('State v. Smith', 'State v. Smith'),
-        ('Johnson v. Brown', 'Johnson v. Brown'),
-        ('Doe v. Roe', 'Doe v. Roe'),
-        ('In re Estate of Johnson', 'In re Estate of Johnson'),
-        ('United States v. Wilson', 'United States v. Wilson'),
-        ('People v. Davis', 'People v. Davis'),
-    ]
+    # Summary
+    case_names_found = [r.extracted_case_name for r in results if r.extracted_case_name and r.extracted_case_name != "N/A"]
+    dates_found = [r.extracted_date for r in results if r.extracted_date and r.extracted_date != "N/A"]
     
-    print("=== Testing Case Name Patterns ===\n")
+    print(f"\nSummary:")
+    print(f"  Total citations: {len(results)}")
+    print(f"  Case names found: {len(case_names_found)}")
+    print(f"  Dates found: {len(dates_found)}")
     
-    for pattern, expected in patterns:
-        text = f"In {pattern}, 123 Wn. App. 456 (2023), the court held..."
-        citation = "123 Wn. App. 456"
-        
-        extracted = extract_case_name_from_text(text, citation)
-        print(f"Pattern: '{pattern}' -> Expected: '{expected}' -> Got: '{extracted}'")
-        
-        if extracted and extracted != "N/A":
-            print("✅ PASS")
-        else:
-            print("❌ FAIL")
-        print()
-
-def test_real_document_patterns():
-    """Test with real document patterns."""
-    
-    real_text = """
-    MEMORANDUM DECISION - UNPUBLISHED OPINION
-    
-    In State v. Johnson, 123 Wn. App. 456, 789 P.3d 123 (2023), the Washington Court of Appeals 
-    held that the trial court did not err in admitting the evidence. The court found that the 
-    defendant's motion to suppress was properly denied.
-    
-    Similarly, in Doe v. Smith, 456 P.3d 789 (2021), the Supreme Court established the standard 
-    for determining when evidence should be excluded. The court emphasized the importance of 
-    following proper procedures.
-    
-    The case of Brown v. Wilson, 789 Wn.2d 123, 456 P.3d 789 (2020) further clarified the 
-    application of the exclusionary rule in Washington courts.
-    
-    Additionally, the court cited United States v. Smith, 123 U.S. 456 (1999) for the proposition
-    that evidence obtained in violation of the Fourth Amendment must be excluded.
-    """
-    
-    print("=== Testing Real Document Patterns ===\n")
-    
-    citations = [
-        ('123 Wn. App. 456', 'State v. Johnson'),
-        ('456 P.3d 789', 'Doe v. Smith'),  # Should find the first occurrence
-        ('789 Wn.2d 123', 'Brown v. Wilson'),
-        ('123 U.S. 456', 'United States v. Smith')
-    ]
-    
-    for citation, expected in citations:
-        print(f"Citation: {citation}")
-        result = extract_case_name_triple(real_text, citation)
-        print(f"  Expected: '{expected}'")
-        print(f"  Extracted: '{result['extracted_name']}'")
-        print(f"  Final: '{result['case_name']}'")
-        
-        if result['extracted_name'] and result['extracted_name'] != "N/A":
-            print("  ✅ PASS - Case name found")
-        else:
-            print("  ❌ FAIL - No case name found")
-        print()
-
-def test_edge_cases():
-    """Test edge cases and difficult patterns."""
-    
-    edge_cases = [
-        {
-            'text': 'The court in Smith v. Jones, 123 Wn. App. 456, 789 P.3d 123, 2023 WL 1234567 (2023) ruled...',
-            'citation': '123 Wn. App. 456',
-            'expected': 'Smith v. Jones'
-        },
-        {
-            'text': 'In re Estate of Johnson, 456 P.3d 789 (2022), the court found...',
-            'citation': '456 P.3d 789',
-            'expected': 'In re Estate of Johnson'
-        },
-        {
-            'text': 'State v. Brown, 789 Wn.2d 123, 456 P.3d 789 (2020) further clarified...',
-            'citation': '789 Wn.2d 123',
-            'expected': 'State v. Brown'
-        },
-        {
-            'text': 'The case of Doe v. Roe, 123 Wn. App. 456, 789 P.3d 123 (2023) established...',
-            'citation': '123 Wn. App. 456',
-            'expected': 'Doe v. Roe'
-        }
-    ]
-    
-    print("=== Testing Edge Cases ===\n")
-    
-    for i, test_case in enumerate(edge_cases, 1):
-        print(f"Edge Case {i}:")
-        print(f"Text: {test_case['text']}")
-        print(f"Citation: {test_case['citation']}")
-        print(f"Expected: {test_case['expected']}")
-        
-        result = extract_case_name_triple(test_case['text'], test_case['citation'])
-        print(f"Extracted: '{result['extracted_name']}'")
-        print(f"Final: '{result['case_name']}'")
-        
-        if result['extracted_name'] and result['extracted_name'] != "N/A":
-            print("✅ PASS")
-        else:
-            print("❌ FAIL")
-        print()
-
-def test_no_case_name():
-    """Test cases where no case name should be found."""
-    
-    no_name_cases = [
-        {
-            'text': 'The court held in 123 Wn. App. 456 (2023) that...',
-            'citation': '123 Wn. App. 456',
-            'description': 'Citation without case name'
-        },
-        {
-            'text': 'As established in 456 P.3d 789 (2021), the standard is...',
-            'citation': '456 P.3d 789',
-            'description': 'Citation without case name'
-        }
-    ]
-    
-    print("=== Testing No Case Name Scenarios ===\n")
-    
-    for i, test_case in enumerate(no_name_cases, 1):
-        print(f"No Name Case {i}:")
-        print(f"Description: {test_case['description']}")
-        print(f"Text: {test_case['text']}")
-        print(f"Citation: {test_case['citation']}")
-        
-        result = extract_case_name_triple(test_case['text'], test_case['citation'])
-        print(f"Extracted: '{result['extracted_name']}'")
-        print(f"Final: '{result['case_name']}'")
-        
-        # In these cases, we expect no case name or "N/A"
-        if not result['extracted_name'] or result['extracted_name'] == "N/A":
-            print("✅ PASS - Correctly found no case name")
-        else:
-            print("❌ FAIL - Should not have found a case name")
-        print()
+    if case_names_found:
+        print(f"  Case names: {case_names_found}")
+    if dates_found:
+        print(f"  Dates: {dates_found}")
 
 if __name__ == "__main__":
-    test_case_name_extraction_direct()
-    test_case_name_patterns()
-    test_real_document_patterns()
-    test_edge_cases()
-    test_no_case_name() 
+    test_case_name_extraction() 

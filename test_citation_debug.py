@@ -3,7 +3,7 @@
 Debug script to test citation extraction.
 """
 
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 
 def test_citation_extraction():
     """Test citation extraction with a simple example."""

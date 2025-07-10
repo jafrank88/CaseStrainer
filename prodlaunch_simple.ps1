@@ -190,7 +190,7 @@ function Start-DockerProduction {
         $startJob = Start-Job -ScriptBlock {
             param($DockerComposeFile, $WorkingDir)
             Set-Location $WorkingDir
-            & docker-compose -f $DockerComposeFile up -d 2>&1
+            & docker-compose -f $DockerComposeFile up -d --build 2>&1
         } -ArgumentList $dockerComposeFile, $PSScriptRoot
         
         # Show progress while containers start

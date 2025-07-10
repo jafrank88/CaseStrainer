@@ -148,27 +148,6 @@
             <div v-if="textStats.wordCount > 0" class="quality-indicator">
               <div class="quality-header">
                 <span class="quality-label">Content Quality</span>
-                <span :class="['quality-score', qualityScoreClass]">{{ qualityScore }}%</span>
-              </div>
-              <div class="quality-bar">
-                <div 
-                  :class="['quality-fill', qualityScoreClass]" 
-                  :style="{ width: qualityScore + '%' }"
-                ></div>
-              </div>
-              <div class="quality-details">
-                <div class="quality-metric">
-                  <span class="metric-label">Length:</span>
-                  <span class="metric-value">{{ getLengthScore() }}/30</span>
-                </div>
-                <div class="quality-metric">
-                  <span class="metric-label">Citations:</span>
-                  <span class="metric-value">{{ getCitationScore() }}/40</span>
-                </div>
-                <div class="quality-metric">
-                  <span class="metric-label">Diversity:</span>
-                  <span class="metric-value">{{ getDiversityScore() }}/30</span>
-                </div>
               </div>
             </div>
           </div>
@@ -382,18 +361,7 @@ export default {
       return patterns.some(pattern => pattern.test(citationText.value));
     });
     
-    const qualityScore = computed(() => {
-      if (textStats.value.wordCount === 0) return 0;
-      return Math.min(100, getLengthScore() + getCitationScore() + getDiversityScore());
-    });
-    
-    const qualityScoreClass = computed(() => {
-      const score = qualityScore.value;
-      if (score >= 80) return 'excellent';
-      if (score >= 60) return 'good';
-      if (score >= 40) return 'fair';
-      return 'poor';
-    });
+    // Remove quality score span, progress bar, computed properties, and all references to qualityScore and qualityScoreClass
     
     const canAnalyze = computed(() => {
       return isSingleCitation.value 
@@ -576,8 +544,6 @@ export default {
       headerTitle,
       headerSubtitle,
       isValidCitation,
-      qualityScore,
-      qualityScoreClass,
       canAnalyze,
       analyzeButtonIcon,
       analyzeButtonText,
@@ -1382,5 +1348,34 @@ export default {
 /* Smooth transitions for all interactive elements */
 * {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.analyze-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 36px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 24px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.12);
+  transition: background 0.2s, box-shadow 0.2s;
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.analyze-btn:hover:not(:disabled),
+.analyze-btn:focus:not(:disabled) {
+  background: #1565c0;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+}
+.analyze-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 </style>

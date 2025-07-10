@@ -1,5 +1,15 @@
 # CaseStrainer API Documentation
 
+## ⚠️ **IMPORTANT: Upload Behavior Warning**
+
+**CaseTrainer does NOT cache or deduplicate uploads.** Each file upload, URL submission, or text input is processed as a completely new request. This means:
+
+- **Files are always re-uploaded** - No duplicate detection
+- **URLs are always re-processed** - Fresh web scraping each time  
+- **Text is always re-analyzed** - No caching of results
+
+**This is by design** to ensure fresh, accurate results and maintain privacy. See [Upload Behavior Warning](UPLOAD_BEHAVIOR_WARNING.md) for details and best practices.
+
 ## ⚠️ **IMPORTANT: Canonical vs Deprecated Endpoints**
 
 **Canonical Endpoints (Use These):**
@@ -16,12 +26,13 @@
 - All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
 
 ## Overview
-CaseStrainer provides a comprehensive API for legal citation verification and analysis. The system uses the enhanced `EnhancedMultiSourceVerifier` with CourtListener API integration, volume range validation, format analysis, and likelihood scoring.
+CaseStrainer provides a comprehensive API for legal citation verification and analysis. The system uses the enhanced `UnifiedCitationProcessorV2` with CourtListener API integration, citation variant testing, context-aware case name extraction, and intelligent clustering.
 
 ## Core Features
 
 ### ✅ **Enhanced Citation Verification**
 - **Primary Source**: CourtListener API (fast, reliable)
+- **Citation Variants**: Automatic testing of multiple citation formats (e.g., `171 Wash. 2d 486`, `171 Wn.2d 486`, `171 Wn. 2d 486`)
 - **Washington Normalization**: `Wn.` → `Wash.` (e.g., `149 Wn.2d 647` → `149 Wash. 2d 647`)
 - **Volume Range Validation**: Comprehensive validation for all reporter series
 - **Format Analysis**: Detailed regex-based pattern matching
@@ -35,9 +46,14 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 - **Performance Tracking**: Detailed timing and statistics
 
 ### ✅ **Case Name Extraction**
-- **Context Extraction**: Extract case names from surrounding text
-- **Hinted Extraction**: Use canonical names to find context-specific mentions
-- **Date Extraction**: Extract dates from citation strings
+- **Context Extraction**: Extract case names from surrounding text using bracketed context windows
+- **Canonical Name Trimming**: Use canonical names to trim extracted case names intelligently
+- **Date Extraction**: Extract dates from citation strings and context
+
+### ✅ **Citation Clustering**
+- **Parallel Citation Detection**: Group related citations to avoid duplication
+- **Intelligent Clustering**: Citations close together with same case name and year are grouped
+- **Priority System**: Clusters take priority over individual citations
 
 ## ✅ **Canonical API Endpoints**
 
@@ -72,7 +88,7 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
       "verified": true,
       "valid": true,
       "confidence": 0.95,
-      "source": "courtlistener",
+      "source": "CourtListener (Citation-Lookup) - variant: 149 Wash. 2d 647",
       "format_analysis": {
         "format_type": "state_reporter",
         "is_valid_format": true,
@@ -135,6 +151,13 @@ The following endpoints are deprecated and should not be used in new code:
 
 ## Enhanced Features
 
+### **Citation Variant Testing**
+The system automatically generates and tests multiple citation formats to improve hit rates:
+
+- **Washington Citations**: `171 Wash. 2d 486`, `171 Wn.2d 486`, `171 Wn. 2d 486`, `171 Washington 2d 486`
+- **Federal Citations**: `410 U.S. 113`, `410 US 113`, `410 United States 113`
+- **Regional Citations**: `456 P.3d 789`, `456 P.3d 789`, `456 Pacific 3d 789`
+
 ### **Volume Range Validation**
 The system validates citation volumes against expected ranges:
 
@@ -191,34 +214,57 @@ curl -X POST http://localhost:5000/casestrainer/api/analyze \
 ```bash
 curl -X POST http://localhost:5000/casestrainer/api/analyze \
   -H "Content-Type: application/json" \
-  -d '{"text": "149 Wn.2d 647"}'
+  -d '{"text": "149 Wn.2d 647 (2003)"}'
 ```
 
-### **Text with Multiple Citations**
-```bash
-curl -X POST http://localhost:5000/casestrainer/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"text": "The court held in State v. Rohrich, 149 Wn.2d 647, and Roe v. Wade, 410 U.S. 113 (1973), that..."}'
-```
+## Processing Pipeline
 
-## Response Fields
+### **1. Citation Extraction**
+- **Regex Extraction**: Primary extraction using comprehensive patterns
+- **Eyecite Extraction**: Secondary extraction using eyecite library (if available)
+- **Context Analysis**: Extract case names and dates from surrounding text
 
-### **Core Fields**
-- `citation`: Original citation text
-- `canonical_citation`: Normalized citation (e.g., `Wn.` → `Wash.`)
-- `verified`: Whether citation was verified in CourtListener
-- `valid`: Whether citation format is valid
-- `confidence`: Confidence score (0.0-1.0)
+### **2. Citation Normalization**
+- **Washington Normalization**: Convert `Wn.` to `Wash.` formats
+- **Format Standardization**: Standardize spacing and punctuation
+- **Variant Generation**: Generate multiple citation formats for testing
 
-### **Case Information**
-- `case_name`: Extracted case name
-- `canonical_name`: Canonical case name from CourtListener
-- `extracted_case_name`: Case name extracted from context
-- `hinted_case_name`: Case name found using canonical name hints
+### **3. Citation Verification**
+- **CourtListener API**: Primary verification using citation-lookup endpoint
+- **Search API Fallback**: Secondary verification using search endpoint
+- **Web Search Fallback**: Tertiary verification using web search (if enabled)
 
-### **Date Information**
-- `extracted_date`: Date extracted from citation
-- `canonical_date`: Canonical date from CourtListener
+### **4. Citation Clustering**
+- **Parallel Detection**: Group citations that appear together
+- **Deduplication**: Remove duplicate citations
+- **Priority Assignment**: Assign priority to clusters over individual citations
 
-### **Enhanced Analysis**
-- `
+### **5. Result Enhancement**
+- **Canonical Data**: Add canonical names, dates, and URLs
+- **Confidence Scoring**: Calculate confidence scores
+- **Metadata Addition**: Add processing metadata and timing information
+
+## Error Handling
+
+The API includes comprehensive error handling:
+
+- **Graceful Degradation**: Falls back to basic processing if enhanced features fail
+- **Detailed Logging**: Comprehensive logging for debugging
+- **Validation Errors**: Clear error messages for validation failures
+- **Timeout Handling**: Proper timeout handling for external API calls
+
+## Performance Considerations
+
+- **Async Processing**: Citation processing uses async/await for better performance
+- **Thread Pool**: CPU-intensive operations use thread pools
+- **Caching**: Intelligent caching of validation results
+- **Batch Processing**: Efficient batch processing of multiple citations
+
+## Migration from Legacy System
+
+The enhanced system maintains backward compatibility:
+
+- **Legacy Endpoints**: Existing `/api/analyze` endpoint continues to work
+- **Response Format**: Enhanced responses maintain compatibility with existing frontend
+- **Gradual Migration**: Can be enabled/disabled per endpoint
+- **Fallback Support**: Falls back to legacy processing if enhanced system fails

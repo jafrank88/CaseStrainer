@@ -133,6 +133,29 @@ def validate_file_upload(f):
     return decorated_function
 
 
+def validate_file_direct(file):
+    """Direct function to validate a file object (not a decorator)."""
+    if not file:
+        return False, "No file provided"
+    
+    if file.filename == "":
+        return False, "No selected file"
+    
+    # Check file extension
+    allowed_extensions = ALLOWED_EXTENSIONS
+    if (
+        "." not in file.filename
+        or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
+    ):
+        return False, f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+    
+    # Check file size (50MB limit)
+    if hasattr(file, 'content_length') and file.content_length > 50 * 1024 * 1024:
+        return False, "File size must be less than 50MB"
+    
+    return True, ""
+
+
 def validate_text_input(text):
     """Validate that the text input is a non-empty, reasonable-length string with no control characters."""
     if not isinstance(text, str) or not text.strip():

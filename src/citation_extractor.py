@@ -4,17 +4,15 @@ Citation Extractor Module
 
 This module provides citation extraction and processing capabilities.
 
-DEPRECATED: This module is deprecated. All functionality has been integrated
-into the unified pipeline (UnifiedCitationProcessor). Use the unified processor
-instead.
+DEPRECATED: This module is deprecated in favor of src/unified_citation_processor_v2.py
+Use UnifiedCitationProcessorV2 instead for all new development.
 
 This module will be removed in a future version.
 """
 
 import warnings
 warnings.warn(
-    "src.citation_extractor is deprecated. All functionality has been integrated "
-    "into UnifiedCitationProcessor. Use the unified pipeline instead.",
+    "CitationExtractor is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
     DeprecationWarning,
     stacklevel=2
 )
@@ -40,7 +38,7 @@ except ImportError:
     EYECITE_AVAILABLE = False
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from src.extract_case_name import (
     extract_case_name_triple_from_text, 
     extract_case_name_from_context_unified,
@@ -601,7 +599,7 @@ def extract_all_citations(text: str, logger=None) -> List[Dict]:
 
 def verify_citation(citation: str, use_enhanced: bool = True) -> dict:
     """Verify a citation using the unified workflow (verify_citation_unified_workflow)."""
-    verifier = EnhancedMultiSourceVerifier()
+    verifier = UnifiedCitationProcessor()
     return verifier.verify_citation_unified_workflow(citation)
 
 def extract_case_name_from_line(line):

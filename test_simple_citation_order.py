@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from unified_citation_processor import UnifiedCitationProcessor
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
 def test_simple_citation_order():
     """Test citation extraction and ordering without verification."""

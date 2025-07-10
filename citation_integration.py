@@ -16,17 +16,16 @@ import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import the enhanced processor
-from src.unified_citation_processor import UnifiedCitationProcessor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.unified_citation_processor import CitationProcessor
+from src.courtlistener_integration import setup_courtlistener_api
 
 # Import existing citation verification modules
 try:
-    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-    from src.citation_processor import CitationProcessor
-    from src.courtlistener_integration import setup_courtlistener_api
+    UnifiedCitationProcessor = UnifiedCitationProcessor
 except ImportError as e:
     print(f"Warning: Could not import existing modules: {e}")
-    EnhancedMultiSourceVerifier = None
-    CitationProcessor = None
+    UnifiedCitationProcessor = None
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +40,9 @@ class IntegratedCitationProcessor:
         self.existing_verifier = None
         self.citation_processor = None
         
-        if EnhancedMultiSourceVerifier:
+        if UnifiedCitationProcessor:
             try:
-                self.existing_verifier = EnhancedMultiSourceVerifier()
+                self.existing_verifier = UnifiedCitationProcessor()
                 logger.info("EnhancedMultiSourceVerifier initialized successfully")
             except Exception as e:
                 logger.warning(f"Could not initialize EnhancedMultiSourceVerifier: {e}")

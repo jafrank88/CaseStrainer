@@ -389,7 +389,7 @@ function Start-DockerProduction {
         # Start containers
         if ($PSCmdlet.ShouldProcess("Docker containers", "Start")) {
             Write-Host "`nStarting Docker containers..." -ForegroundColor Cyan
-            $startProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "up", "-d" -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+            $startProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "up", "-d", "--build" -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
             
             if ($startProcess.ExitCode -eq 0) {
                 Write-Host "OK Docker containers started successfully" -ForegroundColor Green

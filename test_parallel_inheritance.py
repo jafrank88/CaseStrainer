@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from document_processing import extract_and_verify_citations
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 import logging
 
 # Set up debug logging

@@ -1,0 +1,1 @@
+        $composeArgs = "-f", $dockerComposeFile, "up", "-d", "--build", "--build" 

@@ -32,7 +32,8 @@ def allowed_file(filename):
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)
 
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+# Import removed - EnhancedMultiSourceVerifier was deleted
+# Using unified citation processor instead
 
 def log_citation_verification(citation, result):
     """
@@ -57,8 +58,8 @@ from src.config import COURTLISTENER_API_KEY
 import re
 from src.citation_format_utils import apply_washington_spacing_rules
 
-# Updated: Use the unified verify_citation from enhanced_multi_source_verifier for all verification
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+# Updated: Use the unified citation processor for all verification
+# from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier  # Removed - module deleted
 
 def normalize_citation_text(citation_text):
     """
@@ -125,12 +126,19 @@ def verify_citation(
     timeout=15,
     extracted_case_name=None
 ):
-    """Verify a citation using the unified EnhancedMultiSourceVerifier workflow (verify_citation_unified_workflow)."""
-    verifier = EnhancedMultiSourceVerifier()
-    return verifier.verify_citation_unified_workflow(
-        citation,
-        extracted_case_name=extracted_case_name
-    )
+    """Verify a citation using the unified citation processor."""
+    try:
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        processor = UnifiedCitationProcessor()
+        return processor.verify_citation(citation, extracted_case_name=extracted_case_name)
+    except ImportError:
+        # Fallback to basic verification
+        logger.warning("Unified citation processor not available, using fallback")
+        return {
+            "citation": citation,
+            "verified": False,
+            "error": "Citation processor not available"
+        }
 
 
 def extract_citations_from_file(filepath, logger=logger):
@@ -566,8 +574,8 @@ def batch_validate_citations_optimized(citations, api_key=None):
     def validate_single_citation(citation):
         try:
             # Try primary verification method first (CourtListener API)
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             
             # If successful, return immediately (no need to try other methods)
@@ -662,8 +670,8 @@ def batch_validate_citations(citations, api_key=None):
     results = []
     for citation in cleaned_citations:
         try:
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            verifier = EnhancedMultiSourceVerifier()
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             results.append(
                 {
@@ -825,7 +833,7 @@ def extract_all_citations(text, logger=logger):
     Returns:
         List of citation dictionaries with metadata
     """
-    from src.citation_extractor import CitationExtractor
+    # DEPRECATED: from src.citation_extractor import CitationExtractor
     
     # Initialize extractor with case name extraction enabled
     extractor = CitationExtractor(

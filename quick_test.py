@@ -1,67 +1,47 @@
 #!/usr/bin/env python3
-"""
-Quick test for PDF file
-"""
+"""Quick test to see what extract_case_name_triple returns"""
 
-import os
 import sys
+from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+# Add project root to path
+project_root = Path(__file__).parent.resolve()
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-def main():
-    print("🧪 Quick PDF Test")
-    print("=" * 30)
+from src.case_name_extraction_core import extract_case_name_triple
+
+def test_extract_function():
+    """Test what extract_case_name_triple actually returns"""
     
-    # Check if file exists
-    pdf_path = "gov.uscourts.wyd.64014.141.0_1.pdf"
-    if os.path.exists(pdf_path):
-        print(f"✅ File exists: {pdf_path}")
-        print(f"📁 File size: {os.path.getsize(pdf_path)} bytes")
-    else:
-        print(f"❌ File not found: {pdf_path}")
-        return
+    sample_text = 'Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions'
+    citation = '200 Wn.2d 72, 73, 514 P.3d 643'
     
-    # Try to import and test extraction
+    print('Testing extract_case_name_triple:')
+    print(f'Input text: {sample_text}')
+    print(f'Citation: {citation}')
+    print()
+    
     try:
-        print("\n📖 Testing imports...")
-        from file_utils import extract_text_from_file
-        print("✅ file_utils imported successfully")
+        result = extract_case_name_triple(
+            text=sample_text, 
+            citation=citation, 
+            api_key=None, 
+            context_window=200
+        )
         
-        from citation_utils import extract_all_citations
-        print("✅ citation_utils imported successfully")
+        print(f'Result type: {type(result)}')
+        print(f'Result: {result}')
         
-        print("\n📖 Extracting text from PDF...")
-        text = extract_text_from_file(pdf_path)
-        
-        if text:
-            print(f"✅ Text extraction successful!")
-            print(f"📝 Text length: {len(text)} characters")
-            print(f"📄 First 200 characters:")
-            print("-" * 40)
-            print(text[:200])
-            print("-" * 40)
-            
-            print("\n🔍 Extracting citations...")
-            citations = extract_all_citations(text)
-            print(f"📚 Found {len(citations)} citations")
-            
-            if citations:
-                print("\n📋 Citations found:")
-                for i, citation in enumerate(citations[:5], 1):  # Show first 5
-                    print(f"  {i}. {citation}")
-                if len(citations) > 5:
-                    print(f"  ... and {len(citations) - 5} more")
-            else:
-                print("📚 No citations found")
-                
+        if result:
+            print(f'Keys: {list(result.keys())}')
+            for key, value in result.items():
+                print(f'  {key}: "{value}"')
         else:
-            print("❌ No text extracted")
+            print('Result is None or empty')
             
     except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f'Error: {e}')
 
 if __name__ == "__main__":
-    main()
+    test_extract_function()

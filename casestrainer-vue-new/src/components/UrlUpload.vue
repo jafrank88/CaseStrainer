@@ -804,33 +804,32 @@ export default {
 }
 
 .analyze-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: #1976d2;
+  color: #fff;
   border: none;
-  border-radius: 1.5rem;
-  padding: 1.25rem 2rem;
+  border-radius: 8px;
+  padding: 14px 36px;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: bold;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: 24px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.12);
+  transition: background 0.2s, box-shadow 0.2s;
+  display: block;
   width: 100%;
-  margin-bottom: 1rem;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
 }
-
-.analyze-btn:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+.analyze-btn:hover:not(:disabled),
+.analyze-btn:focus:not(:disabled) {
+  background: #1565c0;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
 }
-
-.analyze-btn.disabled {
-  background: var(--text-secondary);
-  box-shadow: none;
+.analyze-btn:disabled {
+  background: #bdbdbd;
   cursor: not-allowed;
-  transform: none;
+  opacity: 0.7;
 }
 
 .analyze-info {

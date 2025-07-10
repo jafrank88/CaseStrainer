@@ -16,6 +16,7 @@ for the Multitool Confirmed and Unconfirmed Citations tabs.
 """
 
 import logging
+logger = logging.getLogger(__name__)
 import sys
 import os
 import traceback
@@ -49,106 +50,223 @@ import asyncio
 from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 import requests
+import sqlite3
 from src.citation_utils import extract_all_citations
 from src.file_utils import extract_text_from_file
 from src.citation_utils import deduplicate_citations
 from src.enhanced_validator_production import make_error_response
 import tempfile
-# Use EnhancedMultiSourceVerifier for multi-source citation verification
-# try:
-#     from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-#     CitationVerifier = EnhancedMultiSourceVerifier  # Alias for compatibility
-#     logger.info("Using EnhancedMultiSourceVerifier for multi-source citation verification")
-# except ImportError as e:
-#     logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
-#     logger.warning("Falling back to CitationVerifier")
-#     from citation_verification import CitationVerifier
-from rq import Queue
-from redis import Redis
-from rq import get_current_job
-from src.citation_processor import CaseStrainerCitationProcessor as CitationProcessor
-import sqlite3
-import redis
-import threading
-# Removed extract_and_verify_citations import - now handled by CitationService
-from src.config import ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
-from src.api_validation import validate_file_upload, validate_text_input, validate_url_input
 
-# Import the new CitationService
-from src.api.services.citation_service import CitationService
+# Redis imports
+try:
+    from redis import Redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
+    Redis = None
+    logger.warning("Redis not available - install with: pip install redis")
 
-# PATCH: Disable RQ death penalty on Windows before any RQ import
-import os
-if os.name == 'nt':  # Windows
-    os.environ['RQ_DISABLE_SIGALRM'] = '1'
+# RQ imports
+try:
+    from rq import Queue, Worker
+    RQ_AVAILABLE = True
+except ImportError:
+    RQ_AVAILABLE = False
+    logger.warning("RQ not available - install with: pip install rq")
 
-# Configure logging first, before anything else
-def configure_logging():
-    """Configure logging for the application using centralized configuration."""
+# CitationService import
+try:
+    from src.api.services.citation_service import CitationService
+    CITATION_SERVICE_AVAILABLE = True
+    logger.info("CitationService imported successfully")
+except ImportError as e:
+    logger.warning(f"CitationService not available: {e}")
+    CITATION_SERVICE_AVAILABLE = False
+
+# Input validation functions
+def validate_file_direct(file):
+    """
+    Validate uploaded file directly.
+    
+    Args:
+        file: Flask file object
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    if not file:
+        return False, "No file provided"
+    
+    if not file.filename:
+        return False, "No filename provided"
+    
+    # Check file size (50MB limit)
+    file.seek(0, 2)  # Seek to end
+    file_size = file.tell()
+    file.seek(0)  # Reset to beginning
+    
+    if file_size > 50 * 1024 * 1024:  # 50MB
+        return False, "File size exceeds 50MB limit"
+    
+    # Check file extension
+    allowed_extensions = {'.pdf', '.doc', '.docx', '.txt', '.html', '.htm', '.rtf'}
+    file_ext = os.path.splitext(file.filename.lower())[1]
+    
+    if file_ext not in allowed_extensions:
+        return False, f"Unsupported file type: {file_ext}. Supported types: {', '.join(allowed_extensions)}"
+    
+    # Check MIME type
+    mime_type, _ = mimetypes.guess_type(file.filename)
+    if mime_type:
+        allowed_mime_types = {
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+            'text/html',
+            'application/rtf'
+        }
+        if mime_type not in allowed_mime_types:
+            return False, f"Unsupported MIME type: {mime_type}"
+    
+    return True, ""
+
+def validate_text_input(text):
+    """
+    Validate text input.
+    
+    Args:
+        text: Text string to validate
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    if not text:
+        return False, "No text provided"
+    
+    if not isinstance(text, str):
+        return False, "Text must be a string"
+    
+    # Check minimum length (10 characters)
+    if len(text.strip()) < 10:
+        return False, "Text must be at least 10 characters long"
+    
+    # Check maximum length (1MB)
+    if len(text) > 1024 * 1024:  # 1MB
+        return False, "Text exceeds 1MB limit"
+    
+    # Check for non-printable characters (except newlines and tabs)
+    import string
+    printable_chars = set(string.printable)
+    non_printable_count = sum(1 for char in text if char not in printable_chars)
+    if non_printable_count > len(text) * 0.1:  # More than 10% non-printable
+        return False, "Text contains too many non-printable characters"
+    
+    return True, ""
+
+def validate_url_input(url):
+    """
+    Validate URL input.
+    
+    Args:
+        url: URL string to validate
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    if not url:
+        return False, "No URL provided"
+    
+    if not isinstance(url, str):
+        return False, "URL must be a string"
+    
+    # Check URL length
+    if len(url) > 2048:
+        return False, "URL exceeds 2048 character limit"
+    
+    # Basic URL format validation
     try:
-        # Import and use the centralized logging configuration
-        from src.config import configure_logging as config_configure_logging
-        config_configure_logging()
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
         
-        # Create logger for this module
-        logger = logging.getLogger(__name__)
-        logger.info("=== Logging Configuration ===")
-        logger.info(f"Python version: {sys.version}")
-        logger.info(f"Working directory: {os.getcwd()}")
+        if not parsed.scheme:
+            return False, "URL must include a protocol (http:// or https://)"
         
-        return logger
+        if parsed.scheme not in ['http', 'https']:
+            return False, "URL must use HTTP or HTTPS protocol"
+        
+        if not parsed.netloc:
+            return False, "URL must include a valid domain"
+        
+        # Check for localhost or private IP addresses
+        if parsed.hostname in ['localhost', '127.0.0.1', '::1']:
+            return False, "Localhost URLs are not allowed"
+        
+        # Check for private IP ranges
+        if parsed.hostname:
+            try:
+                import ipaddress
+                ip = ipaddress.ip_address(parsed.hostname)
+                if ip.is_private:
+                    return False, "Private IP addresses are not allowed"
+            except ValueError:
+                # Not an IP address, which is fine
+                pass
         
     except Exception as e:
-        print(f"Failed to configure logging: {str(e)}")
-        # Fallback to basic logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s | %(levelname)s | %(message)s'
-        )
-        return logging.getLogger(__name__)
+        return False, f"Invalid URL format: {str(e)}"
+    
+    return True, ""
 
-# Configure logging and get logger
-logger = configure_logging()
+# Use UnifiedCitationProcessor for multi-source citation verification
+try:
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+    CitationVerifier = UnifiedCitationProcessor  # Alias for compatibility
+    logger.info("Using UnifiedCitationProcessor for multi-source citation verification")
+except ImportError as e:
+    logger.warning(f"Could not import UnifiedCitationProcessor: {e}")
+    logger.warning("Falling back to CitationVerifier")
+    from src.citation_verification import CitationVerifier
+    RateLimitError = Exception  # Fallback for compatibility
 
-logger.info("=== Backend Startup ===")
-logger.info("Importing required modules...")
+# Place log_json_responses here, before blueprint registration
 
-# Add Flask after_request handler to log all JSON responses
 def log_json_responses(response):
     """
     Flask after_request handler to log all JSON responses before they are sent to the frontend.
-    This ensures we capture all JSON output regardless of which endpoint generates it.
     """
     try:
         # Only log JSON responses
         if response.content_type == 'application/json':
             # Get the response data
             response_data = response.get_data(as_text=True)
-            
-            # Limit response data to 200 characters for logging
-            truncated_data = response_data[:200] + "..." if len(response_data) > 200 else response_data
-            
-            # Log minimal information
-            logger.info(f"[RESPONSE] {request.method} {request.endpoint} -> {response.status_code} ({len(response_data)} chars)")
-            if len(response_data) > 200:
-                logger.info(f"[RESPONSE] Body (truncated): {truncated_data}")
-                
+            # Try to parse and pretty-print the JSON for better logging
+            try:
+                import json
+                parsed_data = json.loads(response_data)
+                formatted_json = json.dumps(parsed_data, indent=2, ensure_ascii=False)
+                # Log the response with context
+                logger.info("=" * 80)
+                logger.info("JSON RESPONSE BEING SENT TO FRONTEND")
+                logger.info("=" * 80)
+                logger.info(f"Endpoint: {request.endpoint}")
+                logger.info(f"Method: {request.method}")
+                logger.info(f"URL: {request.url}")
+                logger.info(f"Status Code: {response.status_code}")
+                logger.info(f"Content-Type: {response.content_type}")
+                logger.info(f"Response Size: {len(response_data)} characters")
+                logger.info("-" * 80)
+                logger.info("RESPONSE BODY:")
+                logger.info(formatted_json)
+                logger.info("=" * 80)
+            except json.JSONDecodeError:
+                # If JSON parsing fails, log the raw response
+                logger.warning("Failed to parse JSON response, logging raw data:")
+                logger.info(f"Raw response: {response_data}")
         return response
-        
     except Exception as e:
         logger.error(f"Error in log_json_responses: {str(e)}")
         return response
-
-# Use EnhancedMultiSourceVerifier for multi-source citation verification
-try:
-    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier, RateLimitError
-    CitationVerifier = EnhancedMultiSourceVerifier  # Alias for compatibility
-    logger.info("Using EnhancedMultiSourceVerifier for multi-source citation verification")
-except ImportError as e:
-    logger.warning(f"Could not import EnhancedMultiSourceVerifier: {e}")
-    logger.warning("Falling back to CitationVerifier")
-    from src.citation_verification import CitationVerifier
-    RateLimitError = Exception  # Fallback for compatibility
 
 try:
     # Create Blueprint instead of Flask app
@@ -186,31 +304,32 @@ try:
     WORKER_LABEL = ""  # Remove misleading [DEV] labels
     
     # Redis configuration
-    try:
-        # Use REDIS_URL environment variable if available, otherwise fallback to localhost
-        # Use standard Redis port 6379 for all environments
-        default_redis_url = 'redis://casestrainer-redis-prod:6379/0'
-        redis_url = os.environ.get('REDIS_URL', default_redis_url)
-        if redis_url.startswith('redis://'):
-            # Parse redis://host:port/db format
-            from urllib.parse import urlparse
-            parsed = urlparse(redis_url)
-            redis_host = parsed.hostname or 'localhost'
-            redis_port = parsed.port or 6379
-            redis_db = int(parsed.path.lstrip('/')) if parsed.path else 0
-        else:
-            # Fallback to localhost
-            redis_host = 'localhost'
-            redis_port = 6379
-            redis_db = 0
-            
-        redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
-        redis_conn.ping()  # Test connection
-        REDIS_AVAILABLE = True
-        logger.info(f"[REDIS] Redis connection successful to {redis_host}:{redis_port}")
-    except Exception as e:
-        logger.warning(f"[REDIS] Redis not available: {e}")
-        REDIS_AVAILABLE = False
+    if REDIS_AVAILABLE:
+        try:
+            # Use REDIS_URL environment variable if available, otherwise fallback to localhost
+            # Use standard Redis port 6379 for all environments
+            default_redis_url = 'redis://casestrainer-redis-prod:6379/0'
+            redis_url = os.environ.get('REDIS_URL', default_redis_url)
+            if redis_url.startswith('redis://'):
+                # Parse redis://host:port/db format
+                from urllib.parse import urlparse
+                parsed = urlparse(redis_url)
+                redis_host = parsed.hostname or 'localhost'
+                redis_port = parsed.port or 6379
+                redis_db = int(parsed.path.lstrip('/')) if parsed.path else 0
+            else:
+                # Fallback to localhost
+                redis_host = 'localhost'
+                redis_port = 6379
+                redis_db = 0
+                
+            redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
+            redis_conn.ping()  # Test connection
+            logger.info(f"[REDIS] Redis connection successful to {redis_host}:{redis_port}")
+        except Exception as e:
+            logger.warning(f"[REDIS] Redis connection failed: {e}")
+            redis_conn = None
+    else:
         redis_conn = None
     
     # Set Redis task tracking based on Redis availability
@@ -230,6 +349,8 @@ except Exception as e:
     raise
 
 def check_redis():
+    if not REDIS_AVAILABLE or redis_conn is None:
+        return "down"
     try:
         # Add timeout to prevent hanging
         redis_conn.ping()
@@ -768,6 +889,11 @@ def process_citation_task(task_id: str, task_type: str, task_data: dict):
     logger.info(f"[TASK] Processing {task_type} task {task_id}")
     
     try:
+        if not CITATION_SERVICE_AVAILABLE:
+            logger.error("[TASK] CitationService not available")
+            set_task_status(task_id, 'failed', {'error': 'CitationService not available'})
+            return {'status': 'failed', 'error': 'CitationService not available'}
+        
         # Use the extracted service
         citation_service = CitationService()
         result = citation_service.process_citation_task(task_id, task_type, task_data)
@@ -853,6 +979,12 @@ def analyze():
         current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Assigned task ID: {task_id}")
 
         # Initialize citation service
+        if not CITATION_SERVICE_AVAILABLE:
+            return jsonify({
+                'status': 'error',
+                'message': 'CitationService not available'
+            }), 500
+        
         citation_service = CitationService()
 
         # Handle file upload
@@ -864,7 +996,7 @@ def analyze():
                     'message': 'No file provided'
                 }), 400
             # Comprehensive file validation
-            is_valid, error_message = validate_file_upload(file)
+            is_valid, error_message = validate_file_direct(file)
             if not is_valid:
                 return jsonify({
                     'status': 'error',
@@ -876,7 +1008,11 @@ def analyze():
             try:
                 # Save uploaded file to shared uploads directory instead of temp file
                 unique_filename = f"{uuid.uuid4()}{file_ext}"
-                temp_file_path = os.path.join('/app/uploads', unique_filename)
+                # Use relative path to uploads directory in project root
+                uploads_dir = os.path.join(os.getcwd(), 'uploads')
+                if not os.path.exists(uploads_dir):
+                    os.makedirs(uploads_dir, exist_ok=True)
+                temp_file_path = os.path.join(uploads_dir, unique_filename)
                 file.save(temp_file_path)
                 # Add task to queue
                 task = {
@@ -970,6 +1106,14 @@ def analyze():
                 if result.get('status') == 'error':
                     return jsonify(result), 500
                 
+                # DEBUG: Log the result before returning to frontend
+                logger.info(f"[ANALYZE] DEBUG - Result status: {result.get('status')}")
+                if result.get('citations'):
+                    for i, citation in enumerate(result['citations']):
+                        logger.info(f"[ANALYZE] DEBUG - Citation {i}: extracted_case_name='{citation.get('extracted_case_name')}', extracted_date='{citation.get('extracted_date')}', canonical_name='{citation.get('canonical_name')}', canonical_date='{citation.get('canonical_date')}'")
+                else:
+                    logger.info(f"[ANALYZE] DEBUG - No citations in result")
+                
                 # Return immediate response
                 return jsonify(result)
             
@@ -1017,6 +1161,14 @@ def analyze():
                     try:
                         result = process_citation_task(task_id, 'text', task['data'])
                         if result and result.get('status') == 'success':
+                            # DEBUG: Log the result before returning to frontend
+                            logger.info(f"[ANALYZE] DEBUG - Text task result status: {result.get('status')}")
+                            if result.get('citations'):
+                                for i, citation in enumerate(result['citations']):
+                                    logger.info(f"[ANALYZE] DEBUG - Text Citation {i}: extracted_case_name='{citation.get('extracted_case_name')}', extracted_date='{citation.get('extracted_date')}', canonical_name='{citation.get('canonical_name')}', canonical_date='{citation.get('canonical_date')}'")
+                            else:
+                                logger.info(f"[ANALYZE] DEBUG - No citations in text task result")
+                            
                             return jsonify({
                                 'status': 'completed',
                                 'task_id': task_id,
@@ -1104,6 +1256,14 @@ def analyze():
                 try:
                     result = process_citation_task(task_id, 'url', task['data'])
                     if result and result.get('status') == 'success':
+                        # DEBUG: Log the result before returning to frontend
+                        logger.info(f"[ANALYZE] DEBUG - URL task result status: {result.get('status')}")
+                        if result.get('citations'):
+                            for i, citation in enumerate(result['citations']):
+                                logger.info(f"[ANALYZE] DEBUG - URL Citation {i}: extracted_case_name='{citation.get('extracted_case_name')}', extracted_date='{citation.get('extracted_date')}', canonical_name='{citation.get('canonical_name')}', canonical_date='{citation.get('canonical_date')}'")
+                        else:
+                            logger.info(f"[ANALYZE] DEBUG - No citations in URL task result")
+                        
                         return jsonify({
                             'status': 'completed',
                             'task_id': task_id,

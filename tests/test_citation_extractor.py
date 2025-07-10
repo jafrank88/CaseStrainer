@@ -1,5 +1,5 @@
 import pytest
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: from src.citation_extractor import CitationExtractor
 
 # Fixture: sample text with citations (eyecite and regex)
 @pytest.fixture

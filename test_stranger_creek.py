@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append('src')
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 import logging
 
 # Set up logging
@@ -18,7 +18,7 @@ def test_stranger_creek():
     """Test different formats of the Stranger Creek citation"""
     
     # Initialize verifier
-    verifier = EnhancedMultiSourceVerifier()
+    processor = UnifiedCitationProcessor()
     
     # Test different citation formats
     test_citations = [
@@ -36,7 +36,7 @@ def test_stranger_creek():
         print(f"\n{i}. Testing: {citation}")
         
         # Test CourtListener lookup
-        lookup_result = verifier._lookup_citation(citation)
+        lookup_result = processor._lookup_citation(citation)
         print(f"   Lookup result: {lookup_result.get('verified', False)}")
         
         if lookup_result.get('verified'):
@@ -47,7 +47,7 @@ def test_stranger_creek():
             print(f"   Error: {lookup_result.get('error', 'N/A')}")
         
         # Test exact search
-        search_result = verifier._search_courtlistener_exact(citation)
+        search_result = processor._search_courtlistener_exact(citation)
         print(f"   Search result: {search_result.get('verified', False)}")
         
         if search_result.get('verified'):

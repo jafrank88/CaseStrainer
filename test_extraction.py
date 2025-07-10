@@ -1,110 +1,100 @@
 #!/usr/bin/env python3
-"""
-Test script to verify extracted name, extracted date, and hinted extraction functionality.
-"""
+"""Simple test to see what extract_case_name_triple returns and test verify_citation_with_extraction"""
 
 import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+from pathlib import Path
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-from enhanced_citation_extractor import EnhancedCitationExtractor
+# Add project root to path
+project_root = Path(__file__).parent.resolve()
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-def test_extraction_workflow():
-    """Test the extraction workflow with a known citation."""
-    print("Testing extraction workflow...")
-    
-    # Initialize verifier
-    verifier = EnhancedMultiSourceVerifier()
-    
-    # Test with the user-provided citation and extracted/hinted names
-    citation = "199 Wn. App. 280, 283, 399 P.3d 1195 (2017)"
-    extracted_name = "John Doe P v. Thurston County"
-    hinted_name = "Thurston County"
-    
-    print(f"Citation: {citation}")
-    print(f"Extracted name: {extracted_name}")
-    print(f"Hinted name: {hinted_name}")
-    print("-" * 50)
-    
-    # Run the verification workflow
-    result = verifier.verify_citation_unified_workflow(
-        citation, 
-        extracted_case_name=extracted_name, 
-        hinted_case_name=hinted_name
-    )
-    
-    # Display results
-    print("RESULTS:")
-    print(f"Verified: {result.get('verified')}")
-    print(f"Extracted case name: {result.get('extracted_case_name')}")
-    print(f"Hinted case name: {result.get('hinted_case_name')}")
-    print(f"Final case name: {result.get('case_name')}")
-    print(f"Canonical name: {result.get('canonical_name')}")
-    print(f"Canonical date: {result.get('canonical_date')}")
-    print(f"URL: {result.get('url')}")
-    print(f"Source: {result.get('source')}")
-    print(f"Verification method: {result.get('verification_method')}")
-    
-    # Check if extraction is working
-    print("\nEXTRACTION STATUS:")
-    if result.get('extracted_case_name') == extracted_name:
-        print("✅ Extracted name is preserved")
-    else:
-        print("❌ Extracted name is missing or incorrect")
-        
-    if result.get('hinted_case_name') == hinted_name:
-        print("✅ Hinted name is preserved")
-    else:
-        print("❌ Hinted name is missing or incorrect")
-        
-    if result.get('canonical_date'):
-        print("✅ Canonical date is extracted")
-    else:
-        print("❌ Canonical date is missing")
-        
-    if result.get('case_name') and result.get('case_name') != "Unknown Case":
-        print("✅ Final case name is properly set")
-    else:
-        print("❌ Final case name is missing or incorrect")
+from src.case_name_extraction_core import extract_case_name_triple
 
-def test_extraction():
-    extractor = EnhancedCitationExtractor()
+def test_extract_function():
+    """Test what extract_case_name_triple actually returns"""
     
-    # Test with the Washington Supreme Court citation
-    test_text = "Seattle Times Co. v. Ishikawa, 97 Wn.2d 30, 640 P.2d 716 (1982)"
+    sample_text = 'Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions'
+    citation = '200 Wn.2d 72, 73, 514 P.3d 643'
     
-    print("Testing citation extraction...")
-    print(f"Input text: {test_text}")
+    print('Testing extract_case_name_triple:')
+    print(f'Input text: {sample_text}')
+    print(f'Citation: {citation}')
+    print()
     
-    citations = extractor.extract_complex_citations(test_text)
+    try:
+        result = extract_case_name_triple(
+            text=sample_text, 
+            citation=citation, 
+            api_key=None, 
+            context_window=200
+        )
+        
+        print(f'Result type: {type(result)}')
+        print(f'Result: {result}')
+        
+        if result:
+            print(f'Keys: {list(result.keys())}')
+            for key, value in result.items():
+                print(f'  {key}: "{value}"')
+        else:
+            print('Result is None or False')
+            
+    except Exception as e:
+        print(f'Error: {e}')
+        import traceback
+        traceback.print_exc()
+
+def test_verify_function():
+    """Test verify_citation_with_extraction directly"""
+    print("\n" + "="*60)
+    print("Testing verify_citation_with_extraction directly:")
     
-    print(f"\nFound {len(citations)} citations:")
-    
-    for i, citation in enumerate(citations):
-        print(f"\nCitation {i+1}:")
-        print(f"  Case Name: {citation.case_name}")
-        print(f"  Primary Citation: {citation.primary_citation}")
-        print(f"  Parallel Citations: {citation.parallel_citations}")
-        print(f"  Is Complex: {len(citation.parallel_citations) > 1 or len(citation.case_history) > 0}")
-    
-    # Test with a more complex citation that should have parallels
-    complex_text = "Seattle Times Co. v. Ishikawa, 97 Wn.2d 30, 640 P.2d 716, 8 Media L. Rep. (BNA) 1041 (1982)"
-    
-    print(f"\n\nTesting complex citation extraction...")
-    print(f"Input text: {complex_text}")
-    
-    complex_citations = extractor.extract_complex_citations(complex_text)
-    
-    print(f"\nFound {len(complex_citations)} citations:")
-    
-    for i, citation in enumerate(complex_citations):
-        print(f"\nCitation {i+1}:")
-        print(f"  Case Name: {citation.case_name}")
-        print(f"  Primary Citation: {citation.primary_citation}")
-        print(f"  Parallel Citations: {citation.parallel_citations}")
-        print(f"  Is Complex: {len(citation.parallel_citations) > 1 or len(citation.case_history) > 0}")
+    try:
+        # Import the function from your app
+        from src.app_final_vue import verify_citation_with_extraction
+        
+        sample_text = 'Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions'
+        citation = '200 Wn.2d 72, 73, 514 P.3d 643'
+        
+        print(f'Input text: {sample_text}')
+        print(f'Citation: {citation}')
+        print()
+        
+        result = verify_citation_with_extraction(
+            citation_text=citation,
+            document_text=sample_text,
+            api_key=None
+        )
+        
+        print(f"verify_citation_with_extraction result:")
+        print(f"  Type: {type(result)}")
+        print(f"  extracted_case_name: '{result.get('extracted_case_name', 'MISSING')}'")
+        print(f"  extracted_date: '{result.get('extracted_date', 'MISSING')}'")
+        print(f"  canonical_name: '{result.get('canonical_name', 'MISSING')}'")
+        print(f"  canonical_date: '{result.get('canonical_date', 'MISSING')}'")
+        print(f"  verified: '{result.get('verified', 'MISSING')}'")
+        print(f"  error: '{result.get('error', 'MISSING')}'")
+        
+        # Check if the mapping worked
+        if result.get('extracted_case_name') == 'EXTRACTED_FAKE_NAME_Y':
+            print("✅ SUCCESS: extracted_case_name mapped correctly!")
+        else:
+            print(f"❌ FAILED: extracted_case_name is '{result.get('extracted_case_name')}' instead of 'EXTRACTED_FAKE_NAME_Y'")
+            
+        if result.get('extracted_date') == '2099-12-31':
+            print("✅ SUCCESS: extracted_date mapped correctly!")
+        else:
+            print(f"❌ FAILED: extracted_date is '{result.get('extracted_date')}' instead of '2099-12-31'")
+            
+    except Exception as e:
+        print(f'Error testing verify_citation_with_extraction: {e}')
+        import traceback
+        traceback.print_exc()
+
+def main():
+    test_extract_function()
+    test_verify_function()
 
 if __name__ == "__main__":
-    test_extraction_workflow()
-    test_extraction() 
+    main() 

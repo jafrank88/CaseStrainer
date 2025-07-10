@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import citation processing modules
 try:
-    from src.citation_extractor import CitationExtractor
+    # DEPRECATED: from src.citation_extractor import CitationExtractor
     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
     from src.database_manager import DatabaseManager
     print("✅ Successfully imported citation processing modules")

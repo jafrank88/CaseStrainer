@@ -35,8 +35,8 @@ except ImportError:
 
 # Import existing processing modules
 from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
-from src.citation_extractor import CitationExtractor
-from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
+# DEPRECATED: from src.citation_extractor import CitationExtractor
+# DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
 
 logger = logging.getLogger(__name__)
 
@@ -373,7 +373,7 @@ def process_document(
         # Extract citations and case names using the enhanced extraction logic
         try:
             # Use the enhanced citation extractor with case name and date extraction
-            from src.citation_extractor import CitationExtractor
+            # DEPRECATED: from src.citation_extractor import CitationExtractor
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             
             # Extract citations with case names and dates

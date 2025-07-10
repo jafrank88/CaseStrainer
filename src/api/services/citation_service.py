@@ -15,14 +15,22 @@ from datetime import datetime
 # Import configuration
 from src.config import get_citation_config, get_external_api_config, get_file_config
 
-# Import your existing processors
+# Import the new unified citation processor V2
+try:
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    UNIFIED_PROCESSOR_V2_AVAILABLE = True
+    logging.info("UnifiedCitationProcessorV2 available")
+except ImportError as e:
+    UNIFIED_PROCESSOR_V2_AVAILABLE = False
+    logging.warning(f"UnifiedCitationProcessorV2 not available: {e}")
+
+# Import your existing processors as fallbacks
 try:
     from src.document_processing import enhanced_processor
     ENHANCED_PROCESSOR_AVAILABLE = True
 except ImportError:
-    from src.document_processing import process_document
     ENHANCED_PROCESSOR_AVAILABLE = False
-    logging.warning("Enhanced processor not available, using fallback")
+    logging.warning("Enhanced processor not available")
 
 try:
     from src.unified_citation_processor import unified_processor
@@ -30,6 +38,19 @@ try:
 except ImportError:
     UNIFIED_PROCESSOR_AVAILABLE = False
     logging.warning("Unified processor not available")
+
+# Try to import the new unified document processor
+try:
+    from src.document_processing_unified import process_document
+    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = True
+except ImportError:
+    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = False
+    # Fallback to original document processing
+    try:
+        from src.document_processing import process_document
+    except ImportError:
+        process_document = None
+        logging.warning("No document processor available")
 
 class CitationService:
     """
@@ -48,12 +69,26 @@ class CitationService:
         self.logger.info(f"CitationService initialized with config: {self.citation_config}")
         
         # Initialize the best available processor
-        if ENHANCED_PROCESSOR_AVAILABLE:
+        if UNIFIED_PROCESSOR_V2_AVAILABLE:
+            # Use the new UnifiedCitationProcessorV2 as primary processor
+            config = ProcessingConfig(
+                use_eyecite=True,
+                use_regex=True,
+                extract_case_names=True,
+                extract_dates=True,
+                enable_clustering=True,
+                enable_deduplication=True,
+                debug_mode=True,
+                min_confidence=0.0  # Force all citations to be included
+            )
+            self.processor = UnifiedCitationProcessorV2(config)
+            self.logger.info("Using UnifiedCitationProcessorV2")
+        elif ENHANCED_PROCESSOR_AVAILABLE:
             self.processor = enhanced_processor
-            self.logger.info("Using enhanced document processor")
+            self.logger.info("Using enhanced document processor (fallback)")
         elif UNIFIED_PROCESSOR_AVAILABLE:
             self.processor = unified_processor
-            self.logger.info("Using unified citation processor")
+            self.logger.info("Using unified citation processor (fallback)")
         else:
             self.processor = None
             self.logger.warning("No advanced processors available - using fallback methods")
@@ -113,22 +148,63 @@ class CitationService:
             
             # Use the best available processor
             if self.processor and hasattr(self.processor, 'process_text'):
-                # Use unified processor
-                result = self.processor.process_text(text, options={
-                    'extract_case_names': True,
-                    'use_enhanced': True
-                })
+                # Use unified processor V2
+                self.logger.info("Using processor.process_text method")
+                citation_results = self.processor.process_text(text)
+                self.logger.info(f"[DEBUG] Extracted {len(citation_results)} citations after extraction.")
                 
-                if not result.get('success', True):
-                    return {
-                        'status': 'error',
-                        'message': result.get('error', 'Processing failed')
-                    }
-                
-                citations = result.get('results', [])
-                
+                # UnifiedCitationProcessorV2.process_text() returns List[CitationResult], not a dict
+                if isinstance(citation_results, list):
+                    # Convert CitationResult objects to dictionaries
+                    citations = []
+                    for citation_result in citation_results:
+                        citation_dict = {
+                            'citation': citation_result.citation,
+                            'extracted_case_name': citation_result.extracted_case_name,
+                            'extracted_date': citation_result.extracted_date,
+                            'case_name': citation_result.canonical_name,  # Vue frontend expects case_name for canonical
+                            'canonical_name': citation_result.canonical_name,
+                            'canonical_date': citation_result.canonical_date,
+                            'verified': citation_result.verified,
+                            'url': citation_result.url,
+                            'court': citation_result.court,
+                            'docket_number': citation_result.docket_number,
+                            'confidence': citation_result.confidence,
+                            'method': citation_result.method,
+                            'pattern': citation_result.pattern,
+                            'context': citation_result.context,
+                            'start_index': citation_result.start_index,
+                            'end_index': citation_result.end_index,
+                            'is_parallel': citation_result.is_parallel,
+                            'is_cluster': citation_result.is_cluster,
+                            'parallel_citations': citation_result.parallel_citations,
+                            'cluster_members': citation_result.cluster_members,
+                            'pinpoint_pages': citation_result.pinpoint_pages,
+                            'docket_numbers': citation_result.docket_numbers,
+                            'case_history': citation_result.case_history,
+                            'publication_status': citation_result.publication_status,
+                            'source': citation_result.source,
+                            'error': citation_result.error,
+                            'metadata': citation_result.metadata or {}
+                        }
+                        citations.append(citation_dict)
+                    self.logger.info(f"[DEBUG] {len(citations)} citations after conversion to dict.")
+                    # Calculate statistics
+                    statistics = self._calculate_statistics(citations)
+                else:
+                    # Fallback: treat as dictionary (legacy format)
+                    if citation_results.get('error'):
+                        return {
+                            'status': 'error',
+                            'message': citation_results.get('error', 'Processing failed')
+                        }
+                    citations = citation_results.get('results', [])
+                    statistics = citation_results.get('summary', {})
+                self.logger.info(f"[DEBUG] {len(citations)} citations after legacy fallback.")
+            
             elif self.processor and hasattr(self.processor, 'process_document'):
                 # Use enhanced processor
+                self.logger.info("Using processor.process_document method")
                 result = self.processor.process_document(
                     content=text,
                     extract_case_names=True
@@ -144,8 +220,14 @@ class CitationService:
                 
             else:
                 # Fallback to document processing
-                from src.document_processing import process_document
-                result = process_document(content=text, extract_case_names=True)
+                self.logger.info("Using fallback process_document method")
+                if process_document:
+                    result = process_document(content=text, extract_case_names=True)
+                else:
+                    return {
+                        'status': 'error',
+                        'message': 'No document processor available'
+                    }
                 
                 if not result['success']:
                     return {
@@ -155,28 +237,45 @@ class CitationService:
                 
                 citations = result['citations']
             
-            # Format citations for frontend
-            formatted_citations = self._format_citations_for_frontend(citations)
-            
-            # Calculate statistics
-            statistics = self._calculate_statistics(formatted_citations)
+            # Format citations for frontend (always apply formatting for verification logic)
+            if self.processor and hasattr(self.processor, 'process_text'):
+                # Unified processor returns dictionaries, but we still need to apply formatting logic
+                formatted_citations = self._format_citations_for_frontend(citations)
+                self.logger.info(f"[DEBUG] {len(formatted_citations)} citations after formatting.")
+                # Use statistics from unified processor if available
+                if not statistics:
+                    statistics = self._calculate_statistics(formatted_citations)
+            else:
+                # Format citations for other processors
+                formatted_citations = self._format_citations_for_frontend(citations)
+                self.logger.info(f"[DEBUG] {len(formatted_citations)} citations after formatting.")
+                # Calculate statistics
+                statistics = self._calculate_statistics(formatted_citations)
             
             processing_time = time.time() - start_time
             
             self.logger.info(f"Immediate processing completed in {processing_time:.2f}s: "
                            f"{len(formatted_citations)} citations found")
             
+            # Prepare metadata
+            metadata = {
+                'processing_type': 'immediate',
+                'text_length': len(text),
+                'processing_time': processing_time,
+                'processor_used': self._get_processor_name()
+            }
+            
+            # Add unified processor metadata if available
+            if self.processor and hasattr(self.processor, 'process_text') and hasattr(citation_results, 'metadata'):
+                metadata.update(citation_results.metadata)
+            
             return {
                 'status': 'completed',
                 'citations': formatted_citations,
+                'results': formatted_citations,  # For backward compatibility with unified processor
                 'statistics': statistics,
                 'summary': statistics,  # For backward compatibility
-                'metadata': {
-                    'processing_type': 'immediate',
-                    'text_length': len(text),
-                    'processing_time': processing_time,
-                    'processor_used': self._get_processor_name()
-                }
+                'metadata': metadata
             }
             
         except Exception as e:
@@ -320,18 +419,86 @@ class CitationService:
         for idx, chunk in enumerate(chunks):
             try:
                 # Process chunk
-                if self.processor and hasattr(self.processor, 'process_document'):
+                if self.processor and hasattr(self.processor, 'process_text'):
+                    # Use unified processor V2
+                    chunk_result = self.processor.process_text(chunk)
+                    
+                    # Convert CitationResult objects to dictionaries
+                    chunk_citations = []
+                    # Handle both List[CitationResult] and dict formats
+                    if isinstance(chunk_result, list):
+                        # UnifiedCitationProcessorV2 returns List[CitationResult]
+                        citation_results = chunk_result
+                    else:
+                        # Legacy processors return dict with 'results' key
+                        citation_results = chunk_result.get('results', [])
+                    
+                    for citation_result in citation_results:
+                        # Handle both CitationResult objects and dictionaries
+                        if hasattr(citation_result, 'citation'):
+                            # It's a CitationResult object
+                            citation_dict = {
+                                'citation': citation_result.citation,
+                                'extracted_case_name': citation_result.extracted_case_name,
+                                'extracted_date': citation_result.extracted_date,
+                                'case_name': citation_result.canonical_name,  # Vue frontend expects case_name for canonical
+                                'confidence': citation_result.confidence,
+                                'source': citation_result.source,
+                                'context': citation_result.context,
+                                'canonical_name': citation_result.canonical_name,
+                                'canonical_date': citation_result.canonical_date,
+                                'verified': citation_result.verified,
+                                'url': citation_result.url,
+                                'court': citation_result.court,
+                                'method': citation_result.method,
+                                'parallel_citations': citation_result.parallel_citations
+                            }
+                        else:
+                            # It's already a dictionary
+                            citation_dict = {
+                                'citation': citation_result.get('citation', ''),
+                                'extracted_case_name': citation_result.get('extracted_case_name', citation_result.get('case_name', 'N/A')),
+                                'extracted_date': citation_result.get('extracted_date', 'N/A'),
+                                'confidence': citation_result.get('confidence', 0.0),
+                                'source': citation_result.get('source', 'Unknown'),
+                                'context': citation_result.get('context', ''),
+                                'canonical_name': citation_result.get('canonical_name', 'N/A'),
+                                'canonical_date': citation_result.get('canonical_date', 'N/A'),
+                                'verified': citation_result.get('verified', False),
+                                'case_name': citation_result.get('case_name', 'N/A'),
+                                'court': citation_result.get('court', 'N/A'),
+                                'url': citation_result.get('url', ''),
+                                'method': citation_result.get('method', ''),
+                                'parallel_citations': citation_result.get('parallel_citations', [])
+                            }
+                        
+                        chunk_citations.append(citation_dict)
+                    
+                    all_citations.extend(chunk_citations)
+                    # Extract case names from the results
+                    for citation in chunk_citations:
+                        if citation.get('extracted_case_name') and citation['extracted_case_name'] != 'N/A':
+                            all_case_names.add(citation['extracted_case_name'])
+                
+                elif self.processor and hasattr(self.processor, 'process_document'):
                     chunk_result = self.processor.process_document(
                         content=chunk,
                         extract_case_names=True
                     )
-                else:
-                    from src.document_processing import process_document
-                    chunk_result = process_document(content=chunk, extract_case_names=True)
+                    
+                    if chunk_result.get('success'):
+                        all_citations.extend(chunk_result.get('citations', []))
+                        all_case_names.update(chunk_result.get('case_names', []))
                 
-                if chunk_result.get('success'):
-                    all_citations.extend(chunk_result.get('citations', []))
-                    all_case_names.update(chunk_result.get('case_names', []))
+                elif process_document:
+                    chunk_result = process_document(content=chunk, extract_case_names=True)
+                    
+                    if chunk_result.get('success'):
+                        all_citations.extend(chunk_result.get('citations', []))
+                        all_case_names.update(chunk_result.get('case_names', []))
+                else:
+                    self.logger.warning("No document processor available for chunk processing")
+                    continue
                 
                 # Log progress
                 progress = int(((idx + 1) / total_chunks) * 100)
@@ -363,6 +530,7 @@ class CitationService:
         """
         Format citations for frontend consumption.
         Ensures consistent structure regardless of processor used.
+        Always includes extracted_case_name, extracted_date, canonical_name, and canonical_date.
         """
         formatted = []
         
@@ -373,7 +541,7 @@ class CitationService:
                 citation_dict = {
                     'citation': getattr(citation, 'citation', ''),
                     'verified': getattr(citation, 'verified', False),
-                    'case_name': getattr(citation, 'case_name', 'N/A'),
+                    'case_name': getattr(citation, 'canonical_name', 'N/A'),  # Vue frontend expects case_name for canonical
                     'extracted_case_name': getattr(citation, 'extracted_case_name', 'N/A'),
                     'canonical_name': getattr(citation, 'canonical_name', 'N/A'),
                     'extracted_date': getattr(citation, 'extracted_date', 'N/A'),
@@ -406,9 +574,30 @@ class CitationService:
                     'method': citation.get('method', ''),
                     'error': citation.get('error', '')
                 }
-            
+
+            # Always ensure extracted_case_name and extracted_date are present and never blank
+            if not citation_dict['extracted_case_name']:
+                citation_dict['extracted_case_name'] = 'N/A'
+            if not citation_dict['extracted_date']:
+                citation_dict['extracted_date'] = 'N/A'
+            # Always ensure canonical_name and canonical_date are present
+            if not citation_dict['canonical_name']:
+                citation_dict['canonical_name'] = 'N/A'
+            if not citation_dict['canonical_date']:
+                citation_dict['canonical_date'] = 'N/A'
+
             # Ensure boolean values are properly formatted
-            citation_dict['verified'] = 'true' if citation_dict['verified'] else 'false'
+            # A citation is considered verified if it has canonical data
+            has_canonical_data = (
+                citation_dict.get('canonical_name') and citation_dict.get('canonical_name') != 'N/A' or
+                citation_dict.get('canonical_date') and citation_dict.get('canonical_date') != 'N/A' or
+                citation_dict.get('url')
+            )
+            citation_dict['verified'] = 'true' if (citation_dict['verified'] or has_canonical_data) else 'false'
+            
+            # Update source field if canonical data is present but source is still "extracted_only"
+            if has_canonical_data and citation_dict.get('source') == 'extracted_only':
+                citation_dict['source'] = 'CourtListener'
             
             # Handle parallel citations formatting
             if citation_dict['parallel_citations']:
@@ -488,7 +677,9 @@ class CitationService:
     
     def _get_processor_name(self) -> str:
         """Get the name of the processor being used."""
-        if ENHANCED_PROCESSOR_AVAILABLE:
+        if UNIFIED_PROCESSOR_V2_AVAILABLE:
+            return "UnifiedCitationProcessorV2"
+        elif ENHANCED_PROCESSOR_AVAILABLE:
             return "enhanced_processor"
         elif UNIFIED_PROCESSOR_AVAILABLE:
             return "unified_processor"

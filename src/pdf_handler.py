@@ -288,6 +288,36 @@ class PDFHandler:
             self.logger.error(f"pdftotext extraction failed: {str(e)}")
             return None, str(e)
     
+    def _extract_with_ocr(self, file_path: str, start_time: float) -> Tuple[Optional[str], Optional[str]]:
+        """Extract text from PDF using OCR (Tesseract) as a last resort."""
+        try:
+            from pdf2image import convert_from_path
+            import pytesseract
+        except ImportError as e:
+            self.logger.error(f"OCR dependencies not installed: {e}")
+            return None, "OCR dependencies not installed"
+        try:
+            self.logger.info("Converting PDF pages to images for OCR fallback...")
+            images = convert_from_path(file_path)
+            ocr_text = ""
+            for i, image in enumerate(images):
+                if time.time() - start_time > self.config.timeout * 2:
+                    return None, f"OCR extraction timed out after {self.config.timeout * 2} seconds"
+                self.logger.info(f"Running OCR on page {i+1}/{len(images)}...")
+                page_text = pytesseract.image_to_string(image)
+                ocr_text += page_text + "\n"
+            if not ocr_text.strip():
+                return None, "No text extracted with OCR"
+            self.logger.info(f"Successfully extracted {len(ocr_text)} characters with OCR")
+            # Apply OCR correction only to OCR text
+            from src.document_processing import DocumentProcessor
+            processor = DocumentProcessor()
+            ocr_text_corrected = processor.preprocess_text(ocr_text, skip_ocr_correction=False)
+            return ocr_text_corrected, None
+        except Exception as e:
+            self.logger.error(f"OCR extraction failed: {str(e)}")
+            return None, str(e)
+    
     def _handle_problematic_pdf(self, file_path: str) -> Tuple[Optional[str], Optional[str]]:
         """Special handling for known problematic PDF files."""
         self.logger.info(f"Using special handling for problematic PDF: {file_path}")
@@ -394,7 +424,7 @@ class PDFHandler:
         return None
 
     def extract_text(self, file_path: str) -> str:
-        """Extract text from a PDF file, always using pdfminer.six first."""
+        """Extract text from a PDF file, always using pdfminer.six first, then fallbacks, then OCR."""
         start_time = time.time()
         file_size = os.path.getsize(file_path)
         self.logger.info(f"Extracting text from PDF: {file_path} ({file_size} bytes)")
@@ -433,7 +463,13 @@ class PDFHandler:
                             text = clean_extracted_text(text)
                         return text
                     self.logger.warning(f"{method_name} failed: {error}")
-                error_msg = "All extraction methods failed for PDF"
+                # OCR fallback
+                self.logger.warning("All text-based extraction methods failed, trying OCR fallback...")
+                ocr_text, ocr_error = self._extract_with_ocr(file_path, time.time())
+                if ocr_text:
+                    return ocr_text
+                self.logger.error(f"OCR fallback failed: {ocr_error}")
+                error_msg = "All extraction methods (including OCR) failed for PDF"
                 self.logger.error(error_msg)
                 return f"Error: {error_msg}"
         except Exception as e:

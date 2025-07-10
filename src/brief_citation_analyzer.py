@@ -1,10 +1,16 @@
 """
-Brief Citation Analyzer
+DEPRECATED: This module is deprecated in favor of src/unified_citation_processor_v2.py
+Use UnifiedCitationProcessorV2 instead for all new development.
 
-This script uses the existing CaseStrainer file processing and citation extraction
-functionality to analyze briefs, extract citations, verify them using CourtListener,
-and save unverified citations with their surrounding context and source URL.
+This module will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "BriefCitationAnalyzer is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import os
 import sys

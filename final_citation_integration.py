@@ -16,12 +16,12 @@ from typing import Dict, List, Any, Optional
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import the enhanced processor
-from src.unified_citation_processor import UnifiedCitationProcessor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
 # Import existing citation verification modules
 try:
     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-    from src.citation_processor import CitationProcessor
+    from src.unified_citation_processor import CitationProcessor
     from src.courtlistener_integration import setup_courtlistener_api
 except ImportError as e:
     print(f"Warning: Could not import existing modules: {e}")

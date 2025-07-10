@@ -21,7 +21,20 @@ project_root = Path(__file__).parent.parent.resolve()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from src.case_name_extraction_core import extract_case_name_triple, get_canonical_case_name_with_date
+from src.case_name_extraction_core import extract_case_name_triple
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+
+# Try to import the new unified document processor
+try:
+    from src.document_processing_unified import UnifiedDocumentProcessor, process_document
+    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = True
+except ImportError:
+    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = False
+    # Fallback to original document processing
+    try:
+        from src.document_processing import process_document
+    except ImportError:
+        process_document = None
 
 # Enhanced citation verification function
 
@@ -32,15 +45,20 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
     """
     import logging
     logger = logging.getLogger("citation_verification")
+    
+    logger.info(f"🔍 DEBUG: verify_citation_with_extraction called")
+    logger.info(f"  citation_text: '{citation_text}'")
+    logger.info(f"  document_text length: {len(document_text) if document_text else 0}")
+    
     result = {
         "citation": citation_text,
         "canonical_citation": citation_text,
         "primary_citation": citation_text,
         "extracted_case_name": "N/A",
-        "extracted_date": "",
+        "extracted_date": "N/A",
         "case_name": "N/A",
         "canonical_name": "N/A",
-        "canonical_date": "",
+        "canonical_date": "N/A",
         "verified": "false",
         "confidence": 0.0,
         "source": "Unknown",
@@ -50,19 +68,63 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
     }
     try:
         if document_text and document_text.strip():
-            logger.info(f"Extracting case info from document for citation: {citation_text}")
+            logger.info(f"🔍 DEBUG: About to call extract_case_name_triple")
+            logger.info(f"  citation_text: '{citation_text}'")
+            logger.info(f"  document_text: '{document_text[:100]}...'")
+            
             extraction_result = extract_case_name_triple(
                 text=document_text,
                 citation=citation_text,
                 api_key=api_key,
                 context_window=200
             )
+            
+            logger.info(f"🔍 DEBUG: extract_case_name_triple returned:")
+            logger.info(f"  Type: {type(extraction_result)}")
+            logger.info(f"  Value: {extraction_result}")
+            
             if extraction_result:
-                result["extracted_case_name"] = extraction_result.get("extracted_name", "N/A")
-                result["extracted_date"] = extraction_result.get("extracted_date", "")
+                logger.info(f"  Keys: {list(extraction_result.keys())}")
+                for key, value in extraction_result.items():
+                    logger.info(f"    {key}: '{value}'")
+            else:
+                logger.warning(f"🔍 DEBUG: extraction_result is None/False")
+            if extraction_result:
+                logger.info(f"Raw extraction result: {extraction_result}")
+                logger.info(f"extraction_result keys: {list(extraction_result.keys())}")
+                logger.info(f"extracted_name value: '{extraction_result.get('extracted_name', 'KEY_MISSING')}'")
+                logger.info(f"extracted_date value: '{extraction_result.get('extracted_date', 'KEY_MISSING')}'")
+                
+                # Handle multiple possible field name formats
+                extracted_name = (
+                    extraction_result.get("extracted_name") or
+                    extraction_result.get("case_name") or
+                    extraction_result.get("extracted_case_name") or
+                    "N/A"
+                )
+                
+                extracted_date = (
+                    extraction_result.get("extracted_date") or
+                    extraction_result.get("date") or
+                    extraction_result.get("year") or
+                    "N/A"
+                )
+                
+                # Map to the correct API field names
+                result["extracted_case_name"] = extracted_name
+                result["extracted_date"] = extracted_date
                 result["case_name"] = extraction_result.get("case_name", "N/A")
                 result["canonical_name"] = extraction_result.get("canonical_name", "N/A")
-                result["canonical_date"] = extraction_result.get("canonical_date", "")
+                result["canonical_date"] = extraction_result.get("canonical_date", "N/A")
+                
+                logger.info(f"🔍 DEBUG: After mapping:")
+                logger.info(f"  extracted_case_name: '{result['extracted_case_name']}'")
+                logger.info(f"  extracted_date: '{result['extracted_date']}'")
+                logger.info(f"Mapped values: name='{extracted_name}', date='{extracted_date}'")
+                logger.info(f"After assignment:")
+                logger.info(f"  result['extracted_case_name']: '{result['extracted_case_name']}'")
+                logger.info(f"  result['extracted_date']: '{result['extracted_date']}'")
+                
                 if result["canonical_name"] != "N/A" and result["canonical_name"]:
                     result["verified"] = "true"
                     result["confidence"] = extraction_result.get("case_name_confidence", 0.9)
@@ -70,19 +132,15 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
                 logger.info(f"Extraction complete - extracted: {result['extracted_case_name']}, canonical: {result['canonical_name']}")
             else:
                 logger.warning(f"No extraction results for citation: {citation_text}")
+                # Ensure we still have the extracted fields even if extraction failed
+                result["extracted_case_name"] = "N/A"
+                result["extracted_date"] = "N/A"
         if result["verified"] == "false":
-            logger.info(f"Attempting direct API lookup for citation: {citation_text}")
-            canonical_result = get_canonical_case_name_with_date(citation_text, api_key)
-            if canonical_result:
-                result["canonical_name"] = canonical_result.get("case_name", "N/A")
-                result["canonical_date"] = canonical_result.get("date", "")
-                result["case_name"] = result["canonical_name"]
-                result["verified"] = "true"
-                result["confidence"] = 0.8
-                result["source"] = "CourtListener"
-                logger.info(f"Direct lookup successful - canonical: {result['canonical_name']}")
-        if result["verified"] == "false":
-            pass
+            logger.info(f"Citation verification failed for: {citation_text}")
+            # DO NOT fall back to canonical lookup here - this causes contamination
+            # Canonical lookup should be done separately in the verification workflow
+            result["error"] = "Citation could not be verified by any source"
+            result["explanation"] = "Citation format may be valid but not found in searched databases"
     except Exception as e:
         logger.error(f"Error in citation verification: {e}")
         result["error"] = str(e)
@@ -90,6 +148,14 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
     if result["verified"] == "false" and not result["error"]:
         result["error"] = "Citation could not be verified by any source"
         result["explanation"] = "Citation format may be valid but not found in searched databases"
+    
+    # Final check to ensure extracted fields are always present
+    if "extracted_case_name" not in result:
+        result["extracted_case_name"] = "N/A"
+    if "extracted_date" not in result:
+        result["extracted_date"] = "N/A"
+    
+    logger.info(f"Final result for {citation_text}: extracted_case_name='{result.get('extracted_case_name')}', extracted_date='{result.get('extracted_date')}'")
     return result
 
 
@@ -146,26 +212,19 @@ class ConfigManager:
         """Load configuration with proper error handling"""
         try:
             from src.config import (
-                MAIL_SERVER, MAIL_PORT, MAIL_USE_TLS, MAIL_USE_SSL,
-                MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, MAIL_DEBUG,
-                UPLOAD_FOLDER, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH
+                UPLOAD_FOLDER, ALLOWED_EXTENSIONS, MAX_CONTENT_LENGTH,
+                CONTACT_EMAIL, CONTACT_SUBJECT_PREFIX
             )
             
             self._config = {
-                'mail': {
-                    'server': MAIL_SERVER,
-                    'port': MAIL_PORT,
-                    'use_tls': MAIL_USE_TLS,
-                    'use_ssl': MAIL_USE_SSL,
-                    'username': MAIL_USERNAME,
-                    'password': MAIL_PASSWORD,
-                    'default_sender': MAIL_DEFAULT_SENDER,
-                    'debug': MAIL_DEBUG
-                },
                 'upload': {
                     'folder': UPLOAD_FOLDER,
                     'allowed_extensions': ALLOWED_EXTENSIONS,
                     'max_content_length': MAX_CONTENT_LENGTH
+                },
+                'contact': {
+                    'email': CONTACT_EMAIL,
+                    'subject_prefix': CONTACT_SUBJECT_PREFIX
                 }
             }
             self.logger.info("Configuration loaded successfully")
@@ -358,8 +417,8 @@ class ApplicationFactory:
             return app
             
         except Exception as e:
-            self.logger.critical(f"Failed to create Flask application: {e}")
-            raise ApplicationError(f"Application creation failed: {e}")
+            self.logger.critical(f"Failed to create Flask application: {str(e)}")
+            raise ApplicationError(f"Application creation failed: {str(e)}")
     
     def _configure_flask_app(self) -> 'Flask':
         """Configure basic Flask application"""
@@ -403,10 +462,9 @@ class ApplicationFactory:
         
         # Initialize enhanced citation processor
         try:
-            from src.citation_processor import CaseStrainerCitationProcessor
-            self.citation_processor = CaseStrainerCitationProcessor()
+            self.citation_processor = UnifiedCitationProcessor()
             self.logger.info("Enhanced citation processor initialized")
-        except ImportError as e:
+        except Exception as e:
             self.logger.warning(f"Enhanced citation processor not available: {e}")
             self.citation_processor = None
         
@@ -526,7 +584,22 @@ class ApplicationFactory:
                             document_text=text,
                             api_key=api_key
                         )
+                        # Ensure extracted fields are always present
+                        if 'extracted_case_name' not in result:
+                            result['extracted_case_name'] = 'N/A'
+                        if 'extracted_date' not in result:
+                            result['extracted_date'] = 'N/A'
                         results.append(result)
+                    
+                    # Log the response for debugging
+                    logger.info(f"API Response for {len(results)} citations:")
+                    for i, result in enumerate(results):
+                        logger.info(f"  Citation {i+1}: {result.get('citation', 'N/A')}")
+                        logger.info(f"    extracted_case_name: {result.get('extracted_case_name', 'MISSING')}")
+                        logger.info(f"    extracted_date: {result.get('extracted_date', 'MISSING')}")
+                        logger.info(f"    canonical_name: {result.get('canonical_name', 'MISSING')}")
+                        logger.info(f"    canonical_date: {result.get('canonical_date', 'MISSING')}")
+                    
                     return jsonify({'citations': results, 'success': True})
                 else:
                     return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
@@ -654,13 +727,17 @@ class ApplicationFactory:
     
     def _setup_signal_handlers(self):
         """Setup graceful shutdown handlers"""
+        import threading
         def signal_handler(signum, frame):
             self.logger.info(f"Received signal {signum}, shutting down gracefully...")
             # Add cleanup logic here
             sys.exit(0)
-        
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
+        # Only set up signal handlers in the main thread
+        if threading.current_thread() is threading.main_thread():
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+        else:
+            self.logger.info("Skipping signal handler setup (not in main thread)")
 
 
 def create_app():

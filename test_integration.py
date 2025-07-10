@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from src.complex_citation_integration import ComplexCitationIntegrator
+# DEPRECATED: # DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator
 
 def test_integration():
     integrator = ComplexCitationIntegrator()

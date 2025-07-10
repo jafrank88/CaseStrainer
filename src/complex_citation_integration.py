@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
-Complex Citation Integration for CaseStrainer
+DEPRECATED: This module is deprecated in favor of src/unified_citation_processor_v2.py
+Use UnifiedCitationProcessorV2 instead for all new development.
 
-This module integrates the enhanced complex citation processing with the existing
-CaseStrainer codebase, specifically working with the EnhancedMultiSourceVerifier.
+This module will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "ComplexCitationIntegration is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import logging
 import re
@@ -114,7 +121,7 @@ class ComplexCitationIntegrator:
                 logger.info(f"[parse_complex_citation] Treating as complex citation block: '{full_citation}'")
             else:
                 # Extract all citations using the existing logic
-                from src.citation_extractor import CitationExtractor
+                # DEPRECATED: from src.citation_extractor import CitationExtractor
                 extractor = CitationExtractor(use_eyecite=False, use_regex=True, extract_case_names=True)
                 extracted_citations = extractor.extract_citations(text)
                 
@@ -395,7 +402,7 @@ class ComplexCitationIntegrator:
         # If no complex citations found, fall back to basic extraction
         if not complex_citations:
             logger.info("[process_text_with_complex_citations_original] No complex citations found, using basic extraction")
-            from src.citation_extractor import CitationExtractor
+            # DEPRECATED: from src.citation_extractor import CitationExtractor
             extractor = CitationExtractor(use_eyecite=False, use_regex=True, extract_case_names=True)
             extracted_citations = extractor.extract_citations(text)
             

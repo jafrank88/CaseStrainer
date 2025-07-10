@@ -1,65 +1,120 @@
 #!/usr/bin/env python3
 """
-Test the main regex patterns from the extractor against the context window for a failing test case (misspelled party name).
+Test script to check if regex patterns are matching citations properly.
 """
+
 import re
+import sys
+import os
 
-# Test input
-text = 'In Doe v. Wdae, 123 U.S. 456 (1973), the court ruled...'
-citation = '123 U.S. 456'
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# Simulate context window
-citation_index = text.find(citation)
-context_before = text[max(0, citation_index - 100):citation_index]
-context_after = text[citation_index:min(len(text), citation_index + 100)]
-full_context = context_before + context_after
-print(f"Context before: '{context_before}'")
-print(f"Context after: '{context_after}'")
-print(f"Full context: '{full_context}'\n")
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
-# Patterns from extract_case_name_from_complex_citation
-complex_citation_patterns = [
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?,\s*\d+.*?\(\d{4}\)',
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+\s*\(\d{4}\)',
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?,\s*\d+',
-    r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-    r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-    r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-    r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-    r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
-]
+def test_regex_patterns():
+    """Test if regex patterns match citations."""
+    
+    print("=== TESTING REGEX PATTERNS ===")
+    print()
+    
+    # Initialize the processor
+    processor = UnifiedCitationProcessor()
+    
+    # Test citations
+    test_citations = [
+        "171 Wash. 2d 486",
+        "200 Wash. 2d 72", 
+        "347 U.S. 483",
+        "514 P.3d 643"
+    ]
+    
+    test_text = """
+    In State v. Smith, 171 Wash. 2d 486 (2011), the court held...
+    The case was decided in State v. Johnson, 200 Wash. 2d 72 (2023).
+    Brown v. Board of Education, 347 U.S. 483 (1954) established...
+    The Pacific Reporter citation is 514 P.3d 643.
+    """
+    
+    print(f"Test text: {test_text}")
+    print()
+    
+    # Test each pattern individually
+    for pattern_name, pattern in processor.primary_patterns.items():
+        print(f"Pattern '{pattern_name}': {pattern.pattern}")
+        matches = list(pattern.finditer(test_text))
+        print(f"  Matches found: {len(matches)}")
+        for match in matches:
+            print(f"    Full match: '{match.group(0)}'")
+            print(f"    Groups: {match.groups()}")
+        print()
+    
+    # Test the full extraction
+    print("=== TESTING FULL EXTRACTION ===")
+    print()
+    
+    citations = processor.extract_citations(test_text)
+    print(f"Total citations extracted: {len(citations)}")
+    
+    for i, citation in enumerate(citations, 1):
+        print(f"Citation {i}:")
+        print(f"  Text: {citation.citation}")
+        print(f"  Method: {citation.method}")
+        print(f"  Pattern: {citation.pattern}")
+        print(f"  Extracted date: {citation.extracted_date}")
+        print(f"  Year: {citation.year}")
+        print()
 
-print("Testing complex_citation_patterns:")
-for i, pattern in enumerate(complex_citation_patterns, 1):
-    matches = list(re.finditer(pattern, full_context, re.IGNORECASE))
-    print(f"Pattern {i}: {pattern}")
-    for match in matches:
-        print(f"  Match: '{match.group(1)}'")
-    if not matches:
-        print("  No match.")
-print()
+def test_specific_patterns():
+    """Test specific patterns that should match our citations."""
+    
+    print("=== TESTING SPECIFIC PATTERNS ===")
+    print()
+    
+    # Test the wash2d pattern specifically
+    wash2d_pattern = r'\b(\d+)\s+Wash\.2d\s+(\d+)\b'
+    wash2d_compiled = re.compile(wash2d_pattern)
+    
+    test_cases = [
+        "171 Wash. 2d 486",
+        "200 Wash. 2d 72",
+        "171 Wash.2d 486",  # No space after Wash
+        "171 Wash. 2d 486 (2011)",  # With year
+        "State v. Smith, 171 Wash. 2d 486",  # With case name
+    ]
+    
+    for test_case in test_cases:
+        print(f"Testing: '{test_case}'")
+        matches = list(wash2d_compiled.finditer(test_case))
+        print(f"  Matches: {len(matches)}")
+        for match in matches:
+            print(f"    Full: '{match.group(0)}'")
+            print(f"    Groups: {match.groups()}")
+        print()
+    
+    # Test with different spacing variations
+    print("=== TESTING SPACING VARIATIONS ===")
+    print()
+    
+    spacing_variations = [
+        r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)\b',  # Flexible spacing
+        r'\b(\d+)\s+Wash\.2d\s+(\d+)\b',      # No space after Wash
+        r'\b(\d+)\s+Wash\.\s+2d\s+(\d+)\b',   # Space after Wash
+    ]
+    
+    for i, pattern in enumerate(spacing_variations, 1):
+        print(f"Pattern {i}: {pattern}")
+        compiled = re.compile(pattern)
+        
+        for test_case in test_cases:
+            matches = list(compiled.finditer(test_case))
+            if matches:
+                print(f"  '{test_case}' -> MATCH: '{matches[0].group(0)}'")
+            else:
+                print(f"  '{test_case}' -> NO MATCH")
+        print()
 
-# Patterns from extract_case_name_with_date_adjacency
-adjacent_patterns = [
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
-    r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
-    r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
-    r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
-    r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-    r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
-]
-
-print("Testing adjacent_patterns:")
-for i, pattern in enumerate(adjacent_patterns, 1):
-    matches = list(re.finditer(pattern, context_before, re.IGNORECASE))
-    print(f"Pattern {i}: {pattern}")
-    for match in matches:
-        print(f"  Match: '{match.group(1)}'")
-    if not matches:
-        print("  No match.") 
+if __name__ == "__main__":
+    test_regex_patterns()
+    print("\n" + "="*80 + "\n")
+    test_specific_patterns() 

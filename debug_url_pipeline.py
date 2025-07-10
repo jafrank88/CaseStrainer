@@ -16,7 +16,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from src.enhanced_validator_production import extract_text_from_url
-from src.citation_processor import CitationProcessor
+from src.unified_citation_processor import CitationProcessor
 
 def test_url_pipeline(url):
     """Test the URL processing pipeline step by step."""

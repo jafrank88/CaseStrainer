@@ -1,72 +1,95 @@
 #!/usr/bin/env python3
 """
-Debug script to examine the raw CourtListener API response structure.
+Debug script to check exactly what the API is returning
 """
 
 import requests
 import json
-import os
 
 def debug_api_response():
-    """Debug the CourtListener API response structure."""
+    """Debug the API response to see what fields are actually being returned"""
     
-    # Get API key from environment
-    api_key = os.environ.get('COURTLISTENER_API_KEY')
-    if not api_key:
-        print("No CourtListener API key found in environment")
-        return
+    url = "http://localhost:5000/casestrainer/api/analyze"
     
-    test_citation = "347 U.S. 483"  # Brown v. Board of Education
-    
-    headers = {
-        "Authorization": f"Token {api_key}",
-        "Content-Type": "application/json"
+    # Test data with Washington citation
+    test_data = {
+        "type": "text",
+        "text": "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions",
+        "citations": ["200 Wn.2d 72, 514 P.3d 643"]
     }
     
-    url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    print("🔍 DEBUGGING API RESPONSE...")
+    print(f"URL: {url}")
+    print(f"Request data: {json.dumps(test_data, indent=2)}")
+    print("-" * 60)
     
     try:
-        print(f"Making API request for: {test_citation}")
-        response = requests.post(
-            url,
-            headers=headers,
-            json={"text": test_citation},
-            timeout=15
-        )
+        response = requests.post(url, json=test_data, timeout=30)
         
-        print(f"Response status: {response.status_code}")
+        print(f"Status Code: {response.status_code}")
         
         if response.status_code == 200:
-            data = response.json()
-            print(f"\nRaw API response structure:")
-            print(json.dumps(data, indent=2))
+            result = response.json()
+            print("✅ API Response Structure:")
+            print(json.dumps(result, indent=2))
             
-            # Examine the first citation object
-            if isinstance(data, list) and len(data) > 0:
-                citation_data = data[0]
-                print(f"\nFirst citation object keys: {list(citation_data.keys())}")
+            # Check if we got citations
+            if 'citations' in result and result['citations']:
+                citation_result = result['citations'][0]
+                print("\n🔍 CITATION RESULT ANALYSIS:")
+                print(f"All keys in citation: {list(citation_result.keys())}")
+                print()
                 
-                if 'clusters' in citation_data and citation_data['clusters']:
-                    cluster = citation_data['clusters'][0]
-                    print(f"\nCluster keys: {list(cluster.keys())}")
-                    
-                    # Look for citations in the cluster
-                    if 'citations' in cluster:
-                        print(f"\nCitations in cluster:")
-                        for i, cite in enumerate(cluster['citations']):
-                            print(f"  Citation {i+1}: {cite}")
-                    
-                    # Look for other possible citation fields
-                    citation_fields = ['opinion_cites', 'parallel_citations', 'cite', 'citation']
-                    for field in citation_fields:
-                        if field in cluster:
-                            print(f"\n{field} field: {cluster[field]}")
-                            
+                # Check extracted fields
+                print("📋 EXTRACTED FIELDS:")
+                print(f"extracted_case_name: '{citation_result.get('extracted_case_name', 'NOT_FOUND')}'")
+                print(f"extracted_date: '{citation_result.get('extracted_date', 'NOT_FOUND')}'")
+                print(f"case_name: '{citation_result.get('case_name', 'NOT_FOUND')}'")
+                print()
+                
+                # Check canonical fields
+                print("📋 CANONICAL FIELDS:")
+                print(f"canonical_name: '{citation_result.get('canonical_name', 'NOT_FOUND')}'")
+                print(f"canonical_date: '{citation_result.get('canonical_date', 'NOT_FOUND')}'")
+                print()
+                
+                # Check other fields
+                print("📋 OTHER FIELDS:")
+                print(f"verified: '{citation_result.get('verified', 'NOT_FOUND')}'")
+                print(f"source: '{citation_result.get('source', 'NOT_FOUND')}'")
+                print(f"method: '{citation_result.get('method', 'NOT_FOUND')}'")
+                print(f"citation: '{citation_result.get('citation', 'NOT_FOUND')}'")
+                print()
+                
+                # Check if fields are null, empty, or "N/A"
+                extracted_name = citation_result.get('extracted_case_name')
+                extracted_date = citation_result.get('extracted_date')
+                
+                print("🔍 FIELD ANALYSIS:")
+                print(f"extracted_case_name type: {type(extracted_name)}")
+                print(f"extracted_case_name value: '{extracted_name}'")
+                print(f"extracted_case_name is None: {extracted_name is None}")
+                print(f"extracted_case_name == 'N/A': {extracted_name == 'N/A'}")
+                print(f"extracted_case_name == '': {extracted_name == ''}")
+                print()
+                print(f"extracted_date type: {type(extracted_date)}")
+                print(f"extracted_date value: '{extracted_date}'")
+                print(f"extracted_date is None: {extracted_date is None}")
+                print(f"extracted_date == 'N/A': {extracted_date == 'N/A'}")
+                print(f"extracted_date == '': {extracted_date == ''}")
+                
+            else:
+                print("⚠️  No citations found in response")
+                print(f"Response keys: {list(result.keys())}")
         else:
-            print(f"Error response: {response.text}")
+            print(f"❌ ERROR: {response.status_code}")
+            print(f"Response: {response.text}")
             
+    except requests.exceptions.ConnectionError:
+        print("❌ CONNECTION ERROR: Flask server not running or not accessible")
+        print("Make sure the Flask server is running on localhost:5000")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ ERROR: {e}")
 
 if __name__ == "__main__":
     debug_api_response() 

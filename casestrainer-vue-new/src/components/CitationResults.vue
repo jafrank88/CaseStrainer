@@ -101,7 +101,8 @@ const getCanonicalCaseName = (citation) => {
 }
 
 const getExtractedCaseName = (citation) => {
-  return citation.extracted_case_name || null
+  const value = citation.extracted_case_name;
+  return (value && value !== 'N/A') ? value : null;
 }
 
 const getCanonicalDate = (citation) => {
@@ -109,7 +110,8 @@ const getCanonicalDate = (citation) => {
 }
 
 const getExtractedDate = (citation) => {
-  return citation.extracted_date || null
+  const value = citation.extracted_date;
+  return (value && value !== 'N/A') ? value : null;
 }
 
 const getCitation = (citation) => {

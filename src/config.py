@@ -72,24 +72,9 @@ UPLOAD_FOLDER = os.path.abspath("uploads")
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm'}
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
-# Email configuration for UW SMTP
-MAIL_SERVER: str = get_config_value("MAIL_SERVER", "smtp.uw.edu")
-MAIL_PORT: int = int(get_config_value("MAIL_PORT", 587))
-MAIL_USE_TLS: bool = get_config_value("MAIL_USE_TLS", "True").lower() == "true"
-MAIL_USE_SSL: bool = get_config_value("MAIL_USE_SSL", "False").lower() == "true"
-MAIL_USERNAME: str = get_config_value(
-    "MAIL_USERNAME", "jafrank"
-)  # Just the NetID, not full email
-MAIL_PASSWORD: str = get_config_value("MAIL_PASSWORD", "Race4theGa!axy!")
-MAIL_DEFAULT_SENDER: str = get_config_value("MAIL_DEFAULT_SENDER", "jafrank@uw.edu")
-MAIL_RECIPIENT: str = get_config_value("MAIL_RECIPIENT", "jafrank@uw.edu")
-MAIL_DEBUG: bool = (
-    get_config_value("MAIL_DEBUG", "True").lower() == "true"
-)  # Enable debug output
-COURTLISTENER_API_URL: str = get_config_value(
-    "COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/opinions/"
-)
-COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
+# Contact configuration - simple email for user feedback
+CONTACT_EMAIL: str = "jafrank@uw.edu"
+CONTACT_SUBJECT_PREFIX: str = "[CaseStrainer Feedback]"
 
 
 LANGSEARCH_API_KEY: str = get_config_value("LANGSEARCH_API_KEY", "")
@@ -127,6 +112,26 @@ CITATION_EXTRACTION_TIMEOUT: int = int(get_config_value("CITATION_EXTRACTION_TIM
 # ============================================================================
 # HELPER FUNCTIONS FOR CITATIONSERVICE
 # ============================================================================
+
+# API Configuration
+COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
+COURTLISTENER_API_URL: str = get_config_value(
+    "COURTLISTENER_API_URL", 
+    "https://www.courtlistener.com/api/rest/v4/"
+)
+CASELAW_API_KEY: str = get_config_value("CASELAW_API_KEY", "")
+WESTLAW_API_KEY: str = get_config_value("WESTLAW_API_KEY", "")
+
+# Cache Configuration
+REDIS_URL: str = get_config_value("REDIS_URL", "redis://localhost:6379/0")
+
+# Enhanced Extraction Settings
+USE_ENHANCED_EXTRACTION: bool = get_config_value("USE_ENHANCED_EXTRACTION", True)
+EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))
+
+# Debug Settings
+DEBUG_EXTRACTION: bool = get_config_value("DEBUG_EXTRACTION", False)
+LOG_EXTRACTION_DETAILS: bool = get_config_value("LOG_EXTRACTION_DETAILS", False)
 
 def get_citation_config() -> dict:
     """
@@ -194,13 +199,13 @@ def test_config_additions():
     print("Config test complete!")
 
 
-def configure_logging(log_level: int = logging.INFO) -> None:
+def configure_logging(log_level: int = logging.DEBUG) -> None:
     """
     Configure logging for the CaseStrainer application.
     Uses ConcurrentRotatingFileHandler for robust log rotation on Windows (requires concurrent-log-handler package).
     Creates a 'logs' directory if it does not exist and sets up file and stream handlers.
     Args:
-        log_level (int): Logging level (default: logging.INFO)
+        log_level (int): Logging level (default: logging.DEBUG)
     """
     import sys
 
@@ -266,6 +271,10 @@ def configure_logging(log_level: int = logging.INFO) -> None:
     root_logger.handlers.clear()
     root_logger.addHandler(file_handler)
     root_logger.addHandler(stream_handler)
+
+    # Force all loggers to propagate to root logger (for RQ workers, citation_debug, etc.)
+    for name in logging.root.manager.loggerDict:
+        logging.getLogger(name).propagate = True
 
     # Configure specific loggers based on environment variables
     configure_specific_loggers()

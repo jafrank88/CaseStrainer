@@ -1,70 +1,41 @@
 #!/usr/bin/env python3
-"""Test citation extraction from PDF."""
+"""
+Test to see what citations are being extracted from the text
+"""
 
-from src.citation_extractor import CitationExtractor
-from src.file_utils import extract_text_from_file
+from src.document_processing import enhanced_processor
 
 def test_citation_extraction():
-    """Test citation extraction from the uploaded PDF."""
-    print("=== TESTING CITATION EXTRACTION ===")
+    """Test citation extraction"""
     
-    # Extract text from PDF
-    text, case_name = extract_text_from_file('/app/uploads/gov.uscourts.wyd.64014.141.0_1.pdf')
-    print(f"Extracted {len(text)} characters of text")
-    print(f"Case name: {case_name}")
+    text = "Punx v Smithers, 534 F.3d 1290 (1921)"
     
-    # Check for citation patterns in text
-    import re
-    print("\n=== CHECKING FOR CITATION PATTERNS ===")
+    print("🔍 Testing citation extraction...")
+    print(f"Text: '{text}'")
+    print("-" * 60)
     
-    # F.3d patterns
-    f3d_patterns = [
-        r'\b\d+\s+F\.3d\s+\d+\b',
-        r'\b\d+\s+F\.\s*3d\s+\d+\b',
-        r'\b\d+\s+F\.\s*3rd\s+\d+\b',
-    ]
-    
-    for pattern in f3d_patterns:
-        matches = re.findall(pattern, text)
-        print(f"Pattern '{pattern}': {len(matches)} matches")
-        if matches:
-            print(f"  Examples: {matches[:3]}")
-    
-    # WL patterns
-    wl_patterns = [
-        r'\b\d{4}\s+WL\s+\d+\b',
-        r'\b\d{4}\s*WL\s*\d+\b',
-    ]
-    
-    for pattern in wl_patterns:
-        matches = re.findall(pattern, text)
-        print(f"Pattern '{pattern}': {len(matches)} matches")
-        if matches:
-            print(f"  Examples: {matches[:3]}")
-    
-    # Use the citation extractor
-    print("\n=== USING CITATION EXTRACTOR ===")
-    extractor = CitationExtractor()
-    citations = extractor.extract(text)
-    print(f"Citation extractor found {len(citations)} citations")
-    
-    for i, citation in enumerate(citations[:10]):
-        citation_text = citation.get('citation', citation.get('citation_text', 'Unknown'))
-        print(f"  {i+1}. {citation_text}")
-    
-    # Show sample of text around F.3d and WL
-    print("\n=== TEXT SAMPLES ===")
-    f3d_pos = text.find('F.3d')
-    if f3d_pos != -1:
-        start = max(0, f3d_pos - 50)
-        end = min(len(text), f3d_pos + 50)
-        print(f"F.3d context: ...{text[start:end]}...")
-    
-    wl_pos = text.find('WL')
-    if wl_pos != -1:
-        start = max(0, wl_pos - 50)
-        end = min(len(text), wl_pos + 50)
-        print(f"WL context: ...{text[start:end]}...")
+    try:
+        # Test the process_document method
+        result = enhanced_processor.process_document(
+            content=text,
+            extract_case_names=True
+        )
+        
+        print("✅ Process document result:")
+        print(f"Success: {result.get('success')}")
+        print(f"Citations found: {len(result.get('citations', []))}")
+        
+        for i, citation in enumerate(result.get('citations', [])):
+            print(f"\n📋 Citation {i+1}:")
+            print(f"  citation: '{citation.get('citation', 'NOT_FOUND')}'")
+            print(f"  extracted_case_name: '{citation.get('extracted_case_name', 'NOT_FOUND')}'")
+            print(f"  extracted_date: '{citation.get('extracted_date', 'NOT_FOUND')}'")
+            print(f"  case_name: '{citation.get('case_name', 'NOT_FOUND')}'")
+            
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     test_citation_extraction() 

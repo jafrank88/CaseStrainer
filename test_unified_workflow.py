@@ -17,10 +17,10 @@ def test_unified_workflow():
     """Test the unified workflow with various citation types."""
     
     try:
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         
         # Initialize the verifier
-        verifier = EnhancedMultiSourceVerifier()
+        processor = UnifiedCitationProcessor()
         
         # Test citations
         test_citations = [
@@ -43,7 +43,7 @@ def test_unified_workflow():
             
             try:
                 # Test with unified workflow
-                result = verifier.verify_citation_unified_workflow(
+                result = processor.verify_citation_unified_workflow(
                     citation,
                     extracted_case_name=None,
                     full_text=citation  # Pass citation as context
@@ -94,9 +94,9 @@ def test_old_vs_new():
     """Compare old verify_citation vs new verify_citation_unified_workflow."""
     
     try:
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         
-        verifier = EnhancedMultiSourceVerifier()
+        processor = UnifiedCitationProcessor()
         citation = "347 U.S. 483"
         
         print("=" * 80)
@@ -107,7 +107,7 @@ def test_old_vs_new():
         print("OLD METHOD (verify_citation):")
         print("-" * 40)
         try:
-            old_result = verifier.verify_citation_unified_workflow(citation)
+            old_result = processor.verify_citation_unified_workflow(citation)
             print(f"✓ Result: {old_result.get('verified', False)}")
             print(f"✓ Case Name: {old_result.get('case_name', 'N/A')}")
             print(f"✓ Extracted Case Name: {old_result.get('extracted_case_name', 'N/A')}")
@@ -121,7 +121,7 @@ def test_old_vs_new():
         print("NEW METHOD (verify_citation_unified_workflow):")
         print("-" * 40)
         try:
-            new_result = verifier.verify_citation_unified_workflow(citation)
+            new_result = processor.verify_citation_unified_workflow(citation)
             print(f"✓ Result: {new_result.get('verified', False)}")
             print(f"✓ Case Name: {new_result.get('case_name', 'N/A')}")
             print(f"✓ Extracted Case Name: {new_result.get('extracted_case_name', 'N/A')}")

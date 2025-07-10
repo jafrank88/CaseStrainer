@@ -184,7 +184,7 @@ def test_integration_with_citation_extractor():
     print("=" * 60)
     
     try:
-        from src.citation_extractor import CitationExtractor
+        # DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
         
         text = "The court held in Smith v. Jones, 123 U.S. 456 (2020), that the principle applies."
         

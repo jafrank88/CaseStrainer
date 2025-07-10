@@ -3,7 +3,7 @@
 Test script to verify citation extraction fix.
 """
 
-from src.citation_extractor import CitationExtractor, extract_citation_text_from_eyecite
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor, extract_citation_text_from_eyecite
 
 def test_citation_extraction():
     """Test citation extraction with a simple example."""

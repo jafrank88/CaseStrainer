@@ -19,7 +19,8 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.unified_citation_processor import UnifiedCitationProcessor, TextCleaner, DateExtractor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.standalone_citation_parser import DateExtractor
 
 def test_text_cleaning():
     """Test the enhanced text cleaning functionality."""

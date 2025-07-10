@@ -31,7 +31,10 @@
     <div class="input-area-top" v-if="inputMode === 'file' || inputMode === 'url'">
       <!-- File Input -->
       <div v-if="inputMode === 'file'" class="file-input">
-        <label>Upload a document</label>
+        <label class="input-label">
+          <i class="bi bi-file-earmark-arrow-up me-2"></i>
+          Upload a document
+        </label>
         <div 
           :class="['file-drop-zone', { 
             'has-file': file, 
@@ -54,8 +57,12 @@
           />
           <div v-if="!file" class="drop-zone-content">
             <div class="upload-icon">📁</div>
-            <p>Click to browse or drag & drop</p>
+            <h5 class="drop-zone-title">Click to browse or drag & drop</h5>
             <p class="file-types">Supports: PDF, DOC, DOCX, TXT (max 50MB)</p>
+            <div class="drop-zone-hint">
+              <i class="bi bi-arrow-up-circle"></i>
+              <span>Drop your file here</span>
+            </div>
           </div>
           <div v-else class="file-info">
             <div class="file-icon">📄</div>
@@ -67,8 +74,9 @@
               v-if="!isAnalyzing"
               @click.stop="clearFile" 
               class="clear-file-btn"
+              title="Remove file"
             >
-              ✕
+              <i class="bi bi-x-lg"></i>
             </button>
           </div>
         </div>
@@ -83,18 +91,45 @@
 
       <!-- URL Input -->
       <div v-else-if="inputMode === 'url'" class="url-input">
-        <label>Enter URL to analyze</label>
-        <input 
-          v-model="url" 
-          type="url" 
-          placeholder="https://example.com/document.pdf"
-          :disabled="isAnalyzing"
-          @input="handleInputChange"
-          :class="{ 'error': hasErrors && isDirty.url }"
-        />
+        <label class="input-label">
+          <i class="bi bi-link-45deg me-2"></i>
+          Enter URL to analyze
+        </label>
+        <div class="url-input-container">
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <i class="bi bi-globe"></i>
+            </div>
+            <input 
+              v-model="url" 
+              type="url" 
+              placeholder="https://example.com/document.pdf"
+              :disabled="isAnalyzing"
+              @input="handleInputChange"
+              :class="{ 'error': hasErrors && isDirty.url }"
+              class="url-input-field"
+            />
+            <div v-if="url && !hasErrors" class="input-status valid">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div v-else-if="url && hasErrors" class="input-status invalid">
+              <i class="bi bi-x-circle-fill"></i>
+            </div>
+          </div>
+        </div>
         <div class="input-footer">
-          <span class="url-preview" v-if="url && !hasErrors">Will analyze: {{ url }}</span>
-          <span v-else-if="url && hasErrors" class="url-error">Invalid URL format</span>
+          <span class="url-preview" v-if="url && !hasErrors">
+            <i class="bi bi-eye me-1"></i>
+            Will analyze: {{ url }}
+          </span>
+          <span v-else-if="url && hasErrors" class="url-error">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Invalid URL format
+          </span>
+          <span v-else class="url-hint">
+            <i class="bi bi-info-circle me-1"></i>
+            Enter a valid URL to analyze web content
+          </span>
         </div>
         <!-- Validation Errors -->
         <div v-if="hasErrors && isDirty.url" class="validation-errors">
@@ -133,6 +168,9 @@
       </div>
     </div>
 
+    <!-- Recent Inputs Section -->
+    <RecentInputs @load-input="loadRecentInput" />
+    
     <!-- Analyze Button -->
     <div class="analyze-section">
       <button 
@@ -149,28 +187,37 @@
         <p>Please fix the errors above before analyzing</p>
       </div>
     </div>
-
-    <!-- Recent Inputs Section -->
-    <RecentInputs @load-input="loadRecentInput" />
     
     <!-- Input Area for Quick Citation and Text -->
     <div class="input-area-bottom" v-if="inputMode === 'text' || inputMode === 'quick'">
       <!-- Text Input -->
       <div v-if="inputMode === 'text'" class="text-input">
-        <label>Paste your text here</label>
-        <textarea 
-          v-model="text" 
-          placeholder="Paste legal text, citations, or document content here..."
-          :disabled="isAnalyzing"
-          rows="6"
-          @input="handleInputChange"
-          :class="{ 'error': hasErrors && isDirty.text }"
-        ></textarea>
+        <label class="input-label">
+          <i class="bi bi-text-paragraph me-2"></i>
+          Paste your text here
+        </label>
+        <div class="textarea-container">
+          <textarea 
+            v-model="text" 
+            placeholder="Paste legal text, citations, or document content here..."
+            :disabled="isAnalyzing"
+            rows="8"
+            @input="handleInputChange"
+            :class="{ 'error': hasErrors && isDirty.text }"
+            class="text-input-field"
+          ></textarea>
+          <div class="textarea-overlay" v-if="!text">
+            <i class="bi bi-clipboard"></i>
+            <span>Paste your content here</span>
+          </div>
+        </div>
         <div class="input-footer">
           <span class="char-count" :class="{ 'error': text.length > VALIDATION_RULES.text.maxLength }">
+            <i class="bi bi-type me-1"></i>
             {{ text.length }} / {{ VALIDATION_RULES.text.maxLength }} characters
           </span>
           <span v-if="text.length < VALIDATION_RULES.text.minLength && isDirty.text" class="min-length-hint">
+            <i class="bi bi-exclamation-circle me-1"></i>
             Minimum {{ VALIDATION_RULES.text.minLength }} characters required
           </span>
         </div>
@@ -185,15 +232,34 @@
 
       <!-- Quick Citation Input -->
       <div v-else-if="inputMode === 'quick'" class="quick-citation-input-area">
-        <label>Enter a single citation</label>
-        <input
-          v-model="quickCitation"
-          type="text"
-          placeholder="Enter citation..."
-          :disabled="isAnalyzing"
-          @keyup.enter="emitAnalyze"
-          class="quick-citation-input"
-        />
+        <label class="input-label">
+          <i class="bi bi-lightning me-2"></i>
+          Enter a single citation
+        </label>
+        <div class="quick-input-container">
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <i class="bi bi-quote"></i>
+            </div>
+            <input
+              v-model="quickCitation"
+              type="text"
+              placeholder="e.g., 410 U.S. 113 (1973) or Roe v. Wade"
+              :disabled="isAnalyzing"
+              @keyup.enter="emitAnalyze"
+              class="quick-citation-input"
+            />
+            <div v-if="quickCitation" class="input-status valid">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="input-footer">
+          <span class="citation-hint">
+            <i class="bi bi-info-circle me-1"></i>
+            Enter a legal citation to verify quickly
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -590,47 +656,162 @@ function onModeChange() {
   }
 }
 
-.input-area label {
+.input-label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   font-weight: 600;
   color: #495057;
+  font-size: 1.1rem;
 }
 
-.text-input textarea,
-.url-input input {
-  width: 100%;
-  padding: 1rem;
+.input-label i {
+  color: #007bff;
+}
+
+/* URL Input Styling */
+.url-input-container {
+  position: relative;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
   border: 2px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  overflow: hidden;
 }
 
-.text-input textarea:focus,
-.url-input input:focus {
-  outline: none;
+.input-wrapper:focus-within {
   border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-.text-input textarea.error,
-.url-input input.error {
+.input-wrapper.error {
   border-color: #dc3545;
   background-color: #fff5f5;
 }
 
-.text-input textarea {
+.input-icon {
+  padding: 0 1rem;
+  color: #6c757d;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.url-input-field,
+.quick-citation-input {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.url-input-field:focus,
+.quick-citation-input:focus {
+  outline: none;
+}
+
+.input-status {
+  padding: 0 1rem;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.input-status.valid {
+  color: #28a745;
+}
+
+.input-status.invalid {
+  color: #dc3545;
+}
+
+/* Text Input Styling */
+.textarea-container {
+  position: relative;
+}
+
+.text-input-field {
+  width: 100%;
+  padding: 1.5rem;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
   resize: vertical;
-  min-height: 120px;
+  min-height: 200px;
+  background: white;
+}
+
+.text-input-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.text-input-field.error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.textarea-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #6c757d;
+  text-align: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.textarea-overlay i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Quick Input Container */
+.quick-input-container {
+  position: relative;
 }
 
 .input-footer {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-size: 0.9rem;
   color: #6c757d;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.url-preview {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.url-error {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.url-hint,
+.citation-hint {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.char-count {
+  color: #6c757d;
+  font-weight: 500;
 }
 
 .char-count.error {
@@ -641,39 +822,43 @@ function onModeChange() {
 .min-length-hint {
   color: #856404;
   background: #fff3cd;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.url-error {
-  color: #dc3545;
-  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  border-left: 3px solid #ffc107;
 }
 
 .file-drop-zone {
-  border: 2px dashed #dee2e6;
-  border-radius: 8px;
-  padding: 2rem;
+  border: 3px dashed #dee2e6;
+  border-radius: 16px;
+  padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+  position: relative;
+  overflow: hidden;
 }
 
 .file-drop-zone:hover:not(.disabled) {
   border-color: #007bff;
   background: #f8f9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
 }
 
 .file-drop-zone.dragover {
   border-color: #007bff;
   background: #f8f9ff;
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 123, 255, 0.2);
 }
 
 .file-drop-zone.has-file {
   border-style: solid;
   border-color: #28a745;
   background: #f8fff9;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.15);
 }
 
 .file-drop-zone.error {
@@ -685,14 +870,39 @@ function onModeChange() {
   color: #6c757d;
 }
 
+.drop-zone-title {
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 600;
+  color: #495057;
+}
+
 .upload-icon {
-  font-size: 3rem;
+  font-size: 4rem;
   margin-bottom: 1rem;
+  opacity: 0.7;
 }
 
 .file-types {
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  color: #6c757d;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.drop-zone-hint {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.drop-zone-hint i {
+  margin-right: 0.5rem;
 }
 
 .file-info {
@@ -728,34 +938,66 @@ function onModeChange() {
 
 .analyze-section {
   text-align: center;
+  margin: 1rem 0 2rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+  border-radius: 16px;
+  border: 2px solid #e3f2fd;
 }
 
 .analyze-btn {
-  background: #007bff;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 16px;
+  padding: 1.25rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.analyze-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.analyze-btn:hover:not(.disabled)::before {
+  left: 100%;
 }
 
 .analyze-btn:hover:not(.disabled) {
-  background: #0056b3;
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+}
+
+.analyze-btn:active:not(.disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
 .analyze-btn.disabled {
-  background: #6c757d;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+.analyze-btn.disabled::before {
+  display: none;
 }
 
 .analyzing-spinner {
@@ -854,9 +1096,39 @@ embed, object, iframe {
     margin-top: 1.5rem;
   }
   
+  .analyze-section {
+    padding: 1.5rem;
+    margin: 1rem 0 1.5rem 0;
+  }
+  
   .analyze-btn {
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .file-drop-zone {
+    padding: 2rem 1rem;
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+  }
+  
+  .input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input-icon {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .input-status {
+    padding: 0.75rem;
+    text-align: center;
+    border-top: 1px solid #e9ecef;
   }
 }
 
@@ -879,10 +1151,22 @@ embed, object, iframe {
     padding: 1rem;
   }
   
-  .text-input textarea,
-  .url-input input {
+  .text-input-field,
+  .url-input-field,
+  .quick-citation-input {
     padding: 0.75rem;
     font-size: 0.9rem;
+  }
+  
+  .analyze-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .input-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
 }
 </style> 

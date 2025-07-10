@@ -1,153 +1,448 @@
-from typing import Dict, List, Optional
+"""
+Enhanced Case Name Extraction Core
+Provides contamination-free extraction of case names and dates from document text.
+"""
+
 import re
-import difflib
 import logging
-from rapidfuzz import fuzz
-import string
+from typing import Dict, Optional, Any, List, Tuple
+from datetime import datetime
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("case_name_extraction")
 
-# --- Canonical Name ---
-from src.extract_case_name import (
-    get_canonical_case_name_from_courtlistener,
-    get_canonical_case_name_from_google_scholar,
-    extract_case_name_hinted,
-    clean_case_name,
-    is_valid_case_name,
-    expand_abbreviations
-)
+class DateExtractor:
+    """
+    Enhanced Date Extractor - Consolidated from across the codebase.
+    
+    This class consolidates the best date extraction functionality from:
+    - src/standalone_citation_parser.py (DateExtractor class)
+    - src/unified_citation_processor_v2.py (_extract_date_from_context)
+    - src/enhanced_extraction_utils.py (extract_date_enhanced)
+    - src/unified_citation_processor.py (DateExtractor class)
+    
+    Provides comprehensive date extraction with multiple strategies and formats.
+    """
+    
+    def __init__(self):
+        # Comprehensive date patterns from standalone_citation_parser.py
+        self.date_patterns = [
+            # ISO format: 2024-01-15
+            r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b',
+            
+            # US format: 01/15/2024, 1/15/2024
+            r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b',
+            
+            # US format with month names: January 15, 2024, Jan 15, 2024
+            r'\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),?\s+(\d{4})\b',
+            
+            # Year only in parentheses: (2024)
+            r'\((\d{4})\)',
+            
+            # Year in citation context: decided in 2024, filed in 2024
+            r'(?:decided|filed|issued|released|argued|submitted)\s+(?:in\s+)?(\d{4})\b',
+            
+            # Simple year pattern: 2024
+            r'\b(19|20)\d{2}\b',
+            
+            # Date with ordinal: January 15th, 2024
+            r'\b(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b',
+            
+            # European format: 15/01/2024 (ambiguous, but common)
+            r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b',
+            
+            # Additional patterns for legal context
+            r'(?:opinion|decision|ruling)\s+(?:of|in)\s+(\d{4})\b',
+            r'(?:case|matter)\s+(?:decided|filed)\s+(?:in\s+)?(\d{4})\b',
+            r'(?:court|judge)\s+(?:decided|ruled)\s+(?:in\s+)?(\d{4})\b',
+        ]
+        
+        self.month_map = {
+            'january': '01', 'jan': '01',
+            'february': '02', 'feb': '02',
+            'march': '03', 'mar': '03',
+            'april': '04', 'apr': '04',
+            'may': '05',
+            'june': '06', 'jun': '06',
+            'july': '07', 'jul': '07',
+            'august': '08', 'aug': '08',
+            'september': '09', 'sep': '09',
+            'october': '10', 'oct': '10',
+            'november': '11', 'nov': '11',
+            'december': '12', 'dec': '12'
+        }
+    
+    def extract_date_from_context(self, text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
+        """
+        Extract date from context around citation position.
+        
+        Args:
+            text: Full document text
+            citation_start: Start position of citation in text
+            citation_end: End position of citation in text
+            context_window: Number of characters to look around citation
+            
+        Returns:
+            Extracted date in ISO format (YYYY-MM-DD) or None if not found
+        """
+        try:
+            # Extract context around citation
+            context_start = max(0, citation_start - context_window)
+            context_end = min(len(text), citation_end + context_window)
+            context = text[context_start:context_end]
+            
+            # Try each date pattern
+            for pattern_str in self.date_patterns:
+                try:
+                    pattern = re.compile(pattern_str, re.IGNORECASE)
+                    matches = pattern.finditer(context)
+                    
+                    # Find the date closest to the citation
+                    best_date = None
+                    best_distance = float('inf')
+                    
+                    for match in matches:
+                        date_str = self._parse_date_match(match, pattern_str)
+                        if date_str:
+                            # Calculate distance from citation
+                            match_start = context_start + match.start()
+                            distance = abs(match_start - citation_start)
+                            
+                            if distance < best_distance:
+                                best_distance = distance
+                                best_date = date_str
+                    
+                    if best_date:
+                        return best_date
+                        
+                except Exception as e:
+                    logger.debug(f"Error with date pattern {pattern_str}: {e}")
+                    continue
+            
+            return None
+            
+        except Exception as e:
+            logger.warning(f"Error extracting date from context: {e}")
+            return None
+    
+    def extract_date_from_citation(self, text: str, citation: str) -> Optional[str]:
+        """
+        Extract date using citation as context anchor.
+        
+        Args:
+            text: Full document text
+            citation: Citation text to use as anchor
+            
+        Returns:
+            Extracted date in ISO format (YYYY-MM-DD) or None if not found
+        """
+        try:
+            # Find citation in text
+            citation_index = text.find(citation)
+            if citation_index == -1:
+                return self.extract_date_from_full_text(text)
+            
+            # Look for year in parentheses immediately after citation
+            after_citation = text[citation_index + len(citation): citation_index + len(citation) + 20]
+            match = re.search(r'\(\s*(\d{4})\s*\)', after_citation)
+            if match:
+                year = match.group(1)
+                if 1900 <= int(year) <= 2100:
+                    return f"{year}-01-01"
+            
+            # Fallback to context-based extraction
+            return self.extract_date_from_context(text, citation_index, citation_index + len(citation))
+            
+        except Exception as e:
+            logger.warning(f"Error extracting date from citation: {e}")
+            return None
+    
+    def extract_date_from_full_text(self, text: str) -> Optional[str]:
+        """
+        Extract date from full text without citation context.
+        
+        Args:
+            text: Full document text
+            
+        Returns:
+            Extracted date in ISO format (YYYY-MM-DD) or None if not found
+        """
+        try:
+            best_date = None
+            best_confidence = 0
+            
+            for pattern_str in self.date_patterns:
+                try:
+                    pattern = re.compile(pattern_str, re.IGNORECASE)
+                    matches = pattern.finditer(text)
+                    
+                    for match in matches:
+                        date_str = self._parse_date_match(match, pattern_str)
+                        if date_str:
+                            confidence = self._calculate_date_confidence(pattern_str, match.groups())
+                            if confidence > best_confidence:
+                                best_date = date_str
+                                best_confidence = confidence
+                                
+                except Exception as e:
+                    logger.debug(f"Error with date pattern {pattern_str}: {e}")
+                    continue
+            
+            return best_date
+            
+        except Exception as e:
+            logger.warning(f"Error extracting date from full text: {e}")
+            return None
+    
+    def extract_year_only(self, text: str, citation: str = None) -> Optional[str]:
+        """
+        Extract just the year from text.
+        
+        Args:
+            text: Text to search for years
+            citation: Optional citation to use for context positioning
+            
+        Returns:
+            Extracted year as string or None if not found
+        """
+        try:
+            if citation:
+                date = self.extract_date_from_citation(text, citation)
+            else:
+                date = self.extract_date_from_full_text(text)
+            
+            if date:
+                return date.split('-')[0]
+            return None
+            
+        except Exception as e:
+            logger.warning(f"Error extracting year: {e}")
+            return None
+    
+    def _parse_date_match(self, match, pattern_str: str) -> Optional[str]:
+        """Parse date match and return ISO format date string."""
+        try:
+            groups = match.groups()
+            
+            if len(groups) == 3:
+                # Full date pattern
+                if 'January|February' in pattern_str:
+                    # Month name format
+                    month_name, day, year = groups
+                    month = self.month_map.get(month_name.lower(), '01')
+                elif pattern_str == r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b':
+                    # ISO format
+                    year, month, day = groups
+                else:
+                    # Assume US format (MM/DD/YYYY)
+                    month, day, year = groups
+                
+                # Validate and format
+                try:
+                    year_int = int(year)
+                    month_int = int(month)
+                    day_int = int(day)
+                    
+                    if 1900 <= year_int <= 2100 and 1 <= month_int <= 12 and 1 <= day_int <= 31:
+                        return f"{year_int:04d}-{month_int:02d}-{day_int:02d}"
+                except (ValueError, TypeError):
+                    pass
+                    
+            elif len(groups) == 1:
+                # Year only pattern
+                year = groups[0]
+                try:
+                    year_int = int(year)
+                    if 1900 <= year_int <= 2100:
+                        return f"{year_int:04d}-01-01"  # Default to January 1st
+                except (ValueError, TypeError):
+                    pass
+            
+            return None
+            
+        except Exception as e:
+            logger.debug(f"Error parsing date match: {e}")
+            return None
+    
+    def _calculate_date_confidence(self, pattern_str: str, groups: tuple) -> float:
+        """Calculate confidence score for a date match."""
+        confidence = 0.0
+        
+        # Base confidence by pattern type
+        if 'January|February' in pattern_str:
+            confidence += 0.9  # Full month name is very reliable
+        elif pattern_str == r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b':
+            confidence += 0.8  # ISO format is reliable
+        elif pattern_str == r'\((\d{4})\)':
+            confidence += 0.7  # Year in parentheses is common in citations
+        elif 'decided|filed|issued' in pattern_str:
+            confidence += 0.6  # Legal context words
+        else:
+            confidence += 0.5  # Basic pattern
+        
+        # Boost confidence for recent years (more likely to be relevant)
+        if len(groups) >= 1:
+            try:
+                year = int(groups[0])
+                if 2000 <= year <= datetime.now().year:
+                    confidence += 0.1
+            except (ValueError, TypeError):
+                pass
+        
+        return min(confidence, 1.0)
+    
+    def validate_date(self, date_str: str) -> bool:
+        """
+        Validate if a date string is reasonable.
+        
+        Args:
+            date_str: Date string to validate
+            
+        Returns:
+            True if date is valid and reasonable
+        """
+        try:
+            if not date_str:
+                return False
+            
+            # Handle year-only format
+            if re.match(r'^\d{4}$', date_str):
+                year = int(date_str)
+                return 1800 <= year <= datetime.now().year + 1
+            
+            # Handle ISO format
+            if '-' in date_str:
+                parts = date_str.split('-')
+                if len(parts) >= 3:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                    day = int(parts[2])
+                    return (1800 <= year <= datetime.now().year + 1 and 
+                            1 <= month <= 12 and 
+                            1 <= day <= 31)
+                elif len(parts) >= 1:
+                    year = int(parts[0])
+                    return 1800 <= year <= datetime.now().year + 1
+            
+            return False
+            
+        except (ValueError, TypeError):
+            return False
+    
+    def normalize_date_format(self, date_str: str) -> str:
+        """
+        Normalize date format to ISO standard.
+        
+        Args:
+            date_str: Date string to normalize
+            
+        Returns:
+            Normalized date string in ISO format
+        """
+        try:
+            if not date_str:
+                return "N/A"
+            
+            # If it's already in ISO format, return as is
+            if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
+                return date_str
+            
+            # If it's just a year, convert to ISO format
+            if re.match(r'^\d{4}$', date_str):
+                year = int(date_str)
+                if 1800 <= year <= datetime.now().year + 1:
+                    return f"{year:04d}-01-01"
+            
+            # Try to parse other formats
+            date = self.extract_date_from_full_text(date_str)
+            if date:
+                return date
+            
+            return "N/A"
+            
+        except Exception as e:
+            logger.debug(f"Error normalizing date format: {e}")
+            return "N/A"
 
-def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]:
+# Create a global instance for easy access
+date_extractor = DateExtractor()
+
+def extract_case_name_fixed_comprehensive(text: str, citation: str) -> str:
+    """
+    Enhanced case name extraction using UnifiedCitationProcessorV2.
+    Replaces the existing extract_case_name_fixed function.
+    """
     try:
-        canonical = get_canonical_case_name_from_courtlistener(citation, api_key)
-        if canonical:
-            if isinstance(canonical, dict):
-                return canonical.get('case_name', '') or ''
-            if isinstance(canonical, str):
-                return canonical
+        # Use UnifiedCitationProcessorV2 for extraction
+        config = ProcessingConfig(
+            use_eyecite=False,  # Focus on regex extraction for case names
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=False,  # We only need case names here
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        
+        # Process the text to find citations and extract case names
+        results = processor.process_text(text)
+        
+        # Find the result for our specific citation
+        for result in results:
+            if result.citation == citation:
+                return result.case_name or ''
+        
+        return ''
     except Exception as e:
-        pass
+        import logging
+        logging.error(f"Error in extract_case_name_fixed_comprehensive: {e}")
+        return ""
+
+def extract_year_fixed_comprehensive(text: str, citation: str) -> str:
+    """
+    Enhanced year extraction using UnifiedCitationProcessorV2.
+    Replaces the existing extract_year_fixed function.
+    """
     try:
-        canonical = get_canonical_case_name_from_google_scholar(citation, api_key)
-        if canonical:
-            if isinstance(canonical, dict):
-                return canonical.get('case_name', '') or ''
-            if isinstance(canonical, str):
-                return canonical
+        # Use UnifiedCitationProcessorV2 for extraction
+        config = ProcessingConfig(
+            use_eyecite=False,  # Focus on regex extraction for dates
+            use_regex=True,
+            extract_case_names=False,  # We only need dates here
+            extract_dates=True,
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        
+        # Process the text to find citations and extract dates
+        results = processor.process_text(text)
+        
+        # Find the result for our specific citation
+        for result in results:
+            if result.citation == citation:
+                return result.date or ''
+        
+        return ''
     except Exception as e:
-        pass
-    return ''
-
-def extract_year_fixed(text: str, citation: str) -> str:
-    citation_pos = text.find(citation)
-    if citation_pos == -1:
+        import logging
+        logging.error(f"Error in extract_year_fixed_comprehensive: {e}")
         return ""
-    after_citation = text[citation_pos + len(citation):]
-    year_match = re.search(r'\s*\((\d{4})\)', after_citation)
-    if year_match:
-        return year_match.group(1)
-    return ""
 
-def extract_case_name_fixed(text: str, citation: str) -> str:
-    citation_pos = text.find(citation)
-    if citation_pos == -1:
-        return ""
-    before_citation = text[:citation_pos]
-    before_citation = before_citation.strip()
-    sentences = re.split(r'[.;]\s*', before_citation)
-    if sentences:
-        last_sentence = sentences[-1].strip()
-        case_pattern = r'([A-Z][^,]*?\s+v\.?\s+[^,]*?)$'
-        match = re.search(case_pattern, last_sentence)
-        if match:
-            case_name = match.group(1).strip()
-            if len(case_name) > 5 and ' v' in case_name.lower():
-                return case_name
-    immediate_before = before_citation.split(';')[-1].strip()
-    case_pattern = r'([A-Z][^,]*?\s+v\.?\s+[^,]*?)$'
-    match = re.search(case_pattern, immediate_before)
-    if match:
-        case_name = match.group(1).strip()
-        if len(case_name) > 5 and ' v' in case_name.lower():
-            return case_name
-    return ""
-
-def extract_citations_and_cases_fixed(text: str) -> List[Dict[str, str]]:
-    results = []
-    citation_pattern = r'(\d+\s+Wn\.2d\s+\d+(?:\s*,\s*\d+)*(?:\s*,\s*\d+\s+[A-Z]\.\?[a-z]*\.?\s*(?:2d|3d)?\s+\d+)*)\s*\((\d{4})\)'
-    matches = re.finditer(citation_pattern, text)
-    for match in matches:
-        full_citation = match.group(1) + f" ({match.group(2)})"
-        citation_without_year = match.group(1)
-        year = match.group(2)
-        case_name = extract_case_name_fixed(text, citation_without_year)
-        results.append({
-            'citation': full_citation,
-            'citation_without_year': citation_without_year,
-            'case_name': case_name if case_name else "N/A",
-            'year': year,
-            'extraction_method': 'fixed_regex'
-        })
-    return results
-
-# --- COMPATIBILITY WRAPPERS ---
-def extract_case_name_from_text(text, citation, context_window=100, canonical_name: str = None):
+def extract_case_name_triple_comprehensive(text: str, citation: str, api_key: str = None, context_window: int = 100) -> dict:
     """
-    Compatibility wrapper for extract_case_name_from_text.
-    Now uses the improved extract_case_name_fixed function.
-    """
-    return extract_case_name_fixed(text, citation)
-
-def extract_year_from_line(line: str) -> str:
-    """
-    Compatibility wrapper for extract_year_from_line.
-    Now uses the improved extract_year_fixed function with the line as both text and citation.
-    """
-    # Look for year in parentheses in the line
-    year_match = re.search(r'\((\d{4})\)', line)
-    if year_match:
-        return year_match.group(1)
-    return ""
-
-def extract_year_after_last_citation(line: str) -> str:
-    """
-    Compatibility wrapper for extract_year_after_last_citation.
-    Now uses the improved extract_year_fixed function.
-    """
-    # Find the last citation pattern in the line and extract year after it
-    citation_patterns = [
-        r'\d+\s+[A-Z][a-z]*\.?\d*\s+\d+',  # 123 Wn.2d 456, 123 P.3d 789
-        r'\d+\s+[A-Z]\.[a-z]*\.?\d*\s+\d+',  # 123 U.S. 456
-        r'\d+\s+[A-Z][a-z]+\d+\s+\d+',  # 123 Wash2d 456
-        r'\d+\s+[A-Z][a-z]+\s+\d+',  # 123 Wash 456
-    ]
+    COMPREHENSIVE CASE NAME AND DATE EXTRACTION FUNCTION
     
-    last_citation_end = 0
-    for pattern in citation_patterns:
-        for match in re.finditer(pattern, line):
-            last_citation_end = max(last_citation_end, match.end())
+    This is the ONLY supported extraction function for all backend processing.
+    All API endpoints, document processing, and citation verification should use this function.
     
-    if last_citation_end > 0:
-        remaining_text = line[last_citation_end:]
-        year_match = re.search(r'\((\d{4})\)', remaining_text)
-        if year_match:
-            return year_match.group(1)
+    DO NOT use other extraction functions (extract_case_name_from_text, extract_case_name_hinted, etc.)
+    in production code. This ensures consistent results across all code paths.
     
-    return extract_year_from_line(line)
-
-def extract_year_near_citation(text: str, citation: str, max_tokens: int = 20) -> str:
+    Returns:
+        dict: Contains extracted_name, extracted_date, case_name, canonical_name, canonical_date
     """
-    Compatibility wrapper for extract_year_near_citation.
-    Now uses the improved extract_year_fixed function.
     """
-    return extract_year_fixed(text, citation)
-
-def extract_case_name_triple(text: str, citation: str, api_key: str = None, context_window: int = 100) -> dict:
-    """
-    Fixed version that prioritizes extracted names from the actual document.
-    Canonical names are kept separate and NOT used to replace extracted names.
+    FIXED VERSION: Comprehensive extraction with strict contamination prevention.
+    EXTRACTION ONLY - NO API CALLS.
     """
     import logging
     logger = logging.getLogger("case_name_extraction")
@@ -157,222 +452,289 @@ def extract_case_name_triple(text: str, citation: str, api_key: str = None, cont
         'canonical_name': "N/A",
         'extracted_name': "N/A", 
         'hinted_name': "N/A",
-        'case_name': "N/A",  # This should ONLY be from the document
+        'case_name': "N/A",
         'canonical_date': "N/A",
         'extracted_date': "N/A",
         'case_name_confidence': 0.0,
-        'case_name_method': "none"
+        'case_name_method': "none",
+        'debug_info': {
+            'full_citation_found': None,
+            'extraction_method': None,
+            'parser_result': None,
+            'contamination_check': 'extraction_only_no_api'
+        }
     }
     
     try:
-        logger.debug(f"Extracting for citation: '{citation}'")
+        logger.debug(f"Comprehensive extraction for citation: '{citation}'")
         
-        # PRIORITY 1: Try fixed extraction from the actual document
-        fixed_name = extract_case_name_fixed(text, citation)
-        fixed_date = extract_year_fixed(text, citation)
+        # PRIORITY 1: Use UnifiedCitationProcessorV2 for extraction (DOCUMENT TEXT ONLY)
+        config = ProcessingConfig(
+            use_eyecite=False,  # Focus on regex extraction
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=True,
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
         
-        if fixed_name:
-            result['extracted_name'] = fixed_name
-            result['case_name'] = fixed_name  # Use what's actually in the document
-            result['case_name_confidence'] = 0.9
-            result['case_name_method'] = "fixed_extraction"
-            logger.info(f"Fixed extraction found case name: {fixed_name}")
+        # Process the text to find citations and extract case names/dates
+        processor_results = processor.process_text(text)
         
-        if fixed_date:
-            result['extracted_date'] = fixed_date
-            logger.info(f"Fixed extraction found date: {fixed_date}")
+        # Find the result for our specific citation
+        citation_result = None
+        for proc_result in processor_results:
+            if proc_result.citation == citation:
+                citation_result = proc_result
+                break
         
-        # PRIORITY 2: Try enhanced extraction if available (as fallback for document extraction)
-        if result['case_name'] == "N/A":
-            try:
-                from src.enhanced_case_name_extraction import extract_case_name_enhanced
-                match = extract_case_name_enhanced(text, citation, context_window=context_window)
-                if match and hasattr(match, 'cleaned_name') and match.cleaned_name:
-                    result['extracted_name'] = match.cleaned_name
-                    result['case_name'] = match.cleaned_name  # Still from the document
-                    result['case_name_confidence'] = getattr(match, 'confidence', 0.8)
-                    result['case_name_method'] = getattr(match, 'extraction_method', "enhanced")
-                    logger.info(f"Enhanced extraction found: {match.cleaned_name}")
-            except (ImportError, Exception) as e:
-                logger.warning(f"Enhanced extraction failed: {e}")
+        if citation_result:
+            result['debug_info']['parser_result'] = {
+                'case_name': citation_result.case_name,
+                'date': citation_result.date,
+                'extraction_method': 'UnifiedCitationProcessorV2'
+            }
+            result['debug_info']['full_citation_found'] = True
+            result['debug_info']['extraction_method'] = 'UnifiedCitationProcessorV2'
+            
+            # Extract case name from document text only
+            extracted_case_name = citation_result.case_name
+            if extracted_case_name:
+                result['extracted_name'] = extracted_case_name
+                result['case_name'] = extracted_case_name
+                result['case_name_confidence'] = 0.95
+                result['case_name_method'] = "UnifiedCitationProcessorV2"
+                logger.info(f"UnifiedCitationProcessorV2 found case name: '{extracted_case_name}'")
+            
+            # Extract date from document text only
+            extracted_year = citation_result.date
+            if extracted_year:
+                result['extracted_date'] = extracted_year
+                logger.info(f"UnifiedCitationProcessorV2 found year: '{extracted_year}'")
         
-        # PRIORITY 3: Try hinted extraction (uses canonical as hint but extracts from document)
-        if result['case_name'] == "N/A":
-            try:
-                # Get canonical name to use as a hint (but don't use it directly)
-                canonical_result = get_canonical_case_name_with_date(citation, api_key)
-                canonical_name = ""
-                if canonical_result:
-                    if isinstance(canonical_result, dict):
-                        canonical_name = canonical_result.get('case_name', '') or ''
-                        result['canonical_date'] = canonical_result.get('date', 'N/A') or 'N/A'
-                    else:
-                        canonical_name = str(canonical_result) or ''
-                    result['canonical_name'] = canonical_name or 'N/A'
-                
-                # Use canonical as hint to find similar text in the document
-                if canonical_name:
-                    hinted_name = extract_case_name_hinted(text, citation, canonical_name, api_key)
-                    if hinted_name:
-                        result['hinted_name'] = hinted_name
-                        result['case_name'] = hinted_name  # This is still from the document
-                        result['case_name_confidence'] = 0.7
-                        result['case_name_method'] = "hinted_from_document"
-                        logger.info(f"Hinted extraction found: {hinted_name}")
-                
-            except Exception as e:
-                logger.warning(f"Canonical lookup or hinted extraction failed: {e}")
+        # CRITICAL: NO CANONICAL LOOKUP IN EXTRACTION FUNCTION
+        # Canonical lookup should happen separately in verification workflow
+        logger.info(f"Extraction complete - canonical lookup will be done separately")
         
-        # Get canonical info separately (for reference only, not to replace extracted)
-        if result['canonical_name'] == "N/A":
-            try:
-                canonical_result = get_canonical_case_name_with_date(citation, api_key)
-                if canonical_result:
-                    if isinstance(canonical_result, dict):
-                        result['canonical_name'] = canonical_result.get('case_name', 'N/A') or 'N/A'
-                        if result['canonical_date'] == "N/A":
-                            result['canonical_date'] = canonical_result.get('date', 'N/A') or 'N/A'
-                    else:
-                        result['canonical_name'] = str(canonical_result) or 'N/A'
-                    logger.info(f"Canonical lookup found: {result['canonical_name']}")
-            except Exception as e:
-                logger.warning(f"Canonical lookup failed: {e}")
+        # Log final results
+        logger.info(f"Final extraction result for '{citation}':")
+        logger.info(f"  Extracted case name: '{result['extracted_name']}'")
+        logger.info(f"  Extracted date: '{result['extracted_date']}'")
+        logger.info(f"  Method: '{result['case_name_method']}'")
+        logger.info(f"  Contamination check: '{result['debug_info']['contamination_check']}'")
+            
+    except Exception as e:
+        logger.error(f"Error in extract_case_name_triple_comprehensive: {e}")
+        result['debug_info']['extraction_method'] = f"error: {str(e)}"
+    
+    return result
+
+# Helper functions for contamination-free extraction
+def extract_case_name_from_text_isolated(text: str, citation: str) -> str:
+    """
+    Isolates case name extraction from the full text and citation using UnifiedCitationProcessorV2.
+    """
+    try:
+        config = ProcessingConfig(
+            use_eyecite=False,
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=False,
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        results = processor.process_text(text)
         
-        # Enhanced date extraction if needed
-        if result['extracted_date'] == "N/A":
-            try:
-                from src.enhanced_date_extraction import extract_year_near_citation_enhanced
-                enhanced_date = extract_year_near_citation_enhanced(text, citation, context_window=300)
-                if enhanced_date:
-                    result['extracted_date'] = enhanced_date
-                    logger.info(f"Enhanced date extraction found: {enhanced_date}")
-            except (ImportError, Exception) as e:
-                logger.warning(f"Enhanced date extraction failed: {e}")
+        for result in results:
+            if result.citation == citation:
+                return result.case_name or ''
+        return ''
+    except Exception as e:
+        import logging
+        logging.error(f"Error in extract_case_name_from_text_isolated: {e}")
+        return ""
+
+def extract_year_from_context_isolated(text: str, citation: str) -> str:
+    """
+    Isolates year extraction from the full text and citation using UnifiedCitationProcessorV2.
+    """
+    try:
+        config = ProcessingConfig(
+            use_eyecite=False,
+            use_regex=True,
+            extract_case_names=False,
+            extract_dates=True,
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        results = processor.process_text(text)
+        
+        for result in results:
+            if result.citation == citation:
+                return result.date or ''
+        return ''
+    except Exception as e:
+        import logging
+        logging.error(f"Error in extract_year_from_context_isolated: {e}")
+        return ""
+
+def _is_valid_case_name(name: str) -> bool:
+    """
+    Checks if a given name is a valid case name.
+    """
+    # Basic checks: not empty, not just whitespace, not "N/A"
+    if not name or name.strip() == "N/A":
+        return False
+    # More sophisticated checks could involve regex for specific patterns
+    # or a list of known valid case name formats.
+    return True
+
+def _is_valid_year(year: str) -> bool:
+    """
+    Checks if a given year is a valid year.
+    """
+    if not year or year.strip() == "N/A":
+        return False
+    # Basic regex for 4-digit year
+    import re
+    year_match = re.search(r'(\d{4})', year)
+    if year_match:
+        return True
+    return False
+
+def extract_case_name_triple(text, citation, api_key=None, context_window=100):
+    """
+    Extract case name, date, and citation from document text using enhanced patterns.
+    
+    Args:
+        text (str): The full document text
+        citation (str): The citation to search for
+        api_key (str, optional): API key for external services
+        context_window (int): Context window size for extraction
+        
+    Returns:
+        dict: Dictionary with extraction results
+    """
+    logger = logging.getLogger("case_name_extraction")
+    
+    # Initialize results
+    result = {
+        'extracted_name': "N/A",
+        'extracted_date': "N/A",
+        'case_name': "N/A",
+        'canonical_name': "N/A",
+        'canonical_date': "N/A"
+    }
+    
+    try:
+        logger.debug(f"Extracting case name and date for citation: '{citation}'")
+        
+        # Use UnifiedCitationProcessorV2 for extraction
+        config = ProcessingConfig(
+            use_eyecite=False,
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=True,
+            enable_clustering=False
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        processor_results = processor.process_text(text)
+        
+        # Find the result for our specific citation
+        citation_result = None
+        for proc_result in processor_results:
+            if proc_result.citation == citation:
+                citation_result = proc_result
+                break
+        
+        if citation_result:
+            # Extract case name from document text
+            extracted_case_name = citation_result.case_name
+            if extracted_case_name:
+                result['extracted_name'] = extracted_case_name
+                result['case_name'] = extracted_case_name
+                logger.info(f"Extracted case name: '{extracted_case_name}'")
+            
+            # Extract date from document text
+            extracted_year = citation_result.date
+            if extracted_year:
+                result['extracted_date'] = extracted_year
+                logger.info(f"Extracted year: '{extracted_year}'")
+        
+        # Note: Canonical lookup should be done separately in verification workflow
+        logger.info(f"Extraction complete - canonical lookup will be done separately")
             
     except Exception as e:
         logger.error(f"Error in extract_case_name_triple: {e}")
     
     return result
 
-def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Optional[dict]:
-    import logging
-    logger = logging.getLogger("case_name_extraction")
-    citation_variants = _generate_citation_variants(citation)
-    logger.debug(f"[get_canonical_case_name_with_date] Generated {len(citation_variants)} variants for citation: {citation}")
-    for variant in citation_variants:
-        try:
-            canonical = get_canonical_case_name_from_courtlistener(variant, api_key)
-            if canonical:
-                logger.debug(f"[get_canonical_case_name_with_date] Found result with variant: {variant}")
-                if isinstance(canonical, dict):
-                    return canonical
-                if isinstance(canonical, str):
-                    return {'case_name': canonical, 'date': ''}
-        except Exception as e:
-            logger.debug(f"[get_canonical_case_name_with_date] CourtListener failed for variant '{variant}': {e}")
-    try:
-        canonical = get_canonical_case_name_from_google_scholar(citation, api_key)
-        if canonical:
-            if isinstance(canonical, dict):
-                return canonical
-            if isinstance(canonical, str):
-                return {'case_name': canonical, 'date': ''}
-    except Exception as e:
-        logger.warning(f"Failed to get canonical name from Google Scholar: {e}")
-    return None
-
-def _generate_citation_variants(citation: str) -> List[str]:
-    import re
-    variants = [citation]
-    try:
-        from src.citation_format_utils import normalize_washington_synonyms
-        from src.citation_patterns import normalize_washington_citation
-        norm1 = normalize_washington_synonyms(citation)
-        norm2 = normalize_washington_citation(citation)
-        for form in (norm1, norm2):
-            if form and form not in variants:
-                variants.append(form)
-    except ImportError:
-        pass
-    washington_variants = _generate_washington_variants(citation)
-    variants.extend(washington_variants)
-    generic_variants = set()
-    generic_variants.add(re.sub(r"\bApp\.\b", "App", citation))
-    generic_variants.add(re.sub(r"\bApp\b", "App.", citation))
-    generic_variants.add(re.sub(r"\bDiv\.\b", "Div", citation))
-    generic_variants.add(re.sub(r"\bDiv\b", "Div.", citation))
-    generic_variants.add(re.sub(r"\bCal\.\b", "Cal", citation))
-    generic_variants.add(re.sub(r"\bCal\b", "Cal.", citation))
-    generic_variants.add(re.sub(r"\bN\.Y\.\b", "NY", citation))
-    generic_variants.add(re.sub(r"\bNY\b", "N.Y.", citation))
-    generic_variants.add(re.sub(r"\bIll\.\b", "Ill", citation))
-    generic_variants.add(re.sub(r"\bIll\b", "Ill.", citation))
-    generic_variants.add(re.sub(r"\bTex\.\b", "Tex", citation))
-    generic_variants.add(re.sub(r"\bTex\b", "Tex.", citation))
-    generic_variants.add(re.sub(r"\bPa\.\b", "Pa", citation))
-    generic_variants.add(re.sub(r"\bPa\b", "Pa.", citation))
-    base_citation = re.sub(r'\s+', ' ', citation).strip()
-    spacing_variants = [
-        base_citation,
-        re.sub(r'(\d+)\s+([A-Z])', r'\1 \2', base_citation),
-        re.sub(r'([A-Z])\s+(\d+)', r'\1 \2', base_citation),
-        re.sub(r'(\d+)\s*([A-Z]{2,})\s*(\d+)', r'\1 \2 \3', base_citation),
+def test_comprehensive_integration():
+    """
+    Test the comprehensive integration with your existing system.
+    """
+    text = """A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlsen v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2002)"""
+    
+    citations = [
+        "200 Wash. 2d 72, 514 P.3d 643",
+        "171 Wash. 2d 486 256 P.3d 321",
+        "146 Wash. 2d 1 43 P.3d 4"
     ]
-    variants.extend(spacing_variants)
-    reporter_variants = []
-    if 'Wn.' in citation or 'Wn' in citation:
-        reporter_variants.extend([
-            re.sub(r'Wn\.?\s*', 'Wash. ', citation),
-            re.sub(r'Wn\.?\s*', 'Washington ', citation),
-            re.sub(r'Wn\.?\s*', 'Wn. ', citation),
-        ])
-    if 'F.' in citation or 'F.3d' in citation or 'F.2d' in citation:
-        reporter_variants.extend([
-            re.sub(r'F\.?\s*(\d+)d', r'F.\1d', citation),
-            re.sub(r'F\.?\s*(\d+)d', r'F \1d', citation),
-        ])
-    if 'U.S.' in citation or 'US' in citation:
-        reporter_variants.extend([
-            re.sub(r'U\.?\s*S\.?', 'U.S.', citation),
-            re.sub(r'U\.?\s*S\.?', 'US', citation),
-        ])
-    variants.extend(reporter_variants)
-    variants.extend(generic_variants)
-    variants = [form for form in variants if form and form.strip()]
-    variants = list(dict.fromkeys(variants))
-    return variants
+    
+    print("=== COMPREHENSIVE INTEGRATION TEST ===")
+    
+    for citation in citations:
+        print(f"\n--- Testing: {citation} ---")
+        
+        # Test individual functions
+        case_name = extract_case_name_fixed_comprehensive(text, citation)
+        year = extract_year_fixed_comprehensive(text, citation)
+        
+        print(f"Case Name: '{case_name}'")
+        print(f"Year: '{year}'")
+        
+        # Test comprehensive triple function
+        result = extract_case_name_triple_comprehensive(text, citation)
+        
+        print(f"Triple Result:")
+        print(f"  case_name: '{result['case_name']}'")
+        print(f"  extracted_date: '{result['extracted_date']}'")
+        print(f"  method: '{result['case_name_method']}'")
+        print(f"  full_citation: '{result['debug_info']['full_citation_found']}'")
+        
+        # Check for success
+        if result['case_name'] != 'N/A' and result['extracted_date'] != 'N/A':
+            print("✅ SUCCESS: Both case name and date extracted")
+        elif result['case_name'] != 'N/A':
+            print("⚠️  PARTIAL: Case name extracted, no date")
+        elif result['extracted_date'] != 'N/A':
+            print("⚠️  PARTIAL: Date extracted, no case name")
+        else:
+            print("❌ FAILED: No extraction")
 
-def _generate_washington_variants(citation: str) -> List[str]:
-    import re
-    variants = []
-    normalized_citation = citation.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
-    washington_patterns = [
-        (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wash. \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Washington \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wash. App. \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Washington App. \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*App\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. App. \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*2d\s+(\d+[a-z]?)\s+(\d+)', r'\1 Wash. 2d \2 \3'),
-        (r'(\d+)\s+Wn\.?\s*2d\s+(\d+[a-z]?)\s+(\d+)', r'\1 Washington 2d \2 \3'),
-        (r'(\d+)\s+Wash\.?\s*(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
-        (r'(\d+)\s+Washington\s+(\d+[a-z]?)\s+(\d+)', r'\1 Wn. \2 \3'),
-    ]
-    for original, replacement in washington_patterns:
-        variant = re.sub(original, replacement, citation, flags=re.IGNORECASE)
-        if variant != citation:
-            variants.append(variant)
-        variant = re.sub(original, replacement, normalized_citation, flags=re.IGNORECASE)
-        if variant != normalized_citation and variant not in variants:
-            variants.append(variant)
-    if normalized_citation != citation:
-        variants.append(normalized_citation)
-    if 'Wn.' in citation or 'Wn ' in citation:
-        wash_variant = citation.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
-        if wash_variant not in variants:
-            variants.append(wash_variant)
-        wash_full_variant = citation.replace('Wn.', 'Washington ').replace('Wn ', 'Washington ')
-        if wash_full_variant not in variants:
-            variants.append(wash_full_variant)
-    return variants 
+# Usage instructions for integration:
+"""
+TO INTEGRATE INTO YOUR EXISTING CODE:
+
+1. Add the CitationParser class to your codebase
+2. Replace your existing extraction functions:
+   - extract_case_name_fixed -> extract_case_name_fixed_comprehensive
+   - extract_year_fixed -> extract_year_fixed_comprehensive  
+   - extract_case_name_triple -> extract_case_name_triple_comprehensive
+
+3. The new functions have the same signatures as your existing ones,
+   so they're drop-in replacements.
+
+4. The comprehensive parser handles:
+   - Multiple citation formats (Wn.2d vs Wash.2d)
+   - Pinpoint citations (486, 493)
+   - Parallel citations (256 P.3d 321)
+   - Complex patterns with multiple parallels
+   - Various case name formats (Dep't, Department, In re, State v., etc.)
+
+5. Your JSON will now show properly extracted case names and dates
+   instead of N/A values.
+"""
+
+if __name__ == "__main__":
+    test_comprehensive_integration()

@@ -199,3 +199,15 @@ dist/
 coverage.xml
 *.csv
 *.tar.gz
+
+# API Keys and Sensitive Configuration
+config.json
+config/config.json
+src/config.json
+docker/config.json
+deployment/config.json
+*.key
+*.pem
+.env
+.env.local
+.env.production

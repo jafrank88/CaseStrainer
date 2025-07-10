@@ -14,7 +14,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.complex_citation_integration import ComplexCitationIntegrator
+# DEPRECATED: # DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator
 
 def test_complex_citation_patterns():
     """Test the improved complex citation extraction patterns."""

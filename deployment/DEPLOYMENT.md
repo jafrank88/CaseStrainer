@@ -9,8 +9,8 @@ This comprehensive guide provides instructions for deploying CaseStrainer to pro
 
 - Python 3.8 or higher
 - pip package manager
-- CourtListener API key (stored in config.json)
-- LangSearch API key (stored in config.json)
+- CourtListener API key (stored as environment variable)
+- LangSearch API key (stored as environment variable)
 - Docker (for the current production setup)
 - Nginx (for proxying requests)
 
@@ -104,16 +104,46 @@ The key dependencies include:
 - redis
 - rq
 
-### 2. Configure API Keys
+### 2. Configure API Keys (Secure Setup)
 
-Create or update the `config.json` file in the project root:
+**Important**: API keys should be stored as environment variables, not in config files.
 
-```json
-{
-  "courtlistener_api_key": "your_courtlistener_api_key_here",
-  "langsearch_api_key": "your_langsearch_api_key_here"
-}
+#### Setting Environment Variables
+
+**Windows (PowerShell):**
+```powershell
+$env:COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
+$env:LANGSEARCH_API_KEY="your_langsearch_api_key_here"
 ```
+
+**Linux/macOS (bash):**
+```bash
+export COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
+export LANGSEARCH_API_KEY="your_langsearch_api_key_here"
+```
+
+**Docker Environment:**
+```powershell
+# Set environment variables for Docker containers
+docker-compose -f docker-compose.prod.yml up -d --build \
+  -e COURTLISTENER_API_KEY="your_courtlistener_api_key_here" \
+  -e LANGSEARCH_API_KEY="your_langsearch_api_key_here"
+```
+
+#### Required API Keys
+- **CourtListener API Key**: For citation verification and canonical data lookup
+  - Get your key at: https://www.courtlistener.com/help/api/rest/
+- **LangSearch API Key**: For advanced text analysis (if using LangSearch features)
+
+#### Security Best Practices
+- ✅ Store keys as environment variables
+- ✅ Never commit API keys to version control
+- ✅ Use different keys for development and production
+- ✅ Rotate keys regularly
+- ❌ Don't store keys in config files
+- ❌ Don't hardcode keys in source code
+
+**Note**: The old `config.json` method is deprecated. Environment variables are now required for secure operation.
 
 ## Deployment Steps
 

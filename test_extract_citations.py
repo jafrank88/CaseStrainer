@@ -23,7 +23,7 @@ def test_extract_citations():
     
     try:
         print("Importing ComplexCitationIntegrator...")
-        from src.complex_citation_integration import ComplexCitationIntegrator
+        # DEPRECATED: # DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator
         print("✓ Import successful")
         
         integrator = ComplexCitationIntegrator()

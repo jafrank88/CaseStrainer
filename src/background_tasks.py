@@ -4,7 +4,7 @@ import os
 import logging
 from redis import Redis
 from rq import Queue
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from src.database_manager import get_database_manager
 from datetime import datetime, timedelta
 
@@ -28,7 +28,7 @@ QUEUE_NAME = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
 
 def reprocess_parallel_citations(batch_size=BATCH_SIZE, sleep_time=SLEEP_BETWEEN, max_batches=None):
     """Reprocess citations missing parallel citations."""
-    verifier = EnhancedMultiSourceVerifier()
+    verifier = UnifiedCitationProcessor()
     db_manager = get_database_manager()
     processed = 0
     batch_num = 0

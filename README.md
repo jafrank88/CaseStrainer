@@ -44,10 +44,12 @@ CaseStrainer uses a modern microservices architecture:
 
 ### Citation Analysis
 - **Multi-format Support**: PDF, DOCX, RTF, and text files
-- **Enhanced Extraction**: Advanced case name and date extraction
+- **Enhanced Extraction**: Advanced case name and date extraction with context-aware processing
+- **Citation Variants**: Automatic generation and testing of multiple citation formats (e.g., `171 Wash. 2d 486`, `171 Wn.2d 486`, `171 Wn. 2d 486`)
 - **Parallel Citations**: Detection and display of parallel citations (e.g., "302 P.3d 156")
-- **Verification**: CourtListener API integration for citation verification
+- **Verification**: CourtListener API integration with fallback to web search
 - **Complex Citations**: Handling of complex citations with multiple components
+- **Clustering**: Intelligent grouping of related citations to avoid duplication
 
 ### Production Features
 - **Docker Deployment**: Complete containerized production setup
@@ -68,20 +70,51 @@ CaseStrainer uses a modern microservices architecture:
 - Node.js 16+ (for frontend development)
 - Python 3.8+ (for backend development)
 - CourtListener API key
-- LangSearch API key
+- LangSearch API key (optional)
 
 ## 🔧 Configuration
 
-### API Keys
-Create `config.json` in the project root:
-```json
-{
-  "courtlistener_api_key": "your_courtlistener_api_key_here",
-  "langsearch_api_key": "your_langsearch_api_key_here"
-}
+### API Keys (Secure Setup)
+**Important**: API keys should be stored as environment variables, not in config files.
+
+#### Setting Environment Variables
+
+**Windows (PowerShell):**
+```powershell
+$env:COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
+$env:LANGSEARCH_API_KEY="your_langsearch_api_key_here"
 ```
 
+**Linux/macOS (bash):**
+```bash
+export COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
+export LANGSEARCH_API_KEY="your_langsearch_api_key_here"
+```
+
+**Docker Environment:**
+```powershell
+# Set environment variables for Docker containers
+docker-compose -f docker-compose.prod.yml up -d --build \
+  -e COURTLISTENER_API_KEY="your_courtlistener_api_key_here" \
+  -e LANGSEARCH_API_KEY="your_langsearch_api_key_here"
+```
+
+#### Required API Keys
+- **CourtListener API Key**: For citation verification and canonical data lookup
+  - Get your key at: https://www.courtlistener.com/help/api/rest/
+- **LangSearch API Key**: For advanced text analysis (optional)
+
+#### Security Best Practices
+- ✅ Store keys as environment variables
+- ✅ Never commit API keys to version control
+- ✅ Use different keys for development and production
+- ✅ Rotate keys regularly
+- ❌ Don't store keys in config files
+- ❌ Don't hardcode keys in source code
+
 ### Environment Variables
+- `COURTLISTENER_API_KEY`: Your CourtListener API key
+- `LANGSEARCH_API_KEY`: Your LangSearch API key (optional)
 - `VITE_APP_ENV`: Set to "production" for production builds
 - `NODE_ENV`: Set to "production" for optimized builds
 
@@ -115,7 +148,7 @@ docker-compose -f docker-compose.yml up -d
 - **404 Errors**: Check container status and rebuild frontend
 - **500 Errors**: Check Redis connection and backend logs
 - **Assets Not Loading**: Verify Nginx asset routing configuration
-- **Parallel Citations Missing**: Rebuild frontend and backend containers
+- **Citation Verification Failing**: Check CourtListener API key and network connectivity
 
 ### Health Checks
 ```powershell
@@ -147,47 +180,31 @@ docker logs casestrainer-nginx-prod
 docker logs casestrainer-redis-prod
 ```
 
-For detailed troubleshooting, see [TROUBLESHOOTING.md](deployment/TROUBLESHOOTING.md).
+For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ## 📚 Documentation
 
-- [Deployment Guide](deployment/DEPLOYMENT.md) - Complete deployment instructions
-- [Troubleshooting Guide](deployment/TROUBLESHOOTING.md) - Common issues and solutions
 - [API Documentation](docs/API_DOCUMENTATION.md) - Backend API reference
-- [Changelog](CHANGELOG.md) - Version history and changes
+- [Enhanced Citation Processing](docs/ENHANCED_CITATION_PROCESSING.md) - Citation processing details
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Deployment Guide](docs/DEPLOYMENT_VUE.md) - Complete deployment instructions
 
-## 🔄 Recent Updates (v1.2.0)
+## 🔄 Recent Updates (v1.3.0)
+
+### New Features
+- **Citation Variant Verification**: System now tries multiple citation formats (e.g., `171 Wash. 2d 486`, `171 Wn.2d 486`, `171 Wn. 2d 486`) to improve hit rates
+- **UnifiedCitationProcessorV2**: New unified processor with enhanced extraction and verification
+- **Context-Aware Case Name Extraction**: Improved case name extraction using document context
+- **Enhanced Clustering**: Better detection and grouping of parallel citations
+- **Canonical Name Trimming**: Intelligent trimming of case names using canonical data
 
 ### Fixed Issues
-- **Parallel Citations**: Fixed frontend display of parallel citations
-- **Case Name Extraction**: Enhanced case name and date extraction logic
-- **Asset Loading**: Fixed 404 errors for frontend assets
-- **Container Networking**: Fixed frontend container startup issues
+- **Citation Verification**: Improved hit rates through variant testing
+- **Case Name Extraction**: More accurate extraction with context awareness
+- **Duplicate Citations**: Better deduplication and clustering logic
+- **API Response**: Enhanced canonical metadata in API responses
 
 ### Improvements
-- **Documentation**: Comprehensive troubleshooting and deployment guides
-- **Backend Processing**: Improved citation processing pipeline
-- **Error Handling**: Better error handling and logging throughout
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test in Docker environment
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For issues or questions:
-1. Check the [troubleshooting guide](deployment/TROUBLESHOOTING.md)
-2. Review the [deployment documentation](deployment/DEPLOYMENT.md)
-3. Contact the system administrator with specific error messages and logs
-
----
-
-**CaseStrainer v1.2.0** - Production-ready legal citation analysis system 
+- **Documentation**: Updated documentation to reflect current system state
+- **Backend Processing**: Improved citation processing pipeline with multiple extraction methods
+- **Error Handling**: Better error messages and fallback mechanisms 

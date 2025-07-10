@@ -675,11 +675,19 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
         logger.debug(f"[extract_case_name_from_text] Full context (200 chars): '{full_context}'")
         
         # Strategy 1a: Try hinted extraction first if we have a canonical name
-        if canonical_name:
-            case_name = extract_case_name_hinted(text, citation_text, canonical_name)
-            if case_name:
-                logger.debug(f"[extract_case_name_from_text] Found case name with hinted extraction: '{case_name}'")
-                return case_name
+        # BUT avoid circular calls - only call if we haven't been called from hinted extraction
+        if canonical_name and not hasattr(extract_case_name_from_text, '_in_hinted_call'):
+            try:
+                # Set flag to prevent circular calls
+                extract_case_name_from_text._in_hinted_call = True
+                case_name = extract_case_name_hinted(text, citation_text, canonical_name)
+                if case_name and is_valid_case_name(case_name):
+                    logger.debug(f"[extract_case_name_from_text] Found case name with hinted extraction: '{case_name}'")
+                    return case_name
+            finally:
+                # Always clean up the flag
+                if hasattr(extract_case_name_from_text, '_in_hinted_call'):
+                    delattr(extract_case_name_from_text, '_in_hinted_call')
         
         # Strategy 1b: Try precise extraction (most accurate)
         case_name = extract_case_name_precise(context_before, citation_text)
@@ -714,9 +722,10 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
         logger.debug(f"[extract_case_name_from_text] Found case name in global search: '{case_name}'")
         return case_name
     
-    # Strategy 3: Use canonical name if provided (only as fallback)
-    if canonical_name:
-        logger.debug(f"[extract_case_name_from_text] Using canonical name as fallback: '{canonical_name}'")
+    # Strategy 3: Use canonical name ONLY as very last fallback and ONLY if we're confident
+    # it actually appears in the document text
+    if canonical_name and canonical_name.lower() in norm_text.lower():
+        logger.debug(f"[extract_case_name_from_text] Using canonical name as fallback (found in text): '{canonical_name}'")
         return canonical_name
     
     logger.debug(f"[extract_case_name_from_text] No case name found")
@@ -1145,15 +1154,15 @@ import logging
 
 def get_canonical_case_name_from_courtlistener(citation, api_key=None):
     """
-    Get canonical case name using the existing citation verification system.
+    Get canonical case name using the unified citation processor.
     This replaces the stub implementation with a working one.
     """
     try:
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-        verifier = EnhancedMultiSourceVerifier()
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
-        result = verifier.verify_citation_unified_workflow(citation)
+        result = processor.verify_citation_unified_workflow(citation)
         
         if result and result.get('verified') == 'true':
             # Return the case name if available
@@ -1173,15 +1182,15 @@ def get_canonical_case_name_from_courtlistener(citation, api_key=None):
 
 def get_canonical_case_name_from_google_scholar(citation, api_key=None):
     """
-    Get canonical case name using the existing citation verification system.
+    Get canonical case name using the unified citation processor.
     This replaces the stub implementation with a working one.
     """
     try:
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-        verifier = EnhancedMultiSourceVerifier()
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
-        result = verifier.verify_citation_unified_workflow(citation)
+        result = processor.verify_citation_unified_workflow(citation)
         
         if result and result.get('verified') == 'true':
             # Return the case name if available
@@ -1201,77 +1210,71 @@ def get_canonical_case_name_from_google_scholar(citation, api_key=None):
 
 def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
     """
-    Extract hinted case name using canonical name as reference.
-    Uses sophisticated variant generation and fuzzy matching.
-    Returns cleaned/validated result.
+    Safe version that NEVER returns canonical name directly.
+    Only returns names actually found in the document text.
     """
     try:
         if not canonical_name:
             return ""
         
-        # Find citation in text to get context
-        citation_index = text.find(citation)
+        # Find citation in text
+        citation_index = text.find(citation.replace("Wash. 2d", "Wn.2d"))
+        if citation_index == -1:
+            citation_index = text.find(citation)
         if citation_index == -1:
             return ""
         
         # Get context before citation
         context_before = text[max(0, citation_index - 100):citation_index]
         
-        # Generate multiple variants from the literal text
-        # Strategy 1: Use the sophisticated hinted name generation
-        hinted_name = best_hinted_name(context_before, canonical_name)
-        if hinted_name:
-            cleaned = clean_case_name(hinted_name)
-            if cleaned and is_valid_case_name(cleaned):
-                return cleaned
-            elif is_valid_case_name(hinted_name):
-                return hinted_name
-        
-        # Strategy 2: Extract multiple variants using regex patterns
+        # ONLY extract from document text - NEVER return canonical directly
         variants = []
         
-        # Pattern 1: Extract "In Doe v. Wdae" (with leading "In")
-        match = re.search(r'(In\s+[A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
-        if match:
-            variants.append(match.group(1))
+        # Pattern 1: Extract case names from document text
+        patterns = [
+            r'([A-Z][A-Za-z\'\.\s,&]+\s+v\.\s+[A-Z][A-Za-z\'\.\s,&]+)',
+            r'([A-Z][A-Za-z\'\.\s,&]+\s+vs\.\s+[A-Z][A-Za-z\'\.\s,&]+)',
+            r'(Dep\'t\s+of\s+[A-Za-z\s,&]+\s+v\.\s+[A-Za-z\s,&]+)',
+            r'(State\s+v\.\s+[A-Za-z\s,&]+)',
+            r'(In\s+re\s+[A-Za-z\s,&]+)'
+        ]
         
-        # Pattern 2: Extract "Doe v. Wdae" (without leading "In")
-        match = re.search(r'([A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
-        if match:
-            variants.append(match.group(1))
+        for pattern in patterns:
+            matches = re.findall(pattern, context_before)
+            for match in matches:
+                cleaned = clean_case_name_enhanced(match)
+                if cleaned and is_valid_case_name(cleaned):
+                    variants.append(cleaned)
         
-        # Pattern 3: Extract "Doe v. Wdae." (with trailing period)
-        match = re.search(r'([A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)\.\s*,\s*' + re.escape(citation), context_before, re.IGNORECASE)
-        if match:
-            variants.append(match.group(1))
+        if not variants:
+            # No variants found in document text
+            return ""
         
-        # Strategy 3: Use fuzzy matching to find the best variant
+        # Find best match using fuzzy matching
         from difflib import SequenceMatcher
         best_variant = ""
         best_score = 0.0
         
         for variant in variants:
-            cleaned_variant = clean_case_name_enhanced(variant)
-            if cleaned_variant and is_valid_case_name(cleaned_variant):
-                score = SequenceMatcher(None, cleaned_variant.lower(), canonical_name.lower()).ratio()
-                if score > best_score:
-                    best_variant = cleaned_variant
-                    best_score = score
+            score = SequenceMatcher(None, variant.lower(), canonical_name.lower()).ratio()
+            if score > best_score and score > 0.6:  # Minimum similarity threshold
+                best_variant = variant
+                best_score = score
         
-        # Always return the best valid variant if one exists
-        if best_variant:
-            return best_variant
+        # CRITICAL: Verify the best variant is actually different from canonical
+        # This prevents returning canonical names with minor formatting differences
+        if best_variant and best_variant != canonical_name:
+            # Double-check the variant actually appears in the source text
+            if best_variant.replace("'", "").replace(".", "") in context_before.replace("'", "").replace(".", ""):
+                return best_variant
         
-        # Strategy 4: Fallback to basic extraction
-        from src.extract_case_name import extract_case_name_from_text
-        hinted = extract_case_name_from_text(text, citation, canonical_name=canonical_name)
-        if hinted and is_valid_case_name(hinted):
-            return clean_case_name(hinted)
-            
+        # If we get here, we couldn't find a valid extraction from the document
+        return ""
+        
     except Exception as e:
         import logging
-        logging.warning(f"Failed to extract hinted case name: {e}")
-    return ""
+        logging.warning(f"Safe hinted extraction failed: {e}")
+        return ""
 
 def extract_case_name_unified(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
     """
@@ -1414,6 +1417,48 @@ def extract_case_name_from_context_enhanced(context_before: str, citation: str) 
     logger.debug(f"[extract_case_name_from_context_enhanced] No valid case names found")
     return ""
 
+def extract_case_name_precise_boundaries(context: str) -> Optional[str]:
+    """Extract case name with precise boundaries."""
+    
+    # Look for case name patterns in the last 150 characters
+    search_text = context[-150:] if len(context) > 150 else context
+    
+    # Patterns for different case types (most specific first)
+    patterns = [
+        # Standard case: Name v. Name, (end with comma or citation)
+        r'\b([A-Z][A-Za-z\s,\.&\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.&\'-]+?),\s*$',
+        
+        # Department cases
+        r'\b(Dep\'t\s+of\s+[A-Za-z\s]+\s+v\.\s+[A-Za-z\s,\.&\'-]+?),\s*$',
+        r'\b(Department\s+of\s+[A-Za-z\s]+\s+v\.\s+[A-Za-z\s,\.&\'-]+?),\s*$',
+        
+        # In re cases
+        r'\b(In\s+re\s+[A-Za-z\s,\.&\'-]+?),\s*$',
+        
+        # State cases
+        r'\b(State\s+v\.\s+[A-Za-z\s,\.&\'-]+?),\s*$',
+        
+        # More flexible patterns that don't require ending with comma
+        r'\b([A-Z][A-Za-z\s,\.&\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.&\'-]+?)(?=\s*,|\s*$|\s*\d)',
+        r'\b(State\s+v\.\s+[A-Za-z\s,\.&\'-]+?)(?=\s*,|\s*$|\s*\d)',
+        r'\b(In\s+re\s+[A-Za-z\s,\.&\'-]+?)(?=\s*,|\s*$|\s*\d)',
+        r'\b(Department\s+of\s+[A-Za-z\s]+\s+v\.\s+[A-Za-z\s,\.&\'-]+?)(?=\s*,|\s*$|\s*\d)',
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, search_text, re.IGNORECASE)
+        if match:
+            case_name = match.group(1).strip()
+            # Additional validation - be more flexible
+            if 5 <= len(case_name) <= 100:
+                # Check if it contains 'v.' or 'vs.' or is an 'In re' case
+                if (' v. ' in case_name or ' vs. ' in case_name or 
+                    case_name.lower().startswith('in re') or
+                    case_name.lower().startswith('state v.')):
+                    return case_name
+    
+    return None
+
 def extract_case_name_precise(context_before: str, citation: str) -> str:
     """
     Extract case name with precise patterns to avoid capturing too much text.
@@ -1499,3 +1544,195 @@ def best_hinted_name(context_before: str, canonical_name: str) -> str:
                 best = cleaned_name
                 best_score = score
     return best
+
+def normalize_citation_for_extraction(citation: str) -> str:
+    """
+    Normalize citation to match what appears in the document text.
+    """
+    # Convert "Wash. 2d" back to "Wn.2d" to match document format
+    normalized = citation.replace("Wash. 2d", "Wn.2d")
+    normalized = normalized.replace("Washington 2d", "Wn.2d")
+    
+    # Add common format variations
+    return normalized
+
+def find_citation_in_text_flexible(text: str, citation: str) -> int:
+    """
+    Find citation in text using multiple format variations.
+    """
+    # Try original citation first
+    pos = text.find(citation)
+    if pos != -1:
+        return pos
+    
+    # Try normalized version
+    normalized = normalize_citation_for_extraction(citation)
+    pos = text.find(normalized)
+    if pos != -1:
+        return pos
+    
+    # Try with different spacing
+    spaced_citation = re.sub(r'(\d+)\s+([A-Z])', r'\1 \2', citation)
+    pos = text.find(spaced_citation)
+    if pos != -1:
+        return pos
+    
+    # Try removing commas and extra page numbers
+    simplified = re.sub(r',\s*\d+', '', citation)
+    pos = text.find(simplified)
+    if pos != -1:
+        return pos
+    
+    return -1
+
+def extract_year_enhanced_fixed(text: str, citation: str) -> str:
+    """
+    Enhanced year extraction with flexible citation matching.
+    """
+    # First, check if the citation already contains a year
+    year_in_citation = re.search(r'\b(\d{4})\b', citation)
+    if year_in_citation:
+        return year_in_citation.group(1)
+    
+    # Try to find the citation in text using flexible matching
+    citation_pos = find_citation_in_text_flexible(text, citation)
+    if citation_pos != -1:
+        after_citation = text[citation_pos + len(citation):]
+        # Look for year in parentheses immediately after citation
+        year_match = re.search(r'\s*\((\d{4})\)', after_citation)
+        if year_match:
+            return year_match.group(1)
+        
+        # Look for year within next 50 characters
+        year_match = re.search(r'\b(\d{4})\b', after_citation[:50])
+        if year_match:
+            return year_match.group(1)
+    
+    # Try broader search for citation pattern + year
+    # Look for the volume and reporter, then find year
+    citation_parts = citation.split()
+    if len(citation_parts) >= 3:
+        volume = citation_parts[0]
+        reporter = citation_parts[1]
+        
+        # Create flexible pattern - handle both "Wn.2d" and "Wash. 2d"
+        reporter_pattern = reporter.replace("Wash.", "(?:Wash\\.|Wn\\.)").replace("Wn.", "(?:Wash\\.|Wn\\.)")
+        
+        pattern = rf'\b{re.escape(volume)}\s+{reporter_pattern}.*?(\d{{4}})'
+        match = re.search(pattern, text)
+        if match:
+            return match.group(1)
+    
+    return ""
+
+def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: str = None, context_window: int = 100) -> dict:
+    """
+    Enhanced version with detailed debugging to track extraction sources.
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    
+    # Initialize results
+    result = {
+        'canonical_name': "N/A",
+        'extracted_name': "N/A", 
+        'hinted_name': "N/A",
+        'case_name': "N/A",
+        'canonical_date': "N/A",
+        'extracted_date': "N/A",
+        'case_name_confidence': 0.0,
+        'case_name_method': "none",
+        'debug_info': {
+            'citation_found_in_text': False,
+            'citation_position': -1,
+            'context_before': "",
+            'context_after': "",
+            'extraction_attempts': []
+        }
+    }
+    
+    try:
+        logger.info(f"=== EXTRACTION DEBUG START ===")
+        logger.info(f"Citation: '{citation}'")
+        logger.info(f"Text length: {len(text)}")
+        logger.info(f"Text preview: '{text[:200]}...'")
+        
+        # Check if citation exists in text
+        citation_pos = find_citation_in_text_flexible(text, citation)
+        result['debug_info']['citation_found_in_text'] = citation_pos != -1
+        result['debug_info']['citation_position'] = citation_pos
+        
+        if citation_pos != -1:
+            context_before = text[max(0, citation_pos - 100):citation_pos]
+            context_after = text[citation_pos:min(len(text), citation_pos + 100)]
+            result['debug_info']['context_before'] = context_before
+            result['debug_info']['context_after'] = context_after
+            logger.info(f"Citation found at position {citation_pos}")
+            logger.info(f"Context before: '{context_before}'")
+            logger.info(f"Context after: '{context_after}'")
+        else:
+            logger.warning(f"Citation '{citation}' NOT found in text")
+        
+        # PRIORITY 1: Try fixed extraction from the actual document
+        logger.info("=== TRYING FIXED EXTRACTION ===")
+        fixed_name = extract_case_name_fixed(text, citation)
+        fixed_date = extract_year_enhanced_fixed(text, citation)
+        
+        result['debug_info']['extraction_attempts'].append({
+            'method': 'fixed_extraction',
+            'name_result': fixed_name,
+            'date_result': fixed_date
+        })
+        
+        logger.info(f"Fixed extraction - Name: '{fixed_name}', Date: '{fixed_date}'")
+        
+        if fixed_name:
+            result['extracted_name'] = fixed_name
+            result['case_name'] = fixed_name
+            result['case_name_confidence'] = 0.9
+            result['case_name_method'] = "fixed_extraction"
+            logger.info(f"SUCCESS: Fixed extraction found case name: '{fixed_name}'")
+        
+        if fixed_date:
+            result['extracted_date'] = fixed_date
+            logger.info(f"SUCCESS: Enhanced extraction found date: '{fixed_date}'")
+        
+        # CRITICAL: NO CANONICAL LOOKUP IN EXTRACTION FUNCTION
+        # Canonical lookup should happen separately in verification workflow
+        logger.info("=== EXTRACTION COMPLETE - CANONICAL LOOKUP WILL BE DONE SEPARATELY ===")
+        
+        # PRIORITY 3: Try hinted extraction if we have no extracted name
+        if result['case_name'] == "N/A":
+            logger.info("=== TRYING HINTED EXTRACTION ===")
+            try:
+                # Use a generic hint instead of canonical name to avoid contamination
+                hinted_name = extract_case_name_hinted(text, citation, None, api_key)
+                if hinted_name:
+                    result['hinted_name'] = hinted_name
+                    result['case_name'] = hinted_name
+                    result['case_name_confidence'] = 0.7
+                    result['case_name_method'] = "hinted_from_document"
+                    logger.info(f"SUCCESS: Hinted extraction found: '{hinted_name}'")
+                
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'hinted_extraction',
+                    'name_result': hinted_name,
+                    'date_result': None
+                })
+                        
+            except Exception as e:
+                logger.warning(f"Hinted extraction failed: {e}")
+        
+        logger.info(f"=== FINAL RESULTS ===")
+        logger.info(f"Case name: '{result['case_name']}'")
+        logger.info(f"Extracted date: '{result['extracted_date']}'")
+        logger.info(f"Method: '{result['case_name_method']}'")
+        logger.info(f"Contamination check: extraction_only_no_api")
+        logger.info(f"=== EXTRACTION DEBUG END ===")
+            
+    except Exception as e:
+        logger.error(f"Error in extract_case_name_triple_with_debugging: {e}")
+    
+    return result
+
+from src.case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed

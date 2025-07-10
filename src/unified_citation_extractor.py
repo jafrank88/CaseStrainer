@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
-Unified Citation Extraction Module
+DEPRECATED: This module is deprecated in favor of src/unified_citation_processor_v2.py
+Use UnifiedCitationProcessorV2 instead for all new development.
 
-This module consolidates all citation extraction logic into a single, robust system
-that handles both regex and eyecite extraction, deduplication, normalization, and
-chunking for large documents.
-
-All other modules should use this unified extractor instead of their own implementations.
+This module will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "UnifiedCitationExtractor is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import re
 import logging
@@ -430,7 +434,7 @@ def extract_all_citations(text: str, logger=None) -> List[Dict]:
     Returns:
         List of citation dictionaries with metadata
     """
-    from src.citation_extractor import CitationExtractor
+    # DEPRECATED: from src.citation_extractor import CitationExtractor
     
     # Initialize extractor with case name extraction enabled
     extractor = CitationExtractor(

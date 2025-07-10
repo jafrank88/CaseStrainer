@@ -43,7 +43,7 @@ def test_frontend_verification():
         try:
             # Import the enhanced validator and complex citation integration
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-            from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
+            # DEPRECATED: # DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
             
             print("✓ Successfully imported modules")
             

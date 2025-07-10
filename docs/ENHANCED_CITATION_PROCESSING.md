@@ -2,42 +2,42 @@
 
 ## Overview
 
-The CaseStrainer application now includes an enhanced citation processing system that provides significantly improved citation extraction, validation, and analysis capabilities. This integration replaces the basic citation extraction with a comprehensive, production-ready solution.
+The CaseStrainer application now includes an enhanced citation processing system that provides significantly improved citation extraction, validation, and analysis capabilities. This integration uses the `UnifiedCitationProcessorV2` which consolidates the best parts of all existing implementations into a comprehensive, production-ready solution.
 
 ## Key Components
 
-### 1. CitationServices (`src/citation_services.py`)
+### 1. UnifiedCitationProcessorV2 (`src/unified_citation_processor_v2.py`)
 
-The core citation extraction engine that provides:
+The core citation processing engine that provides:
 
 - **Enhanced Pattern Recognition**: Advanced regex patterns for case names, years, courts, and reporters
+- **Citation Variant Testing**: Automatic generation and testing of multiple citation formats
+- **Context-Aware Extraction**: Intelligent case name extraction using bracketed context windows
+- **Intelligent Clustering**: Detection and grouping of parallel citations to avoid duplication
 - **Confidence Scoring**: Intelligent confidence assessment for extracted citations
-- **Validation Framework**: Built-in validation against known legal databases
+- **Verification Framework**: Built-in validation against CourtListener API with fallback to web search
 - **Flexible Configuration**: Configurable extraction parameters for different document types
 
 **Key Features:**
 - Support for various citation formats (Bluebook, ALWD, etc.)
 - OCR error correction for scanned documents
-- Context-aware extraction
-- Parallel citation detection
+- Context-aware extraction with bracketed context windows
+- Parallel citation detection and clustering
 - Pinpoint citation extraction
+- Citation variant generation and testing
 
-### 2. CaseStrainerCitationProcessor (`src/citation_processor.py`)
+### 2. Citation Normalizer (`src/citation_normalizer.py`)
 
-A high-level processor that integrates CitationServices with CaseStrainer-specific enhancements:
+Handles citation normalization and variant generation:
 
-- **Document Analysis**: Comprehensive analysis of citation patterns across documents
-- **Jurisdiction Analysis**: Automatic jurisdiction detection and authority assessment
-- **Strength Assessment**: Evaluation of citation authority and precedential value
-- **Recommendation Engine**: Actionable suggestions for citation improvements
-- **Context Integration**: User context-aware analysis
+- **Washington Normalization**: `Wn.` → `Wash.` conversion
+- **Variant Generation**: Creates multiple citation formats for testing
+- **Format Standardization**: Standardizes spacing and punctuation
+- **Pattern Matching**: Comprehensive regex patterns for all citation types
 
-**Processing Pipeline:**
-1. **Extraction**: Extract citations using enhanced patterns
-2. **Validation**: Validate against legal databases
-3. **Enhancement**: Add jurisdiction, procedural posture, and strength analysis
-4. **Analysis**: Generate comprehensive document analysis
-5. **Recommendations**: Provide actionable improvement suggestions
+**Example Variants Generated:**
+- `171 Wash. 2d 486` → `171 Wn.2d 486`, `171 Wn. 2d 486`, `171 Washington 2d 486`
+- `410 U.S. 113` → `410 US 113`, `410 United States 113`
 
 ### 3. Citation API (`src/citation_api.py`)
 
@@ -62,8 +62,8 @@ app.register_blueprint(citation_api, url_prefix='/casestrainer/api')
 
 ### Processor Initialization
 ```python
-from src.citation_processor import CaseStrainerCitationProcessor
-self.citation_processor = CaseStrainerCitationProcessor()
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+self.citation_processor = UnifiedCitationProcessorV2()
 ```
 
 ### Enhanced Analyze Endpoint
@@ -73,23 +73,27 @@ The application includes an enhanced analyze endpoint that uses the new citation
 
 ### Basic Citation Extraction
 ```python
-from src.citation_services import CitationServices, ExtractionConfig
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
-service = CitationServices()
-config = ExtractionConfig(min_confidence_threshold=0.7)
-citations = service.extract_citations("See Brown v. Board of Education, 347 U.S. 483 (1954).", config)
+processor = UnifiedCitationProcessorV2()
+citations = processor.process_text("See Brown v. Board of Education, 347 U.S. 483 (1954).")
 ```
 
-### Document Analysis
+### Document Analysis with Verification
 ```python
-from src.citation_processor import CaseStrainerCitationProcessor
-import asyncio
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
-processor = CaseStrainerCitationProcessor()
-results = await processor.process_document_citations(
-    document_text="...",
-    document_type="legal_brief",
-    user_context={"jurisdiction": "federal"}
+config = ProcessingConfig(
+    enable_verification=True,
+    extract_case_names=True,
+    extract_dates=True,
+    enable_clustering=True,
+    debug_mode=True
+)
+
+processor = UnifiedCitationProcessorV2(config)
+results = processor.process_text(
+    "The court held in State v. Rohrich, 149 Wn.2d 647, that..."
 )
 ```
 
@@ -108,17 +112,17 @@ curl -X POST http://localhost:5000/casestrainer/api/citations/validate \
 
 ## Configuration Options
 
-### ExtractionConfig Parameters
-- `extract_case_names`: Extract case names (default: True)
-- `extract_years`: Extract years (default: True)
-- `extract_courts`: Extract court information (default: True)
-- `extract_reporters`: Extract reporter information (default: True)
-- `include_parallel_citations`: Include parallel citations (default: True)
-- `resolve_ambiguous_citations`: Resolve ambiguous citations (default: True)
-- `enable_context_analysis`: Enable context analysis (default: True)
-- `ocr_error_correction`: Enable OCR error correction (default: False)
-- `min_confidence_threshold`: Minimum confidence threshold (default: 0.7)
-- `extract_pinpoint_citations`: Extract pinpoint citations (default: False)
+### ProcessingConfig Parameters
+- `enable_verification`: Enable CourtListener API verification (default: True)
+- `extract_case_names`: Extract case names from context (default: True)
+- `extract_dates`: Extract dates from citations (default: True)
+- `enable_clustering`: Enable parallel citation clustering (default: True)
+- `enable_deduplication`: Enable citation deduplication (default: True)
+- `use_regex`: Use regex-based extraction (default: True)
+- `use_eyecite`: Use eyecite library extraction (default: True)
+- `min_confidence`: Minimum confidence threshold (default: 0.7)
+- `max_citations_per_text`: Maximum citations to return (default: 100)
+- `debug_mode`: Enable debug logging (default: False)
 
 ## Document Types
 
@@ -129,6 +133,33 @@ The system supports different document types with optimized processing:
 - **scanned_document**: OCR-optimized processing for scanned documents
 - **opinion**: Judicial opinion processing
 - **memo**: Legal memorandum processing
+
+## Processing Pipeline
+
+### **1. Citation Extraction**
+- **Regex Extraction**: Primary extraction using comprehensive patterns
+- **Eyecite Extraction**: Secondary extraction using eyecite library (if available)
+- **Context Analysis**: Extract case names and dates from surrounding text
+
+### **2. Citation Normalization**
+- **Washington Normalization**: Convert `Wn.` to `Wash.` formats
+- **Format Standardization**: Standardize spacing and punctuation
+- **Variant Generation**: Generate multiple citation formats for testing
+
+### **3. Citation Verification**
+- **CourtListener API**: Primary verification using citation-lookup endpoint
+- **Search API Fallback**: Secondary verification using search endpoint
+- **Web Search Fallback**: Tertiary verification using web search (if enabled)
+
+### **4. Citation Clustering**
+- **Parallel Detection**: Group citations that appear together
+- **Deduplication**: Remove duplicate citations
+- **Priority Assignment**: Assign priority to clusters over individual citations
+
+### **5. Result Enhancement**
+- **Canonical Data**: Add canonical names, dates, and URLs
+- **Confidence Scoring**: Calculate confidence scores
+- **Metadata Addition**: Add processing metadata and timing information
 
 ## Analysis Features
 
@@ -154,6 +185,7 @@ The system supports different document types with optimized processing:
 - **Thread Pool**: CPU-intensive operations use thread pools
 - **Caching**: Intelligent caching of validation results
 - **Batch Processing**: Efficient batch processing of multiple citations
+- **Variant Testing**: Optimized testing of citation variants to minimize API calls
 
 ## Error Handling
 
@@ -163,6 +195,7 @@ The system includes comprehensive error handling:
 - **Detailed Logging**: Comprehensive logging for debugging
 - **Validation Errors**: Clear error messages for validation failures
 - **Timeout Handling**: Proper timeout handling for external API calls
+- **Fallback Mechanisms**: Multiple fallback options for verification failures
 
 ## Migration from Legacy System
 
@@ -172,6 +205,28 @@ The enhanced system maintains backward compatibility:
 - **Response Format**: Enhanced responses maintain compatibility with existing frontend
 - **Gradual Migration**: Can be enabled/disabled per endpoint
 - **Fallback Support**: Falls back to legacy processing if enhanced system fails
+
+## Recent Enhancements
+
+### **Citation Variant Testing**
+- Automatic generation of multiple citation formats
+- Testing of all variants against CourtListener API
+- Improved hit rates for citations in different formats
+
+### **Context-Aware Case Name Extraction**
+- Bracketed context windows for better extraction
+- Canonical name trimming using verification results
+- Intelligent fallback to regex-extracted candidates
+
+### **Enhanced Clustering**
+- Better detection of parallel citations
+- Intelligent grouping to avoid duplication
+- Priority system for clusters over individual citations
+
+### **Improved Verification**
+- CourtListener API integration with multiple endpoints
+- Fallback to web search for unverified citations
+- Enhanced error handling and logging
 
 ## Future Enhancements
 
@@ -191,16 +246,21 @@ Planned improvements include:
 2. **Validation Failures**: Check network connectivity for external API calls
 3. **Performance Issues**: Monitor thread pool usage and adjust as needed
 4. **Memory Usage**: Large documents may require memory optimization
+5. **API Key Issues**: Verify CourtListener API key is set correctly
 
 ### Debug Mode
 
 Enable debug logging for detailed troubleshooting:
 ```python
 import logging
-logging.getLogger('src.citation_services').setLevel(logging.DEBUG)
-logging.getLogger('src.citation_processor').setLevel(logging.DEBUG)
+logging.getLogger('src.unified_citation_processor_v2').setLevel(logging.DEBUG)
 ```
 
-## Conclusion
+### Testing Citation Variants
 
-The enhanced citation processing system provides a significant upgrade to CaseStrainer's citation capabilities, offering better accuracy, more comprehensive analysis, and actionable recommendations while maintaining full backward compatibility with existing code. 
+Use the test script to verify citation variant generation:
+```bash
+python test_citation_variants.py
+```
+
+This will show which citation variants are generated and which ones get hits in CourtListener. 

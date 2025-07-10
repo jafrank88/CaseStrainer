@@ -10,7 +10,8 @@ import json
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from unified_citation_processor import UnifiedCitationProcessor, DateExtractor, CaseNameExtractor
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.standalone_citation_parser import DateExtractor, CitationParser
 
 def test_document_extraction():
     """Test case name and date extraction from various document formats."""

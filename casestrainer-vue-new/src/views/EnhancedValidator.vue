@@ -1,6 +1,7 @@
 <template>
   <div class="enhanced-validator">
     <Toast v-if="toastMessage" :message="toastMessage" :type="toastType" @close="clearToast" />
+    
     <!-- Header -->
     <div class="header text-center mb-4">
       <button class="btn btn-link back-btn" @click="goHome">
@@ -9,180 +10,123 @@
       <h1 class="results-title">Citation Verification Results</h1>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Progress Section -->
-      <div v-if="showLoading && !results" class="progress-container">
-        <SkeletonLoader :lines="4" height="6em" />
-      </div>
-
-      <!-- Processing Progress Section -->
-      <div v-if="showLoading && !showTimer" class="processing-section mb-4">
-        <div class="card processing-card">
-          <div class="card-body text-center">
-            <div class="processing-header">
-              <div class="spinner-container">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Processing...</span>
-                </div>
-              </div>
-              <h5 class="card-title mt-3">
-                <i class="fas fa-cog fa-spin me-2 text-primary"></i>
-                <i class="bi bi-gear-fill spinning me-2 text-primary" style="display: none;"></i>
-                Processing Citations
-              </h5>
-            </div>
-            <div class="processing-content">
-              <p class="text-muted mb-3">Extracting and analyzing citations from your document...</p>
-              
-              <!-- Animated progress dots -->
-              <div class="progress-dots">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-              </div>
-              
-              <!-- Processing steps -->
-              <div class="processing-steps mt-4">
-                <div class="step active">
-                  <i class="bi bi-file-earmark-text text-primary"></i>
-                  <span>Document Analysis</span>
-                </div>
-                <div class="step">
-                  <i class="bi bi-search text-muted"></i>
-                  <span>Citation Extraction</span>
-                </div>
-                <div class="step">
-                  <i class="bi bi-check-circle text-muted"></i>
-                  <span>Verification</span>
-                </div>
-              </div>
-            </div>
+    <!-- Loading State -->
+    <div v-if="showLoading && !results" class="loading-container">
+      <div class="loading-content">
+        <div class="spinner-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Processing...</span>
           </div>
         </div>
-      </div>
-            
-      <!-- Enhanced Progress Bar for >20 citations -->
-      <div v-if="showLoading && showTimer" class="processing-section mb-4">
-        <div class="card processing-card">
-          <div class="card-body text-center">
-            <div class="processing-header">
-              <div class="spinner-container">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Processing...</span>
-                </div>
-              </div>
-              <h5 class="card-title mt-3">
-                <i class="fas fa-cog fa-spin me-2 text-primary"></i>
-                <i class="bi bi-gear-fill spinning me-2 text-primary" style="display: none;"></i>
-                Processing Citations
-              </h5>
-            </div>
-            <div class="processing-content">
-              <div class="progress-info mb-3">
-                <div class="progress-stats">
-                  <span class="stat">
-                    <i class="bi bi-list-ol text-primary"></i>
-                    {{ progressCurrent }} of {{ progressTotal }} citations
-                  </span>
-                  <span class="stat">
-                    <i class="bi bi-clock text-primary"></i>
-                    {{ formatTime(elapsedTime) }} elapsed
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Enhanced Progress Bar -->
-              <div class="progress-container">
-                <div class="progress" style="height: 1.5rem; border-radius: 0.75rem;">
-                  <div 
-                    class="progress-bar progress-bar-striped progress-bar-animated" 
-                    :class="progressBarClass" 
-                    role="progressbar"
-                    :style="{ width: progressPercent + '%' }" 
-                    :aria-valuenow="progressPercent" 
-                    aria-valuemin="0" 
-                    aria-valuemax="100"
-                  >
-                    <span class="progress-text">{{ progressPercent }}%</span>
-                  </div>
-                </div>
-                <div class="progress-label mt-2">
-                  <small class="text-muted">
-                    {{ progressPercent === 100 ? 'Finalizing results...' : 'Processing citations...' }}
-                  </small>
-                </div>
-              </div>
-              
-              <!-- Processing steps with progress -->
-              <div class="processing-steps mt-4">
-                <div class="step" :class="{ active: progressPercent < 33 }">
-                  <i class="bi bi-file-earmark-text" :class="progressPercent < 33 ? 'text-primary' : 'text-success'"></i>
-                  <span>Document Analysis</span>
-                </div>
-                <div class="step" :class="{ active: progressPercent >= 33 && progressPercent < 66 }">
-                  <i class="bi bi-search" :class="progressPercent >= 33 && progressPercent < 66 ? 'text-primary' : progressPercent >= 66 ? 'text-success' : 'text-muted'"></i>
-                  <span>Citation Extraction</span>
-                </div>
-                <div class="step" :class="{ active: progressPercent >= 66 }">
-                  <i class="bi bi-check-circle" :class="progressPercent >= 66 ? 'text-primary' : 'text-muted'"></i>
-                  <span>Verification</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results Section -->
-      <div v-if="results" class="results-container">
-        <CitationResults
-          :results="results"
-          @apply-correction="applyCorrection"
-          @copy-results="copyResults"
-          @download-results="downloadResults"
-          @toast="showToast"
-        />
-      </div>
-
-      <!-- Error Display -->
-      <div v-if="error && !showLoading" class="error-container">
-        <div class="error-card">
-          <i class="error-icon">❌</i>
-          <h3>Analysis Failed</h3>
-          <p>{{ error }}</p>
-          
-          <!-- File Upload Option for History Issues -->
-          <div v-if="showFileUpload" class="mt-4">
-            <div class="card">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                  <i class="bi bi-file-earmark-arrow-up me-2"></i>
-                  Re-upload File
-                </h5>
-              </div>
-              <div class="card-body">
-                <p class="text-muted mb-3">
-                  To analyze your file, please upload it again using the form below.
-                </p>
-                <UnifiedInput 
-                  @analyze="handleUnifiedAnalyze"
-                  :is-analyzing="isLoading"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- No Results State -->
-      <div v-if="!results && !showLoading && !error" class="no-results-state text-center mt-5">
-        <p class="lead">No results to display.<br />Please return to the home page to start a new analysis.</p>
+        <h3>Processing Citations</h3>
+        <p class="text-muted">Extracting and analyzing citations from your document...</p>
         
-        <!-- Recent Inputs Section -->
-        <div class="mt-4">
-          <RecentInputs @load-input="loadRecentInput" />
+        <!-- Progress Bar -->
+        <div v-if="showTimer" class="progress-section">
+          <div class="progress-info mb-3">
+            <div class="progress-stats">
+              <span class="stat">
+                <i class="bi bi-list-ol text-primary"></i>
+                {{ progressCurrent }} of {{ progressTotal }} citations
+              </span>
+              <span class="stat">
+                <i class="bi bi-clock text-primary"></i>
+                {{ formatTime(elapsedTime) }} elapsed
+              </span>
+            </div>
+          </div>
+          
+          <div class="progress-container">
+            <div class="progress" style="height: 1.5rem; border-radius: 0.75rem;">
+              <div 
+                class="progress-bar progress-bar-striped progress-bar-animated" 
+                :class="progressBarClass" 
+                role="progressbar"
+                :style="{ width: progressPercent + '%' }" 
+                :aria-valuenow="progressPercent" 
+                aria-valuemin="0" 
+                aria-valuemax="100"
+              >
+                <span class="progress-text">{{ progressPercent }}%</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error && !showLoading" class="error-container">
+      <div class="error-content">
+        <div class="error-icon">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h3>Analysis Failed</h3>
+        <p>{{ error }}</p>
+        
+        <!-- File Upload Option for History Issues -->
+        <div v-if="showFileUpload" class="mt-4">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                Re-upload File
+              </h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-3">
+                To analyze your file, please upload it again using the form below.
+              </p>
+              <UnifiedInput 
+                @analyze="handleAnalyze"
+                :is-analyzing="showLoading"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div v-else class="main-content-wrapper">
+      <!-- Main Content Area -->
+      <div class="main-content-area">
+        <!-- Results -->
+        <div v-if="results" class="results-container">
+          <CitationResults 
+            :results="results" 
+            :processing-time="elapsedTime"
+            :show-details="true"
+            @apply-correction="applyCorrection"
+            @copy-results="copyResults"
+            @download-results="downloadResults"
+            @toast="showToast"
+          />
+        </div>
+        
+        <!-- Input Form -->
+        <div v-else-if="showFileUpload" class="input-container">
+          <UnifiedInput 
+            @analyze="handleAnalyze"
+            :is-analyzing="showLoading"
+          />
+        </div>
+        
+        <!-- No Results State -->
+        <div v-else class="no-results-container">
+          <div class="no-results-content">
+            <div class="no-results-icon">
+              <i class="bi bi-search"></i>
+            </div>
+            <h3>No Analysis Results</h3>
+            <p class="lead">No results to display.<br />Please return to the home page to start a new analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Inputs Sidebar -->
+      <div class="recent-inputs-sidebar-container">
+        <RecentInputs @load-input="loadRecentInput" />
       </div>
     </div>
   </div>
@@ -195,6 +139,7 @@ import { useApi } from '@/composables/useApi';
 import { useLoadingState } from '@/composables/useLoadingState';
 import api, { analyze } from '@/api/api';
 import { useProcessingTime } from '../composables/useProcessingTime';
+import { useCitationNormalization } from '@/composables/useCitationNormalization';
 
 // Components
 import CitationResults from '@/components/CitationResults.vue';
@@ -308,6 +253,9 @@ export default {
     // Add showFileUpload reactive state
     const showFileUpload = ref(false);
 
+    // In setup()
+    const { normalizeCitations, calculateCitationScore } = useCitationNormalization();
+
     // ===== HELPER FUNCTIONS =====
     function formatTime(seconds) {
       if (!seconds || seconds < 0) return '0s';
@@ -338,94 +286,6 @@ export default {
       resetProcessing();
     }
     
-    // Helper: Normalize citations for frontend display
-    function normalizeCitations(citations) {
-      console.log('Normalizing citations:', citations);
-      console.log('Citations type:', typeof citations);
-      console.log('Citations length:', citations ? citations.length : 'null/undefined');
-      
-      return (citations || []).map(citation => {
-        // Convert citation array to string
-        let citationText = citation.citation;
-        if (Array.isArray(citationText)) {
-          citationText = citationText.join('; ');
-        }
-
-        // Convert verified to boolean
-        let verified = false;
-        if (typeof citation.verified === 'string') {
-          verified = citation.verified === 'true' || citation.verified === 'true_by_parallel';
-        } else {
-          verified = !!citation.verified;
-        }
-
-        // Calculate citation score (0-4)
-        let score = 0;
-        if (citation.case_name && citation.case_name !== 'N/A') {
-          score += 2;
-        }
-        if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' && 
-            citation.case_name && citation.case_name !== 'N/A') {
-          const canonicalWords = citation.case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-          const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-          const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
-          const similarity = commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
-          if (similarity >= 0.5) {
-            score += 1;
-          }
-        }
-        if (citation.extracted_date && citation.canonical_date) {
-          const extractedYear = citation.extracted_date.toString().substring(0, 4);
-          const canonicalYear = citation.canonical_date.toString().substring(0, 4);
-          if (extractedYear === canonicalYear && extractedYear.length === 4) {
-            score += 1;
-          }
-        }
-        let scoreColor = 'red';
-        if (score === 4) scoreColor = 'green';
-        else if (score === 3) scoreColor = 'green';
-        else if (score === 2) scoreColor = 'yellow';
-        else if (score === 1) scoreColor = 'orange';
-
-        const normalizedCitation = {
-          ...citation,
-          citation: citationText,
-          verified: verified,
-          valid: verified,
-          score: score,
-          scoreColor: scoreColor,
-          case_name: citation.case_name || 'N/A',
-          extracted_case_name: citation.extracted_case_name || 'N/A',
-          canonical_date: citation.canonical_date || null,
-          extracted_date: citation.extracted_date || null,
-          metadata: {
-            case_name: citation.case_name,
-            canonical_date: citation.canonical_date,
-            court: citation.court,
-            confidence: citation.confidence,
-            method: citation.method,
-            pattern: citation.pattern
-          },
-          details: {
-            case_name: citation.case_name,
-            canonical_date: citation.canonical_date,
-            court: citation.court,
-            confidence: citation.confidence,
-            method: citation.method,
-            pattern: citation.pattern
-          }
-        };
-        console.log('Normalized citation:', {
-          citation: normalizedCitation.citation,
-          case_name: normalizedCitation.case_name,
-          extracted_case_name: normalizedCitation.extracted_case_name,
-          verified: normalizedCitation.verified,
-          score: normalizedCitation.score
-        });
-        return normalizedCitation;
-      });
-    }
-
     // Enhanced progress tracking function
     async function pollTaskStatus(taskId) {
       if (!taskId) return;
@@ -1366,6 +1226,129 @@ export default {
   }
 }
 
+/* Main Layout */
+.main-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.main-content-area {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
+  border: 1px solid rgba(75, 46, 131, 0.1);
+}
+
+.recent-inputs-sidebar-container {
+  align-self: start;
+  position: sticky;
+  top: 2rem;
+}
+
+/* Loading State */
+.loading-container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.loading-content {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  box-shadow: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
+  border: 1px solid rgba(75, 46, 131, 0.1);
+}
+
+.spinner-container {
+  margin-bottom: 2rem;
+}
+
+.spinner-container .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #4b2e83;
+}
+
+.loading-content h3 {
+  color: #4b2e83;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.progress-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Error State */
+.error-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.error-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
+  border: 1px solid rgba(75, 46, 131, 0.1);
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.error-content h3 {
+  color: #dc3545;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* No Results State */
+.no-results-container {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.no-results-content {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+
+.no-results-content h3 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Input Container */
+.input-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Results Container */
 .results-container {
   background: white;
   border-radius: 8px;
@@ -1373,48 +1356,62 @@ export default {
   padding: 1.5rem;
 }
 
-.error-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .main-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .recent-inputs-sidebar-container {
+    position: static;
+    order: -1;
+  }
 }
 
-.empty-state {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 3rem 1.5rem;
+@media (max-width: 768px) {
+  .main-content-area {
+    padding: 1.5rem;
+  }
+  
+  .loading-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .error-content {
+    padding: 1.5rem;
+  }
+  
+  .no-results-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .progress-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
-.empty-content {
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-}
-
-.error-icon {
-  color: #dc3545;
-  margin-right: 0.5rem;
-}
-
-.results-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #1976d2;
-  letter-spacing: 0.01em;
-}
-
-.back-btn {
-  font-size: 1.1rem;
-  color: #1976d2;
-  text-decoration: none;
-  margin-bottom: 1rem;
-}
-
-.back-btn i {
-  margin-right: 0.5rem;
+@media (max-width: 480px) {
+  .main-content-area {
+    padding: 1rem;
+  }
+  
+  .loading-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .error-content {
+    padding: 1rem;
+  }
+  
+  .no-results-content {
+    padding: 1.5rem 1rem;
+  }
 }
 </style>

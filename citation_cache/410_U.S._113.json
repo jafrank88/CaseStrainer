@@ -1,50 +1,6 @@
 {
-  "citation": "410 U.S. 113",
-  "normalized_citation": "410 U.S. 113",
-  "components": {
-    "volume": "410",
-    "reporter": "U.S.",
-    "page": "113",
-    "court": "United States Supreme Court",
-    "year": ""
-  },
   "verified": true,
-  "verification_date": "2025-05-28T17:29:33.807668",
-  "sources": {
-    "original_verifier": {
-      "verified": false,
-      "source": "Original Verifier",
-      "original_result": {
-        "found": false,
-        "confirmed": false,
-        "confidence": 0.1,
-        "explanation": "Invalid citation format: Citation format does not match any known pattern",
-        "source": null,
-        "case_name": null,
-        "format_analysis": {
-          "is_valid_format": false,
-          "error": "Citation format does not match any known pattern"
-        }
-      }
-    },
-    "database": {
-      "verified": false,
-      "source": "Database",
-      "error": "Citation not found in database"
-    },
-    "landmark_cases": {
-      "verified": false,
-      "source": "Landmark Cases",
-      "error": "Landmark cases database not found"
-    },
-    "fuzzy_matching": {
-      "verified": true,
-      "source": "Fuzzy Matching",
-      "match_type": "pattern",
-      "pattern": "(\\d+)\\s+U\\.S\\.\\s*(\\d+)",
-      "volume": "410",
-      "page": "113"
-    }
-  },
-  "verified_by": "Fuzzy Matching"
+  "verified_by": "Landmark Cases",
+  "case_name": "Roe v. Wade",
+  "test_data": "cache_test"
 }

@@ -3,7 +3,7 @@
 Debug script to test citation merging.
 """
 
-from src.citation_extractor import CitationExtractor
+# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 from src.document_processing import extract_and_verify_citations
 
 def test_citation_merging():

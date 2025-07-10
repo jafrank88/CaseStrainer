@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, current_app
 from typing import Dict, Any, Optional
 import asyncio
 
-from src.citation_processor import CaseStrainerCitationProcessor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from src.citation_services import ExtractionConfig
 
 logger = logging.getLogger(__name__)
@@ -18,11 +18,11 @@ citation_api = Blueprint('citation_api', __name__)
 # Global processor instance
 _processor = None
 
-def get_citation_processor() -> CaseStrainerCitationProcessor:
-    """Get or create citation processor instance"""
+def get_citation_processor() -> UnifiedCitationProcessor:
+    """Get the citation processor instance."""
     global _processor
     if _processor is None:
-        _processor = CaseStrainerCitationProcessor()
+        _processor = UnifiedCitationProcessor()
     return _processor
 
 @citation_api.route('/citations/analyze', methods=['POST'])
@@ -228,59 +228,59 @@ def citation_health_check():
             'error': str(e)
         }), 503
 
-# Legacy compatibility endpoint
-@citation_api.route('/analyze_enhanced', methods=['POST'])
-def enhanced_analyze():
-    """Enhanced analyze endpoint with better citation extraction (legacy compatibility)"""
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
-        
-        input_type = data.get('type', 'text')
-        
-        if input_type == 'text':
-            text = data.get('text', '')
-            document_type = data.get('document_type', 'legal_brief')
-            
-            if not text:
-                return jsonify({'error': 'No text provided'}), 400
-            
-            # Use the enhanced citation processor
-            processor = get_citation_processor()
-            
-            # Run async processing
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                citation_results = loop.run_until_complete(
-                    processor.process_document_citations(text, document_type)
-                )
-            finally:
-                loop.close()
-            
-            # Maintain compatibility with existing response format
-            legacy_format = {
-                'success': citation_results['success'],
-                'citations': [
-                    {
-                        'text': c['raw_text'],
-                        'case_name': c['case_name'],
-                        'year': c['year'],
-                        'validation_status': c['validation_status'],
-                        'confidence': c['confidence_score']
-                    }
-                    for c in citation_results['citations']
-                ],
-                'analysis': citation_results['analysis'],
-                'recommendations': citation_results['recommendations']
-            }
-            
-            return jsonify(legacy_format)
-        
-        else:
-            return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
-            
-    except Exception as e:
-        logger.error(f"Error in enhanced analyze endpoint: {e}", exc_info=True)
-        return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
+# Legacy compatibility endpoint - DISABLED due to missing method
+# @citation_api.route('/analyze_enhanced', methods=['POST'])
+# def enhanced_analyze():
+#     """Enhanced analyze endpoint with better citation extraction (legacy compatibility)"""
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({'error': 'No JSON data provided'}), 400
+#         
+#         input_type = data.get('type', 'text')
+#         
+#         if input_type == 'text':
+#             text = data.get('text', '')
+#             document_type = data.get('document_type', 'legal_brief')
+#             
+#             if not text:
+#                 return jsonify({'error': 'No text provided'}), 400
+#             
+#             # Use the enhanced citation processor
+#             processor = get_citation_processor()
+#             
+#             # Run async processing
+#             loop = asyncio.new_event_loop()
+#             asyncio.set_event_loop(loop)
+#             try:
+#                 citation_results = loop.run_until_complete(
+#                     processor.process_document_citations(text, document_type)
+#                 )
+#             finally:
+#                 loop.close()
+#             
+#             # Maintain compatibility with existing response format
+#             legacy_format = {
+#                 'success': citation_results['success'],
+#                 'citations': [
+#                     {
+#                         'text': c['raw_text'],
+#                         'case_name': c['case_name'],
+#                         'year': c['year'],
+#                         'validation_status': c['validation_status'],
+#                         'confidence': c['confidence_score']
+#                     }
+#                     for c in citation_results['citations']
+#                 ],
+#                 'analysis': citation_results['analysis'],
+#                 'recommendations': citation_results['recommendations']
+#             }
+#             
+#             return jsonify(legacy_format)
+#         
+#         else:
+#             return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
+#             
+#     except Exception as e:
+#         logger.error(f"Error in enhanced analyze endpoint: {e}", exc_info=True)
+#         return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500

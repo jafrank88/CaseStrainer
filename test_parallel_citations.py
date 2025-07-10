@@ -1,243 +1,107 @@
 #!/usr/bin/env python3
 """
-Test script to check propagation of extracted and canonical metadata for primary and parallel citations.
+Test script to verify parallel citation clustering functionality.
 """
 
 import sys
 import os
-import sqlite3
-import json
-from datetime import datetime
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-from document_processing import extract_and_verify_citations
-
-def test_parallel_citation_extraction():
-    """Test parallel citation extraction from various sources."""
-    print("=== Testing Parallel Citation Extraction ===\n")
+def test_parallel_citation_clustering():
+    """Test parallel citation clustering with various scenarios."""
     
-    verifier = EnhancedMultiSourceVerifier()
+    processor = UnifiedCitationProcessor()
     
-    # Test citations that should have parallel citations
-    test_citations = [
-        "199 Wn. App. 280",  # Should have parallel citation "399 P.3d 1195"
-        "149 Wash. 2d 647",  # Should have parallel citation "71 P.3d 638"
-        "115 Wash. 2d 294",  # Should have parallel citation "797 P.2d 1141"
-    ]
+    # Test case 1: Multiple citations for the same case in same context
+    test_text_1 = """
+    In Smith v. Jones, 123 F.3d 456 (9th Cir. 2020), 456 F. Supp. 789 (D. Cal. 2020), 
+    the court held that parallel citations should be grouped together. The case 
+    established important precedent.
+    """
     
-    for citation in test_citations:
-        print(f"Testing citation: {citation}")
-        print("-" * 50)
-        
-        try:
-            # Verify the citation
-            result = verifier.verify_citation_unified_workflow(citation)
-            
-            print(f"Verification result: {result.get('verified', 'unknown')}")
-            print(f"Source: {result.get('source', 'unknown')}")
-            print(f"Case name: {result.get('case_name', 'unknown')}")
-            
-            # Check for parallel citations
-            parallel_citations = result.get('parallel_citations', [])
-            print(f"Parallel citations found: {len(parallel_citations)}")
-            
-            if parallel_citations:
-                print("Parallel citations:")
-                for i, parallel in enumerate(parallel_citations, 1):
-                    if isinstance(parallel, dict):
-                        print(f"  {i}. {parallel.get('citation', 'unknown')}")
-                        print(f"     Reporter: {parallel.get('reporter', 'unknown')}")
-                        print(f"     Category: {parallel.get('category', 'unknown')}")
-                        print(f"     URL: {parallel.get('url', 'unknown')}")
-                    else:
-                        print(f"  {i}. {parallel}")
-            else:
-                print("  No parallel citations found")
-            
-            print()
-            
-        except Exception as e:
-            print(f"Error testing citation {citation}: {e}")
-            print()
-
-def check_database_parallel_citations():
-    """Check the database for parallel citations."""
-    print("=== Checking Database for Parallel Citations ===\n")
+    print("=== Test 1: Same case name, multiple citations ===")
+    results_1 = processor.process_text(test_text_1)
+    print(f"Found {len(results_1['citations'])} citations")
     
-    db_path = "src/citations.db"
-    
-    if not os.path.exists(db_path):
-        print(f"Database not found at {db_path}")
-        return
-    
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Check if parallel_citations table exists
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='parallel_citations'")
-        table_exists = cursor.fetchone()
-        
-        if table_exists:
-            print("✓ parallel_citations table exists")
-            
-            # Check table schema
-            cursor.execute("PRAGMA table_info(parallel_citations)")
-            columns = cursor.fetchall()
-            print(f"Table schema: {[col[1] for col in columns]}")
-            
-            # Count records
-            cursor.execute("SELECT COUNT(*) FROM parallel_citations")
-            count = cursor.fetchone()[0]
-            print(f"Number of parallel citation records: {count}")
-            
-            # Show some examples
-            if count > 0:
-                cursor.execute("""
-                    SELECT pc.citation, pc.reporter, pc.category, pc.year, c.citation_text as primary_citation
-                    FROM parallel_citations pc
-                    JOIN citations c ON pc.citation_id = c.id
-                    LIMIT 10
-                """)
-                examples = cursor.fetchall()
-                print("\nExample parallel citations:")
-                for example in examples:
-                    print(f"  Primary: {example[4]}")
-                    print(f"  Parallel: {example[0]} (Reporter: {example[1]}, Category: {example[2]}, Year: {example[3]})")
-                    print()
-        else:
-            print("✗ parallel_citations table does not exist")
-        
-        # Check main citations table for parallel_citations column
-        cursor.execute("PRAGMA table_info(citations)")
-        columns = cursor.fetchall()
-        column_names = [col[1] for col in columns]
-        
-        if 'parallel_citations' in column_names:
-            print("✓ parallel_citations column exists in citations table")
-            
-            # Check for non-empty parallel citations
-            cursor.execute("""
-                SELECT citation_text, parallel_citations 
-                FROM citations 
-                WHERE parallel_citations IS NOT NULL AND parallel_citations != '' 
-                LIMIT 5
-            """)
-            examples = cursor.fetchall()
-            
-            if examples:
-                print(f"Found {len(examples)} citations with parallel citations data:")
-                for citation, parallel_data in examples:
-                    try:
-                        parsed = json.loads(parallel_data) if parallel_data else []
-                        print(f"  {citation}: {parsed}")
-                    except json.JSONDecodeError:
-                        print(f"  {citation}: {parallel_data} (raw)")
-            else:
-                print("No citations found with parallel citations data")
-        else:
-            print("✗ parallel_citations column does not exist in citations table")
-        
-        # Check total citations
-        cursor.execute("SELECT COUNT(*) FROM citations")
-        total_citations = cursor.fetchone()[0]
-        print(f"\nTotal citations in database: {total_citations}")
-        
-        # Check verified citations
-        cursor.execute("SELECT COUNT(*) FROM citations WHERE found = 1")
-        verified_citations = cursor.fetchone()[0]
-        print(f"Verified citations: {verified_citations}")
-        
-        conn.close()
-        
-    except Exception as e:
-        print(f"Error checking database: {e}")
-
-def test_specific_citation_verification():
-    """Test verification of a specific citation to see parallel citation handling."""
-    print("=== Testing Specific Citation Verification ===\n")
-    
-    verifier = EnhancedMultiSourceVerifier()
-    
-    # Test the specific citation from the user's question
-    citation = "John Doe P v. Thurston County, 199 Wn. App. 280, 283, 399 P.3d 1195 (2017)"
-    
-    print(f"Testing citation: {citation}")
-    print("-" * 60)
-    
-    try:
-        # Verify the citation
-        result = verifier.verify_citation_unified_workflow(citation)
-        
-        print(f"Verification result: {result.get('verified', 'unknown')}")
-        print(f"Source: {result.get('source', 'unknown')}")
-        print(f"Case name: {result.get('case_name', 'unknown')}")
-        print(f"Canonical citation: {result.get('canonical_citation', 'unknown')}")
-        
-        # Check for parallel citations
-        parallel_citations = result.get('parallel_citations', [])
-        print(f"Parallel citations found: {len(parallel_citations)}")
-        
-        if parallel_citations:
-            print("Parallel citations:")
-            for i, parallel in enumerate(parallel_citations, 1):
-                if isinstance(parallel, dict):
-                    print(f"  {i}. {parallel.get('citation', 'unknown')}")
-                    print(f"     Reporter: {parallel.get('reporter', 'unknown')}")
-                    print(f"     Category: {parallel.get('category', 'unknown')}")
-                    print(f"     URL: {parallel.get('url', 'unknown')}")
-                else:
-                    print(f"  {i}. {parallel}")
-        else:
-            print("  No parallel citations found")
-        
-        # Check if the parallel citation "399 P.3d 1195" is in the result
-        if isinstance(result.get('canonical_citation'), list):
-            citations_list = result['canonical_citation']
-            if "399 P.3d 1195" in citations_list:
-                print("\n✓ Parallel citation '399 P.3d 1195' found in canonical_citation")
-            else:
-                print("\n✗ Parallel citation '399 P.3d 1195' NOT found in canonical_citation")
-                print(f"Canonical citations: {citations_list}")
-        
+    for i, citation in enumerate(results_1['citations']):
+        print(f"Citation {i+1}: {citation['citation']}")
+        print(f"  Case name: {citation.get('case_name', 'N/A')}")
+        print(f"  Parallel citations: {citation.get('parallel_citations', [])}")
+        print(f"  Is parallel: {citation.get('is_parallel', False)}")
         print()
-        
-    except Exception as e:
-        print(f"Error testing citation {citation}: {e}")
+    
+    # Test case 2: Citations separated by punctuation
+    test_text_2 = """
+    The Supreme Court in Brown v. Board of Education, 347 U.S. 483 (1954), 
+    74 S. Ct. 686, 98 L. Ed. 873, established the principle of desegregation.
+    """
+    
+    print("=== Test 2: Citations with punctuation separation ===")
+    results_2 = processor.process_text(test_text_2)
+    print(f"Found {len(results_2['citations'])} citations")
+    
+    for i, citation in enumerate(results_2['citations']):
+        print(f"Citation {i+1}: {citation['citation']}")
+        print(f"  Case name: {citation.get('case_name', 'N/A')}")
+        print(f"  Parallel citations: {citation.get('parallel_citations', [])}")
+        print(f"  Is parallel: {citation.get('is_parallel', False)}")
         print()
-
-def main():
-    """Run all tests."""
-    print("Parallel Citation Extraction and Storage Test")
-    print("=" * 50)
-    print(f"Test run at: {datetime.now()}")
-    print()
     
-    # Test 1: Check database structure and existing data
-    check_database_parallel_citations()
-    print()
+    # Test case 3: Different cases (should not be grouped)
+    test_text_3 = """
+    In Smith v. Jones, 123 F.3d 456 (9th Cir. 2020), the court held one thing.
+    In Johnson v. Smith, 456 F.3d 789 (8th Cir. 2021), the court held another.
+    """
     
-    # Test 2: Test specific citation verification
-    test_specific_citation_verification()
+    print("=== Test 3: Different cases (should not be grouped) ===")
+    results_3 = processor.process_text(test_text_3)
+    print(f"Found {len(results_3['citations'])} citations")
     
-    # Test 3: Test parallel citation extraction
-    test_parallel_citation_extraction()
+    for i, citation in enumerate(results_3['citations']):
+        print(f"Citation {i+1}: {citation['citation']}")
+        print(f"  Case name: {citation.get('case_name', 'N/A')}")
+        print(f"  Parallel citations: {citation.get('parallel_citations', [])}")
+        print(f"  Is parallel: {citation.get('is_parallel', False)}")
+        print()
     
-    # Test 4: Test extraction and verification pipeline
-    test_text = "John Doe P v. Thurston County, 199 Wn. App. 280, 283, 399 P.3d 1195 (2017)"
-    print("Testing extraction and verification for:")
-    print(test_text)
-    print("-" * 60)
-    results, _ = extract_and_verify_citations(test_text)
-    print("Backend output:")
-    for i, citation in enumerate(results, 1):
-        print(f"\nCitation {i}: {citation.get('citation')}")
-        print(json.dumps(citation, indent=2, ensure_ascii=False))
+    # Test case 4: Complex parallel citation pattern
+    test_text_4 = """
+    The landmark case of Miranda v. Arizona, 384 U.S. 436 (1966), 
+    86 S. Ct. 1602, 16 L. Ed. 2d 694, 10 A.L.R.3d 974, established 
+    the Miranda rights that police must read to suspects.
+    """
     
-    print("Test completed!")
+    print("=== Test 4: Complex parallel citation pattern ===")
+    results_4 = processor.process_text(test_text_4)
+    print(f"Found {len(results_4['citations'])} citations")
+    
+    for i, citation in enumerate(results_4['citations']):
+        print(f"Citation {i+1}: {citation['citation']}")
+        print(f"  Case name: {citation.get('case_name', 'N/A')}")
+        print(f"  Parallel citations: {citation.get('parallel_citations', [])}")
+        print(f"  Is parallel: {citation.get('is_parallel', False)}")
+        print()
+    
+    # Test case 5: Real-world example from legal brief
+    test_text_5 = """
+    In the case of Roe v. Wade, 410 U.S. 113 (1973), 93 S. Ct. 705, 
+    35 L. Ed. 2d 147, the Supreme Court established a woman's right 
+    to choose. This was later modified in Planned Parenthood v. Casey, 
+    505 U.S. 833 (1992), 112 S. Ct. 2791, 120 L. Ed. 2d 674.
+    """
+    
+    print("=== Test 5: Real-world legal brief example ===")
+    results_5 = processor.process_text(test_text_5)
+    print(f"Found {len(results_5['citations'])} citations")
+    
+    for i, citation in enumerate(results_5['citations']):
+        print(f"Citation {i+1}: {citation['citation']}")
+        print(f"  Case name: {citation.get('case_name', 'N/A')}")
+        print(f"  Parallel citations: {citation.get('parallel_citations', [])}")
+        print(f"  Is parallel: {citation.get('is_parallel', False)}")
+        print()
 
 if __name__ == "__main__":
-    main() 
+    test_parallel_citation_clustering() 

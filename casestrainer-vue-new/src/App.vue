@@ -1,13 +1,18 @@
 <template>
   <div id="app">
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #4b2e83 60%, #6a4c93 100%);">
       <div class="container">
         <router-link class="navbar-brand" to="/">
           <i class="bi bi-journal-check me-2"></i>
           <span class="d-none d-sm-inline">CaseStrainer</span>
           <span class="d-inline d-sm-none">CS</span>
         </router-link>
+        <div class="header-banner mt-1">
+          <span class="header-banner-text">
+            Free, Open-Source, and No Generative AI - Experimental - Use at Your Own Risk
+          </span>
+        </div>
         <button 
           class="navbar-toggler" 
           type="button" 
@@ -363,5 +368,36 @@ main {
   html {
     scroll-behavior: auto;
   }
+}
+
+.header-banner {
+  margin-top: 0.25rem;
+}
+.header-banner-text {
+  color: #fff;
+  background: rgba(75, 46, 131, 0.85);
+  border-radius: 0.5rem;
+  padding: 0.15rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(75, 46, 131, 0.08);
+  display: inline-block;
+}
+.navbar, .navbar * {
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.navbar .navbar-brand, .navbar .navbar-brand * {
+  color: #fff !important;
+}
+.navbar .nav-link {
+  color: #fff !important;
+  opacity: 0.95;
+}
+.navbar .nav-link.router-link-exact-active {
+  font-weight: 700;
+  color: #fff !important;
+  background: rgba(255,255,255,0.12);
 }
 </style>
