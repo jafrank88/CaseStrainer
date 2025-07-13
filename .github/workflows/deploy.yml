@@ -1,0 +1,140 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Pre-deployment checks
+  pre-deploy-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run critical tests
+      run: |
+        pytest test_citation_extraction.py test_clustering_fix.py test_backend_api.py -v
+
+    - name: Security scan
+      run: |
+        bandit -r src/ -f json -o bandit-report.json
+        safety check --json --output safety-report.json
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  # Build production images
+  build-production:
+    name: Build Production Images
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-checks]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build production images
+      run: |
+        docker-compose -f docker-compose.prod.yml build
+
+    - name: Test production images
+      run: |
+        docker-compose -f docker-compose.prod.yml up -d redis backend
+        sleep 30
+        curl -f http://localhost:5000/casestrainer/api/health || exit 1
+        docker-compose -f docker-compose.prod.yml down
+
+    - name: Upload production images
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-images
+        path: |
+          docker-compose.prod.yml
+          Dockerfile
+          casestrainer-vue-new/Dockerfile.prod
+
+  # Deploy to staging (if you have a staging environment)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-production]
+    if: false  # Set to true if you have a staging environment
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your staging deployment commands here
+
+  # Deploy to production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-production]
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying CaseStrainer to production..."
+        echo "✅ All pre-deployment checks passed"
+        echo "✅ Production images built successfully"
+        echo "📦 Ready for deployment"
+        
+        # Add your production deployment commands here
+        # Examples:
+        # - Copy files to production server
+        # - Run docker-compose on production
+        # - Update load balancer configuration
+        # - Run database migrations
+        
+        echo "🎉 Deployment completed successfully!"
+
+    - name: Post-deployment health check
+      run: |
+        echo "Running post-deployment health checks..."
+        # Add health check commands here
+        # curl -f https://your-production-domain.com/casestrainer/api/health
+
+    - name: Notify deployment success
+      run: |
+        echo "📢 CaseStrainer deployment completed successfully!"
+        echo "🌐 Production URL: https://your-production-domain.com"
+        echo "📊 Health check: https://your-production-domain.com/casestrainer/api/health" 

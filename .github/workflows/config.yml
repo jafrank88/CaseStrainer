@@ -1,0 +1,88 @@
+# GitHub Actions Configuration for CaseStrainer
+# This file defines common environment variables and configurations
+
+# Environment variables that should be set in GitHub Secrets:
+# - COURTLISTENER_API_KEY: Your CourtListener API key
+# - REDIS_URL: Redis connection string (if using external Redis)
+# - PRODUCTION_DEPLOY_KEY: SSH key for production deployment
+# - PRODUCTION_HOST: Production server hostname/IP
+# - PRODUCTION_USER: SSH user for production server
+
+# Common environment variables
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  DOCKER_BUILDKIT: 1
+  
+  # Application-specific variables
+  FLASK_ENV: production
+  CASTRAINER_ENV: production
+  PYTHONPATH: /app
+  
+  # Redis configuration
+  REDIS_URL: redis://localhost:6379/0
+  RQ_QUEUE_NAME: casestrainer
+  RQ_MAX_JOBS: 100
+  RQ_MAX_MEMORY_MB: 1024
+  
+  # API keys (set these in GitHub Secrets)
+  COURTLISTENER_API_KEY: ${{ secrets.COURTLISTENER_API_KEY }}
+
+# Test configuration
+test:
+  # Backend test patterns
+  backend_patterns:
+    - "src/**/*.py"
+    - "test_*.py"
+    - "test_*.ps1"
+  
+  # Frontend test patterns
+  frontend_patterns:
+    - "casestrainer-vue-new/src/**/*.vue"
+    - "casestrainer-vue-new/src/**/*.js"
+  
+  # Docker test patterns
+  docker_patterns:
+    - "Dockerfile*"
+    - "docker-compose*.yml"
+    - "*.dockerfile"
+
+# Deployment configuration
+deployment:
+  # Production environment
+  production:
+    host: ${{ secrets.PRODUCTION_HOST }}
+    user: ${{ secrets.PRODUCTION_USER }}
+    key: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
+    path: /opt/casestrainer
+    
+  # Staging environment (optional)
+  staging:
+    host: ${{ secrets.STAGING_HOST }}
+    user: ${{ secrets.STAGING_USER }}
+    key: ${{ secrets.STAGING_DEPLOY_KEY }}
+    path: /opt/casestrainer-staging
+
+# Cache configuration
+cache:
+  # Python cache
+  python:
+    path: ~/.cache/pip
+    key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+    
+  # Node.js cache
+  node:
+    path: casestrainer-vue-new/node_modules
+    key: ${{ runner.os }}-node-${{ hashFiles('casestrainer-vue-new/package-lock.json') }}
+    
+  # Docker cache
+  docker:
+    key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile*', '**/docker-compose*.yml') }}
+
+# Notification configuration
+notifications:
+  # Slack webhook (optional)
+  slack_webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+  
+  # Email notifications (optional)
+  email: ${{ secrets.NOTIFICATION_EMAIL }} 
