@@ -202,9 +202,13 @@ jobs:
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         # Test citation extraction and processing
-        python test_citation_extraction.py
-        python test_clustering_fix.py
-        python test_backend_api.py
+        pytest test_citation_extraction.py test_clustering_fix.py test_backend_api.py -v
+
+    - name: Run regression tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        # Test that changes don't break existing functionality
+        python test_regression_suite.py
 
     - name: Test PowerShell scripts (Windows)
       runs-on: windows-latest
@@ -233,6 +237,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        submodules: false
 
     - name: Set up Node.js ${{ env.NODE_VERSION }}
       uses: actions/setup-node@v4
