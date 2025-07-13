@@ -49,9 +49,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio
+
+    - name: Set up Python path
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        echo "PYTHONPATH=${PYTHONPATH}" >> $GITHUB_ENV
 
     - name: Run backend tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         pytest src/ --cov=src --cov-report=xml --cov-report=html --cov-report=term-missing
         pytest test_*.py --cov=src --cov-append --cov-report=term-missing
 
@@ -176,9 +183,16 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio
+
+    - name: Set up Python path
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        echo "PYTHONPATH=${PYTHONPATH}" >> $GITHUB_ENV
 
     - name: Run integration tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         # Test citation extraction and processing
         python test_citation_extraction.py
         python test_clustering_fix.py
