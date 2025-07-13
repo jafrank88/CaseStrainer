@@ -559,7 +559,7 @@ class ApplicationFactory:
         
         @app.route('/casestrainer/api/analyze_enhanced', methods=['POST'])
         def enhanced_analyze():
-            """Enhanced analyze endpoint with better citation extraction and verification"""
+            """Enhanced analyze endpoint with better citation extraction, clustering, and verification"""
             from flask import request, jsonify
             import logging
             logger = logging.getLogger("citation_verification")
@@ -570,37 +570,61 @@ class ApplicationFactory:
                 input_type = data.get('type', 'text')
                 if input_type == 'text':
                     text = data.get('text', '')
-                    citations_list = data.get('citations', [])
                     api_key = data.get('api_key', None)
                     if not text:
                         return jsonify({'error': 'No text provided'}), 400
-                    if not citations_list:
-                        return jsonify({'error': 'No citations provided'}), 400
-                    # Use the enhanced verification workflow
-                    results = []
-                    for citation_text in citations_list:
-                        result = verify_citation_with_extraction(
-                            citation_text=citation_text,
-                            document_text=text,
-                            api_key=api_key
-                        )
-                        # Ensure extracted fields are always present
-                        if 'extracted_case_name' not in result:
-                            result['extracted_case_name'] = 'N/A'
-                        if 'extracted_date' not in result:
-                            result['extracted_date'] = 'N/A'
-                        results.append(result)
-                    
+
+                    # Use UnifiedCitationProcessorV2 for extraction and clustering
+                    config = None  # Use default config
+                    processor = UnifiedCitationProcessor(config)
+                    results = processor.process_text(text)
+
+                    # Convert CitationResult objects to dicts and add cluster metadata
+                    citation_dicts = []
+                    for citation in results:
+                        citation_dict = {
+                            'citation': citation.citation,
+                            'case_name': citation.extracted_case_name or citation.case_name,
+                            'extracted_case_name': citation.extracted_case_name,
+                            'canonical_name': citation.canonical_name,
+                            'extracted_date': citation.extracted_date,
+                            'canonical_date': citation.canonical_date,
+                            'verified': citation.verified,
+                            'court': citation.court,
+                            'confidence': citation.confidence,
+                            'method': citation.method,
+                            'pattern': citation.pattern,
+                            'context': citation.context,
+                            'start_index': citation.start_index,
+                            'end_index': citation.end_index,
+                            'is_parallel': citation.is_parallel,
+                            'is_cluster': citation.is_cluster,
+                            'parallel_citations': citation.parallel_citations,
+                            'cluster_members': citation.cluster_members,
+                            'pinpoint_pages': citation.pinpoint_pages,
+                            'docket_numbers': citation.docket_numbers,
+                            'case_history': citation.case_history,
+                            'publication_status': citation.publication_status,
+                            'url': citation.url,
+                            'source': citation.source,
+                            'error': citation.error,
+                            'metadata': citation.metadata or {}
+                        }
+                        citation_dicts.append(citation_dict)
+
+                    # Add clusters array
+                    clusters = processor.group_citations_into_clusters(results)
+
                     # Log the response for debugging
-                    logger.info(f"API Response for {len(results)} citations:")
-                    for i, result in enumerate(results):
+                    logger.info(f"API Response for {len(citation_dicts)} citations:")
+                    for i, result in enumerate(citation_dicts):
                         logger.info(f"  Citation {i+1}: {result.get('citation', 'N/A')}")
                         logger.info(f"    extracted_case_name: {result.get('extracted_case_name', 'MISSING')}")
                         logger.info(f"    extracted_date: {result.get('extracted_date', 'MISSING')}")
                         logger.info(f"    canonical_name: {result.get('canonical_name', 'MISSING')}")
                         logger.info(f"    canonical_date: {result.get('canonical_date', 'MISSING')}")
-                    
-                    return jsonify({'citations': results, 'success': True})
+
+                    return jsonify({'citations': citation_dicts, 'clusters': clusters, 'success': True})
                 else:
                     return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
             except Exception as e:

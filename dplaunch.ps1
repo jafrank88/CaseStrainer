@@ -3,12 +3,22 @@
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    [ValidateSet("Production", "Diagnostics", "Menu", "Cache")]
+    [ValidateSet("Production", "Diagnostics", "Menu", "Cache", "Test", "Debug")]
     [string]$Mode = "Menu",
     [switch]$Help,
     [switch]$AutoRestart,
     [switch]$SkipVueBuild,
-    [switch]$QuickStart
+    [switch]$QuickStart,
+    [switch]$ForceRebuild,
+    [switch]$TestAPI,
+    [switch]$TestFrontend,
+    [switch]$ShowLogs,
+    [switch]$ClearCache,
+    [switch]$NoValidation,
+    [switch]$VerboseLogging,
+    [string]$TestCitation = "534 F.3d 1290",
+    [int]$TimeoutMinutes = 10,
+    [int]$MenuOption = $null
 )
 
 # Input validation
@@ -23,6 +33,8 @@ $script:MaxRestartAttempts = 3
 $script:CrashLogFile = Join-Path $PSScriptRoot "logs\crash.log"
 $script:MonitoringJob = $null
 
+# ForceRebuild is now a parameter of Start-DockerProduction function
+
 # Performance optimization: Cache expensive checks
 $script:CachedChecks = @{
     DockerAvailable = $null
@@ -35,27 +47,44 @@ $script:CachedChecks = @{
 # Show help
 if ($Help) {
     Write-Host @"
-Enhanced CaseStrainer Docker Production Launcher v1.1 - Help
+Enhanced CaseStrainer Docker Production Launcher v1.2 - Help
 
 Usage:
   .\dplaunch.ps1 [Options]
 
-Options:
+Modes:
   -Mode Production    Start Docker Production Mode
   -Mode Diagnostics   Run Advanced Production Diagnostics
   -Mode Cache         Manage Citation Caches
-  -Mode Menu         Show interactive menu (default)
-  -AutoRestart       Enable auto-restart monitoring
-  -SkipVueBuild      Skip Vue frontend build (fastest)
-  -ForceRebuild      Force full Docker and Vue rebuild
-  -QuickStart        Skip most checks for maximum speed
-  -Help              Show this help
+  -Mode Test          Run API and Frontend Tests
+  -Mode Debug         Enable Debug Mode with extra logging
+  -Mode Menu          Show interactive menu (default)
+
+Deployment Options:
+  -ForceRebuild       Force full Docker and Vue rebuild
+  -SkipVueBuild       Skip Vue frontend build (fastest)
+  -QuickStart         Skip most checks for maximum speed
+  -NoValidation       Skip post-startup validation
+  -TimeoutMinutes     Set timeout for operations (default: 10)
+
+Testing & Debugging:
+  -TestAPI            Test API endpoints after deployment
+  -TestFrontend       Test frontend functionality
+  -TestCitation       Citation to test (default: "534 F.3d 1290")
+  -VerboseLogging     Enable detailed logging
+  -ShowLogs           Show container logs after deployment
+
+Cache & Maintenance:
+  -ClearCache         Clear all caches before deployment
+  -AutoRestart        Enable auto-restart monitoring
 
 Examples:
   .\dplaunch.ps1                                    # Show menu
   .\dplaunch.ps1 -Mode Production -QuickStart       # Fastest possible startup
-  .\dplaunch.ps1 -Mode Production -SkipVueBuild     # Fast startup
   .\dplaunch.ps1 -Mode Production -ForceRebuild     # Full rebuild
+  .\dplaunch.ps1 -Mode Test -TestAPI                # Test API only
+  .\dplaunch.ps1 -Mode Debug -VerboseLogging        # Debug with verbose logging
+  .\dplaunch.ps1 -Mode Production -TestCitation "200 Wn.2d 72"  # Test specific citation
 "@ -ForegroundColor Cyan
     exit 0
 }
@@ -368,7 +397,7 @@ function Wait-ForServices {
     [CmdletBinding()]
     [OutputType([bool])]
     param(
-        [int]$TimeoutMinutes = 3
+        [int]$TimeoutMinutes = 5
     )
 
     Write-Host "`nWaiting for services to initialize..." -ForegroundColor Yellow
@@ -377,26 +406,50 @@ function Wait-ForServices {
 
     while ((Get-Date) -lt $timeout) {
         $attempt++
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 10
 
         try {
-            # Quick port check only
+            # Enhanced health checks
+            $allHealthy = $true
+            
+            # Backend API health check
             $backendHealthy = Test-NetConnection -ComputerName localhost -Port 5001 -InformationLevel Quiet -WarningAction SilentlyContinue
+            if (-not $backendHealthy) {
+                Write-Host "Backend not ready (attempt $attempt)..." -ForegroundColor Yellow
+                $allHealthy = $false
+            }
+            
+            # Redis health check
+            $redisHealthy = Test-NetConnection -ComputerName localhost -Port 6380 -InformationLevel Quiet -WarningAction SilentlyContinue
+            if (-not $redisHealthy) {
+                Write-Host "Redis not ready (attempt $attempt)..." -ForegroundColor Yellow
+                $allHealthy = $false
+            }
+            
+            # RQ Worker health check via Docker
+            try {
+                $workerStatus = docker ps --filter "name=casestrainer-rqworker" --format "{{.Status}}" 2>$null
+                if (-not $workerStatus -or $workerStatus -like "*unhealthy*") {
+                    Write-Host "RQ Worker not healthy (attempt $attempt)..." -ForegroundColor Yellow
+                    $allHealthy = $false
+                }
+            } catch {
+                Write-Host "Could not check RQ Worker status (attempt $attempt)..." -ForegroundColor Yellow
+                $allHealthy = $false
+            }
 
-            if ($backendHealthy) {
-                Write-Host "OK Backend service is ready" -ForegroundColor Green
+            if ($allHealthy) {
+                Write-Host "OK All services are ready" -ForegroundColor Green
                 return $true
-            } else {
-                Write-Host "Services starting (attempt $attempt)..." -ForegroundColor Yellow
             }
         }
         catch {
-            Write-Host "Health check attempt $attempt..." -ForegroundColor Yellow
+            Write-Host "Health check attempt $attempt failed: $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
 
     Write-Host "WARNING: Timeout waiting for services, but continuing..." -ForegroundColor Yellow
-    return $true
+    return $false
 }
 
 function Show-ServiceUrls {
@@ -422,7 +475,36 @@ function Start-ServiceMonitoring {
     param()
 
     if ($PSCmdlet.ShouldProcess("Service monitoring")) {
-        Write-Host "Service monitoring placeholder - implement as needed"
+        Write-Host "Starting service monitoring..." -ForegroundColor Cyan
+        
+        # Monitor container logs for errors
+        $script:MonitoringJob = Start-Job -ScriptBlock {
+            param($ComposeFile)
+            
+            while ($true) {
+                try {
+                    # Check for worker crashes
+                    $workerLogs = docker logs casestrainer-rqworker-prod --tail 10 2>$null
+                    if ($workerLogs -match "Work-horse terminated unexpectedly|OOMKilled|Segmentation fault") {
+                        Write-Host "[MONITOR] WARNING: Worker crash detected!" -ForegroundColor Red
+                        Write-Host "[MONITOR] Consider restarting containers" -ForegroundColor Yellow
+                    }
+                    
+                    # Check for backend errors
+                    $backendLogs = docker logs casestrainer-backend-prod --tail 10 2>$null
+                    if ($backendLogs -match "ERROR|Exception|Traceback") {
+                        Write-Host "[MONITOR] WARNING: Backend errors detected!" -ForegroundColor Red
+                    }
+                    
+                    Start-Sleep -Seconds 30
+                } catch {
+                    Write-Host "[MONITOR] Monitoring error: $($_.Exception.Message)" -ForegroundColor Yellow
+                    Start-Sleep -Seconds 60
+                }
+            }
+        } -ArgumentList (Join-Path $using:PSScriptRoot "docker-compose.prod.yml")
+        
+        Write-Host "Service monitoring started" -ForegroundColor Green
     }
 }
 
@@ -456,7 +538,10 @@ function Stop-AllMonitoring {
 function Start-DockerProduction {
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType([bool])]
-    param()
+    param(
+        [switch]$ForceRebuild,
+        [switch]$NoValidation
+    )
 
     Write-Host "`n=== Starting Docker Production Mode ===`n" -ForegroundColor Green
 
@@ -483,10 +568,11 @@ function Start-DockerProduction {
         $vueJob = $null
         if (-not $SkipVueBuild -and -not $QuickStart) {
             $vueJob = Start-Job -ScriptBlock {
+                param($ForceRebuildFlag)
                 $vueDir = Join-Path $using:PSScriptRoot "casestrainer-vue-new"
                 $distDir = Join-Path $vueDir "dist"
-                return (-not (Test-Path $distDir) -or $using:ForceRebuild.IsPresent)
-            }
+                return (-not (Test-Path $distDir) -or $using:ForceRebuildFlag)
+            } -ArgumentList $ForceRebuild
         }
 
         # Wait for Docker check
@@ -523,10 +609,10 @@ function Start-DockerProduction {
                 $needsBuild = Receive-Job $vueJob -Wait
                 Remove-Job $vueJob
             } else {
-                $needsBuild = Test-VueBuildNeeded -Force:$ForceRebuild
-            }
+                            $needsBuild = Test-VueBuildNeeded -Force:$ForceRebuild
+        }
 
-            if ($needsBuild -or $ForceRebuild) {
+        if ($needsBuild -or $ForceRebuild) {
                 Invoke-VueFrontendBuild -Quick:$QuickStart
             } else {
                 Write-Host "OK Vue build up to date (skipping build)" -ForegroundColor Green
@@ -537,9 +623,23 @@ function Start-DockerProduction {
 
         $dockerComposeFile = Join-Path $PSScriptRoot "docker-compose.prod.yml"
 
-        # Fast container management
+        # Fast container management - Stop ALL containers first to avoid port conflicts
         if ($PSCmdlet.ShouldProcess("Docker containers", "Stop existing")) {
-            # Quick stop without waiting for graceful shutdown in quick mode
+            Write-Host "Stopping ALL Docker containers to avoid port conflicts..." -ForegroundColor Yellow
+            
+            # Stop ALL containers first (not just from this compose file)
+            try {
+                $runningContainers = docker ps -q 2>$null
+                if ($runningContainers) {
+                    Write-Host "Found $($runningContainers.Count) running containers, stopping them..." -ForegroundColor Yellow
+                    docker stop $runningContainers 2>$null
+                    Start-Sleep -Seconds 2
+                }
+            } catch {
+                Write-Host "Warning: Could not stop all containers: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+            
+            # Also stop containers from this specific compose file
             $stopArgs = @("-f", $dockerComposeFile, "down")
             if ($QuickStart) {
                 $stopArgs += @("--timeout", "5")
@@ -573,11 +673,37 @@ function Start-DockerProduction {
                     Start-Sleep -Seconds 5
                     $healthOK = $true
                 } else {
-                    $healthOK = Wait-ForServices -TimeoutMinutes 3
+                    $healthOK = Wait-ForServices -TimeoutMinutes 5
+                    
+                    # If health check fails, try to restart problematic containers
+                    if (-not $healthOK) {
+                        Write-Host "Health check failed, attempting container restart..." -ForegroundColor Yellow
+                        try {
+                            docker-compose -f $dockerComposeFile restart rqworker-prod backend-prod 2>$null
+                            Start-Sleep -Seconds 10
+                            $healthOK = Wait-ForServices -TimeoutMinutes 3
+                        } catch {
+                            Write-Host "Container restart failed: $($_.Exception.Message)" -ForegroundColor Red
+                        }
+                    }
                 }
 
                 if ($healthOK) {
                     Show-ServiceUrls
+                    
+                    # Post-startup validation (skip if NoValidation flag is set)
+                    if (-not $NoValidation) {
+                        Write-Host "`nRunning post-startup validation..." -ForegroundColor Cyan
+                        $validationOK = Test-PostStartupValidation
+                        
+                        if ($validationOK) {
+                            Write-Host "OK Post-startup validation passed" -ForegroundColor Green
+                        } else {
+                            Write-Host "WARNING: Post-startup validation failed - system may have issues" -ForegroundColor Yellow
+                        }
+                    } else {
+                        Write-Host "Skipping post-startup validation as requested" -ForegroundColor Cyan
+                    }
 
                     # Start auto-restart monitoring if enabled
                     if ($script:AutoRestartEnabled) {
@@ -622,6 +748,49 @@ function Show-AdvancedDiagnostics {
 
     Write-Host "`n=== Advanced Production Diagnostics ===`n" -ForegroundColor Cyan
     Write-Host "Placeholder for advanced diagnostics - implement as needed"
+}
+
+function Test-PostStartupValidation {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+
+    Write-Host "  Testing API endpoints..." -ForegroundColor Gray
+    
+    try {
+        # Test basic API health
+        $healthResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -Method GET -TimeoutSec 10 -ErrorAction Stop
+        if ($healthResponse.StatusCode -ne 200) {
+            Write-Host "  ❌ API health check failed" -ForegroundColor Red
+            return $false
+        }
+        
+        # Test simple text processing
+        $testPayload = @{
+            type = "text"
+            text = "The court in Smith v. Jones, 123 U.S. 456 (2020) held that..."
+        } | ConvertTo-Json
+        
+        $testResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
+        
+        if ($testResponse.StatusCode -eq 200) {
+            $result = $testResponse.Content | ConvertFrom-Json
+            if ($result.status -eq "processing" -and $result.task_id) {
+                Write-Host "  ✅ Text processing test passed" -ForegroundColor Green
+                return $true
+            } else {
+                Write-Host "  ❌ Text processing test failed - unexpected response" -ForegroundColor Red
+                return $false
+            }
+        } else {
+            Write-Host "  ❌ Text processing test failed - HTTP $($testResponse.StatusCode)" -ForegroundColor Red
+            return $false
+        }
+    }
+    catch {
+        Write-Host "  ❌ Post-startup validation failed: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
 }
 
 function Show-CacheManagement {
@@ -769,9 +938,7 @@ function Show-Menu {
         }
         "2" { Start-DockerProduction }
         "3" {
-            $script:ForceRebuild = $true
-            Start-DockerProduction
-            $script:ForceRebuild = $false
+            Start-DockerProduction -ForceRebuild
         }
         "4" { Show-AdvancedDiagnostics }
         "5" { Show-CacheManagement }
@@ -795,35 +962,141 @@ Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action {
 # Main execution
 try {
     Initialize-LogDirectory
-    Write-CrashLog "Script started with Mode: $Mode, QuickStart: $QuickStart, SkipVue: $SkipVueBuild" -Level "INFO"
+    Write-CrashLog "Script started with Mode: $Mode, QuickStart: $QuickStart, SkipVue: $SkipVueBuild, MenuOption: $MenuOption" -Level "INFO"
 
     # Initialize cache
     $script:CachedChecks.LastCheckTime = Get-Date
 
-    if ($Mode -ne "Menu") {
-        # Direct mode execution
-        switch ($Mode) {
-            "Production" {
-                $result = Start-DockerProduction
-                if (-not $result) {
-                    exit 1
-                }
+    # Handle cache clearing
+    if ($ClearCache) {
+        Clear-AllCaches
+    }
+
+    # If MenuOption is provided, run the corresponding menu action and exit
+    if ($null -ne $MenuOption) {
+        switch ($MenuOption) {
+            1 {
+                $script:QuickStart = $true
+                $script:SkipVueBuild = $true
+                Start-DockerProduction
+                $script:QuickStart = $false
+                $script:SkipVueBuild = $false
+                exit 0
             }
-            "Diagnostics" { Show-AdvancedDiagnostics }
-            "Cache" { Show-CacheManagement }
+            2 {
+                Start-DockerProduction
+                exit 0
+            }
+            3 {
+                Start-DockerProduction -ForceRebuild
+                exit 0
+            }
+            4 { Show-AdvancedDiagnostics; exit 0 }
+            5 { Show-CacheManagement; exit 0 }
+            6 { Stop-AllServices; exit 0 }
+            7 { Show-QuickStatus; exit 0 }
+            0 {
+                Write-Host "Exiting..." -ForegroundColor Gray
+                Stop-AllMonitoring
+                exit 0
+            }
+            default {
+                Write-Host "Unknown menu option: $MenuOption" -ForegroundColor Red
+                exit 1
+            }
         }
     }
-    else {
-        # Interactive menu
-        do {
-            $selection = Show-Menu
 
-            if ($selection -ne "0") {
-                Write-Host "`nPress any key to return to menu..." -NoNewline
-                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    # If a valid mode is provided (not Menu), run it directly and skip the menu
+    if ($Mode -ne "Menu") {
+        switch ($Mode) {
+            "Production" {
+                Write-Host "[dplaunch] Starting in Production mode..." -ForegroundColor Green
+                Start-DockerProduction
+                exit 0
             }
-        } while ($selection -ne "0")
+            "Diagnostics" {
+                Write-Host "[dplaunch] Starting in Diagnostics mode..." -ForegroundColor Green
+                Show-AdvancedDiagnostics
+                exit 0
+            }
+            "Cache" {
+                Write-Host "[dplaunch] Starting in Cache management mode..." -ForegroundColor Green
+                Show-CacheManagement
+                exit 0
+            }
+            "Test" {
+                Write-Host "[dplaunch] Starting in Test mode..." -ForegroundColor Green
+                
+                # Start services if needed
+                if (-not (Test-NetConnection -ComputerName localhost -Port 5001 -InformationLevel Quiet -WarningAction SilentlyContinue)) {
+                    Write-Host "Starting services for testing..." -ForegroundColor Yellow
+                    Start-DockerProduction -NoValidation
+                }
+                
+                $apiSuccess = $true
+                $frontendSuccess = $true
+                
+                if ($TestAPI) {
+                    $apiSuccess = Test-APIFunctionality -TestCitation $TestCitation
+                }
+                
+                if ($TestFrontend) {
+                    $frontendSuccess = Test-FrontendFunctionality
+                }
+                
+                if ($ShowLogs) {
+                    Show-ContainerLogs
+                }
+                
+                if ($apiSuccess -and $frontendSuccess) {
+                    Write-Host "`n✅ All tests passed!" -ForegroundColor Green
+                } else {
+                    Write-Host "`n❌ Some tests failed!" -ForegroundColor Red
+                }
+                
+                exit 0
+            }
+            "Debug" {
+                Write-Host "[dplaunch] Starting in Debug mode..." -ForegroundColor Green
+                
+                if ($VerboseLogging) {
+                    $VerbosePreference = "Continue"
+                }
+                
+                Write-Host "Debug Mode Enabled" -ForegroundColor Cyan
+                Write-Host "Test Citation: $TestCitation" -ForegroundColor Yellow
+                Write-Host "Timeout: $TimeoutMinutes minutes" -ForegroundColor Yellow
+                
+                # Start with debug info
+                Start-DockerProduction -NoValidation
+                
+                # Run tests with debug output
+                Test-APIFunctionality -TestCitation $TestCitation
+                Test-FrontendFunctionality
+                
+                if ($ShowLogs) {
+                    Show-ContainerLogs
+                }
+                
+                exit 0
+            }
+            default {
+                Write-Host "[dplaunch] Unknown mode: $Mode" -ForegroundColor Red
+                exit 1
+            }
+        }
     }
+
+    # If no valid mode is provided, show the interactive menu as before
+    do {
+        $selection = Show-Menu
+
+        if ($selection -ne "0") {
+            Write-Host "`nPress any key to return to menu..." -NoNewline
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+        }
+    } while ($selection -ne "0")
 }
 catch {
     Write-CrashLog "Fatal error in main execution" -Level "ERROR" -Exception $_

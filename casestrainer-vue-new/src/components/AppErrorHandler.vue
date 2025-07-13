@@ -140,4 +140,98 @@ export default {
 .alert .btn-close {
   padding: 0.5rem 1rem;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .app-error-handler {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    max-width: none;
+    z-index: 9999;
+  }
+  
+  .alert {
+    padding: 0.75rem;
+  }
+  
+  .alert-heading {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .alert ul {
+    padding-left: 1rem;
+  }
+  
+  .alert li {
+    padding-right: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .btn-close {
+    top: 0.25rem;
+    right: 0.25rem;
+    padding: 0.375rem;
+    min-height: 32px;
+    min-width: 32px;
+  }
+  
+  .alert .btn-close {
+    padding: 0.375rem 0.75rem;
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-error-handler {
+    top: 0.25rem;
+    left: 0.25rem;
+    right: 0.25rem;
+  }
+  
+  .alert {
+    padding: 0.5rem;
+  }
+  
+  .alert-heading {
+    font-size: 0.95rem;
+  }
+  
+  .alert li {
+    font-size: 0.85rem;
+    padding-right: 1.25rem;
+  }
+  
+  .btn-close {
+    padding: 0.25rem;
+    min-height: 28px;
+    min-width: 28px;
+  }
+  
+  .alert .btn-close {
+    padding: 0.25rem 0.5rem;
+    min-height: 28px;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn-close {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .alert .btn-close {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn-close:hover {
+    opacity: 0.5;
+  }
+}
 </style>

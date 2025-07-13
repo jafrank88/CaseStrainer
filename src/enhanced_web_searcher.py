@@ -1,3 +1,8 @@
+# DEPRECATED: Use LegalWebsearchEngine in src/websearch_utils.py instead of EnhancedWebSearcher.
+# This file is retained for legacy reference only and should not be used in new code.
+
+raise ImportError("EnhancedWebSearcher is deprecated. Use LegalWebsearchEngine in src/websearch_utils.py instead.")
+
 """
 Enhanced Web Search and Extraction for Legal Citations
 Provides advanced web scraping with multiple extraction techniques

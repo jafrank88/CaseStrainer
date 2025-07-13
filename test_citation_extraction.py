@@ -1,41 +1,46 @@
 #!/usr/bin/env python3
 """
-Test to see what citations are being extracted from the text
+Test script to examine citation extraction issues.
 """
 
-from src.document_processing import enhanced_processor
+import sys
+import os
+sys.path.append('src')
+
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
 def test_citation_extraction():
-    """Test citation extraction"""
-    
-    text = "Punx v Smithers, 534 F.3d 1290 (1921)"
-    
-    print("🔍 Testing citation extraction...")
-    print(f"Text: '{text}'")
-    print("-" * 60)
-    
-    try:
-        # Test the process_document method
-        result = enhanced_processor.process_document(
-            content=text,
-            extract_case_names=True
-        )
-        
-        print("✅ Process document result:")
-        print(f"Success: {result.get('success')}")
-        print(f"Citations found: {len(result.get('citations', []))}")
-        
-        for i, citation in enumerate(result.get('citations', [])):
-            print(f"\n📋 Citation {i+1}:")
-            print(f"  citation: '{citation.get('citation', 'NOT_FOUND')}'")
-            print(f"  extracted_case_name: '{citation.get('extracted_case_name', 'NOT_FOUND')}'")
-            print(f"  extracted_date: '{citation.get('extracted_date', 'NOT_FOUND')}'")
-            print(f"  case_name: '{citation.get('case_name', 'NOT_FOUND')}'")
-            
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
+    # Test paragraph
+    test_text = '''A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)'''
+
+    print("Testing citation extraction...")
+    print(f"Input text: {test_text}")
+    print("-" * 80)
+
+    # Create processor with debug mode
+    config = ProcessingConfig(debug_mode=True, extract_case_names=True, extract_dates=True)
+    processor = UnifiedCitationProcessorV2(config)
+
+    # Process the text
+    results = processor.process_text(test_text)
+
+    print(f'Found {len(results)} citations:')
+    for i, citation in enumerate(results):
+        print(f'{i+1}. Citation: {citation.citation}')
+        print(f'   Case name: {citation.extracted_case_name}')
+        print(f'   Date: {citation.extracted_date}')
+        print(f'   Context: {citation.context[:100]}...')
+        print(f'   Start/End: {citation.start_index}/{citation.end_index}')
+        print()
+
+    # Test clustering
+    clusters = processor.group_citations_into_clusters(results)
+    print(f'Found {len(clusters)} clusters:')
+    for i, cluster in enumerate(clusters):
+        print(f'Cluster {i+1}:')
+        for citation in cluster['citations']:
+            print(f'  - {citation["citation"]} (case: {citation["extracted_case_name"]})')
+        print()
 
 if __name__ == "__main__":
     test_citation_extraction() 

@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "created_date": "2025-07-10T08:36:22.741989",
+    "total_paragraphs": 20,
+    "source": "Wikipedia Supreme Court cases",
+    "description": "Test paragraphs for case name extraction and context analysis"
+  },
+  "paragraphs": [
+    {
+      "paragraph": "The court in West v. Barnes established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in West v. Barnes has been cited in numerous subsequent decisions.",
+      "case_name": "West v. Barnes",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Chisholm v. Georgia represents a key moment in the development of constitutional law. The principles established in Chisholm v. Georgia have been reaffirmed in later decisions.",
+      "case_name": "Chisholm v. Georgia",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Oswald v. New York. The reasoning in Oswald v. New York provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Oswald v. New York",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in Van Staphorst v. Maryland established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in Van Staphorst v. Maryland has been cited in numerous subsequent decisions.",
+      "case_name": "Van Staphorst v. Maryland",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Collet v. Collet represents a key moment in the development of constitutional law. The principles established in Collet v. Collet have been reaffirmed in later decisions.",
+      "case_name": "Collet v. Collet",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Oswald v. New York I. The reasoning in Oswald v. New York I provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Oswald v. New York I",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in Oswald v. New York II established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in Oswald v. New York II has been cited in numerous subsequent decisions.",
+      "case_name": "Oswald v. New York II",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Georgia v. Brailsford I represents a key moment in the development of constitutional law. The principles established in Georgia v. Brailsford I have been reaffirmed in later decisions.",
+      "case_name": "Georgia v. Brailsford I",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Oswald v. New York III. The reasoning in Oswald v. New York III provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Oswald v. New York III",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in Georgia v. Brailsford II established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in Georgia v. Brailsford II has been cited in numerous subsequent decisions.",
+      "case_name": "Georgia v. Brailsford II",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Stoddard v. Read represents a key moment in the development of constitutional law. The principles established in Stoddard v. Read have been reaffirmed in later decisions.",
+      "case_name": "Stoddard v. Read",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Bain v. Speedwell. The reasoning in Bain v. Speedwell provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Bain v. Speedwell",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in Lake v. Hulbert established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in Lake v. Hulbert has been cited in numerous subsequent decisions.",
+      "case_name": "Lake v. Hulbert",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Boinod v. Pelosi represents a key moment in the development of constitutional law. The principles established in Boinod v. Pelosi have been reaffirmed in later decisions.",
+      "case_name": "Boinod v. Pelosi",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Bowen v. Douglass. The reasoning in Bowen v. Douglass provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Bowen v. Douglass",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in Inglis ex rel. Reede v. Inglis's Executors established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in Inglis ex rel. Reede v. Inglis's Executors has been cited in numerous subsequent decisions.",
+      "case_name": "Inglis ex rel. Reede v. Inglis's Executors",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Innis v. Miller represents a key moment in the development of constitutional law. The principles established in Innis v. Miller have been reaffirmed in later decisions.",
+      "case_name": "Innis v. Miller",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "In analyzing the constitutional issues presented, the court must consider the precedent set forth in Rapalje v. Emory. The reasoning in Rapalje v. Emory provides a framework for understanding the scope of federal authority. This case demonstrates the evolution of legal doctrine over time.",
+      "case_name": "Rapalje v. Emory",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "The court in M'Clenachan v. M'Carty established important precedent regarding constitutional rights. This case, decided in the early 19th century, continues to influence modern jurisprudence. The holding in M'Clenachan v. M'Carty has been cited in numerous subsequent decisions.",
+      "case_name": "M'Clenachan v. M'Carty",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    },
+    {
+      "paragraph": "Several landmark cases have shaped our understanding of federal jurisdiction. Cowperthwaite v. Jones represents a key moment in the development of constitutional law. The principles established in Cowperthwaite v. Jones have been reaffirmed in later decisions.",
+      "case_name": "Cowperthwaite v. Jones",
+      "confidence": 0.9,
+      "source_url": "https://en.wikipedia.org/wiki/List_of_United_States_Supreme_Court_cases,_volume_2"
+    }
+  ]
+}

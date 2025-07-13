@@ -19,6 +19,14 @@ from dataclasses import dataclass
 from enum import Enum
 from src.extract_case_name import is_valid_case_name, clean_case_name
 
+# Check if PDF handler is available
+try:
+    import PyPDF2
+    import pdfminer
+    PDF_HANDLER_AVAILABLE = True
+except ImportError:
+    PDF_HANDLER_AVAILABLE = False
+
 
 class PDFExtractionMethod(Enum):
     """Enum for different PDF extraction methods."""
@@ -291,8 +299,8 @@ class PDFHandler:
     def _extract_with_ocr(self, file_path: str, start_time: float) -> Tuple[Optional[str], Optional[str]]:
         """Extract text from PDF using OCR (Tesseract) as a last resort."""
         try:
-            from pdf2image import convert_from_path
-            import pytesseract
+            from pdf2image import convert_from_path  # type: ignore
+            import pytesseract  # type: ignore
         except ImportError as e:
             self.logger.error(f"OCR dependencies not installed: {e}")
             return None, "OCR dependencies not installed"
@@ -428,6 +436,14 @@ class PDFHandler:
         start_time = time.time()
         file_size = os.path.getsize(file_path)
         self.logger.info(f"Extracting text from PDF: {file_path} ({file_size} bytes)")
+        
+        # Disable verbose pdfminer logging to speed up extraction
+        import logging
+        logging.getLogger("pdfminer").setLevel(logging.WARNING)
+        logging.getLogger("pdfminer.cmapdb").setLevel(logging.ERROR)
+        logging.getLogger("pdfminer.psparser").setLevel(logging.ERROR)
+        logging.getLogger("pdfminer.pdfinterp").setLevel(logging.ERROR)
+        
         try:
             # Always use pdfminer.six as the primary extractor
             self.logger.info("Extracting text with pdfminer.six (primary)...")

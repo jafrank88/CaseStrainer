@@ -21,6 +21,12 @@ from googlesearch import search as google_search
 
 # Import the existing scraper for detail page extraction
 from src.legal_database_scraper import LegalDatabaseScraper
+from src.websearch_utils import (
+    create_legal_search_queries,
+    search_google_py,
+    search_bing_html,
+    search_duckduckgo_api
+)
 
 class EnhancedLegalScraper:
     """Enhanced scraper that uses search engines to find case detail pages."""
@@ -107,7 +113,6 @@ class EnhancedLegalScraper:
         if database_name not in self.legal_databases:
             self.logger.warning(f"Unknown database: {database_name}")
             return []
-        
         # --- Two-step CourtListener process first ---
         try:
             from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
@@ -125,121 +130,25 @@ class EnhancedLegalScraper:
                 }]
         except Exception as e:
             self.logger.error(f"CourtListener verification error: {e}")
-        
         database_info = self.legal_databases[database_name]
         results = []
-        # Create search queries for all search engines
-        search_queries = self._create_search_queries(citation, database_info)
-        
+        # Use canonical query generator
+        search_queries = create_legal_search_queries(citation, database_info)
         # 1. Try DuckDuckGo first
         if self.use_duckduckgo:
-            duckduckgo_results = self._search_duckduckgo(search_queries)
-            results.extend(duckduckgo_results)
-        
+            for query in search_queries:
+                results.extend(search_duckduckgo_api(query, num_results=5))
         # 2. Try Bing second
         if self.use_bing:
-            bing_results = self._search_bing(search_queries)
-            results.extend(bing_results)
-        
+            for query in search_queries:
+                results.extend(search_bing_html(query, num_results=5))
         # 3. Try Google as fallback
         if self.use_google:
-            google_results = self._search_google(search_queries)
-            results.extend(google_results)
-        
+            for query in search_queries:
+                results.extend(search_google_py(query, num_results=5))
         # Filter and rank results
         filtered_results = self._filter_and_rank_results(results, database_info)
         return filtered_results
-    
-    def _create_search_queries(self, citation: str, database_info: Dict) -> List[str]:
-        """Create search queries for the given citation and database."""
-        queries = []
-        
-        # Basic citation search
-        queries.append(f'"{citation}" site:{database_info["domain"]}')
-        
-        # Search with database name
-        queries.append(f'"{citation}" {database_info["domain"]}')
-        
-        # Search with common legal terms
-        queries.append(f'"{citation}" case law site:{database_info["domain"]}')
-        
-        # Search with "v." pattern (for case names)
-        if 'v.' in citation or 'v ' in citation:
-            # Extract potential case name
-            case_name_match = re.search(r'([^0-9]+)\s+v\.?\s+([^0-9]+)', citation)
-            if case_name_match:
-                case_name = f"{case_name_match.group(1).strip()} v. {case_name_match.group(2).strip()}"
-                queries.append(f'"{case_name}" site:{database_info["domain"]}')
-        
-        return queries
-    
-    def _search_google(self, queries: List[str]) -> List[Dict[str, Any]]:
-        """Search using googlesearch-python."""
-        results = []
-        for query in queries:
-            try:
-                for url in google_search(query, num_results=5):
-                    results.append({
-                        'title': '',  # googlesearch-python does not provide title
-                        'url': url,
-                        'snippet': '',
-                        'source': 'google'
-                    })
-                time.sleep(1)
-            except Exception as e:
-                self.logger.error(f"Error searching Google: {e}")
-        return results
-    
-    def _search_duckduckgo(self, queries: List[str]) -> List[Dict[str, Any]]:
-        """Search using DuckDuckGo."""
-        results = []
-        if not self.duckduckgo_available:
-            return results
-            
-        for query in queries:
-            try:
-                with self.ddgs() as ddgs:
-                    search_results = list(ddgs.text(query, max_results=5))
-                    for result in search_results:
-                        results.append({
-                            'title': result.get('title', ''),
-                            'url': result.get('link', ''),
-                            'snippet': result.get('body', ''),
-                            'source': 'duckduckgo'
-                        })
-                time.sleep(1)  # Be respectful
-            except Exception as e:
-                self.logger.error(f"Error searching DuckDuckGo: {e}")
-        return results
-    
-    def _search_bing(self, queries: List[str]) -> List[Dict[str, Any]]:
-        """Search Bing by scraping HTML results (unofficial, fallback only)."""
-        results = []
-        for query in queries:
-            try:
-                url = f'https://www.bing.com/search?q={quote(query)}'
-                resp = self.session.get(url, timeout=10)
-                resp.raise_for_status()
-                soup = BeautifulSoup(resp.text, 'html.parser')
-                for li in soup.select('li.b_algo'):
-                    a = li.find('a', href=True)
-                    if a:
-                        title = a.get_text(strip=True)
-                        link = a['href']
-                        snippet = ''
-                        desc = li.find('p')
-                        if desc:
-                            snippet = desc.get_text(strip=True)
-                        results.append({
-                            'title': title,
-                            'url': link,
-                            'snippet': snippet,
-                            'source': 'bing'
-                        })
-                time.sleep(1)
-            except Exception as e:
-                self.logger.error(f"Error scraping Bing: {e}")
-        return results
     
     def _filter_and_rank_results(self, results: List[Dict], database_info: Dict) -> List[Dict[str, Any]]:
         """Filter and rank search results to find the best case detail pages."""

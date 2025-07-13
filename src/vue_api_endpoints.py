@@ -51,6 +51,7 @@ from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 import requests
 import sqlite3
+import platform
 from src.citation_utils import extract_all_citations
 from src.file_utils import extract_text_from_file
 from src.citation_utils import deduplicate_citations
@@ -82,6 +83,15 @@ try:
 except ImportError as e:
     logger.warning(f"CitationService not available: {e}")
     CITATION_SERVICE_AVAILABLE = False
+
+# PDF Handler import
+try:
+    from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
+    logger.info("PDF handler imported successfully")
+except ImportError as e:
+    logger.warning(f"PDF handler not available: {e}")
+    PDF_HANDLER_AVAILABLE = False
+    extract_text_from_pdf = None
 
 # Input validation functions
 def validate_file_direct(file):
@@ -549,6 +559,8 @@ def server_stats():
 @vue_api.route('/task_status/<task_id>', methods=['GET'])
 def get_task_status(task_id):
     """Get task status and result for async processing."""
+    logger.info(f"[DEBUG STEP] [get_task_status] Called for task_id: {task_id} at {datetime.utcnow().isoformat()}")
+    logger.info(f"[DEBUG get_task_status] Checking status for task_id: {task_id} at {datetime.utcnow().isoformat()}")
     try:
         # First check if task is completed and has results
         result = get_task_result(task_id)
@@ -558,6 +570,7 @@ def get_task_status(task_id):
                 'task_id': task_id,
                 'results': result.get('results', []),
                 'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),  # Include clusters
                 'case_names': result.get('case_names', []),
                 'metadata': result.get('metadata', {}),
                 'statistics': result.get('statistics', {}),
@@ -584,6 +597,7 @@ def get_task_status(task_id):
                                 'task_id': task_id,
                                 'results': job_result.get('results', []),
                                 'citations': job_result.get('citations', []),
+                                'clusters': job_result.get('clusters', []),  # Include clusters
                                 'case_names': job_result.get('case_names', []),
                                 'metadata': job_result.get('metadata', {}),
                                 'statistics': job_result.get('statistics', {}),
@@ -730,81 +744,58 @@ try:
     redis_conn = Redis(host=redis_host, port=redis_port, db=redis_db)
     queue = Queue('casestrainer', connection=redis_conn, result_ttl=3600)  # Keep results for 1 hour
     
-    # Force threading fallback on Windows due to RQ compatibility issues
-    import platform
-    if platform.system() == 'Windows':
-        RQ_AVAILABLE = False
-        logger.info("RQ queue initialized but using threading fallback for Windows compatibility")
-    else:
-        RQ_AVAILABLE = True
-        logger.info(f"RQ queue initialized successfully with Redis at {redis_host}:{redis_port}")
-    
-    # Configure RQ for Windows compatibility (if we were using it)
-    if platform.system() == 'Windows':
-        # Disable death penalty timeout on Windows (uses SIGALRM which doesn't exist)
-        from rq.timeouts import BaseDeathPenalty
-        class WindowsDeathPenalty(BaseDeathPenalty):
-            def setup_death_penalty(self):
-                # Do nothing on Windows - no SIGALRM available
-                pass
-            
-            def cancel_death_penalty(self):
-                # Do nothing on Windows
-                pass
-        
-        # Set the death penalty class for Windows
-        import rq.timeouts
-        rq.timeouts.DeathPenalty = WindowsDeathPenalty
-        logger.info("Configured RQ for Windows compatibility (disabled SIGALRM)")
+    # Enable RQ for Docker/Linux environments
+    RQ_AVAILABLE = True
+    logger.info(f"RQ queue initialized successfully with Redis at {redis_host}:{redis_port}")
         
 except Exception as e:
     logger.error(f"Failed to initialize RQ queue: {e}")
     RQ_AVAILABLE = False
 
 
-# FIX: Disable worker thread to prevent blocking
-# This is a temporary fix to allow the API endpoints to work
-
-# Disable the problematic worker thread
+# Worker thread variables (for fallback if RQ is not available)
 worker_thread = None
 worker_running = False
 task_queue = None
 
-# Override the worker initialization
 def initialize_worker():
-    """Initialize worker thread (disabled for now)"""
+    """Initialize worker thread (fallback only)"""
     global worker_thread, worker_running, task_queue
     
-    # Disable worker thread to prevent blocking
-    worker_thread = None
-    worker_running = False
-    task_queue = None
-    
-    print("Worker thread disabled to prevent blocking")
-    return True
+    # Only initialize if RQ is not available
+    if not RQ_AVAILABLE:
+        logger.info("Initializing fallback worker thread")
+        # Fallback worker thread logic would go here
+        return True
+    else:
+        logger.info("RQ available, no need for fallback worker thread")
+        return True
 
-# Override the worker loop
 def worker_loop():
-    """Worker loop (disabled)"""
-    print("Worker loop disabled")
+    """Worker loop (fallback only)"""
+    if not RQ_AVAILABLE:
+        logger.info("Running fallback worker loop")
+        # Fallback worker loop logic would go here
     return
 
-# Override the is_worker_running function
 def is_worker_running():
-    """Check if worker is running (always False for now)"""
-    return False
+    """Check if worker is running"""
+    if RQ_AVAILABLE:
+        return True  # RQ workers are running in separate containers
+    else:
+        return worker_thread and worker_thread.is_alive()
 
-# Override the get_server_stats function
 def get_server_stats():
-    """Get server stats (simplified)"""
+    """Get server stats"""
     uptime = get_uptime()
     return {
         'start_time': APP_START_TIME,
         'uptime': uptime['formatted'],
         'uptime_seconds': uptime['seconds'],
         'restart_count': 0,
-        'worker_alive': False,
-        'worker_disabled': True
+        'worker_alive': is_worker_running(),
+        'worker_disabled': False,
+        'rq_available': RQ_AVAILABLE
     }
 
 # --- Task status/result helpers and input hash tracking (Redis-backed, with in-memory fallback) ---
@@ -847,30 +838,42 @@ def set_task_status(task_id, status, data):
 def set_task_result(task_id, result):
     key = f"task_result:{task_id}"
     value = json.dumps(result)
+    logger.info(f"[DEBUG STEP] [set_task_result] Called for task {task_id} at {datetime.utcnow().isoformat()}")
     try:
         if REDIS_AVAILABLE and redis_conn:
+            logger.info(f"[DEBUG STEP] [set_task_result] Using Redis host: {redis_conn.connection_pool.connection_kwargs.get('host')}, port: {redis_conn.connection_pool.connection_kwargs.get('port')}, db: {redis_conn.connection_pool.connection_kwargs.get('db')}")
             redis_conn.setex(key, INPUT_HASH_TTL, value)
+            logger.info(f"[DEBUG STEP] [set_task_result] Successfully saved result to Redis for task {task_id}")
         else:
             input_hash_to_result[key] = value
             input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
+            logger.info(f"[DEBUG STEP] [set_task_result] Successfully saved result to memory for task {task_id}")
     except Exception as e:
-        logger.warning(f"[set_task_result] Failed to set result for {task_id}: {e}")
+        logger.warning(f"[DEBUG STEP] [set_task_result] Failed to set result for {task_id}: {e}")
         input_hash_to_result[key] = value
         input_hash_expiry[key] = time.time() + INPUT_HASH_TTL
 
 def get_task_result(task_id):
     key = f"task_result:{task_id}"
+    logger.info(f"[DEBUG STEP] [get_task_result] Called for task {task_id} at {datetime.utcnow().isoformat()}")
     try:
         if REDIS_AVAILABLE and redis_conn:
+            logger.info(f"[DEBUG STEP] [get_task_result] Using Redis host: {redis_conn.connection_pool.connection_kwargs.get('host')}, port: {redis_conn.connection_pool.connection_kwargs.get('port')}, db: {redis_conn.connection_pool.connection_kwargs.get('db')}")
             value = redis_conn.get(key)
             if value:
+                logger.info(f"[DEBUG STEP] [get_task_result] Found result in Redis for task {task_id}")
                 return json.loads(value)
+            else:
+                logger.info(f"[DEBUG STEP] [get_task_result] No result in Redis for task {task_id}")
         else:
             value = input_hash_to_result.get(key)
             if value:
+                logger.info(f"[DEBUG STEP] [get_task_result] Found result in memory for task {task_id}")
                 return json.loads(value)
+            else:
+                logger.info(f"[DEBUG STEP] [get_task_result] No result in memory for task {task_id}")
     except Exception as e:
-        logger.warning(f"[get_task_result] Failed to get result for {task_id}: {e}")
+        logger.warning(f"[DEBUG STEP] [get_task_result] Failed to get result for {task_id}: {e}")
     return None
 
 def cleanup_input_hashes():
@@ -912,6 +915,7 @@ def process_citation_task(task_id: str, task_type: str, task_data: dict):
                 'status': 'completed',
                 'results': result.get('citations', []),
                 'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),  # Include clusters
                 'case_names': result.get('case_names', []),
                 'metadata': result.get('metadata', {}),
                 'statistics': result.get('statistics', {}),
@@ -942,15 +946,17 @@ def analyze():
     file_ext = None
     content_type = None
     text = None
+    task_id = None  # Initialize task_id to prevent UnboundLocalError
 
     try:
         logger = current_app.logger
-        logger.info(f"[ANALYZE] Request method: {request.method}")
-        logger.info(f"[ANALYZE] Request headers: {dict(request.headers)}")
+        logger.info(f"[DEBUG STEP] [ANALYZE] Start analyze endpoint at {datetime.utcnow().isoformat()}")
+        logger.info(f"[DEBUG STEP] [ANALYZE] Request method: {request.method}")
+        logger.info(f"[DEBUG STEP] [ANALYZE] Request headers: {dict(request.headers)}")
         try:
-            logger.info(f"[ANALYZE] Request body: {request.get_data(as_text=True)[:1000]}")
+            logger.info(f"[DEBUG STEP] [ANALYZE] Request body: {request.get_data(as_text=True)[:1000]}")
         except Exception as e:
-            logger.warning(f"[ANALYZE] Could not log request body: {e}")
+            logger.warning(f"[DEBUG STEP] [ANALYZE] Could not log request body: {e}")
         
         # Handle OPTIONS request for CORS preflight
         if request.method == 'OPTIONS':
@@ -976,6 +982,7 @@ def analyze():
 
         # Initialize task ID for asynchronous processing
         task_id = str(uuid.uuid4())
+        logger.info(f"[DEBUG STEP] [ANALYZE] Assigned task_id: {task_id}")
         current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Assigned task ID: {task_id}")
 
         # Initialize citation service
@@ -989,95 +996,151 @@ def analyze():
 
         # Handle file upload
         if 'file' in request.files or 'file' in request.form or (request.is_json and 'file' in data):
+            logger.info(f"[ANALYZE] Processing file upload request")
             file = request.files.get('file')
             if not file:
+                logger.error(f"[ANALYZE] No file provided in request")
                 return jsonify({
                     'status': 'error',
                     'message': 'No file provided'
                 }), 400
             # Comprehensive file validation
+            logger.info(f"[ANALYZE] Validating file: {file.filename}")
             is_valid, error_message = validate_file_direct(file)
             if not is_valid:
+                logger.error(f"[ANALYZE] File validation failed: {error_message}")
                 return jsonify({
                     'status': 'error',
                     'message': error_message
                 }), 400
+            logger.info(f"[ANALYZE] File validation passed")
             filename = secure_filename(file.filename)
             file_ext = os.path.splitext(filename)[1].lower()
             temp_file_path = None
+            
+            # Save uploaded file to shared uploads directory instead of temp file
+            unique_filename = f"{uuid.uuid4()}{file_ext}"
+            # Use relative path to uploads directory in project root
+            uploads_dir = os.path.join(os.getcwd(), 'uploads')
+            if not os.path.exists(uploads_dir):
+                os.makedirs(uploads_dir, exist_ok=True)
+            temp_file_path = os.path.join(uploads_dir, unique_filename)
+            logger.info(f"[ANALYZE] Saving file to: {temp_file_path}")
+            file.save(temp_file_path)
+            logger.info(f"[ANALYZE] File saved successfully")
+            
+            # Extract text from file BEFORE enqueueing to avoid hanging in worker
+            logger.info(f"[ANALYZE] Extracting text from file before enqueueing: {temp_file_path}")
+            
+            # Disable verbose pdfminer logging to speed up extraction
+            import logging
+            logging.getLogger("pdfminer").setLevel(logging.WARNING)
+            logging.getLogger("pdfminer.cmapdb").setLevel(logging.ERROR)
+            logging.getLogger("pdfminer.psparser").setLevel(logging.ERROR)
+            logging.getLogger("pdfminer.pdfinterp").setLevel(logging.ERROR)
+            
             try:
-                # Save uploaded file to shared uploads directory instead of temp file
-                unique_filename = f"{uuid.uuid4()}{file_ext}"
-                # Use relative path to uploads directory in project root
-                uploads_dir = os.path.join(os.getcwd(), 'uploads')
-                if not os.path.exists(uploads_dir):
-                    os.makedirs(uploads_dir, exist_ok=True)
-                temp_file_path = os.path.join(uploads_dir, unique_filename)
-                file.save(temp_file_path)
-                # Add task to queue
+                # Use the faster pdf_handler for PDF files
+                if file_ext.lower() == '.pdf' and PDF_HANDLER_AVAILABLE and extract_text_from_pdf:
+                    logger.info(f"[ANALYZE] Using fast PDF handler for: {filename}")
+                    try:
+                        extracted_text = extract_text_from_pdf(temp_file_path, timeout=25)
+                        logger.info(f"[ANALYZE] PDF handler extraction completed successfully")
+                    except Exception as pdf_error:
+                        logger.warning(f"[ANALYZE] PDF handler failed, falling back to document_processing_unified: {pdf_error}")
+                        # Fallback to document_processing_unified
+                        from src.document_processing_unified import extract_text_from_file
+                        extracted_text = extract_text_from_file(temp_file_path)
+                else:
+                    # Fallback to document_processing_unified for non-PDF files
+                    logger.info(f"[ANALYZE] Using document_processing_unified for: {filename}")
+                    from src.document_processing_unified import extract_text_from_file
+                    extracted_text = extract_text_from_file(temp_file_path)
+                
+                logger.info(f"[ANALYZE] Text extraction completed. Length: {len(extracted_text)}")
+                
+                if not extracted_text or not extracted_text.strip():
+                    logger.warning(f"[ANALYZE] Extracted text is empty for file: {filename}")
+                    return jsonify({
+                        'status': 'error',
+                        'message': 'No text content could be extracted from the uploaded file'
+                    }), 400
+                
+                # Clean up the file immediately after extraction
+                try:
+                    os.remove(temp_file_path)
+                    logger.info(f"[ANALYZE] Cleaned up uploaded file after text extraction: {temp_file_path}")
+                except Exception as e:
+                    logger.warning(f"[ANALYZE] Could not clean up file {temp_file_path}: {e}")
+                
+                # Add task to queue with extracted text instead of file path
                 task = {
                     'task_id': task_id,
-                    'type': 'file',
+                    'type': 'text',  # Changed from 'file' to 'text'
                     'data': {
-                        'file_path': temp_file_path,
+                        'text': extracted_text,
                         'filename': filename,
-                        'file_ext': file_ext
+                        'file_ext': file_ext,
+                        'source_type': 'file'
                     }
                 }
-                # Initialize task in active_requests
-                set_task_status(task_id, 'queued', task['data'])
-                # Enqueue task
-                current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
-                if RQ_AVAILABLE and queue:
-                    job = queue.enqueue(process_citation_task, task_id, 'file', task['data'])
-                    logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
-                    if not job:
-                        logger.error(f"[ANALYZE] Failed to enqueue task {task_id}: job is None")
-                        return make_error_response(
-                            "enqueue_error",
-                            f"Failed to enqueue task {task_id}",
-                            status_code=500
-                        )
-                    # Store the job ID mapping in Redis using the global connection
-                    try:
-                        redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
-                        logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
-                    except Exception as e:
-                        logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
-                    logger.info(f"[ANALYZE] Added file task {task_id} to RQ")
-                else:
-                    queue_size = task_queue.qsize() if task_queue else 'N/A'
-                    current_app.logger.info(f"[ANALYZE] Adding file task {task_id} to threading queue (queue size: {queue_size})")
-                    if task_queue:
-                        task_queue.put((task_id, 'file', task['data']))
-                    new_queue_size = task_queue.qsize() if task_queue else 'N/A'
-                    current_app.logger.info(f"[ANALYZE] Added file task {task_id} to threading queue (new queue size: {new_queue_size})")
-                # Return immediate response with task ID
-                return jsonify({
-                    'status': 'processing',
-                    'task_id': task_id,
-                    'message': 'File upload received, processing started',
-                    'metadata': {
-                        'source_type': 'file',
-                        'source_name': filename,
-                        'file_type': file_ext,
-                        'timestamp': datetime.utcnow().isoformat() + "Z",
-                        'user_agent': request.headers.get("User-Agent")
-                    }
-                })
+                
             except Exception as e:
+                logger.error(f"[ANALYZE] Error extracting text from file: {e}", exc_info=True)
+                # Clean up file on error
                 if temp_file_path and os.path.exists(temp_file_path):
                     try:
                         os.remove(temp_file_path)
-                        logger.info(f"[ANALYZE] Cleaned up uploaded file after error: {temp_file_path}")
+                        logger.info(f"[ANALYZE] Cleaned up uploaded file after extraction error: {temp_file_path}")
                     except Exception as cleanup_error:
-                        logger.warning(f"[ANALYZE] Failed to clean up file {temp_file_path} after error: {cleanup_error}")
+                        logger.warning(f"[ANALYZE] Could not clean up file {temp_file_path}: {cleanup_error}")
+                
                 return jsonify({
                     'status': 'error',
-                    'message': f'Failed to handle file upload: {str(e)}',
+                    'message': f'Failed to extract text from file: {str(e)}'
+                }), 500
+            
+            # Initialize task in active_requests
+            set_task_status(task_id, 'queued', task['data'])
+            # Enqueue task
+            current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
+            if RQ_AVAILABLE and queue:
+                job = queue.enqueue(process_citation_task, task_id, 'text', task['data'], job_timeout=600)  # 10 minutes
+                logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
+                if not job:
+                    logger.error(f"[ANALYZE] Failed to enqueue task {task_id}: job is None")
+                    return make_error_response(
+                        "enqueue_error",
+                        f"Failed to enqueue task {task_id}",
+                        status_code=500
+                    )
+                # Store the job ID mapping in Redis using the global connection
+                try:
+                    redis_conn.setex(f"task_to_job:{task_id}", 3600, job.id)  # Store for 1 hour
+                    logger.info(f"{WORKER_LABEL} [ANALYZE] Stored task {task_id} -> job {job.id} mapping")
+                except Exception as e:
+                    logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
+                logger.info(f"[ANALYZE] Added file task {task_id} to RQ")
+            else:
+                logger.error(f"[ANALYZE] RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.")
+                return make_error_response(
+                    "rq_unavailable",
+                    f"RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.",
+                    status_code=500
+                )
+            # Return immediate response with task ID
+            return jsonify({
+                'status': 'processing',
+                'task_id': task_id,
+                'message': 'File upload received, processing started',
+                'metadata': {
                     'source_type': 'file',
-                    'source_name': filename
-                }), 400
+                    'source_name': filename,
+                    'file_type': file_ext,
+                    'timestamp': datetime.utcnow().isoformat() + "Z",
+                    'user_agent': request.headers.get("User-Agent")
+                }
+            })
 
         # Handle text input
         elif input_type == 'text' or ('text' in data and data['text']):
@@ -1130,8 +1193,9 @@ def analyze():
                 set_task_status(task_id, 'queued', task['data'])
                 
                 # Enqueue task
+                current_app.logger.info(f"[ANALYZE] RQ_AVAILABLE={RQ_AVAILABLE}, queue={queue}")
                 if RQ_AVAILABLE and queue:
-                    job = queue.enqueue(process_citation_task, task_id, 'text', task['data'])
+                    job = queue.enqueue(process_citation_task, task_id, 'text', task['data'], job_timeout=600)  # 10 minutes
                     logger.info(f"[ANALYZE] Enqueued job for task {task_id}: job_id={getattr(job, 'id', None)}")
                     if not job:
                         logger.error(f"[ANALYZE] Failed to enqueue task {task_id}: job is None")
@@ -1147,60 +1211,23 @@ def analyze():
                     except Exception as e:
                         logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
                     logger.info(f"[ANALYZE] Added text task {task_id} to RQ")
-                elif task_queue is not None:
-                    # Use fallback threading queue
-                    queue_size = task_queue.qsize() if task_queue else 'N/A'
-                    current_app.logger.info(f"[ANALYZE] Adding text task {task_id} to threading queue (queue size: {queue_size})")
-                    if task_queue:
-                        task_queue.put((task_id, 'text', task['data']))
-                    new_queue_size = task_queue.qsize() if task_queue else 'N/A'
-                    current_app.logger.info(f"[ANALYZE] Added text task {task_id} to threading queue (new queue size: {new_queue_size})")
                 else:
-                    # Worker thread is disabled, process immediately
-                    current_app.logger.info(f"[ANALYZE] Worker thread disabled, processing task {task_id} immediately")
-                    try:
-                        result = process_citation_task(task_id, 'text', task['data'])
-                        if result and result.get('status') == 'success':
-                            # DEBUG: Log the result before returning to frontend
-                            logger.info(f"[ANALYZE] DEBUG - Text task result status: {result.get('status')}")
-                            if result.get('citations'):
-                                for i, citation in enumerate(result['citations']):
-                                    logger.info(f"[ANALYZE] DEBUG - Text Citation {i}: extracted_case_name='{citation.get('extracted_case_name')}', extracted_date='{citation.get('extracted_date')}', canonical_name='{citation.get('canonical_name')}', canonical_date='{citation.get('canonical_date')}'")
-                            else:
-                                logger.info(f"[ANALYZE] DEBUG - No citations in text task result")
-                            
-                            return jsonify({
-                                'status': 'completed',
-                                'task_id': task_id,
-                                'results': result.get('results', []),
-                                'citations': result.get('citations', []),
-                                'case_names': result.get('case_names', []),
-                                'metadata': result.get('metadata', {}),
-                                'statistics': result.get('statistics', {}),
-                                'summary': result.get('summary', {})
-                            })
-                        else:
-                            return make_error_response(
-                                "processing_error",
-                                f"Task processing failed: {result.get('error', 'Unknown error')}",
-                                status_code=500
-                            )
-                    except Exception as e:
-                        current_app.logger.error(f"[ANALYZE] Error processing task {task_id} immediately: {str(e)}")
-                        return make_error_response(
-                            "processing_error",
-                            f"Error processing task: {str(e)}",
-                            status_code=500
-                        )
+                    logger.error(f"[ANALYZE] RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.")
+                    return make_error_response(
+                        "rq_unavailable",
+                        f"RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.",
+                        status_code=500
+                    )
                 
                 return jsonify({
                     'status': 'processing',
                     'task_id': task_id,
-                    'message': 'Text received, processing started',
+                    'message': 'Text input received, processing started',
                     'metadata': {
                         'source_type': 'text',
                         'source_name': 'pasted_text',
-                        'timestamp': datetime.utcnow().isoformat() + "Z"
+                        'timestamp': datetime.utcnow().isoformat() + "Z",
+                        'user_agent': request.headers.get("User-Agent")
                     }
                 })
 
@@ -1242,58 +1269,20 @@ def analyze():
                 except Exception as e:
                     logger.error(f"[ANALYZE] Failed to store job mapping for {task_id}: {e}")
                 logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to RQ with 10-minute timeout")
-            elif task_queue is not None:
-                # Use fallback threading queue
-                queue_size = task_queue.qsize() if task_queue else 'N/A'
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Adding URL task {task_id} to threading queue (queue size: {queue_size})")
-                if task_queue:
-                    task_queue.put((task_id, 'url', task['data']))
-                new_queue_size = task_queue.qsize() if task_queue else 'N/A'
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Added URL task {task_id} to threading queue (new queue size: {new_queue_size})")
             else:
-                # Worker thread is disabled, process immediately
-                current_app.logger.info(f"{WORKER_LABEL} [ANALYZE] Worker thread disabled, processing URL task {task_id} immediately")
-                try:
-                    result = process_citation_task(task_id, 'url', task['data'])
-                    if result and result.get('status') == 'success':
-                        # DEBUG: Log the result before returning to frontend
-                        logger.info(f"[ANALYZE] DEBUG - URL task result status: {result.get('status')}")
-                        if result.get('citations'):
-                            for i, citation in enumerate(result['citations']):
-                                logger.info(f"[ANALYZE] DEBUG - URL Citation {i}: extracted_case_name='{citation.get('extracted_case_name')}', extracted_date='{citation.get('extracted_date')}', canonical_name='{citation.get('canonical_name')}', canonical_date='{citation.get('canonical_date')}'")
-                        else:
-                            logger.info(f"[ANALYZE] DEBUG - No citations in URL task result")
-                        
-                        return jsonify({
-                            'status': 'completed',
-                            'task_id': task_id,
-                            'results': result.get('results', []),
-                            'citations': result.get('citations', []),
-                            'case_names': result.get('case_names', []),
-                            'metadata': result.get('metadata', {}),
-                            'statistics': result.get('statistics', {}),
-                            'summary': result.get('summary', {})
-                        })
-                    else:
-                        return make_error_response(
-                            "processing_error",
-                            f"URL task processing failed: {result.get('error', 'Unknown error')}",
-                            status_code=500
-                        )
-                except Exception as e:
-                    current_app.logger.error(f"{WORKER_LABEL} [ANALYZE] Error processing URL task {task_id} immediately: {str(e)}")
-                    return make_error_response(
-                        "processing_error",
-                        f"Error processing URL task: {str(e)}",
-                        status_code=500
-                    )
+                logger.error(f"[ANALYZE] RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.")
+                return make_error_response(
+                    "rq_unavailable",
+                    f"RQ is not available or queue is not initialized. Cannot enqueue task {task_id}.",
+                    status_code=500
+                )
             
             # Return immediate response with task ID for queued tasks
-            if (RQ_AVAILABLE and queue) or (task_queue is not None):
+            if RQ_AVAILABLE and queue:
                 return jsonify({
                     'status': 'processing',
                     'task_id': task_id,
-                    'message': 'URL received, processing started',
+                    'message': 'URL input received, processing started',
                     'metadata': {
                         'source_type': 'url',
                         'source_name': url,

@@ -138,10 +138,11 @@ class UnifiedCacheManager:
                 if not table_exists:
                     # Create citations table with the existing schema
                     cursor.execute('''
-                        CREATE TABLE citations (
+                        CREATE TABLE IF NOT EXISTS citations (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            citation_text TEXT UNIQUE NOT NULL,
-                            case_name TEXT,
+                            citation_text TEXT NOT NULL,
+                            canonical_name TEXT,
+                            extracted_case_name TEXT,
                             year INTEGER,
                             parallel_citations TEXT,
                             verification_result TEXT,
@@ -157,14 +158,14 @@ class UnifiedCacheManager:
                     
                     # Add missing columns if they don't exist
                     try:
-                        if 'parallel_citations' not in existing_columns:
-                            cursor.execute('ALTER TABLE citations ADD COLUMN parallel_citations TEXT')
+                        if 'canonical_name' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN canonical_name TEXT')
                     except:
                         pass  # Column might already exist
                         
                     try:
-                        if 'verification_result' not in existing_columns:
-                            cursor.execute('ALTER TABLE citations ADD COLUMN verification_result TEXT')
+                        if 'extracted_case_name' not in existing_columns:
+                            cursor.execute('ALTER TABLE citations ADD COLUMN extracted_case_name TEXT')
                     except:
                         pass  # Column might already exist
                         
@@ -199,8 +200,11 @@ class UnifiedCacheManager:
                 # Create indexes if enabled
                 if self.config['database_cache']['indexes']:
                     cursor.execute('CREATE INDEX IF NOT EXISTS idx_citation_text ON citations(citation_text)')
-                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_case_name ON citations(case_name)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_canonical_name ON citations(canonical_name)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_extracted_case_name ON citations(extracted_case_name)')
                     cursor.execute('CREATE INDEX IF NOT EXISTS idx_year ON citations(year)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_found ON citations(found)')
+                    cursor.execute('CREATE INDEX IF NOT EXISTS idx_created_at ON citations(created_at)')
                     cursor.execute('CREATE INDEX IF NOT EXISTS idx_updated_at ON citations(updated_at)')
                 
                 conn.commit()
@@ -363,38 +367,77 @@ class UnifiedCacheManager:
             return False
 
     def _get_database_cache(self, citation: str) -> Optional[Dict[str, Any]]:
-        """Get citation from database cache."""
+        """Retrieve citation data from SQLite database."""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute(
-                'SELECT verification_result FROM citations WHERE citation_text = ?',
-                (citation,)
-            )
-            result = cursor.fetchone()
-            conn.close()
-            
-            if result and result[0]:
-                return json.loads(result[0])
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    SELECT citation_text, canonical_name, extracted_case_name, year, parallel_citations, verification_result
+                    FROM citations 
+                    WHERE citation_text = ?
+                ''', (citation,))
+                
+                row = cursor.fetchone()
+                if row:
+                    citation, canonical_name, extracted_case_name, year, parallel_citations, verification_result = row
+                    
+                    # Parse stored data
+                    try:
+                        data = json.loads(verification_result)
+                        # Ensure we have the latest field names
+                        data['canonical_name'] = canonical_name or ''
+                        data['extracted_case_name'] = extracted_case_name or ''
+                        return data
+                    except json.JSONDecodeError:
+                        # Fallback to basic data structure
+                        return {
+                            'citation': citation,
+                            'canonical_name': canonical_name or '',
+                            'extracted_case_name': extracted_case_name or '',
+                            'year': year,
+                            'parallel_citations': json.loads(parallel_citations) if parallel_citations else []
+                        }
         except Exception as e:
-            logger.warning(f"Database cache read error: {e}")
+            logger.error(f"Database cache get failed: {e}")
+        
         return None
 
     def _set_database_cache(self, citation: str, data: Dict[str, Any]) -> bool:
-        """Set citation in database cache."""
+        """Store citation data in SQLite database."""
         try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT OR REPLACE INTO citations 
-                (citation_text, verification_result, updated_at) 
-                VALUES (?, ?, ?)
-            ''', (citation, json.dumps(data), datetime.now().isoformat()))
-            conn.commit()
-            conn.close()
-            return True
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                
+                # Extract data fields
+                canonical_name = data.get('canonical_name', '')
+                extracted_case_name = data.get('extracted_case_name', '')
+                year = data.get('year')
+                parallel_citations = json.dumps(data.get('parallel_citations', []))
+                verification_result = json.dumps(data)
+                
+                # Check if citation already exists
+                cursor.execute('SELECT id FROM citations WHERE citation_text = ?', (citation,))
+                existing = cursor.fetchone()
+                
+                if existing:
+                    # Update existing record
+                    cursor.execute('''
+                        UPDATE citations 
+                        SET canonical_name = ?, extracted_case_name = ?, year = ?, parallel_citations = ?, verification_result = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE citation_text = ?
+                    ''', (canonical_name, extracted_case_name, year, parallel_citations, verification_result, citation))
+                else:
+                    # Insert new record
+                    cursor.execute('''
+                        INSERT INTO citations 
+                        (citation_text, canonical_name, extracted_case_name, year, parallel_citations, verification_result, found, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    ''', (citation, canonical_name, extracted_case_name, year, parallel_citations, verification_result, True))
+                
+                conn.commit()
+                return True
         except Exception as e:
-            logger.warning(f"Database cache write error: {e}")
+            logger.error(f"Database cache set failed: {e}")
             return False
 
     def get_url_content(self, url: str) -> Optional[str]:
@@ -470,10 +513,11 @@ class UnifiedCacheManager:
                         # Update existing record
                         cursor.execute('''
                             UPDATE citations 
-                            SET case_name = ?, year = ?, parallel_citations = ?, verification_result = ?, updated_at = CURRENT_TIMESTAMP
+                            SET canonical_name = ?, extracted_case_name = ?, year = ?, parallel_citations = ?, verification_result = ?, updated_at = CURRENT_TIMESTAMP
                             WHERE citation_text = ?
                         ''', (
-                            data.get('case_name'),
+                            data.get('canonical_name'),
+                            data.get('extracted_case_name'),
                             data.get('year'),
                             json.dumps(data.get('parallel_citations', [])),
                             json.dumps(data.get('verification_result', {})),
@@ -483,11 +527,12 @@ class UnifiedCacheManager:
                         # Insert new record
                         cursor.execute('''
                             INSERT INTO citations 
-                            (citation_text, case_name, year, parallel_citations, verification_result, found, created_at, updated_at)
-                            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            (citation_text, canonical_name, extracted_case_name, year, parallel_citations, verification_result, found, created_at, updated_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                         ''', (
                             key,
-                            data.get('case_name'),
+                            data.get('canonical_name'),
+                            data.get('extracted_case_name'),
                             data.get('year'),
                             json.dumps(data.get('parallel_citations', [])),
                             json.dumps(data.get('verification_result', {})),
@@ -578,7 +623,7 @@ class UnifiedCacheManager:
                 
                 # Use the existing schema with citation_text column
                 cursor.execute('''
-                    SELECT citation_text, case_name, year, parallel_citations, verification_result
+                    SELECT citation_text, canonical_name, extracted_case_name, year, parallel_citations, verification_result
                     FROM citations 
                     ORDER BY updated_at DESC 
                     LIMIT ?
@@ -586,7 +631,7 @@ class UnifiedCacheManager:
                 
                 warmed = 0
                 for row in cursor.fetchall():
-                    citation, case_name, year, parallel_citations, verification_result = row
+                    citation, canonical_name, extracted_case_name, year, parallel_citations, verification_result = row
                     
                     # Convert existing data to new format
                     if verification_result:
@@ -608,7 +653,8 @@ class UnifiedCacheManager:
                         }
                     
                     data = {
-                        'case_name': case_name or '',
+                        'canonical_name': canonical_name or '',
+                        'extracted_case_name': extracted_case_name or '',
                         'year': year,
                         'parallel_citations': json.loads(parallel_citations) if parallel_citations else [],
                         'verification_result': json.dumps(verification_data)

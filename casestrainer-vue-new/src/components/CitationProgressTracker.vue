@@ -39,7 +39,7 @@
           :key="citation.id || citation.raw_text"
           class="citation-preview"
         >
-          <div class="citation-case-name">{{ citation.case_name || 'Unknown Case' }}</div>
+          <div class="citation-case-name">{{ citation.canonical_name || 'Unknown Case' }}</div>
           <div class="citation-details">
             <span class="year">{{ citation.year || 'No year' }}</span>
             <span class="confidence">
@@ -70,7 +70,7 @@
         >
           <div class="citation-text">{{ citation.raw_text || citation.text || 'Unknown' }}</div>
           <div class="citation-details">
-            <span class="case-name">{{ citation.case_name || 'Unknown Case' }}</span>
+            <span class="case-name">{{ citation.canonical_name || 'Unknown Case' }}</span>
             <span class="year">{{ citation.year || 'No year' }}</span>
             <span class="confidence">
               Confidence: {{ Math.round((citation.confidence_score || 0) * 100) }}%

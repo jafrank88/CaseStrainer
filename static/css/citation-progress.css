@@ -154,16 +154,28 @@
     overflow-y: auto;
 }
 
-.citation-item {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 10px;
+/* Cluster card styles: visually group all citations in a cluster */
+.cluster-item {
+    border: 2px solid #e74c3c;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 24px;
 }
 
+/* Make citation-item look like a row/list item, not a card */
+.citation-item {
+    border: none;
+    background: none;
+    margin: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    border-radius: 0;
+    box-shadow: none;
+}
 .citation-item:last-child {
-    margin-bottom: 0;
+    border-bottom: none;
 }
 
 .citation-text {

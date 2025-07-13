@@ -1,207 +1,159 @@
 #!/usr/bin/env python3
 """
-Test script to verify the fixes for:
-1. Frontend timer display for small jobs (<35 citations)
-2. Backend case name extraction
-3. Proper result structure mapping
+Test script to verify the fixes for canonical matching and case name extraction.
 """
 
-import requests
-import json
-import time
+import logging
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from src.case_name_extraction_core import extract_case_name_triple_comprehensive
 
-def test_backend_api():
-    """Test the backend API to verify case name extraction and result structure."""
-    print("🧪 Testing Backend API...")
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def test_fixes():
+    """Test both canonical matching and case name extraction fixes."""
     
-    # Test text with legal citations
+    print("=== TESTING FIXES ===")
+    
+    # Test text with known case names
     test_text = """
-    The court held in Smith v. Jones, 123 F.3d 456 (9th Cir. 1997) that the plaintiff failed to state a claim.
-    In Doe v. Washington State Patrol, 185 Wn.2d 363, 374 P.3d 63 (2016), the court addressed privacy concerns.
-    The Supreme Court ruled in Brown v. Board of Education, 347 U.S. 483 (1954) that segregation was unconstitutional.
+    A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
     """
     
-    try:
-        # Send request to analyze endpoint
-        response = requests.post(
-            'http://localhost:5000/casestrainer/api/analyze',
-            json={'text': test_text, 'type': 'text'},
-            timeout=30
+    test_cases = [
+        ("200 Wn.2d 72", "Convoyant, LLC v. DeepThink, LLC", "2022"),
+        ("171 Wn.2d 486", "Carlson v. Glob. Client Sols., LLC", "2011"),
+        ("146 Wn.2d 1", "Dep't of Ecology v. Campbell & Gwinn, LLC", "2003")
+    ]
+    
+    # Test case name extraction
+    print("\n--- TESTING CASE NAME EXTRACTION FIX ---")
+    for citation, expected_case, expected_date in test_cases:
+        print(f"\nTesting extraction for: {citation}")
+        print(f"Expected case: {expected_case}")
+        print(f"Expected date: {expected_date}")
+        
+        # Test the comprehensive extraction function
+        result = extract_case_name_triple_comprehensive(
+            text=test_text,
+            citation=citation,
+            api_key=None,
+            context_window=100
         )
         
-        if response.status_code == 200:
-            result = response.json()
-            print("✅ Backend responded successfully!")
-            print(f"Status: {result.get('status', 'unknown')}")
-            
-            if result.get('status') == 'processing' and result.get('task_id'):
-                task_id = result['task_id']
-                print(f"Task ID: {task_id}")
-                
-                # Wait for processing to complete
-                print("⏳ Waiting for processing to complete...")
-                for i in range(10):  # Wait up to 20 seconds
-                    time.sleep(2)
-                    
-                    task_response = requests.get(f'http://localhost:5000/casestrainer/api/task_status/{task_id}')
-                    if task_response.status_code == 200:
-                        task_result = task_response.json()
-                        
-                        if task_result.get('status') == 'completed':
-                            print("✅ Processing completed!")
-                            
-                            # Check results structure
-                            results = task_result.get('results', [])
-                            print(f"Found {len(results)} citations")
-                            
-                            for i, citation in enumerate(results, 1):
-                                print(f"\nCitation {i}:")
-                                print(f"  Citation: {citation.get('citation', 'N/A')}")
-                                print(f"  Case Name: {citation.get('case_name', 'N/A')}")
-                                print(f"  Extracted Case Name: '{citation.get('extracted_case_name', 'N/A')}'")
-                                print(f"  Canonical Date: {citation.get('canonical_date', 'N/A')}")
-                                print(f"  Verified: {citation.get('verified', False)}")
-                                print(f"  Valid: {citation.get('valid', False)}")
-                            
-                            # Check if case names are being extracted
-                            extracted_case_names = [c.get('extracted_case_name') for c in results if c.get('extracted_case_name') != 'N/A']
-                            if extracted_case_names:
-                                print(f"\n✅ Case name extraction working! Found {len(extracted_case_names)} extracted case names")
-                            else:
-                                print("\n❌ No case names extracted - this needs investigation")
-                            
-                            return True
-                            
-                        elif task_result.get('status') == 'failed':
-                            print(f"❌ Processing failed: {task_result.get('error', 'Unknown error')}")
-                            return False
-                
-                print("❌ Processing timed out")
-                return False
-            else:
-                print("❌ Unexpected response format")
-                print(f"Response: {json.dumps(result, indent=2)}")
-                return False
+        print(f"Extraction result:")
+        print(f"  Extracted name: {result.get('extracted_name')}")
+        print(f"  Case name: {result.get('case_name')}")
+        print(f"  Extracted date: {result.get('extracted_date')}")
+        print(f"  Method: {result.get('case_name_method')}")
+        
+        # Check if extraction worked
+        if result.get('extracted_name') == expected_case:
+            print(f"  ✓ CASE NAME EXTRACTION SUCCESS!")
         else:
-            print(f"❌ Backend error: {response.status_code}")
-            print(f"Response: {response.text}")
-            return False
-            
-    except Exception as e:
-        print(f"❌ Error testing backend: {e}")
-        return False
+            print(f"  ✗ CASE NAME EXTRACTION FAILED!")
+            print(f"    Expected: {expected_case}")
+            print(f"    Got: {result.get('extracted_name')}")
+        
+        if result.get('extracted_date') == expected_date:
+            print(f"  ✓ DATE EXTRACTION SUCCESS!")
+        else:
+            print(f"  ✗ DATE EXTRACTION FAILED!")
+            print(f"    Expected: {expected_date}")
+            print(f"    Got: {result.get('extracted_date')}")
+    
+    # Test canonical matching
+    print("\n--- TESTING CANONICAL MATCHING FIX ---")
+    config = ProcessingConfig(debug_mode=True)
+    processor = UnifiedCitationProcessorV2(config)
+    
+    for citation, expected_case, expected_date in test_cases:
+        print(f"\nTesting canonical matching for: {citation}")
+        print(f"Expected case: {expected_case}")
+        print(f"Expected date: {expected_date}")
+        
+        # Test the verification logic directly
+        verify_result = processor._verify_with_courtlistener_search(
+            citation=citation,
+            extracted_case_name=expected_case,
+            extracted_date=expected_date
+        )
+        
+        print(f"Verification result:")
+        print(f"  Verified: {verify_result.get('verified')}")
+        print(f"  Canonical name: {verify_result.get('canonical_name')}")
+        print(f"  Canonical date: {verify_result.get('canonical_date')}")
+        print(f"  URL: {verify_result.get('url')}")
+        
+        # Check if canonical matching worked
+        if verify_result.get('verified') and verify_result.get('canonical_name'):
+            print(f"  ✓ CANONICAL MATCHING SUCCESS!")
+            if verify_result.get('canonical_name') == expected_case:
+                print(f"  ✓ CANONICAL NAME MATCHES EXPECTED!")
+            else:
+                print(f"  ⚠ CANONICAL NAME DIFFERENT BUT VERIFIED")
+                print(f"    Expected: {expected_case}")
+                print(f"    Got: {verify_result.get('canonical_name')}")
+        else:
+            print(f"  ✗ CANONICAL MATCHING FAILED!")
 
-def test_frontend_timer():
-    """Test that the frontend timer logic is working correctly."""
-    print("\n🧪 Testing Frontend Timer Logic...")
+def test_end_to_end():
+    """Test the complete workflow with both fixes."""
     
-    # Simulate the frontend logic for showing timer
-    def should_show_timer(citation_count):
-        return citation_count >= 35
+    print("\n=== TESTING END-TO-END WORKFLOW ===")
     
-    # Test cases
-    test_cases = [
-        (10, False, "Small job (<35 citations)"),
-        (35, True, "Medium job (35 citations)"),
-        (100, True, "Large job (>35 citations)")
-    ]
+    test_text = """
+    A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022).
+    """
     
-    all_passed = True
-    for citation_count, expected, description in test_cases:
-        result = should_show_timer(citation_count)
-        status = "✅" if result == expected else "❌"
-        print(f"{status} {description}: {citation_count} citations -> show timer: {result} (expected: {expected})")
-        if result != expected:
-            all_passed = False
+    citation = "200 Wn.2d 72"
+    expected_case = "Convoyant, LLC v. DeepThink, LLC"
+    expected_date = "2022"
     
-    return all_passed
-
-def test_result_structure():
-    """Test that the result structure mapping is working correctly."""
-    print("\n🧪 Testing Result Structure Mapping...")
+    print(f"Testing end-to-end workflow for: {citation}")
     
-    # Simulate the normalizeCitations function logic
-    def normalize_citations(citations):
-        return [{
-            'citation': citation.get('citation', ''),
-            'case_name': citation.get('case_name', 'N/A'),
-            'extracted_case_name': citation.get('extracted_case_name', 'N/A'),
-            'canonical_date': citation.get('canonical_date', ''),
-            'verified': citation.get('case_name') != 'N/A' and citation.get('canonical_date') != 'N/A',
-            'valid': citation.get('case_name') != 'N/A' and citation.get('canonical_date') != 'N/A'
-        } for citation in citations]
+    # Step 1: Extract case name and date
+    extraction_result = extract_case_name_triple_comprehensive(
+        text=test_text,
+        citation=citation,
+        api_key=None,
+        context_window=100
+    )
     
-    # Test data
-    test_citations = [
-        {
-            'citation': '123 F.3d 456',
-            'case_name': 'Smith v. Jones',
-            'extracted_case_name': 'Smith v. Jones',
-            'canonical_date': '1997-07-23'
-        },
-        {
-            'citation': '185 Wn.2d 363',
-            'case_name': 'N/A',
-            'extracted_case_name': 'N/A',
-            'canonical_date': ''
-        }
-    ]
+    extracted_case = extraction_result.get('extracted_name')
+    extracted_date = extraction_result.get('extracted_date')
     
-    normalized = normalize_citations(test_citations)
+    print(f"Step 1 - Extraction:")
+    print(f"  Extracted case: {extracted_case}")
+    print(f"  Extracted date: {extracted_date}")
     
-    print("Test citation 1 (should be verified):")
-    print(f"  Citation: {normalized[0]['citation']}")
-    print(f"  Verified: {normalized[0]['verified']}")
-    print(f"  Valid: {normalized[0]['valid']}")
-    
-    print("\nTest citation 2 (should not be verified):")
-    print(f"  Citation: {normalized[1]['citation']}")
-    print(f"  Verified: {normalized[1]['verified']}")
-    print(f"  Valid: {normalized[1]['valid']}")
-    
-    # Check if verification logic is working
-    verified_count = sum(1 for c in normalized if c['verified'])
-    expected_verified = 1  # Only the first citation should be verified
-    
-    if verified_count == expected_verified:
-        print(f"\n✅ Result structure mapping working! {verified_count}/{len(normalized)} citations verified (expected: {expected_verified})")
-        return True
+    # Step 2: Verify with CourtListener
+    if extracted_case and extracted_date:
+        config = ProcessingConfig(debug_mode=True)
+        processor = UnifiedCitationProcessorV2(config)
+        
+        verify_result = processor._verify_with_courtlistener_search(
+            citation=citation,
+            extracted_case_name=extracted_case,
+            extracted_date=extracted_date
+        )
+        
+        print(f"Step 2 - Verification:")
+        print(f"  Verified: {verify_result.get('verified')}")
+        print(f"  Canonical name: {verify_result.get('canonical_name')}")
+        print(f"  Canonical date: {verify_result.get('canonical_date')}")
+        print(f"  URL: {verify_result.get('url')}")
+        
+        # Overall success check
+        if (extraction_result.get('extracted_name') == expected_case and 
+            verify_result.get('verified')):
+            print(f"  ✓ END-TO-END SUCCESS!")
+        else:
+            print(f"  ✗ END-TO-END FAILED!")
     else:
-        print(f"\n❌ Result structure mapping issue! {verified_count}/{len(normalized)} citations verified (expected: {expected_verified})")
-        return False
-
-def main():
-    """Run all tests."""
-    print("🚀 Starting CaseStrainer Fix Verification Tests")
-    print("=" * 60)
-    
-    # Test backend API
-    backend_ok = test_backend_api()
-    
-    # Test frontend timer logic
-    timer_ok = test_frontend_timer()
-    
-    # Test result structure mapping
-    structure_ok = test_result_structure()
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print("📊 TEST SUMMARY")
-    print("=" * 60)
-    print(f"Backend API: {'✅ PASS' if backend_ok else '❌ FAIL'}")
-    print(f"Frontend Timer: {'✅ PASS' if timer_ok else '❌ FAIL'}")
-    print(f"Result Structure: {'✅ PASS' if structure_ok else '❌ FAIL'}")
-    
-    if all([backend_ok, timer_ok, structure_ok]):
-        print("\n🎉 All tests passed! The fixes are working correctly.")
-    else:
-        print("\n⚠️  Some tests failed. Please check the issues above.")
-    
-    print("\n💡 Next steps:")
-    print("1. Restart your backend server to apply the changes")
-    print("2. Refresh your browser to see the updated frontend")
-    print("3. Test with a document containing <35 citations to see the timer behavior")
-    print("4. Test with a document containing ≥35 citations to see the full timer")
+        print(f"  ✗ EXTRACTION FAILED - CANNOT PROCEED TO VERIFICATION")
 
 if __name__ == "__main__":
-    main() 
+    test_fixes()
+    test_end_to_end() 

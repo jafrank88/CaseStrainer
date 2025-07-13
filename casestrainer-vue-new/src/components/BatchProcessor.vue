@@ -1125,4 +1125,274 @@ export default {
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .batch-processor {
+    padding: 0 1rem;
+  }
+  
+  .batch-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .batch-header h4 {
+    font-size: 1.5rem;
+  }
+  
+  .batch-header p {
+    font-size: 0.9rem;
+  }
+  
+  /* Upload section */
+  .upload-area {
+    padding: 2rem 1rem;
+  }
+  
+  .upload-content h5 {
+    font-size: 1.1rem;
+  }
+  
+  .upload-content p {
+    font-size: 0.9rem;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  
+  /* Selected files */
+  .selected-files {
+    padding: 1rem;
+  }
+  
+  .file-list {
+    gap: 0.75rem;
+  }
+  
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+  
+  .file-info {
+    width: 100%;
+  }
+  
+  .remove-btn {
+    align-self: flex-end;
+    padding: 0.5rem 0.75rem;
+    min-height: 36px;
+  }
+  
+  /* Processing options */
+  .processing-options {
+    padding: 1rem;
+  }
+  
+  .options-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .option-group {
+    gap: 0.5rem;
+  }
+  
+  .option-select,
+  .email-input {
+    font-size: 16px; /* Prevent zoom on mobile */
+    padding: 0.75rem;
+  }
+  
+  .checkbox-item {
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Processing section */
+  .processing-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .processing-header .btn {
+    width: 100%;
+  }
+  
+  .overall-progress {
+    padding: 1rem;
+  }
+  
+  .progress-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .time-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .current-file {
+    padding: 1rem;
+  }
+  
+  .current-file-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .file-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  /* Processing queue */
+  .processing-queue {
+    padding: 1rem;
+  }
+  
+  .queue-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .queue-item-info {
+    width: 100%;
+  }
+  
+  .queue-item-progress {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .queue-item-result,
+  .queue-item-error {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .queue-item-result .btn,
+  .queue-item-error .btn {
+    width: 100%;
+  }
+  
+  /* Completion section */
+  .completion-section {
+    padding: 1.5rem;
+  }
+  
+  .completion-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    text-align: left;
+  }
+  
+  .completion-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .completion-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .batch-processor {
+    padding: 0 0.5rem;
+  }
+  
+  .upload-area {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  .upload-content h5 {
+    font-size: 1rem;
+  }
+  
+  .upload-content p {
+    font-size: 0.85rem;
+  }
+  
+  .selected-files,
+  .processing-options,
+  .overall-progress,
+  .current-file,
+  .processing-queue {
+    padding: 0.75rem;
+  }
+  
+  .file-item {
+    padding: 0.5rem;
+  }
+  
+  .option-select,
+  .email-input {
+    padding: 0.5rem;
+    font-size: 16px;
+  }
+  
+  .queue-item {
+    padding: 0.75rem;
+  }
+  
+  .completion-section {
+    padding: 1rem;
+  }
+  
+  .completion-icon {
+    font-size: 2.5rem;
+  }
+  
+  .completion-header h5 {
+    font-size: 1.2rem;
+  }
+  
+  .completion-header p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  .remove-btn,
+  .checkbox-item {
+    min-height: 44px;
+  }
+  
+  .option-select,
+  .email-input {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn:hover,
+  .remove-btn:hover {
+    transform: none;
+  }
+}
 </style> 

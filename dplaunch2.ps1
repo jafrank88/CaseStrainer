@@ -8,6 +8,75 @@ param(
     [switch]$AutoRestart
 )
 
+function Test-VueBuildNeeded {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
+    $distDir = Join-Path $vueDir "dist"
+    $indexFile = Join-Path $distDir "index.html"
+    if (-not (Test-Path $distDir) -or -not (Test-Path $indexFile)) { return $true }
+    $distTime = (Get-Item $distDir).LastWriteTime
+    $packageJson = Join-Path $vueDir "package.json"
+    $srcDir = Join-Path $vueDir "src"
+    if (Test-Path $packageJson) {
+        $packageTime = (Get-Item $packageJson).LastWriteTime
+        if ($packageTime -gt $distTime) { return $true }
+    }
+    if (Test-Path $srcDir) {
+        $srcFiles = Get-ChildItem $srcDir -Recurse -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($srcFiles -and $srcFiles.LastWriteTime -gt $distTime) { return $true }
+    }
+    return $false
+}
+
+function Test-NpmInstallNeeded {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
+    $nodeModules = Join-Path $vueDir "node_modules"
+    $packageJson = Join-Path $vueDir "package.json"
+    if (-not (Test-Path $nodeModules)) { return $true }
+    if (Test-Path $packageJson) {
+        $packageTime = (Get-Item $packageJson).LastWriteTime
+        $modulesTime = (Get-Item $nodeModules).LastWriteTime
+        if ($packageTime -gt $modulesTime) { return $true }
+    }
+    return $false
+}
+
+function Invoke-VueFrontendBuild {
+    [CmdletBinding()]
+    param()
+    $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
+    Push-Location $vueDir
+    try {
+        if (-not (Test-Path "package.json")) { throw "package.json not found in Vue directory" }
+        Write-Host "Checking Node.js and npm..." -ForegroundColor Yellow
+        $nodeVersion = node --version 2>$null
+        $npmVersion = npm --version 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $nodeVersion -or -not $npmVersion) { throw "Node.js or npm not found. Please install Node.js first." }
+        Write-Host "OK Node.js $nodeVersion, npm $npmVersion" -ForegroundColor Green
+        if (Test-NpmInstallNeeded) {
+            Write-Host "Installing npm dependencies..." -ForegroundColor Yellow
+            $npmPath = Find-NpmExecutable
+            if ($npmPath) {
+                $installProcess = Start-Process -FilePath $npmPath -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru
+                if ($installProcess.ExitCode -ne 0) { throw "npm install failed" }
+            } else { throw "Could not find npm executable. Please ensure Node.js and npm are properly installed." }
+        } else { Write-Host "OK node_modules up to date (skipping npm install)" -ForegroundColor Green }
+        if (Test-VueBuildNeeded) {
+            Write-Host "Building Vue frontend..." -ForegroundColor Yellow
+            $npmPath = Find-NpmExecutable
+            if ($npmPath) {
+                $buildProcess = Start-Process -FilePath $npmPath -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru
+                if ($buildProcess.ExitCode -ne 0) { throw "npm build failed" }
+            } else { throw "Could not find npm executable. Please ensure Node.js and npm are properly installed." }
+        } else { Write-Host "OK Vue build up to date (skipping build)" -ForegroundColor Green }
+    } finally { Pop-Location }
+}
+
 # Input validation
 if (-not $PSScriptRoot) {
     throw "Script must be run from a file, not from command line"
@@ -34,16 +103,15 @@ Options:
   -Mode Cache         Manage Citation Caches
   -Mode Menu         Show interactive menu (default)
   -AutoRestart       Enable auto-restart monitoring
-  -DebugCaseNameExtraction  Enable DEBUG logging for case name extraction
+  -SkipVueBuild      Skip Vue frontend build (fastest)
+  -ForceRebuild      Force full Docker and Vue rebuild
   -Help              Show this help
 
 Examples:
   .\dplaunch2.ps1                           # Show menu
   .\dplaunch2.ps1 -Mode Production          # Start production directly
-  .\dplaunch2.ps1 -Mode Diagnostics         # Run diagnostics directly
-  .\dplaunch2.ps1 -Mode Cache               # Manage caches
-  .\dplaunch2.ps1 -Mode Production -AutoRestart  # Start with auto-restart
-  .\dplaunch2.ps1 -Mode Production -DebugCaseNameExtraction  # Start with debug logging
+  .\dplaunch2.ps1 -Mode Production -SkipVueBuild  # Fastest startup
+  .\dplaunch2.ps1 -Mode Production -ForceRebuild  # Full rebuild
 "@ -ForegroundColor Cyan
     exit 0
 }
@@ -137,41 +205,83 @@ function Show-Menu {
     Write-Host "                v1.0                  " -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host " 1. Docker Production Mode" -ForegroundColor Green
-    Write-Host "    - Complete Docker Compose deployment"
-    Write-Host "    - Redis, Backend, RQ Worker, Frontend, Nginx"
-    Write-Host "    - Production-ready with SSL support"
+    Write-Host " 1. Docker Production Mode (smart, default)" -ForegroundColor Green
+    Write-Host "    - Smart Vue build, only rebuilds if needed"
+    Write-Host "    - Fast startup if no changes"
     Write-Host ""
-    Write-Host " 2. Advanced Production Diagnostics" -ForegroundColor Cyan
-    Write-Host "    - Comprehensive system checks"
-    Write-Host "    - Container health analysis"
-    Write-Host "    - Performance monitoring"
-    Write-Host "    - Network connectivity tests"
+    Write-Host " 2. Fast Docker Production Mode (skip Vue build)" -ForegroundColor Cyan
+    Write-Host "    - Skips Vue build entirely (fastest)"
+    Write-Host "    - Use only if frontend code is unchanged"
     Write-Host ""
-    Write-Host " 3. Citation Cache Management" -ForegroundColor Yellow
-    Write-Host "    - View cache information"
-    Write-Host "    - Clear unverified citations"
-    Write-Host "    - Clear all citation cache"
-    Write-Host "    - Show cache statistics"
+    Write-Host " 3. Force Full Rebuild (force Docker and Vue rebuild)" -ForegroundColor Yellow
+    Write-Host "    - Forces full Docker and Vue rebuild"
+    Write-Host "    - Use if you want to guarantee everything is rebuilt"
     Write-Host ""
-    Write-Host " 4. Stop All Services" -ForegroundColor Red
-    Write-Host " 5. View Container Status" -ForegroundColor Yellow
-    Write-Host " 6. View Logs" -ForegroundColor Yellow
-    Write-Host " 7. Auto-Restart Monitoring" -ForegroundColor Magenta
-            Write-Host " 8. Quick Health Check" -ForegroundColor Blue
-        Write-Host " 9. Memory Analysis & Worker Scaling" -ForegroundColor Cyan
+    Write-Host " 4. Advanced Production Diagnostics" -ForegroundColor Cyan
+    Write-Host " 5. Citation Cache Management" -ForegroundColor Yellow
+    Write-Host " 6. Stop All Services" -ForegroundColor Red
+    Write-Host " 7. View Container Status" -ForegroundColor Yellow
+    Write-Host " 8. View Logs" -ForegroundColor Yellow
+    Write-Host " 9. Auto-Restart Monitoring" -ForegroundColor Magenta
+    Write-Host "10. Quick Health Check" -ForegroundColor Blue
+    Write-Host "11. Memory Analysis & Worker Scaling" -ForegroundColor Cyan
     Write-Host " 0. Exit" -ForegroundColor Gray
     Write-Host ""
     
     do {
-        $selection = Read-Host "Select an option (0-8)"
-        if ($selection -match "^[0-8]$") {
-            return $selection
-        }
-        else {
-            Write-Host "Invalid selection. Please enter a number between 0 and 8." -ForegroundColor Red
+        $selection = Read-Host "Select an option (0-11)"
+        if ($selection -match "^([0-9]|10|11)$") {
+            break
+        } else {
+            Write-Host "Invalid selection. Please enter a number between 0 and 11." -ForegroundColor Red
         }
     } while ($true)
+
+    switch ($selection) {
+        "1" { Start-DockerProduction }
+        "2" { $script:SkipVueBuild = $true; Start-DockerProduction; $script:SkipVueBuild = $false }
+        "3" { $script:ForceRebuild = $true; Start-DockerProduction; $script:ForceRebuild = $false }
+        "4" { Show-AdvancedDiagnostics }
+        "5" { Show-CacheManagement }
+        "6" { Write-Host "Stopping all services..." -ForegroundColor Yellow; $dockerComposeFile = Join-Path $PSScriptRoot "docker-compose.prod.yml"; Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "down" -Wait -NoNewWindow -PassThru; Write-Host "OK All services stopped" -ForegroundColor Green }
+        "7" { Write-Host "Container status:" -ForegroundColor Cyan; docker ps --filter "name=casestrainer" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" }
+        "8" { Write-Host "Recent logs:" -ForegroundColor Cyan; $dockerComposeFile = Join-Path $PSScriptRoot "docker-compose.prod.yml"; docker-compose -f $dockerComposeFile logs --tail=20 }
+        "9" { Write-Host "Auto-restart monitoring not implemented in menu (use -AutoRestart flag)" -ForegroundColor Magenta }
+        "10" { Write-Host "Quick health check not implemented in menu (use diagnostics)" -ForegroundColor Blue }
+        "11" { Write-Host "Memory analysis & worker scaling not implemented in menu" -ForegroundColor Cyan }
+        "0" { Write-Host "Exiting..." -ForegroundColor Gray; exit 0 }
+    }
+}
+
+function Test-CodeChanges {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    
+    # Check if there are recent changes to key files that would require a rebuild
+    $keyFiles = @(
+        "src\unified_citation_processor.py",
+        "src\case_name_extraction_core.py", 
+        "src\standalone_citation_parser.py",
+        "src\api\services\citation_service.py",
+        "casestrainer-vue-new\src\components\CitationResults.vue"
+    )
+    
+    $hasChanges = $false
+    $cutoffTime = (Get-Date).AddMinutes(-30)  # Check for changes in last 30 minutes
+    
+    foreach ($file in $keyFiles) {
+        $filePath = Join-Path $PSScriptRoot $file
+        if (Test-Path $filePath) {
+            $fileInfo = Get-Item $filePath
+            if ($fileInfo.LastWriteTime -gt $cutoffTime) {
+                Write-Host "Detected recent changes in: $file" -ForegroundColor Yellow
+                $hasChanges = $true
+            }
+        }
+    }
+    
+    return $hasChanges
 }
 
 function Start-DockerProduction {
@@ -222,104 +332,25 @@ function Start-DockerProduction {
             Write-Host "WARNING: Could not check disk space: $($_.Exception.Message)" -ForegroundColor Yellow
         }
         
-        # Build Vue frontend with better error handling
-        Write-Host "`nBuilding Vue frontend..." -ForegroundColor Cyan
-        $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
-        
-        Push-Location $vueDir
-        try {
-            # Check if package.json exists
-            if (-not (Test-Path "package.json")) {
-                throw "package.json not found in Vue directory"
-            }
-            
-            # Check Node.js availability
-            Write-Host "Checking Node.js and npm..." -ForegroundColor Yellow
-            try {
-                $nodeVersion = node --version 2>$null
-                $npmVersion = npm --version 2>$null
-                if ($LASTEXITCODE -ne 0 -or -not $nodeVersion -or -not $npmVersion) {
-                    throw "Node.js or npm not found. Please install Node.js first."
-                }
-                Write-Host "OK Node.js $nodeVersion, npm $npmVersion" -ForegroundColor Green
-            }
-            catch {
-                throw "Node.js or npm not available: $($_.Exception.Message)"
-            }
-            
-            # Clear potential conflicts
-            Write-Host "Cleaning up potential conflicts..." -ForegroundColor Yellow
-            if (Test-Path "node_modules") {
-                Write-Host "Removing existing node_modules..." -ForegroundColor Gray
-                Remove-Item "node_modules" -Recurse -Force -ErrorAction SilentlyContinue
-            }
-            if (Test-Path "package-lock.json") {
-                Write-Host "Removing package-lock.json..." -ForegroundColor Gray
-                Remove-Item "package-lock.json" -Force -ErrorAction SilentlyContinue
-            }
-            
-            # Clear npm cache
-            Write-Host "Clearing npm cache..." -ForegroundColor Yellow
-            $npmPath = Find-NpmExecutable
-            if ($npmPath) {
-                try {
-                    $cacheProcess = Start-Process -FilePath $npmPath -ArgumentList "cache", "clean", "--force" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                    if ($cacheProcess.ExitCode -ne 0) {
-                        Write-Warning "Failed to clear npm cache, continuing anyway..."
-                    }
-                }
-                catch {
-                    Write-Warning "Could not clear npm cache: $($_.Exception.Message). Continuing anyway..."
-                }
-            }
-            else {
-                Write-Warning "Could not find npm executable, skipping cache clear..."
-            }
-            
-            Write-Host "Running npm install (this may take a few minutes)..." -ForegroundColor Yellow
-            Write-Host "If this hangs, press Ctrl+C and try running manually:" -ForegroundColor Gray
-            Write-Host "  cd casestrainer-vue-new && npm install --verbose" -ForegroundColor Gray
-            
-            # Run npm install with timeout
-            if ($npmPath) {
-                try {
-                    $installProcess = Start-Process -FilePath $npmPath -ArgumentList "install", "--no-audit", "--no-fund" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                    if ($installProcess.ExitCode -ne 0) {
-                        Write-Host "ERROR npm install failed. Trying with verbose output..." -ForegroundColor Red
-                        $verboseProcess = Start-Process -FilePath $npmPath -ArgumentList "install", "--verbose" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                        if ($verboseProcess.ExitCode -ne 0) {
-                            throw "npm install failed with exit code $($verboseProcess.ExitCode). Check your internet connection and npm configuration."
-                        }
-                    }
-                }
-                catch {
-                    throw "npm install failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
-                }
-            }
-            else {
-                throw "Could not find npm executable. Please ensure Node.js and npm are properly installed."
-            }
-            
-            Write-Host "Running npm build..." -ForegroundColor Yellow
-            if ($npmPath) {
-                try {
-                    $buildProcess = Start-Process -FilePath $npmPath -ArgumentList "run", "build" -Wait -NoNewWindow -PassThru -ErrorAction Stop
-                    if ($buildProcess.ExitCode -ne 0) {
-                        throw "npm build failed with exit code $($buildProcess.ExitCode)"
-                    }
-                }
-                catch {
-                    throw "npm build failed: $($_.Exception.Message). Check that npm is properly installed and in your PATH."
-                }
-            }
-            else {
-                throw "Could not find npm executable. Please ensure Node.js and npm are properly installed."
-            }
-            
-            Write-Host "OK Vue frontend built successfully" -ForegroundColor Green
+        # Check for recent code changes that would require a rebuild
+        Write-Host "`nChecking for recent code changes..." -ForegroundColor Yellow
+        $hasRecentChanges = Test-CodeChanges
+        if ($hasRecentChanges) {
+            Write-Host "Detected recent changes to key files - will force clean rebuild" -ForegroundColor Cyan
+        } else {
+            Write-Host "No recent changes detected to key files" -ForegroundColor Green
         }
-        finally {
-            Pop-Location
+        
+        # Build Vue frontend with better error handling
+        if (-not $script:SkipVueBuild) {
+            if ($script:ForceRebuild -or $hasRecentChanges) {
+                Write-Host "Forcing full Vue rebuild..." -ForegroundColor Cyan
+                Invoke-VueFrontendBuild
+            } else {
+                Invoke-VueFrontendBuild
+            }
+        } else {
+            Write-Host "Skipping Vue frontend build as requested (-SkipVueBuild)" -ForegroundColor Green
         }
         
         # Stop existing containers with proper error handling
@@ -331,10 +362,27 @@ function Start-DockerProduction {
             }
         }
         
-        # Start containers
-        if ($PSCmdlet.ShouldProcess("Docker containers", "Start")) {
-            Write-Host "`nStarting Docker containers..." -ForegroundColor Cyan
-            $composeArgs = "-f", $dockerComposeFile, "up", "-d", "--build"
+        # Force clean rebuild to ensure latest dev version is picked up
+        if ($PSCmdlet.ShouldProcess("Docker containers", "Force clean rebuild")) {
+            Write-Host "`nForcing clean rebuild to ensure latest dev version..." -ForegroundColor Cyan
+            
+            # Remove existing containers and images to force fresh build
+            Write-Host "Removing existing containers and images..." -ForegroundColor Yellow
+            $cleanProcess = Start-Process -FilePath "docker-compose" -ArgumentList "-f", $dockerComposeFile, "down", "--rmi", "all", "--volumes", "--remove-orphans" -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+            if ($cleanProcess.ExitCode -ne 0) {
+                Write-Warning "Some containers/images may not have been removed (this is normal if they weren't running)"
+            }
+            
+            # Clear Docker build cache for our images
+            Write-Host "Clearing Docker build cache..." -ForegroundColor Yellow
+            $cacheProcess = Start-Process -FilePath "docker" -ArgumentList "builder", "prune", "-f" -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+            if ($cacheProcess.ExitCode -ne 0) {
+                Write-Warning "Could not clear Docker build cache"
+            }
+            
+            # Start containers with forced rebuild
+            Write-Host "`nBuilding and starting Docker containers with latest code..." -ForegroundColor Cyan
+            $composeArgs = "-f", $dockerComposeFile, "up", "-d", "--build", "--force-recreate", "--no-deps"
             $startProcess = Start-Process -FilePath "docker-compose" -ArgumentList $composeArgs -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
             
             if ($startProcess.ExitCode -eq 0) {

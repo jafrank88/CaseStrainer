@@ -59,7 +59,11 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 
 ### POST `/casestrainer/api/analyze`
 
-**Main endpoint for all document analysis** - This is the only endpoint you should use for citation verification and document analysis.
+**Main endpoint for all document analysis** - This is the primary endpoint for citation verification and document analysis with async processing.
+
+### POST `/casestrainer/api/analyze_enhanced`
+
+**Enhanced synchronous endpoint** - Provides immediate results for text analysis without file upload support. Best for quick testing and simple text processing.
 
 #### Request
 ```json
@@ -69,10 +73,21 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 }
 ```
 
-#### Response
+#### Response (Async Processing)
 ```json
 {
-  "citations": [
+  "task_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "processing",
+  "message": "Document analysis started"
+}
+```
+
+#### Final Response (After Processing)
+```json
+{
+  "status": "completed",
+  "task_id": "550e8400-e29b-41d4-a716-446655440000",
+  "results": [
     {
       "citation": "149 Wn.2d 647",
       "canonical_citation": "149 Wash. 2d 647",
@@ -109,7 +124,36 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
       }
     }
   ],
-  "status": "success"
+  "citations": [...],
+  "clusters": [
+    {
+      "cluster_id": "cluster_1",
+      "canonical_name": "State v. Rohrich",
+      "canonical_date": "2003",
+      "extracted_case_name": "State v. Rohrich",
+      "extracted_date": "2003",
+      "citations": [...],
+      "size": 2
+    }
+  ],
+  "case_names": [...],
+  "metadata": {
+    "processing_time": 5.2,
+    "total_citations": 15,
+    "verified_citations": 12,
+    "clusters_found": 8
+  },
+  "statistics": {
+    "total_citations": 15,
+    "verified_count": 12,
+    "unverified_count": 3,
+    "average_confidence": 0.87
+  },
+  "summary": {
+    "document_type": "legal_brief",
+    "primary_jurisdiction": "Washington",
+    "citation_strength": "strong"
+  }
 }
 ```
 
@@ -138,6 +182,68 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
   "status": "success"
 }
 ```
+
+### POST `/casestrainer/api/analyze_enhanced`
+
+**Enhanced synchronous endpoint** for immediate text analysis without file upload support.
+
+#### Request Format
+```json
+{
+  "type": "text",
+  "text": "The court held in State v. Rohrich, 149 Wn.2d 647, that..."
+}
+```
+
+#### Response Format (Immediate)
+```json
+{
+  "citations": [
+    {
+      "citation": "149 Wn.2d 647",
+      "case_name": "State v. Rohrich",
+      "extracted_case_name": "State v. Rohrich",
+      "canonical_name": "State v. Rohrich",
+      "extracted_date": "2003",
+      "canonical_date": "2003",
+      "verified": true,
+      "court": "Supreme Court of Washington",
+      "confidence": 0.95,
+      "method": "CourtListener",
+      "url": "https://www.courtlistener.com/opinion/12345/",
+      "source": "CourtListener",
+      "metadata": {
+        "processing_time": 1.2,
+        "timestamp": "2025-06-27T04:05:23.408815Z"
+      }
+    }
+  ],
+  "clusters": [
+    {
+      "cluster_id": "cluster_1",
+      "canonical_name": "State v. Rohrich",
+      "canonical_date": "2003",
+      "extracted_case_name": "State v. Rohrich",
+      "extracted_date": "2003",
+      "citations": [...],
+      "size": 2
+    }
+  ],
+  "success": true
+}
+```
+
+#### Limitations
+- **No file uploads** - Returns 501 "Not Implemented" error
+- **No URL processing** - Text input only
+- **No progress tracking** - Immediate results only
+- **No task IDs** - Direct response format
+
+#### Use Cases
+- **Quick testing** of citation extraction
+- **Simple text analysis** without file processing
+- **Development and debugging** of citation logic
+- **Lightweight integration** where async processing isn't needed
 
 ## ❌ **Deprecated Endpoints (Do NOT Use)**
 

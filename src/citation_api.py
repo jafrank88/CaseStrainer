@@ -99,7 +99,7 @@ def validate_single_citation():
                 'valid': validation_status == 'valid',
                 'validation_status': validation_status,
                 'citation_data': {
-                    'case_name': citation.case_name,
+                    'canonical_name': citation.canonical_name,
                     'year': citation.year,
                     'court': citation.court,
                     'reporter': citation.reporter,
@@ -146,7 +146,7 @@ def extract_citations():
         for citation in citations:
             citation_data.append({
                 'raw_text': citation.raw_text,
-                'case_name': citation.case_name,
+                'canonical_name': citation.canonical_name,
                 'year': citation.year,
                 'court': citation.court,
                 'reporter': citation.reporter,

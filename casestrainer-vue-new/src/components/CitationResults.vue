@@ -23,6 +23,7 @@ const useHorizontalLayout = ref(false) // Toggle for alternative layout
 const displayMode = ref('full') // 'full', 'horizontal', 'canonical-only'
 
 const attentionFilter = ref('all')
+const showAll = ref(false)
 
 // Helper functions for filtering
 function isUnverified(cluster) {
@@ -36,6 +37,17 @@ function isDateMismatch(cluster) {
 }
 
 const filteredCitationsNeedingAttention = computed(() => {
+  if (showAll.value) {
+    // Show all clusters/citations
+    if (props.results?.clusters && props.results.clusters.length > 0) {
+      return props.results.clusters
+    }
+    if (props.results?.citations) {
+      return [{ citations: props.results.citations }]
+    }
+    return []
+  }
+  // Default: show only those needing attention
   if (attentionFilter.value === 'unverified') {
     return citationsNeedingAttention.value.filter(isUnverified)
   } else if (attentionFilter.value === 'name') {
@@ -432,6 +444,65 @@ function uniqueNameYearPairs(citations, getName, getYear) {
   }
   return result;
 }
+
+// Helper: Get mismatch reason for a citation
+function getMismatchReason(citation) {
+  const canonical = getCanonicalCaseName(citation)
+  const extracted = getExtractedCaseName(citation)
+  const canonicalDate = getCanonicalDate(citation)
+  const extractedDate = getExtractedDate(citation)
+  if (!isVerified(citation)) return 'Unverified';
+  if (canonical && extracted && !areCaseNamesSimilar(canonical, extracted)) return 'Name mismatch';
+  if (canonicalDate && extractedDate && !areDatesSimilar(canonicalDate, extractedDate)) return 'Date mismatch';
+  return '';
+}
+
+// Add copy/download all logic
+function getAllCitationData() {
+  // Flatten all clusters/citations for export
+  let allCitations = []
+  if (props.results?.clusters && props.results.clusters.length > 0) {
+    props.results.clusters.forEach(cluster => {
+      allCitations.push(...cluster.citations)
+    })
+  } else if (props.results?.citations) {
+    allCitations = props.results.citations
+  }
+  return allCitations
+}
+
+function copyAllCitations() {
+  const allCitations = getAllCitationData()
+  const text = allCitations.map(c =>
+    `${getCitation(c)}\nExtracted Name: ${getExtractedCaseName(c) || 'N/A'}\nCanonical Name: ${getCanonicalCaseName(c) || 'N/A'}\nExtracted Date: ${getExtractedDate(c) || 'N/A'}\nCanonical Date: ${getCanonicalDate(c) || 'N/A'}\nStatus: ${getVerificationStatus(c)}\nMismatch Reason: ${getMismatchReason(c)}\nSource: ${getSource(c)}\nConfidence: ${getConfidence(c)}\nError: ${getError(c) || ''}\n---`
+  ).join('\n')
+  navigator.clipboard.writeText(text)
+  emit('toast', { type: 'success', message: 'All citation data copied!' })
+}
+
+function downloadAllCitations() {
+  const allCitations = getAllCitationData()
+  const data = allCitations.map(c => ({
+    citation: getCitation(c),
+    extracted_name: getExtractedCaseName(c),
+    canonical_name: getCanonicalCaseName(c),
+    extracted_date: getExtractedDate(c),
+    canonical_date: getCanonicalDate(c),
+    status: getVerificationStatus(c),
+    mismatch_reason: getMismatchReason(c),
+    source: getSource(c),
+    confidence: getConfidence(c),
+    error: getError(c)
+  }))
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'all_citations.json'
+  a.click()
+  URL.revokeObjectURL(url)
+  emit('toast', { type: 'success', message: 'All citation data downloaded!' })
+}
 </script>
 
 <template>
@@ -527,6 +598,7 @@ function uniqueNameYearPairs(citations, getName, getYear) {
                     <div class="detail-row"><span class="detail-label">Source:</span> <span>{{ getSource(citation) }}</span></div>
                     <div class="detail-row"><span class="detail-label">Verification:</span> <span>{{ getVerificationStatus(citation) }}</span></div>
                     <div class="detail-row" v-if="getError(citation)"><span class="detail-label">Error:</span> <span>{{ getError(citation) }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
                     <!-- Add more details/context as needed -->
                   </div>
                 </div>
@@ -629,7 +701,7 @@ function uniqueNameYearPairs(citations, getName, getYear) {
             @click="displayMode = 'horizontal'"
             title="Horizontal Layout"
           >
-            <span>📄</span> Horizontal
+            <span>��</span> Horizontal
           </button>
           <button 
             :class="['layout-btn', { active: displayMode === 'canonical-only' }]"
@@ -712,6 +784,7 @@ function uniqueNameYearPairs(citations, getName, getYear) {
                         {{ getVerificationStatus(citation).replace('_', ' ') }}
                       </span>
                     </div>
+                    <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
                   </div>
                 </div>
               </div>
@@ -780,6 +853,7 @@ function uniqueNameYearPairs(citations, getName, getYear) {
                     <span class="source-label">Source:</span>
                     <span class="source-value">{{ getSource(citation) }}</span>
                   </div>
+                  <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
                 </div>
               </div>
             </div>
@@ -948,6 +1022,7 @@ function uniqueNameYearPairs(citations, getName, getYear) {
               <span v-else class="extracted-name missing">No extracted name</span>
             </span>
           </div>
+          <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
         </div>
       </div>
     </div>

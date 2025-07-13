@@ -178,7 +178,50 @@ CaseStrainer/
    
    <style scoped>
    /* Component styles */
+   
+   /* Mobile Responsive Design */
+   @media (max-width: 768px) {
+     /* Mobile-specific styles */
+   }
+   
+   @media (max-width: 480px) {
+     /* Small mobile styles */
+   }
    </style>
+   ```
+
+2. **Mobile Responsive Design**
+   - **Touch-friendly targets**: Minimum 44px for buttons and interactive elements
+   - **Responsive breakpoints**: 768px (tablet), 480px (mobile), 400px (small mobile)
+   - **Font sizes**: Minimum 16px to prevent zoom on mobile
+   - **Flexible layouts**: Use CSS Grid and Flexbox for responsive layouts
+   - **Stack vertically**: Convert horizontal layouts to vertical on mobile
+   - **Full-width inputs**: Make form inputs full-width on mobile
+   - **Proper spacing**: Use consistent padding and margins for touch interaction
+
+3. **Mobile-First Approach**
+   ```css
+   /* Start with mobile styles */
+   .component {
+     padding: 1rem;
+     font-size: 16px;
+   }
+   
+   /* Add tablet styles */
+   @media (min-width: 768px) {
+     .component {
+       padding: 1.5rem;
+       font-size: 18px;
+     }
+   }
+   
+   /* Add desktop styles */
+   @media (min-width: 1024px) {
+     .component {
+       padding: 2rem;
+       font-size: 20px;
+     }
+   }
    ```
 
 2. **State Management**
@@ -237,6 +280,119 @@ def handle_error(error):
         status_code=500
     )
 ```
+
+## UI/UX Development
+
+### Vue.js Component Architecture
+
+The application uses Vue 3 with Composition API and follows a component-based architecture:
+
+```
+casestrainer-vue-new/src/
+├── components/           # Reusable Vue components
+│   ├── CitationResults.vue    # Citation display and filtering
+│   ├── AdvancedFilters.vue    # Advanced search and filtering
+│   ├── BatchProcessor.vue     # File upload and batch processing
+│   ├── ProcessingProgress.vue # Progress tracking and statistics
+│   └── AppErrorHandler.vue    # Error handling and display
+├── views/               # Page-level components
+│   ├── HomeView.vue     # Main input page
+│   ├── ApiDocs.vue      # API documentation
+│   └── BrowserExtension.vue # Browser extension info
+├── store/               # Pinia state management
+│   ├── citations.js     # Citation data and actions
+│   └── index.js         # Store configuration
+└── composables/         # Reusable composition functions
+    ├── useApi.js        # API interaction logic
+    └── useLoadingState.js # Loading state management
+```
+
+### Mobile Responsive Design
+
+The application is fully mobile-responsive with the following features:
+
+#### **Responsive Breakpoints**
+- **768px and below**: Tablet and mobile layouts
+- **480px and below**: Mobile-optimized layouts
+- **400px and below**: Small mobile device optimization
+
+#### **Touch-Friendly Design**
+- **Minimum 44px touch targets** for all interactive elements
+- **Proper spacing** between clickable elements
+- **Full-width buttons** on mobile devices
+- **Larger text inputs** to prevent zoom on iOS
+
+#### **Layout Adaptations**
+- **Vertical stacking** of horizontal layouts on mobile
+- **Collapsible sections** for complex interfaces
+- **Responsive tables** with horizontal scrolling
+- **Flexible grid systems** that adapt to screen size
+
+#### **Typography**
+- **Minimum 16px font size** to prevent mobile zoom
+- **Responsive font scaling** based on screen size
+- **Proper line heights** for readability
+- **Consistent font hierarchy** across devices
+
+### Component-Specific Mobile Features
+
+#### **CitationResults.vue**
+- **Filter controls** stack vertically on mobile
+- **Layout mode buttons** become full-width
+- **Citation cards** adapt to narrow screens
+- **Search inputs** are full-width with proper sizing
+
+#### **AdvancedFilters.vue**
+- **Filter groups** stack vertically
+- **Search inputs** have proper mobile styling
+- **Toggle buttons** are touch-friendly
+- **Clear buttons** are easily accessible
+
+#### **BatchProcessor.vue**
+- **Upload areas** are optimized for mobile
+- **File lists** show essential information only
+- **Progress indicators** are mobile-friendly
+- **Action buttons** are full-width
+
+#### **ProcessingProgress.vue**
+- **Statistics cards** stack vertically
+- **Progress bars** are touch-friendly
+- **Time information** is clearly displayed
+- **Status indicators** are mobile-optimized
+
+### Accessibility Features
+
+#### **Keyboard Navigation**
+- **Tab order** follows logical document flow
+- **Focus indicators** are clearly visible
+- **Skip links** for main content areas
+- **Keyboard shortcuts** for common actions
+
+#### **Screen Reader Support**
+- **Semantic HTML** structure
+- **ARIA labels** for interactive elements
+- **Alt text** for images and icons
+- **Descriptive link text**
+
+#### **Color and Contrast**
+- **WCAG AA compliance** for color contrast
+- **Color-independent** information design
+- **High contrast mode** support
+- **Focus indicators** that don't rely on color alone
+
+### Performance Optimization
+
+#### **Lazy Loading**
+- **Component lazy loading** for route-based code splitting
+- **Image lazy loading** for better performance
+- **Progressive loading** of large datasets
+- **Virtual scrolling** for long lists
+
+#### **Caching Strategies**
+- **API response caching** to reduce server requests
+- **Component caching** for frequently used elements
+- **Local storage** for user preferences
+- **Service worker** for offline functionality
 
 ## Testing
 

@@ -290,11 +290,11 @@ Unverified Citations: ${unverified.length}
 
 Verified Citations:
 ------------------
-${verified.map(c => `- ${c.text} (${c.case_name || 'Unknown Case'})`).join('\n')}
+${verified.map(c => `- ${c.text} (${c.canonical_name || 'Unknown Case'})`).join('\n')}
 
 Unverified Citations:
 --------------------
-${unverified.map(c => `- ${c.text} (${c.case_name || 'Unknown Case'})`).join('\n')}
+${unverified.map(c => `- ${c.text} (${c.canonical_name || 'Unknown Case'})`).join('\n')}
 
 Suggestions:
 -----------

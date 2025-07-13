@@ -120,17 +120,18 @@ class UnifiedCitationExtractor:
             state_court_abbr_pattern,
             
             # Washington-specific patterns (both Wn. and Wash.)
-            r'\d+\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d+',
+            # Updated to support up to 5 digits for volume and up to 12 digits for page
+            r'\d{1,5}\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d{1,12}',
             
             # California-specific patterns
-            r'\d+\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',
-            r'\d+\s+Cal\.\s+\d{2,}',
+            r'\d{1,5}\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',
+            r'\d{1,5}\s+Cal\.\s+\d{2,12}',
             
             # Westlaw
-            r'\d{4}\s+WL\s+\d+',
+            r'\d{4}\s+WL\s+\d{1,12}',
             
             # LEXIS
-            r'\d{4}\s+LEXIS\s+\d+',
+            r'\d{4}\s+LEXIS\s+\d{1,12}',
         ]
         
         # Remove patterns that could match invalid series indicators

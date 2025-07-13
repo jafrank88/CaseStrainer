@@ -64,11 +64,11 @@
             <button 
               v-if="!isAnalyzing"
               @click.stop="clearFile" 
-              class="remove-btn"
+              class="remove-btn remove-btn-purple"
               title="Remove file"
               aria-label="Remove file"
             >
-              <i class="bi bi-x-lg"></i>
+              <i class="bi bi-x-lg"></i> Remove
             </button>
           </div>
         </div>
@@ -669,6 +669,25 @@ export default {
   background: var(--primary-color);
   color: white;
   border-color: var(--primary-color);
+}
+
+/* Purple remove button style for file */
+.remove-btn-purple {
+  background: #a259e6 !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  transition: background 0.2s;
+}
+.remove-btn-purple:hover, .remove-btn-purple:focus {
+  background: #7c3aed !important;
+  color: #fff !important;
 }
 
 @media (max-width: 768px) {

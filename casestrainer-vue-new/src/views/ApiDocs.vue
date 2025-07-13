@@ -10,10 +10,73 @@
     <div class="mb-5">
       <h2>Available Endpoints</h2>
       <ul>
-        <li><code>/casestrainer/api/analyze</code> &mdash; Analyze and validate citations</li>
+        <li><code>/casestrainer/api/analyze</code> &mdash; Analyze and validate citations (async)</li>
+        <li><code>/casestrainer/api/analyze_enhanced</code> &mdash; Enhanced citation analysis (sync)</li>
         <li><code>/casestrainer/api/task_status/{task_id}</code> &mdash; Check processing status</li>
         <li><code>/casestrainer/api/health</code> &mdash; Health check endpoint</li>
+        <li><code>/casestrainer/api/version</code> &mdash; Application version info</li>
+        <li><code>/casestrainer/api/server_stats</code> &mdash; Server statistics</li>
+        <li><code>/casestrainer/api/db_stats</code> &mdash; Database statistics</li>
       </ul>
+    </div>
+
+    <div class="mb-5">
+      <h2>Endpoint Comparison</h2>
+      <p>Choose the right endpoint based on your needs:</p>
+      
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th><code>/analyze</code></th>
+              <th><code>/analyze_enhanced</code></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Processing Type</strong></td>
+              <td><span class="badge bg-success">Async</span> (RQ/Redis)</td>
+              <td><span class="badge bg-warning">Sync</span> (Direct)</td>
+            </tr>
+            <tr>
+              <td><strong>File Uploads</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-danger">❌ No</span> (501 error)</td>
+            </tr>
+            <tr>
+              <td><strong>URL Processing</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-danger">❌ No</span></td>
+            </tr>
+            <tr>
+              <td><strong>Task ID Response</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-danger">❌ No</span> (immediate results)</td>
+            </tr>
+            <tr>
+              <td><strong>Progress Tracking</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-danger">❌ No</span></td>
+            </tr>
+            <tr>
+              <td><strong>Citation Clustering</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+            </tr>
+            <tr>
+              <td><strong>Enhanced Extraction</strong></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+              <td><span class="badge bg-success">✅ Yes</span></td>
+            </tr>
+            <tr>
+              <td><strong>Best For</strong></td>
+              <td>Production use, large files, progress tracking</td>
+              <td>Quick testing, simple text analysis</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="mb-5">
@@ -133,8 +196,8 @@
       "citation": "123 F.3d 456",
       "found": true,
       "source": "CourtListener",
-      "case_name": "Smith v. Jones",
-      "case_name_extracted": "Smith v. Jones",
+      "canonical_name": "Smith v. Jones",
+      "extracted_case_name": "Smith v. Jones",
       "url": "https://www.courtlistener.com/opinion/12345/",
       "explanation": "Citation found and verified",
       "is_westlaw": false,
@@ -188,12 +251,12 @@
               <td>Primary source where citation was found (CourtListener, Google Scholar, Justia, etc.)</td>
             </tr>
             <tr>
-              <td><code>case_name</code></td>
+              <td><code>canonical_name</code></td>
               <td>string</td>
               <td>Official case name from the legal database</td>
             </tr>
             <tr>
-              <td><code>case_name_extracted</code></td>
+              <td><code>extracted_case_name</code></td>
               <td>string</td>
               <td>Case name extracted from the document text</td>
             </tr>
@@ -285,21 +348,141 @@
           <h5>3. Poll for Results:</h5>
           <pre><code>curl /casestrainer/api/task_status/550e8400-e29b-41d4-a716-446655440000</code></pre>
           
-          <h5>4. Get Final Results:</h5>
-          <pre><code>{
+                <h5>4. Get Final Results:</h5>
+      <pre><code>{
   "status": "completed",
   "task_id": "550e8400-e29b-41d4-a716-446655440000",
+  "results": [...],
   "citations": [
     {
       "citation": "123 F.3d 456",
       "found": true,
       "source": "CourtListener",
-      "case_name": "Smith v. Jones",
-      "case_name_extracted": "Smith v. Jones",
+      "canonical_name": "Smith v. Jones",
+      "extracted_case_name": "Smith v. Jones",
       "url": "https://www.courtlistener.com/opinion/12345/",
       "explanation": "Citation found and verified"
     }
-  ]
+  ],
+  "clusters": [...],
+  "case_names": [...],
+  "metadata": {...},
+  "statistics": {...},
+  "summary": {...}
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <h2>Enhanced Analyze Endpoint</h2>
+      <p class="text-muted">POST <code>/casestrainer/api/analyze_enhanced</code></p>
+      
+      <h3>Overview</h3>
+      <p>
+        The enhanced analyze endpoint provides synchronous citation analysis with immediate results.
+        It's optimized for quick text processing and testing, but doesn't support file uploads or URL processing.
+      </p>
+
+      <h3>Input Format</h3>
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4 class="mb-0">Text Input Only</h4>
+        </div>
+        <div class="card-body">
+          <p><strong>Content-Type:</strong> <code>application/json</code></p>
+          
+          <h5>Request Format:</h5>
+          <pre><code>{
+  "type": "text",
+  "text": "The court held in Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) that..."
+}</code></pre>
+        </div>
+      </div>
+
+      <h3>Response Format</h3>
+      <p>The enhanced endpoint returns immediate results without task IDs:</p>
+      
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4 class="mb-0">Success Response</h4>
+        </div>
+        <div class="card-body">
+          <pre><code>{
+  "citations": [
+    {
+      "citation": "123 F.3d 456",
+      "case_name": "Smith v. Jones",
+      "extracted_case_name": "Smith v. Jones",
+      "canonical_name": "Smith v. Jones",
+      "extracted_date": "2020",
+      "canonical_date": "2020",
+      "verified": true,
+      "court": "9th Cir.",
+      "confidence": 0.95,
+      "method": "CourtListener",
+      "url": "https://www.courtlistener.com/opinion/12345/",
+      "source": "CourtListener",
+      "metadata": {...}
+    }
+  ],
+  "clusters": [
+    {
+      "cluster_id": "cluster_1",
+      "canonical_name": "Smith v. Jones",
+      "canonical_date": "2020",
+      "extracted_case_name": "Smith v. Jones",
+      "extracted_date": "2020",
+      "citations": [...],
+      "size": 2
+    }
+  ],
+  "success": true
+}</code></pre>
+        </div>
+      </div>
+
+      <h3>Error Response</h3>
+      <div class="card mb-3">
+        <div class="card-header">
+          <h4 class="mb-0">Error Format</h4>
+        </div>
+        <div class="card-body">
+          <pre><code>{
+  "error": "Analysis failed",
+  "details": "Error message details"
+}</code></pre>
+        </div>
+      </div>
+
+      <h3>Example Usage</h3>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Complete Example</h4>
+        </div>
+        <div class="card-body">
+          <h5>Request:</h5>
+          <pre><code>curl -X POST /casestrainer/api/analyze_enhanced \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "text",
+    "text": "The court held in Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) that..."
+  }'</code></pre>
+          
+          <h5>Response:</h5>
+          <pre><code>{
+  "citations": [
+    {
+      "citation": "123 F.3d 456",
+      "case_name": "Smith v. Jones",
+      "extracted_case_name": "Smith v. Jones",
+      "canonical_name": "Smith v. Jones",
+      "verified": true,
+      "confidence": 0.95
+    }
+  ],
+  "clusters": [...],
+  "success": true
 }</code></pre>
         </div>
       </div>
@@ -313,8 +496,80 @@
       <h5>Response:</h5>
       <pre><code>{
   "status": "healthy",
+  "service": "CaseStrainer Vue API",
   "timestamp": "2024-01-15T10:30:00Z",
-  "version": "0.5.8"
+  "uptime": {
+    "seconds": 3600,
+    "formatted": "1 hour"
+  },
+  "redis": "connected",
+  "database": "healthy",
+  "rq_worker": "running",
+  "environment": "production",
+  "version": "2.0.0"
+}</code></pre>
+    </div>
+
+    <div class="mb-5">
+      <h2>Version Endpoint</h2>
+      <p class="text-muted">GET <code>/casestrainer/api/version</code></p>
+      <p>Returns application version information and uptime statistics.</p>
+      
+      <h5>Response:</h5>
+      <pre><code>{
+  "version": "2.0.0",
+  "name": "CaseStrainer",
+  "description": "Legal Citation Analysis Tool",
+  "uptime": {
+    "seconds": 3600,
+    "formatted": "1 hour"
+  },
+  "environment": "production",
+  "timestamp": "2024-01-15T10:30:00Z"
+}</code></pre>
+    </div>
+
+    <div class="mb-5">
+      <h2>Server Statistics Endpoint</h2>
+      <p class="text-muted">GET <code>/casestrainer/api/server_stats</code></p>
+      <p>Returns detailed server statistics including queue length and worker health.</p>
+      
+      <h5>Response:</h5>
+      <pre><code>{
+  "timestamp": 1642248600,
+  "current_time": "2024-01-15 10:30:00",
+  "uptime": {
+    "seconds": 3600,
+    "formatted": "1 hour"
+  },
+  "rq_available": true,
+  "queue_length": 5,
+  "worker_health": "running"
+}</code></pre>
+    </div>
+
+    <div class="mb-5">
+      <h2>Database Statistics Endpoint</h2>
+      <p class="text-muted">GET <code>/casestrainer/api/db_stats</code></p>
+      <p>Returns database statistics including citation counts and cache information.</p>
+      
+      <h5>Response:</h5>
+      <pre><code>{
+  "database": {
+    "path": "/path/to/citations.db",
+    "exists": true,
+    "size": 1048576
+  },
+  "citations": {
+    "total": 1500,
+    "verified": 1200,
+    "unverified": 300
+  },
+  "cache": {
+    "redis_available": true,
+    "active_requests": 3
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
 }</code></pre>
     </div>
 
@@ -363,5 +618,158 @@ code {
 .table th {
   background-color: #f8f9fa;
   font-weight: 600;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  h4 {
+    font-size: 1.125rem;
+  }
+  
+  .lead {
+    font-size: 1rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  pre {
+    font-size: 0.8rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  code {
+    font-size: 0.8em;
+    padding: 0.1rem 0.2rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.85rem;
+  }
+  
+  .table th {
+    font-size: 0.8rem;
+  }
+  
+  ul {
+    padding-left: 1.25rem;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+  
+  h4 {
+    font-size: 1rem;
+  }
+  
+  .lead {
+    font-size: 0.95rem;
+  }
+  
+  .card-body {
+    padding: 0.75rem;
+  }
+  
+  .card-header {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  pre {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  code {
+    font-size: 0.75em;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.375rem 0.125rem;
+    font-size: 0.8rem;
+  }
+  
+  .table th {
+    font-size: 0.75rem;
+  }
+  
+  ul {
+    padding-left: 1rem;
+  }
+  
+  li {
+    margin-bottom: 0.375rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .card {
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .card:hover {
+    transform: none;
+  }
 }
 </style> 

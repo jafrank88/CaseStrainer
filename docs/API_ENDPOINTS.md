@@ -5,7 +5,8 @@ This document lists all active API endpoints in the CaseStrainer application aft
 ## ⚠️ **IMPORTANT: Canonical vs Deprecated Endpoints**
 
 **Canonical Endpoints (Use These):**
-- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis
+- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis (async)
+- `POST /casestrainer/api/analyze_enhanced` - Enhanced synchronous endpoint (text only)
 - `GET /casestrainer/api/health` - Health check
 - `GET /casestrainer/api/version` - Version information
 - `GET /casestrainer/api/task_status/<task_id>` - Task status
@@ -23,8 +24,8 @@ All API endpoints are prefixed with `/casestrainer/api/`
 ## ✅ **Canonical Endpoints**
 
 ### `/analyze` (POST)
-**Unified endpoint for all document analysis**
-- **Purpose**: Main endpoint for analyzing documents, text, and URLs
+**Unified endpoint for all document analysis (async)**
+- **Purpose**: Main endpoint for analyzing documents, text, and URLs with async processing
 - **Input Types**: 
   - File upload (multipart/form-data)
   - Text input (JSON or form data)
@@ -36,7 +37,25 @@ All API endpoints are prefixed with `/casestrainer/api/`
   - Canonical date extraction
   - Batch CourtListener verification
   - Async processing with progress tracking
-- **Response**: JSON with citations, verification results, and metadata
+  - Task ID for status monitoring
+- **Response**: JSON with task ID for status tracking
+
+### `/analyze_enhanced` (POST)
+**Enhanced synchronous endpoint for text analysis**
+- **Purpose**: Immediate text analysis without file upload support
+- **Input Types**: 
+  - Text input only (JSON)
+- **Features**:
+  - Citation extraction and verification
+  - Case name extraction
+  - Canonical date extraction
+  - Immediate results (no task ID)
+  - Enhanced citation processing
+- **Limitations**:
+  - No file uploads (returns 501 error)
+  - No URL processing
+  - No progress tracking
+- **Response**: JSON with immediate results
 
 ### `/health` (GET)
 **Health check endpoint**

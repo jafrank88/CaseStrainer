@@ -9,20 +9,27 @@ import uuid
 import json
 import logging
 import tempfile
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Union, TYPE_CHECKING
 from datetime import datetime
 
 # Import configuration
 from src.config import get_citation_config, get_external_api_config, get_file_config
 
-# Import the new unified citation processor V2
+# Import processors
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig, CitationResult
     UNIFIED_PROCESSOR_V2_AVAILABLE = True
     logging.info("UnifiedCitationProcessorV2 available")
-except ImportError as e:
+except ImportError:
     UNIFIED_PROCESSOR_V2_AVAILABLE = False
-    logging.warning(f"UnifiedCitationProcessorV2 not available: {e}")
+    CitationResult = None
+    logging.warning("UnifiedCitationProcessorV2 not available")
+
+# Type annotations for type checking
+if TYPE_CHECKING:
+    from src.unified_citation_processor_v2 import CitationResult as CitationResultType
+else:
+    CitationResultType = Any
 
 # Import your existing processors as fallbacks
 try:
@@ -51,6 +58,17 @@ except ImportError:
     except ImportError:
         process_document = None
         logging.warning("No document processor available")
+
+# Use the faster pdf_handler for PDF extraction
+try:
+    from src.pdf_handler import extract_text_from_pdf
+    PDF_HANDLER_AVAILABLE = True
+    logging.info("PDF handler available for fast PDF extraction")
+except ImportError:
+    PDF_HANDLER_AVAILABLE = False
+    logging.warning("PDF handler not available, falling back to document_processing_unified")
+
+from src.document_processing_unified import extract_text_from_url
 
 class CitationService:
     """
@@ -148,8 +166,7 @@ class CitationService:
             
             # Use the best available processor
             if self.processor and hasattr(self.processor, 'process_text'):
-                # Use unified processor V2
-                self.logger.info("Using processor.process_text method")
+                # Use unified processor V2 with sync method for production stability
                 citation_results = self.processor.process_text(text)
                 self.logger.info(f"[DEBUG] Extracted {len(citation_results)} citations after extraction.")
                 
@@ -162,8 +179,7 @@ class CitationService:
                             'citation': citation_result.citation,
                             'extracted_case_name': citation_result.extracted_case_name,
                             'extracted_date': citation_result.extracted_date,
-                            'case_name': citation_result.canonical_name,  # Vue frontend expects case_name for canonical
-                            'canonical_name': citation_result.canonical_name,
+                            'canonical_name': citation_result.canonical_name,  # Vue frontend expects case_name for canonical
                             'canonical_date': citation_result.canonical_date,
                             'verified': citation_result.verified,
                             'url': citation_result.url,
@@ -188,20 +204,16 @@ class CitationService:
                             'metadata': citation_result.metadata or {}
                         }
                         citations.append(citation_dict)
+                    
+                    # Generate clusters from citations
+                    clusters = self.processor.group_citations_into_clusters(citation_results) if hasattr(self.processor, 'group_citations_into_clusters') else []
+                    
                     self.logger.info(f"[DEBUG] {len(citations)} citations after conversion to dict.")
                     # Calculate statistics
                     statistics = self._calculate_statistics(citations)
-                else:
-                    # Fallback: treat as dictionary (legacy format)
-                    if citation_results.get('error'):
-                        return {
-                            'status': 'error',
-                            'message': citation_results.get('error', 'Processing failed')
-                        }
-                    citations = citation_results.get('results', [])
-                    statistics = citation_results.get('summary', {})
-                self.logger.info(f"[DEBUG] {len(citations)} citations after legacy fallback.")
-            
+                    # Add unified processor metadata if available
+                    metadata = {}
+                
             elif self.processor and hasattr(self.processor, 'process_document'):
                 # Use enhanced processor
                 self.logger.info("Using processor.process_document method")
@@ -217,6 +229,7 @@ class CitationService:
                     }
                 
                 citations = result['citations']
+                clusters = []
                 
             else:
                 # Fallback to document processing
@@ -236,18 +249,20 @@ class CitationService:
                     }
                 
                 citations = result['citations']
+                clusters = result.get('clusters', [])
+                statistics = result.get('statistics', {})
             
             # Format citations for frontend (always apply formatting for verification logic)
             if self.processor and hasattr(self.processor, 'process_text'):
                 # Unified processor returns dictionaries, but we still need to apply formatting logic
-                formatted_citations = self._format_citations_for_frontend(citations)
+                formatted_citations = self._format_citations_for_frontend(citations, clusters)
                 self.logger.info(f"[DEBUG] {len(formatted_citations)} citations after formatting.")
                 # Use statistics from unified processor if available
                 if not statistics:
                     statistics = self._calculate_statistics(formatted_citations)
             else:
                 # Format citations for other processors
-                formatted_citations = self._format_citations_for_frontend(citations)
+                formatted_citations = self._format_citations_for_frontend(citations, clusters)
                 self.logger.info(f"[DEBUG] {len(formatted_citations)} citations after formatting.")
                 # Calculate statistics
                 statistics = self._calculate_statistics(formatted_citations)
@@ -258,20 +273,18 @@ class CitationService:
                            f"{len(formatted_citations)} citations found")
             
             # Prepare metadata
-            metadata = {
-                'processing_type': 'immediate',
-                'text_length': len(text),
-                'processing_time': processing_time,
-                'processor_used': self._get_processor_name()
-            }
-            
-            # Add unified processor metadata if available
-            if self.processor and hasattr(self.processor, 'process_text') and hasattr(citation_results, 'metadata'):
-                metadata.update(citation_results.metadata)
+            if 'metadata' not in locals() or not metadata:
+                metadata = {
+                    'processing_type': 'immediate',
+                    'text_length': len(text),
+                    'processing_time': processing_time,
+                    'processor_used': self._get_processor_name()
+                }
             
             return {
                 'status': 'completed',
                 'citations': formatted_citations,
+                'clusters': clusters,  # Include clusters in response
                 'results': formatted_citations,  # For backward compatibility with unified processor
                 'statistics': statistics,
                 'summary': statistics,  # For backward compatibility
@@ -290,7 +303,7 @@ class CitationService:
         Process a citation task asynchronously.
         This is the main worker function extracted from your API.
         """
-        self.logger.info(f"Starting citation task {task_id} (type: {task_type})")
+        self.logger.info(f"[DEBUG process_citation_task] Starting citation task {task_id} (type: {task_type})")
         start_time = time.time()
         
         try:
@@ -298,17 +311,30 @@ class CitationService:
             metadata = {}
             
             # Extract text based on task type
-            if task_type == 'file':
-                text, metadata = self._process_file_task(task_data)
-            elif task_type == 'text':
+            self.logger.info(f"[DEBUG process_citation_task] Processing task type: {task_type}")
+            if task_type == 'text':
+                self.logger.info(f"[DEBUG process_citation_task] Processing text input")
                 text = task_data.get('text', '')
-                metadata = {'text_length': len(text)}
+                metadata = {
+                    'text_length': len(text),
+                    'source_type': task_data.get('source_type', 'text'),
+                    'filename': task_data.get('filename', 'unknown'),
+                    'file_ext': task_data.get('file_ext', '')
+                }
+                self.logger.info(f"[DEBUG process_citation_task] Text input length: {len(text)}")
+            elif task_type == 'file':
+                self.logger.info(f"[DEBUG process_citation_task] Processing file input")
+                text, metadata = self._process_file_task(task_data)
+                self.logger.info(f"[DEBUG process_citation_task] File processing completed. Text length: {len(text) if text else 0}")
             elif task_type == 'url':
+                self.logger.info(f"[DEBUG process_citation_task] Calling _process_url_task")
                 text, metadata = self._process_url_task(task_data)
+                self.logger.info(f"[DEBUG process_citation_task] URL processing completed. Text length: {len(text) if text else 0}")
             else:
                 raise ValueError(f"Unknown task type: {task_type}")
             
             if not text or not text.strip():
+                self.logger.warning(f"[DEBUG process_citation_task] No text content extracted for task {task_id}")
                 return {
                     'status': 'failed',
                     'error': 'No text content extracted',
@@ -316,6 +342,7 @@ class CitationService:
                     'case_names': []
                 }
             
+            self.logger.info(f"[DEBUG process_citation_task] Starting text processing in chunks for task {task_id}")
             # Process text in chunks for large documents
             result = self._process_text_in_chunks(text, task_id)
             
@@ -328,8 +355,9 @@ class CitationService:
                 'processor_used': self._get_processor_name()
             }
             
-            self.logger.info(f"Task {task_id} completed successfully: "
-                           f"{len(result.get('citations', []))} citations found")
+            citations_count = len(result.get('citations', []))
+            self.logger.info(f"[DEBUG process_citation_task] Task {task_id} completed successfully: {citations_count} citations found")
+            self.logger.info(f"[DEBUG process_citation_task] Returning result for task {task_id}")
             
             return result
             
@@ -343,9 +371,8 @@ class CitationService:
             }
         
         finally:
-            # Clean up uploaded files
-            if task_type == 'file' and task_data.get('file_path'):
-                self._cleanup_file(task_data['file_path'])
+            # No file cleanup needed since PDF extraction happens in API endpoint
+            pass
     
     def _process_file_task(self, task_data: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
         """Process file upload task."""
@@ -353,55 +380,79 @@ class CitationService:
         filename = task_data.get('filename', 'unknown')
         file_ext = task_data.get('file_ext', '')
         
-        self.logger.info(f"Processing file: {filename}")
+        self.logger.info(f"[DEBUG _process_file_task] Starting file processing for: {filename}")
+        self.logger.info(f"[DEBUG _process_file_task] File path: {file_path}")
+        self.logger.info(f"[DEBUG _process_file_task] File exists: {os.path.exists(file_path) if file_path else False}")
         
         if not file_path or not os.path.exists(file_path):
+            self.logger.error(f"[DEBUG _process_file_task] File not found: {file_path}")
             raise FileNotFoundError(f"File not found: {file_path}")
         
-        # Extract text from file
-        if ENHANCED_PROCESSOR_AVAILABLE:
-            text = self.processor.extract_text_from_file(file_path)
-        else:
-            from src.file_utils import extract_text_from_file
-            text_result = extract_text_from_file(file_path, file_ext=file_ext)
-            if isinstance(text_result, tuple):
-                text, _ = text_result
+        try:
+            # Extract text from file using the unified document processor only
+            self.logger.info(f"[DEBUG _process_file_task] Starting text extraction from: {file_path}")
+            
+            # Add timeout for text extraction to prevent hanging
+            import signal
+            import threading
+            import time
+            
+            text_result = None
+            extraction_error = None
+            
+            def extract_with_timeout():
+                nonlocal text_result, extraction_error
+                try:
+                    # Use the faster pdf_handler for PDF files
+                    file_ext = os.path.splitext(file_path)[1].lower()
+                    if file_ext == '.pdf' and PDF_HANDLER_AVAILABLE:
+                        self.logger.info(f"[DEBUG _process_file_task] Using fast PDF handler for: {file_path}")
+                        text_result = extract_text_from_pdf(file_path, timeout=25)
+                    else:
+                        # Fallback to document_processing_unified for non-PDF files
+                        from src.document_processing_unified import extract_text_from_file
+                        text_result = extract_text_from_file(file_path)
+                except Exception as e:
+                    extraction_error = e
+            
+            # Run extraction in a thread with timeout
+            extraction_thread = threading.Thread(target=extract_with_timeout)
+            extraction_thread.daemon = True
+            extraction_thread.start()
+            
+            # Wait for extraction to complete with timeout (30 seconds - pdf_handler has its own 25s timeout)
+            extraction_thread.join(timeout=30)
+            
+            if extraction_thread.is_alive():
+                self.logger.error(f"[DEBUG _process_file_task] Text extraction timed out after 30 seconds")
+                raise TimeoutError("Text extraction timed out after 30 seconds")
+            
+            if extraction_error:
+                raise extraction_error
+            
+            self.logger.info(f"[DEBUG _process_file_task] Text extraction completed. Length: {len(text_result)}")
+            self.logger.info(f"[DEBUG _process_file_task] Text sample (first 500 chars): {text_result[:500]}")
+            
+            if not text_result or not text_result.strip():
+                self.logger.warning(f"[DEBUG _process_file_task] Extracted text is empty or whitespace only")
             else:
-                text = text_result
-        
-        metadata = {
-            'filename': filename,
-            'file_type': file_ext,
-            'file_size': os.path.getsize(file_path),
-            'text_length': len(text)
-        }
-        
-        return text, metadata
-    
+                self.logger.info(f"[DEBUG _process_file_task] Text extraction successful, returning text")
+            
+            return text_result, {}
+            
+        except Exception as e:
+            self.logger.error(f"[DEBUG _process_file_task] Error during text extraction: {e}", exc_info=True)
+            raise
+
     def _process_url_task(self, task_data: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
         """Process URL task."""
         url = task_data.get('url')
-        
         self.logger.info(f"Processing URL: {url}")
-        
         if not url:
             raise ValueError("No URL provided")
-        
-        # Extract text from URL
-        if ENHANCED_PROCESSOR_AVAILABLE:
-            text = self.processor.extract_text_from_url(url)
-        else:
-            from src.enhanced_validator_production import extract_text_from_url
-            url_result = extract_text_from_url(url)
-            text = url_result.get('text', '')
-        
-        metadata = {
-            'url': url,
-            'domain': url.split('/')[2] if '/' in url else url,
-            'text_length': len(text)
-        }
-        
-        return text, metadata
+        # Extract text from URL using the unified document processor only
+        text = extract_text_from_url(url)
+        return text, {}
     
     def _process_text_in_chunks(self, text: str, task_id: str = None) -> Dict[str, Any]:
         """
@@ -418,9 +469,9 @@ class CitationService:
         
         for idx, chunk in enumerate(chunks):
             try:
-                # Process chunk
+                # Process chunk - use sync processing for production stability
                 if self.processor and hasattr(self.processor, 'process_text'):
-                    # Use unified processor V2
+                    # Use unified processor V2 sync method for chunks
                     chunk_result = self.processor.process_text(chunk)
                     
                     # Convert CitationResult objects to dictionaries
@@ -439,46 +490,48 @@ class CitationService:
                             # It's a CitationResult object
                             citation_dict = {
                                 'citation': citation_result.citation,
-                                'extracted_case_name': citation_result.extracted_case_name,
-                                'extracted_date': citation_result.extracted_date,
-                                'case_name': citation_result.canonical_name,  # Vue frontend expects case_name for canonical
+                                'extracted_case_name': citation_result.extracted_case_name or 'N/A',
+                                'extracted_date': citation_result.extracted_date or 'N/A',
+                                'canonical_name': citation_result.canonical_name or 'N/A',
                                 'confidence': citation_result.confidence,
                                 'source': citation_result.source,
                                 'context': citation_result.context,
-                                'canonical_name': citation_result.canonical_name,
-                                'canonical_date': citation_result.canonical_date,
                                 'verified': citation_result.verified,
-                                'url': citation_result.url,
-                                'court': citation_result.court,
-                                'method': citation_result.method,
-                                'parallel_citations': citation_result.parallel_citations
+                                'url': getattr(citation_result, 'url', ''),
+                                'parallel_citations': getattr(citation_result, 'parallel_citations', []),
+                                'court': getattr(citation_result, 'court', 'N/A'),
+                                'canonical_date': getattr(citation_result, 'canonical_date', 'N/A'),
+                                'metadata': getattr(citation_result, 'metadata', {})
                             }
                         else:
                             # It's already a dictionary
                             citation_dict = {
                                 'citation': citation_result.get('citation', ''),
-                                'extracted_case_name': citation_result.get('extracted_case_name', citation_result.get('case_name', 'N/A')),
+                                'extracted_case_name': citation_result.get('extracted_case_name', 'N/A'),
                                 'extracted_date': citation_result.get('extracted_date', 'N/A'),
+                                'canonical_name': citation_result.get('canonical_name', 'N/A'),
                                 'confidence': citation_result.get('confidence', 0.0),
                                 'source': citation_result.get('source', 'Unknown'),
                                 'context': citation_result.get('context', ''),
-                                'canonical_name': citation_result.get('canonical_name', 'N/A'),
-                                'canonical_date': citation_result.get('canonical_date', 'N/A'),
                                 'verified': citation_result.get('verified', False),
-                                'case_name': citation_result.get('case_name', 'N/A'),
-                                'court': citation_result.get('court', 'N/A'),
                                 'url': citation_result.get('url', ''),
-                                'method': citation_result.get('method', ''),
-                                'parallel_citations': citation_result.get('parallel_citations', [])
+                                'parallel_citations': citation_result.get('parallel_citations', []),
+                                'court': citation_result.get('court', 'N/A'),
+                                'canonical_date': citation_result.get('canonical_date', 'N/A'),
+                                'metadata': citation_result.get('metadata', {})
                             }
                         
                         chunk_citations.append(citation_dict)
+                        
+                        # Extract case names
+                        case_name = citation_dict.get('canonical_name') or citation_dict.get('extracted_case_name')
+                        if case_name and case_name != 'N/A':
+                            all_case_names.add(case_name)
                     
                     all_citations.extend(chunk_citations)
-                    # Extract case names from the results
-                    for citation in chunk_citations:
-                        if citation.get('extracted_case_name') and citation['extracted_case_name'] != 'N/A':
-                            all_case_names.add(citation['extracted_case_name'])
+                    self.logger.info(f"[DEBUG] Citations found in chunk {idx+1}: {len(chunk_citations)}")
+                    if chunk_citations:
+                        self.logger.info(f"[DEBUG] First 3 citations in chunk {idx+1}: {[c['citation'] for c in chunk_citations[:3]]}")
                 
                 elif self.processor and hasattr(self.processor, 'process_document'):
                     chunk_result = self.processor.process_document(
@@ -510,57 +563,159 @@ class CitationService:
         
         # Deduplicate citations
         deduplicated_citations = self._deduplicate_citations(all_citations)
-        formatted_citations = self._format_citations_for_frontend(deduplicated_citations)
+        
+        # Apply clustering to all citations after chunk processing
+        all_clusters = []
+        if self.processor and hasattr(self.processor, 'group_citations_into_clusters'):
+            try:
+                # Convert deduplicated citations to proper CitationResult objects for clustering
+                citation_objects = []
+                for citation_dict in deduplicated_citations:
+                    # Create a proper CitationResult object with all required attributes
+                    class CitationResultObject:
+                        def __init__(self, data):
+                            self.citation = data.get('citation', '')
+                            self.extracted_case_name = data.get('extracted_case_name', 'N/A')
+                            self.extracted_date = data.get('extracted_date', 'N/A')
+                            self.canonical_name = data.get('canonical_name', 'N/A')
+                            self.canonical_date = data.get('canonical_date', 'N/A')
+                            self.verified = data.get('verified', False)
+                            self.url = data.get('url', '')
+                            self.court = data.get('court', 'N/A')
+                            self.confidence = data.get('confidence', 0.0)
+                            self.method = data.get('method', '')
+                            self.pattern = data.get('pattern', '')
+                            self.context = data.get('context', '')
+                            self.start_index = data.get('start_index', None)
+                            self.end_index = data.get('end_index', None)
+                            self.is_parallel = data.get('is_parallel', False)
+                            self.is_cluster = data.get('is_cluster', False)
+                            self.parallel_citations = data.get('parallel_citations', [])
+                            self.cluster_members = data.get('cluster_members', [])
+                            self.pinpoint_pages = data.get('pinpoint_pages', [])
+                            self.docket_numbers = data.get('docket_numbers', [])
+                            self.case_history = data.get('case_history', [])
+                            self.publication_status = data.get('publication_status', '')
+                            self.source = data.get('source', 'Unknown')
+                            self.error = data.get('error', '')
+                            # Preserve the original metadata from the processor (including cluster info)
+                            self.metadata = data.get('metadata', {})
+                    
+                    citation_objects.append(CitationResultObject(citation_dict))
+                
+                # Apply clustering to all citations
+                # Pass the original text if available for better clustering
+                all_clusters = self.processor.group_citations_into_clusters(citation_objects, original_text=text)
+                self.logger.info(f"Applied clustering to {len(deduplicated_citations)} citations, created {len(all_clusters)} clusters")
+                
+            except Exception as e:
+                self.logger.warning(f"Error applying clustering to all citations: {e}")
+                all_clusters = []
+        
+        # Format citations for frontend with cluster metadata
+        try:
+            print(f"[DEBUG] About to call _format_citations_for_frontend with {len(deduplicated_citations)} citations and {len(all_clusters)} clusters")
+            formatted_citations = self._format_citations_for_frontend(deduplicated_citations, all_clusters)
+            print(f"[DEBUG] _format_citations_for_frontend returned {len(formatted_citations)} formatted citations")
+        except Exception as e:
+            print(f"[DEBUG] Error in _format_citations_for_frontend: {e}")
+            import traceback
+            traceback.print_exc()
+            # Fallback: return citations without formatting
+            formatted_citations = deduplicated_citations
+        
+        # Calculate statistics
+        statistics = self._calculate_statistics(formatted_citations)
         
         return {
             'status': 'success',
             'citations': formatted_citations,
+            'clusters': all_clusters,  # Include clusters in response
             'case_names': list(all_case_names),
-            'statistics': self._calculate_statistics(formatted_citations),
-            'summary': self._calculate_statistics(formatted_citations),
-            'extraction_metadata': {
-                'text_length': len(text),
-                'total_chunks': total_chunks,
-                'total_citations_found': len(all_citations),
-                'unique_citations': len(deduplicated_citations)
-            }
+            'statistics': statistics,
+            'summary': statistics  # For backward compatibility
         }
     
-    def _format_citations_for_frontend(self, citations: List[Dict]) -> List[Dict]:
+    def _format_citations_for_frontend(self, citations: List[Union[CitationResultType, Dict[str, Any]]], clusters: List[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """
         Format citations for frontend consumption.
-        Ensures consistent structure regardless of processor used.
         Always includes extracted_case_name, extracted_date, canonical_name, and canonical_date.
+        Adds cluster metadata to each citation if clusters are provided.
         """
-        formatted = []
+        self.logger.info(f"[DEBUG] _format_citations_for_frontend called with {len(citations)} citations and {len(clusters) if clusters else 0} clusters")
+        formatted_citations = []
         
+        # Create a mapping from normalized citation text to cluster info
+        citation_to_cluster = {}
+        cluster_norm_keys = []
+        if clusters:
+            for cluster in clusters:
+                cluster_id = cluster.get('cluster_id', 'unknown')
+                cluster_size = len(cluster.get('citations', []))
+                cluster_members = [c.get('citation', '') for c in cluster.get('citations', [])]
+                cluster_metadata = {
+                    'is_in_cluster': True,
+                    'cluster_id': cluster_id,
+                    'cluster_size': cluster_size,
+                    'cluster_members': cluster_members,
+                    'canonical_name': cluster.get('canonical_name'),
+                    'canonical_date': cluster.get('canonical_date'),
+                    'extracted_case_name': cluster.get('extracted_case_name'),
+                    'extracted_date': cluster.get('extracted_date'),
+                    'url': cluster.get('url'),
+                    'source': cluster.get('source')
+                }
+                for citation in cluster.get('citations', []):
+                    citation_text = citation.get('citation', '')
+                    if citation_text:
+                        normalized_text = self._normalize_citation_for_matching(citation_text)
+                        citation_to_cluster[normalized_text] = cluster_metadata
+                        cluster_norm_keys.append(normalized_text)
+        self.logger.info(f"[DEBUG] Cluster normalized keys: {cluster_norm_keys}")
+        main_norm_keys = []
         for citation in citations:
-            # Handle both CitationResult objects and dictionaries
-            if hasattr(citation, '__dict__'):
-                # It's a CitationResult object
+            if hasattr(citation, 'citation'):
+                citation_text = citation.citation
+            else:
+                citation_text = citation.get('citation', '')
+            normalized_citation_text = self._normalize_citation_for_matching(citation_text) if citation_text else ''
+            main_norm_keys.append(normalized_citation_text)
+        self.logger.info(f"[DEBUG] Main citation normalized keys: {main_norm_keys}")
+        for citation in citations:
+            if hasattr(citation, 'citation'):
+                citation_text = citation.citation
+            else:
+                citation_text = citation.get('citation', '')
+            normalized_citation_text = self._normalize_citation_for_matching(citation_text) if citation_text else ''
+            # Try exact match by normalized text
+            cluster_metadata = citation_to_cluster.get(normalized_citation_text)
+            # Fallback to partial/robust match if needed
+            if not cluster_metadata:
+                for cluster_text, metadata in citation_to_cluster.items():
+                    if (normalized_citation_text in cluster_text or 
+                        cluster_text in normalized_citation_text):
+                        cluster_metadata = metadata
+                        break
+            # Build citation_dict as before
+            if hasattr(citation, 'citation'):
                 citation_dict = {
-                    'citation': getattr(citation, 'citation', ''),
-                    'verified': getattr(citation, 'verified', False),
-                    'case_name': getattr(citation, 'canonical_name', 'N/A'),  # Vue frontend expects case_name for canonical
+                    'citation': citation.citation,
+                    'verified': citation.verified,
                     'extracted_case_name': getattr(citation, 'extracted_case_name', 'N/A'),
                     'canonical_name': getattr(citation, 'canonical_name', 'N/A'),
                     'extracted_date': getattr(citation, 'extracted_date', 'N/A'),
                     'canonical_date': getattr(citation, 'canonical_date', 'N/A'),
                     'court': getattr(citation, 'court', 'N/A'),
-                    'confidence': getattr(citation, 'confidence', 0.0),
-                    'source': getattr(citation, 'source', 'Unknown'),
+                    'confidence': citation.confidence,
+                    'source': citation.source,
                     'url': getattr(citation, 'url', ''),
                     'parallel_citations': getattr(citation, 'parallel_citations', []),
-                    'context': getattr(citation, 'context', ''),
-                    'method': getattr(citation, 'method', ''),
-                    'error': getattr(citation, 'error', '')
+                    'context': getattr(citation, 'context', '')
                 }
             else:
-                # It's already a dictionary
                 citation_dict = {
                     'citation': citation.get('citation', ''),
                     'verified': citation.get('verified', False),
-                    'case_name': citation.get('case_name', 'N/A'),
                     'extracted_case_name': citation.get('extracted_case_name', 'N/A'),
                     'canonical_name': citation.get('canonical_name', 'N/A'),
                     'extracted_date': citation.get('extracted_date', 'N/A'),
@@ -570,66 +725,44 @@ class CitationService:
                     'source': citation.get('source', 'Unknown'),
                     'url': citation.get('url', ''),
                     'parallel_citations': citation.get('parallel_citations', []),
-                    'context': citation.get('context', ''),
-                    'method': citation.get('method', ''),
-                    'error': citation.get('error', '')
+                    'context': citation.get('context', '')
                 }
-
             # Always ensure extracted_case_name and extracted_date are present and never blank
             if not citation_dict['extracted_case_name']:
                 citation_dict['extracted_case_name'] = 'N/A'
             if not citation_dict['extracted_date']:
                 citation_dict['extracted_date'] = 'N/A'
-            # Always ensure canonical_name and canonical_date are present
-            if not citation_dict['canonical_name']:
-                citation_dict['canonical_name'] = 'N/A'
-            if not citation_dict['canonical_date']:
-                citation_dict['canonical_date'] = 'N/A'
-
-            # Ensure boolean values are properly formatted
-            # A citation is considered verified if it has canonical data
-            has_canonical_data = (
-                citation_dict.get('canonical_name') and citation_dict.get('canonical_name') != 'N/A' or
-                citation_dict.get('canonical_date') and citation_dict.get('canonical_date') != 'N/A' or
-                citation_dict.get('url')
-            )
-            citation_dict['verified'] = 'true' if (citation_dict['verified'] or has_canonical_data) else 'false'
-            
-            # Update source field if canonical data is present but source is still "extracted_only"
-            if has_canonical_data and citation_dict.get('source') == 'extracted_only':
-                citation_dict['source'] = 'CourtListener'
-            
-            # Handle parallel citations formatting
-            if citation_dict['parallel_citations']:
-                citation_dict['parallels'] = []
-                for parallel in citation_dict['parallel_citations']:
-                    parallel_obj = {
-                        'citation': parallel if isinstance(parallel, str) else parallel.get('citation', ''),
-                        'verified': citation_dict['verified'],
-                        'true_by_parallel': False,
-                        'case_name': citation_dict['case_name'],
-                        'extracted_case_name': citation_dict['extracted_case_name'],
-                        'extracted_date': citation_dict['extracted_date']
-                    }
-                    citation_dict['parallels'].append(parallel_obj)
+            # Add cluster metadata if available
+            if cluster_metadata:
+                citation_dict['metadata'] = cluster_metadata
             else:
-                citation_dict['parallels'] = []
-            
-            # Add additional frontend-specific fields
-            citation_dict.update({
-                'valid': citation_dict['verified'],
-                'is_complex_citation': citation.get('is_complex_citation', False),
-                'is_parallel_citation': citation.get('is_parallel_citation', False),
-                'docket_number': citation.get('docket_number', 'N/A'),
-                'display_text': citation_dict['citation'],
-                'complex_features': {},
-                'parallel_info': {},
-                'metadata': {}
-            })
-            
-            formatted.append(citation_dict)
+                citation_dict['metadata'] = {
+                    'is_in_cluster': False,
+                    'cluster_id': None,
+                    'cluster_size': 0,
+                    'cluster_members': []
+                }
+            formatted_citations.append(citation_dict)
+        return formatted_citations
+    
+    def _normalize_citation_for_matching(self, citation_text: str) -> str:
+        """Normalize citation text for matching by removing common variations."""
+        if not citation_text:
+            return ""
         
-        return formatted
+        # Remove extra whitespace and newlines
+        normalized = ' '.join(citation_text.split())
+        
+        # Remove common variations in spacing
+        normalized = normalized.replace('  ', ' ')
+        
+        # Normalize common reporter abbreviations
+        normalized = normalized.replace('Wn.2d', 'Wn.2d')
+        normalized = normalized.replace('Wn. App.', 'Wn.App.')
+        normalized = normalized.replace('P.3d', 'P.3d')
+        normalized = normalized.replace('P.2d', 'P.2d')
+        
+        return normalized.strip()
     
     def _calculate_statistics(self, citations: List[Dict]) -> Dict[str, int]:
         """Calculate citation statistics."""
@@ -641,7 +774,7 @@ class CitationService:
         # Count unique case names
         unique_cases = set()
         for c in citations:
-            case_name = c.get('case_name') or c.get('canonical_name')
+            case_name = c.get('canonical_name') or c.get('extracted_case_name')
             if case_name and case_name != 'N/A':
                 unique_cases.add(case_name.lower().strip())
         

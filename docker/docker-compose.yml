@@ -35,6 +35,7 @@ services:
       - ../config.json:/app/config.json
       - ../src:/app/src
       - ../flask_session:/app/flask_session
+      - ../casestrainer-vue-new:/app/casestrainer-vue-new
 
   nginx:
     image: nginx:latest

@@ -42,4 +42,79 @@
 .docs-list a:hover {
   text-decoration: underline;
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .docs-page {
+    margin: 1rem auto;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+  
+  .docs-page h1 {
+    font-size: 1.75rem;
+  }
+  
+  .docs-page p {
+    font-size: 1rem;
+  }
+  
+  .docs-list li {
+    margin: 0.75rem 0;
+    font-size: 1rem;
+  }
+  
+  .docs-list a {
+    display: block;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+    transition: background-color 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .docs-list a:hover {
+    background: #e9ecef;
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .docs-page {
+    margin: 0.5rem auto;
+    padding: 1rem;
+  }
+  
+  .docs-page h1 {
+    font-size: 1.5rem;
+  }
+  
+  .docs-page p {
+    font-size: 0.95rem;
+  }
+  
+  .docs-list li {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+  }
+  
+  .docs-list a {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .docs-list a {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .docs-list a:hover {
+    background: #f8f9fa;
+  }
+}
 </style> 

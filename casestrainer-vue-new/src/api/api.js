@@ -28,6 +28,11 @@ api.interceptors.request.use(config => {
     config.timeout = 300000; // 5 minutes for URL analysis
     config.retryCount = 0;
     config.maxRetries = 3;
+  } else if (config.url === '/analyze' && config.data instanceof FormData) {
+    // Set longer timeout for file uploads (PDF processing can take time)
+    config.timeout = 600000; // 10 minutes for file uploads
+    config.retryCount = 0;
+    config.maxRetries = 1;
   } else {
     config.timeout = 120000; // 2 minutes for other endpoints
     config.retryCount = 0;
@@ -170,7 +175,7 @@ api.interceptors.response.use(
 
 // Add polling configuration
 const POLLING_INTERVAL = 2000; // 2 seconds
-const MAX_POLLING_TIME = 600000; // 10 minutes
+const MAX_POLLING_TIME = 1200000; // 20 minutes (increased for file processing)
 const MAX_RETRIES = 3;
 
 // Add request tracking
@@ -305,7 +310,14 @@ async function pollForResults(requestId, startTime = Date.now()) {
 // Update the analyze function to use the consolidated /analyze endpoint
 export const analyze = async (requestData) => {
     // Set appropriate timeout based on input type
-    const timeout = requestData.type === 'url' ? 300000 : 120000; // 5 minutes for URLs, 2 minutes for others
+    let timeout;
+    if (requestData.type === 'url') {
+        timeout = 300000; // 5 minutes for URLs
+    } else if (requestData instanceof FormData) {
+        timeout = 600000; // 10 minutes for file uploads (PDF processing)
+    } else {
+        timeout = 120000; // 2 minutes for text input
+    }
     
     try {
         // Log the analyze request

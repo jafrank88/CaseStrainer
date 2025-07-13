@@ -4,19 +4,25 @@
 CITATION_PATTERNS = {
     # Federal Reporter (e.g., 123 F. 456, 123 F.2d 456, 123 F.3d 456, 123 F.4th 456, 123 F.5th 456, 123 F.6th 456 (9th Cir. 2020))
     # Also handles variations like 2nd and 3rd (will be normalized to 2d/3d)
-    "federal_reporter": r"\b(\d{1,3})\s+F\.(?:\s*(\d*(?:st|nd|rd|th|d)))?\s+(\d+)\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    "federal_reporter": r"\b(\d{1,5})\s+F\.(?:\s*(\d*(?:st|nd|rd|th|d)))?\s+(\d{1,12})\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
     # U.S. Reports (e.g., 410 U.S. 113, 123 U.S. 456 (2020))
-    "us_reports": r"\b\d{1,3}\s+U\.?\s*S\.?\s*\d+\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    "us_reports": r"\b\d{1,5}\s+U\.?\s*S\.?\s*\d{1,12}\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
     # Supreme Court Reporter (e.g., 100 S. Ct. 1234, 100 S. Ct. 1234 (2020))
-    "supreme_court_reporter": r"\b\d{1,3}\s+S\.?\s*Ct\.?\s*\d+\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
-    # WestLaw (e.g., 2020 WL 1234567)
-    "westlaw": r"\b\d{4}\s+WL\s+\d+\b",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    "supreme_court_reporter": r"\b\d{1,5}\s+S\.?\s*Ct\.?\s*\d{1,12}\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
+    # WestLaw (e.g., 2020 WL 1234567, 2020 WL 123456789012)
+    # Updated to support up to 12 digits for Westlaw number
+    "westlaw": r"\b\d{4}\s+WL\s+\d{1,12}\b",
     # LEXIS (e.g., 2020 U.S. LEXIS 1234)
-    "lexis": r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d+\b",
+    # Updated to support up to 12 digits for LEXIS number
+    "lexis": r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d{1,12}\b",
     # Case citations with v. (e.g., Roe v. Wade, 410 U.S. 113 (1973))
     "case_citation": r"\b[A-Z][A-Za-z]+\s+v\.\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s*,\s*\d+\s+[A-Za-z\.\s]+\d+\b",
     # Washington State Reports (e.g., 104 Wn.2d 142, 27 Wn. App. 451)
-    "washington_reports": r"\b(\d{1,3})\s+Wn\.(?:\s*(\d*(?:d|nd|rd|th)))?(?:\s+App\.)?\s+(\d+)\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    "washington_reports": r"\b(\d{1,5})\s+Wn\.(?:\s*(\d*(?:d|nd|rd|th)))?(?:\s+App\.)?\s+(\d{1,12})\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
 }
 
 # Common legal citation formats that might appear in text
@@ -24,14 +30,18 @@ COMMON_CITATION_FORMATS = [
     # Standard case citation: Roe v. Wade, 410 U.S. 113 (1973)
     r"\b[A-Z][A-Za-z]+\s+v\.\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s*,\s*\d+\s+[A-Za-z\.\s]+\d+\b",
     # Short form with just volume and reporter: 410 U.S. 113
-    r"\b\d{1,3}\s+[A-Za-z\.\s]+\d+\b",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    r"\b\d{1,5}\s+[A-Za-z\.\s]+\d{1,12}\b",
     # With pin cite: 410 U.S. 113, 120
-    r"\b\d{1,3}\s+[A-Za-z\.\s]+\d+\s*,\s*\d+\b",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    r"\b\d{1,5}\s+[A-Za-z\.\s]+\d{1,12}\s*,\s*\d+\b",
     # With year: 410 U.S. 113 (1973)
-    r"\b\d{1,3}\s+[A-Za-z\.\s]+\d+\s*\(\d{4}\)",
+    # Updated to support up to 5 digits for volume and up to 12 digits for page
+    r"\b\d{1,5}\s+[A-Za-z\.\s]+\d{1,12}\s*\(\d{4}\)",
     # WestLaw and LEXIS
-    r"\b\d{4}\s+WL\s+\d+\b",
-    r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d+\b",
+    # Updated to support up to 12 digits for Westlaw and LEXIS numbers
+    r"\b\d{4}\s+WL\s+\d{1,12}\b",
+    r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d{1,12}\b",
 ]
 
 # Common legal reporters and their abbreviations
@@ -71,6 +81,7 @@ LEGAL_REPORTERS = {
     "Wn.": "Washington Reports",
     "Wn.2d": "Washington Reports, Second Series",
     "Wash. App.": "Washington Appellate Reports",
+    "WL": "Westlaw",
 }
 
 

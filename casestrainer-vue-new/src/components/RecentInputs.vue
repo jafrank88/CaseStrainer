@@ -47,10 +47,10 @@
           <div class="input-card-actions">
             <button 
               @click.stop="removeInput(index)"
-              class="btn btn-sm btn-outline-danger"
+              class="btn btn-sm btn-remove-purple"
               title="Remove from history"
             >
-              <i class="bi bi-x"></i>
+              <i class="bi bi-x"></i> Remove
             </button>
           </div>
         </div>
@@ -334,5 +334,24 @@ const clearAll = () => {
   .input-time {
     font-size: 0.65rem;
   }
+}
+
+/* Purple remove button style */
+.btn-remove-purple {
+  background: #a259e6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  transition: background 0.2s;
+}
+.btn-remove-purple:hover, .btn-remove-purple:focus {
+  background: #7c3aed;
+  color: #fff;
 }
 </style> 

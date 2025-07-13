@@ -326,31 +326,32 @@ class EnhancedRegexExtractor:
         # Enhanced primary patterns (from enhanced_citation_processor)
         self.primary_patterns = {
             # Washington patterns (robust to all variants)
-            'wn2d': r'\b(\d+)\s+Wn\.2d\s+(\d+)\b',
-            'wn2d_space': r'\b(\d+)\s+Wn\.\s*2d\s+(\d+)\b',
-            'wn_app': r'\b(\d+)\s+Wn\.App\.\s+(\d+)\b',
-            'wn_app_space': r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b',
-            'wash2d': r'\b(\d+)\s+Wash\.2d\s+(\d+)\b',
-            'wash2d_space': r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)\b',
-            'wash_app': r'\b(\d+)\s+Wash\.App\.\s+(\d+)\b',
-            'wash_app_space': r'\b(\d+)\s+Wash\.\s*App\.\s+(\d+)\b',
+            # Updated to support up to 5 digits for volume and up to 12 digits for page
+            'wn2d': r'\b(\d{1,5})\s+Wn\.2d\s+(\d{1,12})\b',
+            'wn2d_space': r'\b(\d{1,5})\s+Wn\.\s*2d\s+(\d{1,12})\b',
+            'wn_app': r'\b(\d{1,5})\s+Wn\.App\.\s+(\d{1,12})\b',
+            'wn_app_space': r'\b(\d{1,5})\s+Wn\.\s*App\.\s+(\d{1,12})\b',
+            'wash2d': r'\b(\d{1,5})\s+Wash\.2d\s+(\d{1,12})\b',
+            'wash2d_space': r'\b(\d{1,5})\s+Wash\.\s*2d\s+(\d{1,12})\b',
+            'wash_app': r'\b(\d{1,5})\s+Wash\.App\.\s+(\d{1,12})\b',
+            'wash_app_space': r'\b(\d{1,5})\s+Wash\.\s*App\.\s+(\d{1,12})\b',
             # Pacific Reporter patterns
-            'p3d': r'\b(\d+)\s+P\.3d\s+(\d+)\b',
-            'p2d': r'\b(\d+)\s+P\.2d\s+(\d+)\b',
+            'p3d': r'\b(\d{1,5})\s+P\.3d\s+(\d{1,12})\b',
+            'p2d': r'\b(\d{1,5})\s+P\.2d\s+(\d{1,12})\b',
             # Federal patterns
-            'us': r'\b(\d+)\s+U\.\s*S\.\s+(\d+)\b',
-            'f3d': r'\b(\d+)\s+F\.3d\s+(\d+)\b',
-            'f2d': r'\b(\d+)\s+F\.2d\s+(\d+)\b',
-            'f_supp': r'\b(\d+)\s+F\.\s*Supp\.\s+(\d+)\b',
-            'f_supp2d': r'\b(\d+)\s+F\.\s*Supp\.\s*2d\s+(\d+)\b',
-            'f_supp3d': r'\b(\d+)\s+F\.\s*Supp\.\s*3d\s+(\d+)\b',
+            'us': r'\b(\d{1,5})\s+U\.\s*S\.\s+(\d{1,12})\b',
+            'f3d': r'\b(\d{1,5})\s+F\.3d\s+(\d{1,12})\b',
+            'f2d': r'\b(\d{1,5})\s+F\.2d\s+(\d{1,12})\b',
+            'f_supp': r'\b(\d{1,5})\s+F\.\s*Supp\.\s+(\d{1,12})\b',
+            'f_supp2d': r'\b(\d{1,5})\s+F\.\s*Supp\.\s*2d\s+(\d{1,12})\b',
+            'f_supp3d': r'\b(\d{1,5})\s+F\.\s*Supp\.\s*3d\s+(\d{1,12})\b',
             # Supreme Court patterns
-            's_ct': r'\b(\d+)\s+S\.\s*Ct\.\s+(\d+)\b',
-            'l_ed': r'\b(\d+)\s+L\.\s*Ed\.\s+(\d+)\b',
-            'l_ed2d': r'\b(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+)\b',
+            's_ct': r'\b(\d{1,5})\s+S\.\s*Ct\.\s+(\d{1,12})\b',
+            'l_ed': r'\b(\d{1,5})\s+L\.\s*Ed\.\s+(\d{1,12})\b',
+            'l_ed2d': r'\b(\d{1,5})\s+L\.\s*Ed\.\s*2d\s+(\d{1,12})\b',
             # Atlantic Reporter patterns
-            'a2d': r'\b(\d+)\s+A\.2d\s+(\d+)\b',
-            'a3d': r'\b(\d+)\s+A\.3d\s+(\d+)\b',
+            'a2d': r'\b(\d{1,5})\s+A\.2d\s+(\d{1,12})\b',
+            'a3d': r'\b(\d{1,5})\s+A\.3d\s+(\d{1,12})\b',
             # Southern Reporter patterns
             'so2d': r'\b(\d+)\s+So\.\s*2d\s+(\d+)\b',
             'so3d': r'\b(\d+)\s+So\.\s*3d\s+(\d+)\b',
@@ -735,62 +736,63 @@ class ComplexCitationDetector:
         # Enhanced primary citation patterns with comprehensive coverage
         self.primary_patterns = {
             # Washington jurisdiction patterns
-            'wn_app': r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b',
-            'wn2d': r'\b(\d+)\s+Wn\.\s*2d\s+(\d+)\b',
-            'wn2d_no_space': r'\b(\d+)\s+Wn\.2d\s+(\d+)\b',
-            'wn3d': r'\b(\d+)\s+Wn\.3d\s+(\d+)\b',
-            'wn_generic': r'\b(\d+)\s+Wn\.\s+(\d+)\b',
-            'wash': r'\b(\d+)\s+Wash\.\s+(\d+)\b',
-            'wash_app': r'\b(\d+)\s+Wash\.\s*App\.\s+(\d+)\b',
-            'wash2d': r'\b(\d+)\s+Wash\.2d\s+(\d+)\b',
-            'wash2d_space': r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)\b',
+            # Updated to support up to 5 digits for volume and up to 12 digits for page
+            'wn_app': r'\b(\d{1,5})\s+Wn\.\s*App\.\s+(\d{1,12})\b',
+            'wn2d': r'\b(\d{1,5})\s+Wn\.\s*2d\s+(\d{1,12})\b',
+            'wn2d_no_space': r'\b(\d{1,5})\s+Wn\.2d\s+(\d{1,12})\b',
+            'wn3d': r'\b(\d{1,5})\s+Wn\.3d\s+(\d{1,12})\b',
+            'wn_generic': r'\b(\d{1,5})\s+Wn\.\s+(\d{1,12})\b',
+            'wash': r'\b(\d{1,5})\s+Wash\.\s+(\d{1,12})\b',
+            'wash_app': r'\b(\d{1,5})\s+Wash\.\s*App\.\s+(\d{1,12})\b',
+            'wash2d': r'\b(\d{1,5})\s+Wash\.2d\s+(\d{1,12})\b',
+            'wash2d_space': r'\b(\d{1,5})\s+Wash\.\s*2d\s+(\d{1,12})\b',
             
             # Pacific Reporter patterns
-            'p3d': r'\b(\d+)\s+P\.3d\s+(\d+)\b',
-            'p2d': r'\b(\d+)\s+P\.2d\s+(\d+)\b',
-            'p_generic': r'\b(\d+)\s+P\.\s+(\d+)\b',
+            'p3d': r'\b(\d{1,5})\s+P\.3d\s+(\d{1,12})\b',
+            'p2d': r'\b(\d{1,5})\s+P\.2d\s+(\d{1,12})\b',
+            'p_generic': r'\b(\d{1,5})\s+P\.\s+(\d{1,12})\b',
             
             # Federal patterns
-            'us': r'\b(\d+)\s+U\.\s*S\.\s+(\d+)\b',
-            'us_alt': r'\b(\d+)\s+United\s+States\s+(\d+)\b',
-            'f3d': r'\b(\d+)\s+F\.3d\s+(\d+)\b',
-            'f2d': r'\b(\d+)\s+F\.2d\s+(\d+)\b',
-            'f4th': r'\b(\d+)\s+F\.4th\s+(\d+)\b',
-            'f_supp': r'\b(\d+)\s+F\.\s*Supp\.\s+(\d+)\b',
-            'f_supp2d': r'\b(\d+)\s+F\.\s*Supp\.\s*2d\s+(\d+)\b',
-            'f_supp3d': r'\b(\d+)\s+F\.\s*Supp\.\s*3d\s+(\d+)\b',
+            'us': r'\b(\d{1,5})\s+U\.\s*S\.\s+(\d{1,12})\b',
+            'us_alt': r'\b(\d{1,5})\s+United\s+States\s+(\d{1,12})\b',
+            'f3d': r'\b(\d{1,5})\s+F\.3d\s+(\d{1,12})\b',
+            'f2d': r'\b(\d{1,5})\s+F\.2d\s+(\d{1,12})\b',
+            'f4th': r'\b(\d{1,5})\s+F\.4th\s+(\d{1,12})\b',
+            'f_supp': r'\b(\d{1,5})\s+F\.\s*Supp\.\s+(\d{1,12})\b',
+            'f_supp2d': r'\b(\d{1,5})\s+F\.\s*Supp\.\s*2d\s+(\d{1,12})\b',
+            'f_supp3d': r'\b(\d{1,5})\s+F\.\s*Supp\.\s*3d\s+(\d{1,12})\b',
             
             # Supreme Court patterns
-            'sct': r'\b(\d+)\s+S\.\s*Ct\.\s+(\d+)\b',
-            'sct_alt': r'\b(\d+)\s+Sup\.\s*Ct\.\s+(\d+)\b',
+            'sct': r'\b(\d{1,5})\s+S\.\s*Ct\.\s+(\d{1,12})\b',
+            'sct_alt': r'\b(\d{1,5})\s+Sup\.\s*Ct\.\s+(\d{1,12})\b',
             
             # Lawyers' Edition
-            'led': r'\b(\d+)\s+L\.\s*Ed\.\s+(\d+)\b',
-            'led2d': r'\b(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+)\b',
+            'led': r'\b(\d{1,5})\s+L\.\s*Ed\.\s+(\d{1,12})\b',
+            'led2d': r'\b(\d{1,5})\s+L\.\s*Ed\.\s*2d\s+(\d{1,12})\b',
             
             # Regional Reporters
-            'a2d': r'\b(\d+)\s+A\.2d\s+(\d+)\b',
-            'a3d': r'\b(\d+)\s+A\.3d\s+(\d+)\b',
-            'ne2d': r'\b(\d+)\s+N\.E\.2d\s+(\d+)\b',
-            'ne3d': r'\b(\d+)\s+N\.E\.3d\s+(\d+)\b',
-            'nw2d': r'\b(\d+)\s+N\.W\.2d\s+(\d+)\b',
-            'nw3d': r'\b(\d+)\s+N\.W\.3d\s+(\d+)\b',
-            'se2d': r'\b(\d+)\s+S\.E\.2d\s+(\d+)\b',
-            'se3d': r'\b(\d+)\s+S\.E\.3d\s+(\d+)\b',
-            'sw2d': r'\b(\d+)\s+S\.W\.2d\s+(\d+)\b',
-            'sw3d': r'\b(\d+)\s+S\.W\.3d\s+(\d+)\b',
+            'a2d': r'\b(\d{1,5})\s+A\.2d\s+(\d{1,12})\b',
+            'a3d': r'\b(\d{1,5})\s+A\.3d\s+(\d{1,12})\b',
+            'ne2d': r'\b(\d{1,5})\s+N\.E\.2d\s+(\d{1,12})\b',
+            'ne3d': r'\b(\d{1,5})\s+N\.E\.3d\s+(\d{1,12})\b',
+            'nw2d': r'\b(\d{1,5})\s+N\.W\.2d\s+(\d{1,12})\b',
+            'nw3d': r'\b(\d{1,5})\s+N\.W\.3d\s+(\d{1,12})\b',
+            'se2d': r'\b(\d{1,5})\s+S\.E\.2d\s+(\d{1,12})\b',
+            'se3d': r'\b(\d{1,5})\s+S\.E\.3d\s+(\d{1,12})\b',
+            'sw2d': r'\b(\d{1,5})\s+S\.W\.2d\s+(\d{1,12})\b',
+            'sw3d': r'\b(\d{1,5})\s+S\.W\.3d\s+(\d{1,12})\b',
             
             # California Reports
-            'cal2d': r'\b(\d+)\s+Cal\.2d\s+(\d+)\b',
-            'cal3d': r'\b(\d+)\s+Cal\.3d\s+(\d+)\b',
-            'cal4th': r'\b(\d+)\s+Cal\.4th\s+(\d+)\b',
+            'cal2d': r'\b(\d{1,5})\s+Cal\.2d\s+(\d{1,12})\b',
+            'cal3d': r'\b(\d{1,5})\s+Cal\.3d\s+(\d{1,12})\b',
+            'cal4th': r'\b(\d{1,5})\s+Cal\.4th\s+(\d{1,12})\b',
             
             # Westlaw and LEXIS
-            'westlaw': r'\b(\d{4})\s+WL\s+(\d+)\b',
-            'lexis': r'\b(\d{4})\s+[A-Za-z\.\s]+LEXIS\s+(\d+)\b',
+            'westlaw': r'\b(\d{4})\s+WL\s+(\d{1,12})\b',
+            'lexis': r'\b(\d{4})\s+[A-Za-z\.\s]+LEXIS\s+(\d{1,12})\b',
             
             # State Reports (generic pattern)
-            'state': r'\b(\d+)\s+[A-Z][a-z]+\.\s+(\d+)\b',
+            'state': r'\b(\d{1,5})\s+[A-Z][a-z]+\.\s+(\d{1,12})\b',
         }
         
         # Compile all patterns

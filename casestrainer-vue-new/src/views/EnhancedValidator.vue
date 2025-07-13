@@ -124,10 +124,10 @@
         </div>
       </div>
 
-      <!-- Recent Inputs Sidebar -->
-      <div class="recent-inputs-sidebar-container">
+      <!-- Recent Inputs Sidebar - Temporarily Hidden -->
+      <!-- <div class="recent-inputs-sidebar-container">
         <RecentInputs @load-input="loadRecentInput" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -146,7 +146,7 @@ import CitationResults from '@/components/CitationResults.vue';
 import UnifiedInput from '@/components/UnifiedInput.vue';
 import Toast from '@/components/Toast.vue';
 import SkeletonLoader from '@/components/SkeletonLoader.vue';
-import RecentInputs from '@/components/RecentInputs.vue';
+// import RecentInputs from '@/components/RecentInputs.vue'; // Temporarily hidden
 
 export default {
   name: 'EnhancedValidator',
@@ -154,8 +154,8 @@ export default {
     CitationResults,
     UnifiedInput,
     Toast,
-    SkeletonLoader,
-    RecentInputs
+    SkeletonLoader
+    // RecentInputs // Temporarily hidden
   },
   setup() {
     // ===== REACTIVE STATE =====
@@ -277,6 +277,37 @@ export default {
       if (value >= 0.3) return 'bg-warning';
       return 'bg-danger';
     }
+
+    // Function to create clusters from citations
+    function createClustersFromCitations(citations) {
+      const clusters = new Map();
+      
+      citations.forEach(citation => {
+        // Use canonical citation as the primary key for clustering
+        const primaryCitation = citation.canonical_citation || citation.citation || citation.primary_citation;
+        
+        if (!clusters.has(primaryCitation)) {
+          clusters.set(primaryCitation, {
+            cluster_id: `cluster_${primaryCitation.replace(/[^a-zA-Z0-9]/g, '_')}`,
+            canonical_name: citation.canonical_name || citation.case_name || 'N/A',
+            canonical_date: citation.canonical_date || null,
+            extracted_case_name: citation.extracted_case_name || 'N/A',
+            extracted_date: citation.extracted_date || null,
+            url: citation.url || null,
+            citations: []
+          });
+        }
+        
+        const cluster = clusters.get(primaryCitation);
+        cluster.citations.push(citation);
+      });
+      
+      // Convert Map to array and add size property
+      return Array.from(clusters.values()).map(cluster => ({
+        ...cluster,
+        size: cluster.citations.length
+      }));
+    }
     
     // ===== CORE FUNCTIONS =====
     // Clear all results and reset form
@@ -302,6 +333,7 @@ export default {
           // Create the proper structure expected by CitationResults component
           results.value = {
             citations: normalizeCitations(citationResults),
+            clusters: data.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
             metadata: data.metadata || {},
             total_citations: citationResults.length,
             verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
@@ -395,6 +427,7 @@ export default {
           // Update results object with progress data for CitationResults component
           results.value = {
             citations: [],
+            clusters: [], // Clear clusters when progress updates
             metadata: data.metadata || {},
             progress: data.progress || 0,
             eta_seconds: data.eta_seconds || null,
@@ -418,7 +451,7 @@ export default {
         console.error('Error polling task status:', err);
         error.value = 'Failed to check processing status';
         hasActiveRequest.value = false;
-        setProcessingError('Failed to check processing status');
+        setProcessingError(err.message || 'Failed to check processing status');
         
         // Clear polling on error
         if (pollInterval.value) {
@@ -461,6 +494,7 @@ export default {
           const citationResults = response?.citations || [];
           results.value = {
             citations: normalizeCitations(citationResults),
+            clusters: response?.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
             metadata: response?.metadata || {},
             total_citations: citationResults.length,
             verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
@@ -540,6 +574,7 @@ export default {
         results.value = {
           ...responseData,
           citations: normalizeCitations(rawCitations),
+          clusters: responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
           timestamp: new Date().toISOString()
         };
         
@@ -728,6 +763,7 @@ export default {
           results.value = {
             ...responseData,
             citations: normalizeCitations(rawCitations),
+            clusters: responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
             total_citations: rawCitations.length,
             verified_count: rawCitations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
             unverified_count: rawCitations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length

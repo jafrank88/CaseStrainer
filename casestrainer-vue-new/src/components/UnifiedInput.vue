@@ -168,8 +168,8 @@
       </div>
     </div>
 
-    <!-- Recent Inputs Section -->
-    <RecentInputs @load-input="loadRecentInput" />
+    <!-- Recent Inputs Section - Temporarily Hidden -->
+    <!-- <RecentInputs @load-input="loadRecentInput" /> -->
     
     <!-- Analyze Button -->
     <div class="analyze-section">
@@ -267,7 +267,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import RecentInputs from './RecentInputs.vue';
+// import RecentInputs from './RecentInputs.vue'; // Temporarily hidden
 
 const props = defineProps({
   isAnalyzing: { type: Boolean, default: false }

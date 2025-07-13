@@ -270,7 +270,8 @@ export default {
         citations: citations.map(citation => {
           const exportCitation = {
             citation: citation.citation,
-            case_name: citation.case_name,
+            canonical_name: citation.canonical_name,
+            extracted_case_name: citation.extracted_case_name,
             year: citation.year,
             canonical_date: citation.canonical_date,
             verified: citation.verified,
@@ -335,7 +336,7 @@ export default {
         ...citations.map(citation => {
           const row = [
             `"${citation.citation}"`,
-            `"${citation.case_name || ''}"`,
+            `"${citation.canonical_name || ''}"`,
             citation.year || '',
             citation.canonical_date || '',
             citation.verified ? 'Yes' : 'No',
@@ -405,7 +406,7 @@ export default {
       
       citations.forEach((citation, index) => {
         content += `${index + 1}. ${citation.citation}\n`;
-        content += `   Case Name: ${citation.case_name || 'N/A'}\n`;
+        content += `   Case Name: ${citation.canonical_name || 'N/A'}\n`;
         content += `   Date: ${citation.canonical_date || citation.year || 'N/A'}\n`;
         content += `   Status: ${citation.verified ? 'Verified' : 'Not Verified'}\n`;
         content += `   Reliability: ${this.getReliabilityScore(citation).toFixed(1)}%\n`;

@@ -1,8 +1,0 @@
-{
-  "case_name": "Brown v. Board of Education",
-  "year": 1954,
-  "parallel_citations": [
-    "347 U.S. 483"
-  ],
-  "verification_result": "{\"valid\": true, \"found\": true, \"confidence\": 0.95, \"source\": \"test\"}"
-}

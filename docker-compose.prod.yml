@@ -70,7 +70,7 @@ services:
   rqworker:
     build: .
     container_name: casestrainer-rqworker-prod
-    command: python src/rq_worker.py worker casestrainer
+    command: python src/rq_worker.py
     depends_on:
       redis:
         condition: service_healthy
@@ -79,12 +79,17 @@ services:
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
     volumes:
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
       - ./casestrainer_sessions:/app/casestrainer_sessions
     restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
     healthcheck:
       test: ["CMD", "python", "src/healthcheck_rq.py"]
       interval: 60s
@@ -93,11 +98,19 @@ services:
       start_period: 180s
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
 
   rqworker2:
     build: .
     container_name: casestrainer-rqworker2-prod
-    command: python src/rq_worker.py worker casestrainer
+    command: python src/rq_worker.py
     depends_on:
       redis:
         condition: service_healthy
@@ -106,12 +119,17 @@ services:
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
     volumes:
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
       - ./casestrainer_sessions:/app/casestrainer_sessions
     restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
     healthcheck:
       test: ["CMD", "python", "src/healthcheck_rq.py"]
       interval: 60s
@@ -120,11 +138,19 @@ services:
       start_period: 180s
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
 
   rqworker3:
     build: .
     container_name: casestrainer-rqworker3-prod
-    command: python src/rq_worker.py worker casestrainer
+    command: python src/rq_worker.py
     depends_on:
       redis:
         condition: service_healthy
@@ -133,12 +159,17 @@ services:
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
     volumes:
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
       - ./casestrainer_sessions:/app/casestrainer_sessions
     restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
     healthcheck:
       test: ["CMD", "python", "src/healthcheck_rq.py"]
       interval: 60s
@@ -147,6 +178,14 @@ services:
       start_period: 180s
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
 
 
 

@@ -160,7 +160,8 @@
           <select v-model="filters.sortBy" @change="applyFilters" class="sort-select">
             <option value="position">Document Position</option>
             <option value="citation">Citation Text</option>
-            <option value="case_name">Case Name</option>
+            <option value="canonical_name">Canonical Case Name</option>
+            <option value="extracted_case_name">Extracted Case Name</option>
             <option value="date">Date</option>
             <option value="verification_status">Verification Status</option>
             <option value="reliability">Reliability Score</option>
@@ -241,7 +242,7 @@ export default {
         const search = this.filters.searchTerm.toLowerCase();
         filtered = filtered.filter(citation => 
           citation.citation.toLowerCase().includes(search) ||
-          (citation.case_name && citation.case_name.toLowerCase().includes(search)) ||
+          (citation.canonical_name && citation.canonical_name.toLowerCase().includes(search)) ||
           (citation.canonical_date && citation.canonical_date.includes(search)) ||
           (citation.year && citation.year.toString().includes(search))
         );
@@ -321,9 +322,13 @@ export default {
             aValue = a.citation.toLowerCase();
             bValue = b.citation.toLowerCase();
             break;
-          case 'case_name':
-            aValue = (a.case_name || '').toLowerCase();
-            bValue = (b.case_name || '').toLowerCase();
+          case 'canonical_name':
+            aValue = (a.canonical_name || '').toLowerCase();
+            bValue = (b.canonical_name || '').toLowerCase();
+            break;
+          case 'extracted_case_name':
+            aValue = (a.extracted_case_name || '').toLowerCase();
+            bValue = (b.extracted_case_name || '').toLowerCase();
             break;
           case 'date':
             aValue = new Date(a.canonical_date || a.year || '1900');
@@ -760,5 +765,224 @@ export default {
 .active-filters {
   color: #1976d2;
   font-weight: 500;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .advanced-filters {
+    padding: 0 1rem;
+  }
+  
+  .filters-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .toggle-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .filters-content {
+    padding: 1rem;
+  }
+  
+  .search-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-input {
+    position: relative;
+  }
+  
+  .search-field {
+    font-size: 16px; /* Prevent zoom on mobile */
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+  }
+  
+  .clear-btn {
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .filter-options {
+    gap: 1.5rem;
+  }
+  
+  .filter-group {
+    gap: 0.75rem;
+  }
+  
+  .filter-group label {
+    font-size: 0.95rem;
+  }
+  
+  .checkbox-group {
+    gap: 0.75rem;
+  }
+  
+  .checkbox-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+  }
+  
+  .checkmark {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  
+  /* Date range - stack vertically on mobile */
+  .date-range {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .date-input {
+    gap: 0.5rem;
+  }
+  
+  .date-field {
+    font-size: 16px; /* Prevent zoom on mobile */
+    padding: 0.75rem;
+  }
+  
+  /* Sorting section - stack vertically */
+  .sorting-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .sorting-section label {
+    white-space: normal;
+    font-size: 0.95rem;
+  }
+  
+  .sort-options {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .sort-select {
+    width: 100%;
+    min-width: auto;
+    font-size: 16px; /* Prevent zoom on mobile */
+    padding: 0.75rem;
+  }
+  
+  .sort-order-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+  }
+  
+  /* Filter actions - stack vertically */
+  .filter-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  
+  /* Results summary - stack vertically */
+  .results-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .results-count,
+  .active-filters {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .advanced-filters {
+    padding: 0 0.5rem;
+  }
+  
+  .filters-content {
+    padding: 0.75rem;
+  }
+  
+  .search-field {
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-size: 16px;
+  }
+  
+  .clear-btn {
+    right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .filter-group {
+    gap: 0.5rem;
+  }
+  
+  .filter-group label {
+    font-size: 0.9rem;
+  }
+  
+  .checkbox-item {
+    font-size: 0.85rem;
+    padding: 0.375rem 0;
+  }
+  
+  .checkmark {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .date-field {
+    padding: 0.5rem;
+    font-size: 16px;
+  }
+  
+  .sort-select {
+    padding: 0.5rem;
+    font-size: 16px;
+  }
+  
+  .sort-order-btn {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .toggle-btn,
+  .btn,
+  .checkbox-item,
+  .sort-order-btn {
+    min-height: 44px;
+  }
+  
+  .checkmark {
+    min-width: 20px;
+    min-height: 20px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn:hover,
+  .sort-order-btn:hover {
+    transform: none;
+  }
 }
 </style> 

@@ -13,6 +13,7 @@ import tempfile
 import time
 import uuid
 import traceback
+import warnings
 from src.file_utils import extract_text_from_file
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from src.citation_correction_engine import CitationCorrectionEngine
@@ -83,86 +84,22 @@ def log_step(message: str, level: str = "info"):
     return message
 
 def extract_text_from_url(url: str) -> Dict[str, Any]:
-    """Extract text content from a URL, including PDF support."""
-    try:
-        logger.info(f"[extract_text_from_url] Fetching URL: {url}")
-        response = requests.get(url, timeout=300, stream=True)
-        response.raise_for_status()
-        content_type = response.headers.get('content-type', '').lower()
-        logger.info(f"[extract_text_from_url] Content-Type: {content_type}")
-        if 'text/html' in content_type:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            for script in soup(["script", "style"]):
-                script.decompose()
-            text = soup.get_text(separator='\n', strip=True)
-        elif 'text/plain' in content_type:
-            text = response.text
-        elif 'application/pdf' in content_type or url.lower().endswith('.pdf'):
-            temp_file = None
-            try:
-                logger.info(f"[extract_text_from_url] Starting PDF download for URL: {url}")
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            tmp.write(chunk)
-                    temp_file = tmp.name
-                logger.info(f"[extract_text_from_url] PDF downloaded to: {temp_file}")
-                logger.info(f"[extract_text_from_url] Starting text extraction from PDF: {temp_file}")
-                text_result = extract_text_from_file(temp_file, file_ext='.pdf')
-                if isinstance(text_result, tuple):
-                    text, _ = text_result
-                else:
-                    text = text_result
-                logger.info(f"[extract_text_from_url] Text extraction complete from PDF: {temp_file}")
-                if isinstance(text, dict):
-                    if not text.get('success', True):
-                        logger.error(f"[extract_text_from_url] PDF extraction error: {text.get('error')}")
-                        return {
-                            'status': 'error',
-                            'error': text.get('error', 'Failed to extract text from PDF'),
-                            'content_type': content_type
-                        }
-            except Exception as e:
-                logger.error(f"[extract_text_from_url] Exception during PDF extraction: {str(e)}")
-                return {
-                    'status': 'error',
-                    'error': f'Error extracting text from PDF: {str(e)}',
-                    'content_type': content_type
-                }
-            finally:
-                if temp_file and os.path.exists(temp_file):
-                    try:
-                        os.unlink(temp_file)
-                        logger.info(f"[extract_text_from_url] Temporary PDF file deleted: {temp_file}")
-                    except Exception as cleanup_e:
-                        logger.warning(f"[extract_text_from_url] Could not delete temp file: {cleanup_e}")
-        else:
-            logger.error(f"[extract_text_from_url] Unsupported content type: {content_type}")
-            return {
-                'status': 'error',
-                'error': f'Unsupported content type: {content_type}',
-                'content_type': content_type
-            }
-        logger.info(f"[extract_text_from_url] Extraction success for URL: {url}")
-        return {
-            'status': 'success',
-            'text': text,
-            'content_type': content_type
-        }
-    except requests.RequestException as e:
-        logger.error(f"[extract_text_from_url] RequestException: {str(e)}")
-        return {
-            'status': 'error',
-            'error': f'Failed to fetch URL: {str(e)}',
-            'details': traceback.format_exc()
-        }
-    except Exception as e:
-        logger.error(f"[extract_text_from_url] General Exception: {str(e)}")
-        return {
-            'status': 'error',
-            'error': f'Error processing URL: {str(e)}',
-            'details': traceback.format_exc()
-        }
+    """
+    DEPRECATED: Use src.document_processing_unified.extract_text_from_url instead.
+    This function will be removed in a future version.
+    """
+    warnings.warn(
+        "extract_text_from_url is deprecated. Use src.document_processing_unified.extract_text_from_url instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    text = unified_extract_text_from_url(url)
+    return {
+        'status': 'success',
+        'text': text,
+        'content_type': 'text/plain'
+    }
 
 def make_error_response(error_type: str, message: str, details: Optional[str] = None, 
                        status_code: int = 400, source_type: Optional[str] = None,

@@ -121,8 +121,8 @@ function highlightCitations() {
       highlight.className = `casestrainer-citation ${citation.verified ? 'verified' : 'unverified'}`;
       highlight.textContent = citation.text;
       highlight.title = citation.verified ? 
-        `Verified: ${citation.case_name || citation.text}` :
-        `Unverified: ${citation.case_name || citation.text}`;
+        `Verified: ${citation.canonical_name || citation.text}` :
+        `Unverified: ${citation.canonical_name || citation.text}`;
       
       // Store highlight element
       state.highlights.set(citation.text, highlight);

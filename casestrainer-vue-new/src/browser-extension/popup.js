@@ -135,7 +135,7 @@ function updateResultsUI() {
       <div class="citation-text">${citation.text}</div>
       <div class="citation-status">
         ${citation.verified ? '✓ Verified' : '⚠ Unverified'}
-        ${citation.case_name ? ` - ${citation.case_name}` : ''}
+        ${citation.canonical_name ? ` - ${citation.canonical_name}` : ''}
       </div>
     </div>
   `).join('');

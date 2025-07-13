@@ -152,8 +152,8 @@ class CitationExtractor:
             'cal_generic': re.compile(r"\b\d+\s+Cal\.\s+\d{2,}\b"),
             
             # Westlaw and LEXIS
-            'westlaw': re.compile(r"\b\d{4}\s+WL\s+\d+\b"),
-            'lexis': re.compile(r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d+\b"),
+            'westlaw': re.compile(r"\b\d{4}\s+WL\s+\d{1,12}\b"),
+            'lexis': re.compile(r"\b\d{4}\s+[A-Za-z\.\s]+LEXIS\s+\d{1,12}\b"),
             
             # State Reports (generic pattern) - more specific
             'state': re.compile(r"\b\d+\s+[A-Z][a-z]+\.\s+\d+\b"),
@@ -217,7 +217,7 @@ class CitationExtractor:
         # Now build results with shared case names if available
         for obj in all_citation_objs:
             citation_str = obj['citation']
-            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
+            case_name_triple = {'canonical_name': '', 'extracted_name': '', 'canonical_date': '', 'extracted_date': ''}
             if self.extract_case_names:
                 case_name_triple = extract_case_name_triple(text, citation_str)
             context_val = self._get_context(text, citation_str) if (self.context_window or 200) else ""
@@ -226,11 +226,12 @@ class CitationExtractor:
                 'method': 'regex',
                 'pattern': obj.get('pattern', ''),
                 'confidence': 'medium',
-                'case_name': case_name_triple['case_name'],
-                'context': context_val or '',
+                'canonical_name': case_name_triple['canonical_name'],
                 'extracted_case_name': case_name_triple['extracted_name'] or '',
                 'canonical_date': case_name_triple['canonical_date'] or '',
                 'extracted_date': case_name_triple['extracted_date'] or '',
+                'context': context_val or '',
+                'source': 'regex_extractor'
             }
             results.append(entry)
         if debug:
@@ -260,7 +261,7 @@ class CitationExtractor:
                         seen.add(citation_str)
                         
                         # Get case name triple for eyecite citations too
-                        case_name_triple = {'canonical_name': '', 'extracted_name': '', 'case_name': '', 'canonical_date': '', 'extracted_date': ''}
+                        case_name_triple = {'canonical_name': '', 'extracted_name': '', 'canonical_date': '', 'extracted_date': ''}
                         if self.extract_case_names:
                             case_name_triple = extract_case_name_triple(text, citation_str)
                         
@@ -269,11 +270,12 @@ class CitationExtractor:
                             'method': 'eyecite',
                             'pattern': 'eyecite',
                             'confidence': 'medium',
-                            'case_name': case_name_triple['case_name'],
+                            'canonical_name': case_name_triple['canonical_name'],
+                            'extracted_case_name': case_name_triple['extracted_name'] or '',
+                            'canonical_date': case_name_triple['canonical_date'] or '',
+                            'extracted_date': case_name_triple['extracted_date'] or '',
                             'context': self._get_context(text, citation_str) if (self.context_window or 200) else "",
-                            'extracted_case_name': case_name_triple['extracted_name'],
-                            'canonical_date': case_name_triple['canonical_date'],
-                            'extracted_date': case_name_triple['extracted_date'],
+                            'source': 'eyecite_extractor'
                         }
                         results.append(entry)
                 else:

@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'url';
+import { version } from './package.json';
 
 // Optional: Add other common imports that might have been missing
 // import { resolve } from 'path';
@@ -134,6 +135,7 @@ export default defineConfig(({ mode }) => {
       ),
       'import.meta.env.DEV_FRONTEND_PORT': JSON.stringify(process.env.DEV_FRONTEND_PORT || '5000'),
       'import.meta.env.DEV_BACKEND_PORT': JSON.stringify(process.env.DEV_BACKEND_PORT || '5001'),
+      '__APP_VERSION__': JSON.stringify(version),
       // Optional: Global constants
       // __VUE_OPTIONS_API__: true,
       // __VUE_PROD_DEVTOOLS__: false,

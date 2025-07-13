@@ -361,4 +361,145 @@ h3 {
   50% { opacity: 0.7; }
   100% { opacity: 1; }
 }
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .processing-progress {
+    padding: 0.75rem;
+  }
+  
+  h3 {
+    font-size: 1rem;
+  }
+  
+  .time-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .citation-stats,
+  .rate-limit-info {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
+  
+  .label {
+    font-size: 0.85rem;
+  }
+  
+  .value {
+    font-size: 0.9rem;
+  }
+  
+  .steps-list {
+    gap: 0.75rem;
+  }
+  
+  .step {
+    padding: 0.5rem;
+  }
+  
+  .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .step-name {
+    font-size: 0.9rem;
+  }
+  
+  .step-status {
+    font-size: 0.8rem;
+  }
+  
+  .error-section {
+    padding: 0.75rem;
+  }
+  
+  .error-message {
+    font-size: 0.9rem;
+  }
+  
+  .retry-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  
+  .timeout-info {
+    font-size: 0.8rem;
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .processing-progress {
+    padding: 0.5rem;
+  }
+  
+  h3 {
+    font-size: 0.95rem;
+  }
+  
+  .stat {
+    padding: 0.375rem;
+  }
+  
+  .label {
+    font-size: 0.8rem;
+  }
+  
+  .value {
+    font-size: 0.85rem;
+  }
+  
+  .step {
+    padding: 0.375rem;
+  }
+  
+  .step-name {
+    font-size: 0.85rem;
+  }
+  
+  .step-status {
+    font-size: 0.75rem;
+  }
+  
+  .error-section {
+    padding: 0.5rem;
+  }
+  
+  .error-message {
+    font-size: 0.85rem;
+  }
+  
+  .retry-button {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .retry-button {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .retry-button:hover {
+    transform: none;
+  }
+}
 </style> 

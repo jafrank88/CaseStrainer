@@ -14,17 +14,17 @@
       </div>
       
       <div class="correction-fields">
-        <!-- Case Name Correction -->
+        <!-- Canonical Name Correction -->
         <div class="field-group">
-          <label>Case Name:</label>
+          <label>Canonical Name:</label>
           <div class="current-value">
             <span class="label">Current:</span>
-            <span class="value">{{ citation.case_name || 'N/A' }}</span>
+            <span class="value">{{ citation.canonical_name || 'N/A' }}</span>
           </div>
           <input 
-            v-model="corrections[index].case_name" 
             type="text" 
-            placeholder="Correct case name..."
+            v-model="corrections[index].canonical_name"
+            placeholder="Correct canonical name..."
             class="correction-input"
           />
         </div>
@@ -114,7 +114,7 @@ export default {
   computed: {
     hasChanges() {
       return Object.values(this.corrections).some(correction => 
-        correction.case_name || correction.date || correction.citation_text || 
+        correction.canonical_name || correction.date || correction.citation_text || 
         correction.feedback_type || correction.comments
       );
     }
@@ -127,7 +127,7 @@ export default {
         this.corrections = {};
         newCitations.forEach((citation, index) => {
           this.corrections[index] = {
-            case_name: '',
+            canonical_name: '',
             date: '',
             citation_text: '',
             feedback_type: '',
@@ -143,7 +143,7 @@ export default {
         timestamp: new Date().toISOString(),
         corrections: Object.entries(this.corrections)
           .filter(([index, correction]) => 
-            correction.case_name || correction.date || correction.citation_text || 
+            correction.canonical_name || correction.date || correction.citation_text || 
             correction.feedback_type || correction.comments
           )
           .map(([index, correction]) => ({
@@ -159,7 +159,7 @@ export default {
     resetCorrections() {
       this.citations.forEach((citation, index) => {
         this.corrections[index] = {
-          case_name: '',
+          canonical_name: '',
           date: '',
           citation_text: '',
           feedback_type: '',

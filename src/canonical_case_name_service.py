@@ -301,31 +301,27 @@ class CanonicalCaseNameService:
             return None
     
     def _lookup_web_sources(self, citation: str) -> Optional[CanonicalResult]:
-        """Lookup using intelligent web scraping with EnhancedWebSearcher."""
+        """Lookup using intelligent web scraping with LegalWebsearchEngine."""
         try:
-            import asyncio
-            from src.enhanced_web_searcher import EnhancedWebSearcher
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                async def web_lookup():
-                    async with EnhancedWebSearcher() as searcher:
-                        # Try all sources concurrently (max_concurrent = all)
-                        return await searcher.search_multiple_sources(citation, None, max_concurrent=10)
-                result = loop.run_until_complete(web_lookup())
-                if result and result.get('verified'):
-                    return CanonicalResult(
-                        case_name=result.get('case_name'),
-                        date=result.get('date'),
-                        court=result.get('court'),
-                        docket_number=result.get('docket_number'),
-                        url=result.get('url'),
-                        source=result.get('source', 'Web Search'),
-                        confidence=result.get('confidence', 0.7),
-                        verified=True
-                    )
-            finally:
-                loop.close()
+            from src.websearch_utils import search_cluster_for_canonical_sources
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info("[LegalWebsearchEngine] Using new websearch_utils for citation: %s", citation)
+            # Build a minimal cluster dict for compatibility
+            cluster = {'citations': [{'citation': citation}]}
+            results = search_cluster_for_canonical_sources(cluster, max_results=1)
+            if results and len(results) > 0:
+                result = results[0]
+                return CanonicalResult(
+                    case_name=result.get('title') or result.get('case_name'),
+                    date=None,  # Date extraction can be added if available
+                    court=None,
+                    docket_number=None,
+                    url=result.get('url'),
+                    source=result.get('source', 'Web Search'),
+                    confidence=result.get('reliability_score', 0.7),
+                    verified=result.get('reliability_score', 0) >= 70
+                )
         except Exception as e:
             logger.error(f"Web search lookup failed: {e}")
         return None

@@ -35,6 +35,14 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
       interval: 30s
@@ -44,7 +52,7 @@ services:
   rqworker:
     build: .
     container_name: casestrainer-rqworker
-    command: python src/rq_worker.py worker casestrainer
+    command: python src/rq_worker.py
     depends_on:
       redis:
         condition: service_healthy
@@ -53,11 +61,22 @@ services:
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
     volumes:
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
     healthcheck:
       test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
       interval: 30s

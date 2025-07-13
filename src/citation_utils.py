@@ -14,16 +14,6 @@ if project_root not in sys.path:
 # Now import from config with absolute path
 from src.config import ALLOWED_EXTENSIONS
 
-# Robust import for extract_text_from_file
-try:
-    from file_utils import extract_text_from_file
-except ImportError:
-
-    def extract_text_from_file(file_path):
-        raise NotImplementedError(
-            "extract_text_from_file is not available in this environment"
-        )
-
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -497,18 +487,18 @@ def clean_and_validate_citations(citations):
         # Basic citation format validation
         # Look for common citation patterns
         citation_patterns = [
-            r"\d+\s+U\.?\s*S\.?\s+\d+",  # U.S. Reports
-            r"\d+\s+F\.?(?:\s*\d*[a-z]*)?\s+\d+",  # Federal Reporter
-            r"\d+\s+S\.?\s*Ct\.?\s+\d+",  # Supreme Court Reporter
-            r"\d+\s+L\.?\s*Ed\.?\s*\d+",  # Lawyers Edition
-            r"\d+\s+(?:Wash\.2d|Wash\.App\.|Wash\.|Wn\.2d|Wn\.App\.|Wn\.)\s+\d+",  # Washington Reports (including Wn. variants)
-            r"\d+\s+P\.?\s*(?:2d|3d)?\s+\d+",  # Pacific Reporter
-            r"\d+\s+N\.?\s*W\.?\s*(?:2d)?\s+\d+",  # North Western Reporter
-            r"\d+\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d+",  # North Eastern Reporter
-            r"\d+\s+S\.?\s*E\.?\s*(?:2d)?\s+\d+",  # South Eastern Reporter
-            r"\d+\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d+",  # South Western Reporter
-            r"\d+\s+A\.?\s*(?:2d|3d)?\s+\d+",  # Atlantic Reporter
-            r"\d{4}\s+WL\s+\d+",  # Westlaw citations (e.g., 2020 WL 1234567)
+            r"\d{1,5}\s+U\.?\s*S\.?\s+\d{1,12}",  # U.S. Reports
+            r"\d{1,5}\s+F\.?(?:\s*\d*[a-z]*)?\s+\d{1,12}",  # Federal Reporter
+            r"\d{1,5}\s+S\.?\s*Ct\.?\s+\d{1,12}",  # Supreme Court Reporter
+            r"\d{1,5}\s+L\.?\s*Ed\.?\s*\d{1,12}",  # Lawyers Edition
+            r"\d{1,5}\s+(?:Wash\.2d|Wash\.App\.|Wash\.|Wn\.2d|Wn\.App\.|Wn\.)\s+\d{1,12}",  # Washington Reports (including Wn. variants)
+            r"\d{1,5}\s+P\.?\s*(?:2d|3d)?\s+\d{1,12}",  # Pacific Reporter
+            r"\d{1,5}\s+N\.?\s*W\.?\s*(?:2d)?\s+\d{1,12}",  # North Western Reporter
+            r"\d{1,5}\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d{1,12}",  # North Eastern Reporter
+            r"\d{1,5}\s+S\.?\s*E\.?\s*(?:2d)?\s+\d{1,12}",  # South Eastern Reporter
+            r"\d{1,5}\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d{1,12}",  # South Western Reporter
+            r"\d{1,5}\s+A\.?\s*(?:2d|3d)?\s+\d{1,12}",  # Atlantic Reporter
+            r"\d{4}\s+WL\s+\d{1,12}",  # Westlaw citations (e.g., 2020 WL 1234567, 2020 WL 123456789012)
         ]
         
         # Check if citation matches any known pattern
@@ -735,28 +725,29 @@ def extract_citations_from_text(text, logger=logger):
     # Define regex patterns for a wide range of Bluebook-style case citation formats (federal, regional, state, and generic reporters)
     patterns = [
         state_court_abbr_pattern,
-        # Regional and State Reporters - require full series indicator (2d, 3d, 4th, 5th, 6th, 7th, etc.) and page number
-        r'\d+\s+A\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',  # Atlantic Reporter, all series
-        r'\d+\s+A\.\s+\d{2,}',    # Atlantic Reporter (original series, page must be at least 2 digits)
-        r'\d+\s+N\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',  # Northeastern Reporter, all series
-        r'\d+\s+N\.E\.\s+\d{2,}',    # Northeastern Reporter (original series)
-        r'\d+\s+N\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',  # Northwestern Reporter, all series
-        r'\d+\s+N\.W\.\s+\d{2,}',    # Northwestern Reporter (original series)
-        r'\d+\s+S\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',  # Southeastern Reporter, all series
-        r'\d+\s+S\.E\.\s+\d{2,}',    # Southeastern Reporter (original series)
-        r'\d+\s+S\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',  # Southwestern Reporter, all series
-        r'\d+\s+S\.W\.\s+\d{2,}',    # Southwestern Reporter (original series)
-        r'\d+\s+So\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',     # Southern Reporter, all series
-        r'\d+\s+So\.\s+\d{2,}',       # Southern Reporter (original series)
-        r'\d+\s+P\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',      # Pacific Reporter, all series
-        r'\d+\s+P\.\s+\d{2,}',        # Pacific Reporter (original series)
-        # Washington (Wash. or Wn. with series and page)
-        r'\d+\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d+',
-        # California (Cal.4th, etc.)
-        r'\d+\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d+',
-        r'\d+\s+Cal\.\s+\d{2,}',
-        # Westlaw
-        r'\d{4}\s+WL\s+\d+',
+                    # Regional and State Reporters - require full series indicator (2d, 3d, 4th, 5th, 6th, 7th, etc.) and page number
+            # Updated to support up to 5 digits for volume and up to 12 digits for page
+            r'\d{1,5}\s+A\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Atlantic Reporter, all series
+            r'\d{1,5}\s+A\.\s+\d{2,12}',    # Atlantic Reporter (original series, page must be at least 2 digits)
+            r'\d{1,5}\s+N\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Northeastern Reporter, all series
+            r'\d{1,5}\s+N\.E\.\s+\d{2,12}',    # Northeastern Reporter (original series)
+            r'\d{1,5}\s+N\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Northwestern Reporter, all series
+            r'\d{1,5}\s+N\.W\.\s+\d{2,12}',    # Northwestern Reporter (original series)
+            r'\d{1,5}\s+S\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Southeastern Reporter, all series
+            r'\d{1,5}\s+S\.E\.\s+\d{2,12}',    # Southeastern Reporter (original series)
+            r'\d{1,5}\s+S\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Southwestern Reporter, all series
+            r'\d{1,5}\s+S\.W\.\s+\d{2,12}',    # Southwestern Reporter (original series)
+            r'\d{1,5}\s+So\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',     # Southern Reporter, all series
+            r'\d{1,5}\s+So\.\s+\d{2,12}',       # Southern Reporter (original series)
+            r'\d{1,5}\s+P\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',      # Pacific Reporter, all series
+            r'\d{1,5}\s+P\.\s+\d{2,12}',        # Pacific Reporter (original series)
+            # Washington (Wash. or Wn. with series and page)
+            r'\d{1,5}\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d{1,12}',
+            # California (Cal.4th, etc.)
+            r'\d{1,5}\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',
+            r'\d{1,5}\s+Cal\.\s+\d{2,12}',
+            # Westlaw
+            r'\d{4}\s+WL\s+\d{1,12}',
     ]
     
     # Remove any pattern that could match a period and a single digit as a valid series indicator

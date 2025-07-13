@@ -12,6 +12,7 @@ import requests
 from urllib.parse import urlparse
 import re
 import time
+import warnings
 
 # Import text extraction libraries with better error handling
 try:
@@ -707,12 +708,30 @@ def process_document(content: str = None, file_path: str = None, url: str = None
     )
 
 def extract_text_from_file(file_path: str) -> str:
-    """Extract text from file using enhanced methods."""
-    return enhanced_processor.extract_text_from_file(file_path)
+    """
+    DEPRECATED: Use src.document_processing_unified.extract_text_from_file instead.
+    This function will be removed in a future version.
+    """
+    warnings.warn(
+        "extract_text_from_file is deprecated. Use src.document_processing_unified.extract_text_from_file instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
-    """Extract text from URL using enhanced methods."""
-    return enhanced_processor.extract_text_from_url(url)
+    """
+    DEPRECATED: Use src.document_processing_unified.extract_text_from_url instead.
+    This function will be removed in a future version.
+    """
+    warnings.warn(
+        "extract_text_from_url is deprecated. Use src.document_processing_unified.extract_text_from_url instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
 def verify_citations_with_contamination_fix(citations: List[Dict], text: str) -> List[Dict]:
@@ -1358,12 +1377,30 @@ def process_document(content: str = None, file_path: str = None, url: str = None
     )
 
 def extract_text_from_file(file_path: str) -> str:
-    """Extract text from file using enhanced methods."""
-    return enhanced_processor.extract_text_from_file(file_path)
+    """
+    DEPRECATED: Use src.document_processing_unified.extract_text_from_file instead.
+    This function will be removed in a future version.
+    """
+    warnings.warn(
+        "extract_text_from_file is deprecated. Use src.document_processing_unified.extract_text_from_file instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
-    """Extract text from URL using enhanced methods."""
-    return enhanced_processor.extract_text_from_url(url)
+    """
+    DEPRECATED: Use src.document_processing_unified.extract_text_from_url instead.
+    This function will be removed in a future version.
+    """
+    warnings.warn(
+        "extract_text_from_url is deprecated. Use src.document_processing_unified.extract_text_from_url instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
 def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dict]:

@@ -30,17 +30,17 @@ VECTORIZER_FILE = os.path.join(DOWNLOAD_DIR, "citation_vectorizer.pkl")
 
 
 # Features to extract from citations
-def extract_features_from_citation(citation_text, case_name=None):
-    """Extract features from a citation text and case name."""
+def extract_features_from_citation(citation_text, canonical_name=None):
+    """Extract features from citation text for classification."""
     features = {}
-
-    # Basic length features
-    features["citation_length"] = len(citation_text)
-    features["has_case_name"] = 1 if case_name and len(case_name) > 0 else 0
-    if case_name:
-        features["case_name_length"] = len(case_name)
+    
+    # Basic citation features
+    features["length"] = len(citation_text)
+    features["has_case_name"] = 1 if canonical_name and len(canonical_name) > 0 else 0
+    if canonical_name:
+        features["canonical_name_length"] = len(canonical_name)
     else:
-        features["case_name_length"] = 0
+        features["canonical_name_length"] = 0
 
     # Check for common citation patterns
     features["has_volume_reporter_page"] = (
@@ -114,7 +114,7 @@ def prepare_citation_data(citations):
 
         # Extract features
         features = extract_features_from_citation(
-            citation.get("citation_text", ""), citation.get("case_name", "")
+            citation.get("citation_text", ""), citation.get("canonical_name", "")
         )
 
         # Create label (1 for reliable, 0 for unreliable)
@@ -213,7 +213,7 @@ def load_citation_classifier():
         return None, None
 
 
-def classify_citation(citation_text, case_name=None):
+def classify_citation(citation_text, canonical_name=None):
     """
     Classify a citation as reliable or unreliable using the trained model.
     Returns a confidence score between 0.0 and 1.0.
@@ -227,7 +227,7 @@ def classify_citation(citation_text, case_name=None):
 
     try:
         # Extract features
-        features = extract_features_from_citation(citation_text, case_name)
+        features = extract_features_from_citation(citation_text, canonical_name)
 
         # Create text features
         text_features = vectorizer.transform([citation_text])
@@ -382,7 +382,7 @@ def batch_classify_citations(citations):
         for i, citation in enumerate(citations):
             try:
                 features = extract_features_from_citation(
-                    citation.get("citation_text", ""), citation.get("case_name", "")
+                    citation.get("citation_text", ""), citation.get("canonical_name", "")
                 )
 
                 if features["has_valid_reporter"] == 0:

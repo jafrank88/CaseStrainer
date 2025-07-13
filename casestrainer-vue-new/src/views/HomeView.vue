@@ -11,10 +11,10 @@
             <div class="hero-text">
               <h1 class="hero-title">
                 <i class="bi bi-shield-check me-3"></i>
-                Legal Citation Verification
+                U.S. Case Citation Verification
               </h1>
               <p class="hero-subtitle">
-                Upload legal documents, paste text, or provide URLs to automatically extract and verify citations against authoritative legal databases.
+                Upload legal documents, paste text, or provide URLs to automatically extract and verify U.S. case citations against authoritative legal databases.
               </p>
             </div>
 
@@ -237,19 +237,19 @@
           </div>
         </div>
 
-        <!-- Recent Inputs Sidebar -->
-        <div class="recent-inputs-sidebar-container">
+        <!-- Recent Inputs Sidebar - Temporarily Hidden -->
+        <!-- <div class="recent-inputs-sidebar-container">
           <RecentInputs @load-input="loadRecentInput" />
-        </div>
+        </div> -->
       </div>
     </div>
 
     <!-- Features Section -->
     <div class="container">
       <div class="features-section">
-        <div class="text-center mb-4">
-          <h2 class="text-white mb-3">Powerful Citation Analysis Features</h2>
-          <p class="text-white opacity-75">Everything you need for comprehensive legal citation verification</p>
+        <div class="text-center mb-3">
+          <h3 class="text-white mb-2">Citation Analysis Features</h3>
+                          <p class="text-white opacity-75 small">Comprehensive U.S. case citation verification</p>
         </div>
         
         <div class="features-grid">
@@ -294,8 +294,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { analyze } from '@/api/api';
-import RecentInputs from '@/components/RecentInputs.vue';
-import { useRecentInputs } from '@/composables/useRecentInputs';
+// import RecentInputs from '@/components/RecentInputs.vue'; // Temporarily hidden
+// import { useRecentInputs } from '@/composables/useRecentInputs'; // Temporarily hidden
 
 const router = useRouter();
 const activeTab = ref('paste');
@@ -314,8 +314,8 @@ const elapsedTime = ref(0);
 const progressTimer = ref(null);
 const startTime = ref(null);
 
-// Recent Inputs
-const { addRecentInput } = useRecentInputs();
+// Recent Inputs - Temporarily hidden
+// const { addRecentInput } = useRecentInputs();
 
 // Load input from URL parameters (for recent input navigation)
 onMounted(() => {
@@ -405,18 +405,18 @@ const validateInput = () => {
   }
 };
 
-const loadRecentInput = (input) => {
-  activeTab.value = input.tab;
-  switch (input.tab) {
-    case 'paste':
-      textContent.value = input.text || '';
-      break;
-    case 'url':
-      urlContent.value = input.url || '';
-      break;
-  }
-  validateInput();
-};
+// const loadRecentInput = (input) => {
+//   activeTab.value = input.tab;
+//   switch (input.tab) {
+//     case 'paste':
+//       textContent.value = input.text || '';
+//       break;
+//     case 'url':
+//       urlContent.value = input.url || '';
+//       break;
+//   }
+//   validateInput();
+// };
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -535,12 +535,12 @@ const analyzeContent = async () => {
       timestamp: new Date().toISOString()
     };
     
-    if (activeTab.value !== 'file') {
-      addRecentInput(inputData);
-      localStorage.setItem('lastCitationInput', JSON.stringify(inputData));
-    } else {
-      addRecentInput(inputData);
-    }
+    // if (activeTab.value !== 'file') {
+    //   addRecentInput(inputData);
+    //   localStorage.setItem('lastCitationInput', JSON.stringify(inputData));
+    // } else {
+    //   addRecentInput(inputData);
+    // }
 
     let response;
     
@@ -650,9 +650,7 @@ const analyzeContent = async () => {
 
 /* Main Layout */
 .main-content-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 2rem;
+  display: block;
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 0;
@@ -713,7 +711,7 @@ const analyzeContent = async () => {
 
 /* Input Container */
 .input-container {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -1037,9 +1035,9 @@ const analyzeContent = async () => {
 /* Features Section */
 .features-section {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2rem;
-  padding: 3rem;
-  margin: 3rem auto;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem auto;
   max-width: 1200px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1047,15 +1045,15 @@ const analyzeContent = async () => {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .feature-card {
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 1.5rem;
-  padding: 2rem;
+  border-radius: 1rem;
+  padding: 1rem;
   text-align: center;
   box-shadow: var(--shadow-light);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1063,33 +1061,34 @@ const analyzeContent = async () => {
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-medium);
 }
 
 .feature-icon {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem auto;
+  margin: 0 auto 0.75rem auto;
   color: white;
-  font-size: 2rem;
+  font-size: 1.25rem;
 }
 
 .feature-title {
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .feature-description {
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.4;
+  font-size: 0.85rem;
 }
 
 .quality-indicator {
