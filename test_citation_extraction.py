@@ -3,11 +3,10 @@
 Test script to examine citation extraction issues.
 """
 
-import sys
-import os
-sys.path.append('src')
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
 def test_citation_extraction():
     # Test paragraph
