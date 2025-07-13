@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append('src')
 
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
 # Test documents with expected results
 TEST_CASES = {

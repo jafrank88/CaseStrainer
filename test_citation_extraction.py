@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append('src')
 
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
 def test_citation_extraction():
     # Test paragraph
