@@ -13,11 +13,11 @@ from typing import Dict, Any, List, Optional, Tuple, Union, TYPE_CHECKING
 from datetime import datetime
 
 # Import configuration
-from src.config import get_citation_config, get_external_api_config, get_file_config
+from ...config import get_citation_config, get_external_api_config, get_file_config
 
 # Import processors
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig, CitationResult
+    from ...unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig, CitationResult
     UNIFIED_PROCESSOR_V2_AVAILABLE = True
     logging.info("UnifiedCitationProcessorV2 available")
 except ImportError:
@@ -27,20 +27,20 @@ except ImportError:
 
 # Type annotations for type checking
 if TYPE_CHECKING:
-    from src.unified_citation_processor_v2 import CitationResult as CitationResultType
+    from ...unified_citation_processor_v2 import CitationResult as CitationResultType
 else:
     CitationResultType = Any
 
 # Import your existing processors as fallbacks
 try:
-    from src.document_processing import enhanced_processor
+    from ..document_processing import enhanced_processor
     ENHANCED_PROCESSOR_AVAILABLE = True
 except ImportError:
     ENHANCED_PROCESSOR_AVAILABLE = False
     logging.warning("Enhanced processor not available")
 
 try:
-    from src.unified_citation_processor import unified_processor
+    from ..unified_citation_processor import unified_processor
     UNIFIED_PROCESSOR_AVAILABLE = True
 except ImportError:
     UNIFIED_PROCESSOR_AVAILABLE = False
@@ -48,27 +48,27 @@ except ImportError:
 
 # Try to import the new unified document processor
 try:
-    from src.document_processing_unified import process_document
+    from ..document_processing_unified import process_document
     UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = True
 except ImportError:
     UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = False
     # Fallback to original document processing
     try:
-        from src.document_processing import process_document
+        from ..document_processing import process_document
     except ImportError:
         process_document = None
         logging.warning("No document processor available")
 
 # Use the faster pdf_handler for PDF extraction
 try:
-    from src.pdf_handler import extract_text_from_pdf
+    from src.document_processing_unified import extract_text_from_file
     PDF_HANDLER_AVAILABLE = True
     logging.info("PDF handler available for fast PDF extraction")
 except ImportError:
     PDF_HANDLER_AVAILABLE = False
     logging.warning("PDF handler not available, falling back to document_processing_unified")
 
-from src.document_processing_unified import extract_text_from_url
+from ..document_processing_unified import extract_text_from_url
 
 class CitationService:
     """
@@ -407,7 +407,7 @@ class CitationService:
                     file_ext = os.path.splitext(file_path)[1].lower()
                     if file_ext == '.pdf' and PDF_HANDLER_AVAILABLE:
                         self.logger.info(f"[DEBUG _process_file_task] Using fast PDF handler for: {file_path}")
-                        text_result = extract_text_from_pdf(file_path, timeout=25)
+                        text_result = extract_text_from_file(file_path, timeout=25)
                     else:
                         # Fallback to document_processing_unified for non-PDF files
                         from src.document_processing_unified import extract_text_from_file

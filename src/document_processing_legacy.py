@@ -34,9 +34,9 @@ except ImportError:
     logging.warning("striprtf not available - RTF processing will not work")
 
 # Import existing processing modules
-from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
-# DEPRECATED: from src.citation_extractor import CitationExtractor
-# DEPRECATED: from src.complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
+from src.document_processing_unified import extract_text_from_file
+# DEPRECATED: from .citation_extractor import CitationExtractor
+# DEPRECATED: from .complex_citation_integration import ComplexCitationIntegrator, format_complex_citation_for_frontend
 
 logger = logging.getLogger(__name__)
 
@@ -194,13 +194,7 @@ def extract_text_from_file(file_path: str) -> str:
     try:
         if file_extension == '.pdf':
             logger.info("Processing PDF file")
-            handler = PDFHandler(PDFExtractionConfig(
-                preferred_method=PDFExtractionMethod.PDFMINER,
-                use_fallback=False,
-                timeout=30,
-                clean_text=True
-            ))
-            text = handler.extract_text(file_path)
+            text = extract_text_from_file(file_path)
             if text.startswith("Error:"):
                 raise Exception(text)
             return text
@@ -373,8 +367,8 @@ def process_document(
         # Extract citations and case names using the enhanced extraction logic
         try:
             # Use the enhanced citation extractor with case name and date extraction
-            # DEPRECATED: from src.citation_extractor import CitationExtractor
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            # DEPRECATED: from .citation_extractor import CitationExtractor
+            from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             
             # Extract citations with case names and dates
             extractor = CitationExtractor(
@@ -504,7 +498,7 @@ def process_document_input(input_type, input_value, file_ext=None):
     text = None
     try:
         if input_type == 'file':
-            from src.file_utils import extract_text_from_file
+            from .file_utils import extract_text_from_file
             text_result = extract_text_from_file(input_value, file_ext=file_ext)
             if isinstance(text_result, tuple):
                 text, extracted_case_name = text_result
@@ -514,7 +508,7 @@ def process_document_input(input_type, input_value, file_ext=None):
             meta['source_type'] = 'file'
             meta['source_name'] = input_value
         elif input_type == 'url':
-            from src.enhanced_validator_production import extract_text_from_url
+            from .enhanced_validator_production import extract_text_from_url
             text_result = extract_text_from_url(input_value)
             text = text_result.get('text', '')
             meta['content_type'] = text_result.get('content_type')
@@ -555,7 +549,7 @@ def extract_and_verify_citations(text, use_enhanced=True, logger=None):
     
     # Extract citations using UnifiedCitationProcessor (not deprecated CitationExtractor)
     logger.info("🔍 [ANALYZE] Extracting citations using UnifiedCitationProcessor...")
-    from src.unified_citation_processor import unified_processor
+    from .unified_citation_processor import unified_processor
     
     # Process text with unified processor
     result = unified_processor.process_text(text, options={
@@ -653,7 +647,7 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
     Returns:
         List of verified citations with fallback logic applied
     """
-    from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
     
     logger.info(f"[VERIFY] Starting verification of {len(citations)} citations")
     
@@ -673,7 +667,7 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
         # Log the citation string being sent to the verifier
         logger.info(f"[VERIFY] Sending citation to verifier: '{citation_text}' (raw)")
         # If you have normalization, log that too
-        from src.citation_extractor import normalize_washington_citations
+        from .citation_extractor import normalize_washington_citations
         normalized_citation = normalize_washington_citations(citation_text)
         logger.info(f"[VERIFY] Normalized citation: '{normalized_citation}'")
         # Get extracted case name and date from the citation data

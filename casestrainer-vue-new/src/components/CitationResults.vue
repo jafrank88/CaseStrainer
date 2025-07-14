@@ -20,7 +20,7 @@ const expandedCitations = ref(new Set())
 const progress = ref(0)
 const etaSeconds = ref(null)
 const useHorizontalLayout = ref(false) // Toggle for alternative layout
-const displayMode = ref('full') // 'full', 'horizontal', 'canonical-only'
+const displayMode = ref('canonical-only') // 'full', 'horizontal', 'canonical-only'
 
 const attentionFilter = ref('all')
 const showAll = ref(false)
@@ -506,6 +506,13 @@ function downloadAllCitations() {
 </script>
 
 <template>
+  <div v-if="noCitationsFound" class="no-citations-found text-center my-5">
+    <img src="/no-results.svg" alt="No citations found" style="width:120px; margin:20px 0;">
+    <p class="lead">No case citations found in your {{ inputType }}.</p>
+    <a :href="`mailto:jafrank@uw.edu?subject=CaseStrainer%20feedback&body=I%20submitted%20the%20following%20${inputType}:%0A${encodeURIComponent(inputValue)}%0Aand%20no%20citations%20were%20found.`" class="btn btn-outline-primary mt-2">
+      Report a possible extraction error
+    </a>
+  </div>
   <div class="citation-results">
 
     <!-- CITATIONS THAT NEED ATTENTION SECTION AT TOP -->
@@ -531,75 +538,53 @@ function downloadAllCitations() {
                 </div>
                 <!-- Second line: N/A, N/A for canonical in red -->
                 <div class="citation-row flex-names-row">
-                  <span class="row-label">Verified:</span>
-                  <span style="color: #dc3545; font-weight: bold;">N/A, N/A</span>
+                  <span class="row-label">Canonical:</span>
+                  <span style="color: #dc3545; font-weight: bold;">N/A (N/A)</span>
                 </div>
                 <!-- Third line: N/A, N/A for extracted in red -->
                 <div class="citation-row flex-names-row">
-                  <span class="row-label">From Document:</span>
-                  <span style="color: #dc3545; font-weight: bold;">N/A, N/A</span>
+                  <span class="row-label">Extracted:</span>
+                  <span style="color: #dc3545; font-weight: bold;">N/A (N/A)</span>
                 </div>
               </template>
               <template v-else>
-                <!-- First row: all parallel citations with their verification badges -->
-                <div class="citation-row citation-row-citations" @click="toggleCitationDetails(getCitation(cluster.citations[0]))">
-                  <template v-for="(citation, idx) in cluster.citations">
-                    <span class="citation-parallel-item">
-                      <a v-if="getVerificationStatus(citation) === 'verified' && getCitationUrl(citation)" :href="getCitationUrl(citation)" target="_blank" class="citation-link-verified" @click.stop>{{ getCitation(citation) }}</a>
-                      <span v-else class="citation-text">{{ getCitation(citation) }}</span>
-                      <span class="verification-badge" :class="getVerificationStatus(citation)">
-                        <template v-if="getVerificationStatus(citation) === 'true_by_parallel'">PARALLEL CITATION VERIFIED</template>
-                        <template v-else>{{ getVerificationStatus(citation).replace('_', ' ') }}</template>
-                      </span>
+                <!-- Line 1: Canonical Name & Date -->
+                <div class="citation-row flex-names-row">
+                  <span class="row-label">Canonical:</span>
+                  <span>
+                    <template v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'">
+                      {{ getCanonicalCaseName(cluster.citations[0]) }}
+                      <span v-if="getCanonicalDate(cluster.citations[0])"> ({{ formatYear(getCanonicalDate(cluster.citations[0])) }})</span>
+                      <span v-else> (N/A)</span>
+                    </template>
+                    <template v-else>
+                      N/A (N/A)
+                    </template>
+                  </span>
+                </div>
+                <!-- Line 2: Extracted Name & Date -->
+                <div class="citation-row flex-names-row">
+                  <span class="row-label">Extracted:</span>
+                  <span>
+                    <template v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'">
+                      {{ getExtractedCaseName(cluster.citations[0]) }}
+                      <span v-if="getExtractedDate(cluster.citations[0])"> ({{ formatYear(getExtractedDate(cluster.citations[0])) }})</span>
+                      <span v-else> (N/A)</span>
+                    </template>
+                    <template v-else>
+                      N/A (N/A)
+                    </template>
+                  </span>
+                </div>
+                <!-- Line 3+: Each citation in the cluster, one per line, with status -->
+                <div class="citations-list-vertical">
+                  <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-row-item">
+                    <span class="citation-text">{{ getCitation(citation) }}</span>
+                    <span class="verification-badge" :class="getVerificationStatus(citation)">
+                      <template v-if="getVerificationStatus(citation) === 'verified'">VERIFIED</template>
+                      <template v-else-if="getVerificationStatus(citation) === 'true_by_parallel'">PARALLEL</template>
+                      <template v-else>UNVERIFIED</template>
                     </span>
-                    <span v-if="idx < cluster.citations.length - 1">, </span>
-                  </template>
-                  <div class="expand-icon" :class="{ expanded: expandedCitations.has(getCitation(cluster.citations[0])) }">▼</div>
-                </div>
-                <!-- Second row: unique canonical names/dates -->
-                <div class="citation-row citation-row-canonical flex-names-row">
-                  <span class="row-label">Verified:</span>
-                  <div class="names-flex-wrap">
-                    <template v-for="(pair, idx) in uniqueNameYearPairs(cluster.citations, getCanonicalCaseName, c => formatYear(getCanonicalDate(c)))">
-                      <span class="canonical-name-block">
-                        <span v-if="pair.name && pair.name !== 'N/A'" :class="['canonical-name', getCaseNameClass(pair.citation)]">
-                          {{ pair.name }}
-                          <span v-if="pair.year" :class="['canonical-date', getDateClass(pair.citation)]"> ({{ pair.year }})</span>
-                          <span v-else class="canonical-date missing">(no date)</span>
-                        </span>
-                        <span v-else class="canonical-name missing">No canonical name</span>
-                      </span>
-                      <span v-if="idx < uniqueNameYearPairs(cluster.citations, getCanonicalCaseName, c => formatYear(getCanonicalDate(c))).length - 1">, </span>
-                    </template>
-                  </div>
-                </div>
-                <!-- Force a line break between canonical and extracted rows -->
-                <div style="height: 0.5em;"></div>
-                <!-- Third row: unique extracted names/dates -->
-                <div class="citation-row citation-row-extracted flex-names-row">
-                  <span class="row-label">From Document:</span>
-                  <div class="names-flex-wrap">
-                    <template v-for="(pair, idx) in uniqueNameYearPairs(cluster.citations, getExtractedCaseName, c => formatYear(getExtractedDate(c)))">
-                      <span class="extracted-name-block">
-                        <span v-if="pair.name && pair.name !== 'N/A'" :class="['extracted-name', getCaseNameClass(pair.citation)]">
-                          {{ pair.name }}
-                          <span v-if="pair.year" :class="['extracted-date', getDateClass(pair.citation)]"> ({{ pair.year }})</span>
-                          <span v-else class="extracted-date missing">(no date)</span>
-                        </span>
-                        <span v-else class="extracted-name missing">No extracted name</span>
-                      </span>
-                      <span v-if="idx < uniqueNameYearPairs(cluster.citations, getExtractedCaseName, c => formatYear(getExtractedDate(c))).length - 1">, </span>
-                    </template>
-                  </div>
-                </div>
-                <!-- Collapsible details section -->
-                <div v-show="expandedCitations.has(getCitation(cluster.citations[0]))" class="citation-details">
-                  <div v-for="(citation, idx) in cluster.citations" :key="getCitation(citation) + '-details'">
-                    <div class="detail-row"><span class="detail-label">Source:</span> <span>{{ getSource(citation) }}</span></div>
-                    <div class="detail-row"><span class="detail-label">Verification:</span> <span>{{ getVerificationStatus(citation) }}</span></div>
-                    <div class="detail-row" v-if="getError(citation)"><span class="detail-label">Error:</span> <span>{{ getError(citation) }}</span></div>
-                    <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
-                    <!-- Add more details/context as needed -->
                   </div>
                 </div>
               </template>
@@ -701,14 +686,14 @@ function downloadAllCitations() {
             @click="displayMode = 'horizontal'"
             title="Horizontal Layout"
           >
-            <span>��</span> Horizontal
+            <span>📄</span> Horizontal
           </button>
           <button 
             :class="['layout-btn', { active: displayMode === 'canonical-only' }]"
             @click="displayMode = 'canonical-only'"
-            title="Name/Date on Top"
+            title="Name/Date on Top (Default)"
           >
-            <span>📝</span> Name/Date on Top
+            <span>📝</span> Name/Date on Top (Default)
           </button>
         </div>
         <div class="search-box">
@@ -891,11 +876,11 @@ function downloadAllCitations() {
               <span v-else class="extracted-name missing">No extracted name</span>
             </div>
             
-            <!-- Third line: All citations in the cluster -->
-            <div class="citations-line">
+            <!-- Third line and beyond: Each citation on its own row -->
+            <div class="citations-section">
               <span class="citations-label">Citations:</span>
-              <div class="citations-list-inline">
-                <template v-for="(citation, idx) in cluster.citations">
+              <div class="citations-list-vertical">
+                <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-row-item">
                   <a v-if="getVerificationStatus(citation) === 'verified' && getCitationUrl(citation)" 
                      :href="getCitationUrl(citation)" 
                      target="_blank" 
@@ -903,8 +888,10 @@ function downloadAllCitations() {
                     {{ getCitation(citation) }}
                   </a>
                   <span v-else class="citation-text">{{ getCitation(citation) }}</span>
-                  <span v-if="idx < cluster.citations.length - 1">, </span>
-                </template>
+                  <span class="verification-badge" :class="getVerificationStatus(citation)">
+                    {{ getVerificationStatus(citation).replace('_', ' ') }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -1785,6 +1772,31 @@ function downloadAllCitations() {
   flex-wrap: wrap;
   gap: 0.25rem;
   align-items: center;
+}
+
+.citations-section {
+  margin-top: 0.5rem;
+}
+
+.citations-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.citation-row-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #007bff;
+}
+
+.citation-row-item:hover {
+  background: #e9ecef;
 }
 
 .citation-link-verified {

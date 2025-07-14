@@ -10,11 +10,9 @@ import warnings
 
 logger = logging.getLogger(__name__)
 
-# Try to import PDF processing libraries
-try:
-    from src.pdf_handler import extract_text_from_pdf, PDFHandler
-except ImportError:
-    extract_text_from_pdf = None
+# This module is deprecated. Use src.document_processing_unified.extract_text_from_file instead.
+
+from src.document_processing_unified import extract_text_from_file
 
 # Check if pdf2md is available (commented out due to Pylance warning)
 # try:
@@ -163,5 +161,4 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         DeprecationWarning,
         stacklevel=2
     )
-    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
-    return unified_extract_text_from_file(file_path, convert_pdf_to_md=convert_pdf_to_md)
+    return extract_text_from_file(file_path, convert_pdf_to_md=convert_pdf_to_md)

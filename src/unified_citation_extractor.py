@@ -435,7 +435,7 @@ def extract_all_citations(text: str, logger=None) -> List[Dict]:
     Returns:
         List of citation dictionaries with metadata
     """
-    # DEPRECATED: from src.citation_extractor import CitationExtractor
+    # DEPRECATED: from .citation_extractor import CitationExtractor
     
     # Initialize extractor with case name extraction enabled
     extractor = CitationExtractor(

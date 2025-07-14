@@ -85,7 +85,7 @@ def _get_blueprint() -> Optional[object]:
     
     # Strategy 4: Direct absolute import
     try:
-        from src.vue_api_endpoints import vue_api
+        from .vue_api_endpoints import vue_api
         logger.info("Successfully imported vue_api blueprint via direct absolute import")
         print("Successfully imported vue_api blueprint via direct absolute import")
         return vue_api

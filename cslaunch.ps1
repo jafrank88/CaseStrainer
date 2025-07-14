@@ -189,10 +189,9 @@ function Clear-AllCaches {
                 Write-Host "Clearing npm cache..." -ForegroundColor Gray
                 Push-Location $vueDir
                 try {
-                    & $npmPath cache clean --force
-                    Write-Host "OK npm cache cleared" -ForegroundColor Green
-                }
-                finally {
+                    & npm -Command cache -Command clean -Command --force
+                    Write-Host "✅ npm cache cleared" -ForegroundColor Green
+                } finally {
                     Pop-Location
                 }
             } else {
@@ -392,7 +391,7 @@ function Find-NpmExecutable {
     }
 
     return $null
-} 
+}
 
 function Invoke-VueFrontendBuild {
     [CmdletBinding()]
@@ -1479,7 +1478,7 @@ function Show-CacheManagement {
                 if (Test-Path $vueDir) {
                     Push-Location $vueDir
                     try {
-                        & npm cache clean --force
+                        & npm -Command cache -Command clean -Command --force
                         Write-Host "✅ npm cache cleared" -ForegroundColor Green
                     } finally {
                         Pop-Location

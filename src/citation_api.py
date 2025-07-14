@@ -7,8 +7,8 @@ from flask import Blueprint, request, jsonify, current_app
 from typing import Dict, Any, Optional
 import asyncio
 
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from src.citation_services import ExtractionConfig
+from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from .citation_services import ExtractionConfig
 
 logger = logging.getLogger(__name__)
 

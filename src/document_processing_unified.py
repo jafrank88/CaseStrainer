@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Try to import the unified citation processor
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
     UNIFIED_PROCESSOR_AVAILABLE = True
 except ImportError:
     UNIFIED_PROCESSOR_AVAILABLE = False
@@ -31,7 +31,7 @@ except ImportError:
 
 # Try to import the enhanced processor as fallback
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
     ENHANCED_PROCESSOR_AVAILABLE = True
 except ImportError:
     try:

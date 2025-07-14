@@ -1,0 +1,41 @@
+[
+  {
+    "sample_id": 1,
+    "text_length": 533,
+    "citations_count": 6,
+    "citations": [
+      "200 Wn.2d 72",
+      "514 P.3d 643",
+      "171 Wn.2d 486",
+      "256 P.3d 321",
+      "146 Wn.2d 1",
+      "43 P.3d 4"
+    ]
+  },
+  {
+    "sample_id": 2,
+    "text_length": 335,
+    "citations_count": 6,
+    "citations": [
+      "123 Wash. 2d 456, 789 P.2d 123",
+      "789 P.2d 123",
+      "456 Wash. App. 789, 234 P.3d 567",
+      "234 P.3d 567",
+      "789 Wash. 2d 123, 456 P.3d 890",
+      "456 P.3d 890"
+    ]
+  },
+  {
+    "sample_id": 3,
+    "text_length": 316,
+    "citations_count": 6,
+    "citations": [
+      "123 Wn.2d 456, 789 P.2d 123",
+      "789 P.2d 123",
+      "456 Wn. App. 789, 234 P.3d 567",
+      "234 P.3d 567",
+      "789 Wn. 2d 123, 456 P.3d 890",
+      "456 P.3d 890"
+    ]
+  }
+]

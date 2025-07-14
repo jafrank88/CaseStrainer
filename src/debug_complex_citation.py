@@ -11,8 +11,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-from src.complex_citation_integration import process_text_with_complex_citations, ComplexCitationIntegrator
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from .complex_citation_integration import process_text_with_complex_citations, ComplexCitationIntegrator
+from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 def test_complex_citation():
     """Test the complex citation processing."""

@@ -1,0 +1,32 @@
+{
+  "test_info": {
+    "timestamp": "2025-07-13T15:28:09.949048",
+    "briefs_directory": "..\\downloaded_briefs",
+    "max_briefs": 2,
+    "total_processing_time": 25.770831823349
+  },
+  "summary_stats": {
+    "total_briefs": 2,
+    "successful_extractions": 2,
+    "failed_extractions": 0,
+    "total_citations": 195,
+    "total_case_names": 0,
+    "total_dates": 0,
+    "processing_time": 25.770831823349,
+    "avg_citations_per_brief": 97.5,
+    "avg_case_names_per_brief": 0.0,
+    "avg_dates_per_brief": 0.0
+  },
+  "detailed_results": [
+    {
+      "brief_name": "1357361_Nuclear_Reg__Comm_n_v__Texas",
+      "file_path": "..\\downloaded_briefs\\1357361_Nuclear_Reg__Comm_n_v__Texas.pdf",
+      "file_size": 957887,
+      "text_length": 212479,
+      "success": true,
+      "base_processor": {
+        "citations": 106,
+        "clusters": 0,
+        "processing_time": 1.1604135036468506,
+        "citations_list": [
+          

@@ -52,10 +52,9 @@ from flask_cors import CORS
 import requests
 import sqlite3
 import platform
-from src.citation_utils import extract_all_citations
-from src.file_utils import extract_text_from_file
-from src.citation_utils import deduplicate_citations
-from src.enhanced_validator_production import make_error_response
+from .citation_utils import extract_all_citations
+from .citation_utils import deduplicate_citations
+from .enhanced_validator_production import make_error_response
 import tempfile
 
 # Redis imports
@@ -77,21 +76,20 @@ except ImportError:
 
 # CitationService import
 try:
-    from src.api.services.citation_service import CitationService
+    from .api.services.citation_service import CitationService
     CITATION_SERVICE_AVAILABLE = True
     logger.info("CitationService imported successfully")
 except ImportError as e:
     logger.warning(f"CitationService not available: {e}")
     CITATION_SERVICE_AVAILABLE = False
 
-# PDF Handler import
+# Unified file extraction import
 try:
-    from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
-    logger.info("PDF handler imported successfully")
+    from src.document_processing_unified import extract_text_from_file
+    logger.info("Unified extract_text_from_file imported successfully")
 except ImportError as e:
-    logger.warning(f"PDF handler not available: {e}")
-    PDF_HANDLER_AVAILABLE = False
-    extract_text_from_pdf = None
+    logger.warning(f"Unified extract_text_from_file not available: {e}")
+    extract_text_from_file = None
 
 # Input validation functions
 def validate_file_direct(file):
@@ -190,6 +188,18 @@ def validate_url_input(url):
     if not isinstance(url, str):
         return False, "URL must be a string"
     
+    # NEW: Check if URL is encoded by security services
+    try:
+        from .url_decoder import URLDecoder
+        if URLDecoder.is_encoded_url(url):
+            # Try to decode it first
+            decoded_url, was_decoded = URLDecoder.decode_url(url)
+            if was_decoded:
+                url = decoded_url
+    except Exception as e:
+        # If decoding fails, continue with original URL
+        pass
+    
     # Check URL length
     if len(url) > 2048:
         return False, "URL exceeds 2048 character limit"
@@ -230,13 +240,13 @@ def validate_url_input(url):
 
 # Use UnifiedCitationProcessor for multi-source citation verification
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
     CitationVerifier = UnifiedCitationProcessor  # Alias for compatibility
     logger.info("Using UnifiedCitationProcessor for multi-source citation verification")
 except ImportError as e:
     logger.warning(f"Could not import UnifiedCitationProcessor: {e}")
     logger.warning("Falling back to CitationVerifier")
-    from src.citation_verification import CitationVerifier
+    from .citation_verification import CitationVerifier
     RateLimitError = Exception  # Fallback for compatibility
 
 # Place log_json_responses here, before blueprint registration
@@ -1041,20 +1051,18 @@ def analyze():
             
             try:
                 # Use the faster pdf_handler for PDF files
-                if file_ext.lower() == '.pdf' and PDF_HANDLER_AVAILABLE and extract_text_from_pdf:
+                if file_ext.lower() == '.pdf' and extract_text_from_file:
                     logger.info(f"[ANALYZE] Using fast PDF handler for: {filename}")
                     try:
-                        extracted_text = extract_text_from_pdf(temp_file_path, timeout=25)
+                        extracted_text = extract_text_from_file(temp_file_path)
                         logger.info(f"[ANALYZE] PDF handler extraction completed successfully")
                     except Exception as pdf_error:
                         logger.warning(f"[ANALYZE] PDF handler failed, falling back to document_processing_unified: {pdf_error}")
                         # Fallback to document_processing_unified
-                        from src.document_processing_unified import extract_text_from_file
                         extracted_text = extract_text_from_file(temp_file_path)
                 else:
                     # Fallback to document_processing_unified for non-PDF files
                     logger.info(f"[ANALYZE] Using document_processing_unified for: {filename}")
-                    from src.document_processing_unified import extract_text_from_file
                     extracted_text = extract_text_from_file(temp_file_path)
                 
                 logger.info(f"[ANALYZE] Text extraction completed. Length: {len(extracted_text)}")
@@ -1234,6 +1242,20 @@ def analyze():
         # Handle URL input
         elif input_type == 'url' or ('url' in data and data['url']):
             url = data.get('url')
+            
+            # NEW: Decode and clean URL if it's encoded by security services
+            try:
+                from .url_decoder import decode_and_clean_url
+                cleaned_url, was_decoded, original_url = decode_and_clean_url(url)
+                
+                if was_decoded:
+                    logger.info(f"[ANALYZE] Decoded URL: {original_url[:100]}... -> {cleaned_url[:100]}...")
+                    url = cleaned_url
+                else:
+                    logger.info(f"[ANALYZE] URL not encoded, using as-is: {url[:100]}...")
+            except Exception as e:
+                logger.warning(f"[ANALYZE] URL decoding failed, using original URL: {e}")
+                # Continue with original URL if decoding fails
             
             # Comprehensive URL validation
             is_valid, error_message = validate_url_input(url)

@@ -12,6 +12,8 @@ from urllib.parse import quote_plus
 import json
 from functools import lru_cache
 from dataclasses import dataclass
+from .config import get_config_value
+from .websearch_utils import search_cluster_for_canonical_sources
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +76,6 @@ class CanonicalCaseNameService:
                 return value
             
             # Try config file
-            from src.config import get_config_value
             return get_config_value(key)
         except ImportError:
             # Fallback to environment only
@@ -303,7 +304,6 @@ class CanonicalCaseNameService:
     def _lookup_web_sources(self, citation: str) -> Optional[CanonicalResult]:
         """Lookup using intelligent web scraping with LegalWebsearchEngine."""
         try:
-            from src.websearch_utils import search_cluster_for_canonical_sources
             import logging
             logger = logging.getLogger(__name__)
             logger.info("[LegalWebsearchEngine] Using new websearch_utils for citation: %s", citation)

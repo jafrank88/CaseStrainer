@@ -25,11 +25,7 @@ def test_pdf_handler():
     logger.info("=== Testing PDF Handler ===")
     
     try:
-        from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
-        
-        if not PDF_HANDLER_AVAILABLE:
-            logger.error("PDF handler not available")
-            return False
+        from src.document_processing_unified import extract_text_from_file
         
         # Test with a sample PDF file
         test_files = [
@@ -66,7 +62,7 @@ def test_pdf_handler():
         # Test with timeout
         start_time = time.time()
         try:
-            extracted_text = extract_text_from_pdf(pdf_file, timeout=25)
+            extracted_text = extract_text_from_file(pdf_file, timeout=25)
             extraction_time = time.time() - start_time
             
             logger.info(f"PDF extraction completed in {extraction_time:.2f} seconds")
@@ -177,14 +173,13 @@ def test_file_upload_simulation():
         
         # Simulate the extraction process from vue_api_endpoints.py
         try:
-            from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
+            from src.document_processing_unified import extract_text_from_file
             
-            if file_ext.lower() == '.pdf' and PDF_HANDLER_AVAILABLE:
-                logger.info(f"Using fast PDF handler for: {filename}")
-                extracted_text = extract_text_from_pdf(test_pdf, timeout=25)
+            if file_ext.lower() == '.pdf':
+                logger.info(f"Using document_processing_unified for: {filename}")
+                extracted_text = extract_text_from_file(test_pdf, timeout=25)
             else:
                 logger.info("Using document_processing_unified fallback")
-                from src.document_processing_unified import extract_text_from_file
                 extracted_text = extract_text_from_file(test_pdf)
             
             logger.info(f"Simulation extraction completed. Length: {len(extracted_text)}")

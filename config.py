@@ -134,11 +134,16 @@ def configure_logging():
     Returns:
         logging.Logger: The configured logger instance
     """
+    # Use /home/app/logs in Docker or ./logs locally
+    log_dir = "/home/app/logs" if os.path.exists("/home/app/logs") else "./logs"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "casestrainer.log")
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[logging.StreamHandler(), logging.FileHandler("casestrainer.log")],
+        handlers=[logging.StreamHandler(), logging.FileHandler(log_file)],
     )
     logger = logging.getLogger("casestrainer")
     logger.info("Logging configured")

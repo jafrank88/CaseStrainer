@@ -8,7 +8,7 @@ name lookup capabilities.
 
 DEPRECATED: Most functions in this module are deprecated. The main extraction
 logic has been integrated into the unified pipeline (UnifiedCitationProcessor
-with extract_case_name_triple from src.case_name_extraction_core).
+with extract_case_name_triple from .case_name_extraction_core).
 
 STILL USED: Some functions are still used by the unified pipeline:
 - get_canonical_case_name_from_courtlistener
@@ -1158,7 +1158,7 @@ def get_canonical_case_name_from_courtlistener(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
@@ -1186,7 +1186,7 @@ def get_canonical_case_name_from_google_scholar(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
@@ -1355,7 +1355,7 @@ def extract_case_name_triple_from_text(text: str, citation: str, api_key: str = 
     Uses narrow 100-character context window by default.
     """
     try:
-        from src.case_name_extraction_core import extract_case_name_triple
+        from .case_name_extraction_core import extract_case_name_triple
         return extract_case_name_triple(text, citation, api_key=api_key, context_window=context_window)
     except Exception as e:
         logger.error(f"Error in extract_case_name_triple_from_text: {e}")
@@ -1735,4 +1735,4 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
     
     return result
 
-from src.case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed
+from .case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed

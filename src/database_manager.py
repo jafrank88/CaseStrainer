@@ -23,6 +23,7 @@ import hashlib
 import tempfile
 import gzip
 from pathlib import Path
+from .config import DATABASE_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -492,7 +493,6 @@ def get_database_manager() -> DatabaseManager:
     """Get the global database manager instance."""
     global _db_manager
     if _db_manager is None:
-        from src.config import DATABASE_FILE
         _db_manager = DatabaseManager(DATABASE_FILE)
     return _db_manager
 

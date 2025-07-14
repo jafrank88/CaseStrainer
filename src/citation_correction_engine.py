@@ -19,15 +19,15 @@ except ImportError:
 import sys
 from typing import List, Dict, Any, Optional
 from difflib import SequenceMatcher
-from src.citation_format_utils import apply_washington_spacing_rules
-from src.database_manager import get_database_manager
+from .citation_format_utils import apply_washington_spacing_rules
+from .database_manager import get_database_manager
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.config import configure_logging
+from .config import configure_logging
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():

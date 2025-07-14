@@ -1,0 +1,611 @@
+{
+  "validation_results": {
+    "Regex Only": {
+      "method": "Regex Only",
+      "total_tests": 14,
+      "correct": 13,
+      "incorrect": 1,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "accuracy": 0.9285714285714286,
+      "test_results": [
+        {
+          "citation": "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)",
+          "description": "Standard WA Supreme Court citation with year in parentheses",
+          "expected_years": [
+            2022
+          ],
+          "extracted_years": [
+            2022
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)",
+          "description": "WA Supreme Court citation with year",
+          "expected_years": [
+            2011
+          ],
+          "extracted_years": [
+            2011
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)",
+          "description": "WA Supreme Court citation with apostrophe in name",
+          "expected_years": [
+            2003
+          ],
+          "extracted_years": [
+            2003
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "RCW 2.60.020",
+          "description": "Statute citation without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Washington State Constitution, Article I, Section 3",
+          "description": "Constitutional reference without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Smith v. Jones, 150 Wn.2d 123 (2003), overruled by Brown v. White, 160 Wn.2d 456 (2010)",
+          "description": "Citation with multiple years",
+          "expected_years": [
+            2003,
+            2010
+          ],
+          "extracted_years": [
+            2003,
+            2010
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1954
+          ],
+          "extracted_years": [
+            1954
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1973
+          ],
+          "extracted_years": [
+            1973
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "United States v. Doe, 123 F.3d 456 (9th Cir. 1997)",
+          "description": "Ninth Circuit citation",
+          "expected_years": [
+            1997
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "State v. Johnson, 123 Wn. App. 456 (2004)",
+          "description": "WA Court of Appeals citation",
+          "expected_years": [
+            2004
+          ],
+          "extracted_years": [
+            2004
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123, 456 P.2d 789 (1980)",
+          "description": "Citation with 2-digit year in reporter",
+          "expected_years": [
+            1980
+          ],
+          "extracted_years": [
+            1980
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Another v. Case, 200 Wn.2d 456, 789 P.3d 123 (2023)",
+          "description": "Recent citation",
+          "expected_years": [
+            2023
+          ],
+          "extracted_years": [
+            2023
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (no year provided)",
+          "description": "Citation with text indicating no year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (2000s)",
+          "description": "Citation with decade instead of year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        }
+      ]
+    },
+    "Core Only": {
+      "method": "Core Only",
+      "total_tests": 14,
+      "correct": 4,
+      "incorrect": 10,
+      "false_positives": 0,
+      "false_negatives": 11,
+      "accuracy": 0.2857142857142857,
+      "test_results": [
+        {
+          "citation": "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)",
+          "description": "Standard WA Supreme Court citation with year in parentheses",
+          "expected_years": [
+            2022
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)",
+          "description": "WA Supreme Court citation with year",
+          "expected_years": [
+            2011
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)",
+          "description": "WA Supreme Court citation with apostrophe in name",
+          "expected_years": [
+            2003
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "RCW 2.60.020",
+          "description": "Statute citation without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Washington State Constitution, Article I, Section 3",
+          "description": "Constitutional reference without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Smith v. Jones, 150 Wn.2d 123 (2003), overruled by Brown v. White, 160 Wn.2d 456 (2010)",
+          "description": "Citation with multiple years",
+          "expected_years": [
+            2003,
+            2010
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 2
+        },
+        {
+          "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1954
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1973
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "United States v. Doe, 123 F.3d 456 (9th Cir. 1997)",
+          "description": "Ninth Circuit citation",
+          "expected_years": [
+            1997
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "State v. Johnson, 123 Wn. App. 456 (2004)",
+          "description": "WA Court of Appeals citation",
+          "expected_years": [
+            2004
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123, 456 P.2d 789 (1980)",
+          "description": "Citation with 2-digit year in reporter",
+          "expected_years": [
+            1980
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Another v. Case, 200 Wn.2d 456, 789 P.3d 123 (2023)",
+          "description": "Recent citation",
+          "expected_years": [
+            2023
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (no year provided)",
+          "description": "Citation with text indicating no year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (2000s)",
+          "description": "Citation with decade instead of year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        }
+      ]
+    },
+    "Combined": {
+      "method": "Combined",
+      "total_tests": 14,
+      "correct": 13,
+      "incorrect": 1,
+      "false_positives": 0,
+      "false_negatives": 1,
+      "accuracy": 0.9285714285714286,
+      "test_results": [
+        {
+          "citation": "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)",
+          "description": "Standard WA Supreme Court citation with year in parentheses",
+          "expected_years": [
+            2022
+          ],
+          "extracted_years": [
+            2022
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)",
+          "description": "WA Supreme Court citation with year",
+          "expected_years": [
+            2011
+          ],
+          "extracted_years": [
+            2011
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)",
+          "description": "WA Supreme Court citation with apostrophe in name",
+          "expected_years": [
+            2003
+          ],
+          "extracted_years": [
+            2003
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "RCW 2.60.020",
+          "description": "Statute citation without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Washington State Constitution, Article I, Section 3",
+          "description": "Constitutional reference without year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Smith v. Jones, 150 Wn.2d 123 (2003), overruled by Brown v. White, 160 Wn.2d 456 (2010)",
+          "description": "Citation with multiple years",
+          "expected_years": [
+            2003,
+            2010
+          ],
+          "extracted_years": [
+            2003,
+            2010
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1954
+          ],
+          "extracted_years": [
+            1954
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+          "description": "US Supreme Court citation",
+          "expected_years": [
+            1973
+          ],
+          "extracted_years": [
+            1973
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "United States v. Doe, 123 F.3d 456 (9th Cir. 1997)",
+          "description": "Ninth Circuit citation",
+          "expected_years": [
+            1997
+          ],
+          "extracted_years": [],
+          "is_correct": false,
+          "false_positives": 0,
+          "false_negatives": 1
+        },
+        {
+          "citation": "State v. Johnson, 123 Wn. App. 456 (2004)",
+          "description": "WA Court of Appeals citation",
+          "expected_years": [
+            2004
+          ],
+          "extracted_years": [
+            2004
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123, 456 P.2d 789 (1980)",
+          "description": "Citation with 2-digit year in reporter",
+          "expected_years": [
+            1980
+          ],
+          "extracted_years": [
+            1980
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Another v. Case, 200 Wn.2d 456, 789 P.3d 123 (2023)",
+          "description": "Recent citation",
+          "expected_years": [
+            2023
+          ],
+          "extracted_years": [
+            2023
+          ],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (no year provided)",
+          "description": "Citation with text indicating no year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        },
+        {
+          "citation": "Case v. Name, 100 Wn.2d 123 (2000s)",
+          "description": "Citation with decade instead of year",
+          "expected_years": [],
+          "extracted_years": [],
+          "is_correct": true,
+          "false_positives": 0,
+          "false_negatives": 0
+        }
+      ]
+    }
+  },
+  "best_method": "Regex Only",
+  "best_accuracy": 0.9285714285714286,
+  "test_cases": [
+    {
+      "citation": "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)",
+      "expected_years": [
+        2022
+      ],
+      "description": "Standard WA Supreme Court citation with year in parentheses"
+    },
+    {
+      "citation": "Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)",
+      "expected_years": [
+        2011
+      ],
+      "description": "WA Supreme Court citation with year"
+    },
+    {
+      "citation": "Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)",
+      "expected_years": [
+        2003
+      ],
+      "description": "WA Supreme Court citation with apostrophe in name"
+    },
+    {
+      "citation": "RCW 2.60.020",
+      "expected_years": [],
+      "description": "Statute citation without year"
+    },
+    {
+      "citation": "Washington State Constitution, Article I, Section 3",
+      "expected_years": [],
+      "description": "Constitutional reference without year"
+    },
+    {
+      "citation": "Smith v. Jones, 150 Wn.2d 123 (2003), overruled by Brown v. White, 160 Wn.2d 456 (2010)",
+      "expected_years": [
+        2003,
+        2010
+      ],
+      "description": "Citation with multiple years"
+    },
+    {
+      "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+      "expected_years": [
+        1954
+      ],
+      "description": "US Supreme Court citation"
+    },
+    {
+      "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+      "expected_years": [
+        1973
+      ],
+      "description": "US Supreme Court citation"
+    },
+    {
+      "citation": "United States v. Doe, 123 F.3d 456 (9th Cir. 1997)",
+      "expected_years": [
+        1997
+      ],
+      "description": "Ninth Circuit citation"
+    },
+    {
+      "citation": "State v. Johnson, 123 Wn. App. 456 (2004)",
+      "expected_years": [
+        2004
+      ],
+      "description": "WA Court of Appeals citation"
+    },
+    {
+      "citation": "Case v. Name, 100 Wn.2d 123, 456 P.2d 789 (1980)",
+      "expected_years": [
+        1980
+      ],
+      "description": "Citation with 2-digit year in reporter"
+    },
+    {
+      "citation": "Another v. Case, 200 Wn.2d 456, 789 P.3d 123 (2023)",
+      "expected_years": [
+        2023
+      ],
+      "description": "Recent citation"
+    },
+    {
+      "citation": "Case v. Name, 100 Wn.2d 123 (no year provided)",
+      "expected_years": [],
+      "description": "Citation with text indicating no year"
+    },
+    {
+      "citation": "Case v. Name, 100 Wn.2d 123 (2000s)",
+      "expected_years": [],
+      "description": "Citation with decade instead of year"
+    }
+  ]
+}

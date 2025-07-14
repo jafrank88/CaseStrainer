@@ -1,448 +1,416 @@
+#!/usr/bin/env python3
 """
-Washington State Court Briefs Citation Processor
-
-This script extracts citations from downloaded briefs and processes them
-to identify which ones are verified with multitool and which are unconfirmed.
+Process downloaded Washington State Courts Briefs through citation extraction pipeline.
+This script runs the citation extraction and clustering logic on the downloaded briefs
+to test and validate the extraction algorithms.
 """
 
 import os
-import re
-import PyPDF2
-import random
+import sys
+import json
+import time
+from pathlib import Path
+from typing import List, Dict, Any
+import argparse
 import logging
+from collections import Counter
+
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+from file_utils import extract_text_from_pdf
+from citation_utils import CitationCluster
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("wa_briefs_processing.log"), logging.StreamHandler()],
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('wa_briefs_processing.log'),
+        logging.StreamHandler()
+    ]
 )
-logger = logging.getLogger("wa_briefs_processor")
+logger = logging.getLogger(__name__)
 
-# Database path
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "citations.db")
-
-# Citation patterns
-CITATION_PATTERNS = [
-    # U.S. Reports pattern (e.g., 347 U.S. 483)
-    r"\b(\d{1,3})\s+U\.?\s?S\.?\s+(\d{1,4})\b",
-    # Federal Reporter pattern (e.g., 531 F.3d 1114)
-    r"\b(\d{1,3})\s+F\.?\s?(?:2d|3d)\.?\s+(\d{1,4})\b",
-    # Washington Reporter pattern (e.g., 198 Wash.2d 492)
-    r"\b(\d{1,3})\s+Wash\.?\s?(?:2d|App\.?)\.?\s+(\d{1,4})\b",
-    # Pacific Reporter pattern (e.g., 432 P.2d 123)
-    r"\b(\d{1,3})\s+P\.?\s?(?:2d|3d)\.?\s+(\d{1,4})\b",
-    # Westlaw pattern (e.g., 2022 WL 12345678)
-    r"\b(20\d{2})\s+WL\s+(\d{8})\b",
-]
-
-
-def init_db():
-    """Initialize the database with the necessary tables if they don't exist."""
-    if not os.path.exists(os.path.dirname(DATABASE_FILE)):
-        os.makedirs(os.path.dirname(DATABASE_FILE))
-
-    conn = sqlite3.connect(DATABASE_FILE)
-    cursor = conn.cursor()
-
-    # Create tables for citations
-    cursor.execute(
-        """
-    CREATE TABLE IF NOT EXISTS citations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        citation_text TEXT NOT NULL,
-        case_name TEXT,
-        confidence REAL,
-        found BOOLEAN,
-        explanation TEXT,
-        source TEXT,
-        source_document TEXT,
-        url TEXT,
-        context TEXT,
-        date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """
-    )
-
-    conn.commit()
-    conn.close()
-    logger.info("Database initialized")
-
-
-def extract_citations_from_pdf(pdf_path):
-    """Extract citations from a PDF file using the unified extractor."""
-    try:
-        with open(pdf_path, "rb") as file:
-            reader = PyPDF2.PdfReader(file)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text() + " "
-
-        # Extract citations from text
-        from src.citation_extractor import CitationExtractor
+class WABriefsProcessor:
+    """Process WA briefs through citation extraction pipeline."""
+    
+    def __init__(self, briefs_dir: str = "wa_briefs", output_dir: str = "wa_briefs_results"):
+        self.briefs_dir = Path(briefs_dir)
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True)
         
-        # Initialize extractor with case name extraction enabled
-        extractor = CitationExtractor(
-            use_eyecite=True,
-            use_regex=True,
-            context_window=1000,
-            deduplicate=True,
-            extract_case_names=True
-        )
+        # Initialize citation processor
+        self.citation_processor = UnifiedCitationProcessorV2()
         
-        citations = extractor.extract(text)
+        # Track processing results
+        self.processed_count = 0
+        self.failed_count = 0
+        self.total_citations = 0
+        self.total_clusters = 0
+        self.total_citations_with_years = 0
         
-        # Convert to the expected format with context
-        formatted_citations = []
-        for citation_info in citations:
-            citation_text = citation_info['citation']
-            # Find context around the citation
-            context_start = max(0, text.find(citation_text) - 100)
-            context_end = min(len(text), text.find(citation_text) + len(citation_text) + 100)
-            context = text[context_start:context_end].replace("\n", " ").strip()
+    def get_pdf_files(self) -> List[Path]:
+        """Get all PDF files in the briefs directory."""
+        pdf_files = list(self.briefs_dir.glob("*.pdf"))
+        logger.info(f"Found {len(pdf_files)} PDF files to process")
+        return pdf_files
+    
+    def extract_text_from_brief(self, pdf_path: Path) -> str:
+        """Extract text from a brief PDF."""
+        try:
+            logger.info(f"Extracting text from: {pdf_path.name}")
+            text = extract_text_from_pdf(str(pdf_path))
             
-            formatted_citations.append({
-                "citation_text": citation_text,
-                "context": context,
-                "source": citation_info.get('source', 'unified')
-            })
-
-        return formatted_citations
-    except Exception as e:
-        logger.error(f"Error extracting citations from {pdf_path}: {str(e)}")
-        return []
-
-
-def verify_citation_with_courtlistener(citation):
-    """Verify a citation using the CourtListener API."""
-    try:
-        # This is a placeholder for the actual CourtListener API call
-        # In a real implementation, you would use the CourtListener API
-        # For now, we'll simulate a response
-
-        # Simulate a 30% chance of finding the citation in CourtListener
-        found = random.random() < 0.3
-
-        if found:
-            return {
-                "found": True,
-                "confidence": round(random.uniform(0.7, 0.95), 2),
-                "case_name": f"Case related to {citation['citation_text']}",
-                "source": "CourtListener",
-                "url": f"https://www.courtlistener.com/opinion/{random.randint(1000000, 9999999)}/",
-                "explanation": "Citation found in CourtListener database.",
-            }
-        else:
-            return {
-                "found": False,
-                "confidence": round(random.uniform(0.1, 0.4), 2),
-                "explanation": "Citation not found in CourtListener database.",
-            }
-    except Exception as e:
-        logger.error(f"Error verifying citation with CourtListener: {str(e)}")
-        return {
-            "found": False,
-            "confidence": 0.1,
-            "explanation": f"Error during verification: {str(e)}",
-        }
-
-
-def verify_citation_with_multitool(citation):
-    """Verify a citation using alternative sources."""
-    try:
-        # This is a placeholder for the actual multi-source verification
-        # In a real implementation, you would check multiple sources
-        # For now, we'll simulate a response
-
-        # Simulate a 40% chance of finding the citation in alternative sources
-        found = random.random() < 0.4
-
-        if found:
-            sources = ["Google Scholar", "Justia", "FindLaw", "HeinOnline"]
-            source = random.choice(sources)
-
-            return {
-                "found": True,
-                "confidence": round(random.uniform(0.6, 0.9), 2),
-                "case_name": f"Case related to {citation['citation_text']}",
-                "source": source,
-                "url": f"https://example.com/{source.lower().replace(' ', '')}/{random.randint(1000, 9999)}",
-                "explanation": f"Citation found in {source} database.",
-            }
-        else:
-            return {
-                "found": False,
-                "confidence": round(random.uniform(0.1, 0.3), 2),
-                "explanation": "Citation not found in any alternative sources.",
-            }
-    except Exception as e:
-        logger.error(f"Error verifying citation with multitool: {str(e)}")
-        return {
-            "found": False,
-            "confidence": 0.1,
-            "explanation": f"Error during verification: {str(e)}",
-        }
-
-
-def process_citation(citation, source_document):
-    """Process a citation to determine if it's verified or unconfirmed."""
-    # First, try to verify with CourtListener
-    courtlistener_result = verify_citation_with_courtlistener(citation)
-
-    # If not found in CourtListener, try alternative sources
-    if not courtlistener_result["found"]:
-        multitool_result = verify_citation_with_multitool(citation)
-
-        if multitool_result["found"]:
-            # Citation verified with multitool
-            return {
-                "citation_text": citation["citation_text"],
-                "case_name": multitool_result.get("case_name", "Unknown"),
-                "confidence": multitool_result["confidence"],
-                "found": True,
-                "explanation": multitool_result["explanation"],
-                "source": multitool_result["source"],
-                "source_document": source_document,
-                "url": multitool_result.get("url", ""),
-                "context": citation["context"],
-            }
-        else:
-            # Citation unconfirmed
-            return {
-                "citation_text": citation["citation_text"],
-                "case_name": "Unknown",
-                "confidence": multitool_result["confidence"],
-                "found": False,
-                "explanation": multitool_result["explanation"],
-                "source": "None",
-                "source_document": source_document,
-                "url": "",
-                "context": citation["context"],
-            }
-    else:
-        # Citation verified with CourtListener
-        return {
-            "citation_text": citation["citation_text"],
-            "case_name": courtlistener_result.get("case_name", "Unknown"),
-            "confidence": courtlistener_result["confidence"],
-            "found": True,
-            "explanation": courtlistener_result["explanation"],
-            "source": "CourtListener",
-            "source_document": source_document,
-            "url": courtlistener_result.get("url", ""),
-            "context": citation["context"],
-        }
-
-
-def save_citation_to_db(citation):
-    """Save a processed citation to the database."""
-    try:
-        conn = sqlite3.connect(DATABASE_FILE)
-        cursor = conn.cursor()
-
-        # Check if citation already exists
-        cursor.execute(
-            "SELECT id FROM citations WHERE citation_text = ?",
-            (citation["citation_text"],),
-        )
-        existing = cursor.fetchone()
-
-        if existing:
-            # Update existing citation
-            cursor.execute(
-                """
-            UPDATE citations SET
-                case_name = ?,
-                confidence = ?,
-                found = ?,
-                explanation = ?,
-                source = ?,
-                source_document = ?,
-                url = ?,
-                context = ?,
-                date_added = CURRENT_TIMESTAMP
-            WHERE citation_text = ?
-            """,
-                (
-                    citation["case_name"],
-                    citation["confidence"],
-                    citation["found"],
-                    citation["explanation"],
-                    citation["source"],
-                    citation["source_document"],
-                    citation["url"],
-                    citation["context"],
-                    citation["citation_text"],
-                ),
-            )
-        else:
-            # Insert new citation
-            cursor.execute(
-                """
-            INSERT INTO citations (
-                citation_text, case_name, confidence, found, explanation,
-                source, source_document, url, context
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-                (
-                    citation["citation_text"],
-                    citation["case_name"],
-                    citation["confidence"],
-                    citation["found"],
-                    citation["explanation"],
-                    citation["source"],
-                    citation["source_document"],
-                    citation["url"],
-                    citation["context"],
-                ),
-            )
-
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logger.error(f"Error saving citation to database: {str(e)}")
-        return False
-
-
-def process_briefs(briefs_dir, metadata_file=None):
-    """Process all briefs in the specified directory."""
-    # Initialize the database
-    init_db()
-
-    # Get list of briefs to process
-    briefs = []
-    if metadata_file and os.path.exists(metadata_file):
-        with open(metadata_file, "r") as f:
-            briefs = json.load(f)
-    else:
-        # If no metadata file, process all PDF files in the directory
-        for filename in os.listdir(briefs_dir):
-            if filename.lower().endswith(".pdf"):
-                file_path = os.path.join(briefs_dir, filename)
-                briefs.append(
-                    {
-                        "id": filename.split("_")[0],
-                        "title": filename,
-                        "local_path": file_path,
-                    }
-                )
-
-    # Process each brief
-    multitool_citations = []
-    unconfirmed_citations = []
-
-    for brief in briefs:
-        if "local_path" not in brief or not os.path.exists(brief["local_path"]):
-            logger.warning(f"Brief file not found: {brief.get('title', 'Unknown')}")
-            continue
-
-        logger.info(f"Processing brief: {brief['title']}")
-
-        # Extract citations from the brief
-        citations = extract_citations_from_pdf(brief["local_path"])
-        logger.info(f"Found {len(citations)} citations in {brief['title']}")
-
-        # Process each citation
+            if not text or len(text.strip()) < 100:
+                logger.warning(f"Extracted text too short for {pdf_path.name}")
+                return ""
+            
+            logger.info(f"Extracted {len(text)} characters from {pdf_path.name}")
+            return text
+            
+        except Exception as e:
+            logger.error(f"Error extracting text from {pdf_path.name}: {e}")
+            return ""
+    
+    def analyze_year_extraction(self, citations: List[str]) -> Dict[str, Any]:
+        """Analyze year extraction from citations."""
+        from case_name_extraction_core import extract_case_name_triple_comprehensive
+        import re
+        
+        year_results = []
+        year_counts = Counter()
+        extraction_methods = Counter()
+        
         for citation in citations:
-            processed = process_citation(citation, brief["title"])
+            result = {
+                'citation': citation,
+                'extracted_years': [],
+                'extraction_method': None,
+                'confidence': 0.0
+            }
+            
+            # Method 1: Direct regex extraction
+            year_matches = re.findall(r'\b(19|20)\d{2}\b', citation)
+            if year_matches:
+                result['extracted_years'].extend([int(year) for year in year_matches])
+                result['extraction_method'] = 'regex'
+                result['confidence'] = 0.9
+            
+            # Method 2: Use case name extraction core
+            try:
+                extraction_result = extract_case_name_triple_comprehensive(citation)
+                if extraction_result and 'extracted_year' in extraction_result:
+                    extracted_year = extraction_result['extracted_year']
+                    if extracted_year and extracted_year not in result['extracted_years']:
+                        result['extracted_years'].append(extracted_year)
+                        if result['extraction_method']:
+                            result['extraction_method'] += '+core'
+                        else:
+                            result['extraction_method'] = 'core'
+                        result['confidence'] = max(result['confidence'], 0.8)
+            except Exception as e:
+                pass
+            
+            # Method 3: Look for year patterns in context
+            context_patterns = [
+                r'\((\d{4})\)',  # Year in parentheses
+                r',\s*(\d{4})\s*$',  # Year at end after comma
+                r'\s+(\d{4})\s*$',  # Year at end
+            ]
+            
+            for pattern in context_patterns:
+                matches = re.findall(pattern, citation)
+                for match in matches:
+                    year = int(match)
+                    if 1900 <= year <= 2030 and year not in result['extracted_years']:
+                        result['extracted_years'].append(year)
+                        if result['extraction_method']:
+                            result['extraction_method'] += '+context'
+                        else:
+                            result['extraction_method'] = 'context'
+                        result['confidence'] = max(result['confidence'], 0.7)
+            
+            # Remove duplicates and sort
+            result['extracted_years'] = sorted(list(set(result['extracted_years'])))
+            year_results.append(result)
+            
+            for year in result['extracted_years']:
+                year_counts[year] += 1
+            
+            if result['extraction_method']:
+                extraction_methods[result['extraction_method']] += 1
+        
+        return {
+            'year_results': year_results,
+            'year_distribution': dict(year_counts.most_common()),
+            'extraction_methods': dict(extraction_methods),
+            'total_citations': len(citations),
+            'citations_with_years': len([r for r in year_results if r['extracted_years']]),
+            'year_extraction_rate': len([r for r in year_results if r['extracted_years']]) / len(citations) if citations else 0
+        }
 
-            # Save to database
-            save_citation_to_db(processed)
-
-            # Categorize the citation
-            if processed["found"]:
-                if processed["source"] != "CourtListener":
-                    multitool_citations.append(processed)
+    def process_brief_citations(self, pdf_path: Path, text: str) -> Dict[str, Any]:
+        """Process citations from a brief."""
+        try:
+            logger.info(f"Processing citations for: {pdf_path.name}")
+            
+            # Extract citations using the unified processor
+            extraction_result = self.citation_processor.process_text(text)
+            
+            if not extraction_result:
+                logger.warning(f"No extraction result for {pdf_path.name}")
+                return {}
+            
+            # Get extracted citations - process_text returns a list of CitationResult objects
+            extracted_citations = [citation.citation_text for citation in extraction_result] if extraction_result else []
+            
+            # Analyze year extraction
+            year_analysis = self.analyze_year_extraction(extracted_citations)
+            
+            # Process through clustering
+            clusters = self.citation_processor.group_citations_into_clusters(
+                extraction_result, text
+            )
+            
+            # Convert clusters to serializable format
+            serializable_clusters = []
+            for cluster in clusters:
+                if isinstance(cluster, CitationCluster):
+                    serializable_clusters.append(cluster.to_dict())
+                else:
+                    serializable_clusters.append(cluster)
+            
+            result = {
+                'filename': pdf_path.name,
+                'file_size': pdf_path.stat().st_size,
+                'text_length': len(text),
+                'extracted_citations': extracted_citations,
+                'clusters': serializable_clusters,
+                'cluster_count': len(serializable_clusters),
+                'citation_count': len(extracted_citations),
+                'year_analysis': year_analysis,
+                'processing_timestamp': time.time()
+            }
+            
+            logger.info(f"Processed {pdf_path.name}: {len(extracted_citations)} citations, {len(serializable_clusters)} clusters, "
+                       f"{year_analysis['citations_with_years']} with years")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error processing citations for {pdf_path.name}: {e}")
+            return {
+                'filename': pdf_path.name,
+                'error': str(e),
+                'processing_timestamp': time.time()
+            }
+    
+    def save_results(self, results: List[Dict[str, Any]], summary_file: str = "processing_summary.json"):
+        """Save processing results to files."""
+        try:
+            # Save individual results
+            for result in results:
+                if 'filename' in result and 'error' not in result:
+                    filename = result['filename'].replace('.pdf', '_results.json')
+                    result_file = self.output_dir / filename
+                    
+                    with open(result_file, 'w') as f:
+                        json.dump(result, f, indent=2, default=str)
+            
+            # Save summary
+            summary_data = {
+                'processing_summary': {
+                    'total_files': len(results),
+                    'processed_successfully': self.processed_count,
+                    'failed': self.failed_count,
+                    'total_citations': self.total_citations,
+                    'total_clusters': self.total_clusters,
+                    'total_citations_with_years': self.total_citations_with_years,
+                    'average_citations_per_brief': self.total_citations / max(1, self.processed_count),
+                    'average_clusters_per_brief': self.total_clusters / max(1, self.processed_count),
+                    'year_extraction_rate': self.total_citations_with_years / max(1, self.total_citations)
+                },
+                'file_results': results
+            }
+            
+            summary_path = self.output_dir / summary_file
+            with open(summary_path, 'w') as f:
+                json.dump(summary_data, f, indent=2, default=str)
+            
+            logger.info(f"Results saved to {self.output_dir}")
+            
+        except Exception as e:
+            logger.error(f"Error saving results: {e}")
+    
+    def generate_analysis_report(self, results: List[Dict[str, Any]]):
+        """Generate analysis report of processing results."""
+        try:
+            report_file = self.output_dir / "analysis_report.txt"
+            
+            with open(report_file, 'w') as f:
+                f.write("Washington State Courts Briefs Citation Analysis Report\n")
+                f.write("=" * 60 + "\n\n")
+                
+                # Summary statistics
+                f.write("SUMMARY STATISTICS:\n")
+                f.write(f"Total briefs processed: {len(results)}\n")
+                f.write(f"Successfully processed: {self.processed_count}\n")
+                f.write(f"Failed processing: {self.failed_count}\n")
+                f.write(f"Total citations extracted: {self.total_citations}\n")
+                f.write(f"Total clusters created: {self.total_clusters}\n")
+                f.write(f"Total citations with years: {self.total_citations_with_years}\n")
+                f.write(f"Year extraction rate: {self.total_citations_with_years / max(1, self.total_citations):.1%}\n")
+                f.write(f"Average citations per brief: {self.total_citations / max(1, self.processed_count):.1f}\n")
+                f.write(f"Average clusters per brief: {self.total_clusters / max(1, self.processed_count):.1f}\n\n")
+                
+                # Year extraction analysis
+                f.write("YEAR EXTRACTION ANALYSIS:\n")
+                f.write("-" * 40 + "\n")
+                
+                # Aggregate year distribution across all briefs
+                all_year_distributions = {}
+                all_extraction_methods = Counter()
+                
+                for result in results:
+                    if 'year_analysis' in result:
+                        year_analysis = result['year_analysis']
+                        
+                        # Aggregate year distributions
+                        for year, count in year_analysis['year_distribution'].items():
+                            all_year_distributions[year] = all_year_distributions.get(year, 0) + count
+                        
+                        # Aggregate extraction methods
+                        for method, count in year_analysis['extraction_methods'].items():
+                            all_extraction_methods[method] += count
+                
+                if all_year_distributions:
+                    f.write(f"Overall year distribution: {dict(all_year_distributions)}\n")
+                if all_extraction_methods:
+                    f.write(f"Extraction methods used: {dict(all_extraction_methods)}\n")
+                
+                f.write("\n")
+                
+                # Brief-by-brief breakdown
+                f.write("BRIEF-BY-BRIEF BREAKDOWN:\n")
+                f.write("-" * 40 + "\n")
+                
+                for result in results:
+                    if 'error' in result:
+                        f.write(f"{result['filename']}: ERROR - {result['error']}\n")
+                    else:
+                        year_info = ""
+                        if 'year_analysis' in result:
+                            year_analysis = result['year_analysis']
+                            year_info = f", {year_analysis['citations_with_years']} with years ({year_analysis['year_extraction_rate']:.1%})"
+                        
+                        f.write(f"{result['filename']}: {result.get('citation_count', 0)} citations, "
+                               f"{result.get('cluster_count', 0)} clusters{year_info}\n")
+                
+                f.write("\n")
+                
+                # Citation patterns analysis
+                f.write("CITATION PATTERNS ANALYSIS:\n")
+                f.write("-" * 40 + "\n")
+                
+                successful_results = [r for r in results if 'error' not in r]
+                if successful_results:
+                    citation_counts = [r.get('citation_count', 0) for r in successful_results]
+                    cluster_counts = [r.get('cluster_count', 0) for r in successful_results]
+                    
+                    f.write(f"Citation count range: {min(citation_counts)} - {max(citation_counts)}\n")
+                    f.write(f"Cluster count range: {min(cluster_counts)} - {max(cluster_counts)}\n")
+                    
+                    # Find briefs with most citations
+                    most_citations = max(successful_results, key=lambda x: x.get('citation_count', 0))
+                    f.write(f"Brief with most citations: {most_citations['filename']} "
+                           f"({most_citations.get('citation_count', 0)} citations)\n")
+                    
+                    # Find briefs with most clusters
+                    most_clusters = max(successful_results, key=lambda x: x.get('cluster_count', 0))
+                    f.write(f"Brief with most clusters: {most_clusters['filename']} "
+                           f"({most_clusters.get('cluster_count', 0)} clusters)\n")
+                    
+                    # Find briefs with best year extraction
+                    if any('year_analysis' in r for r in successful_results):
+                        best_year_extraction = max(
+                            [r for r in successful_results if 'year_analysis' in r],
+                            key=lambda x: x['year_analysis']['year_extraction_rate']
+                        )
+                        rate = best_year_extraction['year_analysis']['year_extraction_rate']
+                        f.write(f"Brief with best year extraction: {best_year_extraction['filename']} "
+                               f"({rate:.1%} rate)\n")
+            
+            logger.info(f"Analysis report saved to {report_file}")
+            
+        except Exception as e:
+            logger.error(f"Error generating analysis report: {e}")
+    
+    def process_all_briefs(self):
+        """Process all briefs in the directory."""
+        logger.info("Starting WA briefs processing...")
+        
+        pdf_files = self.get_pdf_files()
+        if not pdf_files:
+            logger.warning("No PDF files found to process")
+            return
+        
+        results = []
+        
+        for pdf_path in pdf_files:
+            logger.info(f"Processing {pdf_path.name} ({self.processed_count + 1}/{len(pdf_files)})")
+            
+            # Extract text
+            text = self.extract_text_from_brief(pdf_path)
+            if not text:
+                self.failed_count += 1
+                results.append({
+                    'filename': pdf_path.name,
+                    'error': 'Failed to extract text',
+                    'processing_timestamp': time.time()
+                })
+                continue
+            
+            # Process citations
+            result = self.process_brief_citations(pdf_path, text)
+            
+            if result and 'error' not in result:
+                self.processed_count += 1
+                self.total_citations += result.get('citation_count', 0)
+                self.total_clusters += result.get('cluster_count', 0)
+                
+                # Track year extraction stats
+                if 'year_analysis' in result:
+                    self.total_citations_with_years += result['year_analysis']['citations_with_years']
             else:
-                unconfirmed_citations.append(processed)
-
-    # Update the citation verification results JSON files
-    update_citation_json_files(multitool_citations, unconfirmed_citations)
-
-    logger.info(
-        f"Processing complete. Found {len(multitool_citations)} multitool citations and {len(unconfirmed_citations)} unconfirmed citations."
-    )
-    return multitool_citations, unconfirmed_citations
-
-
-def update_citation_json_files(multitool_citations, unconfirmed_citations):
-    """Update the citation verification results JSON files."""
-    # Update citation_verification_results.json
-    citation_file = os.path.join(
-        os.path.dirname(__file__), "citation_verification_results.json"
-    )
-    citation_data = {"newly_confirmed": [], "still_unconfirmed": []}
-
-    if os.path.exists(citation_file):
-        try:
-            with open(citation_file, "r") as f:
-                citation_data = json.load(f)
-        except Exception as e:
-            print(f"Error reading citation_verification_results.json: {e}")
-
-    # Add unconfirmed citations
-    for citation in unconfirmed_citations:
-        citation_data["still_unconfirmed"].append(
-            {
-                "citation": citation["citation_text"],
-                "explanation": citation["explanation"],
-                "confidence": citation["confidence"],
-                "document": citation["source_document"],
-            }
-        )
-
-    # Write updated data
-    with open(citation_file, "w") as f:
-        json.dump(citation_data, f, indent=2)
-
-    # Update database_verification_results.json
-    database_file = os.path.join(
-        os.path.dirname(__file__), "database_verification_results.json"
-    )
-    database_data = []
-
-    if os.path.exists(database_file):
-        try:
-            with open(database_file, "r") as f:
-                database_data = json.load(f)
-        except Exception as e:
-            print(f"Error reading database_verification_results.json: {e}")
-
-    # Add multitool citations
-    for citation in multitool_citations:
-        database_data.append(
-            {
-                "citation": citation["citation_text"],
-                "case_name": citation["case_name"],
-                "confidence": citation["confidence"],
-                "source": citation["source"],
-                "url": citation["url"],
-                "explanation": citation["explanation"],
-            }
-        )
-
-    # Write updated data
-    with open(database_file, "w") as f:
-        json.dump(database_data, f, indent=2)
-
-    logger.info(f"Updated citation JSON files: {citation_file} and {database_file}")
-
+                self.failed_count += 1
+            
+            results.append(result)
+            
+            # Rate limiting
+            time.sleep(0.1)
+        
+        # Save results
+        self.save_results(results)
+        self.generate_analysis_report(results)
+        
+        logger.info(f"Processing complete. Processed: {self.processed_count}, Failed: {self.failed_count}")
+        logger.info(f"Total citations: {self.total_citations}, Total clusters: {self.total_clusters}")
+        logger.info(f"Citations with years: {self.total_citations_with_years} ({self.total_citations_with_years / max(1, self.total_citations):.1%})")
 
 def main():
-    # Simple CLI for running the script directly (no argparse)
-    briefs_dir = "wa_briefs"
-    metadata_file = None
-
-    # Process the briefs
-    multitool_citations, unconfirmed_citations = process_briefs(
-        briefs_dir, metadata_file
+    parser = argparse.ArgumentParser(description='Process WA briefs through citation extraction')
+    parser.add_argument('--briefs-dir', default='wa_briefs', help='Directory containing downloaded briefs')
+    parser.add_argument('--output-dir', default='wa_briefs_results', help='Output directory for results')
+    
+    args = parser.parse_args()
+    
+    processor = WABriefsProcessor(
+        briefs_dir=args.briefs_dir,
+        output_dir=args.output_dir
     )
-
-    print("Processing complete!")
-    print(f"Found {len(multitool_citations)} citations verified with multitool")
-    print(f"Found {len(unconfirmed_citations)} unconfirmed citations")
-
+    
+    processor.process_all_briefs()
 
 if __name__ == "__main__":
     main()

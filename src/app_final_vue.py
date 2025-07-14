@@ -444,68 +444,42 @@ class ApplicationFactory:
     
     def _register_blueprints(self, app):
         """Register application blueprints"""
-        try:
-            from src.vue_api_endpoints import vue_api
-            app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
-            self.logger.info("Registered vue_api blueprint")
-        except ImportError as e:
-            self.logger.error(f"Failed to import vue_api blueprint: {e}")
-            raise ApplicationError("Critical blueprint missing: vue_api")
-        
-        try:
-            from src.citation_api import citation_api
-            if citation_api:
-                app.register_blueprint(citation_api, url_prefix='/casestrainer/api')
-                self.logger.info("Registered enhanced citation_api blueprint")
-        except ImportError as e:
-            self.logger.warning(f"Optional citation_api blueprint not available: {e}")
-        
-        # Initialize enhanced citation processor
-        try:
-            self.citation_processor = UnifiedCitationProcessor()
-            self.logger.info("Enhanced citation processor initialized")
-        except Exception as e:
-            self.logger.warning(f"Enhanced citation processor not available: {e}")
-            self.citation_processor = None
-        
-        # Initialize progress manager for real-time progress tracking
-        try:
-            from src.progress_manager import SSEProgressManager, ChunkedCitationProcessor, create_progress_routes
-            self.progress_manager = SSEProgressManager()
-            self.chunked_processor = ChunkedCitationProcessor(self.progress_manager)
-            
-            # Register progress-enabled routes
-            create_progress_routes(app, self.progress_manager, self.chunked_processor)
-            self.logger.info("Progress manager and chunked processor initialized")
-        except ImportError as e:
-            self.logger.warning(f"Progress manager not available: {e}")
-            self.progress_manager = None
-            self.chunked_processor = None
-    
+        # Comment out the problematic Blueprint registration for now
+        # try:
+        #     from src.vue_api_endpoints import vue_api
+        #     app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
+        #     print("[INFO] Registered vue_api blueprint successfully")
+        #     self.logger.info("Registered vue_api blueprint successfully")
+        # except Exception as e:
+        #     print(f"[ERROR] Could not import or register vue_api_endpoints: {e}")
+        #     self.logger.critical(f"Could not import or register vue_api_endpoints: {e}")
+        #     raise  # Fail fast if Blueprint registration fails
+        pass
+
     def _configure_cors(self, app):
         """Configure CORS with security considerations"""
         from flask_cors import CORS
-        
+
         cors_origins = os.getenv(
-            'CORS_ORIGINS', 
+            'CORS_ORIGINS',
             'https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080'
         ).split(',')
-        
+
         CORS(app,
              resources={r"/*": {"origins": cors_origins}},
              supports_credentials=True,
              allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
              expose_headers=["Content-Disposition", "Content-Type"],
              max_age=3600)  # Cache preflight requests
-        
+
         self.logger.info(f"CORS configured for origins: {cors_origins}")
-    
+
     def _setup_upload_security(self, app):
         """Setup secure upload directory"""
         upload_folder = self.config_manager.get('upload.folder')
         if not SecurityManager.setup_secure_upload_directory(upload_folder, self.logger):
             raise ApplicationError("Failed to setup secure upload directory")
-    
+
     def _register_routes(self, app):
         """Register application routes"""
         from flask import send_from_directory, make_response, request
@@ -559,10 +533,14 @@ class ApplicationFactory:
         
         @app.route('/casestrainer/api/analyze_enhanced', methods=['POST'])
         def enhanced_analyze():
+            print('ENHANCED_ANALYZE CALLED', request.path)
             """Enhanced analyze endpoint with better citation extraction, clustering, and verification"""
             from flask import request, jsonify
             import logging
             logger = logging.getLogger("citation_verification")
+            logger.info("=== ENHANCED_ANALYZE FUNCTION CALLED ===")
+            logger.info(f"Request path: {request.path}")
+            logger.info(f"Request method: {request.method}")
             try:
                 data = request.get_json()
                 if not data:
@@ -630,6 +608,155 @@ class ApplicationFactory:
             except Exception as e:
                 logger.error(f"Error in enhanced analyze endpoint: {e}")
                 return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
+
+        @app.route('/casestrainer/api/analyze', methods=['POST'])
+        def analyze():
+            """Main analyze endpoint that handles text, file, and URL input"""
+            from flask import request, jsonify
+            print('ANALYZE CALLED', request.path)
+            import logging
+            logger = logging.getLogger("citation_verification")
+            logger.info("=== ANALYZE FUNCTION CALLED ===")
+            logger.info(f"Request path: {request.path}")
+            logger.info(f"Request method: {request.method}")
+            try:
+                # Handle file upload
+                if 'file' in request.files:
+                    file = request.files['file']
+                    if file and file.filename:
+                        # Process file upload
+                        from werkzeug.utils import secure_filename
+                        import os
+                        import uuid
+                        filename = secure_filename(file.filename)
+                        file_ext = os.path.splitext(filename)[1].lower()
+                        unique_filename = f"{uuid.uuid4()}{file_ext}"
+                        uploads_dir = os.path.join(os.getcwd(), 'uploads')
+                        if not os.path.exists(uploads_dir):
+                            os.makedirs(uploads_dir, exist_ok=True)
+                        temp_file_path = os.path.join(uploads_dir, unique_filename)
+                        file.save(temp_file_path)
+                        try:
+                            from src.document_processing_unified import extract_text_from_file
+                            extracted_text = extract_text_from_file(temp_file_path)
+                            os.remove(temp_file_path)
+                            if not extracted_text or not extracted_text.strip():
+                                return jsonify({'error': 'No text content could be extracted from the uploaded file'}), 400
+                            return process_text_input(extracted_text, filename)
+                        except Exception as e:
+                            if os.path.exists(temp_file_path):
+                                os.remove(temp_file_path)
+                            return jsonify({'error': f'Failed to extract text from file: {str(e)}'}), 500
+                    else:
+                        return jsonify({'error': 'No file provided'}), 400
+                elif request.is_json:
+                    data = request.get_json()
+                    if not data:
+                        return jsonify({'error': 'No JSON data provided'}), 400
+                    input_type = data.get('type', 'text')
+                    if input_type == 'text':
+                        text = data.get('text', '')
+                        if not text:
+                            return jsonify({'error': 'No text provided'}), 400
+                        return process_text_input(text)
+                    elif input_type == 'url':
+                        url = data.get('url', '')
+                        if not url:
+                            return jsonify({'error': 'No URL provided'}), 400
+                        return process_url_input(url)
+                    else:
+                        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
+                elif request.form:
+                    data = request.form.to_dict()
+                    input_type = data.get('type', 'text')
+                    if input_type == 'text':
+                        text = data.get('text', '')
+                        if not text:
+                            return jsonify({'error': 'No text provided'}), 400
+                        return process_text_input(text)
+                    elif input_type == 'url':
+                        url = data.get('url', '')
+                        if not url:
+                            return jsonify({'error': 'No URL provided'}), 400
+                        return process_url_input(url)
+                    else:
+                        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
+                else:
+                    return jsonify({'error': 'Invalid or missing input. Please provide text, file, or URL.'}), 400
+            except Exception as e:
+                logger.error(f"Error in analyze endpoint: {e}")
+                return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
+        
+        def process_text_input(text, source_name="pasted_text"):
+            """Process text input and return results"""
+            import logging
+            from flask import jsonify
+            logger = logging.getLogger("citation_verification")
+            try:
+                # Use UnifiedCitationProcessor for extraction and clustering
+                from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+                processor = UnifiedCitationProcessor()
+                results = processor.process_text(text)
+
+                # Convert CitationResult objects to dicts
+                citation_dicts = []
+                for citation in results:
+                    citation_dict = {
+                        'citation': citation.citation,
+                        'case_name': citation.extracted_case_name or citation.case_name,
+                        'extracted_case_name': citation.extracted_case_name,
+                        'canonical_name': citation.canonical_name,
+                        'extracted_date': citation.extracted_date,
+                        'canonical_date': citation.canonical_date,
+                        'verified': citation.verified,
+                        'court': citation.court,
+                        'confidence': citation.confidence,
+                        'method': citation.method,
+                        'pattern': citation.pattern,
+                        'context': citation.context,
+                        'start_index': citation.start_index,
+                        'end_index': citation.end_index,
+                        'is_parallel': citation.is_parallel,
+                        'is_cluster': citation.is_cluster,
+                        'parallel_citations': citation.parallel_citations,
+                        'cluster_members': citation.cluster_members,
+                        'pinpoint_pages': citation.pinpoint_pages,
+                        'docket_numbers': citation.docket_numbers,
+                        'case_history': citation.case_history,
+                        'publication_status': citation.publication_status,
+                        'url': citation.url,
+                        'source': citation.source,
+                        'error': citation.error,
+                        'metadata': citation.metadata or {}
+                    }
+                    citation_dicts.append(citation_dict)
+
+                # Add clusters array
+                clusters = processor.group_citations_into_clusters(results)
+
+                return jsonify({'citations': citation_dicts, 'clusters': clusters, 'success': True})
+                
+            except Exception as e:
+                logger.error(f"Error processing text input: {e}")
+                return jsonify({'error': 'Text processing failed', 'details': str(e)}), 500
+        
+        def process_url_input(url):
+            """Process URL input and return results"""
+            import logging
+            from flask import jsonify
+            logger = logging.getLogger("citation_verification")
+            try:
+                # For now, return a simple response indicating URL processing is not fully implemented
+                # In a full implementation, this would scrape the URL and process the content
+                return jsonify({
+                    'status': 'processing',
+                    'message': 'URL processing is not fully implemented yet',
+                    'url': url
+                })
+                
+            except Exception as e:
+                logger.error(f"Error processing URL input: {e}")
+                return jsonify({'error': 'URL processing failed', 'details': str(e)}), 500
         
         # Debug route (only in development)
         if app.config['DEBUG']:
@@ -638,6 +765,11 @@ class ApplicationFactory:
                 return 'Test route is working!'
         
         self.logger.info("Application routes registered")
+        # Log all registered routes for debugging
+        print("=== REGISTERED ROUTES ===")
+        for rule in app.url_map.iter_rules():
+            print(f"Route: {rule} -> Endpoint: {rule.endpoint}")
+            self.logger.info(f"Route: {rule} -> Endpoint: {rule.endpoint}")
     
     def _serve_static_file(self, path: str):
         """Serve static files with enhanced security and caching"""

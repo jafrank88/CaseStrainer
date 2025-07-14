@@ -491,7 +491,7 @@ class SCOTUSPDFCitationExtractor:
         Returns:
             dict: Extraction results
         """
-        from src.unified_citation_extractor import extract_all_citations
+        from .unified_citation_extractor import extract_all_citations
         # ... (existing code to download/extract text from PDF) ...
         # Assume 'text' contains the extracted text from the PDF
         text = self._extract_text_from_pdf_url(url)

@@ -37,15 +37,19 @@ except ImportError:
     logging.warning("python-docx not available - install with: pip install python-docx")
 
 # Import enhanced processing modules
-from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
-from src.case_name_extraction_core import extract_case_name_triple_comprehensive
+from src.document_processing_unified import extract_text_from_file
+from case_name_extraction_core import extract_case_name_triple_comprehensive
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from app_final_vue import verify_citation_with_extraction
+from document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+from citation_extractor import normalize_washington_citations
 
 # Configure logger first
 logger = logging.getLogger(__name__)
 
 # Use the new unified citation processor V2
 try:
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
     class EnhancedProcessor(UnifiedCitationProcessorV2):
         def __init__(self):
             config = ProcessingConfig(
@@ -80,9 +84,7 @@ except ImportError as e:
     logger.warning(f"UnifiedCitationProcessorV2 not available: {e}")
     # Fallback to original processor
     try:
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-        
-        class EnhancedProcessor(UnifiedCitationProcessor):
+        class EnhancedProcessor(UnifiedCitationProcessorV2):
             def __init__(self):
                 config = ProcessingConfig(
                     use_eyecite=True,
@@ -126,7 +128,6 @@ class EnhancedDocumentProcessor:
             self.processor = EnhancedProcessor()
         else:
             # Import the fallback processor
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             self.processor = UnifiedCitationProcessor()
             logger.info("Using fallback processor")
         
@@ -289,13 +290,7 @@ class EnhancedDocumentProcessor:
         try:
             if file_extension == '.pdf':
                 logger.info("Processing PDF file with enhanced handler")
-                handler = PDFHandler(PDFExtractionConfig(
-                    preferred_method=PDFExtractionMethod.PDFMINER,
-                    use_fallback=True,  # Enable fallback for better reliability
-                    timeout=60,         # Increased timeout
-                    clean_text=True
-                ))
-                text = handler.extract_text(file_path)
+                text = extract_text_from_file(file_path)
                 if text.startswith("Error:"):
                     raise Exception(text)
                 return text
@@ -596,7 +591,7 @@ class EnhancedDocumentProcessor:
     def _fallback_extraction(self, text: str) -> List[Dict]:
         """Fallback extraction using original processor."""
         try:
-            # DEPRECATED: from src.citation_extractor import CitationExtractor
+            # DEPRECATED: from .citation_extractor import CitationExtractor
             extractor = CitationExtractor(
                 use_eyecite=True,
                 use_regex=True,
@@ -623,7 +618,7 @@ class EnhancedDocumentProcessor:
         # If no case names found, try direct extraction
         if not case_names:
             try:
-                # DEPRECATED: from src.citation_extractor import CitationExtractor
+                # DEPRECATED: from .citation_extractor import CitationExtractor
                 extractor = CitationExtractor()
                 text_case_names = extractor._extract_case_names_from_text(text)
                 case_names.update(text_case_names)
@@ -634,7 +629,7 @@ class EnhancedDocumentProcessor:
 
     def verify_citations(self, citations: List[Dict], text: str) -> List[Dict]:
         """Enhanced verification with case name and date extraction using verify_citation_with_extraction."""
-        from src.app_final_vue import verify_citation_with_extraction
+        from .app_final_vue import verify_citation_with_extraction
         
         for citation in citations:
             try:
@@ -717,7 +712,7 @@ def extract_text_from_file(file_path: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    from .document_processing_unified import extract_text_from_file as unified_extract_text_from_file
     return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
@@ -730,7 +725,7 @@ def extract_text_from_url(url: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
     return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
@@ -801,7 +796,6 @@ class EnhancedDocumentProcessor:
             self.processor = EnhancedProcessor()
         else:
             # Import the fallback processor
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             self.processor = UnifiedCitationProcessor()
             logger.info("Using fallback processor")
         
@@ -964,13 +958,7 @@ class EnhancedDocumentProcessor:
         try:
             if file_extension == '.pdf':
                 logger.info("Processing PDF file with enhanced handler")
-                handler = PDFHandler(PDFExtractionConfig(
-                    preferred_method=PDFExtractionMethod.PDFMINER,
-                    use_fallback=True,  # Enable fallback for better reliability
-                    timeout=60,         # Increased timeout
-                    clean_text=True
-                ))
-                text = handler.extract_text(file_path)
+                text = extract_text_from_file(file_path)
                 if text.startswith("Error:"):
                     raise Exception(text)
                 return text
@@ -1265,7 +1253,7 @@ class EnhancedDocumentProcessor:
     def _fallback_extraction(self, text: str) -> List[Dict]:
         """Fallback extraction using original processor."""
         try:
-            # DEPRECATED: from src.citation_extractor import CitationExtractor
+            # DEPRECATED: from .citation_extractor import CitationExtractor
             extractor = CitationExtractor(
                 use_eyecite=True,
                 use_regex=True,
@@ -1292,7 +1280,7 @@ class EnhancedDocumentProcessor:
         # If no case names found, try direct extraction
         if not case_names:
             try:
-                # DEPRECATED: from src.citation_extractor import CitationExtractor
+                # DEPRECATED: from .citation_extractor import CitationExtractor
                 extractor = CitationExtractor()
                 text_case_names = extractor._extract_case_names_from_text(text)
                 case_names.update(text_case_names)
@@ -1303,7 +1291,7 @@ class EnhancedDocumentProcessor:
 
     def verify_citations(self, citations: List[Dict], text: str) -> List[Dict]:
         """Enhanced verification with case name and date extraction using verify_citation_with_extraction."""
-        from src.app_final_vue import verify_citation_with_extraction
+        from .app_final_vue import verify_citation_with_extraction
         
         for citation in citations:
             try:
@@ -1386,7 +1374,7 @@ def extract_text_from_file(file_path: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    from .document_processing_unified import extract_text_from_file as unified_extract_text_from_file
     return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
@@ -1399,7 +1387,7 @@ def extract_text_from_url(url: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
     return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
@@ -1407,7 +1395,7 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
     """
     Maintain compatibility with existing verification logic.
     """
-    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
     
     logger.info(f"[VERIFY] Starting verification of {len(citations)} citations")
     verifier = UnifiedCitationProcessor()
@@ -1423,7 +1411,6 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
             continue
         
         # Normalize citation
-        from src.citation_extractor import normalize_washington_citations
         normalized_citation = normalize_washington_citations(citation_text)
         
         # Extract additional information

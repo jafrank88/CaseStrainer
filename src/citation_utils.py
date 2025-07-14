@@ -4,7 +4,7 @@ import time
 import logging
 import sys
 from typing import List, Dict, Any, Optional
-from src.pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
+from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -12,7 +12,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Now import from config with absolute path
-from src.config import ALLOWED_EXTENSIONS
+from config import ALLOWED_EXTENSIONS
 
 
 def allowed_file(filename):
@@ -44,12 +44,12 @@ def log_citation_verification(citation, result):
             safe_source = str(result.get('source', 'No source info')).encode('cp1252', errors='replace').decode('cp1252')
             logger.info(f"Verified citation details (safe): {safe_source}")
 
-from src.config import COURTLISTENER_API_KEY
+from config import COURTLISTENER_API_KEY
 import re
-from src.citation_format_utils import apply_washington_spacing_rules
+from citation_format_utils import apply_washington_spacing_rules
 
 # Updated: Use the unified citation processor for all verification
-# from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier  # Removed - module deleted
+# from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier  # Removed - module deleted
 
 def normalize_citation_text(citation_text):
     """
@@ -118,7 +118,7 @@ def verify_citation(
 ):
     """Verify a citation using the unified citation processor."""
     try:
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         processor = UnifiedCitationProcessor()
         return processor.verify_citation(citation, extracted_case_name=extracted_case_name)
     except ImportError:
@@ -564,7 +564,7 @@ def batch_validate_citations_optimized(citations, api_key=None):
     def validate_single_citation(citation):
         try:
             # Try primary verification method first (CourtListener API)
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             
@@ -660,7 +660,7 @@ def batch_validate_citations(citations, api_key=None):
     results = []
     for citation in cleaned_citations:
         try:
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             results.append(
@@ -687,17 +687,17 @@ def batch_validate_citations(citations, api_key=None):
     return results
 
 
-# DEPRECATED: Use extract_all_citations from src.citation_extractor instead.
+# DEPRECATED: Use extract_all_citations from .citation_extractor instead.
 def extract_citations(*args, **kwargs):
-    """DEPRECATED. Use extract_all_citations from src.citation_extractor instead."""
+    """DEPRECATED. Use extract_all_citations from .citation_extractor instead."""
     import warnings
-    warnings.warn("extract_citations is deprecated. Use extract_all_citations from src.citation_extractor instead.", DeprecationWarning)
+    warnings.warn("extract_citations is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
     return []
 
 def extract_citations_from_text(*args, **kwargs):
-    """DEPRECATED. Use extract_all_citations from src.citation_extractor instead."""
+    """DEPRECATED. Use extract_all_citations from .citation_extractor instead."""
     import warnings
-    warnings.warn("extract_citations_from_text is deprecated. Use extract_all_citations from src.citation_extractor instead.", DeprecationWarning)
+    warnings.warn("extract_citations_from_text is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
     return []
 
 def extract_citations_from_text(text, logger=logger):
@@ -824,7 +824,7 @@ def extract_all_citations(text, logger=logger):
     Returns:
         List of citation dictionaries with metadata
     """
-    # DEPRECATED: from src.citation_extractor import CitationExtractor
+    # DEPRECATED: from .citation_extractor import CitationExtractor
     
     # Initialize extractor with case name extraction enabled
     extractor = CitationExtractor(

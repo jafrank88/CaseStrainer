@@ -1,0 +1,212 @@
+{
+  "export_info": {
+    "timestamp": "2025-07-13T16:12:06.263369",
+    "total_documents": 1,
+    "enhanced_extraction_version": "1.0"
+  },
+  "statistics": {
+    "total_documents": 1,
+    "total_citations": 4,
+    "total_case_names": 0,
+    "total_dates": 0,
+    "total_clusters": 1,
+    "processing_times": [
+      0.39404892921447754
+    ],
+    "average_processing_time": 0.39404892921447754,
+    "min_processing_time": 0.39404892921447754,
+    "max_processing_time": 0.39404892921447754
+  },
+  "results": [
+    {
+      "document_id": "sample_doc_001",
+      "processing_time": 0.39404892921447754,
+      "text_length": 552,
+      "citations": [
+        {
+          "citation": "200 Wn.2d 72, 514 P.3d 643",
+          "case_name": null,
+          "extracted_case_name": "Department of Transportation v. State Highway Commission",
+          "extracted_date": "2022",
+          "canonical_name": null,
+          "canonical_date": null,
+          "verified": false,
+          "url": null,
+          "court": null,
+          "docket_number": null,
+          "confidence": 0.9,
+          "method": "regex",
+          "pattern": "parallel_citation_cluster",
+          "context": "matter requires consideration of multiple authorities.\n    \n    First, we examine the framework established in Convoyant, LLC v. DeepThink, LLC, \n    200 Wn.2d 72, 514 P.3d 643 (2022). This case provides the foundational principles.\n    \n    Second, we consider the Department of Transportation v. State Highway Commission,",
+          "start_index": 184,
+          "end_index": 210,
+          "is_parallel": true,
+          "is_cluster": false,
+          "parallel_citations": [],
+          "cluster_members": [],
+          "pinpoint_pages": [],
+          "docket_numbers": [],
+          "case_history": [],
+          "publication_status": null,
+          "source": "regex",
+          "error": null,
+          "metadata": {
+            "is_in_cluster": false,
+            "cluster_id": null,
+            "cluster_size": 0,
+            "cluster_members": [],
+            "cluster_extracted_case_name": null,
+            "cluster_extracted_date": null
+          }
+        },
+        {
+          "citation": "514 P.3d 643",
+          "case_name": null,
+          "extracted_case_name": "First, we examine the framework established in Convoyant, LLC v. DeepThink, LLC",
+          "extracted_date": "2022",
+          "canonical_name": null,
+          "canonical_date": null,
+          "verified": false,
+          "url": null,
+          "court": null,
+          "docket_number": null,
+          "confidence": 0.7999999999999999,
+          "method": "regex",
+          "pattern": "flexible_p3d",
+          "context": "s consideration of multiple authorities.\n    \n    First, we examine the framework established in Convoyant, LLC v. DeepThink, LLC, \n    200 Wn.2d 72, 514 P.3d 643 (2022). This case provides the foundational principles.\n    \n    Second, we consider the Department of Transportation v. State Highway Commission,",
+          "start_index": 198,
+          "end_index": 210,
+          "is_parallel": false,
+          "is_cluster": false,
+          "parallel_citations": [],
+          "cluster_members": [],
+          "pinpoint_pages": [],
+          "docket_numbers": [],
+          "case_history": [],
+          "publication_status": null,
+          "source": "regex",
+          "error": null,
+          "metadata": {
+            "is_in_cluster": true,
+            "cluster_id": "cluster_2",
+            "cluster_size": 2,
+            "cluster_members": [
+              "200 Wn.2d 72",
+              "514 P.3d 643"
+            ],
+            "cluster_extracted_case_name": "First, we examine the framework established in Convoyant, LLC v. DeepThink, LLC",
+            "cluster_extracted_date": "2022"
+          }
+        },
+        {
+          "citation": "123 Wn.2d 456",
+          "case_name": null,
+          "extracted_case_name": "State Highway Commission",
+          "extracted_date": "1990",
+          "canonical_name": null,
+          "canonical_date": null,
+          "verified": false,
+          "url": null,
+          "court": null,
+          "docket_number": null,
+          "confidence": 1.0,
+          "method": "regex",
+          "pattern": "parallel_citation_cluster",
+          "context": "022). This case provides the foundational principles.\n    \n    Second, we consider the Department of Transportation v. State Highway Commission, \n    123 Wn.2d 456 (1990), which provides additional guidance on administrative procedures.\n    \n    Finally, we review the recent decision in In re Estate of Johnson,",
+          "start_index": 363,
+          "end_index": 376,
+          "is_parallel": false,
+          "is_cluster": false,
+          "parallel_citations": [],
+          "cluster_members": [],
+          "pinpoint_pages": [],
+          "docket_numbers": [],
+          "case_history": [],
+          "publication_status": null,
+          "source": "regex",
+          "error": null,
+          "metadata": {
+            "is_in_cluster": true,
+            "cluster_id": "cluster_2",
+            "cluster_size": 1,
+            "cluster_members": [
+              "123 Wn.2d 456"
+            ],
+            "cluster_extracted_case_name": "Second, we consider the Department of Transportation v. State Highway Commission",
+            "cluster_extracted_date": "1990"
+          }
+        },
+        {
+          "citation": "234 Wn.2d 567",
+          "case_name": null,
+          "extracted_case_name": "In re Estate of Johnson",
+          "extracted_date": "2018",
+          "canonical_name": null,
+          "canonical_date": null,
+          "verified": false,
+          "url": null,
+          "court": null,
+          "docket_number": null,
+          "confidence": 1.0,
+          "method": "regex",
+          "pattern": "parallel_citation_cluster",
+          "context": "(1990), which provides additional guidance on administrative procedures.\n    \n    Finally, we review the recent decision in In re Estate of Johnson, 234 Wn.2d 567 (2018).",
+          "start_index": 526,
+          "end_index": 539,
+          "is_parallel": false,
+          "is_cluster": false,
+          "parallel_citations": [],
+          "cluster_members": [],
+          "pinpoint_pages": [],
+          "docket_numbers": [],
+          "case_history": [],
+          "publication_status": null,
+          "source": "regex",
+          "error": null,
+          "metadata": {
+            "is_in_cluster": true,
+            "cluster_id": "cluster_3",
+            "cluster_size": 1,
+            "cluster_members": [
+              "234 Wn.2d 567"
+            ],
+            "cluster_extracted_case_name": null,
+            "cluster_extracted_date": "2018"
+          }
+        }
+      ],
+      "case_names": [],
+      "dates": [],
+      "clusters": [
+        {
+          "cluster_id": "cluster_2",
+          "citations": [
+            "200 Wn.2d 72, 514 P.3d 643",
+            "514 P.3d 643"
+          ],
+          "canonical_name": null,
+          "canonical_date": "2022",
+          "extracted_case_name": null,
+          "extracted_date": "2022",
+          "url": null,
+          "source": "regex",
+          "cluster_size": 2,
+          "confidence": 0.7999999999999999,
+          "context": "ies.\n    \n    First, we examine the framework established in Convoyant, LLC v. DeepThink, LLC, \n    200 Wn.2d 72, 514 P.3d 643 (2022). This case provides the foundational principles.\n    \n    Second, we consider the Department"
+        }
+      ],
+      "enhanced_features": {
+        "case_name_extraction": false,
+        "date_extraction": false,
+        "clustering": true,
+        "confidence_scoring": true
+      },
+      "statistics": {
+        "citation_count": 4,
+        "case_name_count": 0,
+        "date_count": 0,
+        "cluster_count": 1
+      }
+    }
+  ]
+}

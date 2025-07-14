@@ -31,7 +31,8 @@ services:
       - FLASK_ENV=development
       - CASTRAINER_ENV=development
       - PYTHONPATH=/app
-      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - COURTLISTENER_API_KEY=
+      
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads

@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import PyPDF2
 from pdfminer.layout import LAParams
+import warnings
+warnings.warn('deployment/pdf_handler.py is deprecated. Use src.document_processing_unified.extract_text_from_file instead.', DeprecationWarning)
 
 
 def extract_text_from_pdf(file_path):

@@ -2,9 +2,9 @@
 # This script copies the built Vue files to the correct static directories for serving
 
 Write-Host "Building Vue application..." -ForegroundColor Green
-cd casestrainer-vue-new
+Set-Location casestrainer-vue-new
 npm run build
-cd ..
+Set-Location ..
 
 Write-Host "Copying built files to static directories..." -ForegroundColor Green
 

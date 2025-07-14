@@ -1,0 +1,46 @@
+{
+  "test_info": {
+    "timestamp": "2025-07-13T15:25:00.609046",
+    "briefs_directory": "..\\downloaded_briefs",
+    "max_briefs": 3,
+    "total_processing_time": 0.006043910980224609
+  },
+  "summary_stats": {
+    "total_briefs": 3,
+    "successful_extractions": 0,
+    "failed_extractions": 3,
+    "total_citations": 0,
+    "total_case_names": 0,
+    "total_dates": 0,
+    "processing_time": 0.006043910980224609,
+    "avg_citations_per_brief": 0,
+    "avg_case_names_per_brief": 0,
+    "avg_dates_per_brief": 0
+  },
+  "detailed_results": [
+    {
+      "brief_name": "1357361_Nuclear_Reg__Comm_n_v__Texas",
+      "file_path": "..\\downloaded_briefs\\1357361_Nuclear_Reg__Comm_n_v__Texas.pdf",
+      "file_size": 957887,
+      "text_length": 0,
+      "success": false,
+      "error": "Failed to extract text"
+    },
+    {
+      "brief_name": "1398321_EPA_v__Kentucky",
+      "file_path": "..\\downloaded_briefs\\1398321_EPA_v__Kentucky.pdf",
+      "file_size": 790839,
+      "text_length": 0,
+      "success": false,
+      "error": "Failed to extract text"
+    },
+    {
+      "brief_name": "1391561_Delligatti_v__United_States",
+      "file_path": "..\\downloaded_briefs\\1391561_Delligatti_v__United_States.pdf",
+      "file_size": 765783,
+      "text_length": 0,
+      "success": false,
+      "error": "Failed to extract text"
+    }
+  ]
+}

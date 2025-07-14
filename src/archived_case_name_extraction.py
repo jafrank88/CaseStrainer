@@ -4,7 +4,7 @@ Archived Case Name Extraction Module
 
 DEPRECATED: This module is archived and deprecated. All functionality has been
 integrated into the unified pipeline (UnifiedCitationProcessor with 
-extract_case_name_triple from src.case_name_extraction_core).
+extract_case_name_triple from .case_name_extraction_core).
 
 This module will be removed in a future version.
 """
@@ -13,14 +13,14 @@ import warnings
 warnings.warn(
     "src.archived_case_name_extraction is deprecated and archived. All functionality "
     "has been integrated into UnifiedCitationProcessor with extract_case_name_triple "
-    "from src.case_name_extraction_core. Use the unified pipeline instead.",
+    "from .case_name_extraction_core. Use the unified pipeline instead.",
     DeprecationWarning,
     stacklevel=2
 )
 
 import re
 import string
-from src.extract_case_name import clean_case_name, is_citation_like
+from .extract_case_name import clean_case_name, is_citation_like
 
 # Global variable for recent case names
 _recent_case_names = []

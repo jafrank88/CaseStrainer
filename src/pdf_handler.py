@@ -17,15 +17,9 @@ import logging
 from typing import Optional, Tuple, Dict, Any, Union
 from dataclasses import dataclass
 from enum import Enum
-from src.extract_case_name import is_valid_case_name, clean_case_name
-
-# Check if PDF handler is available
-try:
-    import PyPDF2
-    import pdfminer
-    PDF_HANDLER_AVAILABLE = True
-except ImportError:
-    PDF_HANDLER_AVAILABLE = False
+from .extract_case_name import is_valid_case_name, clean_case_name
+import warnings
+warnings.warn('src/pdf_handler.py is deprecated. Use src.document_processing_unified.extract_text_from_file instead.', DeprecationWarning)
 
 
 class PDFExtractionMethod(Enum):
@@ -318,7 +312,7 @@ class PDFHandler:
                 return None, "No text extracted with OCR"
             self.logger.info(f"Successfully extracted {len(ocr_text)} characters with OCR")
             # Apply OCR correction only to OCR text
-            from src.document_processing import DocumentProcessor
+            from .document_processing import DocumentProcessor
             processor = DocumentProcessor()
             ocr_text_corrected = processor.preprocess_text(ocr_text, skip_ocr_correction=False)
             return ocr_text_corrected, None

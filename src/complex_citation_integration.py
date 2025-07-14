@@ -121,7 +121,7 @@ class ComplexCitationIntegrator:
                 logger.info(f"[parse_complex_citation] Treating as complex citation block: '{full_citation}'")
             else:
                 # Extract all citations using the existing logic
-                # DEPRECATED: from src.citation_extractor import CitationExtractor
+                # DEPRECATED: from .citation_extractor import CitationExtractor
                 extractor = CitationExtractor(use_eyecite=False, use_regex=True, extract_case_names=True)
                 extracted_citations = extractor.extract_citations(text)
                 
@@ -300,7 +300,7 @@ class ComplexCitationIntegrator:
     def process_text_with_complex_citations_original(self, text: str, context: Optional[str] = None) -> List[Dict]:
         """Process a text with complex citations and return verification results."""
         # Initialize verifier
-        from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+        from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
         verifier = EnhancedMultiSourceVerifier()
         
         results = []
@@ -402,7 +402,7 @@ class ComplexCitationIntegrator:
         # If no complex citations found, fall back to basic extraction
         if not complex_citations:
             logger.info("[process_text_with_complex_citations_original] No complex citations found, using basic extraction")
-            # DEPRECATED: from src.citation_extractor import CitationExtractor
+            # DEPRECATED: from .citation_extractor import CitationExtractor
             extractor = CitationExtractor(use_eyecite=False, use_regex=True, extract_case_names=True)
             extracted_citations = extractor.extract_citations(text)
             

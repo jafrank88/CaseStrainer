@@ -103,7 +103,7 @@
             <h5>Resources</h5>
             <ul class="list-unstyled">
               <li><a href="https://github.com/jafrank88/casestrainer" class="text-decoration-none" target="_blank">GitHub Repository</a></li>
-              <li><a href="mailto:jafrank@uw.edu" class="footer-link">Report an issue</a></li>
+              <li><a href="mailto:jafrank@uw.edu?subject=CaseStrainer%20feedback" class="footer-link">Report an issue</a></li>
             </ul>
           </div>
         </div>

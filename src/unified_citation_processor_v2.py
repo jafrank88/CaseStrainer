@@ -29,15 +29,7 @@ import collections
 from collections import defaultdict, deque
 
 # Import the main config module for proper environment variable handling
-try:
-    from .config import get_config_value
-except ImportError:
-    try:
-        from config import get_config_value
-    except ImportError:
-        def get_config_value(key: str, default: str = "") -> str:
-            # Fallback: try environment variable directly
-            return os.environ.get(key, default)
+from src.config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +45,10 @@ except ImportError:
 from src.case_name_extraction_core import extract_case_name_triple_comprehensive
 
 # Import LegalWebsearchEngine from websearch_utils.py
-from src.websearch_utils import search_cluster_for_canonical_sources
+from src.websearch_utils import search_cluster_for_canonical_sources, LegalWebsearchEngine
+
+# Import date_extractor from case_name_extraction_core.py
+from src.case_name_extraction_core import date_extractor
 
 @dataclass
 class CitationResult:
@@ -133,8 +128,7 @@ class UnifiedCitationProcessorV2:
         # Initialize enhanced web searcher (optional)
         self.enhanced_web_searcher = None
         try:
-            from src.enhanced_web_searcher import EnhancedWebSearcher
-            self.enhanced_web_searcher = EnhancedWebSearcher()
+            self.enhanced_web_searcher = LegalWebsearchEngine()
         except ImportError:
             logger.warning("EnhancedWebSearcher not available - web search fallback disabled")
         
@@ -461,7 +455,7 @@ class UnifiedCitationProcessorV2:
                                             
                                             print(f"[CL batch] ✅ MATCHED: {citation.citation} -> {citation.canonical_name}")
                                         else:
-                                            print(f"[CL batch] ❌ NO MATCH: {normalized_reconstructed} vs {normalized_extracted}")
+                                            print(f"[CL batch] X NO MATCH: {normalized_reconstructed} vs {normalized_extracted}")
             else:
                 print(f"[CL batch] HTTP {response.status_code}: {response.text}")
         except Exception as e:
@@ -1441,9 +1435,6 @@ class UnifiedCitationProcessorV2:
         
         try:
             # Use the core DateExtractor for consistent date extraction
-            from src.case_name_extraction_core import date_extractor
-            
-            # Extract date using the core DateExtractor
             date_str = date_extractor.extract_date_from_context(
                 text, 
                 citation.start_index, 

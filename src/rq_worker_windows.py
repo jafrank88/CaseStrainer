@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Import and apply the patch immediately
 try:
-    from src.rq_windows_patch import patch_rq_for_windows
+    from .rq_windows_patch import patch_rq_for_windows
     patch_rq_for_windows()
 except ImportError:
     # Fallback if src module not available

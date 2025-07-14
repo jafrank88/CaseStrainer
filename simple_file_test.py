@@ -36,9 +36,8 @@ def test_pdf_handler_import():
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
         
         # Try to import PDF handler
-        from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
-        print(f"✓ PDF handler imported successfully")
-        print(f"✓ PDF_HANDLER_AVAILABLE: {PDF_HANDLER_AVAILABLE}")
+        from src.document_processing_unified import extract_text_from_file
+        print("✓ Document processing imported successfully")
         
         return True
     except Exception as e:
@@ -70,7 +69,6 @@ def test_file_extraction():
         # Add src to path
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
         
-        from src.pdf_handler import extract_text_from_pdf, PDF_HANDLER_AVAILABLE
         from src.document_processing_unified import extract_text_from_file
         
         # Create a simple test text file

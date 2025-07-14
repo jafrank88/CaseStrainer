@@ -1,6 +1,6 @@
 # Start centralized background maintenance system
 try:
-    from src.background_tasks import start_background_maintenance
+    from ..background_tasks import start_background_maintenance
     start_background_maintenance()
 except Exception as e:
     import logging

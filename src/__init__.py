@@ -3,7 +3,7 @@ CaseStrainer - A tool for analyzing and validating legal citations.
 """
 
 # Set up logging by default
-from .config import configure_logging
+from config import configure_logging
 
 configure_logging()
 
@@ -34,7 +34,7 @@ def _lazy_import():
 
     # Import other modules
     from .citation_api import citation_api
-    from src.citation_utils import (
+    from .citation_utils import (
         extract_all_citations,
         extract_citations_from_text,
         verify_citation,

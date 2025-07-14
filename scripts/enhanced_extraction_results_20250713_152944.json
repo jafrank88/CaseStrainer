@@ -1,0 +1,26 @@
+{
+  "export_info": {
+    "timestamp": "2025-07-13T15:29:44.551991",
+    "total_documents": 1,
+    "enhanced_extraction_version": "1.0"
+  },
+  "statistics": {
+    "total_documents": 1,
+    "total_citations": 4,
+    "total_case_names": 0,
+    "total_dates": 0,
+    "total_clusters": 1,
+    "processing_times": [
+      0.30457544326782227
+    ],
+    "average_processing_time": 0.30457544326782227,
+    "min_processing_time": 0.30457544326782227,
+    "max_processing_time": 0.30457544326782227
+  },
+  "results": [
+    {
+      "document_id": "sample_doc_001",
+      "processing_time": 0.30457544326782227,
+      "text_length": 552,
+      "citations": [
+        

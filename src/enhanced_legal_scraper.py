@@ -20,8 +20,8 @@ import os
 from googlesearch import search as google_search
 
 # Import the existing scraper for detail page extraction
-from src.legal_database_scraper import LegalDatabaseScraper
-from src.websearch_utils import (
+from .legal_database_scraper import LegalDatabaseScraper
+from .websearch_utils import (
     create_legal_search_queries,
     search_google_py,
     search_bing_html,
@@ -115,7 +115,7 @@ class EnhancedLegalScraper:
             return []
         # --- Two-step CourtListener process first ---
         try:
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
             cl_result = verifier.verify_citation_unified_workflow(citation)
             if cl_result.get("verified") and cl_result.get("url"):
@@ -197,7 +197,7 @@ class EnhancedLegalScraper:
         """
         try:
             # --- Two-step CourtListener process first ---
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
             cl_result = verifier.verify_citation_unified_workflow(citation)
             if cl_result.get("verified") and cl_result.get("url"):

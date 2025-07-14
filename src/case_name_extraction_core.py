@@ -373,7 +373,7 @@ def extract_case_name_fixed_comprehensive(text: str, citation: str) -> str:
     """
     try:
         # Try to import UCPv2 if available
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
         
         # Use UnifiedCitationProcessorV2 for extraction
         config = ProcessingConfig(
@@ -409,7 +409,7 @@ def extract_year_fixed_comprehensive(text: str, citation: str) -> str:
     """
     try:
         # Try to import UCPv2 if available
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
         
         # Use UnifiedCitationProcessorV2 for extraction
         config = ProcessingConfig(
@@ -832,7 +832,7 @@ def extract_case_name_from_text_isolated(text: str, citation: str) -> str:
     """
     try:
         # Try to import UCPv2 if available
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
         
         config = ProcessingConfig(
             use_eyecite=False,
@@ -862,7 +862,7 @@ def extract_year_from_context_isolated(text: str, citation: str) -> str:
     """
     try:
         # Try to import UCPv2 if available
-        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
         
         config = ProcessingConfig(
             use_eyecite=False,
@@ -939,7 +939,7 @@ def extract_case_name_triple(text, citation, api_key=None, context_window=100):
         
         # Try to use UnifiedCitationProcessorV2 for extraction
         try:
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+            from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
             
             config = ProcessingConfig(
                 use_eyecite=False,

@@ -38,8 +38,8 @@ except ImportError:
     EYECITE_AVAILABLE = False
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from src.extract_case_name import (
+from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from .extract_case_name import (
     extract_case_name_triple_from_text, 
     extract_case_name_from_context_unified,
     is_valid_case_name,
@@ -47,11 +47,11 @@ from src.extract_case_name import (
 )
 
 # Import the main regex patterns from citation_utils
-from src.citation_utils import extract_citations_from_text
+from .citation_utils import extract_citations_from_text
 
-from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted, extract_year_from_line
+from .case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted, extract_year_from_line
 
-from src.citation_normalizer import normalize_citation
+from .citation_normalizer import normalize_citation
 
 def deprecated_warning(func):
     """Decorator to show deprecation warnings."""
@@ -596,7 +596,7 @@ def extract_all_citations(text: str, logger=None) -> List[Dict]:
     Returns:
         List of citation dictionaries with metadata
     """
-    from src.unified_citation_extractor import extract_all_citations as unified_extract
+    from .unified_citation_extractor import extract_all_citations as unified_extract
     return unified_extract(text, logger)
 
 def verify_citation(citation: str, use_enhanced: bool = True) -> dict:

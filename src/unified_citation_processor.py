@@ -36,12 +36,12 @@ try:
 except ImportError:
     EYECITE_AVAILABLE = False
 
-from src.cache_manager import get_cache_manager
-from src.config import get_config_value
-from src.case_name_extraction_core import extract_case_name_triple
-from src.extract_case_name import extract_case_name_precise_boundaries
+from .cache_manager import get_cache_manager
+from .config import get_config_value
+from .case_name_extraction_core import extract_case_name_triple
+from .extract_case_name import extract_case_name_precise_boundaries
 import warnings
-from src.standalone_citation_parser import extract_year_enhanced
+from .standalone_citation_parser import extract_year_enhanced
 
 logger = logging.getLogger(__name__)
 @dataclass
@@ -2883,7 +2883,7 @@ class ExtractionDebugger:
         self.log_step("CONTEXT_WINDOW", {"citation": citation, "context": context})
         # Stage 2: Case Name Extraction
         try:
-            from src.case_name_extraction_core import extract_case_name_triple
+            from .case_name_extraction_core import extract_case_name_triple
             case_name_result = extract_case_name_triple(text, citation, api_key=api_key, context_window=300)
             result["stages"]["case_name"] = case_name_result
             self.log_step("CASE_NAME_EXTRACTION", case_name_result)
@@ -2892,7 +2892,7 @@ class ExtractionDebugger:
             self.log_step("CASE_NAME_EXTRACTION_ERROR", str(e), level="error")
         # Stage 3: Date Extraction
         try:
-            from src.enhanced_extraction_utils import extract_year_enhanced
+            from .enhanced_extraction_utils import extract_year_enhanced
             year_result = extract_year_enhanced(text, citation)
             result["stages"]["date"] = year_result
             self.log_step("DATE_EXTRACTION", year_result)
