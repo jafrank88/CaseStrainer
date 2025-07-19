@@ -2855,30 +2855,36 @@ class UnifiedCitationProcessorV2:
                             year_match = re.search(r'\b(19|20)\d{2}\b', best_result.get('url', '') + ' ' + case_name)
                             year = year_match.group(0) if year_match else None
                             
-                            # Update all citations in this cluster with the verification results
-                            for citation in cluster_citations:
-                                citation.canonical_name = case_name
-                                citation.canonical_date = year
-                                citation.url = best_result.get('url')
-                                citation.verified = True
-                                citation.confidence = best_result.get('reliability_score', 0) / 100.0
-                                citation.metadata = citation.metadata or {}
-                                citation.metadata['legal_websearch_source'] = 'Legal Websearch'
-                                citation.metadata['reliability_score'] = best_result.get('reliability_score', 0)
+                            # Update result with verification results
+                            result['canonical_name'] = case_name
+                            result['canonical_date'] = year
+                            result['url'] = best_result.get('url')
+                            result['verified'] = True
+                            result['verified_by'] = 'Legal Websearch'
+                            result['confidence'] = best_result.get('reliability_score', 0) / 100.0
+                            result['sources']['legal_websearch'] = {
+                                'reliability_score': best_result.get('reliability_score', 0),
+                                'title': best_result.get('title', ''),
+                                'url': best_result.get('url', '')
+                            }
                             
-                            logger.info(f"[LEGAL_WEBSEARCH] Successfully verified cluster {cluster_key} with case name: {case_name}")
-                            break  # Exit the cluster processing loop since we found a good result
+                            logger.info(f"[LEGAL_WEBSEARCH] Successfully verified citation {citation} with case name: {case_name}")
+                            return result
                         else:
-                            logger.debug(f"[LEGAL_WEBSEARCH] No valid case name found for cluster {cluster_key}")
+                            logger.debug(f"[LEGAL_WEBSEARCH] No valid case name found for citation {citation}")
                     else:
-                        logger.debug(f"[LEGAL_WEBSEARCH] No high-reliability results found for cluster {cluster_key}")
+                        logger.debug(f"[LEGAL_WEBSEARCH] No high-reliability results found for citation {citation}")
                 else:
-                    logger.debug(f"[LEGAL_WEBSEARCH] No search results found for cluster {cluster_key}")
+                    logger.debug(f"[LEGAL_WEBSEARCH] No search results found for citation {citation}")
                     
             except Exception as e:
-                logger.error(f"[LEGAL_WEBSEARCH] Error verifying cluster {cluster_key}: {e}")
+                logger.error(f"[LEGAL_WEBSEARCH] Error verifying citation {citation}: {e}")
         
-        logger.info(f"[LEGAL_WEBSEARCH] EXITING")
+        except Exception as e:
+            logger.error(f"[UNIFIED_WORKFLOW] Error in verification workflow for {citation}: {e}")
+            result['error'] = str(e)
+        
+        return result
 
     def _verify_with_landmark_cases(self, citation: str) -> Dict[str, Any]:
         """Verify a citation against known landmark cases."""
