@@ -7,6 +7,14 @@ import os
 import subprocess
 import shutil
 import argparse
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Production server details
 PRODUCTION_SERVER = "wolf.law.uw.edu"
