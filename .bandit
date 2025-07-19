@@ -1,0 +1,3 @@
+exclude: [B601, B602, B603, B607, B201, B324]
+severity-level: high
+confidence-level: high 
