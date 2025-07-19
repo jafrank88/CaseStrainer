@@ -84,6 +84,11 @@ def test_backend_api():
                         print(f"    Size: {len(cluster.get('citations', []))}")
                         print(f"    Members: {[c.get('citation', 'N/A') for c in cluster.get('citations', [])]}")
                 
+                # Verify we got the expected data structure
+                assert 'citations' in data, "Response missing 'citations' key"
+                assert 'clusters' in data, "Response missing 'clusters' key"
+                assert len(data['citations']) > 0, "No citations found in response"
+                print("✅ Backend API test passed!")
                 return data  # Return the first successful response
                 
             else:
@@ -97,7 +102,9 @@ def test_backend_api():
             print(f"Unexpected error: {e}")
 
     print("\nNo working endpoints found!")
-    return None
+    print("⚠️  Backend not available - this is expected if backend is not running")
+    import pytest
+    pytest.skip("No working backend API endpoints found - backend may not be running")
 
 if __name__ == "__main__":
     result = test_backend_api()

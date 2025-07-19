@@ -53,7 +53,7 @@ for script in deprecated_scripts:
     script_path = BASE_DIR / script
     if script_path.exists():
         target_path = deprecated_dir / script
-        print(f"Moving {script} to deprecated_scripts directory...")
+        logger.info(f"Moving {script} to deprecated_scripts directory...")
         shutil.move(script_path, target_path)
         moved_count += 1
 
@@ -66,23 +66,19 @@ for py_file in BASE_DIR.glob("*.py"):
         other_scripts.append(py_file.name)
 
 if other_scripts:
-    print("\nFound other Python scripts that may be deprecated:")
+    logger.info("\nFound other Python scripts that may be deprecated:")
     for i, script in enumerate(other_scripts, 1):
-        print(f"{i}. {script}")
+        logger.info(f"{i}. {script}")
 
-    print(
-        "\nDo you want to move any of these scripts to the deprecated_scripts directory?"
-    )
-    print(
-        "Enter the numbers separated by commas, or 'all' to move all, or 'none' to keep all:"
-    )
+    logger.info("\nDo you want to move any of these scripts to the deprecated_scripts directory?")
+    logger.info("Enter the numbers separated by commas, or 'all' to move all, or 'none' to keep all:")
     choice = input("> ")
 
     if choice.lower() == "all":
         for script in other_scripts:
             script_path = BASE_DIR / script
             target_path = deprecated_dir / script
-            print(f"Moving {script} to deprecated_scripts directory...")
+            logger.info(f"Moving {script} to deprecated_scripts directory...")
             shutil.move(script_path, target_path)
             moved_count += 1
     elif choice.lower() != "none":
@@ -93,16 +89,14 @@ if other_scripts:
                     script = other_scripts[idx]
                     script_path = BASE_DIR / script
                     target_path = deprecated_dir / script
-                    print(f"Moving {script} to deprecated_scripts directory...")
+                    logger.info(f"Moving {script} to deprecated_scripts directory...")
                     shutil.move(script_path, target_path)
                     moved_count += 1
         except ValueError:
-            print("Invalid input. No additional scripts moved.")
+            logger.info("Invalid input. No additional scripts moved.")
 
-print(
-    f"\nOrganization complete. Moved {moved_count} deprecated scripts to the deprecated_scripts directory."
-)
-print("Essential scripts remain in the main directory.")
+logger.info(f"\nOrganization complete. Moved {moved_count} deprecated scripts to the deprecated_scripts directory.")
+logger.info("Essential scripts remain in the main directory.")
 
 # Create a README file in the deprecated_scripts directory
 readme_content = """# Deprecated Scripts
@@ -130,4 +124,4 @@ Last updated: {}
 with open(deprecated_dir / "README.md", "w") as f:
     f.write(readme_content)
 
-print("Created README.md in the deprecated_scripts directory.")
+logger.info("Created README.md in the deprecated_scripts directory.")

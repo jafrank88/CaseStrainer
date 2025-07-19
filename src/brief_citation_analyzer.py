@@ -20,11 +20,19 @@ import traceback
 import time
 import random
 import re
+import logging
 
-# Import functions from app_final_vue.py
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Import functions from the correct modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from file_utils import extract_text_from_file
-from app_final_vue import extract_citations, query_courtlistener_api
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
 # Constants
 OUTPUT_FILE = "unverified_citations_with_context.json"
@@ -53,7 +61,7 @@ def load_processed_briefs():
             with open(PROCESSED_BRIEFS_CACHE, "r") as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error loading processed briefs cache: {e}")
+            logger.error(f"Error loading processed briefs cache: {e}")
     return []
 
 
@@ -63,12 +71,12 @@ def save_processed_briefs(processed_briefs):
         with open(PROCESSED_BRIEFS_CACHE, "w") as f:
             json.dump(processed_briefs, f)
     except Exception as e:
-        print(f"Error saving processed briefs cache: {e}")
+        logger.error(f"Error saving processed briefs cache: {e}")
 
 
 def download_brief(brief_url):
     """Download a brief from a URL."""
-    print(f"Downloading brief: {brief_url}")
+    logger.info(f"Downloading brief: {brief_url}")
 
     try:
         # Set up user agent to avoid being blocked
@@ -80,7 +88,7 @@ def download_brief(brief_url):
         response = requests.get(brief_url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Error downloading brief: {response.status_code}")
+            logger.error(f"Error downloading brief: {response.status_code}")
             return None
 
         # Save the brief
@@ -91,14 +99,14 @@ def download_brief(brief_url):
         return filename
 
     except Exception as e:
-        print(f"Error downloading brief: {e}")
+        logger.error(f"Error downloading brief: {e}")
         traceback.print_exc()
         return None
 
 
 def extract_citation_context(text, citation_text):
     """Extract the context around a citation."""
-    print(f"Extracting context for citation: {citation_text}")
+    logger.info(f"Extracting context for citation: {citation_text}")
 
     try:
         # Find all occurrences of the citation in the text
@@ -109,7 +117,7 @@ def extract_citation_context(text, citation_text):
             citation_positions.append((start_pos, end_pos))
 
         if not citation_positions:
-            print(f"Citation not found in text: {citation_text}")
+            logger.info(f"Citation not found in text: {citation_text}")
             return None
 
         # Extract context for each occurrence
@@ -135,7 +143,7 @@ def extract_citation_context(text, citation_text):
         return contexts[0] if contexts else None
 
     except Exception as e:
-        print(f"Error extracting context for citation: {e}")
+        logger.error(f"Error extracting context for citation: {e}")
         traceback.print_exc()
         return None
 
@@ -147,17 +155,17 @@ def load_api_key():
             config = json.load(f)
             return config.get("courtlistener_api_key")
     except Exception as e:
-        print(f"Error loading API key from config.json: {e}")
+        logger.error(f"Error loading API key from config.json: {e}")
         return None
 
 
 def process_brief(brief_url, processed_briefs):
     """Process a brief to extract citations with context."""
-    print(f"Processing brief: {brief_url}")
+    logger.info(f"Processing brief: {brief_url}")
 
     # Check if brief has already been processed
     if brief_url in processed_briefs:
-        print(f"Brief already processed: {brief_url}")
+        logger.info(f"Brief already processed: {brief_url}")
         return []
 
     try:
@@ -173,25 +181,37 @@ def process_brief(brief_url, processed_briefs):
         else:
             brief_text = brief_text_result
         if not brief_text:
-            print(f"No text extracted from brief: {brief_url}")
+            logger.info(f"No text extracted from brief: {brief_url}")
             return []
 
-        # Extract citations from the text using the CaseStrainer function
-        citations = extract_citations(brief_text)
+        # Extract citations from the text using the unified processor
+        config = ProcessingConfig(
+            use_eyecite=True,
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=True,
+            enable_clustering=True,
+            enable_deduplication=True,
+            enable_verification=True,
+            debug_mode=True
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        citation_results = processor.process_text(brief_text)
+        citations = [result.citation for result in citation_results]
         if not citations:
-            print(f"No citations found in brief: {brief_url}")
+            logger.info(f"No citations found in brief: {brief_url}")
             return []
 
-        print(f"Found {len(citations)} citations in brief: {brief_url}")
+        logger.info(f"Found {len(citations)} citations in brief: {brief_url}")
 
         # Load the API key
         api_key = load_api_key()
         if not api_key:
-            print("No CourtListener API key found, cannot verify citations")
+            logger.info("No CourtListener API key found, cannot verify citations")
             return []
 
-        # Query CourtListener API to verify citations
-        courtlistener_results = query_courtlistener_api(brief_text, api_key)
+        # Query CourtListener API to verify citations using the processor
+        courtlistener_results = processor.verify_citation_unified_workflow(citations[0]) if citations else None
 
         # Extract verified citations from CourtListener results
         verified_citations = []
@@ -200,7 +220,7 @@ def process_brief(brief_url, processed_briefs):
                 if "citation" in result:
                     verified_citations.append(result["citation"])
 
-        print(f"Found {len(verified_citations)} verified citations from CourtListener")
+        logger.info(f"Found {len(verified_citations)} verified citations from CourtListener")
 
         # Find unverified citations
         unverified_citations = []
@@ -219,7 +239,7 @@ def process_brief(brief_url, processed_briefs):
                             "full_context": context["full_context"],
                         }
                     )
-                    print(f"Unverified citation with context: {citation}")
+                    logger.info(f"Unverified citation with context: {citation}")
                 else:
                     unverified_citations.append(
                         {
@@ -230,7 +250,7 @@ def process_brief(brief_url, processed_briefs):
                             "full_context": "",
                         }
                     )
-                    print(f"Unverified citation without context: {citation}")
+                    logger.info(f"Unverified citation without context: {citation}")
 
             # Add a small delay to avoid overwhelming the API
             time.sleep(random.uniform(0.5, 1.5))
@@ -242,14 +262,14 @@ def process_brief(brief_url, processed_briefs):
         return unverified_citations
 
     except Exception as e:
-        print(f"Error processing brief: {e}")
+        logger.error(f"Error processing brief: {e}")
         traceback.print_exc()
         return []
 
 
 def save_unverified_citations(unverified_citations):
     """Save unverified citations to a JSON file."""
-    print(f"Saving {len(unverified_citations)} unverified citations to {OUTPUT_FILE}")
+    logger.info(f"Saving {len(unverified_citations)} unverified citations to {OUTPUT_FILE}")
 
     try:
         # Load existing unverified citations if the file exists
@@ -274,31 +294,30 @@ def save_unverified_citations(unverified_citations):
         with open(OUTPUT_FILE, "w") as f:
             json.dump(unique_citations, f, indent=2)
 
-        print(
-            f"Saved {len(unique_citations)} unique unverified citations to {OUTPUT_FILE}"
+        logger.info(f"Saved {len(unique_citations)} unique unverified citations to {OUTPUT_FILE}"
         )
 
     except Exception as e:
-        print(f"Error saving unverified citations: {e}")
+        logger.error(f"Error saving unverified citations: {e}")
         traceback.print_exc()
 
 
 def main():
     """Main function to process briefs and extract unverified citations with context."""
-    print("Starting extraction of unverified citations with context from briefs")
+    logger.info("Starting extraction of unverified citations with context from briefs")
 
     # Load processed briefs
     processed_briefs = load_processed_briefs()
-    print(f"Loaded {len(processed_briefs)} previously processed briefs")
+    logger.info(f"Loaded {len(processed_briefs)} previously processed briefs")
 
     # Filter out already processed briefs
     new_briefs = [brief for brief in SAMPLE_BRIEF_URLS if brief not in processed_briefs]
-    print(f"Found {len(new_briefs)} new briefs to process")
+    logger.info(f"Found {len(new_briefs)} new briefs to process")
 
     # Process each brief
     all_unverified_citations = []
     for i, brief_url in enumerate(new_briefs):
-        print(f"Processing brief {i+1}/{len(new_briefs)}: {brief_url}")
+        logger.info(f"Processing brief {i+1}/{len(new_briefs)}: {brief_url}")
         unverified_citations = process_brief(brief_url, processed_briefs)
         all_unverified_citations.extend(unverified_citations)
 
@@ -312,20 +331,17 @@ def main():
     # Save final results
     save_unverified_citations(all_unverified_citations)
 
-    print("Finished extracting unverified citations from briefs")
-    print(
-        f"Found {len(all_unverified_citations)} unverified citations in {len(new_briefs)} briefs"
+    logger.info("Finished extracting unverified citations from briefs")
+    logger.info(f"Found {len(all_unverified_citations)} unverified citations in {len(new_briefs)} briefs"
     )
 
     # Display the results in a more readable format
     if all_unverified_citations:
-        print("\nUnverified Citations with Context:")
+        logger.info("\nUnverified Citations with Context:")
         for i, citation in enumerate(all_unverified_citations):
-            print(f"\n{i+1}. Citation: {citation['citation_text']}")
-            print(f"   Source: {citation['source_brief']}")
-            print(
-                f"   Context: ...{citation['context_before']} [{citation['citation_text']}] {citation['context_after']}..."
-            )
+            logger.info(f"\n{i+1}. Citation: {citation['citation_text']}")
+            logger.info(f"   Source: {citation['source_brief']}")
+            logger.info(f"   Context: ...{citation['context_before']} [{citation['citation_text']}] {citation['context_after']}...")
 
 
 if __name__ == "__main__":

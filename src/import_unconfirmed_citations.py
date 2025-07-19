@@ -36,7 +36,7 @@ def create_database_if_not_exists():
     conn.commit()
     conn.close()
 
-    print(f"Database initialized: {DATABASE_FILE}")
+    logger.info(f"Database initialized: {DATABASE_FILE}")
 
 
 def clear_existing_citations():
@@ -49,13 +49,13 @@ def clear_existing_citations():
     conn.commit()
     conn.close()
 
-    print("Cleared existing unconfirmed citations from database")
+    logger.info("Cleared existing unconfirmed citations from database")
 
 
 def import_citations():
     """Import unconfirmed citations from the tab-delimited file."""
     if not os.path.exists(UNCONFIRMED_CITATIONS_FILE):
-        print(f"Error: {UNCONFIRMED_CITATIONS_FILE} not found")
+        logger.error(f"Error: {UNCONFIRMED_CITATIONS_FILE} not found")
         return
 
     conn = sqlite3.connect(DATABASE_FILE)
@@ -83,12 +83,12 @@ def import_citations():
     conn.commit()
     conn.close()
 
-    print(f"Imported {count} unconfirmed citations to database")
+    logger.info(f"Imported {count} unconfirmed citations to database")
 
 
 def main():
     """Main function to import unconfirmed citations."""
-    print("Starting import of unconfirmed citations to CaseStrainer...")
+    logger.info("Starting import of unconfirmed citations to CaseStrainer...")
 
     # Create database if it doesn't exist
     create_database_if_not_exists()
@@ -99,9 +99,7 @@ def main():
     # Import citations
     import_citations()
 
-    print(
-        "Import complete. You can now view the unconfirmed citations in CaseStrainer's Unconfirmed Citations tab."
-    )
+    logger.info("Import complete. You can now view the unconfirmed citations in CaseStrainer's Unconfirmed Citations tab.")
 
 
 if __name__ == "__main__":

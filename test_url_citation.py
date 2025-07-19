@@ -1,7 +1,7 @@
 import requests
 import json
 from src.extract_case_name import get_citation_url
-from src.document_processing import process_document
+from src.document_processing_unified import process_document
 
 # Citation to test
 citation = "John Doe P v. Thurston County, 199 Wn. App. 280, 283, 399 P.3d 1195 (2017)"

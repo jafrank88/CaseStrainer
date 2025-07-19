@@ -1,52 +1,129 @@
 #!/usr/bin/env python3
 """
-Debug script to test case name extraction patterns.
+Debug case name extraction
 """
 
+import sys
+import os
 import re
 
-def test_patterns():
-    """Test the case name extraction patterns."""
-    
-    # Test text with the three case names
-    test_text = "Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)"
-    
-    print("=== TESTING CASE NAME PATTERNS ===")
-    print(f"Test text: {test_text}")
-    print()
-    
-    # Enhanced patterns from the function
-    patterns = [
-        # Pattern 1: v. pattern (most common)
-        r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s+v\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\b',
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+def debug_case_name_extraction():
+    """Debug case name extraction step by step"""
+    try:
+        from case_name_extraction_core import CaseNameExtractor
         
-        # Pattern 2: vs. pattern
-        r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s+vs\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\b',
+        # Test text
+        text = "In Punx v Smithers, 123 Wash. 2d 456, 789 P.2d 123 (1990), the court held that..."
+        citation = "123 Wash. 2d 456, 789 P.2d 123"
         
-        # Pattern 3: versus pattern
-        r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s+versus\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\b',
-        
-        # Pattern 12: Enhanced business entity pattern
-        r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s*,\s*[A-Za-z0-9&.,\'\-]+)*)\s+v\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s*,\s*[A-Za-z0-9&.,\'\-]+)*)\b',
-        
-        # Pattern 13: Department cases
-        r'\b(Dep\'t\s+of\s+[A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s+v\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\b',
-        
-        # Pattern 14: Simple v. pattern
-        r'\b([A-Z][a-z]+(?:\s+[A-Za-z]+)*)\s+v\.\s+([A-Z][a-z]+(?:\s+[A-Za-z]+)*)\b',
-    ]
-    
-    for i, pattern in enumerate(patterns):
-        print(f"Pattern {i+1}: {pattern}")
-        matches = list(re.finditer(pattern, test_text, re.IGNORECASE))
-        print(f"  Found {len(matches)} matches:")
-        for j, match in enumerate(matches):
-            if len(match.groups()) == 2:
-                case_name = f"{match.group(1)} v. {match.group(2)}"
-            else:
-                case_name = match.group(0)
-            print(f"    {j+1}. '{case_name}'")
+        print(f"🔍 Debugging Case Name Extraction")
+        print(f"Text: '{text}'")
+        print(f"Citation: '{citation}'")
         print()
+        
+        # Check if citation is found
+        citation_pos = text.find(citation)
+        print(f"📋 Citation Search:")
+        print(f"   Citation position: {citation_pos}")
+        print(f"   Citation found: {citation_pos != -1}")
+        
+        if citation_pos == -1:
+            print(f"   ❌ Citation not found in text!")
+            print(f"   Text contains: '{text}'")
+            print(f"   Looking for: '{citation}'")
+            
+            # Try different variations
+            variations = [
+                "123 Wash. 2d 456, 789 P.2d 123 (1990)",
+                "123 Wash. 2d 456",
+                "789 P.2d 123",
+                "123 Wash. 2d 456, 789 P.2d 123 (1990)"
+            ]
+            
+            for var in variations:
+                pos = text.find(var)
+                print(f"   Variation '{var}': position {pos}")
+        
+        print()
+        
+        # Create extractor
+        extractor = CaseNameExtractor()
+        
+        # Step 1: Get context
+        context = extractor._get_extraction_context(text, citation)
+        print(f"📋 Step 1 - Context:")
+        print(f"   Context: '{context}'")
+        print(f"   Context length: {len(context)}")
+        print()
+        
+        # Step 2: Try each pattern
+        print(f"📋 Step 2 - Pattern Matching:")
+        for i, pattern_info in enumerate(extractor.case_patterns):
+            pattern = re.compile(pattern_info['pattern'], re.IGNORECASE)
+            matches = list(pattern.finditer(context))
+            
+            print(f"   Pattern {i+1}: {pattern_info['name']}")
+            print(f"     Pattern: {pattern_info['pattern']}")
+            print(f"     Matches: {len(matches)}")
+            
+            # Special debug for standard_v pattern
+            if pattern_info['name'] == 'standard_v':
+                print(f"     🔍 Special debug for standard_v pattern:")
+                print(f"       Context: '{context}'")
+                print(f"       Looking for: 'Punx v Smithers'")
+                
+                # Test a simpler pattern
+                simple_pattern = r'([A-Z][a-z]+)\s+v\.\s+([A-Z][a-z]+)'
+                simple_matches = list(re.finditer(simple_pattern, context))
+                print(f"       Simple pattern '{simple_pattern}': {len(simple_matches)} matches")
+                for match in simple_matches:
+                    print(f"         Match: '{match.group(0)}'")
+                    print(f"         Group 1: '{match.group(1)}'")
+                    print(f"         Group 2: '{match.group(2)}'")
+            
+            for j, match in enumerate(matches):
+                print(f"       Match {j+1}: '{match.group(0)}'")
+                try:
+                    case_name = pattern_info['format'](match)
+                    print(f"         Formatted: '{case_name}'")
+                    
+                    # Test validation
+                    cleaned_name = extractor._clean_case_name(case_name)
+                    print(f"         Cleaned: '{cleaned_name}'")
+                    
+                    is_valid = extractor._validate_case_name(cleaned_name)
+                    print(f"         Valid: {is_valid}")
+                    
+                    if is_valid:
+                        confidence = extractor._calculate_confidence(
+                            cleaned_name, 
+                            pattern_info['confidence_base'],
+                            match,
+                            context
+                        )
+                        print(f"         Confidence: {confidence}")
+                    
+                except Exception as e:
+                    print(f"         Error: {e}")
+            print()
+        
+        # Step 3: Test the full extraction
+        print(f"📋 Step 3 - Full Extraction:")
+        result = extractor.extract(text, citation)
+        print(f"   Case name: '{result.case_name}'")
+        print(f"   Date: '{result.date}'")
+        print(f"   Year: '{result.year}'")
+        print(f"   Confidence: {result.confidence}")
+        print(f"   Method: '{result.method}'")
+        print(f"   Debug info: {result.debug_info}")
+        
+    except Exception as e:
+        print(f"❌ Debug failed: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    test_patterns() 
+    debug_case_name_extraction() 

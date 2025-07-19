@@ -1,3 +1,8 @@
+"""
+Enhanced Legal Web Search Engine
+Focused, reliable web searching for legal citations with better error handling and maintainability
+"""
+
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -6,17 +11,27 @@ import time
 from urllib.parse import quote, urljoin, urlparse
 from typing import List, Dict, Set, Optional, Tuple
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
+import logging
 
-class LegalWebsearchEngine:
-    """Enhanced legal citation websearch with reliability scoring and canonical source prioritization."""
+logger = logging.getLogger(__name__)
+
+class LegalWebSearchEngine:
+    """
+    Enhanced legal citation web search with reliability scoring and canonical source prioritization.
     
-    def __init__(self):
+    Focuses on finding authoritative legal sources through strategic search queries.
+    """
+    
+    def __init__(self, enable_experimental_engines=False):
         self.session = requests.Session()
         self.session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         })
+        
+        # Set reasonable timeouts
+        self.session.timeout = 5
         
         # Canonical legal databases ranked by reliability
         self.canonical_sources = {
@@ -26,258 +41,318 @@ class LegalWebsearchEngine:
             'leagle.com': {'weight': 90, 'type': 'primary', 'official': True},
             'caselaw.findlaw.com': {'weight': 85, 'type': 'primary', 'official': True},
             'scholar.google.com': {'weight': 80, 'type': 'primary', 'official': True},
+            'cetient.com': {'weight': 85, 'type': 'primary', 'official': True},
+            'casetext.com': {'weight': 75, 'type': 'primary', 'official': False},
+            'openjurist.org': {'weight': 65, 'type': 'secondary', 'official': False},
             
             # Government sources (very high reliability)
             'supremecourt.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca1.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca2.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca3.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca4.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca5.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca6.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca7.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca8.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca9.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca10.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'ca11.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'cadc.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
-            'cafc.uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
+            'uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
             
-            # State courts (high reliability)
-            'courts.state.ny.us': {'weight': 95, 'type': 'government', 'official': True},
-            'courts.ca.gov': {'weight': 95, 'type': 'government', 'official': True},
-            'txcourts.gov': {'weight': 95, 'type': 'government', 'official': True},
-            
-            # Secondary reliable sources
-            'casetext.com': {'weight': 75, 'type': 'secondary', 'official': False},
+            # Academic sources
             'law.cornell.edu': {'weight': 70, 'type': 'academic', 'official': False},
-            'openjurist.org': {'weight': 65, 'type': 'secondary', 'official': False},
             'law.duke.edu': {'weight': 60, 'type': 'academic', 'official': False},
             
-            # Commercial but reliable
+            # Commercial but reliable (lower priority)
             'westlaw.com': {'weight': 85, 'type': 'commercial', 'official': False},
             'lexis.com': {'weight': 85, 'type': 'commercial', 'official': False},
-            'bloomberg.com': {'weight': 75, 'type': 'commercial', 'official': False},
         }
         
-        # Rate limiting
-        self.last_request = {}
-        self.min_delay = 1.0  # Minimum delay between requests per engine
+        # Rate limiting configuration
+        self.rate_limits = {
+            'google': {'delay': 2.0, 'last_request': 0},
+            'bing': {'delay': 1.5, 'last_request': 0},
+            'ddg': {'delay': 1.0, 'last_request': 0}
+        }
+        
+        # Search engines to use
+        self.enabled_engines = ['google', 'bing']
+        if enable_experimental_engines:
+            self.enabled_engines.append('ddg')
+        
+        # Cache for parsed domains to avoid repeated parsing
+        self._domain_cache = {}
         
     def normalize_citation(self, citation: str) -> Dict[str, str]:
-        """Extract and normalize citation components."""
+        """Extract and normalize citation components with better pattern matching."""
+        if not citation:
+            return {'original': '', 'normalized': ''}
+            
         citation = citation.strip()
         
-        # Common citation patterns
+        # Enhanced citation patterns with more specificity
         patterns = {
-            'us_reporter': r'(\d+)\s+(U\.?S\.?)\s+(\d+)',
-            'fed_reporter': r'(\d+)\s+(F\.?\d*d?)\s+(\d+)',
-            'state_reporter': r'(\d+)\s+([A-Z][a-z]*\.?\d*d?)\s+(\d+)',
-            'wash_reporter': r'(\d+)\s+(Wn\.?\d*d?)\s+(\d+)',
-            'pacific': r'(\d+)\s+(P\.?\d*d?)\s+(\d+)',
+            'us_supreme': r'(\d+)\s+(U\.?S\.?)\s+(\d+)(?:\s+\((\d{4})\))?',
+            'federal_circuit': r'(\d+)\s+(F\.?\d*d?)\s+(\d+)(?:\s+\(([^)]+)\))?',
+            'federal_supp': r'(\d+)\s+(F\.?\s*Supp\.?\s*\d*d?)\s+(\d+)(?:\s+\(([^)]+)\))?',
+            'state_pacific': r'(\d+)\s+(P\.?\d*d?)\s+(\d+)(?:\s+\(([^)]+)\))?',
+            'washington': r'(\d+)\s+(Wn\.?\s*(?:2d|App\.?))\s+(\d+)(?:\s+\((\d{4})\))?',
+            'new_york': r'(\d+)\s+(N\.?Y\.?\s*\d*d?)\s+(\d+)(?:\s+\((\d{4})\))?',
+            'california': r'(\d+)\s+(Cal\.?\s*\d*d?)\s+(\d+)(?:\s+\(([^)]+)\))?',
         }
         
         for pattern_name, pattern in patterns.items():
             match = re.search(pattern, citation, re.IGNORECASE)
             if match:
+                groups = match.groups()
                 return {
-                    'volume': match.group(1),
-                    'reporter': match.group(2),
-                    'page': match.group(3),
+                    'volume': groups[0],
+                    'reporter': groups[1],
+                    'page': groups[2],
+                    'year': groups[3] if len(groups) > 3 and groups[3] else None,
                     'type': pattern_name,
-                    'normalized': f"{match.group(1)} {match.group(2)} {match.group(3)}"
+                    'normalized': f"{groups[0]} {groups[1]} {groups[2]}",
+                    'original': citation
                 }
         
         return {'original': citation, 'normalized': citation}
     
     def extract_case_name_variants(self, case_name: str) -> Set[str]:
-        """Generate multiple variants of a case name for better search coverage."""
-        if not case_name or case_name == 'N/A':
+        """Generate search variants of a case name with improved cleaning."""
+        if not case_name or case_name in ('N/A', 'Unknown', ''):
             return set()
             
         variants = set()
         case_name = case_name.strip()
+        
+        if len(case_name) < 3:  # Skip very short names
+            return set()
+            
         variants.add(case_name)
         
-        # Remove common corporate suffixes
-        cleaned = re.sub(r'\b(LLC|Inc\.?|Corp\.?|Co\.?|Ltd\.?|L\.P\.?|LLP)\b', '', case_name, flags=re.I)
+        # Clean corporate suffixes more aggressively
+        corporate_suffixes = [
+            r'\b(?:LLC|Inc\.?|Corp\.?|Co\.?|Ltd\.?|L\.P\.?|LLP|LP)\b',
+            r'\b(?:Corporation|Company|Limited|Partnership)\b'
+        ]
+        
+        cleaned = case_name
+        for suffix_pattern in corporate_suffixes:
+            cleaned = re.sub(suffix_pattern, '', cleaned, flags=re.I)
+        
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-        if cleaned and cleaned != case_name:
+        if cleaned and cleaned != case_name and len(cleaned) > 3:
             variants.add(cleaned)
         
-        # Extract just the party names (before "v.")
-        v_match = re.search(r'^([^v]+)\s+v\.?\s+([^,]+)', case_name, re.I)
-        if v_match:
-            plaintiff = v_match.group(1).strip()
-            defendant = v_match.group(2).strip()
-            variants.add(f"{plaintiff} v. {defendant}")
-            variants.add(f"{plaintiff} v {defendant}")
+        # Extract party names from "X v. Y" format
+        adversarial_match = re.search(r'^([^v]+)\s+v\.?\s+([^,\(]+)', case_name, re.I)
+        if adversarial_match:
+            plaintiff = adversarial_match.group(1).strip()
+            defendant = adversarial_match.group(2).strip()
             
-            # Individual party names
-            variants.add(plaintiff)
-            variants.add(defendant)
+            if len(plaintiff) > 2 and len(defendant) > 2:
+                variants.add(f"{plaintiff} v. {defendant}")
+                variants.add(f"{plaintiff} v {defendant}")
+                
+                # Add individual parties only if they're substantial
+                if len(plaintiff) > 4:
+                    variants.add(plaintiff)
+                if len(defendant) > 4:
+                    variants.add(defendant)
         
-        # Remove punctuation for broader matching
-        no_punct = re.sub(r'[^\w\s]', ' ', case_name)
-        no_punct = re.sub(r'\s+', ' ', no_punct).strip()
-        if no_punct:
-            variants.add(no_punct)
+        # Handle "In re" and "Ex parte" cases
+        special_case_match = re.search(r'^(?:In re|Ex parte)\s+(.+)', case_name, re.I)
+        if special_case_match:
+            subject = special_case_match.group(1).strip()
+            if len(subject) > 3:
+                variants.add(subject)
         
         return {v for v in variants if len(v.strip()) > 2}
     
     def generate_strategic_queries(self, cluster: Dict) -> List[Dict[str, str]]:
-        """Generate strategic search queries prioritizing canonical sources."""
+        """Generate focused, strategic search queries with better prioritization."""
         queries = []
         
-        # Extract all citation variants
+        # Extract citations with validation
         citations = set()
         for citation_obj in cluster.get('citations', []):
-            if citation_obj.get('citation'):
-                citations.add(citation_obj['citation'].strip())
+            citation = citation_obj.get('citation', '').strip()
+            if citation and len(citation) > 5:  # Basic validation
+                citations.add(citation)
         
-        # Extract case name variants
+        # Extract case names with validation
         case_names = set()
-        if cluster.get('canonical_name'):
-            case_names.update(self.extract_case_name_variants(cluster['canonical_name']))
-        if cluster.get('extracted_case_name'):
-            case_names.update(self.extract_case_name_variants(cluster['extracted_case_name']))
+        for name_field in ['canonical_name', 'extracted_case_name', 'case_name']:
+            if cluster.get(name_field):
+                case_names.update(self.extract_case_name_variants(cluster[name_field]))
         
         # Extract years
         years = set()
-        for date_field in ['canonical_date', 'extracted_date']:
+        for date_field in ['canonical_date', 'extracted_date', 'date']:
             if cluster.get(date_field):
                 year_match = re.search(r'\b(19|20)\d{2}\b', str(cluster[date_field]))
                 if year_match:
                     years.add(year_match.group(0))
         
-        # Strategy 1: Direct citation searches on canonical sources
+        # Priority 1: Exact citation on top canonical sources
+        top_domains = ['courtlistener.com', 'justia.com', 'leagle.com']
         for citation in citations:
-            normalized = self.normalize_citation(citation)
-            
-            # Primary canonical sources first
-            for domain in ['courtlistener.com', 'justia.com', 'leagle.com']:
+            for domain in top_domains:
                 queries.append({
                     'query': f'site:{domain} "{citation}"',
                     'priority': 1,
-                    'strategy': 'canonical_citation',
-                    'target_domain': domain
+                    'strategy': 'exact_citation_canonical',
+                    'target_domain': domain,
+                    'expected_reliability': 90
                 })
-            
-            # Scholar.google.com with citation
+        
+        # Priority 2: Citation with legal context indicators
+        for citation in citations:
             queries.append({
-                'query': f'site:scholar.google.com "{citation}" case',
-                'priority': 1,
-                'strategy': 'scholar_citation',
-                'target_domain': 'scholar.google.com'
+                'query': f'"{citation}" (opinion OR court OR case OR decision)',
+                'priority': 2,
+                'strategy': 'citation_with_context',
+                'target_domain': None,
+                'expected_reliability': 75
             })
         
-        # Strategy 2: Case name + citation combinations
-        for case_name in case_names:
-            for citation in citations:
+        # Priority 3: Case name + citation on canonical sources
+        for case_name in list(case_names)[:3]:  # Limit to best case names
+            for citation in list(citations)[:2]:  # Limit citations
                 for domain in ['courtlistener.com', 'justia.com']:
                     queries.append({
                         'query': f'site:{domain} "{case_name}" "{citation}"',
-                        'priority': 2,
-                        'strategy': 'name_citation_combo',
-                        'target_domain': domain
-                    })
-        
-        # Strategy 3: Case name + year on canonical sources
-        for case_name in case_names:
-            for year in years:
-                for domain in ['courtlistener.com', 'justia.com', 'leagle.com']:
-                    queries.append({
-                        'query': f'site:{domain} "{case_name}" {year}',
                         'priority': 3,
-                        'strategy': 'name_year_combo',
-                        'target_domain': domain
+                        'strategy': 'name_citation_canonical',
+                        'target_domain': domain,
+                        'expected_reliability': 85
                     })
         
-        # Strategy 4: Broader searches for hard-to-find cases
-        for citation in citations:
+        # Priority 4: Case name + year (for harder to find cases)
+        for case_name in list(case_names)[:2]:
+            for year in years:
+                queries.append({
+                    'query': f'"{case_name}" {year} (court OR opinion)',
+                    'priority': 4,
+                    'strategy': 'name_year_broad',
+                    'target_domain': None,
+                    'expected_reliability': 60
+                })
+        
+        # Priority 5: Broader citation search (last resort)
+        for citation in list(citations)[:2]:
             queries.append({
-                'query': f'"{citation}" "opinion" OR "court" OR "case"',
-                'priority': 4,
-                'strategy': 'broad_citation',
-                'target_domain': None
+                'query': f'"{citation}"',
+                'priority': 5,
+                'strategy': 'citation_broad',
+                'target_domain': None,
+                'expected_reliability': 50
             })
         
-        # Strategy 5: Case name only on canonical sources (last resort)
-        for case_name in case_names:
-            if len(case_name) > 10:  # Only for substantial case names
-                for domain in ['courtlistener.com', 'justia.com']:
-                    queries.append({
-                        'query': f'site:{domain} "{case_name}"',
-                        'priority': 5,
-                        'strategy': 'name_only',
-                        'target_domain': domain
-                    })
-        
-        # Sort by priority and limit
-        queries.sort(key=lambda x: x['priority'])
-        return queries[:20]  # Limit to top 20 queries
+        # Sort by priority and limit to reasonable number
+        queries.sort(key=lambda x: (x['priority'], -x['expected_reliability']))
+        return queries[:15]  # Reasonable limit
     
     def score_result_reliability(self, result: Dict, query_info: Dict) -> float:
-        """Score search result reliability based on source, content, and query match."""
+        """Enhanced reliability scoring with better domain recognition."""
         score = 0.0
         url = result.get('url', '')
-        title = result.get('title', '')
-        snippet = result.get('snippet', '')
+        title = result.get('title', '').lower()
+        snippet = result.get('snippet', '').lower()
         
-        # Domain reliability score (0-100)
-        domain = urlparse(url).netloc.lower()
+        if not url:
+            return 0.0
+        
+        # Extract domain efficiently
+        domain = self._get_domain_from_url(url)
+        if not domain:
+            return 0.0
+        
+        # Domain reliability score (primary factor)
         domain_score = 0
-        
         for canonical_domain, info in self.canonical_sources.items():
             if canonical_domain in domain:
                 domain_score = info['weight']
                 break
         
-        # Base score from domain reliability
-        score += domain_score * 0.4
+        # Unknown domains get a base score
+        if domain_score == 0:
+            domain_score = 30  # Base score for unknown but legitimate domains
         
-        # Content quality indicators
-        content = f"{title} {snippet}".lower()
+        score += domain_score * 0.5  # 50% weight to domain
         
-        # Legal content indicators
-        legal_indicators = [
-            'opinion', 'court', 'judge', 'ruling', 'decision', 'case',
-            'plaintiff', 'defendant', 'appellant', 'appellee', 'petitioner',
-            'respondent', 'circuit', 'district', 'supreme', 'federal'
-        ]
-        legal_score = sum(1 for indicator in legal_indicators if indicator in content)
-        score += min(legal_score * 2, 20)  # Max 20 points for legal content
+        # Content quality indicators (30% weight)
+        content = f"{title} {snippet}"
         
-        # Citation presence in content
-        query_citations = re.findall(r'\d+\s+[A-Z][a-z]*\.?\d*d?\s+\d+', query_info.get('query', ''))
-        for citation in query_citations:
-            if citation in content:
-                score += 15  # Strong indicator of relevant content
+        # Strong legal indicators
+        strong_indicators = ['opinion', 'court decision', 'case law', 'judicial', 'ruling']
+        strong_score = sum(5 for indicator in strong_indicators if indicator in content)
         
-        # Title relevance
-        if any(word in title.lower() for word in ['case', 'opinion', 'court']):
-            score += 10
+        # General legal indicators
+        legal_indicators = ['court', 'judge', 'plaintiff', 'defendant', 'circuit', 'district']
+        legal_score = sum(2 for indicator in legal_indicators if indicator in content)
         
-        # URL structure quality
-        if any(indicator in url.lower() for indicator in ['/opinion/', '/case/', '/court/', '/decision/']):
-            score += 5
+        content_score = min(strong_score + legal_score, 30)
+        score += content_score * 0.3
         
-        # Penalty for low-quality indicators
-        if any(indicator in url.lower() for indicator in ['blog', 'forum', 'wiki', 'comment']):
-            score -= 10
+        # Citation presence bonus (15% weight)
+        query_text = query_info.get('query', '')
+        citations_in_query = re.findall(r'"\d+\s+[A-Z][a-z]*\.?\d*d?\s+\d+"', query_text)
+        
+        citation_score = 0
+        for citation in citations_in_query:
+            clean_citation = citation.strip('"')
+            if clean_citation.lower() in content:
+                citation_score += 15
+        
+        score += min(citation_score, 15) * 0.15
+        
+        # URL structure quality (5% weight)
+        url_indicators = ['/opinion/', '/case/', '/court/', '/decision/', '/legal/']
+        url_score = sum(2 for indicator in url_indicators if indicator in url.lower())
+        score += min(url_score, 5) * 0.05
+        
+        # Penalties for low-quality sources
+        penalties = ['blog', 'forum', 'wiki', 'comment', 'discussion']
+        penalty = sum(5 for pen in penalties if pen in url.lower() or pen in content)
+        score -= penalty
         
         return max(0, min(100, score))
     
-    def search_with_engine(self, query: str, engine: str, num_results: int = 5) -> List[Dict]:
-        """Execute search with rate limiting and error handling."""
-        # Rate limiting
-        now = time.time()
-        if engine in self.last_request:
-            elapsed = now - self.last_request[engine]
-            if elapsed < self.min_delay:
-                time.sleep(self.min_delay - elapsed)
+    def _get_domain_from_url(self, url: str) -> str:
+        """Extract domain from URL with caching."""
+        if url in self._domain_cache:
+            return self._domain_cache[url]
         
-        self.last_request[engine] = time.time()
+        try:
+            domain = urlparse(url).netloc.lower()
+            # Remove www. prefix
+            if domain.startswith('www.'):
+                domain = domain[4:]
+            self._domain_cache[url] = domain
+            return domain
+        except Exception:
+            self._domain_cache[url] = ''
+            return ''
+    
+    def _rate_limit_check(self, engine: str):
+        """Improved rate limiting with per-engine tracking."""
+        if engine not in self.rate_limits:
+            return
+        
+        config = self.rate_limits[engine]
+        now = time.time()
+        elapsed = now - config['last_request']
+        
+        if elapsed < config['delay']:
+            sleep_time = config['delay'] - elapsed
+            logger.debug(f"Rate limiting {engine}: sleeping {sleep_time:.2f}s")
+            time.sleep(sleep_time)
+        
+        self.rate_limits[engine]['last_request'] = time.time()
+    
+    def search_with_engine(self, query: str, engine: str, num_results: int = 5) -> List[Dict]:
+        """Execute search with improved error handling and validation."""
+        if engine not in self.enabled_engines:
+            logger.warning(f"Engine {engine} not enabled")
+            return []
+        
+        # Input validation
+        if not query or len(query.strip()) < 3:
+            logger.warning(f"Query too short for {engine}: '{query}'")
+            return []
+        
+        self._rate_limit_check(engine)
         
         try:
             if engine == 'google':
@@ -287,48 +362,89 @@ class LegalWebsearchEngine:
             elif engine == 'ddg':
                 return self._ddg_search(query, num_results)
             else:
+                logger.error(f"Unknown search engine: {engine}")
                 return []
+                
+        except requests.exceptions.RequestException as e:
+            logger.error(f"{engine} network error for '{query}': {e}")
+            return []
         except Exception as e:
-            print(f"[websearch] {engine} search failed for '{query}': {e}")
+            logger.error(f"{engine} search failed for '{query}': {e}")
             return []
     
     def _google_search(self, query: str, num_results: int) -> List[Dict]:
-        """Enhanced Google search with better parsing."""
-        params = {"q": query, "num": num_results, "hl": "en"}
+        """Enhanced Google search with better result extraction."""
+        params = {
+            "q": query, 
+            "num": min(num_results, 10),  # Google limits
+            "hl": "en",
+            "lr": "lang_en"  # English results
+        }
         
         try:
-            resp = self.session.get("https://www.google.com/search", params=params, timeout=15)
-            resp.raise_for_status()
+            response = self.session.get(
+                "https://www.google.com/search", 
+                params=params, 
+                timeout=5
+            )
+            response.raise_for_status()
         except Exception as e:
-            print(f"[websearch] Google request failed: {e}")
+            logger.error(f"Google request failed: {e}")
             return []
         
-        soup = BeautifulSoup(resp.text, "html.parser")
+        if "unusual traffic" in response.text.lower():
+            logger.warning("Google detected unusual traffic - may be rate limited")
+            return []
+        
+        soup = BeautifulSoup(response.text, "html.parser")
         results = []
         
-        # Try multiple selectors for robustness
-        selectors = ['div.g', 'div[data-ved]', '.rc']
+        # Multiple selectors for robustness
+        result_selectors = [
+            'div.g',           # Standard result
+            'div[data-ved]',   # Alternative
+            '.rc',             # Classic
+            'div.yuRUbf'       # Newer format
+        ]
         
-        for selector in selectors:
+        elements = []
+        for selector in result_selectors:
             elements = soup.select(selector)
             if elements:
                 break
         
         for elem in elements[:num_results]:
-            link_elem = elem.find('a', href=True)
-            title_elem = elem.find('h3')
-            
-            # Look for snippet in multiple places
-            snippet_elem = (elem.find('span', class_='aCOpRe') or 
-                          elem.find('div', class_='VwiC3b') or
-                          elem.find('div', class_='s') or
-                          elem.find('.st'))
-            
-            if link_elem and title_elem:
+            try:
+                # Find link
+                link_elem = elem.find('a', href=True)
+                if not link_elem:
+                    continue
+                
+                # Find title
+                title_elem = elem.find('h3') or link_elem.find('h3')
+                if not title_elem:
+                    continue
+                
+                # Find snippet
+                snippet_selectors = [
+                    'span.aCOpRe', 'div.VwiC3b', 'div.s', '.st', 
+                    'span[data-ved]', '.IsZvec'
+                ]
+                snippet_elem = None
+                for sel in snippet_selectors:
+                    snippet_elem = elem.select_one(sel)
+                    if snippet_elem:
+                        break
+                
                 url = link_elem['href']
+                
+                # Clean Google redirect URLs
                 if url.startswith('/url?q='):
-                    # Extract actual URL from Google redirect
                     url = url.split('&')[0].replace('/url?q=', '')
+                
+                # Validate URL
+                if not url.startswith(('http://', 'https://')):
+                    continue
                 
                 results.append({
                     'url': url,
@@ -336,67 +452,100 @@ class LegalWebsearchEngine:
                     'snippet': snippet_elem.get_text(strip=True) if snippet_elem else '',
                     'source': 'google'
                 })
+                
+            except Exception as e:
+                logger.debug(f"Error parsing Google result element: {e}")
+                continue
         
         return results
     
     def _bing_search(self, query: str, num_results: int) -> List[Dict]:
-        """Enhanced Bing search."""
-        params = {"q": query, "count": num_results}
+        """Enhanced Bing search with better parsing."""
+        params = {
+            "q": query, 
+            "count": min(num_results, 20),  # Bing's limit
+            "mkt": "en-US"
+        }
         
         try:
-            resp = self.session.get("https://www.bing.com/search", params=params, timeout=15)
-            resp.raise_for_status()
+            response = self.session.get(
+                "https://www.bing.com/search", 
+                params=params, 
+                timeout=5
+            )
+            response.raise_for_status()
         except Exception as e:
+            logger.error(f"Bing request failed: {e}")
             return []
         
-        soup = BeautifulSoup(resp.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         results = []
         
-        for li in soup.select('li.b_algo')[:num_results]:
-            a = li.find('a', href=True)
-            if a:
-                title = a.get_text(strip=True)
-                url = a['href']
+        # Bing result selectors
+        for li in soup.select('li.b_algo, .b_algo')[:num_results]:
+            try:
+                # Link and title
+                link_elem = li.find('a', href=True)
+                if not link_elem:
+                    continue
                 
-                # Better snippet extraction
-                snippet = ''
-                desc_elem = li.find('p') or li.find('.b_caption p')
-                if desc_elem:
-                    snippet = desc_elem.get_text(strip=True)
+                # Snippet
+                snippet_selectors = ['p', '.b_caption p', '.b_caption', 'div.b_caption p']
+                snippet_elem = None
+                for sel in snippet_selectors:
+                    snippet_elem = li.select_one(sel)
+                    if snippet_elem:
+                        break
                 
-                results.append({
-                    'url': url,
-                    'title': title,
-                    'snippet': snippet,
-                    'source': 'bing'
-                })
+                url = link_elem['href']
+                title = link_elem.get_text(strip=True)
+                
+                if url.startswith('http') and title:
+                    results.append({
+                        'url': url,
+                        'title': title,
+                        'snippet': snippet_elem.get_text(strip=True) if snippet_elem else '',
+                        'source': 'bing'
+                    })
+                    
+            except Exception as e:
+                logger.debug(f"Error parsing Bing result: {e}")
+                continue
         
         return results
     
     def _ddg_search(self, query: str, num_results: int) -> List[Dict]:
-        """Enhanced DuckDuckGo search."""
-        data = {"q": query, "kl": "us-en"}
-        
+        """DuckDuckGo search (experimental - less reliable)."""
         try:
-            resp = self.session.post("https://html.duckduckgo.com/html/", data=data, timeout=15)
-            resp.raise_for_status()
+            data = {"q": query, "kl": "us-en"}
+            response = self.session.post(
+                "https://html.duckduckgo.com/html/", 
+                data=data, 
+                timeout=5
+            )
+            response.raise_for_status()
         except Exception as e:
+            logger.error(f"DuckDuckGo request failed: {e}")
             return []
         
-        soup = BeautifulSoup(resp.text, "html.parser")
+        soup = BeautifulSoup(response.text, "html.parser")
         results = []
         
-        for res in soup.select('div.result')[:num_results]:
-            a = res.find('a', class_='result__a', href=True)
-            snippet_elem = res.find('a', class_='result__snippet')
-            
-            if a:
-                results.append({
-                    'url': a['href'],
-                    'title': a.get_text(strip=True),
-                    'snippet': snippet_elem.get_text(strip=True) if snippet_elem else '',
-                    'source': 'duckduckgo'
-                })
+        for result_div in soup.select('div.result')[:num_results]:
+            try:
+                link_elem = result_div.find('a', class_='result__a', href=True)
+                snippet_elem = result_div.find('a', class_='result__snippet')
+                
+                if link_elem:
+                    results.append({
+                        'url': link_elem['href'],
+                        'title': link_elem.get_text(strip=True),
+                        'snippet': snippet_elem.get_text(strip=True) if snippet_elem else '',
+                        'source': 'duckduckgo'
+                    })
+            except Exception as e:
+                logger.debug(f"Error parsing DDG result: {e}")
+                continue
         
         return results
     
@@ -405,29 +554,39 @@ class LegalWebsearchEngine:
         Main search function: find canonical legal sources for a citation cluster.
         Returns ranked results with reliability scores.
         """
+        if not cluster:
+            logger.warning("Empty cluster provided to search")
+            return []
+        
         queries = self.generate_strategic_queries(cluster)
+        if not queries:
+            logger.warning("No valid queries generated from cluster")
+            return []
+        
         all_results = []
         seen_urls = set()
         
-        # Execute searches in priority order
-        engines = ['google', 'bing', 'ddg']
+        logger.info(f"Executing {len(queries)} strategic queries with {len(self.enabled_engines)} engines")
         
-        for query_info in queries:
+        # Execute searches in priority order
+        for i, query_info in enumerate(queries):
             if len(all_results) >= max_results:
                 break
             
             query = query_info['query']
+            logger.debug(f"Query {i+1}: {query} (strategy: {query_info['strategy']})")
             
-            # Try engines in random order to distribute load
+            # Randomize engine order to distribute load
+            engines = self.enabled_engines.copy()
             random.shuffle(engines)
             
             for engine in engines:
                 try:
-                    results = self.search_with_engine(query, engine, num_results=5)
+                    results = self.search_with_engine(query, engine, num_results=3)
                     
                     for result in results:
                         url = result['url']
-                        if url not in seen_urls and url.startswith('http'):
+                        if url not in seen_urls and self._is_valid_result(result):
                             # Score result reliability
                             score = self.score_result_reliability(result, query_info)
                             
@@ -435,7 +594,8 @@ class LegalWebsearchEngine:
                                 'reliability_score': score,
                                 'query_strategy': query_info['strategy'],
                                 'query_priority': query_info['priority'],
-                                'search_engine': engine
+                                'search_engine': engine,
+                                'expected_reliability': query_info.get('expected_reliability', 50)
                             })
                             
                             all_results.append(result)
@@ -448,52 +608,103 @@ class LegalWebsearchEngine:
                         break
                         
                 except Exception as e:
-                    print(f"[websearch] Error in {engine} search: {e}")
+                    logger.error(f"Search failed for {engine} with query '{query}': {e}")
                     continue
             
-            # Small delay between query batches
-            time.sleep(0.5)
+            # Brief pause between query batches
+            if i < len(queries) - 1:
+                time.sleep(0.3)
         
         # Sort by reliability score (highest first)
         all_results.sort(key=lambda x: x['reliability_score'], reverse=True)
         
-        # Return top results with canonical sources prioritized
-        canonical_results = [r for r in all_results if r['reliability_score'] >= 70]
-        other_results = [r for r in all_results if r['reliability_score'] < 70]
+        logger.info(f"Found {len(all_results)} total results, returning top {min(len(all_results), max_results)}")
         
-        return (canonical_results + other_results)[:max_results]
+        return all_results[:max_results]
+    
+    def _is_valid_result(self, result: Dict) -> bool:
+        """Validate search result quality."""
+        url = result.get('url', '')
+        title = result.get('title', '')
+        
+        # Basic validation
+        if not url or not title:
+            return False
+        
+        # URL validation
+        if not url.startswith(('http://', 'https://')):
+            return False
+        
+        # Skip obvious junk
+        junk_indicators = ['javascript:', 'mailto:', '#', 'data:']
+        if any(indicator in url.lower() for indicator in junk_indicators):
+            return False
+        
+        # Title validation
+        if len(title.strip()) < 3:
+            return False
+        
+        return True
 
 
 # Convenience functions for backward compatibility
-def generate_legal_websearch_queries(cluster):
-    """Generate search queries for a cluster (backward compatibility)."""
-    engine = LegalWebsearchEngine()
-    queries = engine.generate_strategic_queries(cluster)
-    return [q['query'] for q in queries]
+def search_cluster_for_canonical_sources(cluster: Dict, max_results: int = 10) -> List[Dict]:
+    """Main function to search for canonical legal sources."""
+    engine = LegalWebSearchEngine()
+    return engine.search_cluster_canonical(cluster, max_results)
 
-def search_all_engines(query, num_results=5, engines=None):
-    """Search all engines (backward compatibility)."""
-    engine = LegalWebsearchEngine()
+
+def search_all_engines(query: str, num_results: int = 5, engines: List[str] = None) -> List[Dict]:
+    """Search multiple engines (backward compatibility)."""
+    engine = LegalWebSearchEngine()
+    
     if engines is None:
-        engines = ['google', 'bing', 'ddg']
+        engines = engine.enabled_engines
     
     all_results = []
     seen_urls = set()
     
     for search_engine in engines:
-        results = engine.search_with_engine(query, search_engine, num_results)
-        for result in results:
-            if result['url'] not in seen_urls:
-                all_results.append(result)
-                seen_urls.add(result['url'])
-            if len(all_results) >= num_results:
-                break
+        if search_engine in engine.enabled_engines:
+            results = engine.search_with_engine(query, search_engine, num_results)
+            for result in results:
+                if result['url'] not in seen_urls:
+                    all_results.append(result)
+                    seen_urls.add(result['url'])
+                if len(all_results) >= num_results:
+                    break
         if len(all_results) >= num_results:
             break
     
     return all_results
 
-def search_cluster_for_canonical_sources(cluster, max_results=10):
-    """Main function to search for canonical legal sources."""
-    engine = LegalWebsearchEngine()
-    return engine.search_cluster_canonical(cluster, max_results) 
+
+def test_web_search():
+    """Test function for web search functionality."""
+    # Test citation
+    test_cluster = {
+        'citations': [{'citation': '347 U.S. 483'}],
+        'canonical_name': 'Brown v. Board of Education',
+        'canonical_date': '1954'
+    }
+    
+    logger.info("=== Legal Web Search Test ===")
+    engine = LegalWebSearchEngine()
+    
+    logger.info(f"Enabled engines: {engine.enabled_engines}")
+    logger.info(f"Canonical sources: {len(engine.canonical_sources)}")
+    
+    results = engine.search_cluster_canonical(test_cluster, max_results=5)
+    
+    logger.info(f"\nFound {len(results)} results:")
+    for i, result in enumerate(results, 1):
+        logger.info(f"{i}. {result['title']}")
+        logger.info(f"   URL: {result['url']}")
+        logger.info(f"   Score: {result['reliability_score']:.1f}")
+        logger.info(f"   Strategy: {result['query_strategy']}")
+        logger.info(f"   Engine: {result['search_engine']}")
+        logger.info()
+
+
+if __name__ == "__main__":
+    test_web_search() 

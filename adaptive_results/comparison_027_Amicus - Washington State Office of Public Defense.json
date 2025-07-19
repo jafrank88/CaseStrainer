@@ -1,0 +1,225 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "100 Wn.2d 212, 667 P.2d 630",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "667 P.2d 630",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "159 Wn.2d 357, 150 P.3d 86",
+        "year": "2007"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "150 P.3d 86",
+        "year": "2007"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "486 P.3d 943",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "709 F.2d 160",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Yishmael",
+        "citation": "195 Wn.2d 155, 456 P.3d 1172",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "v. Yishmael",
+        "citations": [
+          "195 Wn.2"
+        ],
+        "years": [
+          "2020",
+          "2021"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Yishmael",
+        "citation": "456 P.3d 1172",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "v. Yishmael",
+        "citations": [
+          "195 Wn.2"
+        ],
+        "years": [
+          "2020",
+          "2021"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "100 Wn.2d 212",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "195 Wn.2d 155",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Det. of Stout",
+        "citation": "159 Wn.2d 357",
+        "year": "2007"
+      },
+      "toa": {
+        "case_name": "v. United States",
+        "citations": [
+          "709 F.2"
+        ],
+        "years": [
+          "1983"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 3,
+      "no_match": 8
+    },
+    "citation": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 3,
+      "no_match": 8
+    },
+    "year": {
+      "exact": 2,
+      "partial": 0,
+      "mismatch": 1,
+      "no_match": 8
+    }
+  }
+}

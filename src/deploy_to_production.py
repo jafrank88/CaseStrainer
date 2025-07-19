@@ -26,7 +26,7 @@ def parse_arguments():
 
 def deploy_files():
     """Deploy the necessary files to the production server."""
-    print("Deploying files to production server...")
+    logger.info("Deploying files to production server...")
 
     # Files to deploy
     files_to_deploy = [
@@ -47,31 +47,31 @@ def deploy_files():
 
         if os.path.exists(source_path):
             shutil.copy2(source_path, os.path.join(temp_dir, file_path))
-            print(f"Copied {file_path} to deployment package")
+            logger.info(f"Copied {file_path} to deployment package")
         else:
-            print(f"Warning: {file_path} not found")
+            logger.warning(f"Warning: {file_path} not found")
 
     # Create a deployment package
     deployment_zip = "casestrainer_deployment.zip"
     shutil.make_archive("casestrainer_deployment", "zip", temp_dir)
-    print(f"Created deployment package: {deployment_zip}")
+    logger.info(f"Created deployment package: {deployment_zip}")
 
     # Copy the deployment package to the production server
     try:
         # Use SCP to copy the file to the production server
         scp_command = f"scp {deployment_zip} {PRODUCTION_SERVER}:{PRODUCTION_PATH}"
-        print(f"Running: {scp_command}")
+        logger.info(f"Running: {scp_command}")
         subprocess.run(scp_command, shell=True, check=True)
 
         # Extract the deployment package on the production server
         ssh_extract_command = f"ssh {PRODUCTION_SERVER} 'cd {PRODUCTION_PATH} && unzip -o {deployment_zip}'"
-        print(f"Running: {ssh_extract_command}")
+        logger.info(f"Running: {ssh_extract_command}")
         subprocess.run(ssh_extract_command, shell=True, check=True)
 
-        print("Deployment completed successfully")
+        logger.info("Deployment completed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error deploying files: {e}")
+        logger.error(f"Error deploying files: {e}")
         return False
     finally:
         # Clean up temporary files
@@ -83,18 +83,18 @@ def deploy_files():
 
 def restart_application():
     """Restart the CaseStrainer application on the production server."""
-    print("Restarting CaseStrainer application...")
+    logger.info("Restarting CaseStrainer application...")
 
     try:
         # SSH into the production server and restart the application
         restart_command = f"ssh {PRODUCTION_SERVER} 'cd {PRODUCTION_PATH} && python run_production.py --host 0.0.0.0 --port 5000 &'"
-        print(f"Running: {restart_command}")
+        logger.info(f"Running: {restart_command}")
         subprocess.run(restart_command, shell=True, check=True)
 
-        print("Application restarted successfully")
+        logger.info("Application restarted successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error restarting application: {e}")
+        logger.error(f"Error restarting application: {e}")
         return False
 
 
@@ -109,7 +109,7 @@ def main():
     if args.restart and deployment_success:
         restart_application()
 
-    print("Deployment process completed")
+    logger.info("Deployment process completed")
 
 
 if __name__ == "__main__":

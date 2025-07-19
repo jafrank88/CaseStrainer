@@ -506,19 +506,17 @@ document.addEventListener('DOMContentLoaded', function() {
 """
     )
 
-print(
-    "Vue.js frontend with tabbed interface deployed successfully to static/vue directory!"
-)
-print("The application will be accessible at:")
-print("  - Local: http://0.0.0.0:5000")
-print("  - External: https://wolf.law.uw.edu/casestrainer/")
-print("\nTo start the application, run:")
-print("  D:\\Python\\python.exe app_final_vue.py --host=0.0.0.0 --port=5000")
+logger.info("Vue.js frontend with tabbed interface deployed successfully to static/vue directory!")
+logger.info("The application will be accessible at:")
+logger.info("  - Local: http://0.0.0.0:5000")
+logger.info("  - External: https://wolf.law.uw.edu/casestrainer/")
+logger.info("\nTo start the application, run:")
+logger.info("  D:\\Python\\python.exe app_final_vue.py --host=0.0.0.0 --port=5000")
 
 # Ask if the user wants to restart the application
 restart = input("\nDo you want to restart the application to apply changes? (y/n): ")
 if restart.lower() == "y":
-    print("\nRestarting the application...")
+    logger.info("\nRestarting the application...")
     try:
         # Find the Python process running app_final_vue.py
         import subprocess
@@ -549,11 +547,11 @@ if restart.lower() == "y":
                     text=True,
                 )
                 if "app_final_vue.py" in result.stdout:
-                    print(f"Stopping process {pid}...")
+                    logger.info(f"Stopping process {pid}...")
                     subprocess.run(["taskkill", "/F", "/PID", pid], capture_output=True)
 
         # Start the application again
-        print("Starting the application...")
+        logger.info("Starting the application...")
         subprocess.Popen(
             [
                 "D:\\Python\\python.exe",
@@ -563,8 +561,8 @@ if restart.lower() == "y":
             ],
             creationflags=subprocess.CREATE_NEW_CONSOLE,
         )
-        print("Application restarted successfully!")
+        logger.info("Application restarted successfully!")
     except Exception as e:
-        print(f"Error restarting application: {e}")
-        print("Please restart the application manually with:")
-        print("  D:\\Python\\python.exe app_final_vue.py --host=0.0.0.0 --port=5000")
+        logger.error(f"Error restarting application: {e}")
+        logger.info("Please restart the application manually with:")
+        logger.info("  D:\\Python\\python.exe app_final_vue.py --host=0.0.0.0 --port=5000")

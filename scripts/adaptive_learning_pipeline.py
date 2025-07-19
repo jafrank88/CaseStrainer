@@ -4,8 +4,8 @@ Adaptive Learning Pipeline for Citation Extraction
 This pipeline learns from failed extractions to continuously improve the tool.
 """
 
-import os
 import sys
+import os
 import json
 import time
 import pickle
@@ -18,10 +18,12 @@ import re
 from dataclasses import dataclass, asdict
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from file_utils import extract_text_from_pdf
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+from src.document_processing_unified import extract_text_from_file
+from src.toa_parser import ToAParser
+from difflib import SequenceMatcher
 
 @dataclass
 class LearningResult:
@@ -360,7 +362,7 @@ class AdaptiveLearningPipeline:
             
             try:
                 # Extract text
-                text = extract_text_from_pdf(str(pdf_path))
+                text = extract_text_from_file(str(pdf_path))
                 if not text or len(text.strip()) < 100:
                     print(f"  Skipped: Text too short")
                     continue
@@ -369,18 +371,111 @@ class AdaptiveLearningPipeline:
                 citations, learning_info = self.adaptive_processor.extract_with_learning(
                     text, pdf_path.name
                 )
-                
+
+                # --- ToA Extraction and Comparison Logic ---
+                toa_parser = ToAParser()
+                toa_section = toa_parser.detect_toa_section(text)
+                toa_entries = []
+                if toa_section:
+                    start, end = toa_section
+                    toa_text = text[start:end]
+                    toa_entries = toa_parser.parse_toa_section(toa_text)
+
+                # Prepare ToA entries as dicts for easier matching
+                toa_dicts = [
+                    {
+                        'case_name': entry.case_name,
+                        'citations': entry.citations,
+                        'years': entry.years
+                    } for entry in toa_entries
+                ]
+
+                def compare_fields(field1, field2):
+                    if field1 == field2:
+                        return "exact"
+                    elif field1 and field2 and SequenceMatcher(None, field1, field2).ratio() > 0.8:
+                        return "partial"
+                    else:
+                        return "mismatch"
+
+                def find_best_toa_match(extracted, toa_dicts):
+                    # Try to match by citation first
+                    for toa in toa_dicts:
+                        if extracted['citation'] in toa['citations']:
+                            return toa
+                    # Fallback: best fuzzy match on case name
+                    best_ratio = 0
+                    best_toa = None
+                    for toa in toa_dicts:
+                        ratio = SequenceMatcher(None, extracted['case_name'], toa['case_name']).ratio()
+                        if ratio > best_ratio:
+                            best_ratio = ratio
+                            best_toa = toa
+                    return best_toa
+
+                # Build extracted citation dicts for comparison
+                extracted_dicts = []
+                for c in citations:
+                    extracted_dicts.append({
+                        'case_name': getattr(c, 'extracted_case_name', None) or getattr(c, 'case_name', None) or '',
+                        'citation': getattr(c, 'citation', None) or '',
+                        'year': getattr(c, 'extracted_date', None) or getattr(c, 'year', None) or ''
+                    })
+
+                comparison_results = []
+                summary_stats = {'case_name': {'exact': 0, 'partial': 0, 'mismatch': 0, 'no_match': 0},
+                                 'citation': {'exact': 0, 'partial': 0, 'mismatch': 0, 'no_match': 0},
+                                 'year': {'exact': 0, 'partial': 0, 'mismatch': 0, 'no_match': 0}}
+
+                for extracted in extracted_dicts:
+                    toa = find_best_toa_match(extracted, toa_dicts) if toa_dicts else None
+                    if toa:
+                        # For year, compare to any year in ToA entry
+                        year_status = "no_match"
+                        if extracted['year'] and toa['years']:
+                            if extracted['year'] in toa['years']:
+                                year_status = "exact"
+                            elif any(SequenceMatcher(None, extracted['year'], y).ratio() > 0.8 for y in toa['years']):
+                                year_status = "partial"
+                            else:
+                                year_status = "mismatch"
+                        elif not extracted['year'] and not toa['years']:
+                            year_status = "exact"
+                        else:
+                            year_status = "no_match"
+                        match_status = {
+                            'case_name': compare_fields(extracted['case_name'], toa['case_name']),
+                            'citation': "exact" if extracted['citation'] in toa['citations'] else "mismatch",
+                            'year': year_status
+                        }
+                    else:
+                        match_status = {'case_name': 'no_match', 'citation': 'no_match', 'year': 'no_match'}
+                        toa = {'case_name': '', 'citations': [], 'years': []}
+                    for k in ['case_name', 'citation', 'year']:
+                        summary_stats[k][match_status[k]] += 1
+                    comparison_results.append({
+                        'extracted': extracted,
+                        'toa': toa,
+                        'match_status': match_status
+                    })
+
                 # Store results
                 result = {
                     'filename': pdf_path.name,
                     'citations_count': len(citations),
                     'learning_info': learning_info,
+                    'comparison_results': comparison_results,
+                    'summary_stats': summary_stats,
                     'timestamp': time.time()
                 }
                 self.results.append(result)
-                
+                # Save detailed comparison for this file
+                comp_file = self.output_dir / f"comparison_{pdf_path.stem}.json"
+                with open(comp_file, 'w', encoding='utf-8') as f:
+                    json.dump({'comparison_results': comparison_results, 'summary_stats': summary_stats}, f, indent=2, ensure_ascii=False)
                 print(f"  Extracted {len(citations)} citations")
                 print(f"  Learning: {learning_info['improvements']} improvements")
+                print(f"  Comparison: {summary_stats}")
                 
             except Exception as e:
                 print(f"  Error processing {pdf_path.name}: {e}")

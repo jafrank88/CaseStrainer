@@ -1,0 +1,135 @@
+[
+  {
+    "filename": "007_COA Pro Se Statement Additional Grounds.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "007_COA Pro Se Statement Additional Grounds.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.10591626167297363,
+        "timestamp": 1752538260.8092883
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538260.8093317
+  },
+  {
+    "filename": "008_COA  Pro Se Statement Additional Grounds 10-29-20.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "008_COA  Pro Se Statement Additional Grounds 10-29-20.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.0876760482788086,
+        "timestamp": 1752538261.9367998
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538261.9368374
+  },
+  {
+    "filename": "009_COA  Pro Se Statement Additional Grounds 8-27-20.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "009_COA  Pro Se Statement Additional Grounds 8-27-20.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.06264090538024902,
+        "timestamp": 1752538262.494741
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538262.4947689
+  },
+  {
+    "filename": "011_Respondents Statment Additional Authorities.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "011_Respondents Statment Additional Authorities.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.09597516059875488,
+        "timestamp": 1752538264.902628
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538264.9026618
+  },
+  {
+    "filename": "030_COA  Reply to Response to Personal Restraint Petition.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "030_COA  Reply to Response to Personal Restraint Petition.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.057366371154785156,
+        "timestamp": 1752538378.252964
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538378.2529936
+  },
+  {
+    "filename": "032_COA  Personal Restraint Petition.pdf",
+    "citations_count": 0,
+    "learning_info": {
+      "learning_result": {
+        "filename": "032_COA  Personal Restraint Petition.pdf",
+        "total_citations": 0,
+        "successful_extractions": 0,
+        "failed_extractions": 0,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.095306396484375,
+        "timestamp": 1752538384.4668193
+      },
+      "potential_failures": 0,
+      "improvements": 0
+    },
+    "timestamp": 1752538384.466847
+  },
+  {
+    "filename": "050_Represented Officers Answer to Amicus Police Accountability Project.pdf",
+    "citations_count": 6,
+    "learning_info": {
+      "learning_result": {
+        "filename": "050_Represented Officers Answer to Amicus Police Accountability Project.pdf",
+        "total_citations": 6,
+        "successful_extractions": 0,
+        "failed_extractions": 6,
+        "new_patterns_learned": 0,
+        "confidence_improvements": 0,
+        "processing_time": 0.12995529174804688,
+        "timestamp": 1752538455.6681783
+      },
+      "potential_failures": 6,
+      "improvements": 0
+    },
+    "timestamp": 1752538455.6682076
+  }
+]

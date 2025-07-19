@@ -14,7 +14,7 @@ def test_process_document():
     print("=== Testing process_document Function ===\n")
     
     try:
-        from src.document_processing import process_document
+        from src.document_processing_unified import process_document
         
         # Test 1: Direct text processing
         print("1. Testing direct text processing...")
@@ -48,7 +48,7 @@ def test_process_document():
         
         # Test 3: Check what text was extracted from URL
         print("\n3. Checking extracted text from URL...")
-        from src.document_processing import extract_text_from_url
+        from src.document_processing_unified import extract_text_from_url
         text_result = extract_text_from_url(test_url)
         
         if isinstance(text_result, dict):

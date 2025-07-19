@@ -1,0 +1,23 @@
+{
+  "comparison_results": [],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 0,
+      "no_match": 0
+    },
+    "citation": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 0,
+      "no_match": 0
+    },
+    "year": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 0,
+      "no_match": 0
+    }
+  }
+}

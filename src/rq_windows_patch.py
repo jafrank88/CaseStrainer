@@ -49,10 +49,10 @@ def patch_rq_for_windows():
             except ImportError:
                 pass  # RQ not available yet
             
-            print("[RQ PATCH] Successfully patched RQ for Windows compatibility")
+            logger.info("[RQ PATCH] Successfully patched RQ for Windows compatibility")
             return True
         except Exception as e:
-            print(f"[RQ PATCH] Failed to patch RQ for Windows: {e}")
+            logger.error(f"[RQ PATCH] Failed to patch RQ for Windows: {e}")
             return False
     return False
 

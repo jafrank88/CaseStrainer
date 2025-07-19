@@ -278,7 +278,7 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
             with open(citation_file, "r") as f:
                 citation_data = json.load(f)
         except Exception as e:
-            print(f"Error reading citation_verification_results.json: {e}")
+            logger.error(f"Error reading citation_verification_results.json: {e}")
 
     # Add unconfirmed citations
     for citation in unconfirmed_citations:
@@ -306,7 +306,7 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
             with open(database_file, "r") as f:
                 database_data = json.load(f)
         except Exception as e:
-            print(f"Error reading database_verification_results.json: {e}")
+            logger.error(f"Error reading database_verification_results.json: {e}")
 
     # Add multitool citations
     for citation in multitool_citations:
@@ -351,9 +351,9 @@ def main():
     logger.info("Updating citation JSON files...")
     update_citation_json_files(multitool_citations, unconfirmed_citations)
 
-    print("Sample citation generation complete!")
-    print(f"Generated {len(multitool_citations)} citations verified with multitool")
-    print(f"Generated {len(unconfirmed_citations)} unconfirmed citations")
+    logger.info("Sample citation generation complete!")
+    logger.info(f"Generated {len(multitool_citations)} citations verified with multitool")
+    logger.info(f"Generated {len(unconfirmed_citations)} unconfirmed citations")
 
 
 if __name__ == "__main__":

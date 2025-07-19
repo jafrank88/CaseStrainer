@@ -16,6 +16,48 @@ from datetime import datetime
 import importlib.util
 from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 from src.unified_citation_extractor import extract_all_citations
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")
@@ -104,7 +146,7 @@ def extract_text_from_pdf(pdf_path):
         return None
 
 
-def extract_citations_from_text(text):
+def get_unified_citations(text):
     """Extract citations from text using the new CitationExtractor with case name extraction."""
     from src.citation_extractor import CitationExtractor
     
@@ -186,7 +228,7 @@ def process_brief(brief_info):
             text = f.read()
 
         # Extract citations from the text
-        citations = extract_citations_from_text(text)
+        citations = get_unified_citations(text)
 
         logger.info(f"Found {len(citations)} citations in {brief_info.get('path')}")
 

@@ -1,0 +1,128 @@
+=== CASE NAME ANALYSIS ===
+Total unique case names: 60
+Total citations without case names: 0
+Total citations with case names: 245
+
+=== CASE NAMES WITH CITATION COUNTS ===
+144 | TABLE OF AUTHORITIES Federal Cases Chapman v. California
+  6 | State v. Doogan
+  6 | State v. Hughes
+  5 | State v. Britton
+  5 | State v. Weaville
+  4 | State v. Brown
+  3 | State v. Green
+  3 | Court of Appeals Division IIIState of Washington v. Joseph
+  2 | State v. Bencivenga
+  2 | State v. Zwicker
+  2 | State v. Hudlow
+  2 | State v. Porter
+  2 | State v. Finley
+  2 | In re Pers. Restraint of Hutchinson
+  2 | State v. Bradley
+  2 | State v. Monday
+  2 | State v. Walker
+  2 | State v. Russell
+  2 | State v. Suarez-Bravo
+  2 | In re Gentry
+  2 | State v. Moeurn
+  2 | 46 Strickland v. Washington
+  2 | State ex rel. Carroll v. Junker
+  2 | State v. Clark
+  2 | State v. Jones
+  1 | n v. State
+  1 | People v. Byrket
+  1 | In re Det. of Pouncy
+  1 | State and interpreted most strongly against the defendant. State v. Salinas
+  1 | State v. Barber
+  1 | 48 Terry v. Ohio
+  1 | Robinson v. State
+  1 | State v. Hicks
+  1 | State v. McFarland
+  1 | State v. Kyllo
+  1 | State v. Grier
+  1 | State v. Riley
+  1 | State v. Reichenbach
+  1 | iii State v. Harrington
+  1 | ii State v. Armenta
+  1 | State v. Stroud
+  1 | State v. Thorn
+  1 | State v. Johnson
+  1 | arroll v. Junker
+  1 | State v. Bliss
+  1 | State v. Lesnick
+  1 | State v. Sieler
+  1 | State v. Doughty
+  1 | State v. Gatewood
+  1 | State v. Bockman
+  1 | State v. Cormier
+  1 | State v. Valentine
+  1 | State v. Westlund
+  1 | State v. Darden
+  1 | State v. Arndt
+  1 | State v. York
+  1 | State v. Jasper
+  1 | State v. Lile
+  1 | State v. Fisher
+  1 | State v. Rohrich
+
+=== ALL UNIQUE CASE NAMES (alphabetical) ===
+46 Strickland v. Washington
+48 Terry v. Ohio
+Court of Appeals Division IIIState of Washington v. Joseph
+In re Det. of Pouncy
+In re Gentry
+In re Pers. Restraint of Hutchinson
+People v. Byrket
+Robinson v. State
+State and interpreted most strongly against the defendant. State v. Salinas
+State ex rel. Carroll v. Junker
+State v. Arndt
+State v. Barber
+State v. Bencivenga
+State v. Bliss
+State v. Bockman
+State v. Bradley
+State v. Britton
+State v. Brown
+State v. Clark
+State v. Cormier
+State v. Darden
+State v. Doogan
+State v. Doughty
+State v. Finley
+State v. Fisher
+State v. Gatewood
+State v. Green
+State v. Grier
+State v. Hicks
+State v. Hudlow
+State v. Hughes
+State v. Jasper
+State v. Johnson
+State v. Jones
+State v. Kyllo
+State v. Lesnick
+State v. Lile
+State v. McFarland
+State v. Moeurn
+State v. Monday
+State v. Porter
+State v. Reichenbach
+State v. Riley
+State v. Rohrich
+State v. Russell
+State v. Sieler
+State v. Stroud
+State v. Suarez-Bravo
+State v. Thorn
+State v. Valentine
+State v. Walker
+State v. Weaville
+State v. Westlund
+State v. York
+State v. Zwicker
+TABLE OF AUTHORITIES Federal Cases Chapman v. California
+arroll v. Junker
+ii State v. Armenta
+iii State v. Harrington
+n v. State

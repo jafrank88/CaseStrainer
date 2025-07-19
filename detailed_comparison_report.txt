@@ -1,0 +1,183 @@
+DETAILED COMPARISON REPORT: ToA vs Main Body Extraction
+================================================================================
+
+ENTRY 1: 10 P.3d 358
+Line 1 (ToA): ToA line for: 10 P.3d 358
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 10 P.3d 358
+Line 4 (Main Body extracted): Name='State v. Bradley', Date='2000'
+--------------------------------------------------------------------------------
+ENTRY 2: 111 P.3d 899
+Line 1 (ToA): ToA line for: 111 P.3d 899
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 111 P.3d 899
+Line 4 (Main Body extracted): Name='State v. Rafay', Date='2012'
+--------------------------------------------------------------------------------
+ENTRY 3: 127 Wn.2d 322
+Line 1 (ToA): ToA line for: 127 Wn.2d 322
+Line 2 (ToA extracted): Name='State v. McFarland', Date='1995'
+Line 3 (Main Body context): Context for: 127 Wn.2d 322
+Line 4 (Main Body extracted): Name='State v. McFarland', Date='None'
+--------------------------------------------------------------------------------
+ENTRY 4: 134 P.3d 221
+Line 1 (ToA): ToA line for: 134 P.3d 221
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 134 P.3d 221
+Line 4 (Main Body extracted): Name='State v. McKenzie', Date='2006'
+--------------------------------------------------------------------------------
+ENTRY 5: 168 P.3d 359
+Line 1 (ToA): ToA line for: 168 P.3d 359
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 168 P.3d 359
+Line 4 (Main Body extracted): Name='State v. Yates', Date='2007'
+--------------------------------------------------------------------------------
+ENTRY 6: 17 L.Ed. 2d 562
+Line 1 (ToA): ToA line for: 17 L.Ed. 2d 562
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 17 L.Ed. 2d 562
+Line 4 (Main Body extracted): Name='None', Date='1967'
+--------------------------------------------------------------------------------
+ENTRY 7: 195 P.3d 940
+Line 1 (ToA): ToA line for: 195 P.3d 940
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 195 P.3d 940
+Line 4 (Main Body extracted): Name='State v. Warren', Date='2008'
+--------------------------------------------------------------------------------
+ENTRY 8: 20 L.Ed. 2d 889
+Line 1 (ToA): ToA line for: 20 L.Ed. 2d 889
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 20 L.Ed. 2d 889
+Line 4 (Main Body extracted): Name='None', Date='1968'
+--------------------------------------------------------------------------------
+ENTRY 9: 217 P.3d 756
+Line 1 (ToA): ToA line for: 217 P.3d 756
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 217 P.3d 756
+Line 4 (Main Body extracted): Name='State v. O'Hara', Date='2009'
+--------------------------------------------------------------------------------
+ENTRY 10: 229 P.3d 678
+Line 1 (ToA): ToA line for: 229 P.3d 678
+Line 2 (ToA extracted): Name='In re Det. of Pouncy', Date='2010'
+Line 3 (Main Body context): Context for: 229 P.3d 678
+Line 4 (Main Body extracted): Name='State v. Guloy', Date='2010'
+--------------------------------------------------------------------------------
+ENTRY 11: 245 P.3d 776
+Line 1 (ToA): ToA line for: 245 P.3d 776
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 245 P.3d 776
+Line 4 (Main Body extracted): Name='State v. Brown', Date='2011'
+--------------------------------------------------------------------------------
+ENTRY 12: 257 P.3d 551
+Line 1 (ToA): ToA line for: 257 P.3d 551
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 257 P.3d 551
+Line 4 (Main Body extracted): Name='State v. Monday, does not help Mr. Zamora. See 171 Wn.2d 667', Date='2011'
+--------------------------------------------------------------------------------
+ENTRY 13: 258 P.3d 43
+Line 1 (ToA): ToA line for: 258 P.3d 43
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 258 P.3d 43
+Line 4 (Main Body extracted): Name='State v. Thorgerson', Date='2011'
+--------------------------------------------------------------------------------
+ENTRY 14: 278 P.3d 653
+Line 1 (ToA): ToA line for: 278 P.3d 653
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 278 P.3d 653
+Line 4 (Main Body extracted): Name='State v. Thorgerson', Date='2011'
+--------------------------------------------------------------------------------
+ENTRY 15: 285 P.3d 83
+Line 1 (ToA): ToA line for: 285 P.3d 83
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 285 P.3d 83
+Line 4 (Main Body extracted): Name='State v. Rafay', Date='2012'
+--------------------------------------------------------------------------------
+ENTRY 16: 351 P.2d 153
+Line 1 (ToA): ToA line for: 351 P.2d 153
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 351 P.2d 153
+Line 4 (Main Body extracted): Name='State v. Swan', Date='1990'
+--------------------------------------------------------------------------------
+ENTRY 17: 354 P.3d 900
+Line 1 (ToA): ToA line for: 354 P.3d 900
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 354 P.3d 900
+Line 4 (Main Body extracted): Name='State v. Gauthier', Date='2015'
+--------------------------------------------------------------------------------
+ENTRY 18: 368 P.3d 222
+Line 1 (ToA): ToA line for: 368 P.3d 222
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 368 P.3d 222
+Line 4 (Main Body extracted): Name='State v. Zamudio', Date='2016'
+--------------------------------------------------------------------------------
+ENTRY 19: 385 U.S. 493
+Line 1 (ToA): ToA line for: 385 U.S. 493
+Line 2 (ToA extracted): Name='Garrity v. State of N.J.', Date='1967'
+Line 3 (Main Body context): Context for: 385 U.S. 493
+Line 4 (Main Body extracted): Name='None', Date='None'
+--------------------------------------------------------------------------------
+ENTRY 20: 392 U.S. 1
+Line 1 (ToA): ToA line for: 392 U.S. 1
+Line 2 (ToA extracted): Name='Terry v. Ohio', Date='1968'
+Line 3 (Main Body context): Context for: 392 U.S. 1
+Line 4 (Main Body extracted): Name='None', Date='None'
+--------------------------------------------------------------------------------
+ENTRY 21: 621 P.2d 784
+Line 1 (ToA): ToA line for: 621 P.2d 784
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 621 P.2d 784
+Line 4 (Main Body extracted): Name='State v. York', Date='1980'
+--------------------------------------------------------------------------------
+ENTRY 22: 790 P.2d 610
+Line 1 (ToA): ToA line for: 790 P.2d 610
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 790 P.2d 610
+Line 4 (Main Body extracted): Name='State v. Swan', Date='1990'
+--------------------------------------------------------------------------------
+ENTRY 23: 847 P.2d 919
+Line 1 (ToA): ToA line for: 847 P.2d 919
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 847 P.2d 919
+Line 4 (Main Body extracted): Name='State v. Collins', Date='1993'
+--------------------------------------------------------------------------------
+ENTRY 24: 87 S.Ct. 616
+Line 1 (ToA): ToA line for: 87 S.Ct. 616
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 87 S.Ct. 616
+Line 4 (Main Body extracted): Name='None', Date='1967'
+--------------------------------------------------------------------------------
+ENTRY 25: 88 S.Ct. 1868
+Line 1 (ToA): ToA line for: 88 S.Ct. 1868
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 88 S.Ct. 1868
+Line 4 (Main Body extracted): Name='None', Date='None'
+--------------------------------------------------------------------------------
+ENTRY 26: 892 P.2d 29
+Line 1 (ToA): ToA line for: 892 P.2d 29
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 892 P.2d 29
+Line 4 (Main Body extracted): Name='None', Date='2014'
+--------------------------------------------------------------------------------
+ENTRY 27: 899 P.2d 1251
+Line 1 (ToA): ToA line for: 899 P.2d 1251
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 899 P.2d 1251
+Line 4 (Main Body extracted): Name='State v. McFarland', Date='1995'
+--------------------------------------------------------------------------------
+ENTRY 28: 935 P.2d 1294
+Line 1 (ToA): ToA line for: 935 P.2d 1294
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 935 P.2d 1294
+Line 4 (Main Body extracted): Name='None', Date='1997'
+--------------------------------------------------------------------------------
+ENTRY 29: 940 P.2d 546
+Line 1 (ToA): ToA line for: 940 P.2d 546
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 940 P.2d 546
+Line 4 (Main Body extracted): Name='State v. McKenzie', Date='2006'
+--------------------------------------------------------------------------------
+ENTRY 30: 982 P.2d 627
+Line 1 (ToA): ToA line for: 982 P.2d 627
+Line 2 (ToA extracted): Name='None', Date='None'
+Line 3 (Main Body context): Context for: 982 P.2d 627
+Line 4 (Main Body extracted): Name='State v. Graves', Date='None'
+--------------------------------------------------------------------------------

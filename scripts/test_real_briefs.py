@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from enhanced_extraction_improvements import EnhancedExtractionProcessor
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from file_utils import extract_text_from_pdf
+from src.file_utils import extract_text_from_file
 
 
 class RealBriefsTester:
@@ -69,7 +69,7 @@ class RealBriefsTester:
         """Extract text from a PDF brief."""
         try:
             print(f"   📄 Extracting text from {pdf_path.name}...")
-            text = extract_text_from_pdf(str(pdf_path))
+            text = extract_text_from_file(str(pdf_path))
             
             if not text or len(text.strip()) < 100:
                 print(f"   ⚠️  Warning: Minimal text extracted ({len(text)} chars)")

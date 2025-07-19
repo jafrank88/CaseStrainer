@@ -1,0 +1,117 @@
+{
+  "total_processed": 7,
+  "total_improvements": 0,
+  "learned_patterns": 0,
+  "failed_extractions": 6,
+  "case_name_database_size": 0,
+  "failure_analysis": {
+    "total_failures": 6,
+    "error_types": {
+      "low_confidence": 6
+    },
+    "method_failures": {
+      "regex": 6
+    },
+    "common_contexts": [
+      [
+        "Bellevue",
+        4
+      ],
+      [
+        "Page",
+        2
+      ],
+      [
+        "Bainbridge",
+        2
+      ],
+      [
+        "Island",
+        2
+      ],
+      [
+        "Police",
+        2
+      ],
+      [
+        "Guild",
+        2
+      ],
+      [
+        "John",
+        2
+      ],
+      [
+        "Does",
+        2
+      ],
+      [
+        "Sch",
+        2
+      ],
+      [
+        "Brouillet",
+        2
+      ]
+    ],
+    "suggested_improvements": [
+      {
+        "type": "method_optimization",
+        "description": "Regex method failing more than eyecite. Consider improving regex patterns.",
+        "priority": "medium"
+      }
+    ]
+  },
+  "recent_improvements": [
+    {
+      "filename": "009_COA  Pro Se Statement Additional Grounds 8-27-20.pdf",
+      "total_citations": 0,
+      "successful_extractions": 0,
+      "failed_extractions": 0,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 0.06264090538024902,
+      "timestamp": 1752538262.494741
+    },
+    {
+      "filename": "011_Respondents Statment Additional Authorities.pdf",
+      "total_citations": 0,
+      "successful_extractions": 0,
+      "failed_extractions": 0,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 0.09597516059875488,
+      "timestamp": 1752538264.902628
+    },
+    {
+      "filename": "030_COA  Reply to Response to Personal Restraint Petition.pdf",
+      "total_citations": 0,
+      "successful_extractions": 0,
+      "failed_extractions": 0,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 0.057366371154785156,
+      "timestamp": 1752538378.252964
+    },
+    {
+      "filename": "032_COA  Personal Restraint Petition.pdf",
+      "total_citations": 0,
+      "successful_extractions": 0,
+      "failed_extractions": 0,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 0.095306396484375,
+      "timestamp": 1752538384.4668193
+    },
+    {
+      "filename": "050_Represented Officers Answer to Amicus Police Accountability Project.pdf",
+      "total_citations": 6,
+      "successful_extractions": 0,
+      "failed_extractions": 6,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 0.12995529174804688,
+      "timestamp": 1752538455.6681783
+    }
+  ]
+}

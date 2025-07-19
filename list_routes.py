@@ -1,5 +1,9 @@
 import sys
 import os
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Add the src directory to the path so we can import app_final_vue
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
@@ -9,11 +13,11 @@ def list_routes():
     try:
         from src.app_final_vue import create_app
 
-        print("Creating app instance...")
+        logger.info("Creating app instance...")
         app = create_app()
 
-        print("\nRegistered routes:")
-        print("-" * 80)
+        logger.info("\nRegistered routes:")
+        logger.info("-" * 80)
 
         # Get all routes and sort them
         routes = []
@@ -26,20 +30,20 @@ def list_routes():
 
         # Print routes
         for route, endpoint, methods in routes:
-            print(f"{endpoint:50s} {methods:20s} {route}")
+            logger.info(f"{endpoint:50s} {methods:20s} {route}")
 
-        print("\nNote: The API is mounted at /casestrainer/api/")
-        print("Example endpoints:")
-        print("  GET  /casestrainer/api/version")
-        print(
+        logger.info("\nNote: The API is mounted at /casestrainer/api/")
+        logger.info("Example endpoints:")
+        logger.info("  GET  /casestrainer/api/version")
+        logger.info(
             '  POST /casestrainer/api/analyze -d \'{"text":"Sample text with citation 534 F.3d 1290"}\''
         )
 
     except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
+        logger.error(f"Error: {str(e)}")
         import traceback
 
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
 
 
 if __name__ == "__main__":

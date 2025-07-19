@@ -10,10 +10,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.case_name_extraction_core import (
     get_canonical_case_name,
-    extract_case_name_from_text,
     extract_case_name_hinted,
     extract_case_name_triple
 )
+from src.extract_case_name import extract_case_name_from_text
 
 def test_canonical_extraction():
     """Test canonical case name extraction from APIs."""

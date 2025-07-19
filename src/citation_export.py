@@ -65,7 +65,7 @@ def load_citations(filter_criteria=None):
                 return citations
         return []
     except Exception as e:
-        print(f"Error loading citations: {e}")
+        logger.error(f"Error loading citations: {e}")
         return []
 
 
@@ -110,7 +110,7 @@ def export_to_text(citations, filename=None):
 
         return filepath
     except Exception as e:
-        print(f"Error exporting to text: {e}")
+        logger.error(f"Error exporting to text: {e}")
         return None
 
 
@@ -178,7 +178,7 @@ def export_to_bibtex(citations, filename=None):
 
         return filepath
     except Exception as e:
-        print(f"Error exporting to BibTeX: {e}")
+        logger.error(f"Error exporting to BibTeX: {e}")
         return None
 
 
@@ -227,7 +227,7 @@ def export_to_endnote(citations, filename=None):
 
         return filepath
     except Exception as e:
-        print(f"Error exporting to EndNote: {e}")
+        logger.error(f"Error exporting to EndNote: {e}")
         return None
 
 
@@ -257,7 +257,7 @@ def export_to_json(citations, filename=None):
 
         return filepath
     except Exception as e:
-        print(f"Error exporting to JSON: {e}")
+        logger.error(f"Error exporting to JSON: {e}")
         return None
 
 
@@ -272,14 +272,14 @@ def export_citations(citations, format_type, filename=None):
     elif format_type.lower() == "json":
         return export_to_json(citations, filename)
     else:
-        print(f"Unsupported export format: {format_type}")
+        logger.info(f"Unsupported export format: {format_type}")
         return None
 
 
 if __name__ == "__main__":
     # Test export functionality
     citations = load_citations()
-    print(f"Loaded {len(citations)} citations")
+    logger.info(f"Loaded {len(citations)} citations")
 
     # Export in all formats
     text_file = export_to_text(citations)
@@ -287,7 +287,7 @@ if __name__ == "__main__":
     endnote_file = export_to_endnote(citations)
     json_file = export_to_json(citations)
 
-    print(f"Exported to text: {text_file}")
-    print(f"Exported to BibTeX: {bibtex_file}")
-    print(f"Exported to EndNote: {endnote_file}")
-    print(f"Exported to JSON: {json_file}")
+    logger.info(f"Exported to text: {text_file}")
+    logger.info(f"Exported to BibTeX: {bibtex_file}")
+    logger.info(f"Exported to EndNote: {endnote_file}")
+    logger.info(f"Exported to JSON: {json_file}")

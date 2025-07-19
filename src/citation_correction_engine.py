@@ -15,7 +15,7 @@ try:
     LEVENSHTEIN_AVAILABLE = True
 except ImportError:
     LEVENSHTEIN_AVAILABLE = False
-    print("Warning: Levenshtein module not available, using difflib fallback")
+    logger.warning("Warning: Levenshtein module not available, using difflib fallback")
 import sys
 from typing import List, Dict, Any, Optional
 from difflib import SequenceMatcher
@@ -858,13 +858,12 @@ if __name__ == "__main__":
     # Suggest corrections for each citation
     for citation in invalid_citations:
         result = correction_engine.suggest_corrections(citation)
-        print(f"Citation: {citation}")
-        print(f"Suggestions: {len(result['suggestions'])}")
+        logger.info(f"Citation: {citation}")
+        logger.info(f"Suggestions: {len(result['suggestions'])}")
 
         for i, suggestion in enumerate(result["suggestions"]):
-            print(
-                f"  {i+1}. {suggestion['corrected_citation']} (similarity: {suggestion['similarity']:.2f})"
+            logger.info(f"  {i+1}. {suggestion['corrected_citation']} (similarity: {suggestion['similarity']:.2f})"
             )
-            print(f"     Explanation: {suggestion['explanation']}")
+            logger.info(f"     Explanation: {suggestion['explanation']}")
 
-        print()
+        logger.info()

@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 try:
-    from src.optimized_web_searcher import OptimizedWebSearcher
+    from src.websearch_utils import LegalWebsearchEngine
 except ImportError as e:
     print(f"Import error: {e}")
     sys.exit(1)
@@ -23,7 +23,7 @@ async def debug_websearch():
     citation = "410 U.S. 113"
     case_name = "Roe v. Wade"
     
-    async with OptimizedWebSearcher() as searcher:
+    async with LegalWebsearchEngine() as searcher:
         print(f"\nTesting citation: {citation}")
         print(f"Case name: {case_name}")
         

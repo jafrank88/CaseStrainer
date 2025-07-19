@@ -66,15 +66,14 @@ def tail_log_file(file_path, follow=True):
                 lines = f.readlines()
                 start_idx = max(0, len(lines) - MAX_LINES)
                 for line in lines[start_idx:]:
-                    print(colorize_log_line(line.rstrip()))
+                    logger.info(colorize_log_line(line.rstrip()))
 
         # If not following, exit after showing the initial lines
         if not follow:
             return
 
         # Print separator to indicate we're now following
-        print(
-            f"\n{Fore.CYAN}=== Following log file: {file_path} (Ctrl+C to exit) ==={Style.RESET_ALL}\n"
+        logger.info(f"\n{Fore.CYAN}=== Following log file: {file_path} (Ctrl+C to exit) ==={Style.RESET_ALL}\n"
         )
 
         # Follow the file for new content
@@ -88,33 +87,31 @@ def tail_log_file(file_path, follow=True):
                     with open(file_path, "r") as f:
                         f.seek(last_size)
                         for line in f:
-                            print(colorize_log_line(line.rstrip()))
+                            logger.info(colorize_log_line(line.rstrip()))
 
                     last_size = current_size
 
                 # If file has been truncated or deleted
                 elif current_size < last_size:
-                    print(
-                        f"{Fore.YELLOW}Log file was truncated or deleted. Restarting...{Style.RESET_ALL}"
-                    )
+                    logger.info(f"{Fore.YELLOW}Log file was truncated or deleted. Restarting...{Style.RESET_ALL}")
                     last_size = 0
 
                 time.sleep(POLL_INTERVAL)
 
         except KeyboardInterrupt:
-            print(f"\n{Fore.CYAN}Log monitoring stopped.{Style.RESET_ALL}")
+            logger.info(f"\n{Fore.CYAN}Log monitoring stopped.{Style.RESET_ALL}")
 
     except Exception as e:
-        print(f"{Fore.RED}Error monitoring log file: {str(e)}{Style.RESET_ALL}")
+        logger.error(f"{Fore.RED}Error monitoring log file: {str(e)}{Style.RESET_ALL}")
 
 
 if __name__ == "__main__":
-    print(f"{Fore.CYAN}CaseStrainer Log Monitor{Style.RESET_ALL}")
-    print(f"Monitoring log file: {LOG_FILE}")
+    logger.info(f"{Fore.CYAN}CaseStrainer Log Monitor{Style.RESET_ALL}")
+    logger.info(f"Monitoring log file: {LOG_FILE}")
 
     # Check if log file exists
     if not os.path.exists(LOG_FILE):
-        print(f"{Fore.YELLOW}Log file does not exist. Creating it...{Style.RESET_ALL}")
+        logger.info(f"{Fore.YELLOW}Log file does not exist. Creating it...{Style.RESET_ALL}")
         create_log_dir()
 
     # Start monitoring

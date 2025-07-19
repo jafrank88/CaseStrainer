@@ -3,7 +3,11 @@ import os
 import sys
 import time
 import requests
+import logging
 from threading import Thread
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Add the src directory to the Python path
 src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
@@ -25,16 +29,16 @@ def list_routes():
         # Get the routes from the running app
         response = requests.get('http://localhost:5000/routes')
         if response.status_code == 200:
-            print("\n" + "="*80)
-            print("AVAILABLE ROUTES:")
-            print("="*80)
-            print(response.text)
-            print("="*80)
+            logger.info("\n" + "="*80)
+            logger.info("AVAILABLE ROUTES:")
+            logger.info("="*80)
+            logger.info(response.text)
+            logger.info("="*80)
         else:
-            print(f"Failed to get routes. Status code: {response.status_code}")
-            print(response.text)
+            logger.error(f"Failed to get routes. Status code: {response.status_code}")
+            logger.error(response.text)
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
     finally:
         # Stop the Flask app
         try:

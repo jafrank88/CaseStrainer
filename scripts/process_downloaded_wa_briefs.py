@@ -15,6 +15,48 @@ import random
 import requests
 from src.citation_extractor import extract_all_citations
 from src.unified_citation_extractor import extract_all_citations
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
 
 # Configure logging
 logging.basicConfig(
@@ -159,7 +201,7 @@ def extract_text_from_pdf(pdf_path):
     return ""
 
 
-def extract_citations_from_text(text):
+def get_unified_citations(text):
     """Unified citation extraction using the new CitationExtractor."""
     from src.citation_extractor import CitationExtractor
     

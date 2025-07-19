@@ -178,9 +178,9 @@ class UnifiedCitationExtractor:
             re.MULTILINE
         )
         
-        print(f"[DEBUG] Trying working pattern: {working_case_pattern.pattern}")
+        logger.debug(f"[DEBUG] Trying working pattern: {working_case_pattern.pattern}")
         matches = list(working_case_pattern.finditer(text))
-        print(f"[DEBUG] Working pattern matches found: {len(matches)}")
+        logger.debug(f"[DEBUG] Working pattern matches found: {len(matches)}")
         
         for match in matches:
             case_name = match.group(1).strip()
@@ -208,8 +208,8 @@ class UnifiedCitationExtractor:
                     line_number=self._get_line_number(text, start_pos),
                     confidence=0.95
                 ))
-                print(f"[REGEX_FULL] Found: {case_name}, {citation}, {year}")
-                print(f"[REGEX_FULL] Full citation: {full_citation}")
+                logger.info(f"[REGEX_FULL] Found: {case_name}, {citation}, {year}")
+                logger.info(f"[REGEX_FULL] Full citation: {full_citation}")
         # Fallback to original patterns for other citations
         for pattern in self.regex_patterns:
             matches = re.finditer(pattern, text)
@@ -272,7 +272,7 @@ class UnifiedCitationExtractor:
                     logger.warning(f"Failed to extract citation text from eyecite object: {e}")
                     citation_text = str(citation)
                 
-                print(f"[EYECITE] Found citation: {citation_text}")
+                logger.info(f"[EYECITE] Found citation: {citation_text}")
                 
                 # Normalize Washington citations
                 normalized_citation = self.normalize_washington_citations(citation_text)
@@ -293,7 +293,7 @@ class UnifiedCitationExtractor:
                     line_number=self._get_line_number(text, span[0]) if span else None,
                     confidence=0.9  # Eyecite confidence
                 ))
-            print(f"[EYECITE] Total citations found by eyecite: {len(results)}")
+            logger.info(f"[EYECITE] Total citations found by eyecite: {len(results)}")
             
             logger.info(f"Eyecite extraction found {len(results)} citations in {time.time() - start_time:.2f}s")
             return results

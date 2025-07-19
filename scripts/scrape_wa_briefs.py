@@ -19,7 +19,7 @@ import argparse
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from file_utils import extract_text_from_pdf
+from document_processing_unified import extract_text_from_file
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +36,8 @@ class WABriefsScraper:
     """Scraper for Washington State Courts Briefs website."""
     
     def __init__(self, output_dir: str = "wa_briefs", min_pages: int = 10, max_briefs: int = 50):
-        self.base_url = "https://www.courts.wa.gov/briefs/"
+        # Use the correct WA Courts COA Division I briefs page
+        self.base_url = "https://www.courts.wa.gov/appellate_trial_courts/coaBriefs/index.cfm?fa=coabriefs.briefsByCase&courtId=A08"
         self.output_dir = Path(output_dir)
         self.min_pages = min_pages
         self.max_briefs = max_briefs
@@ -44,45 +45,31 @@ class WABriefsScraper:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
-        
-        # Create output directory
         self.output_dir.mkdir(exist_ok=True)
-        
-        # Track downloaded briefs
         self.downloaded_count = 0
         self.skipped_count = 0
-        
+
     def get_brief_listings(self) -> List[Dict]:
-        """Get list of briefs from the main page."""
-        logger.info("Fetching brief listings from main page...")
-        
+        """Get list of PDF briefs from the WA Courts page."""
+        logger.info("Fetching brief listings from WA Courts page...")
         try:
             response = self.session.get(self.base_url)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
-            
             briefs = []
-            
-            # Look for links to brief pages - adjust selectors based on actual site structure
-            links = soup.find_all('a', href=True)
-            
-            for link in links:
+            # Find all PDF links in the page
+            for link in soup.find_all('a', href=True):
                 href = link.get('href')
-                if href and 'brief' in href.lower():
-                    # Extract case info from link text or surrounding context
-                    case_info = self.extract_case_info(link)
-                    if case_info:
-                        briefs.append({
-                            'url': urljoin(self.base_url, href),
-                            'title': case_info.get('title', ''),
-                            'case_number': case_info.get('case_number', ''),
-                            'court': case_info.get('court', ''),
-                            'date': case_info.get('date', '')
-                        })
-            
-            logger.info(f"Found {len(briefs)} potential brief links")
+                if href and href.lower().endswith('.pdf'):
+                    full_url = href
+                    if not full_url.startswith('http'):
+                        full_url = 'https://www.courts.wa.gov' + full_url
+                    title = link.get_text(strip=True)
+                    briefs.append({'url': full_url, 'title': title})
+                    if len(briefs) >= self.max_briefs:
+                        break
+            logger.info(f"Found {len(briefs)} PDF briefs")
             return briefs
-            
         except Exception as e:
             logger.error(f"Error fetching brief listings: {e}")
             return []
@@ -208,7 +195,7 @@ class WABriefsScraper:
         """Estimate number of pages in PDF."""
         try:
             # Try to extract text and count pages
-            text = extract_text_from_pdf(str(pdf_path))
+            text = extract_text_from_file(str(pdf_path))
             if text:
                 # Rough estimate: count page breaks or large text blocks
                 lines = text.split('\n')
@@ -249,46 +236,42 @@ class WABriefsScraper:
         return filename
     
     def scrape_briefs(self):
-        """Main scraping method."""
+        """Scrape and download briefs."""
         logger.info(f"Starting WA briefs scraping. Target: {self.max_briefs} briefs, min pages: {self.min_pages}")
         
+        # Get list of PDF briefs
         briefs = self.get_brief_listings()
+        if not briefs:
+            logger.warning("No briefs found to download")
+            return
         
-        for brief in briefs:
+        logger.info(f"Found {len(briefs)} PDF briefs to download")
+        
+        for i, brief in enumerate(briefs, 1):
             if self.downloaded_count >= self.max_briefs:
-                logger.info(f"Reached maximum brief count ({self.max_briefs})")
                 break
-            
-            logger.info(f"Processing brief: {brief.get('title', 'Unknown')}")
-            
-            pdf_links = self.find_pdf_links(brief['url'])
-            
-            for pdf_url in pdf_links:
-                if self.downloaded_count >= self.max_briefs:
-                    break
                 
-                # Create filename
-                case_num = brief.get('case_number', 'unknown')
-                court = brief.get('court', 'unknown').replace(' ', '_')
-                filename = f"{court}_{case_num}_{self.downloaded_count + 1}.pdf"
-                filename = self.sanitize_filename(filename)
-                
-                # Download PDF
-                if self.download_pdf(pdf_url, filename):
-                    pdf_path = self.output_dir / filename
-                    
-                    # Check if substantial
-                    if self.is_substantial_brief(pdf_path):
-                        self.downloaded_count += 1
-                        logger.info(f"Downloaded substantial brief: {filename}")
-                    else:
-                        # Remove small briefs
-                        pdf_path.unlink()
-                        self.skipped_count += 1
-                        logger.info(f"Skipped small brief: {filename}")
-                
-                # Rate limiting
-                time.sleep(1)
+            title = brief['title']
+            pdf_url = brief['url']
+            
+            logger.info(f"Processing brief: {title}")
+            
+            # Create a safe filename
+            safe_filename = self.sanitize_filename(f"{i:03d}_{title}.pdf")
+            filepath = self.output_dir / safe_filename
+            
+            # Skip if file already exists
+            if filepath.exists():
+                logger.info(f"  Skipped: File already exists")
+                self.skipped_count += 1
+                continue
+            
+            # Download the PDF directly
+            if self.download_pdf(pdf_url, safe_filename):
+                self.downloaded_count += 1
+                logger.info(f"  Downloaded: {safe_filename}")
+            else:
+                logger.warning(f"  Failed to download: {title}")
         
         logger.info(f"Scraping complete. Downloaded: {self.downloaded_count}, Skipped: {self.skipped_count}")
         

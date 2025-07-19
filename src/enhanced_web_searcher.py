@@ -17,6 +17,7 @@ from typing import Dict, Optional, Any, List, Tuple
 from urllib.parse import quote_plus, urljoin, urlparse
 import json
 from datetime import datetime
+from src.extract_case_name import extract_case_name_from_text  # Use canonical extraction if needed
 
 logger = logging.getLogger(__name__)
 

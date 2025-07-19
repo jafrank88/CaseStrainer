@@ -33,28 +33,28 @@ def test_complex_citation():
         "App. Oct. 2, 2018) (Doe II) (unpublished), "
     )
     
-    print(f"Testing complex citation in sample text:")
-    print("=" * 60)
-    print(test_text)
-    print("=" * 60)
+    logger.info(f"Testing complex citation in sample text:")
+    logger.info("=" * 60)
+    logger.info(test_text)
+    logger.info("=" * 60)
     
     # Process with the full pipeline
-    print("\nProcessing with full pipeline:")
-    print("-" * 40)
+    logger.info("\nProcessing with full pipeline:")
+    logger.info("-" * 40)
     
     results = process_text_with_complex_citations(test_text, verifier)
     
     for i, result in enumerate(results):
-        print(f"\nResult {i+1}:")
-        print(f"  Citation: {result.get('citation')}")
-        print(f"  Verified: {result.get('verified')}")
-        print(f"  Case name: {result.get('case_name')}")
-        print(f"  Canonical date: {result.get('canonical_date')}")
-        print(f"  Is parallel: {result.get('is_parallel_citation')}")
-        print(f"  Primary citation: {result.get('primary_citation')}")
-        print(f"  Error: {result.get('error')}")
-        print(f"  Context: {result.get('context')}")
-        print(f"  Complex metadata: {result.get('complex_metadata')}")
+        logger.info(f"\nResult {i+1}:")
+        logger.info(f"  Citation: {result.get('citation')}")
+        logger.info(f"  Verified: {result.get('verified')}")
+        logger.info(f"  Case name: {result.get('case_name')}")
+        logger.info(f"  Canonical date: {result.get('canonical_date')}")
+        logger.info(f"  Is parallel: {result.get('is_parallel_citation')}")
+        logger.info(f"  Primary citation: {result.get('primary_citation')}")
+        logger.error(f"  Error: {result.get('error')}")
+        logger.info(f"  Context: {result.get('context')}")
+        logger.info(f"  Complex metadata: {result.get('complex_metadata')}")
 
 if __name__ == "__main__":
     test_complex_citation() 

@@ -335,27 +335,47 @@ class ChunkedCitationProcessor:
         return processed
     
     async def _process_chunk(self, chunk: str, document_type: str) -> List[Dict]:
-        """Process a single chunk for citations"""
-        # Simulate citation extraction on chunk
-        # In real implementation, this would use CitationServices
-        
-        # Simulate processing time
-        await asyncio.sleep(0.1)
-        
-        # Mock citations found in chunk
-        mock_citations = []
-        if 'v.' in chunk:
-            # Simulate finding citations
-            mock_citations.append({
-                'id': len(mock_citations) + 1,
-                'raw_text': 'Mock Citation v. Example Case',
-                'case_name': 'Mock Citation v. Example Case',
-                'year': 2023,
-                'confidence_score': 0.85,
-                'chunk_index': hash(chunk) % 1000
-            })
-        
-        return mock_citations
+        """Process a single chunk for citations using the canonical UnifiedCitationProcessorV2."""
+        try:
+            # Use the canonical UnifiedCitationProcessorV2 for real citation extraction
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+            
+            config = ProcessingConfig(
+                use_eyecite=True,
+                use_regex=True,
+                extract_case_names=True,
+                extract_dates=True,
+                enable_clustering=False,  # Disable clustering for chunk processing
+                enable_verification=False  # Disable verification for faster processing
+            )
+            
+            processor = UnifiedCitationProcessorV2(config)
+            results = processor.process_text(chunk)
+            
+            # Convert CitationResult objects to dictionaries
+            citations = []
+            for result in results:
+                citations.append({
+                    'id': len(citations) + 1,
+                    'raw_text': result.citation,
+                    'case_name': result.canonical_name or result.extracted_case_name or 'Unknown Case',
+                    'year': result.canonical_date or result.extracted_date or 'No year',
+                    'confidence_score': 0.85,  # Default confidence
+                    'chunk_index': hash(chunk) % 1000,
+                    'extracted_case_name': result.extracted_case_name,
+                    'canonical_name': result.canonical_name,
+                    'extracted_date': result.extracted_date,
+                    'canonical_date': result.canonical_date,
+                    'verified': result.verified,
+                    'source': result.source,
+                    'method': result.method
+                })
+            
+            return citations
+            
+        except Exception as e:
+            self.logger.error(f"Error processing chunk: {e}")
+            return []
     
     async def _perform_final_analysis(self, citations: List[Dict]) -> Dict:
         """Perform final analysis on all collected citations"""

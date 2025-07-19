@@ -91,8 +91,7 @@ def populate_sample_data(conn):
         )
 
     conn.commit()
-    print(
-        f"Added {len(sample_citations)} sample citations to the multitool_confirmed_citations table."
+    logger.info(f"Added {len(sample_citations)} sample citations to the multitool_confirmed_citations table."
     )
 
 
@@ -112,14 +111,14 @@ def main():
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM multitool_confirmed_citations")
         count = cursor.fetchone()[0]
-        print(f"Total records in multitool_confirmed_citations: {count}")
+        logger.info(f"Total records in multitool_confirmed_citations: {count}")
 
         # Close the connection
         conn.close()
 
-        print("Sample data successfully added to the database.")
+        logger.info("Sample data successfully added to the database.")
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error: {e}")
 
 
 if __name__ == "__main__":

@@ -253,7 +253,7 @@ def test_full_pipeline():
         print(f"  Verified: {citation.get('verified', False)}")
         print(f"  Method: {citation.get('method', 'N/A')}")
         print(f"  Pattern: {citation.get('pattern', 'N/A')}")
-            print()
+        print()
         
     # Check if extracted_date fields are populated
     citations_with_dates = [c for c in result.get('results', []) if c.get('extracted_date') and c.get('extracted_date') != 'N/A']
@@ -276,8 +276,8 @@ def test_full_pipeline():
         with open(output_file, 'w') as f:
             json.dump(result, f, indent=2)
     print(f"Full results saved to: {output_file}")
-        
-        return result
+    
+    return result
         
 def test_specific_citation():
     """Test a specific citation to see the extraction process."""

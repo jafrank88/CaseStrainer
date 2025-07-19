@@ -95,6 +95,8 @@ Advanced CLI Features:
   -WhatIf             Show what would be done without executing
   -Confirm            Prompt for confirmation before major operations
 
+**NOTE:** For options 1, 2, and 3 (all production startup modes), a production test suite is automatically run after backend startup. Startup is only considered successful if all tests pass. If tests fail, see logs/production_test.log for details.
+
 Examples:
   .\dplaunch_enhanced.ps1                                    # Show menu
   .\dplaunch_enhanced.ps1 -Mode Production -QuickStart       # Fastest possible startup
@@ -1247,6 +1249,15 @@ function Start-DockerProduction {
                 if ($healthOK) {
                     Show-ServiceUrls
 
+                    # Run adaptive learning pipeline to improve citation extraction
+                    Write-Host "`nRunning adaptive learning pipeline..." -ForegroundColor Cyan
+                    $learningOK = Start-AdaptiveLearningPipeline
+                    if ($learningOK) {
+                        Write-Host "✅ Adaptive learning completed successfully" -ForegroundColor Green
+                    } else {
+                        Write-Host "⚠️  Adaptive learning had issues, but continuing..." -ForegroundColor Yellow
+                    }
+
                     # Post-startup validation (skip if NoValidation flag is set)
                     if (-not $NoValidation) {
                         Write-Host "`nRunning post-startup validation..." -ForegroundColor Cyan
@@ -1640,17 +1651,18 @@ function Show-Menu {
     Write-Host " 5.   Cache Management" -ForegroundColor Yellow
     Write-Host " 6.   Stop All Services" -ForegroundColor Red
     Write-Host " 7.  Quick Status Check" -ForegroundColor Magenta
+    Write-Host " 8.  Run Production Server Test" -ForegroundColor Yellow
     Write-Host " 0.  Exit" -ForegroundColor Gray
     Write-Host ""
     Write-Host "TIP: Use option 1 for fastest startup!" -ForegroundColor Green
     Write-Host ""
 
     do {
-        $selection = Read-Host "Select an option (0-7)"
-        if ($selection -match "^[0-7]$") {
+        $selection = Read-Host "Select an option (0-8)"
+        if ($selection -match "^[0-8]$") {
             break
         } else {
-            Write-Host "Invalid selection. Please enter a number between 0 and 7." -ForegroundColor Red
+            Write-Host "Invalid selection. Please enter a number between 0 and 8." -ForegroundColor Red
         }
     } while ($true)
 
@@ -1664,47 +1676,206 @@ function Show-Menu {
                 $script:QuickStart = $true
                 $script:SkipVueBuild = $true
                 Start-DockerProduction
+                # Run production test suite
+                Write-Host "Running production test suite..." -ForegroundColor Cyan
+                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                
+                # Ensure logs directory exists
+                $logsDir = Split-Path $testLog -Parent
+                if (-not (Test-Path $logsDir)) {
+                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+                }
+                
+                try {
+                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    $exitCode = $LASTEXITCODE
+                    
+                    if ($exitCode -eq 0) {
+                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                    } else {
+                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                        if (Test-Path $testLog) {
+                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                        }
+                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                        exit 1
+                    }
+                }
+                catch {
+                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                    exit 1
+                }
             }
             finally {
                 # Restore original values
                 $script:QuickStart = $originalQuickStart
                 $script:SkipVueBuild = $originalSkipVue
             }
+            exit 0
         }
         "2" {
-            Write-Host "`nStarting Smart Production Start..." -ForegroundColor Cyan
-            Start-DockerProduction
+            $result = Start-DockerProduction
+            # Run production test suite
+            Write-Host "Running production test suite..." -ForegroundColor Cyan
+            $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            
+            # Ensure logs directory exists
+            $logsDir = Split-Path $testLog -Parent
+            if (-not (Test-Path $logsDir)) {
+                New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+            }
+            
+            try {
+                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                $exitCode = $LASTEXITCODE
+                
+                if ($exitCode -eq 0) {
+                    Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                } else {
+                    Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                    Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                    if (Test-Path $testLog) {
+                        Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                    }
+                    Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                    exit 1
+                }
+            }
+            catch {
+                Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                exit 1
+            }
+            exit 0
         }
         "3" {
-            Write-Host "`nStarting Force Full Rebuild..." -ForegroundColor Yellow
-            Write-Host "This will rebuild everything from scratch, including Vue frontend and Docker images." -ForegroundColor Yellow
-            # Force rebuild with Vue rebuild
-            Start-DockerProduction -ForceRebuild
+            $result = Start-DockerProduction -ForceRebuild
+            # Run production test suite
+            Write-Host "Running production test suite..." -ForegroundColor Cyan
+            $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            
+            # Ensure logs directory exists
+            $logsDir = Split-Path $testLog -Parent
+            if (-not (Test-Path $logsDir)) {
+                New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+            }
+            
+            try {
+                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                $exitCode = $LASTEXITCODE
+                
+                if ($exitCode -eq 0) {
+                    Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                } else {
+                    Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                    Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                    if (Test-Path $testLog) {
+                        Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                    }
+                    Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                    exit 1
+                }
+            }
+            catch {
+                Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                exit 1
+            }
+            exit 0
         }
-        "4" {
-            Write-Host "`nStarting Advanced Diagnostics..." -ForegroundColor Blue
-            Show-AdvancedDiagnostics
-        }
-        "5" {
-            Write-Host "`nStarting Cache Management..." -ForegroundColor Yellow
-            Show-CacheManagement
-        }
-        "6" {
-            Write-Host "`nStopping All Services..." -ForegroundColor Red
-            Stop-AllServices
-        }
-        "7" {
-            Write-Host "`nRunning Quick Status Check..." -ForegroundColor Magenta
-            Show-QuickStatus
+        "4" { Show-AdvancedDiagnostics; exit 0 }
+        "5" { Show-CacheManagement; exit 0 }
+        "6" { Stop-AllServices; exit 0 }
+        "7" { Show-QuickStatus; exit 0 }
+        "8" {
+            Write-Host "`nRunning production server test suite..." -ForegroundColor Yellow
+            $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            
+            # Ensure logs directory exists
+            $logsDir = Split-Path $testLog -Parent
+            if (-not (Test-Path $logsDir)) {
+                New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+            }
+            
+            Write-Host "Test output will be logged to: $testLog" -ForegroundColor Gray
+            
+            # Run tests with proper error handling
+            try {
+                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                $exitCode = $LASTEXITCODE
+                
+                if ($exitCode -eq 0) {
+                    Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                } else {
+                    Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                    Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                    if (Test-Path $testLog) {
+                        Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                    }
+                    Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                }
+            }
+            catch {
+                Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "Check that pytest is installed and test_production_server.py exists" -ForegroundColor Yellow
+            }
+            
+            Write-Host "`nPress any key to return to menu..." -ForegroundColor Cyan
+            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+            return $selection
         }
         "0" {
             Write-Host "Exiting..." -ForegroundColor Gray
             Stop-AllMonitoring
             exit 0
         }
+        default {
+            Write-Host "Unknown menu option: $MenuOption (valid options: 0-8)" -ForegroundColor Red
+            exit 1
+        }
     }
 
     return $selection
+}
+
+function Start-AdaptiveLearningPipeline {
+    [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([bool])]
+    param()
+
+    if (-not $PSCmdlet.ShouldProcess("Adaptive learning pipeline", "Start")) {
+        return $false
+    }
+
+    Write-Host "Starting adaptive learning pipeline..." -ForegroundColor Cyan
+    
+    try {
+        # Check if adaptive learning script exists
+        $adaptiveScript = Join-Path $PSScriptRoot "scripts\adaptive_learning_pipeline.ps1"
+        if (-not (Test-Path $adaptiveScript)) {
+            Write-Host "⚠️  Adaptive learning script not found: $adaptiveScript" -ForegroundColor Yellow
+            return $false
+        }
+
+        # Run adaptive learning pipeline
+        Write-Host "Running adaptive learning pipeline..." -ForegroundColor Gray
+        $process = Start-Process -FilePath "powershell.exe" -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", $adaptiveScript) -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+
+        if ($process.ExitCode -eq 0) {
+            Write-Host "✅ Adaptive learning pipeline completed successfully" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "⚠️  Adaptive learning pipeline completed with exit code: $($process.ExitCode)" -ForegroundColor Yellow
+            return $false
+        }
+    }
+    catch {
+        Write-Host "❌ Error running adaptive learning pipeline: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
 }
 
 # Register cleanup on script exit
@@ -1736,9 +1907,40 @@ try {
                     $script:QuickStart = $true
                     $script:SkipVueBuild = $true
                     $result = Start-DockerProduction
-                    if (-not $result) { exit 1 }
+                    # Run production test suite
+                    Write-Host "Running production test suite..." -ForegroundColor Cyan
+                    $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+                    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                    
+                    # Ensure logs directory exists
+                    $logsDir = Split-Path $testLog -Parent
+                    if (-not (Test-Path $logsDir)) {
+                        New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+                    }
+                    
+                    try {
+                        $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                        $exitCode = $LASTEXITCODE
+                        
+                        if ($exitCode -eq 0) {
+                            Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                        } else {
+                            Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                            Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                            if (Test-Path $testLog) {
+                                Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                            }
+                            Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                            exit 1
+                        }
+                    }
+                    catch {
+                        Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                        exit 1
+                    }
                 }
                 finally {
+                    # Restore original values
                     $script:QuickStart = $originalQuickStart
                     $script:SkipVueBuild = $originalSkipVue
                 }
@@ -1746,25 +1948,123 @@ try {
             }
             2 {
                 $result = Start-DockerProduction
-                if (-not $result) { exit 1 }
+                # Run production test suite
+                Write-Host "Running production test suite..." -ForegroundColor Cyan
+                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                
+                # Ensure logs directory exists
+                $logsDir = Split-Path $testLog -Parent
+                if (-not (Test-Path $logsDir)) {
+                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+                }
+                
+                try {
+                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    $exitCode = $LASTEXITCODE
+                    
+                    if ($exitCode -eq 0) {
+                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                    } else {
+                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                        if (Test-Path $testLog) {
+                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                        }
+                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                        exit 1
+                    }
+                }
+                catch {
+                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                    exit 1
+                }
                 exit 0
             }
             3 {
                 $result = Start-DockerProduction -ForceRebuild
-                if (-not $result) { exit 1 }
+                # Run production test suite
+                Write-Host "Running production test suite..." -ForegroundColor Cyan
+                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                
+                # Ensure logs directory exists
+                $logsDir = Split-Path $testLog -Parent
+                if (-not (Test-Path $logsDir)) {
+                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+                }
+                
+                try {
+                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    $exitCode = $LASTEXITCODE
+                    
+                    if ($exitCode -eq 0) {
+                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                    } else {
+                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                        if (Test-Path $testLog) {
+                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                        }
+                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                        exit 1
+                    }
+                }
+                catch {
+                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                    exit 1
+                }
                 exit 0
             }
             4 { Show-AdvancedDiagnostics; exit 0 }
             5 { Show-CacheManagement; exit 0 }
             6 { Stop-AllServices; exit 0 }
             7 { Show-QuickStatus; exit 0 }
+            8 {
+                Write-Host "`nRunning production server test suite..." -ForegroundColor Yellow
+                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                
+                # Ensure logs directory exists
+                $logsDir = Split-Path $testLog -Parent
+                if (-not (Test-Path $logsDir)) {
+                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+                }
+                
+                Write-Host "Test output will be logged to: $testLog" -ForegroundColor Gray
+                
+                # Run tests with proper error handling
+                try {
+                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    $exitCode = $LASTEXITCODE
+                    
+                    if ($exitCode -eq 0) {
+                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
+                    } else {
+                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
+                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
+                        if (Test-Path $testLog) {
+                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
+                        }
+                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
+                    }
+                }
+                catch {
+                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
+                    Write-Host "Check that pytest is installed and test_production_server.py exists" -ForegroundColor Yellow
+                }
+                
+                Write-Host "`nPress any key to return to menu..." -ForegroundColor Cyan
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                return $selection
+            }
             0 {
                 Write-Host "Exiting..." -ForegroundColor Gray
                 Stop-AllMonitoring
                 exit 0
             }
             default {
-                Write-Host "Unknown menu option: $MenuOption (valid options: 0-7)" -ForegroundColor Red
+                Write-Host "Unknown menu option: $MenuOption (valid options: 0-8)" -ForegroundColor Red
                 exit 1
             }
         }
@@ -1884,4 +2184,27 @@ catch {
 finally {
     # Ensure cleanup happens
     Stop-AllMonitoring
+}
+
+# === Run backend and verify with test suite (with enhanced logging) ===
+Write-Host "\n[CaseStrainer] Running production server test suite..." -ForegroundColor Cyan
+
+# Log file for test output
+$testLogFile = Join-Path $PSScriptRoot "logs\production_test.log"
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+Add-Content -Path $testLogFile -Value "`n[$timestamp] === Test Run Start ==="
+
+# Run pytest and capture output
+$testResult = & python -m pytest test_production_server.py 2>&1 | Tee-Object -FilePath $testLogFile -Append
+Write-Host $testResult
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "`n❌ [CaseStrainer] Test suite failed! Please check the output above and logs/production_test.log for details." -ForegroundColor Red
+    # Optionally, print the last 20 lines of the log for quick review
+    Write-Host "`n--- Last 20 lines of test log ---" -ForegroundColor Yellow
+    Get-Content $testLogFile -Tail 20
+    exit 1
+} else {
+    Write-Host "`n✅ [CaseStrainer] All production server tests passed!" -ForegroundColor Green
+    Add-Content -Path $testLogFile -Value "[$timestamp] === Test Run Success ==="
 }

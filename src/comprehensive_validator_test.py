@@ -237,7 +237,7 @@ def test_citation_suggestions(citation):
 
 def run_comprehensive_test(citation, citation_type):
     """Run all tests for a single citation"""
-    print(f"\nTesting {citation_type} citation: {citation}")
+    logger.info(f"\nTesting {citation_type} citation: {citation}")
 
     results = {
         "citation": citation,
@@ -255,7 +255,7 @@ def run_comprehensive_test(citation, citation_type):
     if validation_result:
         results["validation"] = validation_result.get("verified", False)
         results["validation_by"] = validation_result.get("verified_by", None)
-        print(f"  Validation: {'✓ Valid' if results['validation'] else '✗ Invalid'}")
+        logger.info(f"  Validation: {'✓ Valid' if results['validation'] else '✗ Invalid'}")
 
     # Test context
     context_result = test_citation_context(citation)
@@ -265,8 +265,7 @@ def run_comprehensive_test(citation, citation_type):
             context and context != f"No context available for {citation}"
         )
         results["context_length"] = len(context)
-        print(
-            f"  Context: {'✓ Available' if results['context_available'] else '✗ Not available'} ({results['context_length']} chars)"
+        logger.info(f"  Context: {'✓ Available' if results['context_available'] else '✗ Not available'} ({results['context_length']} chars)"
         )
 
     # Test classification
@@ -274,7 +273,7 @@ def run_comprehensive_test(citation, citation_type):
     if classification_result:
         confidence = classification_result.get("confidence", 0)
         results["ml_confidence"] = confidence
-        print(f"  Classification confidence: {confidence:.2f}")
+        logger.info(f"  Classification confidence: {confidence:.2f}")
 
     # Test suggestions (only for invalid citations)
     if not results["validation"]:
@@ -282,9 +281,9 @@ def run_comprehensive_test(citation, citation_type):
         if suggestions_result:
             suggestions = suggestions_result.get("suggestions", [])
             results["suggestion_count"] = len(suggestions)
-            print(f"  Suggestions: {len(suggestions)} available")
+            logger.info(f"  Suggestions: {len(suggestions)} available")
             for i, suggestion in enumerate(suggestions[:3], 1):
-                print(f"    {i}. {suggestion.get('corrected_citation', '')}")
+                logger.info(f"    {i}. {suggestion.get('corrected_citation', '')}")
 
     # Add a small delay to avoid overwhelming the server
     time.sleep(0.5)
@@ -294,7 +293,7 @@ def run_comprehensive_test(citation, citation_type):
 
 def run_tests_for_type(citations, citation_type):
     """Run tests for a specific type of citations"""
-    print(f"\n=== Testing {citation_type} Citations ===")
+    logger.info(f"\n=== Testing {citation_type} Citations ===")
     results = []
 
     for citation in citations:
@@ -372,9 +371,8 @@ def generate_report(all_results):
         )
 
     # Print summary table
-    print("\n=== Enhanced Validator Performance Summary ===\n")
-    print(
-        tabulate(
+    logger.info("\n=== Enhanced Validator Performance Summary ===\n")
+    logger.info(tabulate(
             summary_table,
             headers=[
                 "Citation Type",
@@ -384,15 +382,14 @@ def generate_report(all_results):
                 "Avg. Confidence",
                 "Avg. Suggestions",
             ],
-            tablefmt="grid",
-        )
+            tablefmt="grid",)
     )
 
     # Generate and save visualizations
     try:
         generate_visualizations(stats_by_type, timestamp)
     except Exception as e:
-        print(f"Error generating visualizations: {str(e)}")
+        logger.error(f"Error generating visualizations: {str(e)}")
 
     return {
         "json_file": json_filename,
@@ -450,15 +447,13 @@ def generate_visualizations(stats_by_type, timestamp):
 
     # Save the figure
     plt.savefig(f"results/validator_test_visualization_{timestamp}.png")
-    print(
-        f"\nVisualization saved to results/validator_test_visualization_{timestamp}.png"
-    )
+    logger.info(f"\nVisualization saved to results/validator_test_visualization_{timestamp}.png")
 
 
 def main():
     """Main function to run the comprehensive test"""
-    print("Comprehensive Enhanced Validator Test")
-    print("=====================================")
+    logger.info("Comprehensive Enhanced Validator Test")
+    logger.info("=====================================")
 
     # Initialize results list
     all_results = []
@@ -486,10 +481,10 @@ def main():
     # Generate comprehensive report
     report = generate_report(all_results)
 
-    print("\nTest completed. Results saved to:")
-    print(f"  - JSON: {report['json_file']}")
-    print(f"  - CSV: {report['csv_file']}")
-    print("\nCheck the logs for detailed results.")
+    logger.info("\nTest completed. Results saved to:")
+    logger.info(f"  - JSON: {report['json_file']}")
+    logger.info(f"  - CSV: {report['csv_file']}")
+    logger.info("\nCheck the logs for detailed results.")
 
 
 if __name__ == "__main__":

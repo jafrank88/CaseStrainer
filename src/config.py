@@ -43,7 +43,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_FILE: str = get_config_value(
     "DATABASE_FILE", os.path.join(BASE_DIR, "data", "citations.db")
 )
-print(f"Database file path: {DATABASE_FILE}")  # Debug print
+# Database file path is logged during application startup instead of print
 
 # Feature flags
 USE_ENHANCED_VALIDATOR: bool = get_config_value("USE_ENHANCED_VALIDATOR", True)
@@ -176,27 +176,30 @@ def get_file_config() -> dict:
 
 def test_config_additions():
     """Test that the new config additions work correctly."""
-    print("Testing config additions...")
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info("Testing config additions...")
     
     # Test citation config
     citation_config = get_citation_config()
-    print(f"Citation config: {citation_config}")
+    logger.info(f"Citation config: {citation_config}")
     
     # Test API config  
     api_config = get_external_api_config()
-    print(f"API config: {api_config}")
+    logger.info(f"API config: {api_config}")
     
     # Test file config
     file_config = get_file_config()
-    print(f"File config: {file_config}")
+    logger.info(f"File config: {file_config}")
     
     # Test individual values
-    print(f"Context window: {CITATION_CONTEXT_WINDOW}")
-    print(f"Chunk size: {CITATION_CHUNK_SIZE}")
-    print(f"Immediate max length: {IMMEDIATE_PROCESSING_MAX_LENGTH}")
-    print(f"CourtListener API key: {'✓ Set' if COURTLISTENER_API_KEY else '✗ Not set'}")
+    logger.info(f"Context window: {CITATION_CONTEXT_WINDOW}")
+    logger.info(f"Chunk size: {CITATION_CHUNK_SIZE}")
+    logger.info(f"Immediate max length: {IMMEDIATE_PROCESSING_MAX_LENGTH}")
+    logger.info(f"CourtListener API key: {'✓ Set' if COURTLISTENER_API_KEY else '✗ Not set'}")
     
-    print("Config test complete!")
+    logger.info("Config test complete!")
 
 
 def configure_logging(log_level: int = logging.DEBUG) -> None:
@@ -315,6 +318,63 @@ def configure_specific_loggers() -> None:
         logging.getLogger().warning(f"Failed to configure case_name_extraction logger: {e}")
         case_name_logger = logging.getLogger("case_name_extraction")
         case_name_logger.setLevel(logging.WARNING)
+
+def validate_config():
+    """Validate critical configuration values"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Check SECRET_KEY (required)
+    if not get_config_value('SECRET_KEY'):
+        error_msg = "Missing required config: SECRET_KEY"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    # DATABASE_FILE has a default value, so just validate the path
+    try:
+        import os
+        db_path = DATABASE_FILE  # Use the already-configured value
+        db_dir = os.path.dirname(db_path)
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            logger.info(f"Created database directory: {db_dir}")
+    except Exception as e:
+        logger.error(f"Database path validation failed: {e}")
+        raise
+    
+    # Validate upload directory
+    try:
+        upload_dir = UPLOAD_FOLDER
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir, exist_ok=True)
+            logger.info(f"Created upload directory: {upload_dir}")
+    except Exception as e:
+        logger.error(f"Upload directory validation failed: {e}")
+        raise
+    
+    logger.info("Configuration validation completed successfully")
+    return True
+
+
+def get_environment_info():
+    """Get comprehensive environment information for debugging"""
+    import sys
+    import platform
+    
+    return {
+        'python_version': sys.version,
+        'platform': platform.platform(),
+        'architecture': platform.architecture(),
+        'processor': platform.processor(),
+        'environment': os.getenv('FLASK_ENV', 'production'),
+        'debug_mode': os.getenv('FLASK_DEBUG', '').lower() == 'true',
+        'database_file': DATABASE_FILE,
+        'upload_folder': UPLOAD_FOLDER,
+        'max_content_length': MAX_CONTENT_LENGTH,
+        'allowed_extensions': list(ALLOWED_EXTENSIONS),
+        'courtlistener_api_configured': bool(COURTLISTENER_API_KEY),
+        'session_type': SESSION_TYPE
+    }
 
 # ============================================================================
 # MAIN BLOCK FOR TESTING

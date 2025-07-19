@@ -1,0 +1,206 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "73 Wn.2d 23",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "436 P. 2d 186",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Ice Co. v. Liebmann",
+        "citation": "285 U.S. 262",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "v. Liebmann",
+        "citations": [
+          "285 U.S. 262"
+        ],
+        "years": [
+          "1932"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Ice Co. v. Liebmann",
+        "citation": "52 S.Ct. 371",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "v. Liebmann",
+        "citations": [
+          "285 U.S. 262"
+        ],
+        "years": [
+          "1932"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Ice Co. v. Liebmann",
+        "citation": "76 L.Ed. 747",
+        "year": "1932"
+      },
+      "toa": {
+        "case_name": "v. Liebmann",
+        "citations": [
+          "285 U.S. 262"
+        ],
+        "years": [
+          "1932"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "734 A.2d 1245",
+        "year": "1932"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "122 Wn.2d 299",
+        "year": "1999"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "858 P.2d 154",
+        "year": "1999"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "90 Wn.2d 9, 577 P.2d 925",
+        "year": "1993"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "577 P.2d 925",
+        "year": "1993"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 3,
+      "no_match": 7
+    },
+    "citation": {
+      "exact": 1,
+      "partial": 0,
+      "mismatch": 2,
+      "no_match": 7
+    },
+    "year": {
+      "exact": 1,
+      "partial": 0,
+      "mismatch": 2,
+      "no_match": 7
+    }
+  }
+}

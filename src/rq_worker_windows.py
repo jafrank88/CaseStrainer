@@ -34,9 +34,9 @@ except ImportError:
                 # Replace the default death penalty class
                 rq.timeouts.DeathPenalty = WindowsDeathPenalty
                 
-                print("[RQ PATCH] Successfully patched RQ for Windows compatibility")
+                logger.info("[RQ PATCH] Successfully patched RQ for Windows compatibility")
             except Exception as e:
-                print(f"[RQ PATCH] Failed to patch RQ for Windows: {e}")
+                logger.error(f"[RQ PATCH] Failed to patch RQ for Windows: {e}")
     
     patch_rq_for_windows()
 

@@ -32,7 +32,7 @@ def load_processed_briefs():
             with open(PROCESSED_BRIEFS_CACHE, "r") as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error loading processed briefs cache: {e}")
+            logger.error(f"Error loading processed briefs cache: {e}")
     return []
 
 
@@ -42,12 +42,12 @@ def save_processed_briefs(processed_briefs):
         with open(PROCESSED_BRIEFS_CACHE, "w") as f:
             json.dump(processed_briefs, f)
     except Exception as e:
-        print(f"Error saving processed briefs cache: {e}")
+        logger.error(f"Error saving processed briefs cache: {e}")
 
 
 def get_brief_urls(page=0, max_pages=10):
     """Get brief URLs from the Justice Department website."""
-    print(f"Getting brief URLs from page {page}...")
+    logger.info(f"Getting brief URLs from page {page}...")
 
     brief_urls = []
 
@@ -62,7 +62,7 @@ def get_brief_urls(page=0, max_pages=10):
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Error getting brief URLs: {response.status_code}")
+            logger.error(f"Error getting brief URLs: {response.status_code}")
             return brief_urls
 
         # Parse the HTML
@@ -85,14 +85,14 @@ def get_brief_urls(page=0, max_pages=10):
         return brief_urls
 
     except Exception as e:
-        print(f"Error getting brief URLs: {e}")
+        logger.error(f"Error getting brief URLs: {e}")
         traceback.print_exc()
         return brief_urls
 
 
 def download_brief(brief_url):
     """Download a brief from a URL."""
-    print(f"Downloading brief: {brief_url}")
+    logger.info(f"Downloading brief: {brief_url}")
 
     try:
         # Set up user agent to avoid being blocked
@@ -104,7 +104,7 @@ def download_brief(brief_url):
         response = requests.get(brief_url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Error downloading brief: {response.status_code}")
+            logger.error(f"Error downloading brief: {response.status_code}")
             return None
 
         # Generate a filename based on the URL
@@ -116,26 +116,26 @@ def download_brief(brief_url):
         with open(filename, "wb") as f:
             f.write(response.content)
 
-        print(f"Saved brief to {filename}")
+        logger.info(f"Saved brief to {filename}")
         return filename
 
     except Exception as e:
-        print(f"Error downloading brief: {e}")
+        logger.error(f"Error downloading brief: {e}")
         traceback.print_exc()
         return None
 
 
 def main():
     """Main function to download briefs."""
-    print("Starting Supreme Court Brief Downloader...")
+    logger.info("Starting Supreme Court Brief Downloader...")
 
     # Load processed briefs
     processed_briefs = load_processed_briefs()
-    print(f"Loaded {len(processed_briefs)} previously processed briefs")
+    logger.info(f"Loaded {len(processed_briefs)} previously processed briefs")
 
     # Get brief URLs
     brief_urls = get_brief_urls()
-    print(f"Found {len(brief_urls)} brief URLs")
+    logger.info(f"Found {len(brief_urls)} brief URLs")
 
     # Limit to MAX_BRIEFS
     brief_urls = brief_urls[:MAX_BRIEFS]
@@ -145,7 +145,7 @@ def main():
     for brief_url in brief_urls:
         # Skip if already processed
         if brief_url in processed_briefs:
-            print(f"Skipping already processed brief: {brief_url}")
+            logger.info(f"Skipping already processed brief: {brief_url}")
             continue
 
         # Download the brief
@@ -162,9 +162,9 @@ def main():
         if len(downloaded_briefs) >= MAX_BRIEFS:
             break
 
-    print(f"Finished downloading {len(downloaded_briefs)} briefs")
-    print("You can now use CaseStrainer's File Tool to analyze these briefs.")
-    print(f"The briefs are located in the {BRIEFS_DIR} directory.")
+    logger.info(f"Finished downloading {len(downloaded_briefs)} briefs")
+    logger.info("You can now use CaseStrainer's File Tool to analyze these briefs.")
+    logger.info(f"The briefs are located in the {BRIEFS_DIR} directory.")
 
 
 if __name__ == "__main__":

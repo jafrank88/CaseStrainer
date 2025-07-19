@@ -1,0 +1,618 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "178 Wn.2d 686",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "310 P.3d 1252",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2015 WL 4724739",
+        "year": "2015"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "24 Seattle Times Co. v. Serko",
+        "citation": "170 Wn.2d 581",
+        "year": "2015"
+      },
+      "toa": {
+        "case_name": "v. Serko",
+        "citations": [
+          "170 Wn.2"
+        ],
+        "years": [
+          "2010"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "24 Seattle Times Co. v. Serko",
+        "citation": "243 P.3d 919",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "v. Serko",
+        "citations": [
+          "170 Wn.2"
+        ],
+        "years": [
+          "2010"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "170 Wn.2d 775",
+        "year": "2011"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "246 P.3d 768",
+        "year": "2011"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "274 F.3d 377",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "384 F.3d 990",
+        "year": "2004"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "561 U.S. 186",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "130 S.Ct. 2811",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "24 John Doe No. 1 v. Reed",
+        "citation": "177 L.Ed. 2d 493",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "v. Gregoire",
+        "citations": [
+          "178 Wn.2"
+        ],
+        "years": [
+          "2013"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "514 U.S. 334",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "115 S.Ct. 1511",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Ohio Elections Comm’n, 514 U.S. 334, 342",
+        "citations": [
+          "115 S.Ct. 1511"
+        ],
+        "years": [
+          "1995"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "131 L.Ed. 2d 426",
+        "year": "1995"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "357 U.S. 449",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "78 S.Ct. 1163",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. State of Ala. ex rel. Patterson, 357 U.S. 449, 462",
+        "citations": [
+          "78 S.Ct. 1163"
+        ],
+        "years": [
+          "1958"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2 L.Ed. 2d 1488",
+        "year": "1958"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "Shuttlesworth v. City of Birmingham",
+        "citation": "394 U.S. 147",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. City of Birmingham, Ala.",
+        "citations": [
+          "394 U.S. 147"
+        ],
+        "years": [
+          "1969"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "Shuttlesworth v. City of Birmingham",
+        "citation": "89 S.Ct. 935",
+        "year": "1969"
+      },
+      "toa": {
+        "case_name": "v. City of Birmingham, Ala.",
+        "citations": [
+          "394 U.S. 147"
+        ],
+        "years": [
+          "1969"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "22 L.Ed. 2d 162",
+        "year": "1969"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "362 U.S. 60",
+        "year": "1969"
+      },
+      "toa": {
+        "case_name": "v. California",
+        "citations": [
+          "362 U.S. 60"
+        ],
+        "years": [
+          "1960"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "80 S.Ct. 536",
+        "year": "1960"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "4 L.Ed. 2d 559",
+        "year": "1960"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "United States v. O'Brien",
+        "citation": "391 U.S. 367",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Gregoire",
+        "citations": [
+          "178 Wn.2"
+        ],
+        "years": [
+          "2013"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "United States v. O'Brien",
+        "citation": "88 S.Ct. 1673",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "v. Gregoire",
+        "citations": [
+          "178 Wn.2"
+        ],
+        "years": [
+          "2013"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "United States v. O'Brien",
+        "citation": "20 L.Ed. 2d 672",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "v. Gregoire",
+        "citations": [
+          "178 Wn.2"
+        ],
+        "years": [
+          "2013"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "536 U.S. 150",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "122 S.Ct. 2080",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. O'Brien, 391 U.S. 367, 377, 88 S.Ct. 1673, 20 L.Ed. 2d 672 (1968) ................................................................. 22 Watchtower Bible, 536 U.S. 150, 166",
+        "citations": [
+          "122 S.Ct. 2080"
+        ],
+        "years": [
+          "2021",
+          "2002",
+          "1968"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "153 L.Ed. 2d 205",
+        "year": "2002"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2021 WL 4804274",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2021 WL 4804271",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 12,
+      "no_match": 20
+    },
+    "citation": {
+      "exact": 5,
+      "partial": 0,
+      "mismatch": 7,
+      "no_match": 20
+    },
+    "year": {
+      "exact": 2,
+      "partial": 0,
+      "mismatch": 5,
+      "no_match": 25
+    }
+  }
+}

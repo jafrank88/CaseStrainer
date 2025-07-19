@@ -13,7 +13,7 @@ def test_simple_us_citation():
     
     try:
         # Import the document processing
-        from src.document_processing import process_document
+        from src.document_processing_unified import process_document
         
         # Test with a simple US citation
         test_text = "347 U.S. 483"

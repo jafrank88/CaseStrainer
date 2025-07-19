@@ -253,7 +253,7 @@ def main():
     checker.save_health_log()
     
     # Print results
-    print(json.dumps(health_status, indent=2))
+    logger.info(json.dumps(health_status, indent=2))
     
     # Exit with appropriate code
     if health_status["overall"] == "healthy":

@@ -1,11 +1,13 @@
 """
 CitationServices Module for CaseStrainer
 Enhanced citation extraction, validation, and processing capabilities
+
+NOTE: This module is primarily used for reference and testing.
+The main application uses UnifiedCitationProcessorV2 for production citation processing.
 """
 
 import logging
 import re
-import asyncio
 from typing import List, Dict, Any, Optional, Tuple, NamedTuple
 from datetime import datetime
 from dataclasses import dataclass, asdict
@@ -50,7 +52,6 @@ class CitationResult:
         
         # Core citation components
         self.case_name = ""
-        self.case_name_short = ""
         self.year = None
         self.court = ""
         self.reporter = ""
@@ -90,7 +91,6 @@ class CitationResult:
             'span': (self.span.start, self.span.end),
             'confidence_score': self.confidence_score,
             'case_name': self.case_name,
-            'case_name_short': self.case_name_short,
             'year': self.year,
             'court': self.court,
             'reporter': self.reporter,
@@ -129,43 +129,60 @@ class CitationServices:
     
     def _load_patterns(self):
         """Load regex patterns for citation extraction"""
-        # Enhanced case name patterns
+        # Enhanced case name patterns - more flexible
         self.case_name_patterns = [
+            # Standard v. format
             r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+v\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',
+            # vs. format
             r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+vs\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',
+            # et al. format
             r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+et\s+al\.\b',
+            # & format
             r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+&\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',
-            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+\(([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\)\b'
+            # Parenthetical format
+            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+\(([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\)\b',
+            # Simple case name (for cases without clear v. format)
+            r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){2,})\b'
         ]
         
-        # Year patterns
+        # Year patterns - more comprehensive
         self.year_patterns = [
             r'\b(19[0-9]{2}|20[0-2][0-9])\b',
-            r'\b(19[0-9]{2}|20[0-2][0-9])\s*\([A-Za-z]+\)\b'
+            r'\b(19[0-9]{2}|20[0-2][0-9])\s*\([A-Za-z]+\)\b',
+            r'\b(19[0-9]{2}|20[0-2][0-9])\s*WL\b'  # Westlaw format
         ]
         
-        # Reporter patterns
+        # Enhanced reporter patterns - more comprehensive
         self.reporter_patterns = [
+            # Federal reporters
             r'\b(\d+)\s+(U\.?S\.?|S\.?Ct\.?|L\.?Ed\.?|L\.?Ed\.?2d)\s+(\d+)\b',
             r'\b(\d+)\s+(F\.?|F\.?2d|F\.?3d|F\.?Supp\.?|F\.?Supp\.?2d)\s+(\d+)\b',
+            # Regional reporters
             r'\b(\d+)\s+(A\.?2d|A\.?3d|A\.?4d)\s+(\d+)\b',
             r'\b(\d+)\s+(P\.?|P\.?2d|P\.?3d)\s+(\d+)\b',
             r'\b(\d+)\s+(N\.?E\.?|N\.?E\.?2d|N\.?E\.?3d)\s+(\d+)\b',
             r'\b(\d+)\s+(S\.?E\.?|S\.?E\.?2d)\s+(\d+)\b',
             r'\b(\d+)\s+(S\.?W\.?|S\.?W\.?2d|S\.?W\.?3d)\s+(\d+)\b',
             r'\b(\d+)\s+(N\.?W\.?|N\.?W\.?2d)\s+(\d+)\b',
+            # State-specific reporters
             r'\b(\d+)\s+(Cal\.?|Cal\.?2d|Cal\.?3d|Cal\.?4th)\s+(\d+)\b',
-            r'\b(\d+)\s+(Wash\.?|Wash\.?2d)\s+(\d+)\b'
+            r'\b(\d+)\s+(Wash\.?|Wash\.?2d)\s+(\d+)\b',
+            # Westlaw citations
+            r'\b(20[0-2][0-9])\s+(WL)\s+(\d+)\b',
+            # Lexis citations
+            r'\b(20[0-2][0-9])\s+(U\.?S\.?\s+LEXIS)\s+(\d+)\b'
         ]
         
-        # Court patterns
+        # Court patterns - more comprehensive
         self.court_patterns = [
             r'\b(U\.?S\.?\s+Supreme\s+Court|Supreme\s+Court\s+of\s+the\s+United\s+States)\b',
             r'\b(U\.?S\.?\s+Court\s+of\s+Appeals|Circuit\s+Court)\b',
             r'\b(U\.?S\.?\s+District\s+Court|District\s+Court)\b',
             r'\b(Supreme\s+Court\s+of\s+[A-Za-z\s]+)\b',
             r'\b(Court\s+of\s+Appeals\s+of\s+[A-Za-z\s]+)\b',
-            r'\b(Superior\s+Court\s+of\s+[A-Za-z\s]+)\b'
+            r'\b(Superior\s+Court\s+of\s+[A-Za-z\s]+)\b',
+            r'\b([A-Za-z\s]+Supreme\s+Court)\b',
+            r'\b([A-Za-z\s]+Court\s+of\s+Appeals)\b'
         ]
         
         # Pinpoint citation patterns
@@ -198,18 +215,36 @@ class CitationServices:
             'U.S.': {'name': 'United States Reports', 'type': 'federal', 'level': 'supreme'},
             'S.Ct.': {'name': 'Supreme Court Reporter', 'type': 'federal', 'level': 'supreme'},
             'L.Ed.': {'name': 'Lawyers Edition', 'type': 'federal', 'level': 'supreme'},
+            'L.Ed.2d': {'name': 'Lawyers Edition, Second Series', 'type': 'federal', 'level': 'supreme'},
             'F.': {'name': 'Federal Reporter', 'type': 'federal', 'level': 'appellate'},
             'F.2d': {'name': 'Federal Reporter, Second Series', 'type': 'federal', 'level': 'appellate'},
             'F.3d': {'name': 'Federal Reporter, Third Series', 'type': 'federal', 'level': 'appellate'},
             'F.Supp.': {'name': 'Federal Supplement', 'type': 'federal', 'level': 'district'},
+            'F.Supp.2d': {'name': 'Federal Supplement, Second Series', 'type': 'federal', 'level': 'district'},
             'A.2d': {'name': 'Atlantic Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'A.3d': {'name': 'Atlantic Reporter, Third Series', 'type': 'state', 'level': 'appellate'},
+            'A.4d': {'name': 'Atlantic Reporter, Fourth Series', 'type': 'state', 'level': 'appellate'},
+            'P.': {'name': 'Pacific Reporter', 'type': 'state', 'level': 'appellate'},
             'P.2d': {'name': 'Pacific Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'P.3d': {'name': 'Pacific Reporter, Third Series', 'type': 'state', 'level': 'appellate'},
+            'N.E.': {'name': 'Northeastern Reporter', 'type': 'state', 'level': 'appellate'},
             'N.E.2d': {'name': 'Northeastern Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'N.E.3d': {'name': 'Northeastern Reporter, Third Series', 'type': 'state', 'level': 'appellate'},
+            'S.E.': {'name': 'Southeastern Reporter', 'type': 'state', 'level': 'appellate'},
             'S.E.2d': {'name': 'Southeastern Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'S.W.': {'name': 'Southwestern Reporter', 'type': 'state', 'level': 'appellate'},
             'S.W.2d': {'name': 'Southwestern Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'S.W.3d': {'name': 'Southwestern Reporter, Third Series', 'type': 'state', 'level': 'appellate'},
+            'N.W.': {'name': 'Northwestern Reporter', 'type': 'state', 'level': 'appellate'},
             'N.W.2d': {'name': 'Northwestern Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'Cal.': {'name': 'California Reporter', 'type': 'state', 'level': 'appellate'},
             'Cal.2d': {'name': 'California Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
-            'Wash.2d': {'name': 'Washington Reporter, Second Series', 'type': 'state', 'level': 'appellate'}
+            'Cal.3d': {'name': 'California Reporter, Third Series', 'type': 'state', 'level': 'appellate'},
+            'Cal.4th': {'name': 'California Reporter, Fourth Series', 'type': 'state', 'level': 'appellate'},
+            'Wash.': {'name': 'Washington Reporter', 'type': 'state', 'level': 'appellate'},
+            'Wash.2d': {'name': 'Washington Reporter, Second Series', 'type': 'state', 'level': 'appellate'},
+            'WL': {'name': 'Westlaw', 'type': 'online', 'level': 'various'},
+            'U.S. LEXIS': {'name': 'LexisNexis', 'type': 'online', 'level': 'various'}
         }
     
     def extract_citations(self, text: str, config: ExtractionConfig = None) -> List[CitationResult]:
@@ -246,6 +281,9 @@ class CitationServices:
             r'\b[A-Z][a-z]+\s+vs\.\s+[A-Z][a-z]+\b',  # Case vs. Case
             r'\b[A-Z][a-z]+\s+et\s+al\.\b',  # Case et al.
             r'\b[A-Z][a-z]+\s+&\s+[A-Z][a-z]+\b',  # Case & Case
+            r'\b\d{4}\s+WL\s+\d+\b',  # Westlaw citations
+            r'\b\d{4}\s+U\.?S\.?\s+LEXIS\s+\d+\b',  # Lexis citations
+            r'\b\d{4}\s+WL\s+\d+\b',  # Westlaw citations (duplicate for emphasis)
         ]
         
         for pattern in citation_indicators:
@@ -320,6 +358,21 @@ class CitationServices:
     
     def _extract_case_name(self, citation: CitationResult, text: str):
         """Extract case name from text"""
+        # First, try to find case names in the context around the citation
+        # Look for patterns like "in Smith v. Jones," or "held in Doe v. Roe"
+        context_patterns = [
+            r'\b(in|held in|see|referenced in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+v\.\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',
+            r'\b(in|held in|see|referenced in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+et\s+al\.)\b',
+            r'\b(in|held in|see|referenced in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+&\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',
+        ]
+        
+        for pattern in context_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                citation.case_name = match.group(2).strip()
+                return
+        
+        # Fallback to direct pattern matching
         for pattern in self.case_name_patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
@@ -328,22 +381,18 @@ class CitationServices:
                     plaintiff = match.group(1).strip()
                     defendant = match.group(2).strip()
                     citation.case_name = f"{plaintiff} v. {defendant}"
-                    citation.case_name_short = f"{plaintiff} v. {defendant}"
                 elif 'et al.' in pattern:
                     # Case et al. format
                     case_name = match.group(1).strip()
                     citation.case_name = f"{case_name} et al."
-                    citation.case_name_short = case_name
                 elif '&' in pattern:
                     # Case & Case format
                     case1 = match.group(1).strip()
                     case2 = match.group(2).strip()
                     citation.case_name = f"{case1} & {case2}"
-                    citation.case_name_short = case1
                 else:
                     # Simple case name
                     citation.case_name = match.group(1).strip()
-                    citation.case_name_short = citation.case_name
                 break
     
     def _extract_year(self, citation: CitationResult, text: str):
@@ -363,9 +412,16 @@ class CitationServices:
         for pattern in self.reporter_patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                citation.volume = match.group(1)
-                citation.reporter = match.group(2)
-                citation.page = match.group(3)
+                if 'WL' in pattern or 'LEXIS' in pattern:
+                    # Online citation format (year, reporter, page)
+                    citation.year = int(match.group(1))
+                    citation.reporter = match.group(2)
+                    citation.page = match.group(3)
+                else:
+                    # Traditional reporter format (volume, reporter, page)
+                    citation.volume = match.group(1)
+                    citation.reporter = match.group(2)
+                    citation.page = match.group(3)
                 break
     
     def _extract_court(self, citation: CitationResult, text: str):
@@ -392,15 +448,18 @@ class CitationServices:
         score = 0.0
         max_score = 0.0
         
-        # Case name confidence
+        # Case name confidence (30%)
         if citation.case_name:
             score += 0.3
             # Check for common case name patterns
             if 'v.' in citation.case_name or 'vs.' in citation.case_name:
                 score += 0.1
-        max_score += 0.4
+            # Check for reasonable length
+            if 5 <= len(citation.case_name) <= 100:
+                score += 0.05
+        max_score += 0.45
         
-        # Year confidence
+        # Year confidence (20%)
         if citation.year:
             score += 0.2
             # Check if year is reasonable
@@ -409,20 +468,49 @@ class CitationServices:
                 score += 0.1
         max_score += 0.3
         
-        # Reporter confidence
+        # Reporter confidence (35%)
         if citation.reporter and citation.volume and citation.page:
             score += 0.3
             # Check if reporter is known
             if citation.reporter in self.reporter_data:
                 score += 0.1
-        max_score += 0.4
+            # Check if volume and page are numeric
+            try:
+                int(citation.volume)
+                int(citation.page)
+                score += 0.05
+            except ValueError:
+                pass
+        max_score += 0.45
         
-        # Court confidence
+        # Court confidence (5%)
         if citation.court:
+            score += 0.05
+        max_score += 0.05
+        
+        # Format validation bonus (10%)
+        if self._validate_citation_format(citation):
             score += 0.1
         max_score += 0.1
         
         return score / max_score if max_score > 0 else 0.0
+    
+    def _validate_citation_format(self, citation: CitationResult) -> bool:
+        """Validate that the citation follows expected format"""
+        # Check if we have the minimum required components
+        has_reporter = bool(citation.reporter)
+        has_volume = bool(citation.volume)
+        has_page = bool(citation.page)
+        
+        # For traditional citations, need reporter, volume, and page
+        if has_reporter and has_volume and has_page:
+            return True
+        
+        # For online citations (WL, LEXIS), need year and page
+        if citation.reporter in ['WL', 'U.S. LEXIS'] and citation.year and citation.page:
+            return True
+        
+        return False
     
     def _determine_citation_type(self, citation: CitationResult) -> str:
         """Determine the type of citation"""
@@ -435,6 +523,8 @@ class CitationServices:
                     return 'federal_appellate'
                 else:
                     return 'federal_district'
+            elif reporter_info['type'] == 'online':
+                return 'online'
             else:
                 return 'state'
         
@@ -479,6 +569,10 @@ class CitationServices:
         # Check if reporter is known
         if citation.reporter and citation.reporter not in self.reporter_data:
             result.warnings.append(f"Unknown reporter: {citation.reporter}")
+        
+        # Format validation
+        if not self._validate_citation_format(citation):
+            result.suggestions.append("Invalid citation format")
         
         # Determine validity
         if len(result.suggestions) == 0 and len(result.warnings) == 0:

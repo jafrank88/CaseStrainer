@@ -1,0 +1,1725 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "144 Wn.2d 570, 29 P.3d 1249",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "29 P.3d 1249",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "461 F.Supp. 3d 214",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "461 F.Supp. 3d 154",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "342 F.3d 752",
+        "year": "2003"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "103 Wn.2d 268, 693 P.2d 71",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "693 P.2d 71",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "475 U.S. 41",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Playtime Theatres, Inc.",
+        "citations": [
+          "475 U.S. 41"
+        ],
+        "years": [
+          "1986"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "106 S.Ct. 925",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "89 L.Ed. 2d 29",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "89 L.Ed. 2d 29",
+        "citation": "130 Wn.2d 782, 928 P.2d 1054",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "v. Knight, 465 U.S. 271",
+        "citations": [
+          "104 S.Ct. 1058"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "89 L.Ed. 2d 29",
+        "citation": "928 P.2d 1054",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "v. Knight, 465 U.S. 271",
+        "citations": [
+          "104 S.Ct. 1058"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "103 Wn.2d 280, 692 P.2d 799",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "692 P.2d 799",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "195 Wn.2d 879, 467 P.3d 953",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "467 P.3d 953",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "97 Wn.2d 466, 647 P.2d 481",
+        "year": "1982"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "647 P.2d 481",
+        "year": "1982"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "194 Wn.2d 682, 451 P.3d 694",
+        "year": "1982"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "451 P.3d 694",
+        "year": "2019"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "117 Wn.2d 772, 819 P.2d 370",
+        "year": "2019"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "819 P.2d 370",
+        "year": "1991"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "101 Wn. App. 801, 6 P.3d 30",
+        "year": "1991"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "6 P.3d 30",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2020 WL 2520711",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "459 F.Supp. 3d 1302",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Ackerson",
+        "citation": "143 Wn.2d 366, 20 P.3d 930",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "v. City of Chicago",
+        "citations": [
+          "342 F.3"
+        ],
+        "years": [
+          "2003"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Ackerson",
+        "citation": "20 P.3d 930",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "v. City of Chicago",
+        "citations": [
+          "342 F.3"
+        ],
+        "years": [
+          "2003"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "177 Wn.2d 168, 298 P.3d 710",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "298 P.3d 710",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "196 Wn.2d 652, 476 P.3d 1042",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "476 P.3d 1042",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "104 Wn.2d 597, 707 P.2d 1338",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "707 P.2d 1338",
+        "year": "1985"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "185 Wn.2d 158, 369 P.3d 494",
+        "year": "1985"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "369 P.3d 494",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "154 Wn.2d 606, 116 P.3d 378",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "116 P.3d 378",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "156 Wn.2d 53, 124 P.3d 279",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "124 P.3d 279",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "177 Wn.2d 251, 299 P.3d 651",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "299 P.3d 651",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "166 Wn.2d 148, 206 P.3d 1248",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "206 P.3d 1248",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "155 Wn.2d 659, 121 P.3d 1190",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "121 P.3d 1190",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "455 F.Supp. 3d 1100",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Bd. for Cmty. Colls. v. Knight",
+        "citation": "465 U.S. 271",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Wenatchee Valley Med. Ctr., P.S.",
+        "citations": [
+          "166 Wn.2"
+        ],
+        "years": [
+          "2009"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Bd. for Cmty. Colls. v. Knight",
+        "citation": "104 S.Ct. 1058",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Knight, 465 U.S. 271",
+        "citations": [
+          "104 S.Ct. 1058"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Bd. for Cmty. Colls. v. Knight",
+        "citation": "79 L.Ed. 2d 299",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "v. Wenatchee Valley Med. Ctr., P.S.",
+        "citations": [
+          "166 Wn.2"
+        ],
+        "years": [
+          "2009"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 S.Ct. 1730",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "v. North Carolina",
+        "citations": [
+          "137 S.Ct. 1730"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "198 L.Ed. 2d 273",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "166 Wn.2d 974, 216 P.3d 374",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "216 P.3d 374",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "25 Richmond v. Thompson",
+        "citation": "130 Wn.2d 368, 922 P.2d 1343",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "v. Thompson",
+        "citations": [
+          "130 Wn.2"
+        ],
+        "years": [
+          "1996"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "25 Richmond v. Thompson",
+        "citation": "922 P.2d 1343",
+        "year": "1996"
+      },
+      "toa": {
+        "case_name": "v. Thompson",
+        "citations": [
+          "130 Wn.2"
+        ],
+        "years": [
+          "1996"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "53 P.2d 615",
+        "year": "1996"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Smith",
+        "citation": "189 Wn.2d 655, 405 P.3d 997",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "42 v. Smith",
+        "citations": [
+          "189 Wn.2"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Smith",
+        "citation": "405 P.3d 997",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "42 v. Smith",
+        "citations": [
+          "189 Wn.2"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "169 Wn.2d 152, 234 P.3d 187",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "234 P.3d 187",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "491 U.S. 781",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "v. Rock Against Racism",
+        "citations": [
+          "491 U.S. 781"
+        ],
+        "years": [
+          "1989"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "109 S.Ct. 2746",
+        "year": "1989"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "105 L.Ed. 2d 661",
+        "year": "1989"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of West",
+        "citation": "155 Wn.2d 659",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Sun",
+        "citation": "177 Wn.2d 251",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "v. Wenatchee Valley Med. Ctr., P.S.",
+        "citations": [
+          "166 Wn.2"
+        ],
+        "years": [
+          "2009"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "195 Wn.2d 879",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "97 Wn.2d 466",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "submitted to the executive’ ”) (quoting SEIU Healthcare 775NW v. Gregoire",
+        "citation": "168 Wn.2d 593",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "v. North Carolina",
+        "citations": [
+          "137 S.Ct. 1730"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "229 P.3d 774",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "104 Wn.2d 597",
+        "year": "1985"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "103 Wn.2d 280",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "103 Wn.2d 268",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Telford",
+        "citation": "166 Wn.2d 148",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Durkan",
+        "citation": "196 Wn.2d 652",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "v. Apt. Sales Corp.",
+        "citations": [
+          "144 Wn.2"
+        ],
+        "years": [
+          "2001"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Kelley",
+        "citation": "185 Wn.2d 158",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Reed",
+        "citation": "156 Wn.2d 53",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Wasson",
+        "citation": "149 Wn.2d 787",
+        "year": "2003"
+      },
+      "toa": {
+        "case_name": "v. City of Chicago",
+        "citations": [
+          "342 F.3"
+        ],
+        "years": [
+          "2003"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Wasson",
+        "citation": "72 P.3d 170",
+        "year": "2003"
+      },
+      "toa": {
+        "case_name": "v. City of Chicago",
+        "citations": [
+          "342 F.3"
+        ],
+        "years": [
+          "2003"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Bolt",
+        "citation": "177 Wn.2d 168",
+        "year": "2013"
+      },
+      "toa": {
+        "case_name": "v. Wenatchee Valley Med. Ctr., P.S.",
+        "citations": [
+          "166 Wn.2"
+        ],
+        "years": [
+          "2009"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Ackerson",
+        "citation": "143 Wn.2d 366",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "v. City of Chicago",
+        "citations": [
+          "342 F.3"
+        ],
+        "years": [
+          "2003"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "166 Wn.2d 974",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "117 Wn.2d 772",
+        "year": "1991"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "166 Wn.2d at 984 (quoting City of Fircrest v. Jensen",
+        "citation": "158 Wn.2d 384",
+        "year": "2006"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "166 Wn.2d at 984 (quoting City of Fircrest v. Jensen",
+        "citation": "143 P.3d 776",
+        "year": "2006"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "169 Wn.2d 152",
+        "year": "2006"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "144 Wn.2d 570",
+        "year": "2001"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "130 Wn.2d 368",
+        "year": "1996"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2021 WL 4288587",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Recall of Olsen",
+        "citation": "154 Wn.2d 606",
+        "year": "2005"
+      },
+      "toa": {
+        "case_name": "v. City of Seattle",
+        "citations": [
+          "194 Wn.2"
+        ],
+        "years": [
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "101 Wn. App. 801",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "v. Quasim",
+        "citations": [
+          "101 Wn. App. 801"
+        ],
+        "years": [
+          "2000"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "130 Wn.2d 782",
+        "year": "1996"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "e v. Smith",
+        "citation": "189 Wn.2d 655",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "42 v. Smith",
+        "citations": [
+          "189 Wn.2"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "partial",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 1,
+      "mismatch": 29,
+      "no_match": 63
+    },
+    "citation": {
+      "exact": 5,
+      "partial": 0,
+      "mismatch": 25,
+      "no_match": 63
+    },
+    "year": {
+      "exact": 8,
+      "partial": 0,
+      "mismatch": 19,
+      "no_match": 66
+    }
+  }
+}

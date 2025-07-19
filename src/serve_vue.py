@@ -29,6 +29,6 @@ def add_vue_routes(app):
     def redirect_to_vue():
         return serve_vue_index()
 
-    print("Vue.js routes added to Flask application")
+    logger.info("Vue.js routes added to Flask application")
 
     return app

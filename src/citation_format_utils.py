@@ -96,7 +96,7 @@ def normalize_for_deduplication(citation: str, state: str) -> str:
 
 # Example test cases
 if __name__ == "__main__":
-    print("=== Washington Spacing Rules ===")
+    logger.info("=== Washington Spacing Rules ===")
     spacing_examples = [
         "123 Wn. 2d 456",
         "123 Wn.2d 456", 
@@ -108,11 +108,11 @@ if __name__ == "__main__":
         "45 Wash. App. 678",
     ]
     for ex in spacing_examples:
-        print("Original:   ", ex)
-        print("Formatted:  ", apply_washington_spacing_rules(ex))
-        print()
+        logger.info("Original:   ", ex)
+        logger.info("Formatted:  ", apply_washington_spacing_rules(ex))
+        logger.info()
 
-    print("=== Washington Normalization ===")
+    logger.info("=== Washington Normalization ===")
     wa_examples = [
         "Smith v. Jones, 123 Wn.2d 456 (2015)",
         "Smith v. Jones, 123 Wash. 2d 456 (Wash. 2015)",
@@ -120,11 +120,11 @@ if __name__ == "__main__":
         "Smith v. Jones, 45 Wash. App. 678 (Wash. Ct. App. 2014)",
     ]
     for ex in wa_examples:
-        print("Original:   ", ex)
-        print("Normalized: ", normalize_for_deduplication(ex, "washington"))
-        print()
+        logger.info("Original:   ", ex)
+        logger.info("Normalized: ", normalize_for_deduplication(ex, "washington"))
+        logger.info()
 
-    print("=== Illinois/Oklahoma Normalization ===")
+    logger.info("=== Illinois/Oklahoma Normalization ===")
     ill_ok_examples = [
         "People v. Smith, 2014 IL 123456, ¶ 15",
         "People v. Smith, 2014 IL 123456",
@@ -132,6 +132,6 @@ if __name__ == "__main__":
         "Smith v. State, 2014 OK CR 15",
     ]
     for ex in ill_ok_examples:
-        print("Original:   ", ex)
-        print("Normalized: ", normalize_for_deduplication(ex, "illinois"))
-        print()
+        logger.info("Original:   ", ex)
+        logger.info("Normalized: ", normalize_for_deduplication(ex, "illinois"))
+        logger.info()

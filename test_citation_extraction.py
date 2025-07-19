@@ -4,6 +4,8 @@ Test script to examine citation extraction issues.
 """
 
 import sys, os
+# Add both the current directory and src directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig

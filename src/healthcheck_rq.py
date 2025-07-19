@@ -37,20 +37,20 @@ def check_rq_worker_health():
         # Check if there are any workers
         workers = Worker.all(connection=redis_conn)
         if not workers:
-            print("No RQ workers found")
+            logger.info("No RQ workers found")
             return False
         
         # Check if at least one worker is alive
         for worker in workers:
             if worker.state == 'busy' or worker.state == 'idle':
-                print(f"Worker {worker.name} is {worker.state}")
+                logger.info(f"Worker {worker.name} is {worker.state}")
                 return True
         
-        print("No active workers found")
+        logger.info("No active workers found")
         return False
         
     except Exception as e:
-        print(f"Health check failed: {e}")
+        logger.error(f"Health check failed: {e}")
         return False
 
 if __name__ == '__main__':

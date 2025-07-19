@@ -131,26 +131,25 @@ def prepare_citation_data(citations):
 
 def train_citation_classifier():
     """Train a machine learning model to classify citations."""
-    print("Loading citation data...")
+    logger.info("Loading citation data...")
     try:
         with open(UNCONFIRMED_CITATIONS_FILE, "r", encoding="utf-8") as f:
             citations = json.load(f)
     except Exception as e:
-        print(f"Error loading citation data: {e}")
+        logger.error(f"Error loading citation data: {e}")
         return None, None
 
     # Check if we have enough data
     if len(citations) < 50:
-        print(
-            f"Not enough citation data to train a model. Found only {len(citations)} citations."
+        logger.info(f"Not enough citation data to train a model. Found only {len(citations)} citations."
         )
         return None, None
 
-    print(f"Preparing data from {len(citations)} citations...")
+    logger.info(f"Preparing data from {len(citations)} citations...")
     features_df, labels, texts = prepare_citation_data(citations)
 
     # Create text features using TF-IDF
-    print("Creating text features...")
+    logger.info("Creating text features...")
     vectorizer = TfidfVectorizer(
         analyzer="char_wb", ngram_range=(2, 5), max_features=200
     )
@@ -169,25 +168,25 @@ def train_citation_classifier():
     X_text_test = vectorizer.transform(texts_test)
 
     # Train the model
-    print("Training the classifier...")
+    logger.info("Training the classifier...")
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_text_train, y_train)
 
     # Evaluate the model
     y_pred = model.predict(X_text_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f"Model accuracy: {accuracy:.2f}")
-    print(classification_report(y_test, y_pred))
+    logger.info(f"Model accuracy: {accuracy:.2f}")
+    logger.info(classification_report(y_test, y_pred))
 
     # Save the model and vectorizer
-    print("Saving model and vectorizer...")
+    logger.info("Saving model and vectorizer...")
     with open(MODEL_FILE, "wb") as f:
         pickle.dump(model, f)
 
     with open(VECTORIZER_FILE, "wb") as f:
         pickle.dump(vectorizer, f)
 
-    print(f"Model and vectorizer saved to {DOWNLOAD_DIR}")
+    logger.info(f"Model and vectorizer saved to {DOWNLOAD_DIR}")
     return model, vectorizer
 
 
@@ -196,7 +195,7 @@ def load_citation_classifier():
     try:
         # Check if model and vectorizer files exist
         if not os.path.exists(MODEL_FILE) or not os.path.exists(VECTORIZER_FILE):
-            print("Model or vectorizer file not found. Training new model...")
+            logger.info("Model or vectorizer file not found. Training new model...")
             return train_citation_classifier()
 
         # Load model and vectorizer
@@ -206,10 +205,10 @@ def load_citation_classifier():
         with open(VECTORIZER_FILE, "rb") as f:
             vectorizer = pickle.load(f)
 
-        print("Citation classifier model loaded successfully.")
+        logger.info("Citation classifier model loaded successfully.")
         return model, vectorizer
     except Exception as e:
-        print(f"Error loading citation classifier: {e}")
+        logger.error(f"Error loading citation classifier: {e}")
         return None, None
 
 
@@ -222,7 +221,7 @@ def classify_citation(citation_text, canonical_name=None):
     model, vectorizer = load_citation_classifier()
 
     if model is None or vectorizer is None:
-        print("Could not load or train the citation classifier model.")
+        logger.info("Could not load or train the citation classifier model.")
         return 0.5  # Return neutral confidence if model is unavailable
 
     try:
@@ -270,7 +269,7 @@ def classify_citation(citation_text, canonical_name=None):
                     else 0.5
                 )
         except (IndexError, TypeError, AttributeError) as e:
-            print(f"Error processing prediction probabilities: {e}")
+            logger.error(f"Error processing prediction probabilities: {e}")
             try:
                 # Fallback to prediction if proba fails
                 prediction = model.predict(text_features)
@@ -280,7 +279,7 @@ def classify_citation(citation_text, canonical_name=None):
                     else 0.5
                 )
             except Exception as e2:
-                print(f"Fallback prediction also failed: {e2}")
+                logger.error(f"Fallback prediction also failed: {e2}")
                 confidence = 0.5
 
         # Adjust confidence based on feature heuristics
@@ -295,7 +294,7 @@ def classify_citation(citation_text, canonical_name=None):
 
         return confidence
     except Exception as e:
-        print(f"Error classifying citation: {e}")
+        logger.error(f"Error classifying citation: {e}")
         return 0.5  # Return neutral confidence on error
 
 
@@ -307,7 +306,7 @@ def batch_classify_citations(citations):
     model, vectorizer = load_citation_classifier()
 
     if model is None or vectorizer is None:
-        print("Could not load or train the citation classifier model.")
+        logger.info("Could not load or train the citation classifier model.")
         return [0.5] * len(citations)  # Return neutral confidence for all
 
     try:
@@ -359,10 +358,10 @@ def batch_classify_citations(citations):
                                     else 0.5
                                 )
                         except (IndexError, TypeError, ValueError) as e:
-                            print(f"Error processing probability: {e}")
+                            logger.error(f"Error processing probability: {e}")
                             confidences.append(0.5)
             except Exception as e:
-                print(f"Error processing batch probabilities: {e}")
+                logger.error(f"Error processing batch probabilities: {e}")
                 # Fallback to prediction if proba fails
                 try:
                     predictions = model.predict(text_features)
@@ -372,10 +371,10 @@ def batch_classify_citations(citations):
                         else [0.5] * len(texts)
                     )
                 except Exception as e2:
-                    print(f"Fallback prediction also failed: {e2}")
+                    logger.error(f"Fallback prediction also failed: {e2}")
                     confidences = [0.5] * len(texts)
         except Exception as e:
-            print(f"Error in batch prediction: {e}")
+            logger.error(f"Error in batch prediction: {e}")
             confidences = [0.5] * len(texts)
 
         # Adjust confidence based on feature heuristics
@@ -394,17 +393,17 @@ def batch_classify_citations(citations):
                 if features["has_unusual_characters"] == 1:
                     confidences[i] *= 0.7  # Reduce confidence for unusual characters
             except Exception as e:
-                print(f"Error processing citation features: {e}")
+                logger.error(f"Error processing citation features: {e}")
 
         return confidences
     except Exception as e:
-        print(f"Error batch classifying citations: {e}")
+        logger.error(f"Error batch classifying citations: {e}")
         return [0.5] * len(citations)  # Return neutral confidence on error
 
 
 if __name__ == "__main__":
     # Train the citation classifier
-    print("Training citation classifier...")
+    logger.info("Training citation classifier...")
     train_citation_classifier()
 
     # Test the classifier on a few examples
@@ -415,10 +414,10 @@ if __name__ == "__main__":
         "Wn.2d 123, 456 P.3d 789 (2019)",  # Should be high confidence
     ]
 
-    print("\nTesting classifier on examples:")
+    logger.info("\nTesting classifier on examples:")
     for citation in test_citations:
         confidence = classify_citation(citation)
-        print(f"Citation: {citation}")
-        print(f"Confidence: {confidence:.2f}")
-        print(f"Classification: {'Reliable' if confidence >= 0.7 else 'Unreliable'}")
-        print()
+        logger.info(f"Citation: {citation}")
+        logger.info(f"Confidence: {confidence:.2f}")
+        logger.info(f"Classification: {'Reliable' if confidence >= 0.7 else 'Unreliable'}")
+        logger.info()

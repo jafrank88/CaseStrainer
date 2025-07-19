@@ -17,7 +17,7 @@ def load_unconfirmed_citations(
         with open(filename, "r") as f:
             return json.load(f)
     except Exception as e:
-        print(f"Error loading unconfirmed citations: {e}")
+        logger.error(f"Error loading unconfirmed citations: {e}")
         return {}
 
 
@@ -28,10 +28,10 @@ def save_corrected_citations(
     try:
         with open(filename, "w") as f:
             json.dump(citations, f, indent=2)
-        print(f"Corrected citations saved to {filename}")
+        logger.info(f"Corrected citations saved to {filename}")
         return True
     except Exception as e:
-        print(f"Error saving corrected citations: {e}")
+        logger.error(f"Error saving corrected citations: {e}")
         return False
 
 
@@ -234,7 +234,7 @@ def fix_citation_formats():
     all_citations = load_unconfirmed_citations()
 
     if not all_citations:
-        print("No unconfirmed citations found.")
+        logger.info("No unconfirmed citations found.")
         return
 
     corrected_citations = {}
@@ -296,20 +296,20 @@ def fix_citation_formats():
     save_corrected_citations(corrected_citations)
 
     # Print summary of issues found
-    print(f"\nFound {len(format_issues)} citation format issues:")
+    logger.info(f"\nFound {len(format_issues)} citation format issues:")
     for i, issue in enumerate(format_issues, 1):
-        print(f"\n{i}. {issue['original_citation']} ({issue['case_name']})")
-        print(f"   Document: {issue['document']}")
-        print(f"   Format: {issue['format_type']}")
-        print(f"   Issue: {issue['issue']}")
+        logger.info(f"\n{i}. {issue['original_citation']} ({issue['case_name']})")
+        logger.info(f"   Document: {issue['document']}")
+        logger.info(f"   Format: {issue['format_type']}")
+        logger.info(f"   Issue: {issue['issue']}")
         if issue["suggested_correction"]:
-            print(f"   Suggested format correction: {issue['suggested_correction']}")
+            logger.info(f"   Suggested format correction: {issue['suggested_correction']}")
         if issue["suggested_real_citation"]:
-            print(f"   Suggested real citation: {issue['suggested_real_citation']}")
+            logger.info(f"   Suggested real citation: {issue['suggested_real_citation']}")
 
     return corrected_citations, format_issues
 
 
 if __name__ == "__main__":
-    print("Analyzing and fixing citation formats...")
+    logger.info("Analyzing and fixing citation formats...")
     fix_citation_formats()

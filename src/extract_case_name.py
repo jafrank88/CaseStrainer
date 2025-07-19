@@ -47,16 +47,27 @@ logger = logging.getLogger(__name__)
 def log_debug(message):
     """Helper function to log debug messages to file"""
     logging.debug(message)
-    print(f"[DEBUG] {message}")
+    logger.debug(f"[DEBUG] {message}")
 
 # Stub function for deprecated wrappers
 def extract_case_name_best(content: str, citation: str, input_type: str = 'text', source_url: str = None) -> str:
     """
-    Stub function for deprecated wrappers.
-    This function is not used in the main pipeline.
+    Real implementation using the canonical extract_case_name_unified function.
+    This replaces the stub implementation with a working one.
     """
-    logger.warning(f"extract_case_name_best called but not implemented. Content: {content[:50]}..., Citation: {citation}")
-    return ""
+    try:
+        # Use the canonical unified extraction function
+        # Fix relative import issue
+        try:
+            return extract_case_name_unified(content, citation)
+        except NameError:
+            # If extract_case_name_unified is not available, use a fallback
+            from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
+            case_name, _, _ = extract_case_name_and_date(text=content, citation=citation)
+            return case_name or ""
+    except Exception as e:
+        logger.warning(f"extract_case_name_best failed: {e}")
+        return ""
 
 # Add a global cache for recently extracted case names to handle "Id." citations and improve performance
 _recent_case_names = []
@@ -1158,7 +1169,7 @@ def get_canonical_case_name_from_courtlistener(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
@@ -1186,7 +1197,7 @@ def get_canonical_case_name_from_google_scholar(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         processor = UnifiedCitationProcessor()
         
         # Use the existing verification workflow to get case name
@@ -1355,8 +1366,8 @@ def extract_case_name_triple_from_text(text: str, citation: str, api_key: str = 
     Uses narrow 100-character context window by default.
     """
     try:
-        from .case_name_extraction_core import extract_case_name_triple
-        return extract_case_name_triple(text, citation, api_key=api_key, context_window=context_window)
+        from src.case_name_extraction_core import extract_case_name_and_date
+        return extract_case_name_and_date(text=text, citation=citation)
     except Exception as e:
         logger.error(f"Error in extract_case_name_triple_from_text: {e}")
         return {'canonical_name': 'N/A', 'extracted_name': 'N/A', 'canonical_date': 'N/A', 'extracted_date': 'N/A'}
@@ -1627,27 +1638,17 @@ def extract_year_enhanced_fixed(text: str, citation: str) -> str:
 
 def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: str = None, context_window: int = 100) -> dict:
     """
-    Enhanced version with detailed debugging to track extraction sources.
+    Enhanced extraction with comprehensive debugging and fallback logging.
     """
-    import logging
-    logger = logging.getLogger("case_name_extraction")
-    
-    # Initialize results
     result = {
-        'canonical_name': "N/A",
-        'extracted_name': "N/A", 
-        'hinted_name': "N/A",
         'case_name': "N/A",
-        'canonical_date': "N/A",
-        'extracted_date': "N/A",
+        'extracted_date': "N/A", 
         'case_name_confidence': 0.0,
-        'case_name_method': "none",
+        'case_name_method': "failed",
         'debug_info': {
-            'citation_found_in_text': False,
-            'citation_position': -1,
-            'context_before': "",
-            'context_after': "",
-            'extraction_attempts': []
+            'extraction_attempts': [],
+            'fallback_used': False,
+            'fallback_reason': None
         }
     }
     
@@ -1655,51 +1656,88 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
         logger.info(f"=== EXTRACTION DEBUG START ===")
         logger.info(f"Citation: '{citation}'")
         logger.info(f"Text length: {len(text)}")
-        logger.info(f"Text preview: '{text[:200]}...'")
+        logger.info(f"Context window: {context_window}")
         
-        # Check if citation exists in text
-        citation_pos = find_citation_in_text_flexible(text, citation)
-        result['debug_info']['citation_found_in_text'] = citation_pos != -1
-        result['debug_info']['citation_position'] = citation_pos
+        # PRIORITY 1: Try enhanced extraction first
+        logger.info("=== TRYING ENHANCED EXTRACTION ===")
+        try:
+            from src.case_name_extraction_core import extract_case_name_improved
+            case_name, extracted_date, confidence = extract_case_name_improved(text, citation)
+            
+            if case_name and case_name != "N/A":
+                result['case_name'] = case_name
+                result['case_name_confidence'] = confidence
+                result['case_name_method'] = "enhanced_extraction"
+                logger.info(f"SUCCESS: Enhanced extraction found: '{case_name}' (confidence: {confidence})")
+                
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'enhanced_extraction',
+                    'name_result': case_name,
+                    'date_result': extracted_date,
+                    'confidence': confidence,
+                    'success': True
+                })
+            else:
+                logger.info("Enhanced extraction failed - no case name found")
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'enhanced_extraction',
+                    'name_result': case_name,
+                    'date_result': extracted_date,
+                    'confidence': confidence,
+                    'success': False
+                })
+                
+        except Exception as e:
+            logger.warning(f"Enhanced extraction failed: {e}")
+            result['debug_info']['extraction_attempts'].append({
+                'method': 'enhanced_extraction',
+                'name_result': None,
+                'date_result': None,
+                'confidence': 0.0,
+                'success': False,
+                'error': str(e)
+            })
         
-        if citation_pos != -1:
-            context_before = text[max(0, citation_pos - 100):citation_pos]
-            context_after = text[citation_pos:min(len(text), citation_pos + 100)]
-            result['debug_info']['context_before'] = context_before
-            result['debug_info']['context_after'] = context_after
-            logger.info(f"Citation found at position {citation_pos}")
-            logger.info(f"Context before: '{context_before}'")
-            logger.info(f"Context after: '{context_after}'")
-        else:
-            logger.warning(f"Citation '{citation}' NOT found in text")
-        
-        # PRIORITY 1: Try fixed extraction from the actual document
-        logger.info("=== TRYING FIXED EXTRACTION ===")
-        fixed_name = extract_case_name_fixed(text, citation)
-        fixed_date = extract_year_enhanced_fixed(text, citation)
-        
-        result['debug_info']['extraction_attempts'].append({
-            'method': 'fixed_extraction',
-            'name_result': fixed_name,
-            'date_result': fixed_date
-        })
-        
-        logger.info(f"Fixed extraction - Name: '{fixed_name}', Date: '{fixed_date}'")
-        
-        if fixed_name:
-            result['extracted_name'] = fixed_name
-            result['case_name'] = fixed_name
-            result['case_name_confidence'] = 0.9
-            result['case_name_method'] = "fixed_extraction"
-            logger.info(f"SUCCESS: Fixed extraction found case name: '{fixed_name}'")
-        
-        if fixed_date:
-            result['extracted_date'] = fixed_date
-            logger.info(f"SUCCESS: Enhanced extraction found date: '{fixed_date}'")
-        
-        # CRITICAL: NO CANONICAL LOOKUP IN EXTRACTION FUNCTION
-        # Canonical lookup should happen separately in verification workflow
-        logger.info("=== EXTRACTION COMPLETE - CANONICAL LOOKUP WILL BE DONE SEPARATELY ===")
+        # PRIORITY 2: Try comprehensive extraction if enhanced failed
+        if result['case_name'] == "N/A":
+            logger.info("=== TRYING COMPREHENSIVE EXTRACTION ===")
+            try:
+                from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
+                case_name, extracted_date, canonical_name = extract_case_name_and_date(text=text, citation=citation)
+                
+                if case_name and case_name != "N/A":
+                    result['case_name'] = case_name
+                    result['case_name_confidence'] = 0.6  # Lower confidence for comprehensive
+                    result['case_name_method'] = "comprehensive_extraction"
+                    logger.info(f"SUCCESS: Comprehensive extraction found: '{case_name}'")
+                    
+                    result['debug_info']['extraction_attempts'].append({
+                        'method': 'comprehensive_extraction',
+                        'name_result': case_name,
+                        'date_result': extracted_date,
+                        'confidence': 0.6,
+                        'success': True
+                    })
+                else:
+                    logger.info("Comprehensive extraction failed - no case name found")
+                    result['debug_info']['extraction_attempts'].append({
+                        'method': 'comprehensive_extraction',
+                        'name_result': case_name,
+                        'date_result': extracted_date,
+                        'confidence': 0.0,
+                        'success': False
+                    })
+                    
+            except Exception as e:
+                logger.warning(f"Comprehensive extraction failed: {e}")
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'comprehensive_extraction',
+                    'name_result': None,
+                    'date_result': None,
+                    'confidence': 0.0,
+                    'success': False,
+                    'error': str(e)
+                })
         
         # PRIORITY 3: Try hinted extraction if we have no extracted name
         if result['case_name'] == "N/A":
@@ -1713,26 +1751,136 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
                     result['case_name_confidence'] = 0.7
                     result['case_name_method'] = "hinted_from_document"
                     logger.info(f"SUCCESS: Hinted extraction found: '{hinted_name}'")
-                
-                result['debug_info']['extraction_attempts'].append({
-                    'method': 'hinted_extraction',
-                    'name_result': hinted_name,
-                    'date_result': None
-                })
+                    
+                    result['debug_info']['extraction_attempts'].append({
+                        'method': 'hinted_extraction',
+                        'name_result': hinted_name,
+                        'date_result': None,
+                        'confidence': 0.7,
+                        'success': True
+                    })
+                else:
+                    logger.info("Hinted extraction failed - no case name found")
+                    result['debug_info']['extraction_attempts'].append({
+                        'method': 'hinted_extraction',
+                        'name_result': None,
+                        'date_result': None,
+                        'confidence': 0.0,
+                        'success': False
+                    })
                         
             except Exception as e:
                 logger.warning(f"Hinted extraction failed: {e}")
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'hinted_extraction',
+                    'name_result': None,
+                    'date_result': None,
+                    'confidence': 0.0,
+                    'success': False,
+                    'error': str(e)
+                })
+        
+        # PRIORITY 4: Try fallback extraction strategies
+        if result['case_name'] == "N/A":
+            logger.info("=== TRYING FALLBACK EXTRACTION ===")
+            try:
+                from src.enhanced_extraction_utils import fallback_extraction_pipeline
+                
+                # Find citation position in text
+                citation_pos = text.find(citation)
+                if citation_pos != -1:
+                    fallback_result = fallback_extraction_pipeline(text, citation_pos, citation_pos + len(citation))
+                    
+                    if fallback_result.get('case_name'):
+                        result['case_name'] = fallback_result['case_name']
+                        result['case_name_confidence'] = 0.4  # Low confidence for fallback
+                        result['case_name_method'] = f"fallback_{fallback_result.get('fallback_strategy_used', 'unknown')}"
+                        result['debug_info']['fallback_used'] = True
+                        result['debug_info']['fallback_reason'] = "All primary extraction methods failed"
+                        
+                        logger.info(f"SUCCESS: Fallback extraction found: '{fallback_result['case_name']}' (strategy: {fallback_result.get('fallback_strategy_used')})")
+                        
+                        # Log fallback usage
+                        log_fallback_usage(
+                            citation=citation,
+                            fallback_type='extraction',
+                            reason="All primary extraction methods failed",
+                            context={
+                                'fallback_strategy': fallback_result.get('fallback_strategy_used'),
+                                'fallback_level': fallback_result.get('fallback_level'),
+                                'failed_methods': [attempt['method'] for attempt in result['debug_info']['extraction_attempts'] if not attempt['success']]
+                            }
+                        )
+                        
+                        result['debug_info']['extraction_attempts'].append({
+                            'method': result['case_name_method'],
+                            'name_result': fallback_result['case_name'],
+                            'date_result': fallback_result.get('date'),
+                            'confidence': 0.4,
+                            'success': True,
+                            'fallback_strategy': fallback_result.get('fallback_strategy_used')
+                        })
+                    else:
+                        logger.info("Fallback extraction failed - no case name found")
+                        result['debug_info']['extraction_attempts'].append({
+                            'method': 'fallback_extraction',
+                            'name_result': None,
+                            'date_result': None,
+                            'confidence': 0.0,
+                            'success': False
+                        })
+                else:
+                    logger.info("Citation not found in text for fallback extraction")
+                    result['debug_info']['extraction_attempts'].append({
+                        'method': 'fallback_extraction',
+                        'name_result': None,
+                        'date_result': None,
+                        'confidence': 0.0,
+                        'success': False,
+                        'error': 'Citation not found in text'
+                    })
+                    
+            except Exception as e:
+                logger.warning(f"Fallback extraction failed: {e}")
+                result['debug_info']['extraction_attempts'].append({
+                    'method': 'fallback_extraction',
+                    'name_result': None,
+                    'date_result': None,
+                    'confidence': 0.0,
+                    'success': False,
+                    'error': str(e)
+                })
+        
+        # Extract date if not already found
+        if result['extracted_date'] == "N/A":
+            try:
+                from src.case_name_extraction_core import extract_date_improved
+                fixed_date = extract_date_improved(text, citation)
+                if fixed_date:
+                    result['extracted_date'] = fixed_date
+                    logger.info(f"SUCCESS: Enhanced extraction found date: '{fixed_date}'")
+            except Exception as e:
+                logger.warning(f"Date extraction failed: {e}")
         
         logger.info(f"=== FINAL RESULTS ===")
         logger.info(f"Case name: '{result['case_name']}'")
         logger.info(f"Extracted date: '{result['extracted_date']}'")
         logger.info(f"Method: '{result['case_name_method']}'")
-        logger.info(f"Contamination check: extraction_only_no_api")
+        logger.info(f"Fallback used: {result['debug_info']['fallback_used']}")
         logger.info(f"=== EXTRACTION DEBUG END ===")
             
     except Exception as e:
         logger.error(f"Error in extract_case_name_triple_with_debugging: {e}")
+        result['debug_info']['extraction_attempts'].append({
+            'method': 'error',
+            'name_result': None,
+            'date_result': None,
+            'confidence': 0.0,
+            'success': False,
+            'error': str(e)
+        })
     
     return result
 
-from .case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed
+from src.case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed
+from src.canonical_case_name_service import log_fallback_usage

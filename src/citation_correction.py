@@ -32,7 +32,7 @@ def load_api_key():
             config = json.load(f)
             return config.get("courtlistener_api_key")
     except Exception as e:
-        print(f"Error loading API key: {e}")
+        logger.error(f"Error loading API key: {e}")
         return None
 
 
@@ -44,7 +44,7 @@ def load_unconfirmed_citations():
                 return json.load(f)
         return []
     except Exception as e:
-        print(f"Error loading unconfirmed citations: {e}")
+        logger.error(f"Error loading unconfirmed citations: {e}")
         return []
 
 
@@ -56,7 +56,7 @@ def load_correction_cache():
                 return json.load(f)
         return {}
     except Exception as e:
-        print(f"Error loading correction cache: {e}")
+        logger.error(f"Error loading correction cache: {e}")
         return {}
 
 
@@ -65,9 +65,9 @@ def save_correction_cache(cache):
     try:
         with open(CORRECTION_CACHE_FILE, "w", encoding="utf-8") as f:
             json.dump(cache, f, indent=2)
-        print(f"Saved correction suggestions to {CORRECTION_CACHE_FILE}")
+        logger.info(f"Saved correction suggestions to {CORRECTION_CACHE_FILE}")
     except Exception as e:
-        print(f"Error saving correction cache: {e}")
+        logger.error(f"Error saving correction cache: {e}")
 
 
 def normalize_citation(citation_text):
@@ -117,7 +117,7 @@ def find_similar_citations(citation_text, api_key=None):
     # First check the cache
     cache = load_correction_cache()
     if citation_text in cache:
-        print(f"Using cached suggestions for {citation_text}")
+        logger.info(f"Using cached suggestions for {citation_text}")
         return cache[citation_text]
 
     suggestions = []
@@ -156,7 +156,7 @@ def find_similar_citations(citation_text, api_key=None):
                 }
 
                 # Make the request
-                print(f"Searching CourtListener API for: {query}")
+                logger.info(f"Searching CourtListener API for: {query}")
                 response = requests.get(
                     COURTLISTENER_API_URL, headers=headers, params=params
                 )
@@ -189,7 +189,7 @@ def find_similar_citations(citation_text, api_key=None):
                                     }
                                 )
         except Exception as e:
-            print(f"Error searching CourtListener API: {e}")
+            logger.error(f"Error searching CourtListener API: {e}")
 
     # Also search our local database of confirmed citations
     unconfirmed_citations = load_unconfirmed_citations()
@@ -256,8 +256,7 @@ def suggest_corrections_for_all():
         c for c in unconfirmed_citations if c.get("confidence", 0) < 0.7
     ]
 
-    print(
-        f"Generating correction suggestions for {len(low_confidence_citations)} unconfirmed citations"
+    logger.info(f"Generating correction suggestions for {len(low_confidence_citations)} unconfirmed citations"
     )
 
     # Process each citation
@@ -265,14 +264,14 @@ def suggest_corrections_for_all():
     for i, citation in enumerate(low_confidence_citations, 1):
         citation_text = citation.get("citation_text", "")
         if citation_text:
-            print(f"[{i}/{len(low_confidence_citations)}] Processing: {citation_text}")
+            logger.info(f"[{i}/{len(low_confidence_citations)}] Processing: {citation_text}")
             suggestions = find_similar_citations(citation_text, api_key)
 
             if suggestions:
                 all_suggestions[citation_text] = suggestions
-                print(f"  Found {len(suggestions)} suggestions")
+                logger.info(f"  Found {len(suggestions)} suggestions")
             else:
-                print("  No suggestions found")
+                logger.info("  No suggestions found")
 
     # Save all suggestions to cache
     save_correction_cache(all_suggestions)

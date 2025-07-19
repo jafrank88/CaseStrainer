@@ -12,10 +12,49 @@ from urllib.parse import quote_plus
 import json
 from functools import lru_cache
 from dataclasses import dataclass
-from .config import get_config_value
-from .websearch_utils import search_cluster_for_canonical_sources
+try:
+    from .config import get_config_value
+    from .websearch_utils import search_cluster_for_canonical_sources
+except ImportError:
+    from config import get_config_value
+    from websearch_utils import search_cluster_for_canonical_sources
+import os
 
 logger = logging.getLogger(__name__)
+
+# Dedicated fallback logger
+fallback_logger = logging.getLogger('fallback_usage')
+fallback_logger.setLevel(logging.INFO)
+
+# Create fallback log file handler
+try:
+    # Ensure logs directory exists
+    logs_dir = 'logs'
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir, exist_ok=True)
+    fallback_log_path = os.path.join(logs_dir, 'fallback_usage.log')
+    fallback_handler = logging.FileHandler(fallback_log_path)
+    fallback_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s'
+    ))
+    fallback_logger.addHandler(fallback_handler)
+except Exception as e:
+    logger.warning(f"Could not create fallback log file: {e}")
+    logger.error(f"FALLBACK LOGGING ERROR: Could not create fallback log file: {e}")
+
+def log_fallback_usage(citation: str, fallback_type: str, reason: str, context: Dict = None):
+    """Log fallback usage to dedicated log file"""
+    try:
+        log_entry = {
+            'timestamp': time.time(),
+            'citation': citation,
+            'fallback_type': fallback_type,
+            'reason': reason,
+            'context': context or {}
+        }
+        fallback_logger.info(f"FALLBACK_USED: {json.dumps(log_entry)}")
+    except Exception as e:
+        logger.error(f"Failed to log fallback usage: {e}")
 
 @dataclass
 class CanonicalResult:
@@ -65,6 +104,9 @@ class CanonicalCaseNameService:
             'f3d': r'(\d+)\s+F\.3d\s+(\d+)',
             'f2d': r'(\d+)\s+F\.2d\s+(\d+)',
         }
+        
+        # Clear cache to ensure fresh lookups with new service order
+        self._cached_lookup.cache_clear()
     
     def _get_config_value(self, key: str) -> Optional[str]:
         """Get configuration value from environment or config file"""
@@ -148,23 +190,49 @@ class CanonicalCaseNameService:
         # Try services in order of preference
         services = [
             ('courtlistener', self._lookup_courtlistener),
-            ('caselaw', self._lookup_caselaw_access),
-            ('westlaw', self._lookup_westlaw),
-            ('web_sources', self._lookup_web_sources), # Added web_sources
-            ('fallback', self._lookup_fallback)
+            ('web_sources', self._lookup_web_sources)   # Web search (can target CAP, Westlaw, etc.)
         ]
         
+        failed_services = []
         for service_name, lookup_func in services:
             try:
                 self._rate_limit(service_name)
                 result = lookup_func(citation)
+                # HARDFILTER: Only return if case_name is valid
+                from src.canonical_case_name_service import is_valid_case_name
+                if result and result.case_name:
+                    if not is_valid_case_name(result.case_name):
+                        logger.warning(f"[HARDFILTER] Rejected result from {service_name} for '{citation}': '{result.case_name}' is not a valid case name (hard filter)")
+                        continue
+                    else:
+                        logger.info(f"[HARDFILTER] Accepted result from {service_name} for '{citation}': '{result.case_name}' is a valid case name (hard filter)")
                 if result and result.case_name:
                     logger.info(f"Found canonical result via {service_name}: {result.case_name}")
+                    # Log if fallback was used (web_sources only)
+                    if service_name == 'web_sources':
+                        log_fallback_usage(
+                            citation=citation,
+                            fallback_type='canonical_lookup',
+                            reason=f"Primary service (courtlistener) failed, using {service_name}",
+                            context={'result_case_name': result.case_name, 'result_source': result.source}
+                        )
+                        # Ensure source field includes 'fallback' for test detection
+                        result.source = f"fallback: {result.source}"
                     return result
+                else:
+                    failed_services.append(f"{service_name}(no_result)")
             except Exception as e:
+                failed_services.append(f"{service_name}(error:{str(e)})")
                 logger.warning(f"Lookup failed for {service_name}: {e}")
                 continue
         
+        # If we get here, all services failed
+        log_fallback_usage(
+            citation=citation,
+            fallback_type='canonical_lookup',
+            reason=f"All services failed: {', '.join(failed_services)}",
+            context={'failed_services': failed_services}
+        )
         return None
     
     def _lookup_courtlistener(self, citation: str) -> Optional[CanonicalResult]:
@@ -177,8 +245,8 @@ class CanonicalCaseNameService:
             if not all(components.values()):
                 return None
             
-            # Build search query
-            query = f"{components['volume']} {components['reporter']} {components['page']}"
+            # Build search query - use exact citation format
+            query = f'"{components["volume"]} {components["reporter"]} {components["page"]}"'
             
             url = "https://www.courtlistener.com/api/rest/v4/search/"
             headers = {"Authorization": f"Token {self.courtlistener_api_key}"}
@@ -189,7 +257,7 @@ class CanonicalCaseNameService:
                 "page_size": 10
             }
             
-            response = self.session.get(url, headers=headers, params=params, timeout=10)
+            response = self.session.get(url, headers=headers, params=params, timeout=5)
             response.raise_for_status()
             
             data = response.json()
@@ -201,8 +269,24 @@ class CanonicalCaseNameService:
                 if isinstance(citation_string, list):
                     citation_string = ' '.join(citation_string)
                 
+                # Check for exact match of the full citation
+                if citation.lower() in str(citation_string).lower():
+                    return CanonicalResult(
+                        case_name=result.get('caseName', ''),
+                        date=result.get('dateFiled', ''),
+                        court=result.get('court', ''),
+                        docket_number=result.get('docketNumber', ''),
+                        url=result.get('absolute_url', ''),
+                        source='CourtListener',
+                        confidence=0.9,
+                        verified=True,
+                        parallel_citations=result.get('citation', [])
+                    )
+                
+                # Also check for exact component match as fallback
                 if (components['volume'] in str(citation_string) and 
-                    components['page'] in str(citation_string)):
+                    components['page'] in str(citation_string) and
+                    components['reporter'] in str(citation_string)):
                     
                     return CanonicalResult(
                         case_name=result.get('caseName', ''),
@@ -274,13 +358,34 @@ class CanonicalCaseNameService:
             return None
     
     def _lookup_westlaw(self, citation: str) -> Optional[CanonicalResult]:
-        """Lookup using Westlaw API (if available)"""
-        if not self.westlaw_api_key:
-            return None
-        
+        """Lookup using Westlaw API or fallback to canonical verification."""
         try:
-            # Westlaw Edge API - this would need proper credentials and setup
-            # This is a placeholder implementation
+            # First try the canonical verification workflow as primary method
+            try:
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                PROCESSOR_AVAILABLE = True
+            except ImportError:
+                PROCESSOR_AVAILABLE = False
+                logger.warning("UnifiedCitationProcessorV2 not available")
+                
+            if PROCESSOR_AVAILABLE:
+                processor = UnifiedCitationProcessorV2()
+                result = processor.verify_citation_unified_workflow(citation)
+                
+                if result.get("verified"):
+                    return CanonicalResult(
+                        case_name=result.get("case_name") or result.get("canonical_name"),
+                        date=result.get("canonical_date"),
+                        url=result.get("url"),
+                        source="Westlaw (via UnifiedProcessor)",
+                        confidence=result.get("confidence", 0.8)
+                    )
+            
+            # If no Westlaw API key, return None
+            if not self.westlaw_api_key:
+                return None
+            
+            # Try actual Westlaw API if available (placeholder for future implementation)
             url = "https://api.westlaw.com/v1/cases"
             headers = {
                 "Authorization": f"Bearer {self.westlaw_api_key}",
@@ -309,62 +414,53 @@ class CanonicalCaseNameService:
             logger.info("[LegalWebsearchEngine] Using new websearch_utils for citation: %s", citation)
             # Build a minimal cluster dict for compatibility
             cluster = {'citations': [{'citation': citation}]}
+            logger.info(f"[CANONICAL_SERVICE] Calling search_cluster_for_canonical_sources for citation: {citation}")
             results = search_cluster_for_canonical_sources(cluster, max_results=1)
+            logger.info(f"[CANONICAL_SERVICE] search_cluster_for_canonical_sources returned {len(results) if results else 0} results")
             if results and len(results) > 0:
                 result = results[0]
+                logger.info(f"[CANONICAL_SERVICE] Fallback result dict: {result}")
+                candidate_name = result.get('title') or result.get('case_name')
+                logger.info(f"[CANONICAL_SERVICE] Checking candidate name: '{candidate_name}' for citation: '{citation}'")
+                is_valid = is_valid_case_name(candidate_name)
+                logger.info(f"[CANONICAL_SERVICE] is_valid_case_name('{candidate_name}') returned {is_valid}")
+                if not is_valid:
+                    logger.info(f"[CANONICAL_SERVICE] Rejected fallback result for '{citation}': '{candidate_name}' is not a valid case name.")
+                    return None
+                logger.info(f"[CANONICAL_SERVICE] Accepted fallback result for '{citation}': '{candidate_name}' is a valid case name.")
                 return CanonicalResult(
-                    case_name=result.get('title') or result.get('case_name'),
+                    case_name=candidate_name,
                     date=None,  # Date extraction can be added if available
                     court=None,
                     docket_number=None,
                     url=result.get('url'),
-                    source=result.get('source', 'Web Search'),
+                    source=f"fallback: {result.get('source', 'Web Search')}",
                     confidence=result.get('reliability_score', 0.7),
                     verified=result.get('reliability_score', 0) >= 70
                 )
+            else:
+                logger.info(f"[CANONICAL_SERVICE] No results returned from search_cluster_for_canonical_sources for citation: {citation}")
         except Exception as e:
             logger.error(f"Web search lookup failed: {e}")
+            import traceback
+            logger.error(f"Exception traceback: {traceback.format_exc()}")
         return None
 
-    def _lookup_fallback(self, citation: str) -> Optional[CanonicalResult]:
-        """Fallback lookup using pattern matching and known cases"""
-        try:
-            # Known landmark cases for testing
-            known_cases = {
-                "410 U.S. 113": {
-                    "case_name": "Roe v. Wade",
-                    "date": "1973",
-                    "court": "United States Supreme Court"
-                },
-                "347 U.S. 483": {
-                    "case_name": "Brown v. Board of Education", 
-                    "date": "1954",
-                    "court": "United States Supreme Court"
-                },
-                "5 U.S. 137": {
-                    "case_name": "Marbury v. Madison",
-                    "date": "1803", 
-                    "court": "United States Supreme Court"
-                }
-            }
-            
-            normalized = self._normalize_citation(citation)
-            if normalized in known_cases:
-                case_info = known_cases[normalized]
-                return CanonicalResult(
-                    case_name=case_info["case_name"],
-                    date=case_info["date"],
-                    court=case_info["court"],
-                    source="Fallback Database",
-                    confidence=0.8,
-                    verified=True
-                )
-            
-            return None
-            
-        except Exception as e:
-            logger.error(f"Fallback lookup failed: {e}")
-            return None
+def is_valid_case_name(name: str) -> bool:
+    """Return True if the name looks like a real legal case name (e.g., contains ' v. ' or ' vs. ')."""
+    if not name or not isinstance(name, str):
+        return False
+    import re
+    # Require ' v. ' or ' vs. ' with spaces (case-insensitive)
+    if not re.search(r"\s(v\.|vs\.|v|vs)\s", name, re.IGNORECASE):
+        return False
+    # Exclude domains, URLs, or generic titles
+    if re.search(r"(\.com|\.net|\.org|https?://|store|watch|eventify|app|allareacodes|youtube|steampowered|outlook)", name, re.IGNORECASE):
+        return False
+    # Exclude names that are too short or generic
+    if len(name.strip()) < 7:
+        return False
+    return True
 
 # Global service instance
 _canonical_service = None
@@ -388,9 +484,20 @@ def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Opt
     try:
         # Normalize citation for lookup
         normalized_citation = _canonical_service._normalize_citation(citation)
+        logger.info(f"get_canonical_case_name_with_date called for: {citation} (normalized: {normalized_citation})")
         
         # Perform cached lookup
         result = _canonical_service._cached_lookup(normalized_citation)
+        logger.info(f"get_canonical_case_name_with_date result: {result}")
+        
+        # TOP-LEVEL HARDFILTER: Only return if case_name is valid (applies to all results, even from cache)
+        from src.canonical_case_name_service import is_valid_case_name
+        if result and result.case_name:
+            if not is_valid_case_name(result.case_name):
+                logger.warning(f"[TOP-HARDFILTER] Rejected result for '{citation}': '{result.case_name}' is not a valid case name (top-level hard filter)")
+                return None
+            else:
+                logger.info(f"[TOP-HARDFILTER] Accepted result for '{citation}': '{result.case_name}' is a valid case name (top-level hard filter)")
         
         if result:
             # Convert to dictionary for backward compatibility
@@ -429,6 +536,9 @@ def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]
 
 def test_canonical_lookup():
     """Test function for canonical lookup"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     test_citations = [
         "171 Wn.2d 486",
         "200 Wn.2d 72", 
@@ -437,20 +547,20 @@ def test_canonical_lookup():
         "347 U.S. 483"   # Brown v. Board
     ]
     
-    print("=== Testing Canonical Case Name Lookup ===")
+    logger.info("=== Testing Canonical Case Name Lookup ===")
     
     for citation in test_citations:
-        print(f"\nTesting: {citation}")
+        logger.info(f"Testing: {citation}")
         result = get_canonical_case_name_with_date(citation)
         
         if result:
-            print(f"  ✅ Found: {result['case_name']}")
-            print(f"     Date: {result['date']}")
-            print(f"     Court: {result['court']}")
-            print(f"     Source: {result['source']}")
-            print(f"     Confidence: {result['confidence']}")
+            logger.info(f"  ✅ Found: {result['case_name']}")
+            logger.info(f"     Date: {result['date']}")
+            logger.info(f"     Court: {result['court']}")
+            logger.info(f"     Source: {result['source']}")
+            logger.info(f"     Confidence: {result['confidence']}")
         else:
-            print(f"  ❌ Not found")
+            logger.info(f"  ❌ Not found")
 
 if __name__ == "__main__":
     test_canonical_lookup() 

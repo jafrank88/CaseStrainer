@@ -5,6 +5,48 @@ import logging
 import sys
 from typing import List, Dict, Any, Optional
 from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -193,9 +235,66 @@ def extract_citations_from_file(filepath, logger=logger):
         )
         logger.info(f"Extracted text sample (first 200 chars): {text[:200]}...")
         logger.info("Calling extract_citations_from_text with the extracted content")
-        return extract_citations_from_text(text, logger=logger)
+        return get_unified_citations(text, logger=logger)
     except Exception as e:
         logger.error(f"Error extracting citations from file: {str(e)}")
+        logger.error(traceback.format_exc())
+        return []
+
+
+def extract_citations_from_text(text, logger=logger):
+    """Extract citations from text and return full metadata."""
+    try:
+        logger.info(f"[DEBUG] Starting extract_citations_from_text")
+        start_time = time.time()
+        
+        # Use the unified citation processor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        
+        config = ProcessingConfig(
+            use_eyecite=True,
+            use_regex=True,
+            extract_case_names=True,
+            extract_dates=True,
+            enable_clustering=True,
+            enable_deduplication=True,
+            debug_mode=False
+        )
+        
+        processor = UnifiedCitationProcessorV2(config)
+        results = processor.process_text(text)
+        
+        # Convert CitationResult objects to dictionaries for backward compatibility
+        citations = []
+        for result in results:
+            citation_dict = {
+                'citation': result.citation,
+                'case_name': result.case_name,
+                'extracted_case_name': result.extracted_case_name,
+                'extracted_date': result.extracted_date,
+                'canonical_name': result.canonical_name,
+                'canonical_date': result.canonical_date,
+                'verified': result.verified,
+                'confidence': result.confidence,
+                'method': result.method,
+                'pattern': result.pattern,
+                'context': result.context,
+                'start_index': result.start_index,
+                'end_index': result.end_index,
+                'is_parallel': result.is_parallel,
+                'is_cluster': result.is_cluster,
+                'source': result.source,
+                'error': result.error
+            }
+            citations.append(citation_dict)
+        
+        processing_time = time.time() - start_time
+        logger.info(f"[DEBUG] Extracted {len(citations)} citations in {processing_time:.2f}s")
+        
+        return citations
+        
+    except Exception as e:
+        logger.error(f"Error extracting citations from text: {e}")
         logger.error(traceback.format_exc())
         return []
 
@@ -564,7 +663,7 @@ def batch_validate_citations_optimized(citations, api_key=None):
     def validate_single_citation(citation):
         try:
             # Try primary verification method first (CourtListener API)
-            from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             
@@ -660,7 +759,7 @@ def batch_validate_citations(citations, api_key=None):
     results = []
     for citation in cleaned_citations:
         try:
-            from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+            from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
             results.append(
@@ -694,13 +793,13 @@ def extract_citations(*args, **kwargs):
     warnings.warn("extract_citations is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
     return []
 
-def extract_citations_from_text(*args, **kwargs):
+def get_unified_citations(*args, **kwargs):
     """DEPRECATED. Use extract_all_citations from .citation_extractor instead."""
     import warnings
     warnings.warn("extract_citations_from_text is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
     return []
 
-def extract_citations_from_text(text, logger=logger):
+def get_unified_citations(text, logger=logger):
     """
     Extract potential citations from text using regex patterns and verify them using the CourtListener API.
     
@@ -810,7 +909,7 @@ def deduplicate_citations(citations):
     return unique
 
 
-def extract_all_citations(text, logger=logger):
+def get_unified_citations(text, logger=logger):
     """
     Extract all citations from text using the unified extractor.
     

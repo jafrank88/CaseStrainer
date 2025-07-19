@@ -1,0 +1,5 @@
+2025-07-18 21:19:03,798 - __main__ - INFO - Starting CaseStrainer application...
+2025-07-18 21:19:03,798 - __main__ - INFO - Python version: 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]
+2025-07-18 21:19:03,799 - __main__ - INFO - Current working directory: D:\dev\casestrainer
+2025-07-18 21:19:03,799 - __main__ - INFO - Python path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'C:\\Users\\jafrank\\OneDrive - UW\\Documents\\GitHub\\CaseStrainer\\src', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-07-18 21:19:05,481 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported

@@ -19,7 +19,7 @@ from collections import Counter
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from file_utils import extract_text_from_pdf
+from src.file_utils import extract_text_from_file
 from citation_utils import CitationCluster
 
 # Configure logging
@@ -61,7 +61,7 @@ class WABriefsProcessor:
         """Extract text from a brief PDF."""
         try:
             logger.info(f"Extracting text from: {pdf_path.name}")
-            text = extract_text_from_pdf(str(pdf_path))
+            text = extract_text_from_file(str(pdf_path))
             
             if not text or len(text.strip()) < 100:
                 logger.warning(f"Extracted text too short for {pdf_path.name}")

@@ -16,12 +16,12 @@ from typing import Optional, Dict, Any
 
 from flask import Flask
 
-# Ensure project root is in path
+# Add the project root to the Python path
 project_root = Path(__file__).parent.parent.resolve()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from src.case_name_extraction_core import extract_case_name_triple
+from src.case_name_extraction_core import extract_case_name_and_date
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
 # Try to import the new unified document processor
@@ -32,9 +32,26 @@ except ImportError:
     UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = False
     # Fallback to original document processing
     try:
-        from src.document_processing import process_document
+        from src.document_processing_unified import process_document
     except ImportError:
         process_document = None
+
+# Import rate limiter
+try:
+    from src.rate_limiter import rate_limit, validate_input
+    RATE_LIMITER_AVAILABLE = True
+except ImportError:
+    RATE_LIMITER_AVAILABLE = False
+    # Fallback decorators that do nothing
+    def rate_limit(max_calls=100, window=3600):
+        def decorator(f):
+            return f
+        return decorator
+    
+    def validate_input(input_type='text'):
+        def decorator(f):
+            return f
+        return decorator
 
 # Enhanced citation verification function
 
@@ -68,18 +85,14 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
     }
     try:
         if document_text and document_text.strip():
-            logger.info(f"🔍 DEBUG: About to call extract_case_name_triple")
+            logger.info(f"🔍 DEBUG: About to call extract_case_name_and_date")
             logger.info(f"  citation_text: '{citation_text}'")
             logger.info(f"  document_text: '{document_text[:100]}...'")
             
-            extraction_result = extract_case_name_triple(
-                text=document_text,
-                citation=citation_text,
-                api_key=api_key,
-                context_window=200
-            )
+            extraction_result = extract_case_name_and_date(text=document_text,
+                citation=citation_text)
             
-            logger.info(f"🔍 DEBUG: extract_case_name_triple returned:")
+            logger.info(f"🔍 DEBUG: extract_case_name_and_date returned:")
             logger.info(f"  Type: {type(extraction_result)}")
             logger.info(f"  Value: {extraction_result}")
             
@@ -92,21 +105,19 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
             if extraction_result:
                 logger.info(f"Raw extraction result: {extraction_result}")
                 logger.info(f"extraction_result keys: {list(extraction_result.keys())}")
-                logger.info(f"extracted_name value: '{extraction_result.get('extracted_name', 'KEY_MISSING')}'")
-                logger.info(f"extracted_date value: '{extraction_result.get('extracted_date', 'KEY_MISSING')}'")
+                logger.info(f"case_name value: '{extraction_result.get('case_name', 'KEY_MISSING')}'")
+                logger.info(f"year value: '{extraction_result.get('year', 'KEY_MISSING')}'")
                 
                 # Handle multiple possible field name formats
                 extracted_name = (
-                    extraction_result.get("extracted_name") or
                     extraction_result.get("case_name") or
                     extraction_result.get("extracted_case_name") or
                     "N/A"
                 )
                 
                 extracted_date = (
-                    extraction_result.get("extracted_date") or
-                    extraction_result.get("date") or
                     extraction_result.get("year") or
+                    extraction_result.get("date") or
                     "N/A"
                 )
                 
@@ -127,7 +138,7 @@ def verify_citation_with_extraction(citation_text: str, document_text: str = "",
                 
                 if result["canonical_name"] != "N/A" and result["canonical_name"]:
                     result["verified"] = "true"
-                    result["confidence"] = extraction_result.get("case_name_confidence", 0.9)
+                    result["confidence"] = extraction_result.get("confidence", 0.9)
                     result["source"] = "CourtListener"
                 logger.info(f"Extraction complete - extracted: {result['extracted_case_name']}, canonical: {result['canonical_name']}")
             else:
@@ -326,6 +337,56 @@ class SecurityManager:
         except Exception as e:
             logger.error(f"Error validating file path: {e}")
             return False
+    
+    @staticmethod
+    def sanitize_citation_input(citation: str) -> str:
+        """Sanitize citation input to prevent injection attacks"""
+        if not citation:
+            return ""
+        
+        # Remove/escape dangerous characters
+        import re
+        sanitized = re.sub(r'[<>"\']', '', citation)
+        
+        # Limit length
+        if len(sanitized) > 500:
+            sanitized = sanitized[:500]
+        
+        return sanitized.strip()
+    
+    @staticmethod
+    def sanitize_text_input(text: str) -> str:
+        """Sanitize text input for processing"""
+        if not text:
+            return ""
+        
+        # Remove null bytes and control characters
+        import re
+        sanitized = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', text)
+        
+        # Limit length
+        if len(sanitized) > 100000:  # 100KB limit
+            sanitized = sanitized[:100000]
+        
+        return sanitized.strip()
+    
+    @staticmethod
+    def validate_url(url: str) -> bool:
+        """Validate URL format and security"""
+        if not url:
+            return False
+        
+        # Basic URL validation
+        import re
+        url_pattern = re.compile(
+            r'^https?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+            r'localhost|'  # localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        
+        return bool(url_pattern.match(url))
 
 
 class ResponseManager:
@@ -443,18 +504,14 @@ class ApplicationFactory:
         return app
     
     def _register_blueprints(self, app):
-        """Register application blueprints"""
-        # Comment out the problematic Blueprint registration for now
-        # try:
-        #     from src.vue_api_endpoints import vue_api
-        #     app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
-        #     print("[INFO] Registered vue_api blueprint successfully")
-        #     self.logger.info("Registered vue_api blueprint successfully")
-        # except Exception as e:
-        #     print(f"[ERROR] Could not import or register vue_api_endpoints: {e}")
-        #     self.logger.critical(f"Could not import or register vue_api_endpoints: {e}")
-        #     raise  # Fail fast if Blueprint registration fails
-        pass
+        """Register application blueprints with proper error handling"""
+        # Register blueprints
+        try:
+            from src.vue_api_endpoints import vue_api
+            app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
+            self.logger.info("Vue API endpoints blueprint registered successfully")
+        except Exception as e:
+            self.logger.error(f"Could not register vue_api_endpoints: {e}")
 
     def _configure_cors(self, app):
         """Configure CORS with security considerations"""
@@ -489,286 +546,15 @@ class ApplicationFactory:
         def serve_vue_app(path):
             return self._serve_static_file(path)
         
-        @app.route('/casestrainer/api/health', methods=['GET'])
-        def health_check():
-            """Enhanced health check endpoint"""
-            from flask import jsonify
-            try:
-                # Basic health checks
-                db_manager = self._get_database_manager()
-                db_healthy = bool(db_manager)
-                
-                health_data = {
-                    'status': 'healthy' if db_healthy else 'degraded',
-                    'timestamp': datetime.utcnow().isoformat(),
-                    'version': '2.0',
-                    'components': {
-                        'database': 'healthy' if db_healthy else 'unhealthy',
-                        'upload_directory': 'healthy'
-                    }
-                }
-                
-                status_code = 200 if db_healthy else 503
-                return jsonify(health_data), status_code
-                
-            except Exception as e:
-                self.logger.error(f"Health check failed: {e}")
-                return jsonify({
-                    'status': 'unhealthy',
-                    'error': str(e),
-                    'timestamp': datetime.utcnow().isoformat()
-                }), 503
-        
-        @app.route('/casestrainer/api/db_stats', methods=['GET'])
-        def db_stats():
-            """Database statistics endpoint"""
-            from flask import jsonify
-            try:
-                db_manager = self._get_database_manager()
-                stats = db_manager.get_database_stats()
-                return jsonify(stats)
-            except Exception as e:
-                self.logger.error(f"Database stats error: {e}")
-                return jsonify({'error': 'Database stats unavailable'}), 503
-        
-        @app.route('/casestrainer/api/analyze_enhanced', methods=['POST'])
-        def enhanced_analyze():
-            print('ENHANCED_ANALYZE CALLED', request.path)
-            """Enhanced analyze endpoint with better citation extraction, clustering, and verification"""
-            from flask import request, jsonify
-            import logging
-            logger = logging.getLogger("citation_verification")
-            logger.info("=== ENHANCED_ANALYZE FUNCTION CALLED ===")
-            logger.info(f"Request path: {request.path}")
-            logger.info(f"Request method: {request.method}")
-            try:
-                data = request.get_json()
-                if not data:
-                    return jsonify({'error': 'No JSON data provided'}), 400
-                input_type = data.get('type', 'text')
-                if input_type == 'text':
-                    text = data.get('text', '')
-                    api_key = data.get('api_key', None)
-                    if not text:
-                        return jsonify({'error': 'No text provided'}), 400
-
-                    # Use UnifiedCitationProcessorV2 for extraction and clustering
-                    config = None  # Use default config
-                    processor = UnifiedCitationProcessor(config)
-                    results = processor.process_text(text)
-
-                    # Convert CitationResult objects to dicts and add cluster metadata
-                    citation_dicts = []
-                    for citation in results:
-                        citation_dict = {
-                            'citation': citation.citation,
-                            'case_name': citation.extracted_case_name or citation.case_name,
-                            'extracted_case_name': citation.extracted_case_name,
-                            'canonical_name': citation.canonical_name,
-                            'extracted_date': citation.extracted_date,
-                            'canonical_date': citation.canonical_date,
-                            'verified': citation.verified,
-                            'court': citation.court,
-                            'confidence': citation.confidence,
-                            'method': citation.method,
-                            'pattern': citation.pattern,
-                            'context': citation.context,
-                            'start_index': citation.start_index,
-                            'end_index': citation.end_index,
-                            'is_parallel': citation.is_parallel,
-                            'is_cluster': citation.is_cluster,
-                            'parallel_citations': citation.parallel_citations,
-                            'cluster_members': citation.cluster_members,
-                            'pinpoint_pages': citation.pinpoint_pages,
-                            'docket_numbers': citation.docket_numbers,
-                            'case_history': citation.case_history,
-                            'publication_status': citation.publication_status,
-                            'url': citation.url,
-                            'source': citation.source,
-                            'error': citation.error,
-                            'metadata': citation.metadata or {}
-                        }
-                        citation_dicts.append(citation_dict)
-
-                    # Add clusters array
-                    clusters = processor.group_citations_into_clusters(results)
-
-                    # Log the response for debugging
-                    logger.info(f"API Response for {len(citation_dicts)} citations:")
-                    for i, result in enumerate(citation_dicts):
-                        logger.info(f"  Citation {i+1}: {result.get('citation', 'N/A')}")
-                        logger.info(f"    extracted_case_name: {result.get('extracted_case_name', 'MISSING')}")
-                        logger.info(f"    extracted_date: {result.get('extracted_date', 'MISSING')}")
-                        logger.info(f"    canonical_name: {result.get('canonical_name', 'MISSING')}")
-                        logger.info(f"    canonical_date: {result.get('canonical_date', 'MISSING')}")
-
-                    return jsonify({'citations': citation_dicts, 'clusters': clusters, 'success': True})
-                else:
-                    return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
-            except Exception as e:
-                logger.error(f"Error in enhanced analyze endpoint: {e}")
-                return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
-
-        @app.route('/casestrainer/api/analyze', methods=['POST'])
-        def analyze():
-            """Main analyze endpoint that handles text, file, and URL input"""
-            from flask import request, jsonify
-            print('ANALYZE CALLED', request.path)
-            import logging
-            logger = logging.getLogger("citation_verification")
-            logger.info("=== ANALYZE FUNCTION CALLED ===")
-            logger.info(f"Request path: {request.path}")
-            logger.info(f"Request method: {request.method}")
-            try:
-                # Handle file upload
-                if 'file' in request.files:
-                    file = request.files['file']
-                    if file and file.filename:
-                        # Process file upload
-                        from werkzeug.utils import secure_filename
-                        import os
-                        import uuid
-                        filename = secure_filename(file.filename)
-                        file_ext = os.path.splitext(filename)[1].lower()
-                        unique_filename = f"{uuid.uuid4()}{file_ext}"
-                        uploads_dir = os.path.join(os.getcwd(), 'uploads')
-                        if not os.path.exists(uploads_dir):
-                            os.makedirs(uploads_dir, exist_ok=True)
-                        temp_file_path = os.path.join(uploads_dir, unique_filename)
-                        file.save(temp_file_path)
-                        try:
-                            from src.document_processing_unified import extract_text_from_file
-                            extracted_text = extract_text_from_file(temp_file_path)
-                            os.remove(temp_file_path)
-                            if not extracted_text or not extracted_text.strip():
-                                return jsonify({'error': 'No text content could be extracted from the uploaded file'}), 400
-                            return process_text_input(extracted_text, filename)
-                        except Exception as e:
-                            if os.path.exists(temp_file_path):
-                                os.remove(temp_file_path)
-                            return jsonify({'error': f'Failed to extract text from file: {str(e)}'}), 500
-                    else:
-                        return jsonify({'error': 'No file provided'}), 400
-                elif request.is_json:
-                    data = request.get_json()
-                    if not data:
-                        return jsonify({'error': 'No JSON data provided'}), 400
-                    input_type = data.get('type', 'text')
-                    if input_type == 'text':
-                        text = data.get('text', '')
-                        if not text:
-                            return jsonify({'error': 'No text provided'}), 400
-                        return process_text_input(text)
-                    elif input_type == 'url':
-                        url = data.get('url', '')
-                        if not url:
-                            return jsonify({'error': 'No URL provided'}), 400
-                        return process_url_input(url)
-                    else:
-                        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
-                elif request.form:
-                    data = request.form.to_dict()
-                    input_type = data.get('type', 'text')
-                    if input_type == 'text':
-                        text = data.get('text', '')
-                        if not text:
-                            return jsonify({'error': 'No text provided'}), 400
-                        return process_text_input(text)
-                    elif input_type == 'url':
-                        url = data.get('url', '')
-                        if not url:
-                            return jsonify({'error': 'No URL provided'}), 400
-                        return process_url_input(url)
-                    else:
-                        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
-                else:
-                    return jsonify({'error': 'Invalid or missing input. Please provide text, file, or URL.'}), 400
-            except Exception as e:
-                logger.error(f"Error in analyze endpoint: {e}")
-                return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
-        
-        def process_text_input(text, source_name="pasted_text"):
-            """Process text input and return results"""
-            import logging
-            from flask import jsonify
-            logger = logging.getLogger("citation_verification")
-            try:
-                # Use UnifiedCitationProcessor for extraction and clustering
-                from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-                processor = UnifiedCitationProcessor()
-                results = processor.process_text(text)
-
-                # Convert CitationResult objects to dicts
-                citation_dicts = []
-                for citation in results:
-                    citation_dict = {
-                        'citation': citation.citation,
-                        'case_name': citation.extracted_case_name or citation.case_name,
-                        'extracted_case_name': citation.extracted_case_name,
-                        'canonical_name': citation.canonical_name,
-                        'extracted_date': citation.extracted_date,
-                        'canonical_date': citation.canonical_date,
-                        'verified': citation.verified,
-                        'court': citation.court,
-                        'confidence': citation.confidence,
-                        'method': citation.method,
-                        'pattern': citation.pattern,
-                        'context': citation.context,
-                        'start_index': citation.start_index,
-                        'end_index': citation.end_index,
-                        'is_parallel': citation.is_parallel,
-                        'is_cluster': citation.is_cluster,
-                        'parallel_citations': citation.parallel_citations,
-                        'cluster_members': citation.cluster_members,
-                        'pinpoint_pages': citation.pinpoint_pages,
-                        'docket_numbers': citation.docket_numbers,
-                        'case_history': citation.case_history,
-                        'publication_status': citation.publication_status,
-                        'url': citation.url,
-                        'source': citation.source,
-                        'error': citation.error,
-                        'metadata': citation.metadata or {}
-                    }
-                    citation_dicts.append(citation_dict)
-
-                # Add clusters array
-                clusters = processor.group_citations_into_clusters(results)
-
-                return jsonify({'citations': citation_dicts, 'clusters': clusters, 'success': True})
-                
-            except Exception as e:
-                logger.error(f"Error processing text input: {e}")
-                return jsonify({'error': 'Text processing failed', 'details': str(e)}), 500
-        
-        def process_url_input(url):
-            """Process URL input and return results"""
-            import logging
-            from flask import jsonify
-            logger = logging.getLogger("citation_verification")
-            try:
-                # For now, return a simple response indicating URL processing is not fully implemented
-                # In a full implementation, this would scrape the URL and process the content
-                return jsonify({
-                    'status': 'processing',
-                    'message': 'URL processing is not fully implemented yet',
-                    'url': url
-                })
-                
-            except Exception as e:
-                logger.error(f"Error processing URL input: {e}")
-                return jsonify({'error': 'URL processing failed', 'details': str(e)}), 500
-        
-        # Debug route (only in development)
-        if app.config['DEBUG']:
-            @app.route('/test')
-            def test():
-                return 'Test route is working!'
+        # Test route for debugging
+        @app.route('/test')
+        def test():
+            return 'Test route is working!'
         
         self.logger.info("Application routes registered")
         # Log all registered routes for debugging
-        print("=== REGISTERED ROUTES ===")
+        self.logger.info("=== REGISTERED ROUTES ===")
         for rule in app.url_map.iter_rules():
-            print(f"Route: {rule} -> Endpoint: {rule.endpoint}")
             self.logger.info(f"Route: {rule} -> Endpoint: {rule.endpoint}")
     
     def _serve_static_file(self, path: str):
@@ -812,12 +598,18 @@ class ApplicationFactory:
             response.headers['Cache-Control'] = 'public, max-age=3600'
     
     def _set_security_headers(self, response):
-        """Set security headers"""
+        """Set comprehensive security headers"""
         security_headers = {
             'X-Content-Type-Options': 'nosniff',
             'X-Frame-Options': 'DENY',
             'X-XSS-Protection': '1; mode=block',
-            'Referrer-Policy': 'strict-origin-when-cross-origin'
+            'Referrer-Policy': 'strict-origin-when-cross-origin',
+            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+            'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self';",
+            'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
         }
         
         for header, value in security_headers.items():

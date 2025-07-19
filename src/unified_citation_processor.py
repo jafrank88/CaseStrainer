@@ -31,7 +31,8 @@ import copy
 
 # Import existing components to merge
 try:
-    from eyecite import get_citations, resolve_citations, clean_text, AhocorasickTokenizer
+    from eyecite import get_citations, resolve_citations, clean_text
+    from eyecite.tokenizers import AhocorasickTokenizer
     EYECITE_AVAILABLE = True
 except ImportError:
     EYECITE_AVAILABLE = False
@@ -1523,14 +1524,35 @@ class CitationGrouper:
             return {"verified": False, "source": "LangSearch", "error": str(e)}
     
     def _verify_with_database(self, citation: str) -> Dict:
-        """Verify a citation using the local database."""
+        """Verify a citation using the local database or fallback to canonical verification."""
         try:
-            # This would connect to a local database of known citations
-            # For now, return False as we don't have a local database set up
+            # Try to use the canonical verification workflow as fallback
+            try:
+                from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            except ImportError:
+                # Fallback if relative import fails
+                import sys
+                sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                
+            processor = UnifiedCitationProcessorV2()
+            result = processor.verify_citation_unified_workflow(citation)
+            
+            if result.get("verified"):
+                return {
+                    "verified": True,
+                    "source": "Database (via UnifiedProcessor)",
+                    "case_name": result.get("case_name"),
+                    "canonical_name": result.get("canonical_name"),
+                    "canonical_date": result.get("canonical_date"),
+                    "url": result.get("url"),
+                    "confidence": result.get("confidence", 0.8)
+                }
+            
             return {
                 "verified": False,
                 "source": "Database",
-                "error": "Local database not implemented",
+                "error": "Citation not found in database or verification sources",
             }
 
         except Exception as e:
@@ -2899,10 +2921,28 @@ class ExtractionDebugger:
         except Exception as e:
             result["stages"]["date"] = {"error": str(e)}
             self.log_step("DATE_EXTRACTION_ERROR", str(e), level="error")
-        # Stage 4: Canonical Lookup (simulate or call real API if available)
+        # Stage 4: Canonical Lookup (use real verification workflow)
         try:
-            # This is a placeholder for actual canonical lookup logic
-            result["stages"]["canonical_lookup"] = "(not implemented in debugger)"
+            try:
+                from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            except ImportError:
+                # Fallback if relative import fails
+                import sys
+                sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                
+            processor = UnifiedCitationProcessorV2()
+            verification_result = processor.verify_citation_unified_workflow(citation)
+            
+            result["stages"]["canonical_lookup"] = {
+                "verified": verification_result.get("verified", False),
+                "canonical_name": verification_result.get("canonical_name"),
+                "canonical_date": verification_result.get("canonical_date"),
+                "url": verification_result.get("url"),
+                "source": verification_result.get("verified_by"),
+                "confidence": verification_result.get("confidence", 0.0)
+            }
+            self.log_step("CANONICAL_LOOKUP", result["stages"]["canonical_lookup"])
         except Exception as e:
             result["stages"]["canonical_lookup"] = {"error": str(e)}
             self.log_step("CANONICAL_LOOKUP_ERROR", str(e), level="error")
@@ -2939,11 +2979,11 @@ class ExtractionDebugger:
                 recs.append("Check date extraction patterns and context window.")
         return recs
     def print_debug_report(self, results: Dict):
-        print("\n=== Extraction Debug Report ===")
-        print(json.dumps(results, indent=2, default=str))
-        print("\n=== Debug Log ===")
+        logger.debug("\n=== Extraction Debug Report ===")
+        logger.info(json.dumps(results, indent=2, default=str))
+        logger.debug("\n=== Debug Log ===")
         for entry in self.debug_log:
-            print(f"[{entry['timestamp']}] {entry['level'].upper()} {entry['step']}: {entry['data']}")
+            logger.info(f"[{entry['timestamp']}] {entry['level'].upper()} {entry['step']}: {entry['data']}")
 
 # Usage example for integration
 def debug_extraction_pipeline(text: str, citations: List[str], api_key: str = None):
@@ -2958,7 +2998,7 @@ if __name__ == "__main__":
     142 Wn.2d 801, 808, 16 P.3d 583 (2002)
     '''
     sample_citations = ["142 Wn.2d 801", "16 P.3d 583"]
-    print("Running extraction debugger on sample input...")
+    logger.debug("Running extraction debugger on sample input...")
     debug_extraction_pipeline(sample_text, sample_citations)
 
 def safe_set_extracted_date(citation, new_date, source="unknown"):

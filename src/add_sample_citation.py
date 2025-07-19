@@ -3,7 +3,7 @@ Add a sample citation to the citation database for testing.
 """
 
 import sqlite3
-from citation_correction_engine import CitationCorrectionEngine
+from src.citation_correction_engine import CitationCorrectionEngine
 
 
 def add_sample_citation():
@@ -37,10 +37,10 @@ def add_sample_citation():
 
         # Commit the changes
         conn.commit()
-        print("Successfully added sample citation to the database.")
+        logger.info("Successfully added sample citation to the database.")
 
     except Exception as e:
-        print(f"Error adding sample citation: {e}")
+        logger.error(f"Error adding sample citation: {e}")
         raise
     finally:
         if conn:
@@ -48,6 +48,6 @@ def add_sample_citation():
 
 
 if __name__ == "__main__":
-    print("Adding sample citation to the database...")
+    logger.info("Adding sample citation to the database...")
     add_sample_citation()
-    print("Done.")
+    logger.info("Done.")

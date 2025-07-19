@@ -26,8 +26,12 @@ try:
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
     UNIFIED_PROCESSOR_AVAILABLE = True
 except ImportError:
-    UNIFIED_PROCESSOR_AVAILABLE = False
-    logger.warning("Unified citation processor v2 not available")
+    try:
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        UNIFIED_PROCESSOR_AVAILABLE = True
+    except ImportError:
+        UNIFIED_PROCESSOR_AVAILABLE = False
+        logger.warning("Unified citation processor v2 not available")
 
 # Try to import the enhanced processor as fallback
 try:
@@ -35,12 +39,16 @@ try:
     ENHANCED_PROCESSOR_AVAILABLE = True
 except ImportError:
     try:
-        # Try alternative import path
-        from enhanced_citation_processor import EnhancedCitationProcessor as UnifiedCitationProcessor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         ENHANCED_PROCESSOR_AVAILABLE = True
     except ImportError:
-        ENHANCED_PROCESSOR_AVAILABLE = False
-        logger.warning("Enhanced citation processor not available")
+        try:
+            # Try alternative import path
+            from enhanced_citation_processor import EnhancedCitationProcessor as UnifiedCitationProcessor
+            ENHANCED_PROCESSOR_AVAILABLE = True
+        except ImportError:
+            ENHANCED_PROCESSOR_AVAILABLE = False
+            logger.warning("Enhanced citation processor not available")
 
 class UnifiedDocumentProcessor:
     """
@@ -810,4 +818,24 @@ def extract_text_from_file(file_path: str) -> str:
 def extract_text_from_url(url: str) -> str:
     """Convenience function for text extraction from URL."""
     processor = UnifiedDocumentProcessor()
-    return processor.extract_text_from_url(url) 
+    return processor.extract_text_from_url(url)
+
+def extract_and_verify_citations(text: str, api_key: str = None) -> tuple:
+    """
+    Backward compatibility function for extract_and_verify_citations.
+    Returns a tuple of (citations, metadata) for compatibility with existing tests.
+    """
+    processor = UnifiedDocumentProcessor()
+    result = processor.process_document(content=text, extract_case_names=True)
+    
+    if result.get("success"):
+        citations = result.get("citations", [])
+        metadata = {
+            "statistics": result.get("statistics", {}),
+            "processing_time": result.get("processing_time", 0),
+            "text_length": result.get("text_length", 0),
+            "case_names": result.get("case_names", [])
+        }
+        return citations, metadata
+    else:
+        return [], {"error": result.get("error", "Unknown error")} 

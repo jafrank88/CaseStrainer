@@ -4,8 +4,8 @@ import os
 import logging
 from redis import Redis
 from rq import Queue
-from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from .database_manager import get_database_manager
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from database_manager import get_database_manager
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ def cleanup_old_tasks():
     """Clean up old completed/failed tasks from memory and Redis."""
     try:
         # Import here to avoid circular imports
-        from .vue_api_endpoints import active_requests, TASK_TTL
+        from vue_api_endpoints import active_requests, TASK_TTL
         
         now = time.time()
         to_delete = []

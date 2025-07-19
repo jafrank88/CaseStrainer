@@ -62,7 +62,7 @@ async def test_all_sources():
         ('Midpage', verifier._search_midpage),
         ('Google Scholar', verifier._search_google_scholar),
         ('Bing', verifier._search_bing),
-        ('DuckDuckGo', verifier._search_duckduckgo)
+        # ('DuckDuckGo', verifier._search_duckduckgo) # Function does not exist
     ]
     
     test_citation_simple = "410 U.S. 113"  # Simple US Supreme Court case

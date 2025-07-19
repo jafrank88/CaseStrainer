@@ -6,10 +6,18 @@ into the existing citation verification system.
 
 import re
 import logging
+import time
 from typing import Optional, Tuple, List, Dict, Any
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
+# Import fallback logging
+try:
+    from .canonical_case_name_service import log_fallback_usage
+except ImportError:
+    def log_fallback_usage(citation: str, fallback_type: str, reason: str, context: Dict = None):
+        logger.warning(f"FALLBACK_USED: {fallback_type} for {citation} - {reason}")
 
 class EnhancedCaseNameExtractor:
     """
@@ -688,8 +696,11 @@ def fallback_extraction_pipeline(text, start, end):
     """
     citation_text = text[start:end]
     
+    logger.info(f"Starting fallback extraction pipeline for citation: '{citation_text}'")
+    
     # Fallback Strategy 1: Basic regex patterns
     def basic_regex_fallback():
+        logger.debug("Trying fallback strategy 1: Basic regex patterns")
         result = {'case_name': None, 'date': None, 'year': None}
         # Basic date extraction
         date_match = re.search(r'(19|20)\d{2}', citation_text)
@@ -700,6 +711,7 @@ def fallback_extraction_pipeline(text, start, end):
     
     # Fallback Strategy 2: Context window expansion
     def expanded_context_fallback():
+        logger.debug("Trying fallback strategy 2: Context window expansion")
         # Try with much larger context window
         expanded_start = max(0, start - 500)
         expanded_end = min(len(text), end + 500)
@@ -717,6 +729,7 @@ def fallback_extraction_pipeline(text, start, end):
     
     # Fallback Strategy 3: Document-wide search
     def document_wide_fallback():
+        logger.debug("Trying fallback strategy 3: Document-wide search")
         # Search the entire document for patterns
         # This is the most aggressive fallback
         case_match = re.search(r'([A-Z][A-Za-z0-9 .,&\-]+ v\.? [A-Z][A-Za-z0-9 .,&\-]+)', text)
@@ -734,17 +747,52 @@ def fallback_extraction_pipeline(text, start, end):
         document_wide_fallback
     ]
     
+    failed_strategies = []
     for i, strategy in enumerate(fallback_strategies):
         try:
+            logger.debug(f"Trying fallback strategy {i+1}: {strategy.__name__}")
             result = strategy()
             if result.get('date') or result.get('case_name'):
+                logger.info(f"Fallback strategy {i+1} succeeded: case_name='{result.get('case_name')}', date='{result.get('date')}'")
                 result['fallback_strategy_used'] = f"fallback_{i+1}"
                 result['fallback_level'] = i + 1
+                
+                # Log fallback usage
+                log_fallback_usage(
+                    citation=citation_text,
+                    fallback_type='extraction_pipeline',
+                    reason=f"Primary extraction failed, fallback strategy {i+1} succeeded",
+                    context={
+                        'fallback_strategy': f"fallback_{i+1}",
+                        'fallback_level': i + 1,
+                        'failed_strategies': failed_strategies,
+                        'extracted_case_name': result.get('case_name'),
+                        'extracted_date': result.get('date'),
+                        'strategy_name': strategy.__name__
+                    }
+                )
+                
                 return result
+            else:
+                failed_strategies.append(f"strategy_{i+1}(no_result)")
+                logger.debug(f"Fallback strategy {i+1} failed: no useful data extracted")
         except Exception as e:
+            failed_strategies.append(f"strategy_{i+1}(error:{str(e)})")
+            logger.debug(f"Fallback strategy {i+1} failed with error: {e}")
             continue
     
     # Ultimate fallback - return minimal info
+    logger.warning(f"All fallback strategies failed for citation: '{citation_text}'")
+    log_fallback_usage(
+        citation=citation_text,
+        fallback_type='extraction_pipeline',
+        reason=f"All fallback strategies failed: {', '.join(failed_strategies)}",
+        context={
+            'failed_strategies': failed_strategies,
+            'total_strategies_tried': len(fallback_strategies)
+        }
+    )
+    
     return {
         'case_name': None,
         'date': None,

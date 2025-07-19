@@ -1,7 +1,7 @@
 import asyncio
 import random
 import time
-from src.optimized_web_searcher import OptimizedWebSearcher
+from src.websearch_utils import LegalWebsearchEngine
 
 SAMPLE_CITATIONS = [
     "567 P.3d 625", "410 U.S. 113", "123 F.3d 456", "999 N.E.2d 123", "42 Cal. 3d 456",
@@ -27,7 +27,7 @@ async def batch_test():
     random.shuffle(SAMPLE_CITATIONS)
     results = {service: [] for service in SERVICES}
 
-    async with OptimizedWebSearcher() as searcher:
+    async with LegalWebsearchEngine() as searcher:
         for citation in SAMPLE_CITATIONS[:20]:
             services_order = SERVICES[:]
             random.shuffle(services_order)

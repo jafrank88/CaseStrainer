@@ -5,7 +5,7 @@ Test script for the new EnhancedWebSearcher with all supported sources.
 
 import asyncio
 import time
-from src.enhanced_web_searcher import EnhancedWebSearcher
+from src.websearch_utils import LegalWebsearchEngine
 
 async def test_enhanced_web_search():
     """Test the enhanced web searcher with multiple citations."""
@@ -20,7 +20,7 @@ async def test_enhanced_web_search():
     print("🚀 Testing Enhanced Web Searcher")
     print("=" * 60)
     
-    async with EnhancedWebSearcher() as searcher:
+    async with LegalWebsearchEngine() as searcher:
         for i, citation in enumerate(test_citations, 1):
             print(f"\n[{i}/{len(test_citations)}] Testing: {citation}")
             print("-" * 40)

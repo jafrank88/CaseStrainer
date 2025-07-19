@@ -23,9 +23,7 @@ from googlesearch import search as google_search
 from .legal_database_scraper import LegalDatabaseScraper
 from .websearch_utils import (
     create_legal_search_queries,
-    search_google_py,
-    search_bing_html,
-    search_duckduckgo_api
+    # search_duckduckgo_api  # Function does not exist
 )
 
 class EnhancedLegalScraper:
@@ -137,15 +135,18 @@ class EnhancedLegalScraper:
         # 1. Try DuckDuckGo first
         if self.use_duckduckgo:
             for query in search_queries:
-                results.extend(search_duckduckgo_api(query, num_results=5))
+                # from src.websearch_utils import search_duckduckgo_api  # Function does not exist
+                pass
         # 2. Try Bing second
         if self.use_bing:
             for query in search_queries:
-                results.extend(search_bing_html(query, num_results=5))
+                # from src.websearch_utils import search_bing_html  # Function does not exist
+                pass # No Google search engine available
         # 3. Try Google as fallback
         if self.use_google:
             for query in search_queries:
-                results.extend(search_google_py(query, num_results=5))
+                # from src.websearch_utils import search_google_py  # Function does not exist
+                pass # No Google search engine available
         # Filter and rank results
         filtered_results = self._filter_and_rank_results(results, database_info)
         return filtered_results

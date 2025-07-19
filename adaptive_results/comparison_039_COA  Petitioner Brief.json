@@ -1,0 +1,680 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "State v. Johnson",
+        "citation": "179 Wn.2d 534, 315 P.3d 1090",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "v. Johnson",
+        "citations": [
+          "179 Wn.2"
+        ],
+        "years": [
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Johnson",
+        "citation": "315 P.3d 1090",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "v. Johnson",
+        "citations": [
+          "179 Wn.2"
+        ],
+        "years": [
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Johnson",
+        "citation": "135 S.Ct. 139",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "v. Johnson",
+        "citations": [
+          "179 Wn.2"
+        ],
+        "years": [
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "190 L.Ed. 2d 105",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "142 Wn.2d 471, 14 P.3d 713",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Roberts",
+        "citation": "14 P.3d 713",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "v. Roberts",
+        "citations": [
+          "142 Wn.2"
+        ],
+        "years": [
+          "2000"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "430 U.S. 387",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. Williams",
+        "citations": [
+          "430 U.S. 387"
+        ],
+        "years": [
+          "1977"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "97 S.Ct. 1232",
+        "year": "1977"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "51 L.Ed. 2d 424",
+        "year": "1977"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "386 U.S. 18",
+        "year": "1977"
+      },
+      "toa": {
+        "case_name": "v. California",
+        "citations": [
+          "386 U.S. 18"
+        ],
+        "years": [
+          "1967"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "87 S.Ct. 824",
+        "year": "1977"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "17 L.Ed. 2d 705",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "372 U.S. 335",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "v. Wainwright",
+        "citations": [
+          "372 U.S. 335"
+        ],
+        "years": [
+          "1963"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "83 S.Ct. 792",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "9 L.Ed. 2d 799",
+        "year": "1963"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "387 F.2d 2013",
+        "year": "1963"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "392 U.S. 219",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "88 S.Ct. 2008",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "20 L.Ed. 2d 1047",
+        "year": "1967"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "435 U.S. 475",
+        "year": "1968"
+      },
+      "toa": {
+        "case_name": "v. Arkansas",
+        "citations": [
+          "435 U.S. 475"
+        ],
+        "years": [
+          "1978"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "8 Holloway v. Arkansas",
+        "citation": "98 S.Ct. 1173",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "v. Arkansas",
+        "citations": [
+          "435 U.S. 475"
+        ],
+        "years": [
+          "1978"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "8 Holloway v. Arkansas",
+        "citation": "55 L.Ed. 2d 426",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "v. Arkansas",
+        "citations": [
+          "435 U.S. 475"
+        ],
+        "years": [
+          "1978"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "136 S.Ct. 1954",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "v. Bryant",
+        "citations": [
+          "136 S.Ct. 1954"
+        ],
+        "years": [
+          "1954",
+          "2016"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "748 F.3d 922",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "785 F.2d 682",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "709 F.2d 160",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "888 F.2d 636",
+        "year": "1989"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "142 Wn.2d 471",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "486 U.S. 153",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "v. United States",
+        "citations": [
+          "486 U.S. 153"
+        ],
+        "years": [
+          "1988"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "108 S.Ct. 1692",
+        "year": "1988"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "100 L.Ed. 2d 140",
+        "year": "1988"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 S.Ct. 1899",
+        "year": "1903"
+      },
+      "toa": {
+        "case_name": "v. Massachusetts, ___U.S. ____",
+        "citations": [
+          "137 S.Ct. 1899"
+        ],
+        "years": [
+          "2017",
+          "1908",
+          "1903"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "Weaver v. Massachusetts",
+        "citation": "198 L.Ed. 2d 420",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "v. Massachusetts, ___U.S. ____",
+        "citations": [
+          "137 S.Ct. 1899"
+        ],
+        "years": [
+          "2017",
+          "1908",
+          "1903"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "568 F.2d 142",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "304 U.S. 458",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 14,
+      "no_match": 21
+    },
+    "citation": {
+      "exact": 7,
+      "partial": 0,
+      "mismatch": 7,
+      "no_match": 21
+    },
+    "year": {
+      "exact": 8,
+      "partial": 0,
+      "mismatch": 4,
+      "no_match": 23
+    }
+  }
+}

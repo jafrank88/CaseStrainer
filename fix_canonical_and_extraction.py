@@ -7,6 +7,7 @@ import re
 import logging
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 from src.case_name_extraction_core import extract_case_name_triple_comprehensive
+from src.extract_case_name import extract_case_name_from_text  # Use canonical extraction if needed
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

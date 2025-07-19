@@ -41,7 +41,7 @@ In the following PowerShell files, replace timestamp formatting:
 
 **Files to update:**
 - `launcher.ps1` (lines ~962, ~966)
-- `prodlaunch.ps1` (lines ~76, ~493, ~505)
+- `cslaunch.ps1` (lines ~76, ~493, ~505)
 - `monitor-casestrainer.ps1` (line ~49)
 - Other PowerShell scripts with logging
 

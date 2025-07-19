@@ -1,0 +1,151 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "State Cases City of Seattle v. Ratliff",
+        "citation": "100 Wn.2d 212, 667 P.2d 630",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "Solina v. Ratliff",
+        "citations": [
+          "100 Wn.2"
+        ],
+        "years": [
+          "1983"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State Cases City of Seattle v. Ratliff",
+        "citation": "667 P.2d 630",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "Solina v. Ratliff",
+        "citations": [
+          "100 Wn.2"
+        ],
+        "years": [
+          "1983"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "196 Wn.2d 285",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "466 P. 3d 231",
+        "year": "2020"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "486 P.3d 943",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "709 F.2d 160",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "486 P.3d 946",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 2,
+      "no_match": 5
+    },
+    "citation": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 2,
+      "no_match": 5
+    },
+    "year": {
+      "exact": 2,
+      "partial": 0,
+      "mismatch": 0,
+      "no_match": 5
+    }
+  }
+}

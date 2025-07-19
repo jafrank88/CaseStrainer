@@ -12,6 +12,27 @@ from pathlib import Path
 import argparse
 from collections import defaultdict, Counter
 from typing import List, Dict, Any, Tuple
+def get_unified_citations(text, logger=None):
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -19,15 +40,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 # Import with absolute paths to avoid relative import issues
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.unified_citation_processor_v2 import UnifiedCitationProcessor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 from src.case_name_extraction_core import extract_case_name_triple_comprehensive
-from src.file_utils import extract_text_from_pdf
+from src.file_utils import extract_text_from_file
 
 class YearExtractionTester:
     """Test year extraction from citations."""
     
     def __init__(self):
-        self.processor = UnifiedCitationProcessor()
+        self.processor = UnifiedCitationProcessorV2()
         self.year_patterns = [
             r'\b(19|20)\d{2}\b',  # 4-digit years
             r'\b\d{2}\b',  # 2-digit years (context dependent)
@@ -141,7 +162,7 @@ class YearExtractionTester:
         # Extract text
         print("1. Extracting text from PDF...")
         try:
-            text = extract_text_from_pdf(str(pdf_path))
+            text = extract_text_from_file(str(pdf_path))
             if not text or len(text.strip()) < 100:
                 print("Error: Extracted text too short")
                 return {}
@@ -164,7 +185,7 @@ class YearExtractionTester:
         # Extract citations
         print("\n3. Extracting citations...")
         try:
-            extraction_result = self.processor.extract_citations_from_text(text)
+            extraction_result = self.processor.get_unified_citations(text)
             extracted_citations = extraction_result.get('extracted_citations', [])
             print(f"   Found {len(extracted_citations)} citations")
             

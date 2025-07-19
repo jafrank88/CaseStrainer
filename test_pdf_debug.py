@@ -2,7 +2,7 @@
 
 import re
 import logging
-from src.document_processing import process_document
+from src.document_processing_unified import process_document
 import sys
 import traceback
 

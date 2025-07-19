@@ -62,7 +62,7 @@ def load_unconfirmed_citations(
         with open(filename, "r") as f:
             return json.load(f)
     except Exception as e:
-        print(f"Error loading unconfirmed citations: {e}")
+        logger.error(f"Error loading unconfirmed citations: {e}")
         return {}
 
 
@@ -73,10 +73,10 @@ def save_corrected_citations(
     try:
         with open(filename, "w") as f:
             json.dump(citations, f, indent=2)
-        print(f"Properly formatted citations saved to {filename}")
+        logger.info(f"Properly formatted citations saved to {filename}")
         return True
     except Exception as e:
-        print(f"Error saving properly formatted citations: {e}")
+        logger.error(f"Error saving properly formatted citations: {e}")
         return False
 
 
@@ -87,7 +87,7 @@ def create_properly_formatted_citations():
     all_citations = load_unconfirmed_citations()
 
     if not all_citations:
-        print("No unconfirmed citations found.")
+        logger.info("No unconfirmed citations found.")
         return
 
     properly_formatted = {}
@@ -120,9 +120,9 @@ def create_properly_formatted_citations():
     save_corrected_citations(properly_formatted)
 
     # Print summary of corrections
-    print(f"\nCorrected {len(CORRECTED_CITATIONS)} citation formats:")
+    logger.info(f"\nCorrected {len(CORRECTED_CITATIONS)} citation formats:")
     for original, corrected in CORRECTED_CITATIONS.items():
-        print(f"  {original} → {corrected}")
+        logger.info(f"  {original} → {corrected}")
 
     return properly_formatted
 
@@ -175,7 +175,7 @@ def create_test_api_request():
     try:
         with open("test_api_request.json", "w") as f:
             json.dump(api_request, f, indent=2)
-        print("Test API request saved to test_api_request.json")
+        logger.info("Test API request saved to test_api_request.json")
 
         # Also create a PowerShell command to test the API
         ps_command = "$headers = @{ 'Content-Type' = 'application/json' }; "
@@ -185,19 +185,17 @@ def create_test_api_request():
 
         with open("test_api.ps1", "w") as f:
             f.write(ps_command)
-        print("PowerShell test script saved to test_api.ps1")
+        logger.info("PowerShell test script saved to test_api.ps1")
 
         return True
     except Exception as e:
-        print(f"Error creating test API request: {e}")
+        logger.error(f"Error creating test API request: {e}")
         return False
 
 
 if __name__ == "__main__":
-    print("Creating properly formatted citations...")
+    logger.info("Creating properly formatted citations...")
     create_properly_formatted_citations()
-    print("\nCreating test API request...")
+    logger.info("\nCreating test API request...")
     create_test_api_request()
-    print(
-        "\nDone! You can now test these corrected citations with the CaseStrainer verification system."
-    )
+    logger.info("\nDone! You can now test these corrected citations with the CaseStrainer verification system.")

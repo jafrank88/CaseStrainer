@@ -54,7 +54,7 @@ def setup_database_tables():
     conn.commit()
     conn.close()
 
-    print("Database tables set up successfully")
+    logger.info("Database tables set up successfully")
 
 
 def get_unverified_citations():
@@ -71,7 +71,7 @@ def get_unverified_citations():
 
     conn.close()
 
-    print(f"Retrieved {len(citations)} unverified citations from the main database")
+    logger.info(f"Retrieved {len(citations)} unverified citations from the main database")
     return citations
 
 
@@ -99,12 +99,12 @@ def add_to_database_tab(citations):
     conn.commit()
     conn.close()
 
-    print(f"Added {count} citations to the Unconfirmed Citations Database tab")
+    logger.info(f"Added {count} citations to the Unconfirmed Citations Database tab")
 
 
 def main():
     """Main function to populate the Unconfirmed Citations Database tab."""
-    print("Starting population of the Unconfirmed Citations Database tab...")
+    logger.info("Starting population of the Unconfirmed Citations Database tab...")
 
     # Set up database tables
     setup_database_tables()
@@ -113,16 +113,14 @@ def main():
     citations = get_unverified_citations()
 
     if not citations:
-        print("No unverified citations found in the main database.")
+        logger.info("No unverified citations found in the main database.")
         return
 
     # Add to database tab
     add_to_database_tab(citations)
 
-    print("\nPopulation complete")
-    print(
-        "You can now run verify_database_citations.py to verify these citations using the multi-source tool"
-    )
+    logger.info("\nPopulation complete")
+    logger.info("You can now run verify_database_citations.py to verify these citations using the multi-source tool")
 
 
 if __name__ == "__main__":

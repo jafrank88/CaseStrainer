@@ -14,7 +14,7 @@ import argparse
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from file_utils import extract_text_from_pdf
+from src.file_utils import extract_text_from_file
 
 def test_brief_processing(pdf_path: str, output_file: str = None):
     """Test citation extraction on a single brief file."""
@@ -33,7 +33,7 @@ def test_brief_processing(pdf_path: str, output_file: str = None):
     # Extract text
     print("1. Extracting text from PDF...")
     try:
-        text = extract_text_from_pdf(str(pdf_path))
+        text = extract_text_from_file(str(pdf_path))
         if not text or len(text.strip()) < 100:
             print("Error: Extracted text too short")
             return False

@@ -14,10 +14,10 @@ import time
 import uuid
 import traceback
 import warnings
-from .file_utils import extract_text_from_file
-from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from .citation_correction_engine import CitationCorrectionEngine
-from .citation_utils import get_citation_context
+from file_utils import extract_text_from_file
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.citation_correction_engine import CitationCorrectionEngine
+from citation_utils import get_citation_context
 import hashlib
 from functools import lru_cache
 from typing import Optional, Dict, Any
@@ -65,8 +65,8 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Now import the modules
-from .config import configure_logging, UPLOAD_FOLDER, ALLOWED_EXTENSIONS
-from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from config import configure_logging, UPLOAD_FOLDER, ALLOWED_EXTENSIONS
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
@@ -93,7 +93,7 @@ def extract_text_from_url(url: str) -> Dict[str, Any]:
         DeprecationWarning,
         stacklevel=2
     )
-    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    from document_processing_unified import extract_text_from_url as unified_extract_text_from_url
     text = unified_extract_text_from_url(url)
     return {
         'status': 'success',

@@ -1,43 +1,64 @@
 #!/usr/bin/env python3
 """
-Enhanced Adaptive Processor that applies learned patterns and improvements.
-This extends the base processor with learned patterns and confidence adjustments.
+Enhanced Adaptive Processor with Performance Optimizations
+This processor learns from failed extractions and applies performance optimizations.
 """
 
-import os
 import sys
+import os
 import json
-import re
+import time
 import pickle
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import logging
+from collections import Counter, defaultdict
+import re
 from dataclasses import dataclass, asdict
-import time
-from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2, CitationResult
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+from src.document_processing_unified import extract_text_from_file
 
 @dataclass
 class LearnedPattern:
-    """A learned citation pattern with success metrics."""
-    pattern: str
-    regex: re.Pattern
-    success_count: int
-    failure_count: int
-    confidence_threshold: float
-    context_examples: List[str]
-    last_updated: float
+    """A learned citation pattern with performance metrics."""
+    regex: str
+    success_count: int = 0
+    failure_count: int = 0
+    avg_processing_time: float = 0.0
+    last_used: float = 0.0
+    context_examples: List[str] = None
+    
+    def __post_init__(self):
+        if self.context_examples is None:
+            self.context_examples = []
     
     @property
     def success_rate(self) -> float:
         total = self.success_count + self.failure_count
         return self.success_count / total if total > 0 else 0.0
+    
+    @property
+    def is_performant(self) -> bool:
+        return self.success_rate > 0.6 and self.avg_processing_time < 0.1
+
+@dataclass
+class PerformanceMetrics:
+    """Performance metrics for processing."""
+    total_processing_time: float = 0.0
+    citations_found: int = 0
+    cache_hits: int = 0
+    cache_misses: int = 0
+    parallel_processing_time: float = 0.0
+    early_terminations: int = 0
 
 class EnhancedAdaptiveProcessor:
-    """Enhanced citation processor that applies learned patterns and improvements."""
+    """Enhanced citation processor that applies learned patterns and improvements with performance optimizations."""
     
     def __init__(self, learning_data_dir: str = "learning_data"):
         self.learning_data_dir = Path(learning_data_dir)
@@ -50,47 +71,42 @@ class EnhancedAdaptiveProcessor:
         self.confidence_thresholds: Dict[str, float] = defaultdict(lambda: 0.5)
         self.case_name_database: Dict[str, List[str]] = defaultdict(list)
         
+        # PERFORMANCE OPTIMIZATION: In-memory cache for frequently accessed patterns
+        self.pattern_cache = {}
+        self.cache_size_limit = 1000
+        self.cache_hits = 0
+        self.cache_misses = 0
+        
+        # PERFORMANCE OPTIMIZATION: Thread-safe collections
+        self.cache_lock = threading.Lock()
+        self.patterns_lock = threading.Lock()
+        
         # Load learned data
         self.load_learned_data()
         
         # Apply learned improvements to base processor
         self.apply_learned_improvements()
+        
+        # Performance tracking
+        self.performance_metrics = PerformanceMetrics()
+        
+        print(f"Enhanced Adaptive Processor initialized with {len(self.learned_patterns)} learned patterns")
     
     def load_learned_data(self):
-        """Load learned patterns and improvements."""
+        """Load learned patterns and data from disk."""
         try:
-            # Load learned patterns
             patterns_file = self.learning_data_dir / "learned_patterns.pkl"
             if patterns_file.exists():
                 with open(patterns_file, 'rb') as f:
-                    raw_patterns = pickle.load(f)
-                
-                # Convert to LearnedPattern objects
-                for key, pattern_data in raw_patterns.items():
-                    try:
-                        regex = re.compile(pattern_data.pattern, re.IGNORECASE)
-                        self.learned_patterns[key] = LearnedPattern(
-                            pattern=pattern_data.pattern,
-                            regex=regex,
-                            success_count=pattern_data.success_count,
-                            failure_count=pattern_data.failure_count,
-                            confidence_threshold=pattern_data.confidence_threshold,
-                            context_examples=pattern_data.context_examples,
-                            last_updated=pattern_data.last_updated
-                        )
-                    except Exception as e:
-                        print(f"Warning: Could not load pattern {key}: {e}")
-                
+                    self.learned_patterns = pickle.load(f)
                 print(f"Loaded {len(self.learned_patterns)} learned patterns")
             
-            # Load confidence thresholds
             thresholds_file = self.learning_data_dir / "confidence_thresholds.json"
             if thresholds_file.exists():
                 with open(thresholds_file, 'r') as f:
                     self.confidence_thresholds = defaultdict(lambda: 0.5, json.load(f))
                 print(f"Loaded confidence thresholds for {len(self.confidence_thresholds)} methods")
             
-            # Load case name database
             case_names_file = self.learning_data_dir / "case_name_database.json"
             if case_names_file.exists():
                 with open(case_names_file, 'r') as f:
@@ -104,10 +120,10 @@ class EnhancedAdaptiveProcessor:
         """Apply learned improvements to the base processor."""
         # Add learned patterns to the base processor's patterns
         for key, learned_pattern in self.learned_patterns.items():
-            if learned_pattern.success_rate > 0.6:  # Only use patterns with good success rate
+            if learned_pattern.is_performant:  # Only use performant patterns
                 pattern_name = f"learned_{key}"
                 self.base_processor.citation_patterns[pattern_name] = learned_pattern.regex
-                print(f"Applied learned pattern: {pattern_name} (success rate: {learned_pattern.success_rate:.2f})")
+                print(f"Applied learned pattern: {pattern_name} (success rate: {learned_pattern.success_rate:.2f}, avg time: {learned_pattern.avg_processing_time:.3f}s)")
         
         # Adjust confidence thresholds in the base processor
         for method, threshold in self.confidence_thresholds.items():
@@ -119,230 +135,310 @@ class EnhancedAdaptiveProcessor:
                 )
                 print(f"Adjusted confidence threshold for {method}: {threshold}")
     
-    def extract_with_learned_patterns(self, text: str) -> List[CitationResult]:
-        """Extract citations using both base patterns and learned patterns."""
-        # First, use the base processor
-        base_results = self.base_processor.process_text(text)
+    def process_text_optimized(self, text: str, filename: str = "unknown") -> Tuple[List, Dict[str, Any]]:
+        """
+        Process text with performance optimizations and learning.
+        OPTIMIZED: Added intelligent caching, early termination, and parallel processing.
+        """
+        start_time = time.time()
         
-        # Then, apply learned patterns for additional extractions
-        learned_results = self.apply_learned_patterns(text)
+        # PERFORMANCE OPTIMIZATION: Early termination for very short text
+        if len(text.strip()) < 100:
+            self.performance_metrics.early_terminations += 1
+            return [], {
+                'learning_result': {
+                    'filename': filename,
+                    'total_citations': 0,
+                    'successful_extractions': 0,
+                    'failed_extractions': 0,
+                    'new_patterns_learned': 0,
+                    'confidence_improvements': 0,
+                    'processing_time': time.time() - start_time,
+                    'timestamp': time.time(),
+                    'early_termination': True
+                },
+                'performance_metrics': asdict(self.performance_metrics)
+            }
         
-        # Combine and deduplicate results
-        all_results = base_results + learned_results
-        deduplicated_results = self.deduplicate_results(all_results)
+        # PERFORMANCE OPTIMIZATION: Check cache for similar text patterns
+        cache_key = self._generate_cache_key(text)
+        with self.cache_lock:
+            if cache_key in self.pattern_cache:
+                self.cache_hits += 1
+                self.performance_metrics.cache_hits += 1
+                cached_result = self.pattern_cache[cache_key]
+                # Update cache access time
+                cached_result['last_accessed'] = time.time()
+                return cached_result['citations'], {
+                    'learning_result': {
+                        'filename': filename,
+                        'total_citations': len(cached_result['citations']),
+                        'successful_extractions': len(cached_result['citations']),
+                        'failed_extractions': 0,
+                        'new_patterns_learned': 0,
+                        'confidence_improvements': 0,
+                        'processing_time': time.time() - start_time,
+                        'timestamp': time.time(),
+                        'cache_hit': True
+                    },
+                    'performance_metrics': asdict(self.performance_metrics)
+                }
+            else:
+                self.cache_misses += 1
+                self.performance_metrics.cache_misses += 1
         
-        # Apply learned confidence adjustments
-        adjusted_results = self.apply_confidence_adjustments(deduplicated_results)
+        # PERFORMANCE OPTIMIZATION: Process text in parallel chunks for large documents
+        if len(text) > 50000:  # Large document threshold
+            parallel_start = time.time()
+            citations = self._process_large_text_parallel(text)
+            self.performance_metrics.parallel_processing_time = time.time() - parallel_start
+        else:
+            # Standard processing for smaller documents
+            citations = self.base_processor.process_text(text)
         
-        return adjusted_results
+        # Learn from results
+        learning_info = self._learn_from_results(citations, text, filename)
+        
+        # PERFORMANCE OPTIMIZATION: Cache results for future use
+        with self.cache_lock:
+            if len(self.pattern_cache) < self.cache_size_limit:
+                self.pattern_cache[cache_key] = {
+                    'citations': citations,
+                    'last_accessed': time.time()
+                }
+        
+        processing_time = time.time() - start_time
+        self.performance_metrics.total_processing_time += processing_time
+        self.performance_metrics.citations_found += len(citations)
+        
+        return citations, {
+            'learning_result': learning_info,
+            'performance_metrics': asdict(self.performance_metrics)
+        }
     
-    def apply_learned_patterns(self, text: str) -> List[CitationResult]:
-        """Apply learned patterns to extract additional citations."""
-        learned_results = []
+    def _process_large_text_parallel(self, text: str) -> List:
+        """
+        Process large text in parallel chunks for better performance.
+        """
+        chunk_size = 10000  # Optimized chunk size
+        chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
         
-        for key, learned_pattern in self.learned_patterns.items():
-            if learned_pattern.success_rate < 0.5:
-                continue  # Skip patterns with poor success rate
+        all_citations = []
+        citations_lock = threading.Lock()
+        
+        def process_chunk(chunk):
+            try:
+                return self.base_processor.process_text(chunk)
+            except Exception as e:
+                print(f"Error processing chunk: {e}")
+                return []
+        
+        # Use ThreadPoolExecutor for parallel processing
+        max_workers = min(4, len(chunks))  # Limit workers to avoid overwhelming system
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_chunk = {executor.submit(process_chunk, chunk): chunk for chunk in chunks}
             
-            matches = learned_pattern.regex.finditer(text)
-            for match in matches:
-                citation_text = match.group(0)
+            for future in as_completed(future_to_chunk):
+                try:
+                    chunk_citations = future.result()
+                    with citations_lock:
+                        all_citations.extend(chunk_citations)
+                except Exception as e:
+                    print(f"Error collecting chunk results: {e}")
+        
+        return all_citations
+    
+    def _generate_cache_key(self, text: str) -> str:
+        """Generate a cache key for the text."""
+        # Use hash of first 1000 characters and length for cache key
+        text_sample = text[:1000] if len(text) > 1000 else text
+        return f"{hash(text_sample)}_{len(text)}"
+    
+    def _learn_from_results(self, citations: List, text: str, filename: str) -> Dict[str, Any]:
+        """Learn from processing results and update patterns."""
+        start_time = time.time()
+        improvements = 0
+        
+        # Analyze citations for learning opportunities
+        for citation in citations:
+            if hasattr(citation, 'confidence') and citation.confidence < 0.7:
+                # Low confidence citation - potential learning opportunity
+                context = self._extract_context_around_citation(text, citation)
+                new_pattern = self._suggest_pattern_from_context(context)
                 
-                # Check if this citation is already found by base processor
-                if not self.is_citation_already_found(citation_text, text):
-                    # Create new citation result
-                    citation_result = CitationResult(
-                        citation=citation_text,
-                        method=f"learned_{key}",
-                        confidence=learned_pattern.confidence_threshold,
-                        start_index=match.start(),
-                        end_index=match.end(),
-                        pattern=learned_pattern.pattern
+                if new_pattern and new_pattern not in self.learned_patterns:
+                    # Create new learned pattern
+                    pattern_key = f"pattern_{len(self.learned_patterns)}"
+                    self.learned_patterns[pattern_key] = LearnedPattern(
+                        regex=new_pattern,
+                        context_examples=[context[:200]]  # Store first 200 chars of context
                     )
-                    
-                    # Extract context
-                    context_start = max(0, match.start() - 100)
-                    context_end = min(len(text), match.end() + 100)
-                    citation_result.context = text[context_start:context_end]
-                    
-                    learned_results.append(citation_result)
+                    improvements += 1
         
-        return learned_results
-    
-    def is_citation_already_found(self, citation_text: str, text: str) -> bool:
-        """Check if a citation is already found by the base processor."""
-        # Simple check: look for the citation text in the original text
-        # This is a basic deduplication check
-        return citation_text in text
-    
-    def deduplicate_results(self, results: List[CitationResult]) -> List[CitationResult]:
-        """Remove duplicate citations from results."""
-        seen_citations = set()
-        deduplicated = []
+        # Update performance metrics for patterns
+        with self.patterns_lock:
+            for pattern_key, pattern in self.learned_patterns.items():
+                if pattern_key.startswith('learned_'):
+                    # Update pattern usage
+                    pattern.last_used = time.time()
         
-        for result in results:
-            # Normalize citation for comparison
-            normalized = self.normalize_citation_for_comparison(result.citation)
-            
-            if normalized not in seen_citations:
-                seen_citations.add(normalized)
-                deduplicated.append(result)
+        # Save learning data periodically
+        if improvements > 0:
+            self.save_learning_data()
         
-        return deduplicated
+        return {
+            'filename': filename,
+            'total_citations': len(citations),
+            'successful_extractions': len([c for c in citations if hasattr(c, 'confidence') and c.confidence > 0.7]),
+            'failed_extractions': len([c for c in citations if hasattr(c, 'confidence') and c.confidence <= 0.7]),
+            'new_patterns_learned': improvements,
+            'confidence_improvements': improvements,
+            'processing_time': time.time() - start_time,
+            'timestamp': time.time()
+        }
     
-    def normalize_citation_for_comparison(self, citation: str) -> str:
-        """Normalize citation text for deduplication comparison."""
-        # Remove extra whitespace and convert to lowercase
-        normalized = re.sub(r'\s+', ' ', citation.strip()).lower()
-        # Remove common punctuation
-        normalized = re.sub(r'[^\w\s]', '', normalized)
-        return normalized
-    
-    def apply_confidence_adjustments(self, results: List[CitationResult]) -> List[CitationResult]:
-        """Apply learned confidence adjustments to results."""
-        for result in results:
-            method = result.method
-            if method in self.confidence_thresholds:
-                # Adjust confidence based on learned threshold
-                if result.confidence < self.confidence_thresholds[method]:
-                    result.confidence = self.confidence_thresholds[method]
-            
-            # Apply case name database improvements
-            if result.extracted_case_name:
-                improved_case_name = self.improve_case_name_with_database(result.extracted_case_name)
-                if improved_case_name:
-                    result.extracted_case_name = improved_case_name
+    def _extract_context_around_citation(self, text: str, citation) -> str:
+        """Extract context around a citation for analysis."""
+        start = getattr(citation, 'start_index', 0) or 0
+        end = getattr(citation, 'end_index', len(text)) or len(text)
         
-        return results
+        context_start = max(0, start - 100)
+        context_end = min(len(text), end + 100)
+        
+        return text[context_start:context_end]
     
-    def improve_case_name_with_database(self, case_name: str) -> Optional[str]:
-        """Improve case name using the learned database."""
-        # Look for similar case names in the database
-        for canonical_name, variations in self.case_name_database.items():
-            if case_name in variations:
-                return canonical_name
-            
-            # Check for similarity
-            if self.calculate_similarity(case_name, canonical_name) > 0.8:
-                return canonical_name
+    def _suggest_pattern_from_context(self, context: str) -> Optional[str]:
+        """Suggest a new regex pattern from context."""
+        # Look for citation-like patterns in context
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z]+\.?\s+\d+\b',  # Basic citation pattern
+            r'\b\d+\s+[A-Za-z]+\s+\d+\s+[A-Za-z]+\b',  # Multi-part citation
+            r'\b[A-Za-z]+\s+v\.?\s+[A-Za-z]+\b',  # Case name pattern
+        ]
+        
+        for pattern in citation_patterns:
+            matches = re.findall(pattern, context)
+            if matches:
+                # Return the most specific pattern that matches
+                return pattern
         
         return None
     
-    def calculate_similarity(self, name1: str, name2: str) -> float:
-        """Calculate similarity between two case names."""
-        # Simple similarity calculation
-        words1 = set(name1.lower().split())
-        words2 = set(name2.lower().split())
-        
-        if not words1 or not words2:
-            return 0.0
-        
-        intersection = words1.intersection(words2)
-        union = words1.union(words2)
-        
-        return len(intersection) / len(union)
-    
-    def update_learning_data(self, results: List[CitationResult], text: str):
-        """Update learning data based on processing results."""
-        # Update pattern success/failure counts
-        for result in results:
-            if result.method.startswith('learned_'):
-                pattern_key = result.method.replace('learned_', '')
-                if pattern_key in self.learned_patterns:
-                    pattern = self.learned_patterns[pattern_key]
-                    
-                    # Determine if this was a successful extraction
-                    # (This is a simplified heuristic - in practice you'd want more sophisticated validation)
-                    if result.confidence > 0.7:
-                        pattern.success_count += 1
-                    else:
-                        pattern.failure_count += 1
-                    
-                    pattern.last_updated = time.time()
-        
-        # Update case name database
-        for result in results:
-            if result.extracted_case_name and result.canonical_name:
-                self.case_name_database[result.canonical_name].append(result.extracted_case_name)
-    
     def save_learning_data(self):
-        """Save updated learning data."""
+        """Save learned patterns and data to disk."""
         try:
-            # Save learned patterns
-            patterns_data = {}
-            for key, pattern in self.learned_patterns.items():
-                patterns_data[key] = {
-                    'pattern': pattern.pattern,
-                    'success_count': pattern.success_count,
-                    'failure_count': pattern.failure_count,
-                    'confidence_threshold': pattern.confidence_threshold,
-                    'context_examples': pattern.context_examples,
-                    'last_updated': pattern.last_updated
-                }
+            self.learning_data_dir.mkdir(exist_ok=True)
             
-            with open(self.learning_data_dir / "learned_patterns.pkl", 'wb') as f:
-                pickle.dump(patterns_data, f)
+            # Save learned patterns
+            patterns_file = self.learning_data_dir / "learned_patterns.pkl"
+            with open(patterns_file, 'wb') as f:
+                pickle.dump(self.learned_patterns, f)
             
             # Save confidence thresholds
-            with open(self.learning_data_dir / "confidence_thresholds.json", 'w') as f:
+            thresholds_file = self.learning_data_dir / "confidence_thresholds.json"
+            with open(thresholds_file, 'w') as f:
                 json.dump(dict(self.confidence_thresholds), f, indent=2)
             
             # Save case name database
-            with open(self.learning_data_dir / "case_name_database.json", 'w') as f:
+            case_names_file = self.learning_data_dir / "case_name_database.json"
+            with open(case_names_file, 'w') as f:
                 json.dump(dict(self.case_name_database), f, indent=2)
-                
+            
+            print(f"Saved learning data: {len(self.learned_patterns)} patterns, {len(self.confidence_thresholds)} thresholds")
+            
         except Exception as e:
             print(f"Error saving learning data: {e}")
     
-    def get_learning_stats(self) -> Dict[str, Any]:
-        """Get statistics about the learning system."""
-        total_patterns = len(self.learned_patterns)
-        successful_patterns = sum(1 for p in self.learned_patterns.values() if p.success_rate > 0.6)
+    def get_performance_summary(self) -> Dict[str, Any]:
+        """Get performance summary and recommendations."""
+        total_requests = self.cache_hits + self.cache_misses
+        cache_hit_rate = self.cache_hits / total_requests if total_requests > 0 else 0
+        
+        # Analyze pattern performance
+        performant_patterns = [p for p in self.learned_patterns.values() if p.is_performant]
+        avg_processing_time = self.performance_metrics.total_processing_time / max(1, self.performance_metrics.citations_found)
         
         return {
-            'total_learned_patterns': total_patterns,
-            'successful_patterns': successful_patterns,
-            'pattern_success_rate': successful_patterns / total_patterns if total_patterns > 0 else 0.0,
-            'confidence_thresholds': dict(self.confidence_thresholds),
-            'case_name_database_size': len(self.case_name_database),
-            'pattern_details': [
-                {
-                    'key': key,
-                    'pattern': pattern.pattern,
-                    'success_rate': pattern.success_rate,
-                    'success_count': pattern.success_count,
-                    'failure_count': pattern.failure_count
-                }
-                for key, pattern in self.learned_patterns.items()
-            ]
+            'cache_performance': {
+                'hit_rate': cache_hit_rate,
+                'hits': self.cache_hits,
+                'misses': self.cache_misses
+            },
+            'processing_performance': {
+                'total_processing_time': self.performance_metrics.total_processing_time,
+                'avg_time_per_citation': avg_processing_time,
+                'parallel_processing_time': self.performance_metrics.parallel_processing_time,
+                'early_terminations': self.performance_metrics.early_terminations
+            },
+            'learning_performance': {
+                'total_patterns': len(self.learned_patterns),
+                'performant_patterns': len(performant_patterns),
+                'pattern_success_rate': sum(p.success_rate for p in self.learned_patterns.values()) / max(1, len(self.learned_patterns))
+            },
+            'recommendations': self._generate_performance_recommendations()
         }
+    
+    def _generate_performance_recommendations(self) -> List[Dict[str, Any]]:
+        """Generate performance improvement recommendations."""
+        recommendations = []
+        
+        # Cache recommendations
+        cache_hit_rate = self.cache_hits / max(1, self.cache_hits + self.cache_misses)
+        if cache_hit_rate < 0.3:
+            recommendations.append({
+                'type': 'cache_optimization',
+                'priority': 'high',
+                'description': f'Low cache hit rate ({cache_hit_rate:.1%}). Consider increasing cache size or improving cache key generation.',
+                'impact': 'medium'
+            })
+        
+        # Pattern recommendations
+        slow_patterns = [p for p in self.learned_patterns.values() if p.avg_processing_time > 0.1]
+        if slow_patterns:
+            recommendations.append({
+                'type': 'pattern_optimization',
+                'priority': 'medium',
+                'description': f'{len(slow_patterns)} patterns are slow (>0.1s avg). Consider optimizing or removing slow patterns.',
+                'impact': 'high'
+            })
+        
+        # Parallel processing recommendations
+        if self.performance_metrics.parallel_processing_time > 0:
+            parallel_efficiency = self.performance_metrics.parallel_processing_time / max(1, self.performance_metrics.total_processing_time)
+            if parallel_efficiency > 0.5:
+                recommendations.append({
+                    'type': 'parallel_optimization',
+                    'priority': 'medium',
+                    'description': f'High parallel processing overhead ({parallel_efficiency:.1%}). Consider adjusting chunk size or worker count.',
+                    'impact': 'medium'
+                })
+        
+        return recommendations
 
 def main():
     """Test the enhanced adaptive processor."""
     processor = EnhancedAdaptiveProcessor()
     
-    # Test text
+    # Test with sample text
     test_text = """
-    A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003).
+    The court held in Smith v. Jones, 123 Wash. 2d 456, 789 P.3d 123 (2020) that 
+    the plaintiff's claim was valid. This was consistent with the earlier decision 
+    in Brown v. State, 456 Wash. 2d 789, 123 P.3d 456 (2019).
     """
     
-    print("Testing Enhanced Adaptive Processor")
-    print("=" * 40)
+    print("Testing Enhanced Adaptive Processor...")
+    start_time = time.time()
     
-    # Extract with learned patterns
-    results = processor.extract_with_learned_patterns(test_text)
+    citations, learning_info = processor.process_text_optimized(test_text, "test_file.txt")
     
-    print(f"Found {len(results)} citations:")
-    for i, result in enumerate(results, 1):
-        print(f"  {i}. {result.citation} (method: {result.method}, confidence: {result.confidence:.2f})")
+    processing_time = time.time() - start_time
+    print(f"Processing completed in {processing_time:.3f}s")
+    print(f"Found {len(citations)} citations")
+    print(f"Learning info: {learning_info}")
     
-    # Show learning stats
-    stats = processor.get_learning_stats()
-    print(f"\nLearning Statistics:")
-    print(f"  Total learned patterns: {stats['total_learned_patterns']}")
-    print(f"  Successful patterns: {stats['successful_patterns']}")
-    print(f"  Pattern success rate: {stats['pattern_success_rate']:.2f}")
-    print(f"  Case name database size: {stats['case_name_database_size']}")
+    # Get performance summary
+    performance_summary = processor.get_performance_summary()
+    print(f"Performance summary: {json.dumps(performance_summary, indent=2)}")
 
 if __name__ == "__main__":
     main() 

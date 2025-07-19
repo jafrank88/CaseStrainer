@@ -56,6 +56,7 @@ def extract_case_name_from_citation_line(*args, **kwargs):
     warnings.warn('extract_case_name_from_citation_line is deprecated. Use extract_case_name_from_text in src/case_name_extraction_core.py', DeprecationWarning)
     return ''
 
+# Deprecated: Use src.extract_case_name.extract_case_name_from_text instead
 def extract_case_name_from_text(*args, **kwargs):
     """DEPRECATED: Use extract_case_name_from_text in src/case_name_extraction_core.py"""
     import warnings

@@ -19,7 +19,7 @@ import nltk
 from nltk.tokenize import sent_tokenize
 
 # Import canonical case name extraction functions
-from src.case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted
+from src.extract_case_name import extract_case_name_from_text, extract_case_name_triple, extract_case_name_hinted
 from src.extract_case_name import clean_case_name, is_valid_case_name
 
 class EnhancedCaseNameExtractor:

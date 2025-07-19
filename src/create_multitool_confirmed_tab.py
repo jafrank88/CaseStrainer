@@ -39,7 +39,7 @@ def setup_multitool_confirmed_table():
     conn.commit()
     conn.close()
 
-    print("Multitool confirmed citations table set up successfully")
+    logger.info("Multitool confirmed citations table set up successfully")
 
 
 def get_multitool_confirmed_citations():
@@ -61,7 +61,7 @@ def get_multitool_confirmed_citations():
 
     conn.close()
 
-    print(f"Retrieved {len(citations)} citations confirmed only by multi-source tool")
+    logger.info(f"Retrieved {len(citations)} citations confirmed only by multi-source tool")
     return citations
 
 
@@ -72,7 +72,7 @@ def load_verification_results():
             results = json.load(f)
         return results
     except Exception as e:
-        print(f"Error loading verification results: {e}")
+        logger.error(f"Error loading verification results: {e}")
         return []
 
 
@@ -133,7 +133,7 @@ def populate_multitool_confirmed_tab(citations, verification_results):
     conn.commit()
     conn.close()
 
-    print(f"Added {count} citations to the Confirmed with Multitool tab")
+    logger.info(f"Added {count} citations to the Confirmed with Multitool tab")
 
 
 def export_to_tab_delimited(citations, verification_results):
@@ -178,10 +178,10 @@ def export_to_tab_delimited(citations, verification_results):
                     f"{citation_text}\t{brief_url}\t{context}\t{verification_source}\t{verification_confidence}\t{verification_explanation}\n"
                 )
 
-        print(f"Exported multitool confirmed citations to {output_file}")
+        logger.info(f"Exported multitool confirmed citations to {output_file}")
         return True
     except Exception as e:
-        print(f"Error exporting to tab-delimited file: {e}")
+        logger.error(f"Error exporting to tab-delimited file: {e}")
         return False
 
 
@@ -271,10 +271,10 @@ def generate_summary_report(citations, verification_results):
                     f"  {i}. {citation_text} (Source: {source}, Confidence: {confidence:.2f})\n"
                 )
 
-        print(f"Generated summary report: {report_file}")
+        logger.info(f"Generated summary report: {report_file}")
         return True
     except Exception as e:
-        print(f"Error generating summary report: {e}")
+        logger.error(f"Error generating summary report: {e}")
         return False
 
 
@@ -283,7 +283,7 @@ def update_app_to_include_new_tab():
     app_file = "app_final.py"
 
     if not os.path.exists(app_file):
-        print(f"Warning: {app_file} not found. Cannot update app to include new tab.")
+        logger.warning(f"Warning: {app_file} not found. Cannot update app to include new tab.")
         return False
 
     try:
@@ -292,13 +292,13 @@ def update_app_to_include_new_tab():
 
         # Check if the tab already exists
         if "Confirmed with Multitool" in app_code:
-            print("The Confirmed with Multitool tab already exists in the app.")
+            logger.info("The Confirmed with Multitool tab already exists in the app.")
             return True
 
         # Find the tabs definition section
         tabs_section = "@app.route('/tabs')"
         if tabs_section not in app_code:
-            print("Could not find tabs section in app_final.py")
+            logger.info("Could not find tabs section in app_final.py")
             return False
 
         # Add the new tab to the tabs list
@@ -337,7 +337,7 @@ def confirmed_with_multitool():
         with open(app_file, "w", encoding="utf-8") as f:
             f.write(app_code)
 
-        print(f"Updated {app_file} to include the Confirmed with Multitool tab")
+        logger.info(f"Updated {app_file} to include the Confirmed with Multitool tab")
 
         # Create the template file for the new tab
         templates_dir = "templates"
@@ -399,16 +399,16 @@ def confirmed_with_multitool():
 {% endblock %}"""
             )
 
-        print(f"Created template file: {template_file}")
+        logger.info(f"Created template file: {template_file}")
         return True
     except Exception as e:
-        print(f"Error updating app to include new tab: {e}")
+        logger.error(f"Error updating app to include new tab: {e}")
         return False
 
 
 def main():
     """Main function to create the Confirmed with Multitool tab."""
-    print("Creating Confirmed with Multitool tab...")
+    logger.info("Creating Confirmed with Multitool tab...")
 
     # Set up the multitool_confirmed_citations table
     setup_multitool_confirmed_table()
@@ -417,7 +417,7 @@ def main():
     citations = get_multitool_confirmed_citations()
 
     if not citations:
-        print("No citations found that were confirmed only by the multi-source tool.")
+        logger.info("No citations found that were confirmed only by the multi-source tool.")
         return
 
     # Load verification results for additional context
@@ -435,8 +435,8 @@ def main():
     # Update app to include the new tab
     update_app_to_include_new_tab()
 
-    print("\nConfirmed with Multitool tab creation complete")
-    print("You can now restart CaseStrainer to see the new tab")
+    logger.info("\nConfirmed with Multitool tab creation complete")
+    logger.info("You can now restart CaseStrainer to see the new tab")
 
 
 if __name__ == "__main__":

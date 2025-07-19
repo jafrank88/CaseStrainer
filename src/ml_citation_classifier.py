@@ -405,8 +405,8 @@ if __name__ == "__main__":
     # Classify each citation
     for citation in citations:
         result = classifier.classify_citation(citation)
-        print(f"Citation: {citation}")
-        print(f"Valid: {result['is_valid']}")
-        print(f"Confidence: {result['confidence']:.4f}")
-        print(f"Explanation: {', '.join(result['explanation'])}")
-        print()
+        logger.info(f"Citation: {citation}")
+        logger.info(f"Valid: {result['is_valid']}")
+        logger.info(f"Confidence: {result['confidence']:.4f}")
+        logger.info(f"Explanation: {', '.join(result['explanation'])}")
+        logger.info()

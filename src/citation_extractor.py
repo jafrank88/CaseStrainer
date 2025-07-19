@@ -38,8 +38,8 @@ except ImportError:
     EYECITE_AVAILABLE = False
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier
-from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from .extract_case_name import (
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.extract_case_name import (
     extract_case_name_triple_from_text, 
     extract_case_name_from_context_unified,
     is_valid_case_name,
@@ -47,11 +47,11 @@ from .extract_case_name import (
 )
 
 # Import the main regex patterns from citation_utils
-from .citation_utils import extract_citations_from_text
+from citation_utils import extract_citations_from_text
 
-from .case_name_extraction_core import extract_case_name_triple, extract_case_name_from_text, extract_case_name_hinted, extract_year_from_line
+# from case_name_extraction_core import extract_year_from_line  # Function does not exist
 
-from .citation_normalizer import normalize_citation
+from citation_normalizer import normalize_citation
 
 def deprecated_warning(func):
     """Decorator to show deprecation warnings."""
@@ -178,9 +178,9 @@ class CitationExtractor:
         seen = set()
         debug_info = {'stats': {}, 'warnings': [], 'errors': []} if debug else None
 
-        print(f"Starting citation extraction on text of length {len(text)}")
+        logger.info(f"Starting citation extraction on text of length {len(text)}")
         if not text or not text.strip():
-            print("Warning: Empty or whitespace-only text provided")
+            logger.warning("Warning: Empty or whitespace-only text provided")
             if debug:
                 debug_info['warnings'].append("Empty or whitespace-only text provided")
             return [] if not debug else debug_info
@@ -219,7 +219,7 @@ class CitationExtractor:
             citation_str = obj['citation']
             case_name_triple = {'canonical_name': '', 'extracted_name': '', 'canonical_date': '', 'extracted_date': ''}
             if self.extract_case_names:
-                case_name_triple = extract_case_name_triple(text, citation_str)
+                case_name_triple = extract_case_name_triple_from_text(text, citation_str)
             context_val = self._get_context(text, citation_str) if (self.context_window or 200) else ""
             entry = {
                 'citation': citation_str,
@@ -239,13 +239,13 @@ class CitationExtractor:
 
         # Eyecite extraction SECOND (to find any additional citations we missed)
         if self.use_eyecite:
-            print("Attempting eyecite extraction SECOND (for additional citations)...")
+            logger.info("Attempting eyecite extraction SECOND (for additional citations)...")
             try:
                 tokenizer = None
                 if EYECITE_AVAILABLE:
                     tokenizer = AhocorasickTokenizer()
-                    print("Using AhocorasickTokenizer")
-                    print("Running eyecite citation extraction...")
+                    logger.info("Using AhocorasickTokenizer")
+                    logger.info("Running eyecite citation extraction...")
                     eyecite_citations = get_citations(original_text, tokenizer=tokenizer)
                     for c in eyecite_citations:
                         # Extract citation text from eyecite object properly
@@ -263,7 +263,7 @@ class CitationExtractor:
                         # Get case name triple for eyecite citations too
                         case_name_triple = {'canonical_name': '', 'extracted_name': '', 'canonical_date': '', 'extracted_date': ''}
                         if self.extract_case_names:
-                            case_name_triple = extract_case_name_triple(text, citation_str)
+                            case_name_triple = extract_case_name_triple_from_text(text, citation_str)
                         
                         entry = {
                             'citation': citation_str,
@@ -279,17 +279,17 @@ class CitationExtractor:
                         }
                         results.append(entry)
                 else:
-                    print("Eyecite not available")
+                    logger.info("Eyecite not available")
                     if debug:
                         debug_info['warnings'].append("Eyecite not available")
                 if debug:
                     debug_info['stats']['eyecite_citations'] = len(results)
             except Exception as e:
-                print(f"Eyecite extraction failed: {e}")
+                logger.error(f"Eyecite extraction failed: {e}")
                 if debug:
                     debug_info['warnings'].append(f"eyecite extraction failed: {e}")
 
-        print(f"\nExtraction complete. Found {len(results)} total citations.")
+        logger.info(f"\nExtraction complete. Found {len(results)} total citations.")
         
         # Post-processing: Filter out U.S.C. and C.F.R. citations
         filtered_results = []
@@ -313,7 +313,7 @@ class CitationExtractor:
             
             filtered_results.append(result)
         
-        print(f"Filtered out U.S.C. and C.F.R. citations. Final count: {len(filtered_results)} citations.")
+        logger.info(f"Filtered out U.S.C. and C.F.R. citations. Final count: {len(filtered_results)} citations.")
         
         if debug:
             debug_info['stats']['total_citations'] = len(filtered_results)
@@ -596,7 +596,7 @@ def extract_all_citations(text: str, logger=None) -> List[Dict]:
     Returns:
         List of citation dictionaries with metadata
     """
-    from .unified_citation_extractor import extract_all_citations as unified_extract
+    from unified_citation_extractor import extract_all_citations as unified_extract
     return unified_extract(text, logger)
 
 def verify_citation(citation: str, use_enhanced: bool = True) -> dict:
@@ -606,11 +606,6 @@ def verify_citation(citation: str, use_enhanced: bool = True) -> dict:
 
 def extract_case_name_from_line(line):
     # Look for the last 'v.' or 'vs.' before the first citation
-    # This is a simple fallback method
-    pass
-
-def extract_year_from_line(line):
-    # Look for a year in parentheses at the end
     # This is a simple fallback method
     pass
 

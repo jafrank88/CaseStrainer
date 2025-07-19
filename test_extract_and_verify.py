@@ -12,7 +12,7 @@ import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 # DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
-from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+# from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier  # Module does not exist
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

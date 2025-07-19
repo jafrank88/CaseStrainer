@@ -21,7 +21,7 @@ def test_pdf_url():
     
     try:
         # Test the document processing
-        from src.document_processing import process_document
+        from src.document_processing_unified import process_document
         
         result = process_document(url=url, extract_case_names=True)
         

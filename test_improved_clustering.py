@@ -9,6 +9,12 @@ with the old clustering approach.
 
 import sys
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from improved_citation_clustering import CitationData, ImprovedCitationClusterer, apply_improved_clustering

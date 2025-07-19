@@ -77,7 +77,7 @@ def test_document_processing():
     
     try:
         # Import the document processing module
-        from src.document_processing import process_document
+        from src.document_processing_unified import process_document
         
         # Test each file type
         for file_type, file_path in test_files.items():

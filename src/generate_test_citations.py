@@ -240,7 +240,7 @@ def generate_unconfirmed_citations(num_citations=100):
 
 def main():
     """Main function to generate and save synthetic unconfirmed citations."""
-    print("Generating synthetic unconfirmed citations for testing...")
+    logger.info("Generating synthetic unconfirmed citations for testing...")
 
     # Generate at least 100 unconfirmed citations
     num_citations = 120  # Generate a few extra
@@ -251,8 +251,8 @@ def main():
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(citations, f, indent=2)
 
-    print(f"Generated {num_citations} synthetic unconfirmed citations")
-    print(f"Saved to: {output_file}")
+    logger.info(f"Generated {num_citations} synthetic unconfirmed citations")
+    logger.info(f"Saved to: {output_file}")
 
     # Also create a grouped version by source file
     grouped_citations = {}
@@ -271,10 +271,8 @@ def main():
     with open(grouped_file, "w", encoding="utf-8") as f:
         json.dump(grouped_citations, f, indent=2)
 
-    print(f"Grouped citations saved to: {grouped_file}")
-    print(
-        "\nNow you can add these citations to the CaseStrainer interface by updating the templates."
-    )
+    logger.info(f"Grouped citations saved to: {grouped_file}")
+    logger.info("\nNow you can add these citations to the CaseStrainer interface by updating the templates.")
 
 
 if __name__ == "__main__":

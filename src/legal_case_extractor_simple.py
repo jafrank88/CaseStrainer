@@ -1,0 +1,99 @@
+"""
+Simplified Legal Case Extractor - Integrated with Streamlined Extraction
+A simpler approach that focuses on working with the streamlined case name extraction
+"""
+
+import re
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+
+# Import the streamlined extractor
+from case_name_extraction_core import extract_case_name_and_date
+
+@dataclass
+class SimpleCaseExtraction:
+    """Simplified case extraction result"""
+    citation: str
+    case_name: str
+    volume: Optional[str] = None
+    reporter: Optional[str] = None
+    page: Optional[str] = None
+    year: Optional[str] = None
+    confidence: float = 0.0
+    extraction_method: str = "streamlined"
+
+class SimpleLegalCaseExtractor:
+    """
+    Simplified legal case extractor that works with streamlined case name extraction
+    
+    This approach:
+    1. Finds citation patterns in text
+    2. Uses streamlined case name extraction for each citation
+    3. Combines the results
+    """
+    
+    def __init__(self):
+        # Simple citation pattern: volume reporter page (year)
+        self.citation_pattern = re.compile(
+            r'(\d+)\s+([A-Z]+\.?\d*[a-z]*)\s+(\d+).*?\((\d{4})\)',
+            re.IGNORECASE
+        )
+    
+    def extract_cases(self, text: str) -> List[SimpleCaseExtraction]:
+        """Extract all legal cases from text"""
+        extractions = []
+        
+        # Find all citation patterns
+        matches = self.citation_pattern.finditer(text)
+        
+        for match in matches:
+            volume = match.group(1)
+            reporter = match.group(2)
+            page = match.group(3)
+            year = match.group(4)
+            
+            # Build citation string
+            citation = f"{volume} {reporter} {page}"
+            
+            # Use streamlined case name extraction
+            case_extraction = extract_case_name_and_date(text, citation)
+            
+            extraction = SimpleCaseExtraction(
+                citation=citation,
+                case_name=case_extraction['case_name'],
+                volume=volume,
+                reporter=reporter,
+                page=page,
+                year=year,
+                confidence=case_extraction['confidence'],
+                extraction_method=f"streamlined_{case_extraction['method']}"
+            )
+            
+            extractions.append(extraction)
+        
+        return extractions
+
+def test_simple_extractor():
+    """Test the simple integrated extractor"""
+    test_text = """A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlsen v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2002)"""
+    
+    logger.info("=== Simple Integrated Extractor Test ===")
+    
+    extractor = SimpleLegalCaseExtractor()
+    extractions = extractor.extract_cases(test_text)
+    
+    logger.info(f"Found {len(extractions)} cases:")
+    for i, extraction in enumerate(extractions, 1):
+        logger.info(f"\n{i}. Citation: {extraction.citation}")
+        logger.info(f"   Case Name: {extraction.case_name}")
+        logger.info(f"   Year: {extraction.year}")
+        logger.info(f"   Method: {extraction.extraction_method}")
+        logger.info(f"   Confidence: {extraction.confidence:.2f}")
+        
+        if extraction.case_name != "N/A" and extraction.year:
+            logger.info("   ✅ SUCCESS")
+        else:
+            logger.error("   ❌ PARTIAL/FAILED")
+
+if __name__ == "__main__":
+    test_simple_extractor() 

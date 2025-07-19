@@ -59,10 +59,10 @@ def init_database():
 
         # Commit changes and close the connection
         conn.commit()
-        print(f"Successfully initialized citation database at {db_path}")
+        logger.info(f"Successfully initialized citation database at {db_path}")
 
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        logger.error(f"Error initializing database: {e}")
         raise
     finally:
         if conn:
@@ -70,6 +70,6 @@ def init_database():
 
 
 if __name__ == "__main__":
-    print("Initializing citation database...")
+    logger.info("Initializing citation database...")
     init_database()
-    print("Done.")
+    logger.info("Done.")

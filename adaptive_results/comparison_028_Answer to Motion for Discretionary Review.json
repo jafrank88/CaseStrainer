@@ -1,0 +1,711 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "475 U.S. 813",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "TABLE OF AUTHORITIES ... ... . . . . .. . .......... . , . . . . . ii I.II.SUMMARY OF ISSUES ... .... . .. . . .. . ..... . .. . . . 1 SUMMARY OF ARGUMENT . . . . . . . . . . . . . . . . . . . . . . . 1 Ill. STATEMENT OF THE CASE .... ...... . ... ........ 3 IV.DISCUSSION .... ... . . .. . . . . .. . . ........ . . . , . . . . 6 1. 2. THE COURT OF APPEALS DECISION DOES NOT CONFLICT WITH THIS COURT'S HOLDING IN CITY OF SEATTLE V.RATLIFF BECAUSE THE FACTS OF THE DEFENDANT'S CASE ARE DISTINGUISHABLE IN THAT COUNSEL FOR THE DEFENDANT WAS LICENSED IN AT LEAST ONE JURISDICTION .... 6 THE COURT OF APPEALS CORRECTLY CONCLUDED, UNDER WELL-ESTABLISHED FEDERAL AND STATE STANDARDS, THAT MR.AYERST'S DUE PROCESS RIGHT TO A FAIR TRIAL WAS NOT VIOLATED ..... . . . .. . .. .. . ..... . 15 V.CONCLUSION . . . . . . . . . . . . . . . . . .. . . . . . . . . . . . . . . . 20 TABLE OF AUTHORITIES U.S.Supreme Court Cases Aetna Life Ins. Co. V.Lavoie",
+        "citations": [
+          "475 U.S. 813"
+        ],
+        "years": [
+          "1986"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "507 U.S. 619",
+        "year": "1986"
+      },
+      "toa": {
+        "case_name": "v. Abrahamson",
+        "citations": [
+          "507 U.S. 619"
+        ],
+        "years": [
+          "1993"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "372 U.S. 335",
+        "year": "1993"
+      },
+      "toa": {
+        "case_name": "v. Wainwright",
+        "citations": [
+          "372 U.S. 335"
+        ],
+        "years": [
+          "1963"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 S.Ct. 905",
+        "year": "1963"
+      },
+      "toa": {
+        "case_name": "v. Baker, - - U.S. - - , - -",
+        "citations": [
+          "137 S.Ct. 905"
+        ],
+        "years": [
+          "2017"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Coats",
+        "citation": "173 Wn.2d 123",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "v. Watson",
+        "citations": [
+          "479 F.3"
+        ],
+        "years": [
+          "2007"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Personal Restraint of Crace",
+        "citation": "174 Wn.2d 835",
+        "year": "2011"
+      },
+      "toa": {
+        "case_name": "v. Costanzo",
+        "citations": [
+          "740 F.2"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Personal Restraint of Davis",
+        "citation": "152 Wn.2d 647",
+        "year": "2012"
+      },
+      "toa": {
+        "case_name": "v. Costanzo",
+        "citations": [
+          "740 F.2"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Personal Restraint of Finstad",
+        "citation": "177 Wn.2d 501",
+        "year": "2004"
+      },
+      "toa": {
+        "case_name": "nerally, a defendant challenging his conviction through a Personal Restraint Petition (PRP) must show that the error raised impacted the outcome of the trial. See, e.g., In re Personal Restraint of Crace",
+        "citations": [
+          "174 Wn.2"
+        ],
+        "years": [
+          "2013",
+          "2012"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 wn.2d 227",
+        "year": "1999"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "128 Wn.2d 164",
+        "year": "1999"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "168 Wn.2d 161",
+        "year": "1995"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "187 Wn.2d 535",
+        "year": "2010"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "162 F.3d 957",
+        "year": "1998"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "441 F.2d 1140",
+        "year": "1998"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "319 F.3d 943",
+        "year": "1971"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "740 F.2d 251",
+        "year": "1995"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "143 F.3d 914",
+        "year": "1984"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "216 F.3d 1126",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "479 F.3d 607",
+        "year": "2000"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "of Seattle v. Ratliff",
+        "citation": "100 Wn.2d 212",
+        "year": "1983"
+      },
+      "toa": {
+        "case_name": "v. Ratliff",
+        "citations": [
+          "100 Wn.2"
+        ],
+        "years": [
+          "2021",
+          "1983",
+          "2000",
+          "2019"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Personal Restraint of Haynes",
+        "citation": "100 Wn.App. 366",
+        "year": "2019"
+      },
+      "toa": {
+        "case_name": "v. Costanzo",
+        "citations": [
+          "740 F.2"
+        ],
+        "years": [
+          "1984"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2019 WL 1568060",
+        "year": "2021"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "77 Wn.App. 720",
+        "year": "1995"
+      },
+      "toa": {
+        "case_name": "v. Bilal",
+        "citations": [
+          "77 Wn.App. 720"
+        ],
+        "years": [
+          "1995"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "61 Wn.App. 530",
+        "year": "1995"
+      },
+      "toa": {
+        "case_name": "v. Edison",
+        "citations": [
+          "61 Wn.App. 530"
+        ],
+        "years": [
+          "1991"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "86 Wn.App. 89",
+        "year": "1991"
+      },
+      "toa": {
+        "case_name": "v. Medlock",
+        "citations": [
+          "86 Wn.App. 89"
+        ],
+        "years": [
+          "2021",
+          "1997"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "170 Wn.App. 76",
+        "year": "2012"
+      },
+      "toa": {
+        "case_name": "v. Rogers",
+        "citations": [
+          "170 Wn.App. 76"
+        ],
+        "years": [
+          "2012"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Moore",
+        "citation": "806 F.Supp. 472",
+        "year": "2012"
+      },
+      "toa": {
+        "case_name": "v. Keane",
+        "citations": [
+          "806 F.Supp. 472"
+        ],
+        "years": [
+          "1992",
+          "1978"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "364 So.2d 83",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "174 Wn.2d 847",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 S.Ct. 1899",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "v. Massachusetts, -U.S. - -",
+        "citations": [
+          "137 S.Ct. 1899"
+        ],
+        "years": [
+          "2017",
+          "2004"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "133 Wn.2d 1012",
+        "year": "1997"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "2 F.3d 403",
+        "year": "1992"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "61 Wn. App. 530",
+        "year": "1991"
+      },
+      "toa": {
+        "case_name": "v. Edison",
+        "citations": [
+          "61 Wn. App. 530"
+        ],
+        "years": [
+          "1991"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "exact",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "667 P.2d 630",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "136 S.Ct. 1899",
+        "year": "2017"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "137 Wn.2d 227",
+        "year": "1999"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 17,
+      "no_match": 19
+    },
+    "citation": {
+      "exact": 11,
+      "partial": 0,
+      "mismatch": 6,
+      "no_match": 19
+    },
+    "year": {
+      "exact": 6,
+      "partial": 0,
+      "mismatch": 11,
+      "no_match": 19
+    }
+  }
+}

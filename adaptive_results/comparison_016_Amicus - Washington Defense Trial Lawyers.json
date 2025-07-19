@@ -1,0 +1,370 @@
+{
+  "comparison_results": [
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "186 Wn.2d 716, 381 P.3d 32",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "381 P.3d 32",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "166 Wn.2d 264, 208 P.3d 1092",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "208 P.3d 1092",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "90 Wn.2d 9, 577 P.2d 975",
+        "year": "2009"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "577 P.2d 975",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "9 W.G.Clark Constr. Co. v. Pac. Nw. Reg’l Council of Carpenters",
+        "citation": "180 Wn.2d 54, 322 P.3d 1207",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "v. Pac. Nw. Reg’l Council of Carpenters",
+        "citations": [
+          "180 Wn.2"
+        ],
+        "years": [
+          "2001",
+          "1997",
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "9 W.G.Clark Constr. Co. v. Pac. Nw. Reg’l Council of Carpenters",
+        "citation": "322 P.3d 1207",
+        "year": "2014"
+      },
+      "toa": {
+        "case_name": "v. Pac. Nw. Reg’l Council of Carpenters",
+        "citations": [
+          "180 Wn.2"
+        ],
+        "years": [
+          "2001",
+          "1997",
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Devin",
+        "citation": "158 Wn.2d 157",
+        "year": "2006"
+      },
+      "toa": {
+        "case_name": "v. Devin",
+        "citations": [
+          "158 Wn.2"
+        ],
+        "years": [
+          "2006",
+          "1920",
+          "1976"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "State v. Devin",
+        "citation": "142 P.3d 599",
+        "year": "2006"
+      },
+      "toa": {
+        "case_name": "v. Devin",
+        "citations": [
+          "158 Wn.2"
+        ],
+        "years": [
+          "2006",
+          "1920",
+          "1976"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "exact"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Rights to Waters of Stranger Creek",
+        "citation": "77 Wn.2d 649",
+        "year": "1920"
+      },
+      "toa": {
+        "case_name": "v. Pac. Nw. Reg’l Council of Carpenters",
+        "citations": [
+          "180 Wn.2"
+        ],
+        "years": [
+          "2001",
+          "1997",
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "In re Rights to Waters of Stranger Creek",
+        "citation": "466 P.2d 508",
+        "year": "1920"
+      },
+      "toa": {
+        "case_name": "v. Pac. Nw. Reg’l Council of Carpenters",
+        "citations": [
+          "180 Wn.2"
+        ],
+        "years": [
+          "2001",
+          "1997",
+          "2014"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "overruling prior precedent should not be taken lightly. Keene v. Edie",
+        "citation": "131 Wn.2d 822",
+        "year": "1997"
+      },
+      "toa": {
+        "case_name": "v. Saberhagen Holdings, Inc., 166 Wn.2d 264, 278",
+        "citations": [
+          "208 P.3"
+        ],
+        "years": [
+          "2009"
+        ]
+      },
+      "match_status": {
+        "case_name": "mismatch",
+        "citation": "mismatch",
+        "year": "mismatch"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "935 P.2d 588",
+        "year": "1997"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "166 Wn.2d 264",
+        "year": "1997"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "186 Wn.2d 716",
+        "year": ""
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "180 Wn.2d 54",
+        "year": "2016"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    },
+    {
+      "extracted": {
+        "case_name": "",
+        "citation": "90 Wn.2d 9",
+        "year": "1978"
+      },
+      "toa": {
+        "case_name": "",
+        "citations": [],
+        "years": []
+      },
+      "match_status": {
+        "case_name": "no_match",
+        "citation": "no_match",
+        "year": "no_match"
+      }
+    }
+  ],
+  "summary_stats": {
+    "case_name": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 7,
+      "no_match": 11
+    },
+    "citation": {
+      "exact": 0,
+      "partial": 0,
+      "mismatch": 7,
+      "no_match": 11
+    },
+    "year": {
+      "exact": 4,
+      "partial": 0,
+      "mismatch": 3,
+      "no_match": 11
+    }
+  }
+}

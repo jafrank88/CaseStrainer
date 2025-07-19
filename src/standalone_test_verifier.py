@@ -8,34 +8,34 @@ to ensure it correctly distinguishes between real cases, hallucinations, and typ
 import sys
 import os
 import traceback
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Add the current directory to the path to ensure imports work correctly
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import the MultiSourceVerifier class directly
+# Import the UnifiedCitationProcessorV2 class which has the verification methods
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from enhanced_citation_verifier import MultiSourceVerifier
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as MultiSourceVerifier
+    logger.info("Successfully imported UnifiedCitationProcessorV2")
 except ImportError:
-    print(
-        "Warning: enhanced_citation_verifier module not found. Enhanced verification will not be available."
-    )
-    # Try to import from simple_citation_verifier instead
+    logger.warning("Warning: unified_citation_processor_v2 module not found. Trying fallback...")
+    # Try to import from the original unified_citation_processor instead
     try:
-        from simple_citation_verifier import (
-            SimpleCitationVerifier as MultiSourceVerifier,
-        )
-
-        print("Using SimpleCitationVerifier as a fallback")
+        from src.unified_citation_processor import UnifiedCitationProcessor as MultiSourceVerifier
+        logger.info("Using UnifiedCitationProcessor as a fallback")
     except ImportError:
-        print("Error: Could not import any citation verifier module")
+        logger.error("Error: Could not import any citation verifier module")
         traceback.print_exc()
         sys.exit(1)
 
 
 def test_verifier():
     """Test the enhanced citation verifier with various citations."""
-    print("Creating MultiSourceVerifier instance...")
+    logger.info("Creating MultiSourceVerifier instance...")
     # Create verifier
     verifier = MultiSourceVerifier()
 
@@ -97,15 +97,15 @@ def test_verifier():
     results = []
 
     # Test each citation
-    print("Testing enhanced citation verifier...")
-    print("-" * 60)
+    logger.info("Testing enhanced citation verifier...")
+    logger.info("-" * 60)
 
     for test_case in test_citations:
         citation = test_case["citation"]
         case_name = test_case["name"]
         expected = test_case["expected"]
 
-        print(f"\nTesting citation: {citation} ({case_name})")
+        logger.info(f"\nTesting citation: {citation} ({case_name})")
         try:
             result = verifier.verify_citation_unified_workflow(citation, case_name)
 
@@ -114,11 +114,10 @@ def test_verifier():
             explanation = result.get("explanation", "No explanation provided")
             status = "VERIFIED" if found else "UNVERIFIED"
 
-            print(
-                f"Status: {status} (Expected: {'VERIFIED' if expected else 'UNVERIFIED'})"
+            logger.info(f"Status: {status} (Expected: {'VERIFIED' if expected else 'UNVERIFIED'})"
             )
-            print(f"Confidence: {confidence}")
-            print(f"Explanation: {explanation}")
+            logger.info(f"Confidence: {confidence}")
+            logger.info(f"Explanation: {explanation}")
 
             # Add to results
             results.append(
@@ -133,7 +132,7 @@ def test_verifier():
                 }
             )
         except Exception as e:
-            print(f"Error testing citation {citation}: {e}")
+            logger.error(f"Error testing citation {citation}: {e}")
             traceback.print_exc()
             results.append(
                 {
@@ -148,21 +147,20 @@ def test_verifier():
             )
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("TEST SUMMARY")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("TEST SUMMARY")
+    logger.info("=" * 60)
 
     passed = sum(1 for r in results if r["passed"])
     total = len(results)
 
-    print(f"Passed: {passed}/{total} ({passed/total*100:.1f}%)")
+    logger.info(f"Passed: {passed}/{total} ({passed/total*100:.1f}%)")
 
     if passed < total:
-        print("\nFailed tests:")
+        logger.error("\nFailed tests:")
         for r in results:
             if not r["passed"]:
-                print(
-                    f"- {r['citation']} ({r['case_name']}): Expected {'VERIFIED' if r['expected'] else 'UNVERIFIED'}, got {'VERIFIED' if r['actual'] else 'UNVERIFIED'}"
+                logger.info(f"- {r['citation']} ({r['case_name']}): Expected {'VERIFIED' if r['expected'] else 'UNVERIFIED'}, got {'VERIFIED' if r['actual'] else 'UNVERIFIED'}"
                 )
 
     return results
@@ -172,5 +170,5 @@ if __name__ == "__main__":
     try:
         test_verifier()
     except Exception as e:
-        print(f"Error running test: {e}")
+        logger.error(f"Error running test: {e}")
         traceback.print_exc()

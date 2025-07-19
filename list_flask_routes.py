@@ -1,5 +1,9 @@
 import sys
 import os
+import logging
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 
 def list_routes(app):
@@ -10,7 +14,7 @@ def list_routes(app):
         output.append(line)
 
     for line in sorted(output):
-        print(line)
+        logger.info(line)
 
 
 def create_app():
@@ -26,16 +30,16 @@ def create_app():
 
 
 if __name__ == "__main__":
-    print("Creating Flask app...")
+    logger.info("Creating Flask app...")
     app = create_app()
 
-    print("\nRegistered routes:")
-    print("-" * 80)
+    logger.info("\nRegistered routes:")
+    logger.info("-" * 80)
     list_routes(app)
 
-    print("\nAvailable endpoints:")
-    print("  GET  /api/version")
-    print("  POST /api/analyze")
-    print("  GET  /api/confirmed_with_multitool_data")
-    print("  GET  /api/processing_progress")
-    print("  POST /api/validate_citations")
+    logger.info("\nAvailable endpoints:")
+    logger.info("  GET  /api/version")
+    logger.info("  POST /api/analyze")
+    logger.info("  GET  /api/confirmed_with_multitool_data")
+    logger.info("  GET  /api/processing_progress")
+    logger.info("  POST /api/validate_citations")

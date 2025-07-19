@@ -40,7 +40,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[ob
         
         if blueprint is not None:
             logger.info(f"Successfully imported vue_api blueprint from {module_name}")
-            print(f"Successfully imported vue_api blueprint from {module_name}")
+            logger.info(f"Successfully imported vue_api blueprint from {module_name}")
             return blueprint
         else:
             logger.warning(f"Module {module_name} found but vue_api attribute missing")
@@ -57,7 +57,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[ob
         return None
 
 
-def _get_blueprint() -> Optional[object]:
+def _get_bluelogger.info() -> Optional[object]:
     """
     Attempt to import the vue_api blueprint using multiple strategies.
     
@@ -73,7 +73,7 @@ def _get_blueprint() -> Optional[object]:
     try:
         from .vue_api_endpoints import vue_api
         logger.info("Successfully imported vue_api blueprint via direct relative import")
-        print("Successfully imported vue_api blueprint via direct relative import")
+        logger.info("Successfully imported vue_api blueprint via direct relative import")
         return vue_api
     except ImportError:
         pass
@@ -87,7 +87,7 @@ def _get_blueprint() -> Optional[object]:
     try:
         from .vue_api_endpoints import vue_api
         logger.info("Successfully imported vue_api blueprint via direct absolute import")
-        print("Successfully imported vue_api blueprint via direct absolute import")
+        logger.info("Successfully imported vue_api blueprint via direct absolute import")
         return vue_api
     except ImportError:
         pass
@@ -103,7 +103,7 @@ def _get_blueprint() -> Optional[object]:
         vue_api = getattr(vue_api_endpoints, 'vue_api', None)
         if vue_api is not None:
             logger.info("Successfully imported vue_api blueprint from current directory")
-            print("Successfully imported vue_api blueprint from current directory")
+            logger.info("Successfully imported vue_api blueprint from current directory")
             return vue_api
     except (ImportError, AttributeError):
         pass
@@ -111,7 +111,7 @@ def _get_blueprint() -> Optional[object]:
     return None
 
 
-def _validate_blueprint(blueprint: object) -> bool:
+def _validate_bluelogger.info(blueprint: object) -> bool:
     """
     Validate that the imported object is actually a Flask Blueprint.
     
@@ -126,7 +126,7 @@ def _validate_blueprint(blueprint: object) -> bool:
         if hasattr(blueprint, 'name') and hasattr(blueprint, 'url_prefix'):
             return True
         
-        # Check if it's a Flask Blueprint (more thorough check)
+        # Check if it's a Flask Bluelogger.info(more thorough check)
         if hasattr(blueprint, '__class__'):
             class_name = blueprint.__class__.__name__
             if 'Blueprint' in class_name:
@@ -182,27 +182,27 @@ try:
         _log_import_diagnostics()
     
     # Attempt to import the blueprint
-    api_blueprint = _get_blueprint()
+    api_blueprint = _get_bluelogger.info()
     
     if api_blueprint is not None:
         # Validate the imported blueprint
-        if _validate_blueprint(api_blueprint):
+        if _validate_bluelogger.info(api_blueprint):
             logger.info("Vue API blueprint successfully imported and validated")
         else:
             logger.warning("Vue API blueprint imported but validation failed")
             # Don't set to None here - let the app decide what to do
     else:
         logger.error("Failed to import vue_api blueprint from any location")
-        print("ERROR: Failed to import vue_api blueprint from any location")
-        print("Checked locations:")
-        print("  - .vue_api_endpoints (relative)")
-        print("  - src.vue_api_endpoints (absolute)")
-        print("  - vue_api_endpoints (current directory)")
-        print("Please ensure vue_api_endpoints.py exists and contains a 'vue_api' blueprint")
+        logger.error("ERROR: Failed to import vue_api blueprint from any location")
+        logger.info("Checked locations:")
+        logger.info("  - .vue_api_endpoints (relative)")
+        logger.info("  - src.vue_api_endpoints (absolute)")
+        logger.info("  - vue_api_endpoints (current directory)")
+        logger.info("Please ensure vue_api_endpoints.py exists and contains a 'vue_api' blueprint")
 
 except Exception as e:
     logger.critical(f"Critical error during blueprint import: {e}", exc_info=True)
-    print(f"CRITICAL ERROR during blueprint import: {e}")
+    logger.error(f"CRITICAL ERROR during blueprint import: {e}")
     api_blueprint = None
 
 
@@ -255,7 +255,7 @@ def is_blueprint_available() -> bool:
     Returns:
         True if blueprint is available, False otherwise
     """
-    return api_blueprint is not None and _validate_blueprint(api_blueprint)
+    return api_blueprint is not None and _validate_bluelogger.info(api_blueprint)
 
 
 # Export the blueprint and utility functions
@@ -263,6 +263,6 @@ __all__ = ['api_blueprint', 'get_blueprint_info', 'is_blueprint_available']
 
 # Print final status
 if api_blueprint is not None:
-    print(f"✅ Vue API blueprint ready: {getattr(api_blueprint, 'name', 'unnamed')}")
+    logger.info(f"✅ Vue API blueprint ready: {getattr(api_blueprint, 'name', 'unnamed')}")
 else:
-    print("❌ Vue API blueprint not available") 
+    logger.info("❌ Vue API blueprint not available") 

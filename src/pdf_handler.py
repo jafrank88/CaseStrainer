@@ -17,7 +17,7 @@ import logging
 from typing import Optional, Tuple, Dict, Any, Union
 from dataclasses import dataclass
 from enum import Enum
-from .extract_case_name import is_valid_case_name, clean_case_name
+from src.extract_case_name import is_valid_case_name, clean_case_name
 import warnings
 warnings.warn('src/pdf_handler.py is deprecated. Use src.document_processing_unified.extract_text_from_file instead.', DeprecationWarning)
 
@@ -312,7 +312,10 @@ class PDFHandler:
                 return None, "No text extracted with OCR"
             self.logger.info(f"Successfully extracted {len(ocr_text)} characters with OCR")
             # Apply OCR correction only to OCR text
-            from .document_processing import DocumentProcessor
+            try:
+                from .document_processing_unified import UnifiedDocumentProcessor as DocumentProcessor
+            except ImportError:
+                from document_processing_unified import UnifiedDocumentProcessor as DocumentProcessor
             processor = DocumentProcessor()
             ocr_text_corrected = processor.preprocess_text(ocr_text, skip_ocr_correction=False)
             return ocr_text_corrected, None
@@ -558,7 +561,7 @@ def clean_extracted_text(text: str) -> str:
 
         return text.strip()
     except Exception as e:
-        print(f"Error in clean_extracted_text: {e}")
+        logger.error(f"Error in clean_extracted_text: {e}")
         # Return the original text if cleaning fails
         return text.strip()
 
@@ -567,10 +570,10 @@ def clean_extracted_text(text: str) -> str:
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         pdf_path = sys.argv[1]
-        print(f"Testing PDF extraction on: {pdf_path}")
+        logger.info(f"Testing PDF extraction on: {pdf_path}")
         text = extract_text_from_pdf(pdf_path)
-        print(f"Extracted {len(text)} characters")
-        print("First 500 characters:")
-        print(text[:500])
+        logger.info(f"Extracted {len(text)} characters")
+        logger.info("First 500 characters:")
+        logger.info(text[:500])
     else:
-        print("Usage: python pdf_handler.py <path_to_pdf>")
+        logger.info("Usage: python pdf_handler.py <path_to_pdf>")

@@ -1,7 +1,18 @@
 """
-Enhanced unified document processing module for CaseStrainer.
-Integrates research-based best practices for legal citation extraction.
+DEPRECATED: This module is deprecated and will be removed in a future version.
+
+Use src.document_processing_unified instead for all document processing needs.
+
+This module is kept only for backward compatibility with test files.
+Production code should use document_processing_unified.
 """
+
+import warnings
+warnings.warn(
+    "document_processing is deprecated. Use document_processing_unified instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import os
 import logging
@@ -38,12 +49,25 @@ except ImportError:
 
 # Import enhanced processing modules
 from src.document_processing_unified import extract_text_from_file
-from case_name_extraction_core import extract_case_name_triple_comprehensive
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from app_final_vue import verify_citation_with_extraction
-from document_processing_unified import extract_text_from_url as unified_extract_text_from_url
-from citation_extractor import normalize_washington_citations
+from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
+try:
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+except ImportError:
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+try:
+    from .app_final_vue import verify_citation_with_extraction
+except ImportError:
+    from app_final_vue import verify_citation_with_extraction
+try:
+    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+except ImportError:
+    from document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+try:
+    from .citation_extractor import normalize_washington_citations
+except ImportError:
+    from citation_extractor import normalize_washington_citations
 
 # Configure logger first
 logger = logging.getLogger(__name__)
@@ -712,7 +736,7 @@ def extract_text_from_file(file_path: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from .document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
     return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
@@ -725,7 +749,7 @@ def extract_text_from_url(url: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
     return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
@@ -742,7 +766,7 @@ def verify_citations_with_contamination_fix(citations: List[Dict], text: str) ->
             logger.info(f"[VERIFY] Skipping combined citation: {citation_text}")
             continue
         logger.debug(f"[VERIFY] Processing: {citation_text}")
-        extraction_result = extract_case_name_triple_comprehensive(text, citation_text)
+        extraction_result = extract_case_name_and_date(text=text, citation=citation_text)
         clean_result = {
             'citation': citation_text,
             'verified': extraction_result.get('verified', False),
@@ -1374,7 +1398,7 @@ def extract_text_from_file(file_path: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from .document_processing_unified import extract_text_from_file as unified_extract_text_from_file
+    from src.document_processing_unified import extract_text_from_file as unified_extract_text_from_file
     return unified_extract_text_from_file(file_path)
 
 def extract_text_from_url(url: str) -> str:
@@ -1387,7 +1411,7 @@ def extract_text_from_url(url: str) -> str:
         DeprecationWarning,
         stacklevel=2
     )
-    from .document_processing_unified import extract_text_from_url as unified_extract_text_from_url
+    from src.document_processing_unified import extract_text_from_url as unified_extract_text_from_url
     return unified_extract_text_from_url(url)
 
 # For backward compatibility with existing verification function
@@ -1485,3 +1509,23 @@ def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dic
     return verified_citations
 
 # Add the verify_citations_with_contamination_fix function as provided by the user
+
+def extract_and_verify_citations(text: str, api_key: str = None) -> tuple:
+    """
+    Backward compatibility function for extract_and_verify_citations.
+    Returns a tuple of (citations, metadata) for compatibility with existing tests.
+    """
+    processor = EnhancedDocumentProcessor()
+    result = processor.process_document(content=text, extract_case_names=True)
+    
+    if result.get("success"):
+        citations = result.get("citations", [])
+        metadata = {
+            "statistics": result.get("statistics", {}),
+            "processing_time": result.get("processing_time", 0),
+            "text_length": result.get("text_length", 0),
+            "case_names": result.get("case_names", [])
+        }
+        return citations, metadata
+    else:
+        return [], {"error": result.get("error", "Unknown error")}

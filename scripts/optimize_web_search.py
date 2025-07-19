@@ -21,11 +21,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 try:
     from optimized_web_searcher import OptimizedWebSearcher
     from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    from src.websearch_utils import LegalWebsearchEngine
 except ImportError:
     # Try alternative import paths
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from src.optimized_web_searcher import OptimizedWebSearcher
     from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+    from src.websearch_utils import LegalWebsearchEngine
 
 # Configure logging
 logging.basicConfig(
@@ -44,7 +46,7 @@ class WebSearchOptimizer:
         
     async def initialize(self):
         """Initialize the web searcher."""
-        self.searcher = OptimizedWebSearcher()
+        self.searcher = LegalWebsearchEngine()
         await self.searcher.__aenter__()
         
     async def cleanup(self):

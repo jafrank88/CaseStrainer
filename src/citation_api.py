@@ -7,13 +7,13 @@ from flask import Blueprint, request, jsonify, current_app
 from typing import Dict, Any, Optional
 import asyncio
 
-from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from .citation_services import ExtractionConfig
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from citation_services import ExtractionConfig
 
 logger = logging.getLogger(__name__)
 
 # Create Blueprint for citation API
-citation_api = Blueprint('citation_api', __name__)
+citation_api = Bluelogger.info('citation_api', __name__)
 
 # Global processor instance
 _processor = None

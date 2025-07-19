@@ -3,7 +3,7 @@
 Test script to compare URL processing vs text processing.
 """
 
-from src.document_processing import process_document
+from src.document_processing_unified import process_document
 
 def test_url_vs_text():
     """Compare URL processing vs text processing."""

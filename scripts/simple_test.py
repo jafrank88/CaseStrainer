@@ -19,7 +19,7 @@ def test_basic_imports():
         print("✓ UnifiedCitationProcessorV2 imported successfully")
         
         # Test file utils import
-        from file_utils import extract_text_from_pdf
+        from src.file_utils import extract_text_from_file
         print("✓ file_utils imported successfully")
         
         # Test case name extraction core

@@ -18,20 +18,20 @@ import warnings
 # Import eyecite for citation extraction
 try:
     from eyecite import get_citations
-    from eyecite.tokenizers import HyperscanTokenizer
+    from eyecite.tokenizers import AhocorasickTokenizer
 
     print("Successfully imported eyecite")
 except ImportError:
     print("Error: eyecite not installed. Please install it with 'pip install eyecite'")
     sys.exit(1)
 
-# Import the enhanced multi-source verifier
+# Import the unified citation processor for verification
 try:
-    from src.enhanced_multi_source_verifier import MultiSourceVerifier
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
-    print("Successfully imported MultiSourceVerifier")
+    print("Successfully imported UnifiedCitationProcessorV2")
 except ImportError:
-    print("Error: enhanced_multi_source_verifier not found")
+    print("Error: unified_citation_processor_v2 not found")
     sys.exit(1)
 
 # Constants
@@ -149,7 +149,7 @@ def extract_citations_with_eyecite(text):
     return extract_all_citations(text)
 
 
-def process_brief(brief_url, processed_briefs, multi_source_verifier):
+def process_brief(brief_url, processed_briefs, unified_processor):
     """Process a brief to extract and verify citations."""
     print(f"Processing brief: {brief_url}")
 
@@ -185,7 +185,7 @@ def process_brief(brief_url, processed_briefs, multi_source_verifier):
                 continue
 
             # Verify the citation
-            result = multi_source_verifier.verify_citation_unified_workflow(citation_text, use_database=True)
+            result = unified_processor.verify_citation_unified_workflow(citation_text)
 
             # If citation is not verified, add it to the list
             if not result.get("found", False):
@@ -256,16 +256,18 @@ def main():
         "Starting extraction of unverified citations from sample briefs using eyecite"
     )
 
-    # Initialize the verifier with API keys from config.json
-    api_keys = {}
-    try:
-        with open("config.json", "r") as f:
-            config = json.load(f)
-            api_keys["courtlistener"] = config.get("courtlistener_api_key")
-    except Exception as e:
-        print(f"Error loading API keys from config.json: {e}")
-
-    multi_source_verifier = MultiSourceVerifier(api_keys)
+    # Initialize the unified citation processor
+    config_obj = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        enable_verification=True,
+        debug_mode=True
+    )
+    unified_processor = UnifiedCitationProcessorV2(config_obj)
 
     # Load processed briefs
     processed_briefs = load_processed_briefs()
@@ -280,7 +282,7 @@ def main():
     for i, brief_url in enumerate(new_briefs):
         print(f"Processing brief {i+1}/{len(new_briefs)}: {brief_url}")
         unverified_citations = process_brief(
-            brief_url, processed_briefs, multi_source_verifier
+            brief_url, processed_briefs, unified_processor
         )
         all_unverified_citations.extend(unverified_citations)
 

@@ -9,15 +9,19 @@ with additional metadata for the Citation Tester tool.
 import json
 import re
 import random
+import logging
 from datetime import datetime
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Import functions from app_final_vue.py
 try:
-    from app_final_vue import is_landmark_case
+    from src.app_final_vue import is_landmark_case
 
-    print("Successfully imported landmark case checker from app_final_vue.py")
+    logger.info("Successfully imported landmark case checker from app_final_vue.py")
 except ImportError:
-    print("Warning: Could not import landmark case checker from app_final_vue.py")
+    logger.warning("Warning: Could not import landmark case checker from app_final_vue.py")
 
 # Citation format patterns
 CITATION_PATTERNS = {
@@ -112,7 +116,7 @@ def load_unconfirmed_citations(
         with open(filename, "r") as f:
             return json.load(f)
     except Exception as e:
-        print(f"Error loading unconfirmed citations: {e}")
+        logger.error(f"Error loading unconfirmed citations: {e}")
         return {}
 
 
@@ -123,10 +127,10 @@ def save_unconfirmed_citations(
     try:
         with open(filename, "w") as f:
             json.dump(citations, f, indent=2)
-        print(f"Enhanced unconfirmed citations saved to {filename}")
+        logger.info(f"Enhanced unconfirmed citations saved to {filename}")
         return True
     except Exception as e:
-        print(f"Error saving enhanced unconfirmed citations: {e}")
+        logger.error(f"Error saving enhanced unconfirmed citations: {e}")
         return False
 
 
@@ -296,12 +300,12 @@ def scan_and_categorize_citations():
     all_citations = load_unconfirmed_citations()
 
     if not all_citations:
-        print("No unconfirmed citations found.")
+        logger.info("No unconfirmed citations found.")
         return
 
     # Count total citations
     total_citations = sum(len(citations) for citations in all_citations.values())
-    print(f"Scanning and categorizing {total_citations} unconfirmed citations...")
+    logger.info(f"Scanning and categorizing {total_citations} unconfirmed citations...")
 
     # Create enhanced database
     enhanced_citations = {}
@@ -333,19 +337,17 @@ def scan_and_categorize_citations():
     save_unconfirmed_citations(enhanced_citations)
 
     # Print statistics
-    print("\nCitation Format Statistics:")
-    print(f"Total citations: {total_citations}")
-    print(
-        f"Valid formats: {valid_format_count} ({valid_format_count/total_citations*100:.1f}%)"
+    logger.info("\nCitation Format Statistics:")
+    logger.info(f"Total citations: {total_citations}")
+    logger.info(f"Valid formats: {valid_format_count} ({valid_format_count/total_citations*100:.1f}%)"
     )
-    print(
-        f"Valid volumes: {valid_volume_count} ({valid_volume_count/total_citations*100:.1f}%)"
+    logger.info(f"Valid volumes: {valid_volume_count} ({valid_volume_count/total_citations*100:.1f}%)"
     )
-    print("\nFormat Types:")
+    logger.info("\nFormat Types:")
     for format_type, count in sorted(
         format_types.items(), key=lambda x: x[1], reverse=True
     ):
-        print(f"  {format_type}: {count} ({count/total_citations*100:.1f}%)")
+        logger.info(f"  {format_type}: {count} ({count/total_citations*100:.1f}%)")
 
     return enhanced_citations
 
@@ -415,7 +417,7 @@ def create_test_api_request(enhanced_citations, max_citations=10):
     try:
         with open("enhanced_test_api_request.json", "w") as f:
             json.dump(api_request, f, indent=2)
-        print("Enhanced test API request saved to enhanced_test_api_request.json")
+        logger.info("Enhanced test API request saved to enhanced_test_api_request.json")
 
         # Also create a PowerShell command to test the API
         ps_command = "$headers = @{ 'Content-Type' = 'application/json' }; "
@@ -427,22 +429,20 @@ def create_test_api_request(enhanced_citations, max_citations=10):
 
         with open("enhanced_test_api.ps1", "w") as f:
             f.write(ps_command)
-        print("Enhanced PowerShell test script saved to enhanced_test_api.ps1")
+        logger.info("Enhanced PowerShell test script saved to enhanced_test_api.ps1")
 
         return True
     except Exception as e:
-        print(f"Error creating enhanced test API request: {e}")
+        logger.error(f"Error creating enhanced test API request: {e}")
         return False
 
 
 if __name__ == "__main__":
-    print("Scanning and categorizing unconfirmed citations...")
+    logger.info("Scanning and categorizing unconfirmed citations...")
     enhanced_citations = scan_and_categorize_citations()
 
     if enhanced_citations:
-        print("\nCreating enhanced test API request...")
+        logger.info("\nCreating enhanced test API request...")
         create_test_api_request(enhanced_citations)
 
-    print(
-        "\nDone! You can now use these enhanced citations with the Citation Tester tool."
-    )
+    logger.info("\nDone! You can now use these enhanced citations with the Citation Tester tool.")

@@ -19,13 +19,13 @@ def test_courtlistener_api():
         with open('config.json', 'r') as f:
             config = json.load(f)
         api_key = config.get('courtlistener_api_key')
-        print(f"API Key loaded: {api_key[:10]}..." if api_key else "No API key found")
+        logger.info(f"API Key loaded: {api_key[:10]}..." if api_key else "No API key found")
     except Exception as e:
-        print(f"Error loading config: {e}")
+        logger.error(f"Error loading config: {e}")
         return
     
     if not api_key:
-        print("No API key available")
+        logger.info("No API key available")
         return
     
     # Test citations - one that should be found, one that might not be
@@ -45,9 +45,9 @@ def test_courtlistener_api():
     endpoint = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
     
     for test_citation in test_citations:
-        print(f"\n{'='*60}")
-        print(f"Testing citation: {test_citation}")
-        print(f"Endpoint: {endpoint}")
+        logger.info(f"\n{'='*60}")
+        logger.info(f"Testing citation: {test_citation}")
+        logger.info(f"Endpoint: {endpoint}")
         
         try:
             # Make the API request
@@ -58,7 +58,7 @@ def test_courtlistener_api():
                 timeout=15
             )
             
-            print(f"Response status: {response.status_code}")
+            logger.info(f"Response status: {response.status_code}")
             
             if response.status_code == 200:
                 data = response.json()
@@ -66,23 +66,23 @@ def test_courtlistener_api():
                 if isinstance(data, list) and len(data) > 0:
                     citation_data = data[0]
                     if citation_data.get("status") == 200 and citation_data.get("clusters"):
-                        print("✓ Citation found!")
+                        logger.info("✓ Citation found!")
                         cluster = citation_data["clusters"][0]
-                        print(f"Case name: {cluster.get('case_name', 'N/A')}")
-                        print(f"Date filed: {cluster.get('date_filed', 'N/A')}")
-                        print(f"URL: {cluster.get('absolute_url', 'N/A')}")
+                        logger.info(f"Case name: {cluster.get('case_name', 'N/A')}")
+                        logger.info(f"Date filed: {cluster.get('date_filed', 'N/A')}")
+                        logger.info(f"URL: {cluster.get('absolute_url', 'N/A')}")
                     else:
-                        print("✗ Citation not found in clusters")
-                        print(f"Status: {citation_data.get('status')}")
-                        print(f"Error: {citation_data.get('error_message', 'N/A')}")
+                        logger.info("✗ Citation not found in clusters")
+                        logger.info(f"Status: {citation_data.get('status')}")
+                        logger.error(f"Error: {citation_data.get('error_message', 'N/A')}")
                 else:
-                    print("✗ No results in response")
+                    logger.info("✗ No results in response")
             else:
-                print(f"✗ API error: {response.status_code}")
-                print(f"Response text: {response.text}")
+                logger.error(f"✗ API error: {response.status_code}")
+                logger.info(f"Response text: {response.text}")
                 
         except Exception as e:
-            print(f"✗ Request failed: {e}")
+            logger.error(f"✗ Request failed: {e}")
 
 if __name__ == "__main__":
     test_courtlistener_api() 

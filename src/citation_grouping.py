@@ -438,21 +438,21 @@ if __name__ == "__main__":
 
     grouped = group_citations(test_citations)
 
-    print(f"\nGrouped {len(test_citations)} citations into {len(grouped)} groups:")
+    logger.info(f"\nGrouped {len(test_citations)} citations into {len(grouped)} groups:")
     for i, group in enumerate(grouped):
-        print(f"\nGroup {i+1}:")
-        print(f"  Primary Citation: {group['citation']}")
-        print(f"  Case Name: {group['case_name']}")
-        print(f"  URL: {group['url']}")
-        print(f"  Source: {group['source']}")
+        logger.info(f"\nGroup {i+1}:")
+        logger.info(f"  Primary Citation: {group['citation']}")
+        logger.info(f"  Case Name: {group['case_name']}")
+        logger.info(f"  URL: {group['url']}")
+        logger.info(f"  Source: {group['source']}")
 
         if group.get("alternate_citations"):
-            print(f"  Alternate Citations ({len(group['alternate_citations'])}):")
+            logger.info(f"  Alternate Citations ({len(group['alternate_citations'])}):")
             for alt in group["alternate_citations"]:
-                print(f"    - {alt['citation']} ({alt['source']})")
+                logger.info(f"    - {alt['citation']} ({alt['source']})")
 
     import json
 
     with open("grouped_citations.json", "w", encoding="utf-8") as f:
         json.dump(grouped, f, indent=2)
-    print("\nResults saved to grouped_citations.json")
+    logger.info("\nResults saved to grouped_citations.json")

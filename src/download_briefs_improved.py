@@ -35,7 +35,7 @@ def load_processed_briefs():
             with open(PROCESSED_BRIEFS_CACHE, "r") as f:
                 return json.load(f)
         except Exception as e:
-            print(f"Error loading processed briefs cache: {e}")
+            logger.error(f"Error loading processed briefs cache: {e}")
     return []
 
 
@@ -45,12 +45,12 @@ def save_processed_briefs(processed_briefs):
         with open(PROCESSED_BRIEFS_CACHE, "w") as f:
             json.dump(processed_briefs, f)
     except Exception as e:
-        print(f"Error saving processed briefs cache: {e}")
+        logger.error(f"Error saving processed briefs cache: {e}")
 
 
 def get_brief_info(page=0, max_pages=10):
     """Get brief information from the Justice Department website."""
-    print(f"Getting brief information from page {page}...")
+    logger.info(f"Getting brief information from page {page}...")
 
     briefs_info = []
 
@@ -65,7 +65,7 @@ def get_brief_info(page=0, max_pages=10):
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Error getting brief information: {response.status_code}")
+            logger.error(f"Error getting brief information: {response.status_code}")
             return briefs_info
 
         # Parse the HTML
@@ -118,7 +118,7 @@ def get_brief_info(page=0, max_pages=10):
                         }
                     )
             except Exception as e:
-                print(f"Error extracting brief information: {e}")
+                logger.error(f"Error extracting brief information: {e}")
                 continue
 
         # If we need more briefs and haven't reached the max pages, get more
@@ -129,7 +129,7 @@ def get_brief_info(page=0, max_pages=10):
         return briefs_info
 
     except Exception as e:
-        print(f"Error getting brief information: {e}")
+        logger.error(f"Error getting brief information: {e}")
         traceback.print_exc()
         return briefs_info
 
@@ -137,7 +137,7 @@ def get_brief_info(page=0, max_pages=10):
 def download_brief(brief_info):
     """Download a brief from a URL."""
     pdf_url = brief_info["pdf_url"]
-    print(f"Downloading brief: {brief_info['caption']} ({pdf_url})")
+    logger.info(f"Downloading brief: {brief_info['caption']} ({pdf_url})")
 
     try:
         # Set up user agent to avoid being blocked
@@ -149,7 +149,7 @@ def download_brief(brief_info):
         response = requests.get(pdf_url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Error downloading brief: {response.status_code}")
+            logger.error(f"Error downloading brief: {response.status_code}")
             return None
 
         # Generate a unique filename based on the media ID and caption
@@ -163,21 +163,21 @@ def download_brief(brief_info):
         with open(filepath, "wb") as f:
             f.write(response.content)
 
-        print(f"Saved brief to {filepath}")
+        logger.info(f"Saved brief to {filepath}")
 
         # Update brief_info with local filepath
         brief_info["local_path"] = filepath
         return brief_info
 
     except Exception as e:
-        print(f"Error downloading brief: {e}")
+        logger.error(f"Error downloading brief: {e}")
         traceback.print_exc()
         return None
 
 
 def create_briefs_csv(briefs_info):
     """Create a CSV file with brief information."""
-    print(f"Creating CSV file with {len(briefs_info)} briefs...")
+    logger.info(f"Creating CSV file with {len(briefs_info)} briefs...")
 
     try:
         with open(BRIEFS_CSV, "w", newline="", encoding="utf-8") as f:
@@ -212,24 +212,24 @@ def create_briefs_csv(briefs_info):
                     ]
                 )
 
-        print(f"Created CSV file: {BRIEFS_CSV}")
+        logger.info(f"Created CSV file: {BRIEFS_CSV}")
 
     except Exception as e:
-        print(f"Error creating CSV file: {e}")
+        logger.error(f"Error creating CSV file: {e}")
         traceback.print_exc()
 
 
 def main():
     """Main function to download briefs."""
-    print("Starting Supreme Court Brief Downloader (Improved)...")
+    logger.info("Starting Supreme Court Brief Downloader (Improved)...")
 
     # Load processed briefs
     processed_briefs = load_processed_briefs()
-    print(f"Loaded {len(processed_briefs)} previously processed briefs")
+    logger.info(f"Loaded {len(processed_briefs)} previously processed briefs")
 
     # Get brief information
     briefs_info = get_brief_info()
-    print(f"Found {len(briefs_info)} briefs")
+    logger.info(f"Found {len(briefs_info)} briefs")
 
     # Limit to MAX_BRIEFS
     briefs_info = briefs_info[:MAX_BRIEFS]
@@ -239,7 +239,7 @@ def main():
     for brief_info in briefs_info:
         # Skip if already processed
         if brief_info["pdf_url"] in processed_briefs:
-            print(f"Skipping already processed brief: {brief_info['caption']}")
+            logger.info(f"Skipping already processed brief: {brief_info['caption']}")
             continue
 
         # Download the brief
@@ -259,10 +259,10 @@ def main():
     # Create CSV file with brief information
     create_briefs_csv(downloaded_briefs)
 
-    print(f"Finished downloading {len(downloaded_briefs)} briefs")
-    print("You can now use CaseStrainer's File Tool to analyze these briefs.")
-    print(f"The briefs are located in the {BRIEFS_DIR} directory.")
-    print(f"Brief information is available in {BRIEFS_CSV}")
+    logger.info(f"Finished downloading {len(downloaded_briefs)} briefs")
+    logger.info("You can now use CaseStrainer's File Tool to analyze these briefs.")
+    logger.info(f"The briefs are located in the {BRIEFS_DIR} directory.")
+    logger.info(f"Brief information is available in {BRIEFS_CSV}")
 
 
 if __name__ == "__main__":

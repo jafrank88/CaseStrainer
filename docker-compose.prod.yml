@@ -36,7 +36,7 @@ services:
     env_file:
       - .env.production
     environment:
-      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - REDIS_URL=redis://redis:6379/0
       - FLASK_ENV=production
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
@@ -75,7 +75,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - REDIS_URL=redis://redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
@@ -115,7 +115,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - REDIS_URL=redis://redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
@@ -155,7 +155,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://casestrainer-redis-prod:6379/0
+      - REDIS_URL=redis://redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***

@@ -19,6 +19,7 @@ from collections import Counter
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from case_name_extraction_core import extract_case_name_triple_comprehensive
+from src.file_utils import extract_text_from_file
 
 class EnhancedCaseExtractor:
     """Enhanced case name extraction for documents without ToA."""
@@ -380,8 +381,7 @@ def main():
         with open(args.file, 'r', encoding='utf-8') as f:
             text = f.read()
     elif args.pdf:
-        from file_utils import extract_text_from_pdf
-        text = extract_text_from_pdf(args.pdf)
+        text = extract_text_from_file(args.pdf)
     else:
         # Use sample text
         text = '''

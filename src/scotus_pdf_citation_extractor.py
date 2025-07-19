@@ -57,7 +57,7 @@ except Exception as e:
 # Try to import eyecite
 try:
     from eyecite import get_citations
-    from eyecite.tokenizers import HyperscanTokenizer, AhocorasickTokenizer
+    from eyecite.tokenizers import AhocorasickTokenizer
 
     EYECITE_AVAILABLE = True
     logger.info("Successfully imported eyecite for citation extraction")
@@ -72,7 +72,7 @@ class SCOTUSPDFCitationExtractor:
     """A class to extract citations from Supreme Court PDF opinions."""
 
     def __init__(self):
-        print(f"[DEBUG] Loaded SCOTUSPDFCitationExtractor from {__file__}")
+        logger.debug(f"[DEBUG] Loaded SCOTUSPDFCitationExtractor from {__file__}")
         # Fallback regex patterns if eyecite is not available
         self.citation_patterns = [
             r"\b(\d+)\s+U\.?\s*S\.?\s+(\d+)\b",  # U.S. Reports
@@ -102,7 +102,7 @@ class SCOTUSPDFCitationExtractor:
             return response.content
         except Exception as e:
             logger.error(f"Error downloading PDF: {str(e)}")
-            print(f"Error downloading PDF: {str(e)}")
+            logger.error(f"Error downloading PDF: {str(e)}")
             return None
 
     def extract_text_from_pdf(self, pdf_content: bytes) -> Optional[str]:
@@ -182,7 +182,7 @@ class SCOTUSPDFCitationExtractor:
 
         except Exception as e:
             logger.error(f"Error extracting text from PDF: {str(e)}")
-            print(f"Error extracting text from PDF: {str(e)}")
+            logger.error(f"Error extracting text from PDF: {str(e)}")
             return None
 
     def clean_extracted_text(self, text: str) -> str:
@@ -277,12 +277,8 @@ class SCOTUSPDFCitationExtractor:
                 )
                 logger.info(f"Test citations: {test_citations}")
 
-            # Try to use the faster HyperscanTokenizer first
-            try:
-                tokenizer = HyperscanTokenizer()
-            except Exception:
-                logger.info("Falling back to AhocorasickTokenizer...")
-                tokenizer = AhocorasickTokenizer()
+            # Use AhocorasickTokenizer (hyperscan removed due to compatibility issues)
+            tokenizer = AhocorasickTokenizer()
 
             # Process text in larger chunks with overlap to avoid missing citations at boundaries
             chunk_size = 50000  # Increased chunk size
@@ -335,7 +331,7 @@ class SCOTUSPDFCitationExtractor:
             return formatted_citations
         except Exception as e:
             logger.error(f"Error using eyecite: {str(e)}")
-            print(f"Error using eyecite: {str(e)}")
+            logger.error(f"Error using eyecite: {str(e)}")
             import traceback
 
             traceback.print_exc()
@@ -501,28 +497,28 @@ class SCOTUSPDFCitationExtractor:
 
 def main():
     """Main function to demonstrate usage."""
-    print("Starting SCOTUSPDFCitationExtractor main()...")
+    logger.info("Starting SCOTUSPDFCitationExtractor main()...")
     extractor = SCOTUSPDFCitationExtractor()
     url = "https://www.courts.wa.gov/opinions/pdf/1029403.pdf"
     try:
         results = extractor.extract_citations_from_url(url)
     except Exception as e:
-        print(f"Exception in main: {e}")
+        logger.error(f"Exception in main: {e}")
         import traceback
 
         traceback.print_exc()
         return
     if "error" in results:
-        print(f"Error: {results['error'][0]}")
+        logger.error(f"Error: {results['error'][0]}")
         return
-    print(f"\nPDF has {results['total_pages']} pages")
-    print("\nText preview:")
-    print(results["text_preview"])
-    print("\nCitations from CourtListener citation-lookup API:")
+    logger.info(f"\nPDF has {results['total_pages']} pages")
+    logger.info("\nText preview:")
+    logger.info(results["text_preview"])
+    logger.info("\nCitations from CourtListener citation-lookup API:")
     for citation in results["citations"]:
-        print(f"- {citation}")
-    print("\nRaw validation response:")
-    print(results["validation_raw"])
+        logger.info(f"- {citation}")
+    logger.info("\nRaw validation response:")
+    logger.info(results["validation_raw"])
 
 
 if __name__ == "__main__":

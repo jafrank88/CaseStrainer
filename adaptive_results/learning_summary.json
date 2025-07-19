@@ -1,0 +1,122 @@
+{
+  "total_processed": 49,
+  "total_improvements": 0,
+  "learned_patterns": 0,
+  "failed_extractions": 5776,
+  "case_name_database_size": 0,
+  "failure_analysis": {
+    "total_failures": 5776,
+    "error_types": {
+      "low_confidence": 5776
+    },
+    "method_failures": {
+      "regex": 5776
+    },
+    "common_contexts": [
+      [
+        "Wn",
+        3447
+      ],
+      [
+        "State",
+        2849
+      ],
+      [
+        "Ct",
+        1372
+      ],
+      [
+        "Ed",
+        1180
+      ],
+      [
+        "In",
+        761
+      ],
+      [
+        "App",
+        695
+      ],
+      [
+        "Cases",
+        423
+      ],
+      [
+        "United",
+        405
+      ],
+      [
+        "Washington",
+        362
+      ],
+      [
+        "Cir",
+        343
+      ]
+    ],
+    "suggested_improvements": [
+      {
+        "type": "confidence_adjustment",
+        "description": "Many low confidence extractions (5776). Consider adjusting confidence thresholds.",
+        "priority": "medium"
+      },
+      {
+        "type": "method_optimization",
+        "description": "Regex method failing more than eyecite. Consider improving regex patterns.",
+        "priority": "medium"
+      }
+    ]
+  },
+  "recent_improvements": [
+    {
+      "filename": "046_Respondent Answer to Amici Curiae.pdf",
+      "total_citations": 13,
+      "successful_extractions": 4,
+      "failed_extractions": 9,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 7.792208909988403,
+      "timestamp": 1752799756.4943445
+    },
+    {
+      "filename": "047_Statement of Additional Authorities.pdf",
+      "total_citations": 12,
+      "successful_extractions": 10,
+      "failed_extractions": 2,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 4.576663970947266,
+      "timestamp": 1752799761.339099
+    },
+    {
+      "filename": "048_Answer of Represented Officers to Amicus National Lawyers Guild.pdf",
+      "total_citations": 32,
+      "successful_extractions": 24,
+      "failed_extractions": 8,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 31.146026134490967,
+      "timestamp": 1752799795.835221
+    },
+    {
+      "filename": "049_Represented Officers Answer to Amicus Reporters Committee.pdf",
+      "total_citations": 16,
+      "successful_extractions": 10,
+      "failed_extractions": 6,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 12.629932403564453,
+      "timestamp": 1752799810.7934601
+    },
+    {
+      "filename": "050_Represented Officers Answer to Amicus Police Accountability Project.pdf",
+      "total_citations": 6,
+      "successful_extractions": 3,
+      "failed_extractions": 3,
+      "new_patterns_learned": 0,
+      "confidence_improvements": 0,
+      "processing_time": 2.4433887004852295,
+      "timestamp": 1752799814.3872786
+    }
+  ]
+}

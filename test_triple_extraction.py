@@ -12,10 +12,9 @@ print(f"Python path: {sys.path}")
 
 try:
     from src.extract_case_name import extract_case_name_triple_from_text
-    print("Successfully imported extract_case_name_triple_from_text")
-except Exception as e:
-    print(f"Import error: {e}")
-    sys.exit(1)
+except ImportError:
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+    from extract_case_name import extract_case_name_triple_from_text
 
 def test_triple_extraction():
     """Test the extract_case_name_triple_from_text function."""
@@ -64,30 +63,26 @@ def test_triple_extraction():
         print(f"Citation: {case['citation']}")
         print(f"Canonical: {case['canonical']}")
         # Call with debug=True to print debug output
-        result = extract_case_name_triple_from_text(case['text'], case['citation'], case['canonical'], debug=True)
+        result = extract_case_name_triple_from_text(case['text'], case['citation'], case['canonical'])
         print("Result:")
-        print(f"  Canonical name: {result['canonical_name']}")
-        print(f"  Extracted name: {result['extracted_name']}")
-        print(f"  Hinted name: {result['hinted_name']}")
+        print(f"  Canonical name: {result.get('canonical_name', 'N/A')}")
+        print(f"  Extracted name: {result.get('extracted_name', 'N/A')}")
+        print(f"  Date: {result.get('date', 'N/A')}")
+        print(f"  Confidence: {result.get('confidence', 'N/A')}")
         
         # Basic validation
-        if result['canonical_name'] == case['canonical']:
+        if result.get('canonical_name') == case['canonical']:
             print("  ✓ Canonical name matches")
         else:
-            print(f"  ✗ Canonical name mismatch: expected '{case['canonical']}', got '{result['canonical_name']}'")
+            print(f"  ✗ Canonical name mismatch: expected '{case['canonical']}', got '{result.get('canonical_name', 'N/A')}'")
             all_passed = False
-            
-        if result['extracted_name']:
+
+        if result.get('extracted_name'):
             print("  ✓ Extracted name found")
         else:
             print("  ✗ No extracted name found")
             all_passed = False
             
-        if result['hinted_name']:
-            print("  ✓ Hinted name found")
-        else:
-            print("  ⚠ No hinted name found (this might be expected)")
-        
     print("\n" + "=" * 60)
     if all_passed:
         print("✓ All tests passed!")
@@ -108,4 +103,4 @@ debug_text = '... records must be released." John Doe P v. Thurston County, 199 
 debug_citation = '199 Wn. App. 280'
 debug_canonical = 'Doe P V Thurston County'
 from src.extract_case_name import extract_case_name_triple_from_text
-extract_case_name_triple_from_text(debug_text, debug_citation, debug_canonical, debug=True) 
+extract_case_name_triple_from_text(debug_text, debug_citation, debug_canonical) 

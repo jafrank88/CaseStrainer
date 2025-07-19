@@ -197,11 +197,11 @@ def populate_multitool_data():
             )
             """
             )
-            print("Created multitool_confirmed_citations table")
+            logger.info("Created multitool_confirmed_citations table")
 
         # Clear existing data
         cursor.execute("DELETE FROM multitool_confirmed_citations")
-        print("Cleared existing data from multitool_confirmed_citations table")
+        logger.info("Cleared existing data from multitool_confirmed_citations table")
 
         # Insert 33 sample citations
         for i, citation in enumerate(sample_citations):
@@ -230,12 +230,12 @@ def populate_multitool_data():
         # Verify the data was added
         cursor.execute("SELECT COUNT(*) FROM multitool_confirmed_citations")
         count = cursor.fetchone()[0]
-        print(f"Added {count} citations to multitool_confirmed_citations table")
+        logger.info(f"Added {count} citations to multitool_confirmed_citations table")
 
         conn.close()
         return True
     except Exception as e:
-        print(f"Error populating multitool data: {e}")
+        logger.error(f"Error populating multitool data: {e}")
         return False
 
 
