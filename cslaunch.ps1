@@ -1147,8 +1147,11 @@ function Start-DockerProduction {
             if ($content.StartsWith([char]0xFEFF)) {
                 Write-Host "Fixing BOM in docker-compose file..." -ForegroundColor Yellow
                 $content = $content.Substring(1)
-                $content | Out-File -FilePath $dockerComposeFile -Encoding UTF8 -NoNewline
-                Write-Host "BOM removed from docker-compose file" -ForegroundColor Green
+                # Create a temporary clean file
+                $tempFile = "$dockerComposeFile.temp"
+                $content | Out-File -FilePath $tempFile -Encoding UTF8 -NoNewline
+                $dockerComposeFile = $tempFile
+                Write-Host "Using temporary BOM-free docker-compose file" -ForegroundColor Green
             }
         } catch {
             Write-Host "Warning: Could not check/fix BOM in docker-compose file" -ForegroundColor Yellow
@@ -1317,15 +1320,30 @@ function Start-DockerProduction {
                         } | Out-Null
                     }
 
+                    # Clean up temporary file if it was created
+                    if ($dockerComposeFile -like "*.temp") {
+                        Remove-Item $dockerComposeFile -Force -ErrorAction SilentlyContinue
+                    }
+                    
                     return $true
                 }
                 else {
+                    # Clean up temporary file if it was created
+                    if ($dockerComposeFile -like "*.temp") {
+                        Remove-Item $dockerComposeFile -Force -ErrorAction SilentlyContinue
+                    }
+                    
                     Write-Host "ERROR Services failed to become healthy" -ForegroundColor Red
                     return $false
                 }
             }
             else {
                 Write-Host "ERROR: Failed to start Docker containers (exit code: $($startProcess.ExitCode))" -ForegroundColor Red
+                
+                # Clean up temporary file if it was created
+                if ($dockerComposeFile -like "*.temp") {
+                    Remove-Item $dockerComposeFile -Force -ErrorAction SilentlyContinue
+                }
 
                 # Try to provide helpful debugging information
                 Write-Host "Checking Docker daemon status..." -ForegroundColor Yellow
