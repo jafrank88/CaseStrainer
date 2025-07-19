@@ -49,7 +49,7 @@ except ImportError:
 
 # Import enhanced processing modules
 from src.document_processing_unified import extract_text_from_file
-from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
+from src.case_name_extraction_core import extract_case_name_and_date
 try:
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
@@ -108,34 +108,7 @@ except ImportError as e:
     logger.warning(f"UnifiedCitationProcessorV2 not available: {e}")
     # Fallback to original processor
     try:
-        class EnhancedProcessor(UnifiedCitationProcessorV2):
-            def __init__(self):
-                config = ProcessingConfig(
-                    use_eyecite=True,
-                    use_regex=True,
-                    extract_case_names=True,
-                    extract_dates=True,
-                    enable_clustering=True,
-                    enable_deduplication=True,
-                    debug_mode=False
-                )
-                super().__init__(config)
-            
-            def extract_case_name_and_year(self, text: str, citation: str):
-                """Extract case name and year using the unified processor"""
-                # Use the unified processor's regex extraction
-                results = self.process_text(text)
-                
-                # Find the specific citation
-                for result in results:
-                    if result.citation == citation:
-                        return {
-                            'case_name': result.case_name,
-                            'year': result.date
-                        }
-                
-                return {'case_name': '', 'year': ''}
-        
+        # Use the existing EnhancedProcessor class
         ENHANCED_PROCESSOR_AVAILABLE = True
         logger.info("Using fallback UnifiedCitationProcessor")
     except ImportError as e2:

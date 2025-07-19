@@ -14,7 +14,7 @@ import re
 import logging
 import time
 import threading
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 from functools import wraps
 
@@ -50,7 +50,7 @@ def timeout(seconds):
                 raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
             
             if exception[0]:
-                raise exception[0]
+                raise exception[0]  # type: ignore[misc]
             
             return result[0]
         return wrapper
@@ -72,6 +72,7 @@ class ImprovedToAParser:
     """
     
     def __init__(self):
+        super().__init__()
         logger.info("[TOA PARSER] Initializing improved ToA parser...")
         
         # Simplified patterns to reduce regex complexity
@@ -171,7 +172,6 @@ class ImprovedToAParser:
             # Split into manageable chunks
             chunks = self._safe_chunk_text(text)
             logger.info(f"[TOA PARSE] Created {len(chunks)} chunks")
-            lines = text.splitlines()
             for i, chunk in enumerate(chunks):
                 if processed_chunks >= MAX_CHUNKS:
                     logger.info(f"[TOA PARSE] Reached max chunks limit ({MAX_CHUNKS})")
@@ -293,7 +293,7 @@ class ImprovedToAParser:
         # Try flexible parsing as fallback
         return self._parse_chunk_flexible(chunk)
     
-    def _extract_entry_from_match_safe(self, match, chunk: str) -> Optional[ToAEntry]:
+    def _extract_entry_from_match_safe(self, match: re.Match, chunk: str) -> Optional[ToAEntry]:
         """Safely extract entry from regex match."""
         try:
             groups = match.groups()
@@ -468,7 +468,7 @@ class ImprovedToAParser:
 
 
 # Convenience functions for backward compatibility
-def extract_years_from_toa_enhanced(text: str, citation: str = None) -> List[str]:
+def extract_years_from_toa_enhanced(text: str, citation: Optional[str] = None) -> List[str]:
     """Enhanced year extraction using improved parser."""
     parser = ImprovedToAParser()
     return parser.extract_years_from_toa(text)
@@ -496,7 +496,7 @@ ToAParser = ImprovedToAParser
 
 # Add this helper function
 
-def fix_case_name_default(case_name, line):
+def fix_case_name_default(case_name: str, line: str) -> str:
     # If case_name starts with v. or vs. or versus
     if re.match(r'^(v\.?|vs\.?|versus)\b', case_name, re.IGNORECASE):
         # Find the word before v. in the line

@@ -6,7 +6,20 @@ Handles text extraction from various file formats and input types.
 
 LEGACY VERSION - This is a backup of the previous document_processing.py.
 The enhanced version is now in document_processing.py.
+
+This module will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "document_processing_legacy is deprecated. Use document_processing.py or document_processing_unified.py instead. "
+    "This file will be removed in the next release.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# TODO: Remove this file in next release
+# This file is kept only for backward compatibility and should not be used in new code.
 
 import os
 import logging

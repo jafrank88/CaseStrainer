@@ -14,7 +14,6 @@ from typing import Dict, List, Any, Optional
 from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
-import PyPDF2
 import docx
 import subprocess
 import tempfile
@@ -22,33 +21,42 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 # Try to import the unified citation processor
+_unified_processor_available = False
+_enhanced_processor_available = False
+
 try:
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-    UNIFIED_PROCESSOR_AVAILABLE = True
+    _unified_processor_available = True
 except ImportError:
     try:
         from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-        UNIFIED_PROCESSOR_AVAILABLE = True
+        _unified_processor_available = True
     except ImportError:
-        UNIFIED_PROCESSOR_AVAILABLE = False
         logger.warning("Unified citation processor v2 not available")
 
 # Try to import the enhanced processor as fallback
 try:
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-    ENHANCED_PROCESSOR_AVAILABLE = True
+    _enhanced_processor_available = True
 except ImportError:
     try:
         from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-        ENHANCED_PROCESSOR_AVAILABLE = True
+        _enhanced_processor_available = True
     except ImportError:
         try:
             # Try alternative import path
             from enhanced_citation_processor import EnhancedCitationProcessor as UnifiedCitationProcessor
-            ENHANCED_PROCESSOR_AVAILABLE = True
+            _enhanced_processor_available = True
         except ImportError:
-            ENHANCED_PROCESSOR_AVAILABLE = False
             logger.warning("Enhanced citation processor not available")
+
+# Public constants (read-only) - use different names to avoid conflicts
+UNIFIED_PROCESSOR_AVAILABLE_UNIFIED = _unified_processor_available
+ENHANCED_PROCESSOR_AVAILABLE_UNIFIED = _enhanced_processor_available
+
+# Legacy aliases for backward compatibility
+UNIFIED_PROCESSOR_AVAILABLE = UNIFIED_PROCESSOR_AVAILABLE_UNIFIED
+ENHANCED_PROCESSOR_AVAILABLE = ENHANCED_PROCESSOR_AVAILABLE_UNIFIED
 
 
 class UltraFastPDFProcessor:
@@ -57,6 +65,7 @@ class UltraFastPDFProcessor:
     """
     
     def __init__(self):
+        super().__init__()
         # Single compiled regex for critical citation fixes only
         self._critical_fixes = re.compile(
             r'(\d+)\s*([USF])\.\s*([SCtEd]+)\.\s*[\n\-]\s*(\d+)'
@@ -120,6 +129,7 @@ class OCROptimizedPDFProcessor:
     """
     
     def __init__(self):
+        super().__init__()
         # Pre-compiled patterns for OCR-specific fixes
         self._ocr_citation_fixes = {
             # Common OCR errors in citations - compiled once for speed
@@ -149,24 +159,24 @@ class OCROptimizedPDFProcessor:
         Extract text optimized for OCR'ed documents.
         
         Strategy:
-        1. Try pdfplumber (best for OCR'ed PDFs with text layers)
-        2. Fall back to pdfminer.six
-        3. Fall back to PyPDF2
+        1. Try PyPDF2 (fastest and extracts most text)
+        2. Fall back to pdfplumber (best for complex OCR'ed PDFs)
+        3. Fall back to pdfminer.six
         4. Apply targeted OCR fixes
         """
         
-        # Method 1: pdfplumber - excellent for OCR'ed PDFs
+        # Method 1: PyPDF2 - fastest and extracts most text
+        text = self._extract_with_pypdf2(file_path)
+        if text:
+            return self._apply_ocr_fixes(text)
+        
+        # Method 2: pdfplumber - excellent for complex OCR'ed PDFs
         text = self._extract_with_pdfplumber(file_path)
         if text:
             return self._apply_ocr_fixes(text)
         
-        # Method 2: pdfminer.six - good general fallback
+        # Method 3: pdfminer.six - reliable general fallback
         text = self._extract_with_pdfminer(file_path)
-        if text:
-            return self._apply_ocr_fixes(text)
-        
-        # Method 3: PyPDF2 - fast fallback
-        text = self._extract_with_pypdf2(file_path)
         if text:
             return self._apply_ocr_fixes(text)
         
@@ -176,12 +186,15 @@ class OCROptimizedPDFProcessor:
         """
         Extract using pdfplumber - often best for OCR'ed documents.
         pdfplumber is excellent at extracting text that has been OCR'ed.
+        
+        Note: pdfplumber is an optional dependency. If not installed,
+        this method will gracefully fall back to other extraction methods.
         """
         try:
-            import pdfplumber
+            import pdfplumber  # type: ignore # Optional dependency - see requirements.txt
             
             text_parts = []
-            with pdfplumber.open(file_path) as pdf:
+            with pdfplumber.open(file_path) as pdf:  # type: ignore[unknown-variable-type]
                 for page in pdf.pages:
                     page_text = page.extract_text()
                     if page_text:
@@ -192,12 +205,12 @@ class OCROptimizedPDFProcessor:
                 logger.info(f"pdfplumber extracted {len(text)} characters")
                 return text
                 
-        except ImportError:
-            logger.debug("pdfplumber not available")
+        except ImportError as e:
+            logger.debug(f"pdfplumber not available - skipping pdfplumber extraction: {e}")
+            return None
         except Exception as e:
             logger.warning(f"pdfplumber extraction failed: {e}")
-        
-        return None
+            return None
 
     def _extract_with_pdfminer(self, file_path: str) -> Optional[str]:
         """Extract using pdfminer.six - reliable fallback."""
@@ -219,7 +232,7 @@ class OCROptimizedPDFProcessor:
         try:
             import PyPDF2
             
-            with open(file_path, 'rb') as file:
+            with open(file_path, 'rb') as file:  # type: ignore[unknown-member-type]
                 reader = PyPDF2.PdfReader(file)
                 if reader.is_encrypted:
                     return None
@@ -271,6 +284,19 @@ class OCROptimizedPDFProcessor:
         Fallback extraction for non-OCR'ed documents (born-digital PDFs).
         Uses minimal processing for maximum speed.
         """
+        # PyPDF2 first - fastest for born-digital PDFs
+        try:
+            import PyPDF2
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                if not reader.is_encrypted:
+                    text = "".join(page.extract_text() for page in reader.pages)
+                    if text:
+                        return self._whitespace.sub(' ', text).strip()
+        except:
+            pass
+        
+        # pdfminer.six fallback
         try:
             from pdfminer.high_level import extract_text
             text = extract_text(file_path)
@@ -280,21 +306,10 @@ class OCROptimizedPDFProcessor:
         except:
             pass
         
-        # PyPDF2 fallback
-        try:
-            import PyPDF2
-            with open(file_path, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                if not reader.is_encrypted:
-                    text = "".join(page.extract_text() for page in reader.pages)
-                    return self._whitespace.sub(' ', text).strip() if text else ""
-        except:
-            pass
-        
         return "Error: Extraction failed"
 
 
-def detect_ocr_characteristics(text: str) -> Dict[str, any]:
+def detect_ocr_characteristics(text: str) -> Dict[str, Any]:
     """
     Analyze text to determine if it's likely from OCR and what fixes might be needed.
     """
@@ -363,6 +378,7 @@ class OptimizedPDFProcessor:
     """
     
     def __init__(self):
+        super().__init__()
         # Pre-compile regex patterns for better performance
         self._citation_patterns = {
             'us_reports': re.compile(r'(\d+)\s*U\.\s*S\.\s*(\d+)'),
@@ -711,6 +727,7 @@ class UnifiedDocumentProcessor:
     """
     
     def __init__(self):
+        super().__init__()
         self.ocr_corrections = self._init_ocr_corrections()
         
         # Initialize citation processor

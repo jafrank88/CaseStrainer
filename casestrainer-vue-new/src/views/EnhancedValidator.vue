@@ -78,7 +78,7 @@
                 To analyze your file, please upload it again using the form below.
               </p>
               <UnifiedInput 
-                @analyze="handleAnalyze"
+                @analyze="handleUnifiedAnalyze"
                 :is-analyzing="showLoading"
               />
             </div>
@@ -105,9 +105,9 @@
         </div>
         
         <!-- Input Form -->
-        <div v-else-if="showFileUpload" class="input-container">
+        <div v-else-if="shouldShowInput" class="input-container">
           <UnifiedInput 
-            @analyze="handleAnalyze"
+            @analyze="handleUnifiedAnalyze"
             :is-analyzing="showLoading"
           />
         </div>
@@ -251,7 +251,14 @@ export default {
     let progressTimer = null;
 
     // Add showFileUpload reactive state
-    const showFileUpload = ref(false);
+    const showFileUpload = ref(true); // Show input form by default
+    
+    // Computed property to determine when to show input form
+    const shouldShowInput = computed(() => {
+      // Show input if no results, no error, and not loading
+      // Also show input if we're in the initial state
+      return !results.value && !error.value && !showLoading.value;
+    });
 
     // In setup()
     const { normalizeCitations, calculateCitationScore } = useCitationNormalization();
@@ -424,19 +431,8 @@ export default {
             };
           }
           
-          // Update results object with progress data for CitationResults component
-          results.value = {
-            citations: [],
-            clusters: [], // Clear clusters when progress updates
-            metadata: data.metadata || {},
-            progress: data.progress || 0,
-            eta_seconds: data.eta_seconds || null,
-            current_chunk: data.current_chunk || 0,
-            total_chunks: data.total_chunks || 1,
-            total_citations: data.total_citations || 0,
-            verified_count: 0,
-            unverified_count: 0
-          };
+          // Don't set results during processing - keep it null so input form shows
+          // Only set results when processing is complete
           
           console.log('EnhancedValidator: Updated results with progress data:', results.value);
           
@@ -575,10 +571,16 @@ export default {
           ...responseData,
           citations: normalizeCitations(rawCitations),
           clusters: responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
+          total_citations: rawCitations.length,
+          verified_count: rawCitations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
+          unverified_count: rawCitations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length,
           timestamp: new Date().toISOString()
         };
         
         console.log('Results set to:', results.value);
+        console.log('shouldShowInput computed value:', shouldShowInput.value);
+        console.log('showLoading value:', showLoading.value);
+        console.log('error value:', error.value);
         
         isLoading.value = false;
         error.value = null;
@@ -630,21 +632,26 @@ export default {
         return;
       }
       
+      console.log('handleTextAnalyze called with:', { text, options });
       isLoading.value = true;
       error.value = null;
       results.value = null;
       
       try {
         // Use the analyze function which handles async responses properly
+        console.log('Calling analyze function...');
         const responseData = await analyze({
           text: text,
           type: 'text'
         });
         
+        console.log('Analyze function returned:', responseData);
+        
         // The analyze function handles polling internally, so we just need to handle the results
         handleResults(responseData);
         isLoading.value = false;
       } catch (err) {
+        console.error('Error in handleTextAnalyze:', err);
         handleError(err);
       }
     };
@@ -999,6 +1006,7 @@ export default {
 
       // Show file upload option
       showFileUpload,
+      shouldShowInput,
     };
   }
 };

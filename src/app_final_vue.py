@@ -3,16 +3,12 @@ Enhanced CaseStrainer Flask Application
 Improved version with better error handling, performance, and maintainability
 """
 
-import argparse
-import atexit
 import logging
 import os
 import sys
 import threading
-import signal
-from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Callable, Any, Union, Optional
 
 from flask import Flask
 
@@ -22,40 +18,26 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 from src.case_name_extraction_core import extract_case_name_and_date
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-
-# Try to import the new unified document processor
-try:
-    from src.document_processing_unified import UnifiedDocumentProcessor, process_document
-    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = True
-except ImportError:
-    UNIFIED_DOCUMENT_PROCESSOR_AVAILABLE = False
-    # Fallback to original document processing
-    try:
-        from src.document_processing_unified import process_document
-    except ImportError:
-        process_document = None
-
 # Import rate limiter
 try:
     from src.rate_limiter import rate_limit, validate_input
-    RATE_LIMITER_AVAILABLE = True
+    rate_limiter_available = True
 except ImportError:
-    RATE_LIMITER_AVAILABLE = False
+    rate_limiter_available = False
     # Fallback decorators that do nothing
-    def rate_limit(max_calls=100, window=3600):
-        def decorator(f):
+    def rate_limit(max_calls: int = 100, window: int = 3600) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
             return f
         return decorator
     
-    def validate_input(input_type='text'):
-        def decorator(f):
+    def validate_input(input_type: str = 'text') -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
             return f
         return decorator
 
 # Enhanced citation verification function
 
-def verify_citation_with_extraction(citation_text: str, document_text: str = "", api_key: str = None) -> dict:
+def verify_citation_with_extraction(citation_text: str, document_text: str = "", api_key: Optional[str] = None) -> dict[str, Union[str, float, None]]:
     """
     Enhanced citation verification that includes both extraction and database verification.
     This should be called in your main verification workflow.
@@ -214,9 +196,10 @@ class LoggingManager:
 class ConfigManager:
     """Configuration management with validation"""
     
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger) -> None:
+        super().__init__()
         self.logger = logger
-        self._config = {}
+        self._config: dict[str, Any] = {}
         self._load_config()
     
     def _load_config(self):
@@ -244,7 +227,7 @@ class ConfigManager:
             self.logger.error(f"Failed to import config module: {e}")
             raise ApplicationError(f"Configuration loading failed: {e}")
     
-    def get(self, key: str, default=None):
+    def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value with dot notation support"""
         keys = key.split('.')
         value = self._config
@@ -392,12 +375,13 @@ class SecurityManager:
 class ResponseManager:
     """Handle response processing and logging"""
     
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger) -> None:
+        super().__init__()
         self.logger = logger
         self._response_count = 0
         self._lock = threading.Lock()
     
-    def log_response(self, response, request):
+    def log_response(self, response: Any, request: Any) -> Any:
         """Log responses with rate limiting and filtering"""
         with self._lock:
             self._response_count += 1
@@ -441,14 +425,16 @@ class ApplicationFactory:
     _instance = None
     _lock = threading.Lock()
     
-    def __init__(self):
+    def __init__(self) -> None:
+        super().__init__()
         self.logger = LoggingManager.setup_logging()
         self.config_manager = ConfigManager(self.logger)
         self.response_manager = ResponseManager(self.logger)
+        self._app: Optional[Flask] = None
         self._setup_signal_handlers()
     
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> 'ApplicationFactory':
         """Thread-safe singleton pattern"""
         if cls._instance is None:
             with cls._lock:
@@ -458,7 +444,7 @@ class ApplicationFactory:
     
     def create_app(self) -> 'Flask':
         """Create and configure Flask application"""
-        if hasattr(self, '_app') and self._app is not None:
+        if hasattr(self, '_app') and self._app:
             self.logger.info("Returning existing Flask application instance")
             return self._app
         
@@ -503,7 +489,7 @@ class ApplicationFactory:
         
         return app
     
-    def _register_blueprints(self, app):
+    def _register_blueprints(self, app: Any) -> None:
         """Register application blueprints with proper error handling"""
         # Register blueprints
         try:
@@ -513,7 +499,7 @@ class ApplicationFactory:
         except Exception as e:
             self.logger.error(f"Could not register vue_api_endpoints: {e}")
 
-    def _configure_cors(self, app):
+    def _configure_cors(self, app: Any) -> None:
         """Configure CORS with security considerations"""
         from flask_cors import CORS
 
@@ -522,7 +508,7 @@ class ApplicationFactory:
             'https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080'
         ).split(',')
 
-        CORS(app,
+        _ = CORS(app,
              resources={r"/*": {"origins": cors_origins}},
              supports_credentials=True,
              allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
@@ -531,24 +517,23 @@ class ApplicationFactory:
 
         self.logger.info(f"CORS configured for origins: {cors_origins}")
 
-    def _setup_upload_security(self, app):
+    def _setup_upload_security(self, app: Any) -> None:
         """Setup secure upload directory"""
         upload_folder = self.config_manager.get('upload.folder')
         if not SecurityManager.setup_secure_upload_directory(upload_folder, self.logger):
             raise ApplicationError("Failed to setup secure upload directory")
 
-    def _register_routes(self, app):
+    def _register_routes(self, app: Any) -> None:
         """Register application routes"""
-        from flask import send_from_directory, make_response, request
         
         @app.route('/casestrainer/', defaults={'path': ''})
         @app.route('/casestrainer/<path:path>')
-        def serve_vue_app(path):
+        def serve_vue_app(path: str) -> Any:
             return self._serve_static_file(path)
         
         # Test route for debugging
         @app.route('/test')
-        def test():
+        def test() -> str:
             return 'Test route is working!'
         
         self.logger.info("Application routes registered")
@@ -557,7 +542,7 @@ class ApplicationFactory:
         for rule in app.url_map.iter_rules():
             self.logger.info(f"Route: {rule} -> Endpoint: {rule.endpoint}")
     
-    def _serve_static_file(self, path: str):
+    def _serve_static_file(self, path: str) -> Any:
         """Serve static files with enhanced security and caching"""
         from flask import send_from_directory, make_response
         
@@ -583,7 +568,7 @@ class ApplicationFactory:
             response.headers['Content-Type'] = 'text/html; charset=utf-8'
             return response
     
-    def _set_cache_headers(self, response, path: str):
+    def _set_cache_headers(self, response: Any, path: str) -> None:
         """Set appropriate caching headers"""
         if path.endswith(('.js', '.css', '.png', '.jpg', '.jpeg', '.gif', 
                           '.svg', '.woff', '.woff2', '.ttf', '.eot')):
@@ -597,7 +582,7 @@ class ApplicationFactory:
             # Other files: cache for 1 hour
             response.headers['Cache-Control'] = 'public, max-age=3600'
     
-    def _set_security_headers(self, response):
+    def _set_security_headers(self, response: Any) -> None:
         """Set comprehensive security headers"""
         security_headers = {
             'X-Content-Type-Options': 'nosniff',
@@ -605,7 +590,9 @@ class ApplicationFactory:
             'X-XSS-Protection': '1; mode=block',
             'Referrer-Policy': 'strict-origin-when-cross-origin',
             'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-            'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self';",
+            'Content-Security-Policy': ("default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                                       "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                                       "font-src 'self'; connect-src 'self';"),
             'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
@@ -615,7 +602,7 @@ class ApplicationFactory:
         for header, value in security_headers.items():
             response.headers[header] = value
     
-    def _set_mime_type(self, response, path: str):
+    def _set_mime_type(self, response: Any, path: str) -> None:
         """Set proper MIME types"""
         mime_types = {
             '.js': 'application/javascript',
@@ -637,34 +624,34 @@ class ApplicationFactory:
         if file_ext in mime_types:
             response.headers['Content-Type'] = mime_types[file_ext]
     
-    def _register_error_handlers(self, app):
+    def _register_error_handlers(self, app: Any) -> None:
         """Register error handlers"""
         from flask import jsonify
         
         @app.errorhandler(404)
-        def not_found(error):
+        def not_found(error: Any) -> tuple[Any, int]:
             return jsonify({'error': 'Not found'}), 404
         
         @app.errorhandler(500)
-        def internal_error(error):
+        def internal_error(error: Any) -> tuple[Any, int]:
             self.logger.error(f"Internal server error: {error}")
             return jsonify({'error': 'Internal server error'}), 500
         
         @app.errorhandler(Exception)
-        def handle_exception(error):
+        def handle_exception(error: Any) -> tuple[Any, int]:
             self.logger.error(f"Unhandled exception: {error}", exc_info=True)
             return jsonify({'error': 'An unexpected error occurred'}), 500
     
-    def _register_middleware(self, app):
+    def _register_middleware(self, app: Any) -> None:
         """Register middleware"""
         from flask import request
         
-        def log_response_wrapper(response):
+        def log_response_wrapper(response: Any) -> Any:
             return self.response_manager.log_response(response, request)
         
         app.after_request(log_response_wrapper)
     
-    def _get_database_manager(self):
+    def _get_database_manager(self) -> Any:
         """Get database manager with error handling"""
         try:
             from src.database_manager import get_database_manager
@@ -673,17 +660,17 @@ class ApplicationFactory:
             self.logger.error(f"Failed to import database manager: {e}")
             raise ApplicationError("Database manager unavailable")
     
-    def _setup_signal_handlers(self):
+    def _setup_signal_handlers(self) -> None:
         """Setup graceful shutdown handlers"""
         import threading
-        def signal_handler(signum, frame):
+        def signal_handler(signum: int, frame: Any) -> None:
             self.logger.info(f"Received signal {signum}, shutting down gracefully...")
             # Add cleanup logic here
             sys.exit(0)
         # Only set up signal handlers in the main thread
         if threading.current_thread() is threading.main_thread():
-            signal.signal(signal.SIGINT, signal_handler)
-            signal.signal(signal.SIGTERM, signal_handler)
+            _ = signal.signal(signal.SIGINT, signal_handler)
+            _ = signal.signal(signal.SIGTERM, signal_handler)
         else:
             self.logger.info("Skipping signal handler setup (not in main thread)")
 
@@ -702,12 +689,12 @@ def get_wsgi_application():
 def main():
     """Main execution function"""
     parser = argparse.ArgumentParser(description="Enhanced CaseStrainer Application")
-    parser.add_argument("--host", default=os.getenv("HOST", "0.0.0.0"))
-    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "5000")))
-    parser.add_argument("--debug", action="store_true", 
+    _ = parser.add_argument("--host", default=os.getenv("HOST", "0.0.0.0"))
+    _ = parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "5000")))
+    _ = parser.add_argument("--debug", action="store_true", 
                        default=os.getenv("FLASK_DEBUG", "").lower() == "true")
-    parser.add_argument("--use-waitress", action="store_true", default=False)
-    parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
+    _ = parser.add_argument("--use-waitress", action="store_true", default=False)
+    _ = parser.add_argument("--workers", type=int, default=1, help="Number of worker processes")
     
     args = parser.parse_args()
     
@@ -738,7 +725,7 @@ def main():
             logger.info("Starting with Flask development server")
             app.run(host=args.host, port=args.port, debug=args.debug, threaded=True)
             
-    except Exception as e:
+    except Exception:
         logger.critical("Fatal error in main execution", exc_info=True)
         sys.exit(1)
 

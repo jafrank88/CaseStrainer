@@ -7,10 +7,15 @@ This module will be removed in a future version.
 
 import warnings
 warnings.warn(
-    "UnifiedCitationProcessor is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
+    "UnifiedCitationProcessor is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead. "
+    "This file will be removed in the next release.",
     DeprecationWarning,
     stacklevel=2
 )
+
+# TODO: Remove this file in next release
+# This file is kept only for backward compatibility and should not be used in new code.
+# All functionality has been superseded by UnifiedCitationProcessorV2.
 
 import re
 import time

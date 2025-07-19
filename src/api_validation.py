@@ -6,12 +6,13 @@ import re
 from functools import wraps
 from flask import jsonify, request
 import logging
+from typing import Callable, Any, Tuple, List
 from .config import ALLOWED_EXTENSIONS
 
 logger = logging.getLogger(__name__)
 
 
-def validate_json_content_type(f):
+def validate_json_content_type(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to validate that the request has JSON content type."""
 
     @wraps(f)
@@ -24,10 +25,10 @@ def validate_json_content_type(f):
     return decorated_function
 
 
-def validate_required_fields(required_fields):
+def validate_required_fields(required_fields: List[str]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate that required fields are present in the request JSON."""
 
-    def decorator(f):
+    def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(f)
         def decorated_function(*args, **kwargs):
             data = request.get_json()
@@ -50,7 +51,7 @@ def validate_required_fields(required_fields):
     return decorator
 
 
-def validate_citation_text(text):
+def validate_citation_text(text: str) -> Tuple[bool, str]:
     """Validate that the citation text is a non-empty string."""
     if not isinstance(text, str) or not text.strip():
         return False, "Citation text must be a non-empty string"
@@ -66,14 +67,14 @@ def validate_citation_text(text):
     return True, ""
 
 
-def validate_case_name(case_name):
+def validate_case_name(case_name: str) -> Tuple[bool, str]:
     """Validate that the case name is a string (can be empty)."""
     if case_name is not None and not isinstance(case_name, str):
         return False, "Case name must be a string"
     return True, ""
 
 
-def validate_citation_request(f):
+def validate_citation_request(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to validate a citation verification request."""
 
     @wraps(f)
@@ -100,7 +101,7 @@ def validate_citation_request(f):
     return decorated_function
 
 
-def validate_file_upload(f):
+def validate_file_upload(f: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to validate file upload requests."""
 
     @wraps(f)
@@ -115,7 +116,8 @@ def validate_file_upload(f):
         # Check file extension
         allowed_extensions = ALLOWED_EXTENSIONS
         if (
-            "." not in file.filename
+            file.filename is None
+            or "." not in file.filename
             or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
         ):
             return (
@@ -133,7 +135,7 @@ def validate_file_upload(f):
     return decorated_function
 
 
-def validate_file_direct(file):
+def validate_file_direct(file: Any) -> Tuple[bool, str]:
     """Direct function to validate a file object (not a decorator)."""
     if not file:
         return False, "No file provided"
@@ -144,7 +146,8 @@ def validate_file_direct(file):
     # Check file extension
     allowed_extensions = ALLOWED_EXTENSIONS
     if (
-        "." not in file.filename
+        file.filename is None
+        or "." not in file.filename
         or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
     ):
         return False, f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
@@ -156,7 +159,7 @@ def validate_file_direct(file):
     return True, ""
 
 
-def validate_text_input(text):
+def validate_text_input(text: str) -> Tuple[bool, str]:
     """Validate that the text input is a non-empty, reasonable-length string with no control characters."""
     if not isinstance(text, str) or not text.strip():
         return False, "Text input must be a non-empty string"
@@ -167,7 +170,7 @@ def validate_text_input(text):
         return False, "Text input contains invalid control characters"
     return True, ""
 
-def validate_url_input(url):
+def validate_url_input(url: str) -> Tuple[bool, str]:
     """Validate that the URL input is a non-empty, valid http(s) URL."""
     if not isinstance(url, str) or not url.strip():
         return False, "URL must be a non-empty string"

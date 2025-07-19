@@ -1,6 +1,27 @@
 #!/usr/bin/env python3
+# DEPRECATED: Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead of LegalDatabaseScraper.
+# This file is retained for legacy reference only and should not be used in new code.
+# 
+# The ComprehensiveWebSearchEngine provides:
+# - All features from LegalDatabaseScraper
+# - Enhanced Washington citation variants
+# - Advanced case name extraction
+# - Specialized legal database extraction (CaseMine, vLex, Casetext, Leagle, Justia, FindLaw)
+# - Similarity scoring and validation
+# - Better reliability scoring
+#
+# Migration guide: See docs/WEB_SEARCH_MIGRATION.md
+
+import warnings
+warnings.warn(
+    "LegalDatabaseScraper is deprecated. Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 """
-Legal Database Scraper for extracting canonical case information
+Legal Database Scraper
+Specialized scraping for legal databases with enhanced extraction capabilities
 """
 
 import requests

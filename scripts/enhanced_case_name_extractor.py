@@ -201,7 +201,7 @@ class EnhancedCaseNameExtractor:
                         "Content-Type": "application/json",
                         "User-Agent": "CaseStrainer Enhanced Extractor"
                     }
-                    response = requests.post(url, json={"text": form}, headers=headers, timeout=10)
+                    response = requests.post(url, data={"text": form}, headers=headers, timeout=10)
                     response.raise_for_status()
                     data = response.json()
                     print(f"[PRINT] Citation-lookup response for '{form}': {json.dumps(data, default=str)[:500]}")
@@ -669,7 +669,7 @@ class EnhancedCaseNameExtractor:
                         "Content-Type": "application/json",
                         "User-Agent": "CaseStrainer Enhanced Extractor"
                     }
-                    response = requests.post(url, json={"text": citation}, headers=headers, timeout=10)
+                    response = requests.post(url, data={"text": citation}, headers=headers, timeout=10)
                     response.raise_for_status()
                     data = response.json()
                     

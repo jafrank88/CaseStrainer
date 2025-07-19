@@ -93,7 +93,7 @@ def test_courtlistener_with_normalized():
         
         try:
             url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
-            response = requests.post(url, headers=headers, json={"text": citation}, timeout=10)
+            response = requests.post(url, headers=headers, data={"text": citation}, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()

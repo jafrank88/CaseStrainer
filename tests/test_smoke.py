@@ -6,16 +6,20 @@ import os
 import unittest
 from pathlib import Path
 
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 class TestSmoke(unittest.TestCase):
     """Basic smoke tests for CaseStrainer."""
     
     def test_imports(self):
         """Test that required modules can be imported."""
         try:
-            # Try importing main application modules
-            from src.citation_validator import CitationValidator
-            from src.courtlistener_api import CourtListenerAPI
-            from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+            # Try importing main application modules that actually exist
+            from src.enhanced_unified_citation_processor import CitationValidator  # type: ignore
+            from src.document_processing_unified import UnifiedDocumentProcessor  # type: ignore
+            from src.redis_distributed_processor import RedisDistributedPDFSystem  # type: ignore
             
             # If we get here, imports worked
             self.assertTrue(True)

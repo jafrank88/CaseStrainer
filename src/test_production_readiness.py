@@ -15,9 +15,9 @@ import shutil
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from config import validate_config, get_environment_info
-from rate_limiter import AdvancedRateLimiter, InputValidator
-from app_final_vue import ApplicationFactory, SecurityManager
+from src.config import validate_config, get_environment_info
+from src.rate_limiter import AdvancedRateLimiter, InputValidator
+from src.app_final_vue import ApplicationFactory, SecurityManager
 
 
 class ProductionReadinessTests(unittest.TestCase):

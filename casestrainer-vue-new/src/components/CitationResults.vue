@@ -17,10 +17,11 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 50
 const expandedCitations = ref(new Set())
+const expandedClusters = ref(new Set())
 const progress = ref(0)
 const etaSeconds = ref(null)
 const useHorizontalLayout = ref(false) // Toggle for alternative layout
-const displayMode = ref('canonical-only') // 'full', 'horizontal', 'canonical-only'
+const displayMode = ref('canonical-only') // Default to canonical-only display
 
 const attentionFilter = ref('all')
 const showAll = ref(false)
@@ -72,7 +73,9 @@ watch(() => props.results, (newVal, oldVal) => {
     hasClusters: !!(newVal && newVal.clusters),
     clustersLength: newVal && newVal.clusters ? newVal.clusters.length : 'N/A',
     hasCitations: !!(newVal && newVal.citations),
-    citationsLength: newVal && newVal.citations ? newVal.citations.length : 'N/A'
+    citationsLength: newVal && newVal.citations ? newVal.citations.length : 'N/A',
+    totalCitations: newVal && newVal.total_citations ? newVal.total_citations : 'N/A',
+    noCitationsFound: noCitationsFound.value
   })
 }, { immediate: true, deep: true })
 
@@ -406,6 +409,41 @@ const getScoreDisplay = (citation) => {
   return isVerified(citation) ? '✓' : '✗'
 }
 
+// Add missing computed properties
+const noCitationsFound = computed(() => {
+  if (!props.results) return true
+  
+  // Check if we have any citations in clusters
+  if (props.results.clusters && props.results.clusters.length > 0) {
+    const totalCitations = props.results.clusters.reduce((total, cluster) => {
+      return total + (cluster.citations ? cluster.citations.length : 0)
+    }, 0)
+    if (totalCitations > 0) return false
+  }
+  
+  // Check if we have any citations in the flat citations array
+  if (props.results.citations && props.results.citations.length > 0) {
+    return false
+  }
+  
+  // Check if we have any citations in other possible fields
+  if (props.results.total_citations && props.results.total_citations > 0) {
+    return false
+  }
+  
+  return true
+})
+
+const inputType = computed(() => {
+  // This would need to be passed as a prop or determined from context
+  return 'text'
+})
+
+const inputValue = computed(() => {
+  // This would need to be passed as a prop or determined from context
+  return ''
+})
+
 const formatYear = (dateStr) => {
   if (!dateStr) return null
   const match = dateStr.match(/\d{4}/)
@@ -417,6 +455,14 @@ const toggleExpanded = (citationKey) => {
     expandedCitations.value.delete(citationKey)
   } else {
     expandedCitations.value.add(citationKey)
+  }
+}
+
+const toggleClusterDetails = (clusterId) => {
+  if (expandedClusters.value.has(clusterId)) {
+    expandedClusters.value.delete(clusterId)
+  } else {
+    expandedClusters.value.add(clusterId)
   }
 }
 
@@ -548,9 +594,9 @@ function downloadAllCitations() {
                 </div>
               </template>
               <template v-else>
-                <!-- Line 1: Canonical Name & Date -->
+                <!-- Line 1: Verified Name & Date -->
                 <div class="citation-row flex-names-row">
-                  <span class="row-label">Canonical:</span>
+                  <span class="row-label">Verified:</span>
                   <span>
                     <template v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'">
                       {{ getCanonicalCaseName(cluster.citations[0]) }}
@@ -562,9 +608,9 @@ function downloadAllCitations() {
                     </template>
                   </span>
                 </div>
-                <!-- Line 2: Extracted Name & Date -->
+                <!-- Line 2: From Document Name & Date -->
                 <div class="citation-row flex-names-row">
-                  <span class="row-label">Extracted:</span>
+                  <span class="row-label">From Document:</span>
                   <span>
                     <template v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'">
                       {{ getExtractedCaseName(cluster.citations[0]) }}
@@ -673,29 +719,7 @@ function downloadAllCitations() {
             {{ filter.label }} ({{ filter.count }})
           </button>
         </div>
-        <div class="layout-controls">
-          <button 
-            :class="['layout-btn', { active: displayMode === 'full' }]"
-            @click="displayMode = 'full'"
-            title="Full Display with All Details"
-          >
-            <span>📋</span> Citation on Top
-          </button>
-          <button 
-            :class="['layout-btn', { active: displayMode === 'horizontal' }]"
-            @click="displayMode = 'horizontal'"
-            title="Horizontal Layout"
-          >
-            <span>📄</span> Horizontal
-          </button>
-          <button 
-            :class="['layout-btn', { active: displayMode === 'canonical-only' }]"
-            @click="displayMode = 'canonical-only'"
-            title="Name/Date on Top (Default)"
-          >
-            <span>📝</span> Name/Date on Top (Default)
-          </button>
-        </div>
+
         <div class="search-box">
           <input 
             v-model="searchQuery"
@@ -708,189 +732,129 @@ function downloadAllCitations() {
 
       <!-- CLUSTER DISPLAY -->
       <div class="citations-list">
-        <!-- FULL DISPLAY (Original) -->
-        <div v-if="displayMode === 'full'">
-          <div v-for="cluster in filteredClusters" :key="cluster.cluster_id" class="cluster-item">
-            <!-- Cluster-level info -->
-            <div class="cluster-header">
-              <h3>
-                <span v-if="cluster.canonical_name && cluster.canonical_name !== 'N/A'">
-                  {{ cluster.canonical_name }}
+        <!-- SIMPLIFIED DISPLAY: Canonical name/date, Extracted name/date, Citations -->
+        <div class="canonical-only-clusters">
+          <div v-for="cluster in filteredClusters" :key="cluster.cluster_id" class="canonical-only-card">
+            <!-- Main content with expandable details -->
+            <div class="cluster-main-content">
+              <!-- First line: Verified name and date -->
+              <div class="canonical-line">
+                <span class="canonical-label">Verified:</span>
+                <span v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'" 
+                      :class="['canonical-name', getCaseNameClass(cluster.citations[0])]">
+                  {{ getCanonicalCaseName(cluster.citations[0]) }}
+                  <span v-if="getCanonicalDate(cluster.citations[0])" :class="['canonical-date', getDateClass(cluster.citations[0])]">
+                    ({{ formatYear(getCanonicalDate(cluster.citations[0])) }})
+                  </span>
+                  <span v-else class="canonical-date missing">(no date)</span>
                 </span>
-                <span v-else>Unverified Cluster</span>
-                <span v-if="cluster.canonical_date" class="canonical-date">
-                  ({{ formatYear(cluster.canonical_date) }})
-                </span>
-              </h3>
-              <div v-if="cluster.extracted_case_name && cluster.extracted_case_name !== 'N/A'" class="extracted-info">
-                <span class="extracted-label">Extracted from document:</span>
-                <span class="extracted-name">{{ cluster.extracted_case_name }}</span>
-                <span v-if="cluster.extracted_date" class="extracted-date">
-                  ({{ formatYear(cluster.extracted_date) }})
-                </span>
+                <span v-else class="canonical-name missing">No canonical name</span>
               </div>
-              <div class="cluster-meta">
-                <span class="cluster-size">{{ cluster.size }} citation<span v-if="cluster.size > 1">s</span></span>
-                <span v-if="cluster.url">
-                  <a :href="cluster.url" target="_blank">View on CourtListener</a>
+              
+              <!-- Second line: From Document name and date -->
+              <div class="extracted-line">
+                <span class="extracted-label">From Document:</span>
+                <span v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'" 
+                      :class="['extracted-name', getCaseNameClass(cluster.citations[0])]">
+                  {{ getExtractedCaseName(cluster.citations[0]) }}
+                  <span v-if="getExtractedDate(cluster.citations[0])" :class="['extracted-date', getDateClass(cluster.citations[0])]">
+                    ({{ formatYear(getExtractedDate(cluster.citations[0])) }})
+                  </span>
+                  <span v-else class="extracted-date missing">(no date)</span>
                 </span>
+                <span v-else class="extracted-name missing">No extracted name or year</span>
+              </div>
+              
+              <!-- Third line and beyond: Each citation on its own row -->
+              <div class="citations-section">
+                <span class="citations-label"></span>
+                <div class="citations-list-vertical">
+                  <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-row-item">
+                    <a v-if="getVerificationStatus(citation) === 'verified' && getCitationUrl(citation)" 
+                       :href="getCitationUrl(citation)" 
+                       target="_blank" 
+                       class="citation-link-verified">
+                      {{ getCitation(citation) }}
+                    </a>
+                    <span v-else class="citation-text">{{ getCitation(citation) }}</span>
+                    <span class="verification-badge" :class="getVerificationStatus(citation)">
+                      {{ getVerificationStatus(citation).replace('_', ' ') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Expand/Collapse button -->
+              <div class="expand-section">
+                <button 
+                  @click="toggleClusterDetails(cluster.cluster_id)" 
+                  class="expand-btn"
+                  :class="{ expanded: expandedClusters.has(cluster.cluster_id) }"
+                >
+                  <span class="expand-text">{{ expandedClusters.has(cluster.cluster_id) ? 'Hide Details' : 'Show Details' }}</span>
+                  <span class="expand-icon">▼</span>
+                </button>
               </div>
             </div>
             
-            <!-- List all citations in this cluster as rows -->
-            <div class="cluster-citations">
-              <div v-for="(citation, index) in cluster.citations" :key="`${cluster.cluster_id}-${index}`" class="citation-row">
-                <div class="citation-row-content">
-                  <div class="citation-score">
-                    <span 
-                      :class="['score-badge', getScoreClass(citation)]"
-                      :title="'Confidence: ' + getConfidence(citation)"
-                    >
-                      {{ getScoreDisplay(citation) }}
-                    </span>
-                  </div>
-                  <div class="citation-details">
-                    <div class="citation-text-line">
-                      <a 
-                        v-if="getCitationUrl(citation)"
-                        :href="getCitationUrl(citation)" 
-                        target="_blank"
-                        class="citation-link"
-                      >
-                        {{ getCitation(citation) }}
-                      </a>
-                      <span v-else class="citation-text">
-                        {{ getCitation(citation) }}
-                      </span>
+            <!-- Collapsible Details Section -->
+            <div v-if="expandedClusters.has(cluster.cluster_id)" class="cluster-details">
+              <div class="details-content">
+                <!-- Cluster metadata -->
+                <div class="detail-section">
+                  <h4 class="detail-section-title">Cluster Information</h4>
+                  <div class="detail-grid">
+                    <div class="detail-item">
+                      <span class="detail-label">Cluster ID:</span>
+                      <span class="detail-value">{{ cluster.cluster_id }}</span>
                     </div>
-                    <div class="citation-meta-line">
-                      <span class="source">{{ getSource(citation) }}</span>
-                      <span class="verification-status" :class="getVerificationStatus(citation)">
+                    <div class="detail-item">
+                      <span class="detail-label">Size:</span>
+                      <span class="detail-value">{{ cluster.size }} citation{{ cluster.size > 1 ? 's' : '' }}</span>
+                    </div>
+                    <div v-if="cluster.url" class="detail-item">
+                      <span class="detail-label">CourtListener URL:</span>
+                      <a :href="cluster.url" target="_blank" class="detail-link">View on CourtListener</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Individual citation details -->
+                <div class="detail-section">
+                  <h4 class="detail-section-title">Citation Details</h4>
+                  <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-detail-item">
+                    <div class="citation-detail-header">
+                      <h5 class="citation-detail-title">{{ getCitation(citation) }}</h5>
+                      <span class="verification-badge" :class="getVerificationStatus(citation)">
                         {{ getVerificationStatus(citation).replace('_', ' ') }}
                       </span>
                     </div>
-                    <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
+                    
+                    <div class="citation-detail-content">
+                      <div class="detail-grid">
+                        <div class="detail-item">
+                          <span class="detail-label">Source:</span>
+                          <span class="detail-value">{{ getSource(citation) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Confidence:</span>
+                          <span class="detail-value">{{ getConfidence(citation) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Mismatch Reason:</span>
+                          <span class="detail-value">{{ getMismatchReason(citation) || 'None' }}</span>
+                        </div>
+                        <div v-if="getError(citation)" class="detail-item">
+                          <span class="detail-label">Error:</span>
+                          <span class="detail-value error-text">{{ getError(citation) }}</span>
+                        </div>
+                        <div v-if="getCitationUrl(citation)" class="detail-item">
+                          <span class="detail-label">URL:</span>
+                          <a :href="getCitationUrl(citation)" target="_blank" class="detail-link">View Citation</a>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- HORIZONTAL LAYOUT (Alternative) -->
-        <div v-else-if="displayMode === 'horizontal'" class="horizontal-clusters">
-          <div v-for="cluster in filteredClusters" :key="cluster.cluster_id" class="horizontal-cluster-card">
-            <div class="horizontal-cluster-header">
-              <div class="cluster-title-section">
-                <h3 class="cluster-title">
-                  <span v-if="cluster.canonical_name && cluster.canonical_name !== 'N/A'">
-                    {{ cluster.canonical_name }}
-                  </span>
-                  <span v-else>Unverified Cluster</span>
-                  <span v-if="cluster.canonical_date" class="canonical-date">
-                    ({{ formatYear(cluster.canonical_date) }})
-                  </span>
-                </h3>
-                <div v-if="cluster.extracted_case_name && cluster.extracted_case_name !== 'N/A'" class="extracted-info">
-                  <span class="extracted-label">Extracted:</span>
-                  <span class="extracted-name">{{ cluster.extracted_case_name }}</span>
-                  <span v-if="cluster.extracted_date" class="extracted-date">
-                    ({{ formatYear(cluster.extracted_date) }})
-                  </span>
-                </div>
-              </div>
-              <div class="cluster-actions">
-                <span class="cluster-size-badge">{{ cluster.size }} citation<span v-if="cluster.size > 1">s</span></span>
-                <a v-if="cluster.url" :href="cluster.url" target="_blank" class="courtlistener-link">
-                  <span>🔗</span> CourtListener
-                </a>
-              </div>
-            </div>
-            
-            <div class="horizontal-citations-grid">
-              <div v-for="(citation, index) in cluster.citations" :key="`${cluster.cluster_id}-${index}`" class="horizontal-citation-card">
-                <div class="citation-card-header">
-                  <span 
-                    :class="['score-badge', getScoreClass(citation)]"
-                    :title="'Confidence: ' + getConfidence(citation)"
-                  >
-                    {{ getScoreDisplay(citation) }}
-                  </span>
-                  <span class="verification-status" :class="getVerificationStatus(citation)">
-                    {{ getVerificationStatus(citation).replace('_', ' ') }}
-                  </span>
-                </div>
-                <div class="citation-card-body">
-                  <div class="citation-text">
-                    <a 
-                      v-if="getCitationUrl(citation)"
-                      :href="getCitationUrl(citation)" 
-                      target="_blank"
-                      class="citation-link"
-                    >
-                      {{ getCitation(citation) }}
-                    </a>
-                    <span v-else>
-                      {{ getCitation(citation) }}
-                    </span>
-                  </div>
-                  <div class="citation-source">
-                    <span class="source-label">Source:</span>
-                    <span class="source-value">{{ getSource(citation) }}</span>
-                  </div>
-                  <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- CANONICAL-ONLY DISPLAY -->
-        <div v-else-if="displayMode === 'canonical-only'" class="canonical-only-clusters">
-          <div v-for="cluster in filteredClusters" :key="cluster.cluster_id" class="canonical-only-card">
-            <!-- First line: Canonical name and date -->
-            <div class="canonical-line">
-              <span class="canonical-label">Canonical:</span>
-              <span v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'" 
-                    :class="['canonical-name', getCaseNameClass(cluster.citations[0])]">
-                {{ getCanonicalCaseName(cluster.citations[0]) }}
-                <span v-if="getCanonicalDate(cluster.citations[0])" :class="['canonical-date', getDateClass(cluster.citations[0])]">
-                  ({{ formatYear(getCanonicalDate(cluster.citations[0])) }})
-                </span>
-                <span v-else class="canonical-date missing">(no date)</span>
-              </span>
-              <span v-else class="canonical-name missing">No canonical name</span>
-            </div>
-            
-            <!-- Second line: Extracted name and date -->
-            <div class="extracted-line">
-              <span class="extracted-label">Extracted:</span>
-              <span v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'" 
-                    :class="['extracted-name', getCaseNameClass(cluster.citations[0])]">
-                {{ getExtractedCaseName(cluster.citations[0]) }}
-                <span v-if="getExtractedDate(cluster.citations[0])" :class="['extracted-date', getDateClass(cluster.citations[0])]">
-                  ({{ formatYear(getExtractedDate(cluster.citations[0])) }})
-                </span>
-                <span v-else class="extracted-date missing">(no date)</span>
-              </span>
-              <span v-else class="extracted-name missing">No extracted name</span>
-            </div>
-            
-            <!-- Third line and beyond: Each citation on its own row -->
-            <div class="citations-section">
-              <span class="citations-label">Citations:</span>
-              <div class="citations-list-vertical">
-                <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-row-item">
-                  <a v-if="getVerificationStatus(citation) === 'verified' && getCitationUrl(citation)" 
-                     :href="getCitationUrl(citation)" 
-                     target="_blank" 
-                     class="citation-link-verified">
-                    {{ getCitation(citation) }}
-                  </a>
-                  <span v-else class="citation-text">{{ getCitation(citation) }}</span>
-                  <span class="verification-badge" :class="getVerificationStatus(citation)">
-                    {{ getVerificationStatus(citation).replace('_', ' ') }}
-                  </span>
                 </div>
               </div>
             </div>
@@ -941,29 +905,7 @@ function downloadAllCitations() {
             {{ filter.label }} ({{ filter.count }})
           </button>
         </div>
-        <div class="layout-controls">
-          <button 
-            :class="['layout-btn', { active: displayMode === 'full' }]"
-            @click="displayMode = 'full'"
-            title="Full Display with All Details"
-          >
-            <span>📋</span> Citation on Top
-          </button>
-          <button 
-            :class="['layout-btn', { active: displayMode === 'horizontal' }]"
-            @click="displayMode = 'horizontal'"
-            title="Horizontal Layout"
-          >
-            <span>📄</span> Horizontal
-          </button>
-          <button 
-            :class="['layout-btn', { active: displayMode === 'canonical-only' }]"
-            @click="displayMode = 'canonical-only'"
-            title="Name/Date on Top"
-          >
-            <span>📝</span> Name/Date on Top
-          </button>
-        </div>
+
         <div class="search-box">
           <input 
             v-model="searchQuery"
@@ -976,13 +918,7 @@ function downloadAllCitations() {
 
       <div class="citations-list">
         <div v-for="citation in filteredCitations" :key="getCitation(citation)" class="citation-item individual">
-          <!-- Three-line display for single citation, matching cluster card -->
-          <div class="citation-row citation-row-citations">
-            <span class="citation-text">{{ getCitation(citation) }}</span>
-            <span class="verification-badge" :class="getVerificationStatus(citation)">
-              {{ getVerificationStatus(citation) }}
-            </span>
-          </div>
+          <!-- New format: Verified first, then From Document, then citations -->
           <div class="citation-row citation-row-canonical flex-names-row">
             <span class="row-label">Verified:</span>
             <span>
@@ -1006,7 +942,13 @@ function downloadAllCitations() {
                 </span>
                 <span v-else class="extracted-date missing">(no date)</span>
               </span>
-              <span v-else class="extracted-name missing">No extracted name</span>
+              <span v-else class="extracted-name missing">No extracted name or year</span>
+            </span>
+          </div>
+          <div class="citation-row citation-row-citations">
+            <span class="citation-text">{{ getCitation(citation) }}</span>
+            <span class="verification-badge" :class="getVerificationStatus(citation)">
+              {{ getVerificationStatus(citation) }}
             </span>
           </div>
           <div class="detail-row"><span class="detail-label">Mismatch Reason:</span> <span>{{ getMismatchReason(citation) }}</span></div>
@@ -1492,40 +1434,7 @@ function downloadAllCitations() {
   border-color: #007bff;
 }
 
-.layout-controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
 
-.layout-btn {
-  padding: 0.5rem 1rem; /* Match .filter-btn */
-  border: 2px solid #e9ecef;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem; /* Match .filter-btn */
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-  height: 2.2rem; /* Match filter button height */
-}
-
-.layout-btn span {
-  font-size: 1rem; /* Slightly smaller icon */
-}
-
-.layout-btn:hover {
-  border-color: #007bff;
-}
-
-.layout-btn.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
-}
 
 .search-box {
   flex: 1;
@@ -1817,6 +1726,168 @@ function downloadAllCitations() {
   color: #2c3e50;
 }
 
+/* Expandable Details Styles */
+.cluster-main-content {
+  position: relative;
+}
+
+.expand-section {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.expand-btn {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.expand-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.expand-btn.expanded {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.expand-btn.expanded:hover {
+  background: #0056b3;
+}
+
+.expand-icon {
+  font-size: 0.8rem;
+  transition: transform 0.2s;
+}
+
+.expand-btn.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+.cluster-details {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detail-section {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 1rem;
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 0.75rem 0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  word-break: break-word;
+}
+
+.detail-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.detail-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.error-text {
+  color: #dc3545;
+  font-style: italic;
+}
+
+.citation-detail-item {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.citation-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.citation-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+
+.citation-detail-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  flex: 1;
+}
+
 /* Mobile Responsive Design */
 @media (max-width: 768px) {
   .citation-results {
@@ -1843,18 +1914,7 @@ function downloadAllCitations() {
     font-size: 0.85rem;
   }
   
-  /* Layout controls - stack vertically */
-  .layout-controls {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .layout-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
+
   
   /* Search box - full width */
   .search-box {
@@ -1982,6 +2042,30 @@ function downloadAllCitations() {
     align-self: flex-end;
     margin-left: 0;
   }
+  
+  /* Expandable details mobile styles */
+  .expand-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .citation-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .citation-detail-title {
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2004,10 +2088,7 @@ function downloadAllCitations() {
     min-width: 70px;
   }
   
-  .layout-btn {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-  }
+
   
   .search-input {
     padding: 0.5rem 0.75rem;
@@ -2026,6 +2107,24 @@ function downloadAllCitations() {
     padding: 0.75rem;
   }
   
+  /* Expandable details small mobile styles */
+  .expand-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .cluster-details {
+    padding: 0.75rem;
+  }
+  
+  .detail-section {
+    padding-bottom: 0.75rem;
+  }
+  
+  .details-content {
+    gap: 1rem;
+  }
+  
   .citation-parallel-item {
     padding: 0.375rem;
     font-size: 0.9rem;
@@ -2040,7 +2139,6 @@ function downloadAllCitations() {
 /* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
   .filter-btn,
-  .layout-btn,
   .citation-header {
     min-height: 44px;
   }

@@ -1,6 +1,9 @@
 """
 Comprehensive Enhanced Validator Test Script
 
+DEPRECATED: This is a test script that should not be in production code.
+This file will be moved to a test directory or removed in a future version.
+
 This script tests the Enhanced Validator with five different types of citations:
 1. Landmark cases
 2. CourtListener validated cases
@@ -10,6 +13,17 @@ This script tests the Enhanced Validator with five different types of citations:
 
 It generates a detailed report on the performance of the Enhanced Validator for each type.
 """
+
+import warnings
+warnings.warn(
+    "comprehensive_validator_test.py is deprecated. This is a test script that should not be in production code. "
+    "This file will be moved to a test directory or removed in the next release.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# TODO: Move this file to test/ directory or remove in next release
+# This file is kept only for reference and should not be used in production.
 
 import os
 import json

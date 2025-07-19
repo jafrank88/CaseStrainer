@@ -62,8 +62,9 @@ def extract_case_name_best(content: str, citation: str, input_type: str = 'text'
             return extract_case_name_unified(content, citation)
         except NameError:
             # If extract_case_name_unified is not available, use a fallback
-            from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
-            case_name, _, _ = extract_case_name_and_date(text=content, citation=citation)
+            from src.case_name_extraction_core import extract_case_name_and_date
+            result = extract_case_name_and_date(text=content, citation=citation)
+            case_name = result.get('case_name', '')
             return case_name or ""
     except Exception as e:
         logger.warning(f"extract_case_name_best failed: {e}")
@@ -1661,8 +1662,11 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
         # PRIORITY 1: Try enhanced extraction first
         logger.info("=== TRYING ENHANCED EXTRACTION ===")
         try:
-            from src.case_name_extraction_core import extract_case_name_improved
-            case_name, extracted_date, confidence = extract_case_name_improved(text, citation)
+            from src.case_name_extraction_core import extract_case_name_and_date
+            extraction_result = extract_case_name_and_date(text, citation)
+            case_name = extraction_result.get('case_name', '')
+            extracted_date = extraction_result.get('date', '')
+            confidence = extraction_result.get('confidence', 0.0)
             
             if case_name and case_name != "N/A":
                 result['case_name'] = case_name
@@ -1702,8 +1706,11 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
         if result['case_name'] == "N/A":
             logger.info("=== TRYING COMPREHENSIVE EXTRACTION ===")
             try:
-                from src.case_name_extraction_core import extract_case_name_and_date_comprehensive
-                case_name, extracted_date, canonical_name = extract_case_name_and_date(text=text, citation=citation)
+                from src.case_name_extraction_core import extract_case_name_and_date
+                result = extract_case_name_and_date(text=text, citation=citation)
+                case_name = result.get('case_name', '')
+                extracted_date = result.get('date', '')
+                canonical_name = result.get('case_name', '')  # Use case_name as canonical_name
                 
                 if case_name and case_name != "N/A":
                     result['case_name'] = case_name

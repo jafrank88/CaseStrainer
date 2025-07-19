@@ -9,7 +9,6 @@ import os
 import logging
 import sqlite3
 import re
-from datetime import datetime
 try:
     import Levenshtein
     LEVENSHTEIN_AVAILABLE = True
@@ -17,7 +16,7 @@ except ImportError:
     LEVENSHTEIN_AVAILABLE = False
     logger.warning("Warning: Levenshtein module not available, using difflib fallback")
 import sys
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from difflib import SequenceMatcher
 from .citation_format_utils import apply_washington_spacing_rules
 from .database_manager import get_database_manager
@@ -41,7 +40,7 @@ class CitationCorrectionEngine:
     by finding similar verified citations and applying intelligent correction rules.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the correction engine."""
         self.db_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "citations.db"
@@ -57,17 +56,17 @@ class CitationCorrectionEngine:
         # Initialize the database
         self._init_database()
 
-    def suggest_corrections(self, citation, max_suggestions=5, min_similarity=0.7):
+    def suggest_corrections(self, citation: str, max_suggestions: int = 5, min_similarity: float = 0.7) -> Dict[str, Any]:
         """
         Suggest corrections for a potentially invalid citation.
 
         Args:
-            citation (str): The citation to correct
-            max_suggestions (int): Maximum number of suggestions to return
-            min_similarity (float): Minimum similarity score (0-1) for suggestions
+            citation: The citation to correct
+            max_suggestions: Maximum number of suggestions to return
+            min_similarity: Minimum similarity score (0-1) for suggestions
 
         Returns:
-            dict: Dictionary containing the original citation and a list of suggested corrections
+            Dictionary containing the original citation and a list of suggested corrections
         """
         if not citation:
             return {"citation": "", "suggestions": [], "error": "No citation provided"}
@@ -183,15 +182,15 @@ class CitationCorrectionEngine:
                 "error": f"Error generating suggestions: {str(e)}",
             }
 
-    def _normalize_citation(self, citation):
+    def _normalize_citation(self, citation: str) -> str:
         """
         Normalize citation format for better matching.
 
         Args:
-            citation (str): The citation to normalize
+            citation: The citation to normalize
 
         Returns:
-            str: The normalized citation
+            The normalized citation
         """
         if not citation:
             return ""
@@ -279,7 +278,7 @@ class CitationCorrectionEngine:
             logger.error(f"Error normalizing citation '{citation}': {str(e)}")
             return citation.strip()
 
-    def _extract_citation_components(self, citation):
+    def _extract_citation_components(self, citation: str) -> Dict[str, Any]:
         """Extract components from a citation for flexible matching."""
         components = {"volume": "", "reporter": "", "page": "", "court": "", "year": ""}
 
@@ -448,7 +447,7 @@ class CitationCorrectionEngine:
             if conn:
                 conn.close()
 
-    def _seed_database(self, cursor):
+    def _seed_database(self, cursor: sqlite3.Cursor) -> None:
         """Seed the database with sample verified citations."""
         try:
             sample_citations = [
@@ -539,7 +538,7 @@ class CitationCorrectionEngine:
             logger.error(traceback.format_exc())
             return []
 
-    def _similarity_score(self, citation1, citation2):
+    def _similarity_score(self, citation1: str, citation2: str) -> float:
         """Calculate similarity score between two citations."""
         # Normalize citations
         norm1 = self._normalize_citation(citation1)
@@ -581,7 +580,7 @@ class CitationCorrectionEngine:
 
         return similarity
 
-    def _find_similar_citations(self, citation, threshold=0.7):
+    def _find_similar_citations(self, citation: str, threshold: float = 0.7) -> List[Dict[str, Any]]:
         """
         Find similar verified citations above a similarity threshold.
 
@@ -656,7 +655,7 @@ class CitationCorrectionEngine:
             logger.debug(traceback.format_exc())
             return []
 
-    def _apply_correction_rules(self, citation):
+    def _apply_correction_rules(self, citation: str) -> str:
         """Apply correction rules to fix common citation errors."""
         corrected = citation
 
@@ -707,101 +706,9 @@ class CitationCorrectionEngine:
             logger.error(f"Error checking database: {e}")
             return False
 
-    def suggest_corrections(self, citation):
-        """
-        Suggest corrections for an invalid or unverified citation.
-        Returns a list of suggested corrections with explanations.
-        """
-        if not citation:
-            return {
-                "citation": citation,
-                "suggestions": [],
-                "error": "No citation provided",
-            }
 
-        logger.info(f"Suggesting corrections for citation: {citation}")
 
-        # Check if database is initialized with data
-        if not self._check_database_initialized():
-            logger.warning("Citation database is empty or not properly initialized")
-            # Instead of returning an error, try to apply rule-based corrections
-            logger.info("Proceeding with rule-based corrections only")
-
-            # Apply correction rules
-            rule_corrected = self._apply_correction_rules(citation)
-
-            # Only return the rule-based correction if it's different from the original
-            if rule_corrected != citation:
-                return {
-                    "citation": citation,
-                    "suggestions": [
-                        {
-                            "corrected_citation": rule_corrected,
-                            "similarity": 0.8,  # Estimated similarity
-                            "explanation": "Applied automatic correction rules (database not available)",
-                            "correction_type": "rule_based",
-                        }
-                    ],
-                    "warning": "Citation database is empty. Only rule-based corrections are available.",
-                }
-
-            return {
-                "citation": citation,
-                "suggestions": [],
-                "warning": "No corrections available. Citation database is empty.",
-            }
-
-        # Apply correction rules
-        rule_corrected = self._apply_correction_rules(citation)
-
-        # Find similar citations
-        similar_citations = self._find_similar_citations(citation)
-
-        # Prepare suggestions
-        suggestions = []
-
-        # Add rule-based correction if different from original
-        if rule_corrected != citation:
-            try:
-                similarity = self._similarity_score(citation, rule_corrected)
-                suggestions.append(
-                    {
-                        "corrected_citation": rule_corrected,
-                        "similarity": similarity,
-                        "explanation": "Applied automatic correction rules",
-                        "correction_type": "rule_based",
-                    }
-                )
-            except Exception as e:
-                logger.error(f"Error applying rule-based correction: {e}")
-
-        # Add similar citations if any
-        if similar_citations:
-            for similar in similar_citations[:5]:  # Limit to top 5
-                try:
-                    suggestions.append(
-                        {
-                            "corrected_citation": similar["citation"],
-                            "similarity": similar["similarity"],
-                            "explanation": f"Similar to verified citation (similarity: {similar['similarity']:.2f})",
-                            "correction_type": "similar_citation",
-                        }
-                    )
-                except Exception as e:
-                    logger.error(f"Error processing similar citation: {e}")
-                    continue
-
-        # Sort suggestions by similarity if we have any
-        if suggestions:
-            suggestions.sort(key=lambda x: x.get("similarity", 0), reverse=True)
-
-        return {
-            "citation": citation,
-            "suggestions": suggestions,
-            "correction_date": datetime.now().isoformat(),
-        }
-
-    def batch_suggest_corrections(self, citations):
+    def batch_suggest_corrections(self, citations: List[str]) -> List[Dict[str, Any]]:
         """
         Suggest corrections for a batch of citations.
         Returns a list of correction suggestions.
@@ -814,7 +721,7 @@ class CitationCorrectionEngine:
 
         return results
 
-    def apply_best_correction(self, citation):
+    def apply_best_correction(self, citation: str) -> Dict[str, Any]:
         """
         Apply the best correction to a citation.
         Returns the corrected citation and an explanation.
@@ -866,4 +773,4 @@ if __name__ == "__main__":
             )
             logger.info(f"     Explanation: {suggestion['explanation']}")
 
-        logger.info()
+        logger.info("")  # Empty message for spacing

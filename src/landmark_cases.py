@@ -13,20 +13,12 @@ import warnings
 warnings.warn(
     "src.landmark_cases is deprecated. The landmark cases database has been removed. "
     "All functionality has been integrated into UnifiedCitationProcessor. "
-    "Use the unified pipeline instead.",
+    "Use the unified pipeline instead. This file will be removed in the next release.",
     DeprecationWarning,
     stacklevel=2
 )
 
-import re
-import logging
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass
-from datetime import datetime
-import time
-import json
-import requests
-from urllib.parse import quote_plus
-import unicodedata
-import string
-from difflib import SequenceMatcher
+# All imports removed as this module is deprecated
+
+# TODO: Remove this file in next release
+# This file is kept only for backward compatibility and should not be used in new code.

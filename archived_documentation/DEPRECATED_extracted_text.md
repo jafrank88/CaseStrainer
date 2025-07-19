@@ -1,0 +1,442 @@
+# ⚠️ DEPRECATED - auto_deprecate_markdown.py
+
+> **This file has been deprecated and moved to the archived documentation.**
+
+## Deprecation Information
+- **Date Deprecated**: 2025-07-19 15:12:58
+- **Reason**: Temporary file - test results or debug output
+- **Replacement**: See `CONSOLIDATED_DOCUMENTATION.md` for current documentation
+
+## Original Content
+The original content has been preserved below for reference:
+
+---
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 1 of 9
+
+PLAINTIFFS’ MOTIONS IN LIMINE
+
+Plaintiffs,  STEPHANIE  WADSWORTH  and  MATTHEW  WADSWORTH,  by  and
+
+through their undersigned counsel, hereby move this Honorable Court for an Order in limine to
+
+exclude the following from evidence and from any statement or argument during the trial. These
+
+Motions are made pursuant to the Federal Rules of Evidence, specifically Rules 401, 402, and 403,
+
+as well as the local rules of this Court and the Amended Scheduling Order (Doc. 78).
+
+Taly Goody, Esq. Wyoming Bar No.: 8-6737 Greyson M. Goody, Esq. GOODY LAW GROUP 58 Malaga Cove Plaza Palos Verdes Estates, CA 90274 Telephone: (310) 893-1983 Email: taly@GoodyLawGroup.com             greyson@GoodyLawGroup.com      T. Michael Morgan, Esq* Florida Bar No.: 062229 Rudwin Ayala, Esq* Florida Bar No.: 84005 MORGAN & MORGAN, P.A 20 N. Orange Ave, Suite 1600 Orlando, FL 32801 Telephone: (407) 420-1414 Email: mmorgan@forthepeople.com              rayala@forthepeople.com       * Pro Hac Vice Attorneys for Plaintiffs  UNITED STATES DISTRICT COURT IN AND FOR THE DISTRICT OF WYOMING    STEPHANIE WADSWORTH, Individually and as Parent and Legal Guardian of W.W., K.W., G.W., and L.W., minor children, and MATTHEW WADSWORTH,         Plaintiffs,   v.   WALMART, INC. and JETSON ELECTRIC BIKES, LLC,               Defendants.          Case No.: 2:23-cv-00118-NDF  JURY TRIAL DEMANDED        
+ 
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 2 of 9
+
+The  Motion  will  be  heard  by  the  Honorable  Scott  P.  Klosterman  at  the  United  States
+
+District Court for the District of Wyoming, 2120 Capitol Avenue Cheyenne, WY 82001, and on a
+
+date and time to be set by the Court.
+
+In accordance with this Court’s Local Rule 7.1(b)(1)(a), the undersigned certifies that legal
+
+counsel  for  Defendants  has  in  good  faith  conferred  with  legal  counsel  for  Plaintiffs  on  these
+
+motions.
+
+INTRODUCTION
+
+This case arises from a catastrophic incident involving the explosion and subsequent fire
+
+of a defective hoverboard, specifically a Jetson Plasma Iridescent Hoverboard, purchased by the
+
+Plaintiffs  from  Walmart.  On  February  1,  2022,
+
+the  hoverboard’s  lithium-ion  battery
+
+malfunctioned, causing it to ignite and subsequently leading to significant property damage and
+
+serious  burn  injuries  to  Stephanie  Wadsworth  and  Weston  Wadsworth.  All  Plaintiffs  suffered
+
+significant emotional and psychological trauma.  Plaintiffs  have sued  Defendants  Walmart,  Inc.
+
+and  Jetson  Electric  Bikes,  LLC  for  their  roles  in  designing,  manufacturing,  marketing,  and
+
+distributing the defective product. The Defendants deny Plaintiffs' allegations and contend that the
+
+fire originated outside of the home, arguing that their product was not defective.
+
+LEGAL STANDARD
+
+Motions in limine are utilized to exclude prejudicial or irrelevant evidence before it is
+
+presented to the jury. The Federal Rules of Evidence, particularly Rules 401, 402, and 403,
+
+govern the admissibility of evidence.
+
+1.  Relevance (FRE 401 & 402): Evidence must be relevant to be admissible. Relevant 
+evidence  is  defined  as  evidence  that  makes  a  fact  more  or  less  probable  than  it 
+would be without the evidence. Irrelevant evidence is inadmissible.
+
+2.  Prejudicial  Impact  (FRE  403):  Even  relevant  evidence  may  be  excluded  if  its 
+probative  value  is  substantially  outweighed  by  the  danger  of  unfair  prejudice,
+
+2
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 3 of 9
+
+confusion of the issues, or misleading the jury. Courts have consistently held that 
+evidence with a high potential for prejudice should be excluded to ensure a fair trial.
+
+Additionally,  Wyoming  case  law  reinforces  these  principles.  In Wyoming  v.  U.S.
+
+Department of Energy, 2006 WL 3801910 (D. Wyo. 2006), the court emphasized the importance
+
+of preventing jury confusion and undue prejudice. In Holland v. Keller, 2018 WL 2446162 (D.
+
+Wyo. 2018), the court ruled that inflammatory evidence should be excluded, reinforcing the need
+
+to maintain a fair and impartial trial environment. Further, United States v. Hargrove, 2019 WL
+
+2516279  (D.  Wyo.  2019),  reiterated  that  evidence  likely  to  cause  unfair  prejudice  should  be
+
+excluded  if  it  outweighs  its  probative  value.  Similarly,  Meyer  v.  City  of  Cheyenne,  2017  WL
+
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury’s
+
+perception of a party should be excluded to preserve the integrity of the trial process. Evidence is
+
+unfairly  prejudicial  if  it  has  “an  undue  tendency  to  suggest  [a]  decision  on  an  improper  basis,
+
+commonly,  though  not  necessarily,  an  emotional  one.”  U.S.  v.  Caraway,  534  F.3d  1290,  1301
+
+(10th Cir. 2008)(quoting Rule 402 adv. comm. notes).
+
+ARGUMENT
+
+I.  PLAINTIFFS’  MOTION  IN  LIMINE  #1:  Evidence  or  commentary  regarding
+
+“smoking shed”.
+
+Throughout  this  litigation,  Defendants  have  made  it  a  point  to  refer  to  the  yellow  shed
+
+outside  of  the  boy’s  bedroom  window  as  the  "smoking  shed".  So  much  so,  that  every  one  of
+
+Defendants’ experts used the term smoking shed throughout their reports and deposition testimony.
+
+The shed was not manufactured as a smoking shed, it was not named a smoking shed, and it is not
+
+sold  as a smoking  shed.  It  is  obvious that Defendants’ use of the term  smoking shed, at  every
+
+opportunity,  is  only  intended  to  exacerbate  the  sensibilities  of  a  jury  to  evoke  unnecessary
+
+emotional responses and biases from them, with the result being their inevitable inability to make
+
+3
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 4 of 9
+
+a fair and impartial decision based on the facts of the case. Stating that the Plaintiffs used the shed
+
+from time to smoke and shield themselves from the harsh weather is not the same as labeling it a
+
+smoking shed. The term does not pertain to the core issues of this case concerning the liability of
+
+Defendants for the alleged defects in the hoverboard that caused the catastrophic injuries to the
+
+Plaintiffs. Furthermore, the identification of the shed as a "smoking shed" is not necessary for the
+
+Defendants to establish their defense that the fire originated from that location. Therefore, it should
+
+be  deemed  irrelevant.  The  prejudicial  effect  of  this  term  far  exceeds  any  potential  relevance  it
+
+might  have,  warranting  its  exclusion.  The  use  of  terms  that  could  unduly  influence  a  jury’s
+
+perception of a party should be excluded to preserve the integrity of the trial process. Meyer v. City
+
+of Cheyenne, 2017 WL 3461055 (D. Wyo. 2017). Allowing such evidence would run afoul of the
+
+safeguards set forth in Federal Rules of Evidence 401, 402, and 403. As such, any reference to
+
+“smoking shed” by Defendants, their counsel, their experts, and all other witnesses must be strictly
+
+prohibited.
+
+II.  PLAINTIFFS’  MOTION  IN  LIMINE  #2:  Exclusion  of  evidence  or  commentary 
+regarding an “improperly discarded cigarette” causing or contributing to cause the 
+underlying fire.
+
+Any  evidence  or  commentary  regarding  an  improperly  discarded  cigarette  allegedly
+
+starting  the  fire  must  be  precluded,  as  there  is  no  actual  physical  or  testamentary  evidence  to
+
+support  this  claim.  Defendants’  own  experts  agree.  Deposition  of  Filas  at  pg.  79:4-19,  Ex.  A;
+
+Deposition  of  Gorbett  at  61:8-62:1  and  126:16-22,  Exhibit  B.  Allowing  such  commentary,
+
+argument,  or  attempt  to  introduce  testimony  regarding  this  hypothetical  theory  is  the  type  of
+
+impermissible  stacking  of  inferences  and  uncorroborated  speculation  that  the  Federal  Rules  of
+
+Evidence intend to protect against. In Benson v. State of Wyoming, 2010 WL 4683851 (D. Wyo.
+
+2010), the court emphasized that speculative testimony without concrete evidence is inadmissible,
+
+4
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 5 of 9
+
+as it can mislead the jury and detract from the substantive issues of the case. The absence of factual
+
+support for the claim regarding an improperly discarded cigarette necessitates its exclusion under
+
+the Federal Rules of Evidence. Plaintiffs further rely upon their arguments in the briefs filed with
+
+their Daubert Motions against Defendants’ experts Filas (Doc. 98) and Gorbett (Doc. 110). For
+
+these reasons, any reference to an “improperly discarded cigarette” by Defendants, their counsel,
+
+their experts, or any other witness, including attempts to present such as a potential defense theory
+
+for causation, must be strictly prohibited.
+
+III.  PLAINTIFFS’ MOTION IN LIMINE #3: Exclusion of Evidence Relating to Alcohol
+
+Use, Abuse or Intoxication.
+
+Any evidence or commentary regarding Stephanie's alcohol use the morning of the fire, or
+
+any history of alcohol use or abuse, must be excluded. Defendants have  presented no evidence
+
+establishing  that  alcohol  played  any  role  in  causing,  or  contributing  to,  this  incident.  Without
+
+question, allowing such evidence would be extremely prejudicial and would distract the jury and
+
+promote bias against the Plaintiff. Federal courts have consistently held that testimony regarding
+
+alcohol  use  is  irrelevant  where  there  is  no  evidence  to  establish  a  causal  link  to  the  incident.
+
+In Smith v. United States, 2011 WL 2160468 (D. Wyo. 2011), the court ruled that evidence of a
+
+party's alcohol consumption was inadmissible because it lacked a direct connection to the events
+
+at issue. Allowing testimony of any alcohol consumption by Stephanie Wadsworth would only be
+
+intended to influence the jury into deciding the case based upon biases and prejudice, as opposed
+
+to the relevant facts and evidence in this case. Because introduction of any alcohol evidence or
+
+commentary is irrelevant and inadmissible under Federal Rules of Evidence 401, 402 and 403, it
+
+must be excluded from trial.
+
+IV.  PLAINTIFFS’  MOTION  IN LIMINE  #4:  Exclusion of Evidence Regarding House
+
+Being "De-Energized".
+
+5
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 6 of 9
+
+Evidence  or  testimony  suggesting  that  the  house  was  "de-energized"  at  the  time  of  the
+
+incident  should  also  be  excluded.  The  Defendants'  experts  failed  to  fully  test  and  examine  the
+
+electrical circuits throughout the entire house, choosing only to rely upon the Bedroom #4 circuit
+
+to conclude that the entire house was de-energized. The conclusion that therefore the entire house
+
+must have been de-energized is speculative and based on an assumption with no foundation. The
+
+court in Wyoming v. U.S. Department of Energy emphasized that evidence without a factual basis
+
+can mislead the jury and is therefore inadmissible. Plaintiffs have fully set forth this argument in
+
+briefs supporting their Daubert Motions against Defendants’ experts Strandjord (Doc. 95) and Filas
+
+(Doc. 98), and would rely upon those arguments for purposes of precluding such evidence from
+
+trial.  Even  if  relevant,  the  unreliable  nature  of  such  evidence  deems  it  unfairly  prejudicial  and
+
+highly likely to mislead a jury, in violation of Rule 403. For these reasons, such evidence must be
+
+excluded.
+
+V.  PLAINTIFFS’ MOTION IN LIMINE #5: Exclusion of Testimony from Defendant's 
+Economist  Expert  Regarding  Loss  of  Services  Utilizing  Table  182  of  “The  Dollar 
+Value of a Day”.
+
+Testimony from the Defendant's  forensic  economist expert, Charity Rowsey, relating to
+
+loss of services for Stephanie Wadsworth should be limited to the calculations set forth in Table
+
+223 of the resource referenced and relied upon by said expert, “The Dollar Value of a Day”. Ms.
+
+Rowsey admitted in deposition that she relied upon the wrong category, and should have relied
+
+upon Table 223 which specifically relates to the category of "married women, homemaker, not in
+
+labor force, spouse employed, all ages, youngest child ages six through twelve.”  Deposition of
+
+Charity Rowsey at 37:2 – 38:9, Exhibit C. The significance in the change from her original table
+
+of  reliance  (Table  182)  is  in  the  value  of  a  day,  which  when  calculated  and  applied  to  Mrs.
+
+Wadsworth  is  significant.  Ms.  Rowsey  must  be  precluded  from  introducing  evidence  that  the
+
+6
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 7 of 9
+
+applicable value of a day, as it relates to loss of services, is anything other than $80, as stated in
+
+Table 223 and affirmed by Ms. Rowsey to be correct. Any other testimony is incorrect, irrelevant,
+
+and would mislead the jury. As established in Holland v. Keller, introducing evidence that does
+
+not pertain directly to the claims at hand can lead to jury confusion and unfair prejudice. For these
+
+reasons, Defendants must be precluded from introduction of evidence related to loss of services
+
+that are inconsistent with the daily rate set forth in Table 223 of “The Dollar Value of a Day”.
+
+VI.  PLAINTIFFS’  MOTION  IN  LIMINE  #6:  Exclusion  of  Cumulative/Duplicative
+
+Expert Testimony.
+
+The cumulative/duplicative expert testimony  of Filas, Strandjord and Gorbett  should be
+
+excluded to prevent confusion and undue prejudice. The experts overlapping opinions on the issues
+
+of origin and causation must be limited to just one expert opining on those matters. Gorbett in
+
+particular waded into both areas, clearly duplicating opinions held by Filas. These arguments have
+
+been fully set forth in briefs supporting Plaintiffs’ Daubert Motions against Defendants’ experts
+
+Strandjord (Doc. 95), Filas (Doc. 98), and Gorbett (Doc. 110).
+
+Allowing  multiple  experts  to  testify  on  the  same  matter  can  lead  to  the  risk  of  juror
+
+confusion  and  the  potential  for  undue  emphasis  on  certain  aspects  of  the  testimony.  In United
+
+States v. Hargrove, 2019 WL 2516279 (D. Wyo. 2019), the court noted that duplicative expert
+
+testimony can be excluded under FRE 403 as it may confuse the issues and mislead the jury. The
+
+court found that presenting multiple opinions on the same issue without clear differentiation would
+
+not aid the jury in its understanding and could instead create unnecessary complexity. For these
+
+reasons, all duplicative expert testimony must be excluded.
+
+VII.  PLAINTIFFS’ MOTION IN LIMINE #7: Exclusion of Expert Testimony as set forth
+
+in Plaintiffs’ Daubert Motions
+
+Plaintiffs would reallege the bases of their Daubert Motions against Defendants’ experts,
+
+7
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 8 of 9
+
+Strandjord (Doc. 95), Filas (Doc. 98), and Gorbett (Doc. 110), and would rely upon the arguments
+
+set forth therein for the conclusion that said expert testimonies are irrelevant, and even if relevant
+
+are unfairly prejudicial and misleading to a jury, and thus inadmissible under Rules 401, 402 and
+
+403.
+
+VIII.  PLAINTIFFS’  MOTION  IN  LIMINE  #8:  Exclusion  of  Evidence  that  Defendants 
+product is safe, and that a UL 2272 listing certifies that the product is safe and cannot 
+cause injury.
+
+Throughout multiple depositions, Defendants’ counsel has attempted to establish that the
+
+subject hoverboard is listed under UL 2272, and that such listing is essentially a certification that
+
+their product is safe and cannot cause injury or malfunction. In Woods v. BNSF Railway Co., 2016
+
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their
+
+product's safety or lack of prior incidents could skew the jury's perception and distract from the
+
+relevant issues at hand. Similarly, in Fitzgerald v. City of New York, 2018 WL 3037217 (S.D.N.Y.
+
+2018),  the  court  ruled  that  evidence  regarding  a  defendant's  claims  of  safety  and  lack  of  prior
+
+injuries  could  mislead  the  jury,  resulting  in  unfair  prejudice  against  the  plaintiff.  As  such,
+
+Defendants  must  be  precluded  from  presenting  argument  or  commentary  that  the  subject
+
+hoverboard being listed under UL 2272, or any other listing, is synonymous with the hoverboard
+
+being  certified  as  safe  and  incapable  of  malfunctioning  or  causing  injury.  None  of  Defendants
+
+experts have testified that to be true. And in fact, evidence exists involving this very Defendant
+
+(Jetson) that a product being “certified” under UL 2272 does not mean that it cannot be potentially
+
+dangerous or subject to malfunction (as seen with Jetson’s recall of the Rogue hoverboard).
+
+CONCLUSION
+
+For the reasons stated above, Plaintiffs respectfully request that this Honorable Court grant
+
+their motions in limine and issue an Order excluding any evidence, argument, or reference to these
+
+8
+
+Case 2:23-cv-00118-KHR     Document 141     Filed 01/22/25     Page 9 of 9
+
+matters  during  trial  in  order  to  ensure  the  integrity  of  the  trial  process  and  to  prevent  undue
+
+prejudice against the Plaintiffs.
+
+Date: January 22, 2025.
+
+Respectfully Submitted,
+
+/s/_Rudwin Ayala 
+RUDWIN AYALA, Esq.* 
+Florida Bar No.: 84005 
+MORGAN & MORGAN, P.A 
+1700 Palm Beach Lakes Blvd, Suite 500 
+West Palm Beach, FL 33401 
+Telephone: (561) 764-2220 
+Emails: rayala@forthepeople.com 
+sleroy@forthepeople.com
+
+Admitted Pro Hac Vice
+
+And,
+
+_/s/ Taly Goody 
+TALY GOODY, ESQ. 
+Wyoming Bar No.: 8-6737 
+GREYSON M. GOODY, 
+ESQ. GOODY LAW 
+GROUP 
+58 Malaga Cove Plaza 
+Palos Verdes Estates, CA 90274 
+Telephone: (310) 893-1983 
+Emails: taly@GoodyLawGroup.com
+
+greyson@GoodyLawGroup.com
+
+Local Counsel
+
+_/s/ T. Michael Morgan 
+T. MICHAEL MORGAN, ESQ.* 
+Florida Bar No.: 062229 
+Kentucky Bar No.: 94856 
+MORGAN & MORGAN, P.A 
+20 N. Orange Ave., Suite 1600 
+Orlando, FL 32801 
+Telephone: (407) 420-1414 
+Emails: mmorgan@forthepeople.com
+
+akelseyflowers@forthepeople.com
+
+Admitted Pro Hac Vice
+
+9

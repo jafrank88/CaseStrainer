@@ -1,79 +1,65 @@
+"""
+Citation utilities for CaseStrainer.
+
+This module provides functions for citation extraction, validation, and processing
+using the unified citation processor system.
+"""
+
 import os
 import traceback
 import time
 import logging
 import sys
-from typing import List, Dict, Any, Optional
+import re
+from typing import List, Dict, Any, Optional, Tuple
 from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
-def get_unified_citations(text, logger=None):
-    """Get citations using the new unified processor with eyecite."""
-    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-    
-    config = ProcessingConfig(
-        use_eyecite=True,
-        use_regex=True,
-        extract_case_names=True,
-        extract_dates=True,
-        enable_clustering=True,
-        enable_deduplication=True,
-        debug_mode=False
-    )
-    
-    processor = UnifiedCitationProcessorV2(config)
-    results = processor.process_text(text)
-    
-    # Return just the citation strings for compatibility
-    return [result.citation for result in results]
-
-
-def get_unified_citations(text, logger=None):
-    """Get citations using the new unified processor with eyecite."""
-    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-    
-    config = ProcessingConfig(
-        use_eyecite=True,
-        use_regex=True,
-        extract_case_names=True,
-        extract_dates=True,
-        enable_clustering=True,
-        enable_deduplication=True,
-        debug_mode=False
-    )
-    
-    processor = UnifiedCitationProcessorV2(config)
-    results = processor.process_text(text)
-    
-    # Return just the citation strings for compatibility
-    return [result.citation for result in results]
-
-
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-# Now import from config with absolute path
+# Import from config with absolute path
 from config import ALLOWED_EXTENSIONS
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
+from citation_format_utils import apply_washington_spacing_rules
 
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)
 
-# Import removed - EnhancedMultiSourceVerifier was deleted
-# Using unified citation processor instead
 
-def log_citation_verification(citation, result):
+def get_unified_citations(text: str, logger: Optional[logging.Logger] = None) -> List[str]:
+    """Get citations using the new unified processor with eyecite."""
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    
+    config = ProcessingConfig(
+        use_eyecite=True,
+        use_regex=True,
+        extract_case_names=True,
+        extract_dates=True,
+        enable_clustering=True,
+        enable_deduplication=True,
+        debug_mode=False
+    )
+    
+    processor = UnifiedCitationProcessorV2(config)
+    results = processor.process_text(text)
+    
+    # Return just the citation strings for compatibility
+    return [result.citation for result in results]
+
+
+def allowed_file(filename: str) -> bool:
+    """Check if a file has an allowed extension."""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def log_citation_verification(citation: str, result: Dict[str, Any]) -> None:
     """
     Log the result of a citation verification attempt.
     
     Args:
-        citation (str): The citation text that was verified.
-        result (dict): The result of the verification process.
+        citation: The citation text that was verified.
+        result: The result of the verification process.
     """
     status = "SUCCESS" if result.get("verified", False) else "FAILED"
     logger.info(f"Citation Verification [{status}]: {citation}")
@@ -86,14 +72,8 @@ def log_citation_verification(citation, result):
             safe_source = str(result.get('source', 'No source info')).encode('cp1252', errors='replace').decode('cp1252')
             logger.info(f"Verified citation details (safe): {safe_source}")
 
-from config import COURTLISTENER_API_KEY
-import re
-from citation_format_utils import apply_washington_spacing_rules
 
-# Updated: Use the unified citation processor for all verification
-# from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier  # Removed - module deleted
-
-def normalize_citation_text(citation_text):
+def normalize_citation_text(citation_text: str) -> str:
     """
     Normalize citation text to a standard format before processing.
 
@@ -104,10 +84,10 @@ def normalize_citation_text(citation_text):
     - Washington citation spacing rules (Wn.2d vs Wn. App.)
 
     Args:
-        citation_text (str): The citation text to normalize
+        citation_text: The citation text to normalize
 
     Returns:
-        str: The normalized citation text
+        The normalized citation text
     """
     if not citation_text or not isinstance(citation_text, str):
         return citation_text
@@ -150,14 +130,14 @@ def normalize_citation_text(citation_text):
 
 
 def verify_citation(
-    citation,
-    context=None,
-    logger=None,
-    DEFAULT_API_KEY=None,
-    thread_local=None,
-    timeout=15,
-    extracted_case_name=None
-):
+    citation: str,
+    context: Optional[str] = None,
+    logger: Optional[logging.Logger] = None,
+    DEFAULT_API_KEY: Optional[str] = None,
+    thread_local: Optional[Any] = None,
+    timeout: int = 15,
+    extracted_case_name: Optional[str] = None
+) -> Dict[str, Any]:
     """Verify a citation using the unified citation processor."""
     try:
         from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
@@ -165,7 +145,8 @@ def verify_citation(
         return processor.verify_citation(citation, extracted_case_name=extracted_case_name)
     except ImportError:
         # Fallback to basic verification
-        logger.warning("Unified citation processor not available, using fallback")
+        if logger:
+            logger.warning("Unified citation processor not available, using fallback")
         return {
             "citation": citation,
             "verified": False,
@@ -173,8 +154,11 @@ def verify_citation(
         }
 
 
-def extract_citations_from_file(filepath, logger=logger):
+def extract_citations_from_file(filepath: str, logger: Optional[logging.Logger] = None) -> List[Dict[str, Any]]:
     """Extract citations from a file and return full metadata."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+        
     try:
         logger.info(f"[DEBUG] Starting extract_citations_from_file for: {filepath}")
         file_size = os.path.getsize(filepath)
@@ -220,423 +204,162 @@ def extract_citations_from_file(filepath, logger=logger):
             try:
                 with open(filepath, "r", encoding="utf-8") as file:
                     text = file.read()
-                    logger.info(f"Read {len(text)} characters from text file")
+                logger.info(f"Successfully read {len(text)} characters from text file")
             except UnicodeDecodeError:
-                logger.warning("UTF-8 decoding failed, trying with latin-1 encoding")
-                with open(filepath, "r", encoding="latin-1") as file:
+                logger.warning("UTF-8 decode failed, trying with error handling")
+                with open(filepath, "r", encoding="utf-8", errors="replace") as file:
                     text = file.read()
-                    logger.info(
-                        f"Read {len(text)} characters from text file using latin-1 encoding"
-                    )
-                    
-        extraction_time = time.time() - start_time
-        logger.info(
-            f"File content extraction completed in {extraction_time:.2f} seconds"
-        )
-        logger.info(f"Extracted text sample (first 200 chars): {text[:200]}...")
-        logger.info("Calling extract_citations_from_text with the extracted content")
-        return get_unified_citations(text, logger=logger)
-    except Exception as e:
-        logger.error(f"Error extracting citations from file: {str(e)}")
-        logger.error(traceback.format_exc())
-        return []
+                logger.info(f"Successfully read {len(text)} characters with error handling")
+            except Exception as e:
+                logger.error(f"Error reading text file: {str(e)}")
+                raise
 
-
-def extract_citations_from_text(text, logger=logger):
-    """Extract citations from text and return full metadata."""
-    try:
-        logger.info(f"[DEBUG] Starting extract_citations_from_text")
-        start_time = time.time()
-        
-        # Use the unified citation processor
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
-        
-        config = ProcessingConfig(
-            use_eyecite=True,
-            use_regex=True,
-            extract_case_names=True,
-            extract_dates=True,
-            enable_clustering=True,
-            enable_deduplication=True,
-            debug_mode=False
-        )
-        
-        processor = UnifiedCitationProcessorV2(config)
-        results = processor.process_text(text)
-        
-        # Convert CitationResult objects to dictionaries for backward compatibility
-        citations = []
-        for result in results:
-            citation_dict = {
-                'citation': result.citation,
-                'case_name': result.case_name,
-                'extracted_case_name': result.extracted_case_name,
-                'extracted_date': result.extracted_date,
-                'canonical_name': result.canonical_name,
-                'canonical_date': result.canonical_date,
-                'verified': result.verified,
-                'confidence': result.confidence,
-                'method': result.method,
-                'pattern': result.pattern,
-                'context': result.context,
-                'start_index': result.start_index,
-                'end_index': result.end_index,
-                'is_parallel': result.is_parallel,
-                'is_cluster': result.is_cluster,
-                'source': result.source,
-                'error': result.error
-            }
-            citations.append(citation_dict)
+        # Extract citations from the text
+        citations = extract_citations_from_text(text, logger)
         
         processing_time = time.time() - start_time
-        logger.info(f"[DEBUG] Extracted {len(citations)} citations in {processing_time:.2f}s")
+        logger.info(f"Citation extraction completed in {processing_time:.2f} seconds")
+        logger.info(f"Extracted {len(citations)} citations from file")
         
         return citations
         
     except Exception as e:
-        logger.error(f"Error extracting citations from text: {e}")
+        logger.error(f"Error in extract_citations_from_file: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise
+
+
+def extract_citations_from_text(text: str, logger: Optional[logging.Logger] = None) -> List[Dict[str, Any]]:
+    """Extract citations from text using the unified processor."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+        
+    if not text or not isinstance(text, str):
+        logger.warning("Invalid text input for citation extraction")
+        return []
+
+    try:
+        logger.info(f"Starting citation extraction from text ({len(text)} characters)")
+        
+        # Use the unified citation processor
+        citation_strings = get_unified_citations(text, logger)
+        
+        # Convert to the expected format
+        citations = []
+        for citation_str in citation_strings:
+            citations.append({
+                "citation": citation_str,
+                "extracted_from": "text",
+                "confidence": 0.8,  # Default confidence for extracted citations
+                "verified": False,
+                "source": "extraction"
+            })
+        
+        logger.info(f"Extracted {len(citations)} citations from text")
+        return citations
+        
+    except Exception as e:
+        logger.error(f"Error extracting citations from text: {str(e)}")
         logger.error(traceback.format_exc())
         return []
 
 
-def get_citation_context(text, citation_text, context_size=250):
-    """
-    Extract context around a citation in the text.
-
-    Args:
-        text: The full text containing the citation
-        citation_text: The citation text to find in the text
-        context_size: Number of characters to include before and after the citation
-
-    Returns:
-        str: The context around the citation, or None if not found
-    """
+def get_citation_context(text: str, citation_text: str, context_size: int = 250) -> str:
+    """Get context around a citation in the text."""
     if not text or not citation_text:
-        return None
-
-    # Find the citation in the text (case insensitive)
-    start = text.lower().find(citation_text.lower())
-    if start == -1:
-        return None
-
-    # Calculate start and end positions for the context
-    start = max(0, start - context_size)
-    end = min(len(text), start + len(citation_text) + context_size)
-
-    # Add ellipsis if not at the start/end of the text
-    prefix = "..." if start > 0 else ""
-    suffix = "..." if end < len(text) else ""
-
-    return f"{prefix}{text[start:end]}{suffix}"
-
-
-def validate_potential_citation(citation_text):
-    """
-    Secondary validation for citations that don't match standard patterns.
-    This is a more lenient validation that looks for common elements in legal citations.
+        return ""
     
-    Args:
-        citation_text: The citation text to validate
-        
-    Returns:
-        tuple: (is_valid, reason)
-            - is_valid: Boolean indicating if the citation might be valid
-            - reason: String explaining why it might be valid
-    """
-    # Filter out short citations early
-    if isinstance(citation_text, str):
-        # Check for eyecite object representations that should be filtered out
-        if any(pattern in citation_text for pattern in [
-            "IdCitation('Id.", 
-            "IdCitation('id.", 
-            "IdCitation('Ibid.", 
-            "IdCitation('ibid.",
-            "ShortCaseCitation(",
-            "UnknownCitation(",
-            "SupraCitation(",
-            "InfraCitation("
-        ]):
-            return False, "Short form citation (Id., Ibid., etc.)"
-        
-        # Check for short citations with "at" before page numbers
-        if re.search(r"\bat\s+\d+", citation_text, re.IGNORECASE):
-            return False, "Short citation with 'at' reference"
-        
-        # Check for citations that start with short form indicators
-        if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
-            return False, "Short form citation indicator"
-        
-        # Filter out U.S.C. and C.F.R. citations
-        if any(pattern in citation_text for pattern in [
-            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA",
-            "C.F.R.", "CFR", "C.F.R"
-        ]):
-            return False, "U.S.C. or C.F.R. citation (excluded from validation)"
-    
-    # Remove common punctuation and normalize spaces
-    cleaned_text = re.sub(r'[.,;]', ' ', citation_text)
-    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
-    
-    # Split into words
-    words = cleaned_text.split()
-    
-    # Must have at least 3 parts (e.g., "123 F 456")
-    if len(words) < 3:
-        return False, "Too few components"
-        
-    # Expanded list of reporter abbreviations
-    reporter_abbrevs = {
-        # Federal Reporters
-        'U.S.', 'US', 'F.', 'F', 'F.2d', 'F2d', 'F.3d', 'F3d', 'F.4th', 'F4th',
-        'S.Ct.', 'SCT', 'S.Ct', 'SCt', 'Sup.Ct.', 'Sup.Ct', 'SupCT',
-        'L.Ed.', 'LED', 'L.Ed', 'L.Ed.2d', 'LED2d', 'L.Ed.3d', 'LED3d',
-        'F.Supp.', 'F.Supp', 'F.Supp.2d', 'F.Supp.2d', 'F.Supp.3d', 'F.Supp.3d',
-        'F.R.D.', 'FRD', 'F.R.D', 'Fed.R.', 'Fed.R', 'Fed.Rules',
-        
-        # State Reporters
-        'Wash.', 'Wash', 'Wash.2d', 'Wash2d', 'Wash.App.', 'Wash.App', 'WashApp',
-        'P.', 'P', 'P.2d', 'P2d', 'P.3d', 'P3d', 'Pac.', 'Pac',
-        'N.W.', 'NW', 'N.W', 'N.W.2d', 'NW2d',
-        'N.E.', 'NE', 'N.E', 'N.E.2d', 'NE2d', 'N.E.3d', 'NE3d',
-        'S.E.', 'SE', 'S.E', 'S.E.2d', 'SE2d',
-        'S.W.', 'SW', 'S.W', 'S.W.2d', 'SW2d', 'S.W.3d', 'SW3d',
-        'A.', 'A', 'A.2d', 'A2d', 'A.3d', 'A3d', 'Atl.', 'Atl',
-        'Cal.', 'Cal', 'Cal.2d', 'Cal2d', 'Cal.3d', 'Cal3d', 'Cal.4th', 'Cal4th',
-        'N.Y.', 'NY', 'N.Y', 'N.Y.2d', 'NY2d', 'N.Y.3d', 'NY3d',
-        'So.', 'So', 'So.2d', 'So2d', 'So.3d', 'So3d',
-        'N.C.', 'NC', 'N.C', 'N.C.App.', 'NCApp',
-        'Mich.', 'Mich', 'Mich.App.', 'MichApp',
-        'Ill.', 'Ill', 'Ill.2d', 'Ill2d', 'Ill.App.', 'IllApp',
-        'Tex.', 'Tex', 'Tex.App.', 'TexApp',
-        'Mass.', 'Mass', 'Mass.App.', 'MassApp',
-        'Ohio', 'Ohio App.', 'OhioApp',
-        'Or.', 'Or', 'Or.App.', 'OrApp',
-        'Wis.', 'Wis', 'Wis.2d', 'Wis2d',
-        
-        # Specialized Reporters
-        'Bankr.', 'Bankr', 'B.R.', 'BR',
-        'Misc.', 'Misc', 'Misc.2d', 'Misc2d',
-        'App.', 'App', 'App.2d', 'App2d', 'App.3d', 'App3d',
-        'Cir.', 'Cir', 'Cir.2d', 'Cir2d',
-        '2d', '3d', '4th', '5th',
-        
-        # Additional variations
-        'Rep.', 'Rep', 'Rptr.', 'Rptr', 'Rpt.', 'Rpt',
-        'Supp.', 'Supp', 'Supp.2d', 'Supp2d',
-        'Dist.', 'Dist', 'Dist.Ct.', 'DistCt',
-        'Ct.', 'Ct', 'Cts.', 'Cts',
-        'App.Div.', 'AppDiv', 'App.Div', 'App.Div.2d', 'AppDiv2d',
-        'Super.', 'Super', 'Super.Ct.', 'SuperCt',
-        'Comm.', 'Comm', 'Comm.Pl.', 'CommPl',
-        'Mun.', 'Mun', 'Mun.Ct.', 'MunCt',
-        'Mag.', 'Mag', 'Mag.Ct.', 'MagCt',
-        'Juv.', 'Juv', 'Juv.Ct.', 'JuvCt',
-        'Fam.', 'Fam', 'Fam.Ct.', 'FamCt',
-        'Prob.', 'Prob', 'Prob.Ct.', 'ProbCt',
-        'Tax', 'Tax.Ct.', 'TaxCt',
-        'Workers', 'Workers.Comp.', 'WorkersComp',
-        'L.R.A.', 'LRA', 'L.R.A', 'L.R.A.2d', 'LRA2d',
-        'A.L.R.', 'ALR', 'A.L.R', 'A.L.R.2d', 'ALR2d', 'A.L.R.3d', 'ALR3d',
-        'U.S.C.', 'USC', 'U.S.C', 'U.S.C.A.', 'USCA',
-        'C.F.R.', 'CFR', 'C.F.R',
-        'Fed.', 'Fed', 'Fed.Reg.', 'FedReg',
-    }
-    
-    BLACKLISTED_REPORTERS = {'Filed', 'Page', 'Docket'}
-    
-    # Check if any word in the candidate is in the blacklist (e.g., 'No.', 'Page', 'Doc.'); if so, reject it.
-    if any(word in BLACKLISTED_REPORTERS for word in words):
-        return False, "Candidate contains a blacklisted non-reporter word (e.g., 'No.', 'Page', 'Doc.')"
-    
-    # Look for reporter abbreviations
-    has_reporter = any(word in reporter_abbrevs for word in words)
-    reporter = None
-    for word in words:
-        if word in reporter_abbrevs:
-            reporter = word
-            break
-    if not has_reporter:
-        # Try to find reporter abbreviations that might be split across words
-        for i in range(len(words) - 1):
-            combined = f"{words[i]}.{words[i+1]}"
-            if combined in reporter_abbrevs:
-                has_reporter = True
-                reporter = combined
-                break
-            combined = f"{words[i]}{words[i+1]}"
-            if combined in reporter_abbrevs:
-                has_reporter = True
-                reporter = combined
-                break
-    # Check for blacklisted reporter
-    if reporter in BLACKLISTED_REPORTERS:
-        return False, f"Invalid reporter: {reporter}"
-    if not has_reporter:
-        return False, "No reporter abbreviation found"
-    
-    # Look for numbers (volume and page numbers)
-    numbers = [word for word in words if word.isdigit()]
-    if len(numbers) < 2:
-        return False, "Missing volume or page number"
-    
-    # Check for reasonable number ranges
     try:
-        volume = int(numbers[0])
-        page = int(numbers[1])
-        # Expanded reasonable limits for legal citations
-        if volume > 2000 or page > 20000:  # Increased limits to catch more valid citations
-            return False, "Numbers outside reasonable range"
-    except ValueError:
-        return False, "Invalid number format"
+        # Find the citation in the text
+        index = text.find(citation_text)
+        if index == -1:
+            return ""
+        
+        # Calculate start and end positions for context
+        start = max(0, index - context_size)
+        end = min(len(text), index + len(citation_text) + context_size)
+        
+        # Extract context
+        context = text[start:end]
+        
+        # Add ellipsis if we're not at the beginning/end
+        if start > 0:
+            context = "..." + context
+        if end < len(text):
+            context = context + "..."
+        
+        return context
+        
+    except Exception as e:
+        logger.error(f"Error getting citation context: {str(e)}")
+        return ""
+
+
+def validate_potential_citation(citation_text: str) -> bool:
+    """Validate if a string looks like a potential citation."""
+    if not citation_text or not isinstance(citation_text, str):
+        return False
     
-    # Check for common citation structures
-    citation_structures = [
-        r'\d+\s+[A-Za-z\.]+\s+\d+',  # Basic structure: number reporter number
-        r'\d+\s+[A-Za-z\.]+\s+\d+\s+[A-Za-z\.]+',  # With series: number reporter number series
-        r'\d+\s+[A-Za-z\.]+\s+\d+\s*\(\d{4}\)',  # With year: number reporter number (year)
-        r'\d+\s+[A-Za-z\.]+\s+\d+\s+[A-Za-z\.]+\s*\(\d{4}\)',  # With series and year
+    # Basic citation patterns
+    citation_patterns = [
+        r'\d+\s+[A-Za-z\.]+\s+\d+',  # Volume Reporter Page
+        r'\d+\s+[A-Za-z\.]+\s*\(\d{4}\)',  # Volume Reporter (Year)
+        r'\d+\s+U\.S\.\s+\d+',  # US Supreme Court
+        r'\d+\s+F\.(?:2d|3d|4th)?\s+\d+',  # Federal Reporter
+        r'\d+\s+[A-Za-z\.]+\s+(?:2d|3d|4th|5th|6th|7th|8th|9th)\s+\d+',  # Series reporters
     ]
     
-    # If the citation matches any common structure, it's more likely to be valid
-    if any(re.search(pattern, citation_text, re.IGNORECASE) for pattern in citation_structures):
-        return True, "Matches common citation structure"
+    for pattern in citation_patterns:
+        if re.search(pattern, citation_text, re.IGNORECASE):
+            return True
     
-    # If we got here, the citation has the basic elements of a legal citation
-    return True, "Contains basic citation elements"
+    return False
 
 
-def clean_and_validate_citations(citations):
-    """
-    Clean and validate a list of citations before batch processing.
-    Removes empty strings, malformed citations, and normalizes citation formats.
-    Uses a two-step validation process for potentially malformed citations.
-    
-    Args:
-        citations: List of citation strings or dictionaries to validate
-        
-    Returns:
-        tuple: (cleaned_citations, validation_stats)
-            - cleaned_citations: List of valid citations ready for processing
-            - validation_stats: Dict with counts of removed citations by reason
-    """
+def clean_and_validate_citations(citations: List[str]) -> Tuple[List[str], Dict[str, int]]:
+    """Clean and validate a list of citations."""
     if not citations:
-        return [], {"empty_input": 0, "empty_strings": 0, "malformed": 0, "secondary_validated": 0, "total_removed": 0}
-    
-    validation_stats = {
-        "empty_input": 0,
-        "empty_strings": 0,
-        "malformed": 0,
-        "secondary_validated": 0,
-        "total_removed": 0
-    }
+        return [], {"total_removed": 0, "empty_strings": 0, "malformed": 0, "secondary_validated": 0}
     
     cleaned_citations = []
+    stats = {
+        "total_removed": 0,
+        "empty_strings": 0,
+        "malformed": 0,
+        "secondary_validated": 0
+    }
     
     for citation in citations:
-        # Handle different input formats
-        if isinstance(citation, dict):
-            citation_text = citation.get("text", citation.get("citation_text", ""))
-        else:
-            citation_text = str(citation)
-            
-        # Skip empty citations
-        if not citation_text or not citation_text.strip():
-            validation_stats["empty_strings"] += 1
-            validation_stats["total_removed"] += 1
+        if not citation or not isinstance(citation, str):
+            stats["empty_strings"] += 1
             continue
-            
-        # Filter out short citations early
-        if isinstance(citation_text, str):
-            # Check for eyecite object representations that should be filtered out
-            if any(pattern in citation_text for pattern in [
-                "IdCitation('Id.", 
-                "IdCitation('id.", 
-                "IdCitation('Ibid.", 
-                "IdCitation('ibid.",
-                "ShortCaseCitation(",
-                "UnknownCitation(",
-                "SupraCitation(",
-                "InfraCitation("
-            ]):
-                validation_stats["malformed"] += 1
-                validation_stats["total_removed"] += 1
-                continue  # Skip short form citations
-            
-            # Check for short citations with "at" before page numbers
-            if re.search(r"\bat\s+\d+", citation_text, re.IGNORECASE):
-                validation_stats["malformed"] += 1
-                validation_stats["total_removed"] += 1
-                continue  # Skip short citations with 'at' reference
-            
-                    # Check for citations that start with short form indicators
-        if citation_text.lower().startswith(('id.', 'ibid.', 'supra.', 'infra.')):
-            validation_stats["malformed"] += 1
-            validation_stats["total_removed"] += 1
-            continue  # Skip short form citation indicators
         
-        # Filter out U.S.C. and C.F.R. citations
-        if any(pattern in citation_text for pattern in [
-            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA",
-            "C.F.R.", "CFR", "C.F.R"
-        ]):
-            validation_stats["malformed"] += 1
-            validation_stats["total_removed"] += 1
-            continue  # Skip U.S.C. and C.F.R. citations
+        citation = citation.strip()
+        if not citation:
+            stats["empty_strings"] += 1
+            continue
         
-        # Basic citation format validation
-        # Look for common citation patterns
-        citation_patterns = [
-            r"\d{1,5}\s+U\.?\s*S\.?\s+\d{1,12}",  # U.S. Reports
-            r"\d{1,5}\s+F\.?(?:\s*\d*[a-z]*)?\s+\d{1,12}",  # Federal Reporter
-            r"\d{1,5}\s+S\.?\s*Ct\.?\s+\d{1,12}",  # Supreme Court Reporter
-            r"\d{1,5}\s+L\.?\s*Ed\.?\s*\d{1,12}",  # Lawyers Edition
-            r"\d{1,5}\s+(?:Wash\.2d|Wash\.App\.|Wash\.|Wn\.2d|Wn\.App\.|Wn\.)\s+\d{1,12}",  # Washington Reports (including Wn. variants)
-            r"\d{1,5}\s+P\.?\s*(?:2d|3d)?\s+\d{1,12}",  # Pacific Reporter
-            r"\d{1,5}\s+N\.?\s*W\.?\s*(?:2d)?\s+\d{1,12}",  # North Western Reporter
-            r"\d{1,5}\s+N\.?\s*E\.?\s*(?:2d|3d)?\s+\d{1,12}",  # North Eastern Reporter
-            r"\d{1,5}\s+S\.?\s*E\.?\s*(?:2d)?\s+\d{1,12}",  # South Eastern Reporter
-            r"\d{1,5}\s+S\.?\s*W\.?\s*(?:2d|3d)?\s+\d{1,12}",  # South Western Reporter
-            r"\d{1,5}\s+A\.?\s*(?:2d|3d)?\s+\d{1,12}",  # Atlantic Reporter
-            r"\d{4}\s+WL\s+\d{1,12}",  # Westlaw citations (e.g., 2020 WL 1234567, 2020 WL 123456789012)
-        ]
+        # Basic validation
+        if not validate_potential_citation(citation):
+            stats["malformed"] += 1
+            continue
         
-        # Check if citation matches any known pattern
-        is_valid = any(re.search(pattern, citation_text, re.IGNORECASE) for pattern in citation_patterns)
-        
-        if not is_valid:
-            # Try secondary validation for potentially malformed citations
-            is_potentially_valid, reason = validate_potential_citation(citation_text)
-            if is_potentially_valid:
-                logger.info(f"Citation '{citation_text}' passed secondary validation: {reason}")
-                validation_stats["secondary_validated"] += 1
-                cleaned_citations.append(citation)
-                continue
-            else:
-                logger.warning(f"Citation '{citation_text}' failed validation: {reason}")
-                validation_stats["malformed"] += 1
-                validation_stats["total_removed"] += 1
-                continue
-            
-        # If we got here, the citation is valid
-        cleaned_citations.append(citation)
+        # Normalize the citation
+        normalized = normalize_citation_text(citation)
+        if normalized and normalized not in cleaned_citations:
+            cleaned_citations.append(normalized)
+            stats["secondary_validated"] += 1
     
-    return cleaned_citations, validation_stats
-
-
-def batch_validate_citations_optimized(citations, api_key=None):
-    """
-    Optimized batch validation that stops after first successful verification.
+    stats["total_removed"] = len(citations) - len(cleaned_citations)
     
-    Args:
-        citations: List of citation strings to validate
-        api_key: Optional API key for CourtListener
+    return cleaned_citations, stats
 
-    Returns:
-        List of validation results
-    """
+
+def batch_validate_citations_optimized(citations: List[str], api_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Optimized batch validation of citations."""
     if not citations:
         return []
-
+    
     # Clean and validate citations before processing
     cleaned_citations, validation_stats = clean_and_validate_citations(citations)
     
@@ -653,39 +376,19 @@ def batch_validate_citations_optimized(citations, api_key=None):
 
     results = []
     
-    # Process citations in parallel with early termination
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-    import threading
-    
-    # Thread-safe results list
-    results_lock = threading.Lock()
-    
-    def validate_single_citation(citation):
+    def validate_single_citation(citation: str) -> Dict[str, Any]:
+        """Validate a single citation."""
         try:
-            # Try primary verification method first (CourtListener API)
             from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             verifier = UnifiedCitationProcessor()
             result = verifier.verify_citation_unified_workflow(citation)
-            
-            # If successful, return immediately (no need to try other methods)
-            if result.get("verified", False):
-                return {
-                    "citation": citation,
-                    "exists": True,
-                    "method": result.get("verification_method", "CourtListener API"),
-                    "error": None,
-                    "data": result,
-                }
-            
-            # If not found, return the result without trying additional methods
             return {
                 "citation": citation,
-                "exists": False,
-                "method": result.get("verification_method", "CourtListener API"),
-                "error": result.get("error_message", "Citation not found"),
+                "exists": result.get("verified", False),
+                "method": result.get("verification_method", "unknown"),
+                "error": None,
                 "data": result,
             }
-            
         except Exception as e:
             logger.error(f"Error validating citation {citation}: {str(e)}")
             return {
@@ -696,199 +399,31 @@ def batch_validate_citations_optimized(citations, api_key=None):
                 "data": None,
             }
     
-    # Use ThreadPoolExecutor for parallel processing
-    # Fix: Ensure max_workers is at least 1 to avoid ThreadPoolExecutor error
-    max_workers = max(1, min(10, len(cleaned_citations)))  # At least 1, max 10 workers
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all validation tasks
-        future_to_citation = {
-            executor.submit(validate_single_citation, citation): citation
-            for citation in cleaned_citations
-        }
-        
-        # Process results as they complete
-        for future in as_completed(future_to_citation):
-            try:
-                result = future.result()
-                with results_lock:
-                    results.append(result)
-            except Exception as e:
-                citation = future_to_citation[future]
-                logger.error(f"Error processing citation {citation}: {str(e)}")
-                with results_lock:
-                    results.append({
-                        "citation": citation,
-                        "exists": False,
-                        "method": "error",
-                        "error": str(e),
-                        "data": None,
-                    })
-
+    # Process citations in batches
+    batch_size = 10
+    for i in range(0, len(cleaned_citations), batch_size):
+        batch = cleaned_citations[i:i + batch_size]
+        batch_results = [validate_single_citation(citation) for citation in batch]
+        results.extend(batch_results)
+    
     return results
 
 
-def batch_validate_citations(citations, api_key=None):
-    """
-    Original batch validation function (maintained for backward compatibility).
-    For better performance, use batch_validate_citations_optimized instead.
-    
-    Args:
-        citations: List of citation strings to validate
-        api_key: Optional API key for CourtListener
-
-    Returns:
-        List of validation results
-    """
-    if not citations:
-        return []
-
-    # Clean and validate citations before processing
-    cleaned_citations, validation_stats = clean_and_validate_citations(citations)
-    
-    if validation_stats["total_removed"] > 0:
-        logger.warning(
-            f"Removed {validation_stats['total_removed']} invalid citations before processing: "
-            f"{validation_stats['empty_strings']} empty strings, "
-            f"{validation_stats['malformed']} malformed citations. "
-            f"Additionally, {validation_stats['secondary_validated']} citations passed secondary validation."
-        )
-    
-    if not cleaned_citations:
-        return []
-
-    results = []
-    for citation in cleaned_citations:
-        try:
-            from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-            verifier = UnifiedCitationProcessor()
-            result = verifier.verify_citation_unified_workflow(citation)
-            results.append(
-                {
-                    "citation": citation,
-                    "exists": result.get("verified", False),
-                    "method": result.get("verification_method", "unknown"),
-                    "error": None,
-                    "data": result,
-                }
-            )
-        except Exception as e:
-            logger.error(f"Error validating citation {citation}: {str(e)}")
-            results.append(
-                {
-                    "citation": citation,
-                    "exists": False,
-                    "method": "error",
-                    "error": str(e),
-                    "data": None,
-                }
-            )
-
-    return results
+def batch_validate_citations(citations: List[str], api_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Batch validation of citations (legacy function)."""
+    return batch_validate_citations_optimized(citations, api_key)
 
 
 # DEPRECATED: Use extract_all_citations from .citation_extractor instead.
-def extract_citations(*args, **kwargs):
+def extract_citations(*args: Any, **kwargs: Any) -> List[Any]:
     """DEPRECATED. Use extract_all_citations from .citation_extractor instead."""
     import warnings
     warnings.warn("extract_citations is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
     return []
 
-def get_unified_citations(*args, **kwargs):
-    """DEPRECATED. Use extract_all_citations from .citation_extractor instead."""
-    import warnings
-    warnings.warn("extract_citations_from_text is deprecated. Use extract_all_citations from .citation_extractor instead.", DeprecationWarning)
-    return []
 
-def get_unified_citations(text, logger=logger):
-    """
-    Extract potential citations from text using regex patterns and verify them using the CourtListener API.
-    
-    Args:
-        text (str): The text to extract citations from.
-        logger: Logger instance for logging information and errors.
-    
-    Returns:
-        list: A list of verified citation results.
-    """
-    if not text or not isinstance(text, str):
-        logger.error("Invalid input: Text must be a non-empty string.")
-        return []
-
-    logger.info("Starting citation extraction from text.")
-    
-    # Pattern for state supreme court and appellate court abbreviations (from University of Akron Bluebook Quick Reference)
-    state_court_abbr_pattern = (
-        r'\d+\s+(?:Ala\.|Alaska|Ariz\.|Ark\.|Cal\.|Colo\.|Conn\.|Del\.|D\.C\.|Fla\.|Ga\.|Haw\.|Idaho|Ill\.|Ind\.|Iowa|Kan\.|Ky\.|La\.|Me\.|Md\.|Mass\.|Mich\.|Minn\.|Miss\.|Mo\.|Mont\.|Neb\.|Nev\.|N\.H\.|N\.J\.|N\.M\.|N\.Y\.|N\.C\.|N\.D\.|Ohio|Okla\.|Or\.|Pa\.|R\.I\.|S\.C\.|S\.D\.|Tenn\.|Tex\.|Utah|Vt\.|Va\.|Wash\.|W\. Va\.|Wis\.|Wyo\.|Ala\. Civ\. App\.|Ala\. Crim\. App\.|Alaska Ct\. App\.|Ariz\. Ct\. App\.|Ark\. Ct\. App\.|Cal\. Ct\. App\.|Colo\. App\.|Conn\. App\. Ct\.|Del\. Ch\.|Fla\. Dist\. Ct\. App\.|Ga\. Ct\. App\.|Haw\. Ct\. App\.|Idaho Ct\. App\.|Ill\. App\. Ct\.|Ind\. Ct\. App\.|Iowa Ct\. App\.|Kan\. Ct\. App\.|Ky\. Ct\. App\.|La\. Ct\. App\.|Md\. App\. Ct\.|Md\. Ct\. Spec\. App\.|Mass\. App\. Ct\.|Mich\. Ct\. App\.|Minn\. Ct\. App\.|Miss\. Ct\. App\.|Mo\. Ct\. App\.|Neb\. Ct\. App\.|N\.J\. Super\. Ct\. App\. Div\.|N\.M\. Ct\. App\.|N\.Y\. App\. Div\.|N\.C\. Ct\. App\.|N\.D\. Ct\. App\.|Ohio Ct\. App\.|Okla\. Crim\. App\.|Okla\. Civ\. App\.|Or\. Ct\. App\.|Pa\. Super\. Ct\.|S\.C\. Ct\. App\.|Tenn\. Ct\. App\.|Tex\. Crim\. App\.|Tex\. App\.|Utah Ct\. App\.|Va\. Ct\. App\.|Wash\. Ct\. App\.|Wis\. Ct\. App\.)\s+\d+'
-    )
-
-    # Define regex patterns for a wide range of Bluebook-style case citation formats (federal, regional, state, and generic reporters)
-    patterns = [
-        state_court_abbr_pattern,
-                    # Regional and State Reporters - require full series indicator (2d, 3d, 4th, 5th, 6th, 7th, etc.) and page number
-            # Updated to support up to 5 digits for volume and up to 12 digits for page
-            r'\d{1,5}\s+A\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Atlantic Reporter, all series
-            r'\d{1,5}\s+A\.\s+\d{2,12}',    # Atlantic Reporter (original series, page must be at least 2 digits)
-            r'\d{1,5}\s+N\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Northeastern Reporter, all series
-            r'\d{1,5}\s+N\.E\.\s+\d{2,12}',    # Northeastern Reporter (original series)
-            r'\d{1,5}\s+N\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Northwestern Reporter, all series
-            r'\d{1,5}\s+N\.W\.\s+\d{2,12}',    # Northwestern Reporter (original series)
-            r'\d{1,5}\s+S\.E\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Southeastern Reporter, all series
-            r'\d{1,5}\s+S\.E\.\s+\d{2,12}',    # Southeastern Reporter (original series)
-            r'\d{1,5}\s+S\.W\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',  # Southwestern Reporter, all series
-            r'\d{1,5}\s+S\.W\.\s+\d{2,12}',    # Southwestern Reporter (original series)
-            r'\d{1,5}\s+So\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',     # Southern Reporter, all series
-            r'\d{1,5}\s+So\.\s+\d{2,12}',       # Southern Reporter (original series)
-            r'\d{1,5}\s+P\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',      # Pacific Reporter, all series
-            r'\d{1,5}\s+P\.\s+\d{2,12}',        # Pacific Reporter (original series)
-            # Washington (Wash. or Wn. with series and page)
-            r'\d{1,5}\s+(?:Wash\.|Wn\.)\s*(?:2d|3d|4th|5th|6th|7th|8th|9th)?\s*(?:App\.)?\s+\d{1,12}',
-            # California (Cal.4th, etc.)
-            r'\d{1,5}\s+Cal\.(?:2d|3d|4th|5th|6th|7th)\s+\d{1,12}',
-            r'\d{1,5}\s+Cal\.\s+\d{2,12}',
-            # Westlaw
-            r'\d{4}\s+WL\s+\d{1,12}',
-    ]
-    
-    # Remove any pattern that could match a period and a single digit as a valid series indicator
-    patterns = [pattern for pattern in patterns if not re.search(r'\.\d+$', pattern)]
-    
-    found = set()
-    for pattern in patterns:
-        matches = re.findall(pattern, text)
-        for match in matches:
-            found.add(match.strip())
-    
-    # Post-processing: Normalize all Washington citations to Wash. format
-    normalized_citations = []
-    for citation in found:
-        normalized_citation = citation
-        # Normalize Wn. to Wash. for all Washington citations
-        if re.search(r'\bWn\.', citation):
-            # Wn.2d -> Wash. 2d
-            normalized_citation = re.sub(r'\bWn\.2d\b', 'Wash. 2d', normalized_citation)
-            # Wn.3d -> Wash. 3d  
-            normalized_citation = re.sub(r'\bWn\.3d\b', 'Wash. 3d', normalized_citation)
-            # Wn. App. -> Wash. App.
-            normalized_citation = re.sub(r'\bWn\. App\.\b', 'Wash. App.', normalized_citation)
-            # Wn. -> Wash.
-            normalized_citation = re.sub(r'\bWn\.\b', 'Wash.', normalized_citation)
-        
-        # Also normalize any Wash.2d to Wash. 2d format
-        normalized_citation = re.sub(r'\bWash\.2d\b', 'Wash. 2d', normalized_citation)
-        normalized_citation = re.sub(r'\bWash\.3d\b', 'Wash. 3d', normalized_citation)
-        
-        normalized_citations.append(normalized_citation)
-    
-    # Remove duplicates and return normalized citations
-    unique_normalized = list(set(normalized_citations))
-    logger.info(f"Extracted {len(unique_normalized)} unique Washington citations (normalized to Wash. format).")
-    return unique_normalized
-
-
-def chunk_text_with_overlap(text, max_len=64000, overlap=40):
-    """
-    Split text into chunks of max_len with specified overlap.
-    """
+def chunk_text_with_overlap(text: str, max_len: int = 64000, overlap: int = 40) -> List[str]:
+    """Split text into chunks of max_len with specified overlap."""
     chunks = []
     i = 0
     while i < len(text):
@@ -898,7 +433,9 @@ def chunk_text_with_overlap(text, max_len=64000, overlap=40):
         i += max_len
     return chunks
 
-def deduplicate_citations(citations):
+
+def deduplicate_citations(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove duplicate citations from a list."""
     seen = set()
     unique = []
     for c in citations:
@@ -907,31 +444,3 @@ def deduplicate_citations(citations):
             seen.add(key)
             unique.append(c)
     return unique
-
-
-def get_unified_citations(text, logger=logger):
-    """
-    Extract all citations from text using the unified extractor.
-    
-    This function now delegates to the unified citation extraction system
-    for consistency across the codebase.
-    
-    Args:
-        text: The text to extract citations from
-        logger: Optional logger instance
-        
-    Returns:
-        List of citation dictionaries with metadata
-    """
-    # DEPRECATED: from .citation_extractor import CitationExtractor
-    
-    # Initialize extractor with case name extraction enabled
-    extractor = CitationExtractor(
-        use_eyecite=True,
-        use_regex=True,
-        context_window=1000,
-        deduplicate=True,
-        extract_case_names=True
-    )
-    
-    return extractor.extract(text)

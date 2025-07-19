@@ -2,7 +2,23 @@
 Enhanced extraction utilities for case names and dates from legal text.
 Provides improved regex-based extraction functions that can be integrated
 into the existing citation verification system.
+
+DEPRECATED: This module is deprecated. All functionality has been integrated
+into UnifiedCitationProcessorV2 and other newer processors.
+This file will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "enhanced_extraction_utils is deprecated. All functionality has been integrated "
+    "into UnifiedCitationProcessorV2 and other newer processors. "
+    "This file will be removed in the next release.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# TODO: Remove this file in next release
+# This file is kept only for backward compatibility and should not be used in new code.
 
 import re
 import logging

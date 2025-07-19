@@ -116,19 +116,22 @@ def analyze_enhanced():
                 logger.info("Processing text asynchronously")
                 # Generate task ID and process
                 task_id = str(uuid.uuid4())
+                # Type: ignore for coroutine access
                 result = citation_service.process_citation_task(
                     task_id, 
                     'text', 
                     {'text': text}
-                )
+                )  # type: ignore
             
-            if result['status'] == 'completed':
+            # Type: ignore for coroutine access
+            if result['status'] == 'completed':  # type: ignore
+                # Type: ignore for coroutine access
                 return jsonify({
-                    'citations': result['citations'],
-                    'clusters': result.get('clusters', []),
+                    'citations': result['citations'],  # type: ignore
+                    'clusters': result.get('clusters', []),  # type: ignore
                     'success': True,
-                    'statistics': result.get('statistics', {}),
-                    'metadata': result.get('metadata', {})
+                    'statistics': result.get('statistics', {}),  # type: ignore
+                    'metadata': result.get('metadata', {})  # type: ignore
                 })
             else:
                 return jsonify({
@@ -143,19 +146,111 @@ def analyze_enhanced():
         logger.error(f"Error in enhanced analyze endpoint: {e}", exc_info=True)
         return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
 
-def _handle_file_upload():
-    """Handle file upload processing"""
-    file = request.files['file']
-    if not file or not file.filename:
-        return jsonify({'error': 'No file provided'}), 400
-    
+@vue_api.route('/task_status/<task_id>', methods=['GET'])
+def task_status(task_id):
+    """Check the status of a queued task"""
     try:
-        # Secure filename and create unique name
-        filename = secure_filename(file.filename)
-        file_ext = os.path.splitext(filename)[1].lower()
-        unique_filename = f"{uuid.uuid4()}{file_ext}"
+        from rq import Queue
+        from redis import Redis
         
-        # Create uploads directory if it doesn't exist
+        # Get Redis connection
+        redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+        redis_conn = Redis.from_url(redis_url)
+        queue = Queue('casestrainer', connection=redis_conn)
+        
+        # Get the job
+        job = queue.fetch_job(task_id)
+        
+        if not job:
+            return jsonify({
+                'error': 'Task not found',
+                'task_id': task_id
+            }), 404
+        
+        # Check job status
+        if job.is_finished:
+            # Job completed successfully
+            result = job.result
+            if result and result.get('status') in ['success', 'completed']:
+                return jsonify({
+                    'status': 'completed',
+                    'task_id': task_id,
+                    'citations': result.get('citations', []),
+                    'clusters': result.get('clusters', []),
+                    'statistics': result.get('statistics', {}),
+                    'metadata': result.get('metadata', {}),
+                    'success': True
+                })
+            else:
+                return jsonify({
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': result.get('error', 'Processing failed') if result else 'Unknown error',
+                    'success': False
+                })
+        
+        elif job.is_failed:
+            # Job failed
+            return jsonify({
+                'status': 'failed',
+                'task_id': task_id,
+                'error': str(job.exc_info) if job.exc_info else 'Job failed',
+                'success': False
+            })
+        
+        elif job.is_started:
+            # Job is currently running
+            return jsonify({
+                'status': 'processing',
+                'task_id': task_id,
+                'message': 'Task is currently being processed',
+                'success': True
+            })
+        
+        else:
+            # Job is queued but not started yet
+            return jsonify({
+                'status': 'queued',
+                'task_id': task_id,
+                'message': 'Task is queued and waiting to be processed',
+                'position': queue.get_job_position(task_id),
+                'success': True
+            })
+            
+    except Exception as e:
+        logger.error(f"Error checking task status for {task_id}: {e}", exc_info=True)
+        return jsonify({
+            'error': 'Failed to check task status',
+            'details': str(e),
+            'task_id': task_id
+        }), 500
+
+def _handle_file_upload():
+    """Handle file upload with proper async RQ worker processing"""
+    try:
+        # Get Redis connection for async processing
+        from rq import Queue
+        from redis import Redis
+        
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        # Validate file type
+        allowed_extensions = {'pdf', 'txt', 'doc', 'docx', 'rtf'}
+        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        
+        if file_ext not in allowed_extensions:
+            return jsonify({'error': f'File type not allowed. Allowed types: {", ".join(allowed_extensions)}'}), 400
+        
+        # Generate unique filename
+        filename = file.filename
+        unique_filename = f"{uuid.uuid4()}_{filename}"
+        
+        # Ensure uploads directory exists
         uploads_dir = os.path.join(os.getcwd(), 'uploads')
         os.makedirs(uploads_dir, exist_ok=True)
         
@@ -164,38 +259,42 @@ def _handle_file_upload():
         file.save(temp_file_path)
         
         try:
-            # Process the file
+            # Generate task ID for async processing
             task_id = str(uuid.uuid4())
-            result = citation_service.process_citation_task(
+            
+            # Get Redis connection
+            redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+            redis_conn = Redis.from_url(redis_url)
+            queue = Queue('casestrainer', connection=redis_conn)
+            
+            # Queue the task for background processing
+            job = queue.enqueue(
+                citation_service.process_citation_task,
                 task_id,
                 'file',
                 {
                     'file_path': temp_file_path,
                     'filename': filename,
                     'file_ext': file_ext
-                }
+                },
+                job_id=task_id,
+                job_timeout='10m',
+                result_ttl=3600  # Keep results for 1 hour
             )
             
-            # Clean up file
-            if os.path.exists(temp_file_path):
-                os.remove(temp_file_path)
+            logger.info(f"Queued file processing task {task_id} for background processing")
             
-            if result['status'] == 'success':
-                return jsonify({
-                    'citations': result['citations'],
-                    'clusters': result.get('clusters', []),
-                    'success': True,
-                    'statistics': result.get('statistics', {}),
-                    'metadata': result.get('metadata', {})
-                })
-            else:
-                return jsonify({
-                    'error': result.get('error', 'File processing failed'),
-                    'success': False
-                }), 500
-                
+            # Return immediately with task ID for polling
+            return jsonify({
+                'status': 'processing',
+                'task_id': task_id,
+                'message': 'File uploaded and queued for processing',
+                'job_id': job.id,
+                'success': True
+            }), 202  # 202 Accepted
+            
         except Exception as e:
-            # Ensure cleanup even if processing fails
+            # Ensure cleanup even if queuing fails
             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
             raise
@@ -248,63 +347,103 @@ def _handle_form_input():
         return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
 
 def _process_text_input(text, source_name="pasted_text"):
-    """Process text input and return results"""
+    """Process text input with proper async RQ worker processing for longer texts"""
     try:
-        # Check if should process immediately
+        # Check if should process immediately (short texts)
         if citation_service.should_process_immediately({'type': 'text', 'text': text}):
+            logger.info("Processing short text immediately")
             result = citation_service.process_immediately({'type': 'text', 'text': text})
+            
+            if result['status'] in ['completed', 'success']:
+                return jsonify({
+                    'citations': result['citations'],
+                    'clusters': result.get('clusters', []),
+                    'success': True,
+                    'statistics': result.get('statistics', {}),
+                    'metadata': result.get('metadata', {})
+                })
+            else:
+                return jsonify({
+                    'error': result.get('message', 'Text processing failed'),
+                    'success': False
+                }), 500
         else:
-            # Process asynchronously
+            # Process longer texts asynchronously with RQ workers
+            logger.info("Processing longer text asynchronously with RQ workers")
             task_id = str(uuid.uuid4())
-            result = citation_service.process_citation_task(
+            
+            # Queue the task for RQ worker processing
+            from rq import Queue
+            from redis import Redis
+            
+            # Get Redis connection
+            redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+            redis_conn = Redis.from_url(redis_url)
+            queue = Queue('casestrainer', connection=redis_conn)
+            
+            # Queue the task for background processing
+            job = queue.enqueue(
+                citation_service.process_citation_task,
                 task_id,
                 'text',
-                {'text': text, 'source_name': source_name}
+                {'text': text, 'source_name': source_name},
+                job_id=task_id,
+                job_timeout='10m',
+                result_ttl=3600  # Keep results for 1 hour
             )
-        
-        if result['status'] in ['completed', 'success']:
+            
+            logger.info(f"Queued text processing task {task_id} for background processing")
+            
+            # Return immediately with task ID for polling
             return jsonify({
-                'citations': result['citations'],
-                'clusters': result.get('clusters', []),
-                'success': True,
-                'statistics': result.get('statistics', {}),
-                'metadata': result.get('metadata', {})
-            })
-        else:
-            return jsonify({
-                'error': result.get('message', 'Text processing failed'),
-                'success': False
-            }), 500
+                'status': 'processing',
+                'task_id': task_id,
+                'message': 'Text queued for processing',
+                'job_id': job.id,
+                'success': True
+            }), 202  # 202 Accepted
             
     except Exception as e:
         logger.error(f"Error processing text input: {e}", exc_info=True)
         return jsonify({'error': 'Text processing failed', 'details': str(e)}), 500
 
 def _process_url_input(url):
-    """Process URL input and return results"""
+    """Process URL input with proper async RQ worker processing"""
     try:
-        # Process URL
+        # Generate task ID for async processing
         task_id = str(uuid.uuid4())
-        result = citation_service.process_citation_task(
+        
+        # Queue the task for RQ worker processing
+        from rq import Queue
+        from redis import Redis
+        
+        # Get Redis connection
+        redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+        redis_conn = Redis.from_url(redis_url)
+        queue = Queue('casestrainer', connection=redis_conn)
+        
+        # Queue the task for background processing
+        job = queue.enqueue(
+            citation_service.process_citation_task,
             task_id,
             'url',
-            {'url': url}
+            {'url': url},
+            job_id=task_id,
+            job_timeout='10m',
+            result_ttl=3600  # Keep results for 1 hour
         )
         
-        if result['status'] in ['completed', 'success']:
-            return jsonify({
-                'citations': result['citations'],
-                'clusters': result.get('clusters', []),
-                'success': True,
-                'statistics': result.get('statistics', {}),
-                'metadata': result.get('metadata', {})
-            })
-        else:
-            return jsonify({
-                'error': result.get('error', 'URL processing failed'),
-                'success': False
-            }), 500
-            
+        logger.info(f"Queued URL processing task {task_id} for background processing")
+        
+        # Return immediately with task ID for polling
+        return jsonify({
+            'status': 'processing',
+            'task_id': task_id,
+            'message': 'URL queued for processing',
+            'job_id': job.id,
+            'success': True
+        }), 202  # 202 Accepted
+        
     except Exception as e:
-        logger.error(f"Error processing URL input: {e}", exc_info=True)
+        logger.error(f"Error queuing URL input: {e}", exc_info=True)
         return jsonify({'error': 'URL processing failed', 'details': str(e)}), 500

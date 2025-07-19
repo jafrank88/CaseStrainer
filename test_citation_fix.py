@@ -1,41 +1,60 @@
 #!/usr/bin/env python3
 """
-Test script to verify citation extraction fix.
+Test the citation processing fix directly
 """
 
-# DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor, extract_citation_text_from_eyecite
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-def test_citation_extraction():
-    """Test citation extraction with a simple example."""
-    print("Testing citation extraction fix...")
+def test_citation_processing_fix():
+    """Test that the citation processing fix works"""
+    print("Testing Citation Processing Fix")
+    print("=" * 40)
     
-    # Test the extract_citation_text_from_eyecite function with a mock eyecite object
-    class MockEyeciteObject:
-        def __init__(self, citation_text):
-            self.citation_text = citation_text
+    try:
+        # Import the citation service
+        from api.services.citation_service import CitationService
         
-        def __str__(self):
-            return f"FullCaseCitation('{self.citation_text}')"
-    
-    test_obj = MockEyeciteObject("121 Wn.2d 205, 848 P.2d 1258")
-    extracted = extract_citation_text_from_eyecite(test_obj)
-    print(f"Test eyecite object: {test_obj}")
-    print(f"Extracted: {extracted}")
-    print(f"Success: {extracted == '121 Wn.2d 205, 848 P.2d 1258'}")
-    
-    # Test with a real citation extractor
-    extractor = CitationExtractor(use_eyecite=True, use_regex=True)
-    test_text = "See State v. Richardson, 177 Wn.2d 351, 302 P.3d 156 (2013)."
-    
-    print(f"\nTesting with text: {test_text}")
-    results = extractor.extract(test_text)
-    
-    print(f"Found {len(results)} citations:")
-    for i, result in enumerate(results):
-        citation = result.get('citation', '')
-        print(f"  {i+1}. Citation: '{citation}'")
-        print(f"     Method: {result.get('method', 'unknown')}")
-        print(f"     Verified: {result.get('verified', 'unknown')}")
+        # Create service instance
+        service = CitationService()
+        
+        # Test text
+        test_text = "In Roe v. Wade, 410 U.S. 113 (1973), the court held that..."
+        
+        print(f"Test text: {test_text}")
+        
+        # Test the fixed method
+        result = service.process_citations_from_text(test_text)
+        
+        print(f"Result status: {result.get('status')}")
+        print(f"Citations found: {len(result.get('citations', []))}")
+        
+        if result.get('status') == 'completed':
+            print("✅ Citation processing fix is working!")
+            
+            # Show citation details
+            citations = result.get('citations', [])
+            for i, citation in enumerate(citations, 1):
+                print(f"  {i}. {citation.get('citation', 'N/A')}")
+                print(f"     Case: {citation.get('extracted_case_name', 'N/A')}")
+                print(f"     Verified: {citation.get('verified', False)}")
+            
+            return True
+        else:
+            print(f"❌ Citation processing failed: {result.get('error', 'Unknown error')}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Test failed with error: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 if __name__ == "__main__":
-    test_citation_extraction() 
+    success = test_citation_processing_fix()
+    if success:
+        print("\n🎉 Citation processing fix is working correctly!")
+    else:
+        print("\n❌ Citation processing fix needs more work.")
+        sys.exit(1) 

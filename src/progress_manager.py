@@ -194,7 +194,7 @@ class SSEProgressManager:
 class WebSocketProgressManager:
     """WebSocket-based real-time progress updates"""
     
-    def __init__(self, socketio: 'SocketIO'):
+    def __init__(self, socketio: Any):
         self.socketio = socketio
         self.active_tasks: Dict[str, ProgressTracker] = {}
     

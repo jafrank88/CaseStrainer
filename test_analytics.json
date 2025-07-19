@@ -1,0 +1,68 @@
+{
+  "export_timestamp": "2025-07-19T03:55:19.666139",
+  "metrics": {
+    "search_attempts": 3,
+    "successful_searches": 2,
+    "failed_searches": 1,
+    "cache_hits": 1,
+    "cache_misses": 1,
+    "average_response_time": 3.533333333333333,
+    "error_counts": {
+      "Exception": 1
+    },
+    "source_performance": {
+      "justia": {
+        "attempts": 1,
+        "successes": 1,
+        "avg_response_time": 2.5
+      },
+      "findlaw": {
+        "attempts": 1,
+        "successes": 1,
+        "avg_response_time": 3.1
+      },
+      "leagle": {
+        "attempts": 1,
+        "successes": 0,
+        "avg_response_time": 5.0
+      }
+    },
+    "citation_patterns": {
+      "washington_state": 3
+    },
+    "recovery_attempts": 1,
+    "recovery_successes": 1
+  },
+  "performance_history": [
+    {
+      "timestamp": "2025-07-19 03:55:19.657977",
+      "source": "justia",
+      "success": true,
+      "response_time": 2.5,
+      "citation": "200 Wn.2d 72"
+    },
+    {
+      "timestamp": "2025-07-19 03:55:19.657998",
+      "source": "findlaw",
+      "success": true,
+      "response_time": 3.1,
+      "citation": "200 Wn.2d 72"
+    },
+    {
+      "timestamp": "2025-07-19 03:55:19.658016",
+      "source": "leagle",
+      "success": false,
+      "response_time": 5.0,
+      "citation": "200 Wn.2d 72"
+    }
+  ],
+  "error_history": [
+    {
+      "timestamp": "2025-07-19 03:55:19.658014",
+      "source": "leagle",
+      "error_type": "Exception",
+      "error_message": "timeout",
+      "citation": "200 Wn.2d 72"
+    }
+  ]
+}

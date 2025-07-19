@@ -263,7 +263,8 @@ class UnifiedCacheManager:
             try:
                 cached_data = self.redis_client.get(cache_key)
                 if cached_data:
-                    data = json.loads(gzip.decompress(cached_data).decode())
+                    # Type: ignore for Redis response type
+                    data = json.loads(gzip.decompress(cached_data).decode())  # type: ignore
                     # Store in memory cache for future access
                     self._set_memory_cache(cache_key, data)
                     logger.debug(f"Redis cache hit for: {citation}")
@@ -454,7 +455,8 @@ class UnifiedCacheManager:
             cached_data = self.redis_client.get(redis_key)
             if cached_data:
                 self._update_stats('url', 'hit')
-                return self._decompress_data(cached_data)
+                # Type: ignore for Redis response type
+                return self._decompress_data(cached_data)  # type: ignore
             else:
                 self._update_stats('url', 'miss')
                 return None
@@ -606,10 +608,11 @@ class UnifiedCacheManager:
         # Get Redis memory usage
         if self.redis_client:
             try:
-                info = self.redis_client.info('memory')
+                # Type: ignore for Redis response type
+                info = self.redis_client.info('memory')  # type: ignore
                 stats['memory_usage']['redis'] = {
-                    'used_memory': info.get('used_memory_human', 'N/A'),
-                    'used_memory_peak': info.get('used_memory_peak_human', 'N/A')
+                    'used_memory': info.get('used_memory_human', 'N/A'),  # type: ignore
+                    'used_memory_peak': info.get('used_memory_peak_human', 'N/A')  # type: ignore
                 }
             except Exception as e:
                 logger.error(f"Redis memory info failed: {e}")

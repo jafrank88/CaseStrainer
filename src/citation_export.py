@@ -12,6 +12,11 @@ import os
 import re
 import json
 import datetime
+import logging
+from typing import List, Dict, Any, Optional
+
+# Setup logger
+logger = logging.getLogger(__name__)
 
 # Path to the citation database
 DOWNLOAD_DIR = "downloaded_briefs"
@@ -25,7 +30,7 @@ if not os.path.exists(EXPORT_DIR):
     os.makedirs(EXPORT_DIR)
 
 
-def load_citations(filter_criteria=None):
+def load_citations(filter_criteria: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     """Load citations from the database with optional filtering."""
     try:
         if os.path.exists(UNCONFIRMED_CITATIONS_FILE):
@@ -69,13 +74,13 @@ def load_citations(filter_criteria=None):
         return []
 
 
-def generate_unique_filename(base_name, extension):
+def generate_unique_filename(base_name: str, extension: str) -> str:
     """Generate a unique filename with timestamp."""
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{base_name}_{timestamp}.{extension}"
 
 
-def export_to_text(citations, filename=None):
+def export_to_text(citations: List[Dict[str, Any]], filename: Optional[str] = None) -> Optional[str]:
     """Export citations to a plain text file."""
     if not citations:
         return None
@@ -114,7 +119,7 @@ def export_to_text(citations, filename=None):
         return None
 
 
-def export_to_bibtex(citations, filename=None):
+def export_to_bibtex(citations: List[Dict[str, Any]], filename: Optional[str] = None) -> Optional[str]:
     """Export citations to BibTeX format."""
     if not citations:
         return None
@@ -182,7 +187,7 @@ def export_to_bibtex(citations, filename=None):
         return None
 
 
-def export_to_endnote(citations, filename=None):
+def export_to_endnote(citations: List[Dict[str, Any]], filename: Optional[str] = None) -> Optional[str]:
     """Export citations to EndNote format (RIS)."""
     if not citations:
         return None
@@ -231,7 +236,7 @@ def export_to_endnote(citations, filename=None):
         return None
 
 
-def export_to_json(citations, filename=None):
+def export_to_json(citations: List[Dict[str, Any]], filename: Optional[str] = None) -> Optional[str]:
     """Export citations to JSON format."""
     if not citations:
         return None
@@ -261,7 +266,7 @@ def export_to_json(citations, filename=None):
         return None
 
 
-def export_citations(citations, format_type, filename=None):
+def export_citations(citations: List[Dict[str, Any]], format_type: str, filename: Optional[str] = None) -> Optional[str]:
     """Export citations in the specified format."""
     if format_type.lower() == "text":
         return export_to_text(citations, filename)

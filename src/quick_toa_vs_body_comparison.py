@@ -126,7 +126,7 @@ def main():
     """Main comparison function."""
     brief_file = "../wa_briefs_text/004_COA Respondent Brief.txt"
     
-    logger.info(f"Quick ToA vs Main Body Comparison (No Verification)")
+    logger.info("Quick ToA vs Main Body Comparison (No Verification)")
     logger.info(f"Brief: {brief_file}")
     logger.info("=" * 80)
     
@@ -136,7 +136,7 @@ def main():
         text = f.read()
     logger.info(f"   ✓ Read {len(text)} characters")
     
-    logger.info("\nStep 2: Extracting ToA section...")
+    logger.info("Step 2: Extracting ToA section...")
     # Extract ToA section
     toa_section = extract_toa_section(text)
     if not toa_section.strip():
@@ -144,12 +144,12 @@ def main():
         return
     logger.info(f"   ✓ ToA section extracted ({len(toa_section)} characters)")
     
-    logger.info("\nStep 3: Removing ToA from main body...")
+    logger.info("Step 3: Removing ToA from main body...")
     # Remove ToA from main body
     main_body = text.replace(toa_section, "")
     logger.info(f"   ✓ Main body prepared ({len(main_body)} characters)")
     
-    logger.info("\nStep 4: Parsing ToA using ToA parser...")
+    logger.info("Step 4: Parsing ToA using ToA parser...")
     # Parse ToA using ToA parser
     toa_parser = ToAParser()
     toa_entries = toa_parser.parse_toa_section(toa_section)
@@ -167,25 +167,18 @@ def main():
             })
     logger.info(f"   ✓ Extracted {len(toa_citations)} ToA citations")
     
-    logger.info("\nStep 5: Parsing main body using unified processor (no verification)...")
+    logger.info("Step 5: Parsing main body using unified processor (no verification)...")
     # Parse main body using unified processor (without verification)
-    citation_processor = UnifiedCitationProcessorV2()
-    
-    # Temporarily disable verification for speed
-    original_verify = getattr(citation_processor, 'verify_citations', True)
-    if hasattr(citation_processor, 'verify_citations'):
-        citation_processor.verify_citations = False
+    from src.unified_citation_processor_v2 import ProcessingConfig
+    config = ProcessingConfig(enable_verification=False)
+    citation_processor = UnifiedCitationProcessorV2(config)
     
     body_results = citation_processor.process_text(main_body)
     
-    # Restore verification setting
-    if hasattr(citation_processor, 'verify_citations'):
-        citation_processor.verify_citations = original_verify
-    
     # Convert body results to comparable format
     body_citations = []
-    if body_results and hasattr(body_results, 'citations'):
-        for citation in body_results.citations:
+    if body_results:
+        for citation in body_results:
             case_name = getattr(citation, 'extracted_case_name', None)
             year = getattr(citation, 'extracted_date', None)
             body_citations.append({
@@ -196,17 +189,17 @@ def main():
             })
     logger.info(f"   ✓ Extracted {len(body_citations)} main body citations")
     
-    logger.info("\nStep 6: Comparing results...")
+    logger.info("Step 6: Comparing results...")
     # Compare results
     comparison = compare_citations(toa_citations, body_citations)
     logger.info("   ✓ Comparison complete")
     
-    logger.info("\n" + "=" * 80)
+    logger.info("=" * 80)
     logger.info("FINAL REPORT")
     logger.info("=" * 80)
     
     # Print results
-    logger.info(f"\nSUMMARY:")
+    logger.info("SUMMARY:")
     logger.info(f"ToA citations: {len(toa_citations)}")
     logger.info(f"Main body citations: {len(body_citations)}")
     logger.info(f"Matching citations: {len(comparison['matching'])}")
@@ -217,45 +210,45 @@ def main():
     
     # Show different names
     if comparison['different_names']:
-        logger.info(f"\nCITATIONS WITH DIFFERENT CASE NAMES:")
+        logger.info("CITATIONS WITH DIFFERENT CASE NAMES:")
         logger.info("-" * 60)
         for diff in comparison['different_names']:
             logger.info(f"Citation: {diff['citation']}")
             logger.info(f"  ToA:     {diff['toa_name']} ({diff['toa_year']})")
             logger.info(f"  Body:    {diff['body_name']} ({diff['body_year']})")
-            logger.info()
+            logger.info("")
     
     # Show different years
     if comparison['different_years']:
-        logger.info(f"CITATIONS WITH DIFFERENT YEARS:")
+        logger.info("CITATIONS WITH DIFFERENT YEARS:")
         logger.info("-" * 60)
         for diff in comparison['different_years']:
             logger.info(f"Citation: {diff['citation']}")
             logger.info(f"  ToA:     {diff['toa_name']} ({diff['toa_year']})")
             logger.info(f"  Body:    {diff['body_name']} ({diff['body_year']})")
-            logger.info()
+            logger.info("")
     
     # Show ToA only citations
     if comparison['toa_only']:
-        logger.info(f"CITATIONS ONLY IN ToA:")
+        logger.info("CITATIONS ONLY IN ToA:")
         logger.info("-" * 60)
         for cit in comparison['toa_only'][:10]:  # Show first 10
             logger.info(f"  {cit['case_name']} ({cit['year']}) - {cit['citation']}")
         if len(comparison['toa_only']) > 10:
             logger.info(f"  ... and {len(comparison['toa_only']) - 10} more")
-        logger.info()
+        logger.info("")
     
     # Show main body only citations
     if comparison['body_only']:
-        logger.info(f"CITATIONS ONLY IN MAIN BODY:")
+        logger.info("CITATIONS ONLY IN MAIN BODY:")
         logger.info("-" * 60)
         for cit in comparison['body_only'][:10]:  # Show first 10
             logger.info(f"  {cit['case_name']} ({cit['year']}) - {cit['citation']}")
         if len(comparison['body_only']) > 10:
             logger.info(f"  ... and {len(comparison['body_only']) - 10} more")
-        logger.info()
+        logger.info("")
     
-    logger.info("\n" + "=" * 80)
+    logger.info("=" * 80)
     logger.info("COMPARISON COMPLETE")
     logger.info("=" * 80)
 

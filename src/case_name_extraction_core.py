@@ -19,7 +19,7 @@ class ExtractionResult:
     year: str = ""
     confidence: float = 0.0
     method: str = "unknown"
-    debug_info: Dict = None
+    debug_info: Optional[Dict[str, Any]] = None
     
     def __post_init__(self):
         if self.debug_info is None:
@@ -364,7 +364,7 @@ def get_extractor() -> CaseNameExtractor:
     return _extractor
 
 # Simplified API functions for backward compatibility
-def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, str]:
+def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any]:
     """
     Main extraction function - replaces all the complex variants
     

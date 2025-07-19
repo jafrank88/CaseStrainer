@@ -364,10 +364,6 @@ class CitationExtractor:
         
         return None
 
-    def _is_valid_case_name(self, case_name):
-        """Check if a case name is valid using canonical function."""
-        return is_valid_case_name(case_name)
-
     def _clean_case_name(self, case_name):
         """Clean and normalize a case name using canonical function."""
         return clean_case_name(case_name)

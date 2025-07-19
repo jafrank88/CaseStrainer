@@ -2,13 +2,24 @@
 Enhanced Legal Case Extractor
 Integrates with existing codebase to provide superior case name extraction, citation parsing, and validation.
 
-This module enhances the existing citation processing pipeline by:
-1. Providing more accurate case name extraction with comprehensive patterns
-2. Better date parsing with multiple format support
-3. Enhanced validation against Table of Authorities
-4. Integration with existing CitationResult and processing pipeline
-5. Support for complex citation formats and parallel citations
+DEPRECATED: This module is deprecated. It is not used in the main production application
+and only appears in test/integration files. All functionality has been integrated into
+the unified pipeline (UnifiedCitationProcessorV2).
+
+This module will be removed in a future version.
 """
+
+import warnings
+warnings.warn(
+    "legal_case_extractor_enhanced is deprecated. It is not used in production and "
+    "all functionality has been integrated into UnifiedCitationProcessorV2. "
+    "This file will be removed in the next release.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# TODO: Remove this file in next release
+# This file is kept only for backward compatibility in test files and should not be used in new code.
 
 import re
 import logging
@@ -21,9 +32,11 @@ import unicodedata
 # Import existing components for integration
 # from .case_name_extraction_core import extract_case_name_triple_comprehensive  # Removed to avoid circular import
 try:
-    from .unified_citation_processor import CitationResult, DateExtractor
+    from .unified_citation_processor_v2 import CitationResult
+    from .unified_citation_processor import DateExtractor  # Keep DateExtractor from v1 for now
 except ImportError:
-    from unified_citation_processor import CitationResult, DateExtractor
+    from unified_citation_processor_v2 import CitationResult
+    from unified_citation_processor import DateExtractor  # Keep DateExtractor from v1 for now
 
 # Import fallback logging
 try:
