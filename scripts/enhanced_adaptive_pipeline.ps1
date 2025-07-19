@@ -1,35 +1,15 @@
-﻿#Requires -Version 5.1
-
-<#
-.SYNOPSIS
-    Enhanced Adaptive Learning Pipeline with Performance Monitoring
-.DESCRIPTION
-    Runs the enhanced adaptive learning pipeline with performance optimizations
-    and real-time monitoring to improve brief processing speed.
-.PARAMETER BriefsDir
-    Directory containing brief PDFs to process
-.PARAMETER OutputDir
-    Output directory for results
-.PARAMETER LearningDataDir
-    Directory for learning data persistence
-.PARAMETER MaxBriefs
-    Maximum number of briefs to process
-.PARAMETER MonitorPerformance
-    Enable real-time performance monitoring
-.PARAMETER ParallelProcessing
-    Enable parallel processing for better performance
-#>
+﻿# Enhanced Adaptive Learning Pipeline for CaseStrainer
+# PowerShell script for orchestrating enhanced case name extraction with adaptive learning
 
 param(
     [string]$BriefsDir = "wa_briefs",
-    [string]$OutputDir = "enhanced_adaptive_results",
+    [string]$OutputDir = "enhanced_results",
     [string]$LearningDataDir = "learning_data",
-    [int]$MaxBriefs = 20,
-    [switch]$MonitorPerformance,
-    [switch]$ParallelProcessing
+    [int]$MaxBriefs = 10,
+    [bool]$MonitorPerformance = $true
 )
 
-# Color output function
+# Function to write colored output
 function Write-ColorOutput {
     param(
         [string]$Message,
@@ -73,20 +53,20 @@ function Test-RequiredPackages {
         try {
             python -c "import $package" 2>$null
             if ($LASTEXITCODE -eq 0) {
-                Write-ColorOutput -Message "âœ“ $package is available" -Color "Green"
+                Write-ColorOutput -Message "✓ $package is available" -Color "Green"
             } else {
                 Write-ColorOutput -Message "Installing $package..." -Color "Yellow"
                 pip install $package
                 if ($LASTEXITCODE -eq 0) {
-                    Write-ColorOutput -Message "âœ“ $package installed successfully" -Color "Green"
+                    Write-ColorOutput -Message "✓ $package installed successfully" -Color "Green"
                 } else {
-                    Write-ColorOutput -Message "âœ— Failed to install $package" -Color "Red"
+                    Write-ColorOutput -Message "✗ Failed to install $package" -Color "Red"
                     return $false
                 }
             }
         }
         catch {
-            Write-ColorOutput -Message "âœ— Error checking/installing $package" -Color "Red"
+            Write-ColorOutput -Message "✗ Error checking/installing $package" -Color "Red"
             return $false
         }
     }
@@ -124,7 +104,7 @@ function Start-EnhancedAdaptiveLearning {
         [bool]$MonitorPerformance
     )
 
-    Write-ColorOutput -Message "`nðŸš€ Starting Enhanced Adaptive Learning Pipeline" -Color "Magenta"
+    Write-ColorOutput -Message "`n🚀 Starting Enhanced Adaptive Learning Pipeline" -Color "Magenta"
     Write-ColorOutput -Message "=" * 60 -Color "Cyan"
 
     # Create the enhanced processing script
@@ -167,7 +147,7 @@ def main():
     total_start_time = time.time()
 
     for i, pdf_path in enumerate(pdf_files, 1):
-        print(f"\\nðŸ“„ Processing {i}/{len(pdf_files)}: {pdf_path.name}")
+        print(f"\\n📄 Processing {i}/{len(pdf_files)}: {pdf_path.name}")
 
         # Start monitoring if enabled
         operation_id = f"brief_{i}"
@@ -178,7 +158,7 @@ def main():
             # Extract text
             text = extract_text_from_file(str(pdf_path))
             if not text or len(text.strip()) < 100:
-                print(f"  âš ï¸  Skipped: Text too short")
+                print(f"  ⚠️  Skipped: Text too short")
                 if monitor:
                     monitor.end_operation(operation_id, error="Text too short")
                 continue
@@ -210,15 +190,15 @@ def main():
             }
             results.append(result)
 
-            print(f"  âœ… Extracted {len(citations)} citations in {processing_time:.2f}s")
-            print(f"  ðŸ§  Learning: {learning_info.get('learning_result', {}).get('new_patterns_learned', 0)} new patterns")
+            print(f"  ✅ Extracted {len(citations)} citations in {processing_time:.2f}s")
+            print(f"  🧠 Learning: {learning_info.get('learning_result', {}).get('new_patterns_learned', 0)} new patterns")
 
             # Performance warnings
             if processing_time > 30:
-                print(f"  âš ï¸  Slow processing: {processing_time:.2f}s")
+                print(f"  ⚠️  Slow processing: {processing_time:.2f}s")
 
         except Exception as e:
-            print(f"  âŒ Error processing {pdf_path.name}: {e}")
+            print(f"  ❌ Error processing {pdf_path.name}: {e}")
             if monitor:
                 monitor.end_operation(operation_id, error=str(e))
 
@@ -227,7 +207,7 @@ def main():
     total_citations = sum(r['citations_count'] for r in results)
     avg_time = sum(r['processing_time'] for r in results) / len(results) if results else 0
 
-    print(f"\\nðŸ“Š Processing Summary:")
+    print(f"\\n📊 Processing Summary:")
     print(f"  Total files: {len(results)}")
     print(f"  Total citations: {total_citations}")
     print(f"  Total time: {total_time:.2f}s")
@@ -247,7 +227,7 @@ def main():
 
         monitor.print_summary()
 
-    print(f"\\nâœ… Enhanced adaptive learning completed!")
+    print(f"\\n✅ Enhanced adaptive learning completed!")
     print(f"Results saved to: $OutputDir")
 
 if __name__ == "__main__":
@@ -264,10 +244,10 @@ if __name__ == "__main__":
         python $scriptPath
 
         if ($LASTEXITCODE -eq 0) {
-            Write-ColorOutput -Message "âœ… Enhanced adaptive learning completed successfully!" -Color "Green"
+            Write-ColorOutput -Message "✅ Enhanced adaptive learning completed successfully!" -Color "Green"
             return $true
         } else {
-            Write-ColorOutput -Message "âŒ Enhanced adaptive learning failed!" -Color "Red"
+            Write-ColorOutput -Message "❌ Enhanced adaptive learning failed!" -Color "Red"
             return $false
         }
     }
@@ -286,7 +266,7 @@ function Show-ResultsSummary {
     $resultsFile = Join-Path $OutputDir "enhanced_processing_results.json"
     $performanceFile = Join-Path $OutputDir "performance_summary.json"
 
-    Write-ColorOutput -Message "`nðŸ“Š Results Summary" -Color "Magenta"
+    Write-ColorOutput -Message "`n📊 Results Summary" -Color "Magenta"
     Write-ColorOutput -Message "=" * 40 -Color "Cyan"
 
     if (Test-Path $resultsFile) {
@@ -338,15 +318,15 @@ try {
         # Display results summary
         Show-ResultsSummary -OutputDir $OutputDir
 
-        Write-ColorOutput -Message "`nðŸŽ‰ Enhanced adaptive learning pipeline completed successfully!" -Color "Green"
+        Write-ColorOutput -Message "`n🎉 Enhanced adaptive learning pipeline completed successfully!" -Color "Green"
         Write-ColorOutput -Message "Check the results in: $OutputDir" -Color "Cyan"
     } else {
-        Write-ColorOutput -Message "`nâŒ Enhanced adaptive learning pipeline failed!" -Color "Red"
+        Write-ColorOutput -Message "`n❌ Enhanced adaptive learning pipeline failed!" -Color "Red"
         exit 1
     }
 }
 catch {
-    Write-ColorOutput -Message "`nâŒ Error in enhanced adaptive learning pipeline: $($_.Exception.Message)" -Color "Red"
+    Write-ColorOutput -Message "`n❌ Error in enhanced adaptive learning pipeline: $($_.Exception.Message)" -Color "Red"
     Write-ColorOutput -Message "Stack trace: $($_.ScriptStackTrace)" -Color "Red"
     exit 1
 }
