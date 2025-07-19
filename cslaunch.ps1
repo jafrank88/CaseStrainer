@@ -1026,7 +1026,7 @@ function Start-DockerProduction {
         if (-not $SkipVueBuild -and -not $QuickStart) {
             Write-Host "Checking if Vue build is needed..." -ForegroundColor Yellow
             $vueJob = Start-Job -ScriptBlock {
-                param($ForceRebuildFlag, $ScriptPath)
+                param($ForceRebuildFlag, $ScriptPath)  # PSScriptAnalyzer: Variables passed as parameters, not using $using: scope
                 $vueDir = Join-Path $ScriptPath "casestrainer-vue-new"
                 $distDir = Join-Path $vueDir "dist"
                 $indexFile = Join-Path $distDir "index.html"
