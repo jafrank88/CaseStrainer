@@ -158,7 +158,7 @@ def find_similar_citations(citation_text, api_key=None):
                 # Make the request
                 logger.info(f"Searching CourtListener API for: {query}")
                 response = requests.get(
-                    COURTLISTENER_API_URL, headers=headers, params=params
+                    COURTLISTENER_API_URL, headers=headers, params=params, timeout=30
                 )
 
                 if response.status_code == 200:

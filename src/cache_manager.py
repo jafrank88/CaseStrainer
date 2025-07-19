@@ -240,7 +240,7 @@ class UnifiedCacheManager:
     
     def _get_cache_key(self, key: str, cache_type: str = "citation") -> str:
         """Generate a cache key with type prefix."""
-        return f"{cache_type}:{hashlib.sha256(key.encode()).hexdigest()}"  # nosec
+        return f"{cache_type}:{hashlib.sha256(key.encode()).hexdigest()}"  # nosec B324 - Using SHA256 for cache key generation, not security
 
     def get_citation(self, citation: str) -> Optional[Dict[str, Any]]:
         """Get citation from cache (Redis -> Memory -> File -> Database)."""
