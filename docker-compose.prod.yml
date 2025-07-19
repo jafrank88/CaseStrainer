@@ -1,4 +1,4 @@
-services:
+﻿services:
   # Data Layer
   redis:
     image: redis:7-alpine
