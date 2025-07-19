@@ -8,7 +8,6 @@ import os
 import json
 import re
 import time
-import pickle
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass, asdict
@@ -82,21 +81,23 @@ class EnhancedAdaptiveProcessor:
         
     def _load_learned_patterns(self) -> List[CaseNamePattern]:
         """Load learned patterns from file"""
-        patterns_file = self.learning_data_dir / "learned_patterns.pkl"
+        patterns_file = self.learning_data_dir / "learned_patterns.json"
         if patterns_file.exists():
             try:
-                with open(patterns_file, 'rb') as f:
-                    return pickle.load(f)
+                with open(patterns_file, 'r') as f:
+                    patterns_data = json.load(f)
+                    return [CaseNamePattern(**pattern) for pattern in patterns_data]
             except Exception as e:
                 print(f"Warning: Could not load learned patterns: {e}")
         return []
     
     def _save_learned_patterns(self):
         """Save learned patterns to file"""
-        patterns_file = self.learning_data_dir / "learned_patterns.pkl"
+        patterns_file = self.learning_data_dir / "learned_patterns.json"
         try:
-            with open(patterns_file, 'wb') as f:
-                pickle.dump(self.learned_patterns, f)
+            patterns_data = [asdict(pattern) for pattern in self.learned_patterns]
+            with open(patterns_file, 'w') as f:
+                json.dump(patterns_data, f, indent=2)
         except Exception as e:
             print(f"Warning: Could not save learned patterns: {e}")
     
