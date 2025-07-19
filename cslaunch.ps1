@@ -1026,14 +1026,13 @@ function Start-DockerProduction {
         if (-not $SkipVueBuild -and -not $QuickStart) {
             Write-Host "Checking if Vue build is needed..." -ForegroundColor Yellow
             $vueJob = Start-Job -ScriptBlock {
-                param($ForceRebuildFlag, $ScriptPath)  # Correct pattern: Variables passed as parameters to scriptblock (not using $using: scope)
-                $vueDir = Join-Path $ScriptPath "casestrainer-vue-new"
+                $vueDir = Join-Path $using:PSScriptRoot "casestrainer-vue-new"
                 $distDir = Join-Path $vueDir "dist"
                 $indexFile = Join-Path $distDir "index.html"
                 # If ForceRebuild is true, always return true (needs build)
                 # Otherwise check if dist directory and index.html exist
-                return ($ForceRebuildFlag -or -not (Test-Path $distDir) -or -not (Test-Path $indexFile))
-            } -ArgumentList $ForceRebuild.IsPresent, $PSScriptRoot
+                return ($using:ForceRebuild.IsPresent -or -not (Test-Path $distDir) -or -not (Test-Path $indexFile))
+            }
         }
 
         # Wait for Docker check
