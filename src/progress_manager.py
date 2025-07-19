@@ -769,7 +769,7 @@ if __name__ == "__main__":
     app = setup_progress_enabled_app()
     # Only enable debug mode in development
     debug_mode = os.getenv('FLASK_ENV') == 'development'
-    app.run(debug=debug_mode, threaded=True)
+    app.run(debug=debug_mode, threaded=True)  # nosec - Debug mode is environment-controlled
 
 
 # Configuration for different deployment scenarios
