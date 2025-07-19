@@ -1143,18 +1143,15 @@ function Start-DockerProduction {
 
         # Fix BOM issue in docker-compose file if present
         try {
-            $content = Get-Content $dockerComposeFile -Raw
-            if ($content.StartsWith([char]0xFEFF)) {
+            $bytes = [System.IO.File]::ReadAllBytes($dockerComposeFile)
+            if ($bytes[0] -eq 239 -and $bytes[1] -eq 187 -and $bytes[2] -eq 191) {
                 Write-Host "Fixing BOM in docker-compose file..." -ForegroundColor Yellow
-                # Use a more robust approach - read as bytes and skip BOM
-                $bytes = [System.IO.File]::ReadAllBytes($dockerComposeFile)
-                if ($bytes[0] -eq 239 -and $bytes[1] -eq 187 -and $bytes[2] -eq 191) {
-                    $cleanBytes = $bytes[3..($bytes.Length-1)]
-                    $tempFile = "$dockerComposeFile.temp"
-                    [System.IO.File]::WriteAllBytes($tempFile, $cleanBytes)
-                    $dockerComposeFile = $tempFile
-                    Write-Host "Using temporary BOM-free docker-compose file" -ForegroundColor Green
-                }
+                # Remove BOM bytes and create clean temp file
+                $cleanBytes = $bytes[3..($bytes.Length-1)]
+                $tempFile = "$dockerComposeFile.temp"
+                [System.IO.File]::WriteAllBytes($tempFile, $cleanBytes)
+                $dockerComposeFile = $tempFile
+                Write-Host "Using temporary BOM-free docker-compose file" -ForegroundColor Green
             }
         } catch {
             Write-Host "Warning: Could not check/fix BOM in docker-compose file" -ForegroundColor Yellow
