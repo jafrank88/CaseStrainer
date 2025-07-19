@@ -19,13 +19,19 @@ archive/
 __pycache__/
 .cache/
 citation_cache/
-results/
+correction_cache/
+casestrainer_sessions/
+flask_session/
+instance/
+temp_uploads/
 uploads/
 wa_briefs/
+wa_briefs_text/
 downloaded_briefs/
 sample_briefs/
 reports/
 word_addin/
+backup_before_update/
 
 # Python build directories
 build/
@@ -56,6 +62,14 @@ ENV/
 # Test directories - with specific exceptions
 tests/
 test/
+testing/
+spec/
+specs/
+fixtures/
+mocks/
+stubs/
+typings/
+types/
 !tests/test_courtlistener_api.py
 !tests/test_api.py
 !tests/test_enhanced_validator.py
@@ -65,9 +79,16 @@ test/
 python-hyperscan/
 hyperscan/
 vcpkg/
+models/
+learning_data/
 
 # Vue.js specific
 casestrainer-vue-backup/
+frontend/
+temp-vue*/
+temp-vue-app/
+temp-vue-fix/
+temp-serve/
 
 #----------------------------------------------
 # FILES TO EXCLUDE
@@ -187,12 +208,13 @@ Thumbs.db
 deprecated_scripts/
 archived/
 archived_batch_files/
-temp-vue*/
-temp-vue-app/
-temp-vue-fix/
 temp/
 temp_logs/
 test_logs/
+temp-docker-dev/
+enhanced_results/
+adaptive_results/
+results/
 dist/
 .pytest_cache/
 .coverage
@@ -211,3 +233,68 @@ deployment/config.json
 .env
 .env.local
 .env.production
+
+# Docker and deployment artifacts
+docker/html/
+docker/ssl/
+docker/uploads/
+docker/src/
+deployment_package/
+
+# Nginx artifacts
+nginx/html/
+nginx/ssl/
+nginx/temp/
+nginx-1.24.0/html/
+nginx-1.24.0/ssl/
+nginx-1.24.0/temp/
+nginx-1.27.5/html/
+nginx-1.27.5/ssl/
+nginx-1.27.5/temp/
+nginx-1.27.5/nginx-1.27.5/
+
+# Static and template files (if not needed in repo)
+static/
+templates/
+ssl/
+
+# Build and cache directories
+build/
+target/
+out/
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+amd64/
+i386/
+lib/
+libs/
+include/
+includes/
+headers/
+src/generated/
+src/build/
+src/dist/
+src/temp/
+src/cache/
+src/logs/
+src/backups/
+src/archived/
+src/deprecated/
+src/legacy/
+src/old/
+src/experimental/
+src/test/
+src/tests/
+src/testing/
+src/mocks/
+src/fixtures/
+src/stubs/
+src/typings/
+src/types
+
+# Cypress test artifacts
+cypress/

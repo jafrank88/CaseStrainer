@@ -73,16 +73,27 @@ data/
 uploads/
 downloaded_briefs/
 wa_briefs/
+wa_briefs_text/
 sample_briefs/
 citation_cache/
+correction_cache/
 casestrainer_sessions/
 archived/
 archived_batch_files/
 cache/
+backup_before_update/
 
 # Testing
 test*/
 tests*/
+testing/
+spec/
+specs/
+fixtures/
+mocks/
+stubs/
+typings/
+types/
 cypress/
 deprecated_tests/
 deprecated_scripts/
@@ -104,7 +115,10 @@ casestrainer-vue-backup/
 scripts/
 reports/
 results/
+enhanced_results/
+adaptive_results/
 models/
+learning_data/
 instance/
 flask_session/
 
@@ -187,6 +201,8 @@ vcpkg/
 .venv/
 venv_new/
 casestrainer-vue-backup/
+frontend/
+word_addin/
 
 # Keep only essential files for the application
 # Explicitly include what we need
@@ -196,3 +212,41 @@ casestrainer-vue-backup/
 !templates/
 !static/
 !config/casestrainer_only.conf
+
+# Exclude build and cache directories that shouldn't be in container
+build/
+target/
+out/
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+amd64/
+i386/
+lib/
+libs/
+include/
+includes/
+headers/
+src/generated/
+src/build/
+src/dist/
+src/temp/
+src/cache/
+src/logs/
+src/backups/
+src/archived/
+src/deprecated/
+src/legacy/
+src/old/
+src/experimental/
+src/test/
+src/tests/
+src/testing/
+src/mocks/
+src/fixtures/
+src/stubs/
+src/typings/
+src/types
