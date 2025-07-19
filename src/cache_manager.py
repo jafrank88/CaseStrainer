@@ -160,26 +160,30 @@ class UnifiedCacheManager:
                     try:
                         if 'canonical_name' not in existing_columns:
                             cursor.execute('ALTER TABLE citations ADD COLUMN canonical_name TEXT')
-                    except:
-                        pass  # Column might already exist
+                    except sqlite3.OperationalError as e:
+                        if "duplicate column name" not in str(e).lower():
+                            logger.warning(f"Error adding canonical_name column: {e}")
                         
                     try:
                         if 'extracted_case_name' not in existing_columns:
                             cursor.execute('ALTER TABLE citations ADD COLUMN extracted_case_name TEXT')
-                    except:
-                        pass  # Column might already exist
+                    except sqlite3.OperationalError as e:
+                        if "duplicate column name" not in str(e).lower():
+                            logger.warning(f"Error adding extracted_case_name column: {e}")
                         
                     try:
                         if 'found' not in existing_columns:
                             cursor.execute('ALTER TABLE citations ADD COLUMN found BOOLEAN DEFAULT FALSE')
-                    except:
-                        pass  # Column might already exist
+                    except sqlite3.OperationalError as e:
+                        if "duplicate column name" not in str(e).lower():
+                            logger.warning(f"Error adding found column: {e}")
                         
                     try:
                         if 'updated_at' not in existing_columns:
                             cursor.execute('ALTER TABLE citations ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
-                    except:
-                        pass  # Column might already exist
+                    except sqlite3.OperationalError as e:
+                        if "duplicate column name" not in str(e).lower():
+                            logger.warning(f"Error adding updated_at column: {e}")
                 
                 # Create cache_stats table if it doesn't exist
                 cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cache_stats'")
@@ -236,7 +240,7 @@ class UnifiedCacheManager:
     
     def _get_cache_key(self, key: str, cache_type: str = "citation") -> str:
         """Generate a cache key with type prefix."""
-        return f"{cache_type}:{hashlib.md5(key.encode()).hexdigest()}"
+        return f"{cache_type}:{hashlib.sha256(key.encode()).hexdigest()}"
 
     def get_citation(self, citation: str) -> Optional[Dict[str, Any]]:
         """Get citation from cache (Redis -> Memory -> File -> Database)."""

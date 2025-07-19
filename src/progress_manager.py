@@ -5,6 +5,7 @@ Multiple approaches to provide real-time progress feedback to users
 
 import asyncio
 import json
+import os
 import time
 import uuid
 from datetime import datetime
@@ -766,7 +767,9 @@ def setup_progress_enabled_app():
 # Example usage
 if __name__ == "__main__":
     app = setup_progress_enabled_app()
-    app.run(debug=True, threaded=True)
+    # Only enable debug mode in development
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, threaded=True)
 
 
 # Configuration for different deployment scenarios

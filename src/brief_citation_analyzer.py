@@ -85,7 +85,7 @@ def download_brief(brief_url):
         }
 
         # Make the request
-        response = requests.get(brief_url, headers=headers)
+        response = requests.get(brief_url, headers=headers, timeout=30)
 
         if response.status_code != 200:
             logger.error(f"Error downloading brief: {response.status_code}")

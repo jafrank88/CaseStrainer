@@ -59,14 +59,14 @@ def deploy_files():
     # Copy the deployment package to the production server
     try:
         # Use SCP to copy the file to the production server
-        scp_command = f"scp {deployment_zip} {PRODUCTION_SERVER}:{PRODUCTION_PATH}"
-        logger.info(f"Running: {scp_command}")
-        subprocess.run(scp_command, shell=True, check=True)
+        scp_args = ["scp", deployment_zip, f"{PRODUCTION_SERVER}:{PRODUCTION_PATH}"]
+        logger.info(f"Running: {' '.join(scp_args)}")
+        subprocess.run(scp_args, check=True)
 
         # Extract the deployment package on the production server
-        ssh_extract_command = f"ssh {PRODUCTION_SERVER} 'cd {PRODUCTION_PATH} && unzip -o {deployment_zip}'"
-        logger.info(f"Running: {ssh_extract_command}")
-        subprocess.run(ssh_extract_command, shell=True, check=True)
+        ssh_extract_args = ["ssh", PRODUCTION_SERVER, f"cd {PRODUCTION_PATH} && unzip -o {deployment_zip}"]
+        logger.info(f"Running: {' '.join(ssh_extract_args)}")
+        subprocess.run(ssh_extract_args, check=True)
 
         logger.info("Deployment completed successfully")
         return True
@@ -87,9 +87,9 @@ def restart_application():
 
     try:
         # SSH into the production server and restart the application
-        restart_command = f"ssh {PRODUCTION_SERVER} 'cd {PRODUCTION_PATH} && python run_production.py --host 0.0.0.0 --port 5000 &'"
-        logger.info(f"Running: {restart_command}")
-        subprocess.run(restart_command, shell=True, check=True)
+        restart_args = ["ssh", PRODUCTION_SERVER, f"cd {PRODUCTION_PATH} && python run_production.py --host 0.0.0.0 --port 5000 &"]
+        logger.info(f"Running: {' '.join(restart_args)}")
+        subprocess.run(restart_args, check=True)
 
         logger.info("Application restarted successfully")
         return True
