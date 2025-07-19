@@ -9,9 +9,13 @@ import os
 import time
 import uuid
 from datetime import datetime
-from typing import Dict, List, Any, Optional, Generator, Callable
+from typing import Dict, List, Any, Optional, Generator, Callable, TYPE_CHECKING
 from dataclasses import dataclass, asdict
 from flask import Flask, request, jsonify, Response
+
+if TYPE_CHECKING:
+    from flask_socketio import SocketIO, emit
+
 try:
     from flask_socketio import SocketIO, emit
     FLASK_SOCKETIO_AVAILABLE = True
@@ -19,12 +23,14 @@ except ImportError:
     FLASK_SOCKETIO_AVAILABLE = False
     SocketIO = None
     emit = None
+
 try:
     import redis
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
     redis = None
+
 from concurrent.futures import ThreadPoolExecutor
 import logging
 
@@ -188,7 +194,7 @@ class SSEProgressManager:
 class WebSocketProgressManager:
     """WebSocket-based real-time progress updates"""
     
-    def __init__(self, socketio: SocketIO):
+    def __init__(self, socketio: 'SocketIO'):
         self.socketio = socketio
         self.active_tasks: Dict[str, ProgressTracker] = {}
     
