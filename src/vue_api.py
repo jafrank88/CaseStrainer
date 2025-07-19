@@ -57,7 +57,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[ob
         return None
 
 
-def _get_bluelogger.info() -> Optional[object]:
+def _get_blueprint() -> Optional[object]:
     """
     Attempt to import the vue_api blueprint using multiple strategies.
     
@@ -111,7 +111,7 @@ def _get_bluelogger.info() -> Optional[object]:
     return None
 
 
-def _validate_bluelogger.info(blueprint: object) -> bool:
+def _validate_blueprint(blueprint: object) -> bool:
     """
     Validate that the imported object is actually a Flask Blueprint.
     
@@ -126,7 +126,7 @@ def _validate_bluelogger.info(blueprint: object) -> bool:
         if hasattr(blueprint, 'name') and hasattr(blueprint, 'url_prefix'):
             return True
         
-        # Check if it's a Flask Bluelogger.info(more thorough check)
+        # Check if it's a Flask Blueprint (more thorough check)
         if hasattr(blueprint, '__class__'):
             class_name = blueprint.__class__.__name__
             if 'Blueprint' in class_name:
@@ -182,11 +182,11 @@ try:
         _log_import_diagnostics()
     
     # Attempt to import the blueprint
-    api_blueprint = _get_bluelogger.info()
+    api_blueprint = _get_blueprint()
     
     if api_blueprint is not None:
         # Validate the imported blueprint
-        if _validate_bluelogger.info(api_blueprint):
+        if _validate_blueprint(api_blueprint):
             logger.info("Vue API blueprint successfully imported and validated")
         else:
             logger.warning("Vue API blueprint imported but validation failed")
@@ -255,7 +255,7 @@ def is_blueprint_available() -> bool:
     Returns:
         True if blueprint is available, False otherwise
     """
-    return api_blueprint is not None and _validate_bluelogger.info(api_blueprint)
+    return api_blueprint is not None and _validate_blueprint(api_blueprint)
 
 
 # Export the blueprint and utility functions
