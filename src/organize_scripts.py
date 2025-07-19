@@ -7,7 +7,12 @@ deprecated scripts to a 'deprecated_scripts' directory.
 
 import os
 import shutil
+import logging
 from pathlib import Path
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Define the base directory
 BASE_DIR = Path(__file__).resolve().parent

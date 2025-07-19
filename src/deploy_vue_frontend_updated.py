@@ -2,11 +2,16 @@
 Deploy Vue.js Frontend for CaseStrainer with Tabbed Interface
 
 This script creates the Vue.js frontend in the static/vue directory
-with the tabbed interface for file upload, text paste, and citation viewing.
+with the tabged interface for file upload, text paste, and citation viewing.
 """
 
 import os
+import logging
 from pathlib import Path
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Define paths
 BASE_DIR = Path(__file__).resolve().parent

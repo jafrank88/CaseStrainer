@@ -18,9 +18,14 @@ import sys
 import re
 import time
 import threading
+import logging
 from collections import defaultdict
 from typing import List, Dict, Any, Optional
 from functools import wraps
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 logger.info('=== IMPROVED SCRIPT STARTED ===')
 

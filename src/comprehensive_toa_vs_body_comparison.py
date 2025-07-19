@@ -9,8 +9,13 @@ import re
 import time
 import psutil
 import os
+import logging
 from collections import defaultdict
 from typing import List, Dict, Any
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Add dependency checking at the top
 def check_dependencies():

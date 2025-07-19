@@ -1,1 +1,0 @@
-logger.info('Hello, world! This is a minimal import test.') 

@@ -4,8 +4,13 @@ Compare ToA parser vs unified citation processor on ToA lines from 10 briefs.
 Show only cases where the extracted name or date differ.
 """
 import os
+import logging
 from toa_parser import ToAParser
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 BRIEFS_DIR = '../wa_briefs_text/'
 MAX_BRIEFS = 10
