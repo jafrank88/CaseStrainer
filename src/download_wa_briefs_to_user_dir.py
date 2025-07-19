@@ -171,7 +171,7 @@ def download_brief(url):
             "Upgrade-Insecure-Requests": "1",
         }
 
-        response = requests.get(url, headers=headers, stream=True)
+        response = requests.get(url, headers=headers, stream=True, timeout=30)
         response.raise_for_status()
 
         # Save the brief
@@ -226,7 +226,7 @@ def find_more_brief_urls():
                 "Upgrade-Insecure-Requests": "1",
             }
 
-            response = requests.get(court_url, headers=headers)
+            response = requests.get(court_url, headers=headers, timeout=30)
             response.raise_for_status()
 
             # Parse the HTML

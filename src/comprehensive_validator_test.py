@@ -135,7 +135,7 @@ def test_citation_validation(citation):
             VALIDATE_ENDPOINT,
             json={"citation": citation},
             headers={"Content-Type": "application/json"},
-        )
+        , timeout=30)
 
         if response.status_code == 200:
             result = response.json()
@@ -160,7 +160,7 @@ def test_citation_context(citation):
             CONTEXT_ENDPOINT,
             json={"citation": citation},
             headers={"Content-Type": "application/json"},
-        )
+        , timeout=30)
 
         if response.status_code == 200:
             result = response.json()
@@ -190,7 +190,7 @@ def test_citation_classification(citation):
             CLASSIFY_ENDPOINT,
             json={"citation": citation},
             headers={"Content-Type": "application/json"},
-        )
+        , timeout=30)
 
         if response.status_code == 200:
             result = response.json()
@@ -223,7 +223,7 @@ def test_citation_suggestions(citation):
             SUGGEST_ENDPOINT,
             json={"citation": citation},
             headers={"Content-Type": "application/json"},
-        )
+        , timeout=30)
 
         if response.status_code == 200:
             result = response.json()

@@ -1390,7 +1390,7 @@ class CitationGrouper:
                     "https://www.courtlistener.com/api/rest/v4/search/",
                     headers=headers,
                     params=params,
-                )
+                , timeout=30)
 
                 if response.status_code != 200:
                     return {
@@ -1486,7 +1486,7 @@ class CitationGrouper:
                 "https://api.langsearch.com/v1/search",
                 headers=headers,
                 params=params,
-            )
+            , timeout=30)
 
             if response.status_code != 200:
                 return {

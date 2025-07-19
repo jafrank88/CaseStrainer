@@ -56,7 +56,7 @@ def test_courtlistener_api():
                 headers=headers,
                 json={"text": test_citation},
                 timeout=15
-            )
+            , timeout=30)
             
             logger.info(f"Response status: {response.status_code}")
             

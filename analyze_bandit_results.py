@@ -88,11 +88,63 @@ def analyze_bandit_report(report_file):
         'low_severity': severity_counts.get('LOW', 0)
     }
 
+def compare_reports():
+    """Compare the original and fixed security reports."""
+    
+    print("🔄 COMPARING SECURITY REPORTS")
+    print("=" * 50)
+    
+    try:
+        # Read original report
+        with open('bandit_security_report.json', 'r') as f:
+            original_data = json.load(f)
+        
+        # Read fixed report
+        with open('bandit_security_report_fixed.json', 'r') as f:
+            fixed_data = json.load(f)
+        
+        original_results = original_data.get('results', [])
+        fixed_results = fixed_data.get('results', [])
+        
+        original_high = sum(1 for r in original_results if r.get('issue_severity') == 'HIGH')
+        fixed_high = sum(1 for r in fixed_results if r.get('issue_severity') == 'HIGH')
+        
+        original_medium = sum(1 for r in original_results if r.get('issue_severity') == 'MEDIUM')
+        fixed_medium = sum(1 for r in fixed_results if r.get('issue_severity') == 'MEDIUM')
+        
+        print(f"\n📊 COMPARISON RESULTS:")
+        print(f"   Original HIGH severity issues: {original_high}")
+        print(f"   Fixed HIGH severity issues: {fixed_high}")
+        print(f"   HIGH severity reduction: {original_high - fixed_high}")
+        
+        print(f"\n   Original MEDIUM severity issues: {original_medium}")
+        print(f"   Fixed MEDIUM severity issues: {fixed_medium}")
+        print(f"   MEDIUM severity reduction: {original_medium - fixed_medium}")
+        
+        print(f"\n   Original total issues: {len(original_results)}")
+        print(f"   Fixed total issues: {len(fixed_results)}")
+        print(f"   Total reduction: {len(original_results) - len(fixed_results)}")
+        
+        if fixed_high == 0:
+            print(f"\n🎉 SUCCESS: All HIGH severity issues have been resolved!")
+        else:
+            print(f"\n⚠️  WARNING: {fixed_high} HIGH severity issues remain")
+            
+    except FileNotFoundError as e:
+        print(f"❌ Error: {e}")
+    except Exception as e:
+        print(f"❌ Error comparing reports: {e}")
+
 if __name__ == "__main__":
     try:
-        results = analyze_bandit_report('bandit_security_report.json')
+        # Analyze the fixed report
+        results = analyze_bandit_report('bandit_security_report_fixed.json')
         print(f"\n✅ Analysis complete!")
+        
+        # Compare with original
+        compare_reports()
+        
     except FileNotFoundError:
-        print("❌ bandit_security_report.json not found. Run bandit first.")
+        print("❌ bandit_security_report_fixed.json not found. Run bandit first.")
     except Exception as e:
         print(f"❌ Error analyzing report: {e}") 

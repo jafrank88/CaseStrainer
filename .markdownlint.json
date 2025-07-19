@@ -4,12 +4,7 @@
   "MD033": false,
   "MD041": false,
   "ignore": [
-    "pylance_fixes_summary.md",
-    "PRODUCTION_TEST_SUITE_RECOMMENDATIONS.md",
-    "FINAL_ENHANCEMENT_SUMMARY.md",
-    "COMPREHENSIVE_ENGINE_COMPARISON.md",
-    "SECURITY_STATUS_SUMMARY.md",
-    "SECURITY_FIXES_SUMMARY.md",
+    "archived_documentation/*.md",
     "docs/COMPREHENSIVE_ALL_CONTENT_ANALYSIS.md",
     "docs/COMPREHENSIVE_FEATURE_ANALYSIS.md",
     "docs/COMPREHENSIVE_FEATURE_INTEGRATION_SUMMARY.md",

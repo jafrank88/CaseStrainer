@@ -53,7 +53,7 @@ def download_brief(url, save_path, filename=None):
         time.sleep(random.uniform(1, 3))
 
         try:
-            response = requests.get(url, headers=HEADERS, stream=True, timeout=30)
+            response = requests.get(url, headers=HEADERS, stream=True, timeout=30, timeout=30)
             response.raise_for_status()
         except requests.Timeout:
             logger.error(f"Timeout occurred while downloading {url}")
@@ -119,7 +119,7 @@ def search_briefs(query="", court="", case_type="", year="", max_results=10):
         logger.info(f"Searching with params: {params}")
 
         # Make the search request
-        response = requests.get(SEARCH_URL, params=params, headers=HEADERS)
+        response = requests.get(SEARCH_URL, params=params, headers=HEADERS, timeout=30)
         response.raise_for_status()
 
         # Parse the HTML response

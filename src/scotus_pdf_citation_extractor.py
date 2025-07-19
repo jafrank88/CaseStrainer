@@ -97,7 +97,7 @@ class SCOTUSPDFCitationExtractor:
     def download_pdf(self, url: str) -> Optional[bytes]:
         """Download a PDF from a URL."""
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             return response.content
         except Exception as e:
@@ -375,7 +375,7 @@ class SCOTUSPDFCitationExtractor:
                 params={"citation__cite": citation_text},
                 headers={"Authorization": f"Token {self.courtlistener_api_key}"},
                 timeout=10,
-            )
+            , timeout=30)
 
             if response.status_code == 200 and response.json().get("count", 0) > 0:
                 result = response.json()["results"][0]
@@ -405,7 +405,7 @@ class SCOTUSPDFCitationExtractor:
                     params={"q": f'"{case_name}"', "type": "opinion"},
                     headers={"Authorization": f"Token {self.courtlistener_api_key}"},
                     timeout=10,
-                )
+                , timeout=30)
 
                 if (
                     search_response.status_code == 200
@@ -467,7 +467,7 @@ class SCOTUSPDFCitationExtractor:
         headers = {"Authorization": f"Token {COURT_LISTENER_API_KEY}"}
         data = {"text": text}
         try:
-            response = requests.post(url, headers=headers, data=data)
+            response = requests.post(url, headers=headers, data=data, timeout=30)
             response.raise_for_status()
             logger.info(
                 "Successfully validated citations with CourtListener citation-lookup API"

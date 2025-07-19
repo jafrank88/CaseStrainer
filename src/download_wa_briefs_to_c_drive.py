@@ -193,7 +193,7 @@ def download_brief(url):
         }
 
         try:
-            response = requests.get(url, headers=headers, stream=True, timeout=30)
+            response = requests.get(url, headers=headers, stream=True, timeout=30, timeout=30)
             response.raise_for_status()
         except requests.Timeout:
             logger.error(f"Timeout occurred while downloading {url}")
@@ -292,7 +292,7 @@ def find_more_brief_urls():
                 "Upgrade-Insecure-Requests": "1",
             }
 
-            response = requests.get(court_url, headers=headers)
+            response = requests.get(court_url, headers=headers, timeout=30)
             response.raise_for_status()
 
             # Parse the HTML

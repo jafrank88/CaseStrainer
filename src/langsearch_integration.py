@@ -67,7 +67,7 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 headers=headers,
                 json=payload,
                 timeout=10,
-            )
+            , timeout=30)
 
             if response.status_code == 200:
                 logger.info("LangSearch API connection successful.")
@@ -145,7 +145,7 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 headers=headers,
                 json=payload,
                 timeout=30,
-            )
+            , timeout=30)
 
             # Check for successful response
             if response.status_code == 200:

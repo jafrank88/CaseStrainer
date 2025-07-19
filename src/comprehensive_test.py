@@ -108,7 +108,7 @@ def wait_for_processing(
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
-            response = requests.get(f"{BASE_URL}/api/status/{analysis_id}")
+            response = requests.get(f"{BASE_URL}/api/status/{analysis_id}", timeout=30)
             result = validate_response(response)
             if result.success:
                 status = result.details.get("status")
@@ -160,7 +160,7 @@ def test_file_upload() -> TestResult:
         logger.info("Uploading test file...")
         with open(test_file_path, "rb") as f:
             files = {"file": f}
-            response = requests.post(f"{BASE_URL}/api/analyze", files=files)
+            response = requests.post(f"{BASE_URL}/api/analyze", files=files, timeout=30)
 
         result = validate_response(response)
         if not result.success:
@@ -210,7 +210,7 @@ def test_text_paste() -> TestResult:
     try:
         # Submit the text
         logger.info("Submitting test text...")
-        response = requests.post(f"{BASE_URL}/api/analyze", data={"text": TEST_TEXT})
+        response = requests.post(f"{BASE_URL}/api/analyze", data={"text": TEST_TEXT}, timeout=30)
 
         result = validate_response(response)
         if not result.success:
@@ -260,7 +260,7 @@ def test_url_input() -> TestResult:
 
         response = requests.post(
             f"{BASE_URL}/api/direct_url_analyze", data=data, headers=headers
-        )
+        , timeout=30)
 
         result = validate_response(response)
         if not result.success:
@@ -295,7 +295,7 @@ def test_verified_tab(analysis_id: str) -> TestResult:
     """Test the Verified Citations tab."""
     logger.info("Testing Verified Citations tab...")
     try:
-        response = requests.get(f"{BASE_URL}/api/verified_citations/{analysis_id}")
+        response = requests.get(f"{BASE_URL}/api/verified_citations/{analysis_id}", timeout=30)
         result = validate_response(response)
         if not result.success:
             return result
@@ -328,7 +328,7 @@ def test_unconfirmed_tab(analysis_id: str) -> TestResult:
     """Test the Unconfirmed Citations tab."""
     logger.info("Testing Unconfirmed Citations tab...")
     try:
-        response = requests.get(f"{BASE_URL}/api/unconfirmed_citations/{analysis_id}")
+        response = requests.get(f"{BASE_URL}/api/unconfirmed_citations/{analysis_id}", timeout=30)
         result = validate_response(response)
         if not result.success:
             return result
@@ -361,7 +361,7 @@ def test_courtlistener_tab(analysis_id: str) -> TestResult:
     """Test the CourtListener Cases tab."""
     logger.info("Testing CourtListener Cases tab...")
     try:
-        response = requests.get(f"{BASE_URL}/api/courtlistener_cases/{analysis_id}")
+        response = requests.get(f"{BASE_URL}/api/courtlistener_cases/{analysis_id}", timeout=30)
         result = validate_response(response)
         if not result.success:
             return result
@@ -394,7 +394,7 @@ def test_courtlistener_gaps_tab(analysis_id: str) -> TestResult:
     """Test the CourtListener Gaps tab."""
     logger.info("Testing CourtListener Gaps tab...")
     try:
-        response = requests.get(f"{BASE_URL}/api/courtlistener_gaps/{analysis_id}")
+        response = requests.get(f"{BASE_URL}/api/courtlistener_gaps/{analysis_id}", timeout=30)
         result = validate_response(response)
         if not result.success:
             return result
@@ -427,7 +427,7 @@ def test_google_scholar_tab(analysis_id: str) -> TestResult:
     """Test the Google Scholar Cases tab."""
     logger.info("Testing Google Scholar Cases tab...")
     try:
-        response = requests.get(f"{BASE_URL}/api/google_scholar_cases/{analysis_id}")
+        response = requests.get(f"{BASE_URL}/api/google_scholar_cases/{analysis_id}", timeout=30)
         result = validate_response(response)
         if not result.success:
             return result

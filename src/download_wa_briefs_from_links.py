@@ -81,7 +81,7 @@ def get_case_links(court_url, max_cases=MAX_CASES_PER_COURT):
         time.sleep(random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX))
 
         # Make the request
-        response = requests.get(court_url)
+        response = requests.get(court_url, timeout=30)
         response.raise_for_status()
 
         # Parse the HTML
@@ -131,7 +131,7 @@ def get_brief_links(case_url, max_briefs=MAX_BRIEFS_PER_CASE):
         time.sleep(random.uniform(DOWNLOAD_DELAY_MIN, DOWNLOAD_DELAY_MAX))
 
         # Make the request
-        response = requests.get(case_url)
+        response = requests.get(case_url, timeout=30)
         response.raise_for_status()
 
         # Parse the HTML
@@ -213,7 +213,7 @@ def download_brief(brief_info, case_info, court_id):
 
         # Download the brief
         try:
-            response = requests.get(brief_url, stream=True, timeout=30)
+            response = requests.get(brief_url, stream=True, timeout=30, timeout=30)
         except requests.Timeout:
             logger.error(f"Timeout occurred while downloading {brief_url}")
             return None

@@ -53,7 +53,7 @@ def extract_text_from_url(url: str) -> Dict[str, Any]:
         Dictionary with extracted text and metadata
     """
     try:
-        response = requests.get(url, timeout=30)
+        response = requests.get(url, timeout=30, timeout=30)
         response.raise_for_status()
         
         return {

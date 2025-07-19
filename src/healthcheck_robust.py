@@ -105,7 +105,7 @@ class HealthChecker:
     def check_backend(self) -> Dict[str, Any]:
         """Check backend API health."""
         try:
-            response = requests.get(self.backend_url, timeout=self.timeout)
+            response = requests.get(self.backend_url, timeout=self.timeout, timeout=30)
             
             if response.status_code == 200:
                 try:

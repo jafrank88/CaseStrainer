@@ -89,7 +89,7 @@ def setup_courtlistener_api(
                     "https://www.courtlistener.com/api/rest/v4/",
                     headers={"Authorization": f"Token {key}"},
                     timeout=10,  # Add timeout to prevent hanging requests
-                )
+                , timeout=30)
 
                 if response.status_code == 200:
                     if verbose:
@@ -247,7 +247,7 @@ def search_citation(
                         data={"text": citation},
                         headers=headers,
                         timeout=10
-                    )
+                    , timeout=30)
 
                     if response.status_code == 200:
                         data = response.json()
@@ -278,7 +278,7 @@ def search_citation(
                     headers=headers,
                     params=params,
                     timeout=10,  # Add timeout to prevent hanging requests
-                )
+                , timeout=30)
 
                 if response.status_code == 200:
                     data = response.json()
@@ -294,7 +294,7 @@ def search_citation(
                         headers=headers,
                         params=params,
                         timeout=10,  # Add timeout to prevent hanging requests
-                    )
+                    , timeout=30)
 
                     if response.status_code == 200:
                         data = response.json()
@@ -386,7 +386,7 @@ def get_case_details(case_id: str, max_retries: int = 3) -> Optional[Dict[str, A
                     f"https://www.courtlistener.com/api/rest/v4/opinions/{case_id}/",
                     headers=headers,
                     timeout=10,  # Add timeout to prevent hanging requests
-                )
+                , timeout=30)
 
                 if response.status_code == 200:
                     return response.json()
