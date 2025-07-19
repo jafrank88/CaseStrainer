@@ -21,9 +21,15 @@ try:
     UNIFIED_PROCESSOR_V2_AVAILABLE = True
     logging.info("UnifiedCitationProcessorV2 available")
 except ImportError:
-    UNIFIED_PROCESSOR_V2_AVAILABLE = False
-    CitationResult = None
-    logging.warning("UnifiedCitationProcessorV2 not available")
+    try:
+        # Try absolute import as fallback
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig, CitationResult
+        UNIFIED_PROCESSOR_V2_AVAILABLE = True
+        logging.info("UnifiedCitationProcessorV2 available via absolute import")
+    except ImportError:
+        UNIFIED_PROCESSOR_V2_AVAILABLE = False
+        CitationResult = None
+        logging.warning("UnifiedCitationProcessorV2 not available")
 
 # Type annotations for type checking
 if TYPE_CHECKING:
@@ -180,11 +186,16 @@ class CitationService:
                     extract_dates=True,
                     enable_clustering=True,
                     enable_deduplication=True,
-                    enable_verification=False,  # Disable verification for speed
+                    enable_verification=True,  # Enable verification to get canonical names
                     debug_mode=False,
                     min_confidence=0.0
                 )
+                self.logger.info(f"[DEBUG] Fast config enable_verification: {fast_config.enable_verification}")
                 fast_processor = UnifiedCitationProcessorV2(fast_config)
+                self.logger.info(f"[DEBUG] Fast processor config enable_verification: {fast_processor.config.enable_verification}")
+                self.logger.info(f"[DEBUG] Fast processor id: {id(fast_processor)}")
+                self.logger.info(f"[DEBUG] Fast processor type: {type(fast_processor)}")
+                self.logger.info(f"[DEBUG] About to call fast_processor.process_text")
                 citation_results = fast_processor.process_text(text)
                 self.logger.info(f"[DEBUG] Extracted {len(citation_results)} citations after extraction.")
                 

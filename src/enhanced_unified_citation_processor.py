@@ -538,7 +538,7 @@ class EnhancedUnifiedCitationProcessor:
             headers = {"Authorization": f"Token {self.courtlistener_api_key}"}
             data = {"text": citation}
             
-            response = requests.post(url, headers=headers, json=data, timeout=10)
+            response = requests.post(url, headers=headers, data=data, timeout=10)
             if response.status_code == 200:
                 result = response.json()
                 # Process CourtListener response

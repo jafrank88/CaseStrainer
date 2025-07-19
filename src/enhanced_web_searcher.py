@@ -1,7 +1,22 @@
-# DEPRECATED: Use LegalWebsearchEngine in src/websearch_utils.py instead of EnhancedWebSearcher.
+# DEPRECATED: Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead of EnhancedWebSearcher.
 # This file is retained for legacy reference only and should not be used in new code.
+# 
+# The ComprehensiveWebSearchEngine provides:
+# - All features from EnhancedWebSearcher
+# - Enhanced Washington citation variants
+# - Advanced case name extraction
+# - Specialized legal database extraction
+# - Similarity scoring and validation
+# - Better reliability scoring
+#
+# Migration guide: See docs/WEB_SEARCH_MIGRATION.md
 
-raise ImportError("EnhancedWebSearcher is deprecated. Use LegalWebsearchEngine in src/websearch_utils.py instead.")
+import warnings
+warnings.warn(
+    "EnhancedWebSearcher is deprecated. Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 """
 Enhanced Web Search and Extraction for Legal Citations
