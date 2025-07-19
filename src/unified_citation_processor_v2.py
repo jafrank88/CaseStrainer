@@ -431,7 +431,8 @@ class UnifiedCitationProcessorV2:
                 for i, cluster in enumerate(result):
                     logger.debug(f"[CL batch] Cluster {i}: status={cluster.get('status')}, citations={len(cluster.get('clusters', []))}")
                     
-                    if cluster.get('status') == 'ok' and cluster.get('clusters'):
+                    # Fix: Check for status 200 (not 'ok') and handle citation objects
+                    if cluster.get('status') == 200 and cluster.get('clusters'):
                         api_cluster = cluster['clusters'][0]  # Take first cluster
                         logger.debug(f"[CL batch] api_cluster structure: {str(api_cluster)[:500]}...")
                         
@@ -440,8 +441,15 @@ class UnifiedCitationProcessorV2:
                         cl_date = api_cluster.get('date_filed', '')
                         cl_url = api_cluster.get('absolute_url', '')
                         
-                        # Find matching citation
-                        main_cite = api_cluster.get('citations', [''])[0] if api_cluster.get('citations') else ''
+                        # Fix: Handle citations as objects, reconstruct the citation string
+                        citations_data = api_cluster.get('citations', [])
+                        if citations_data:
+                            # Take the first citation and reconstruct it
+                            first_citation_obj = citations_data[0]
+                            main_cite = f"{first_citation_obj.get('volume', '')} {first_citation_obj.get('reporter', '')} {first_citation_obj.get('page', '')}"
+                        else:
+                            main_cite = ''
+                        
                         logger.debug(f"[CL batch] API citation: {main_cite} -> {cl_case_name}")
                         
                         # Update matching citations
@@ -449,9 +457,10 @@ class UnifiedCitationProcessorV2:
                             if citation.citation == main_cite:
                                 citation.canonical_name = cl_case_name
                                 citation.canonical_date = cl_date
-                                citation.url = cl_url
+                                citation.url = f"https://www.courtlistener.com{cl_url}" if cl_url else None
                                 citation.verified = True
                                 citation.source = "CourtListener"
+                                logger.info(f"[CL batch] EXACT MATCH: {citation.citation} -> {citation.canonical_name}")
                                 break
                         
                         # Try to match by normalized citation
@@ -477,10 +486,10 @@ class UnifiedCitationProcessorV2:
                                 if normalized_reconstructed == normalized_extracted:
                                     citation.canonical_name = cl_case_name
                                     citation.canonical_date = cl_date
-                                    citation.url = cl_url
+                                    citation.url = f"https://www.courtlistener.com{cl_url}" if cl_url else None
                                     citation.verified = True
                                     citation.source = "CourtListener"
-                                    logger.info(f"[CL batch] MATCHED: {citation.citation} -> {citation.canonical_name}")
+                                    logger.info(f"[CL batch] NORMALIZED MATCH: {citation.citation} -> {citation.canonical_name}")
                                     break
                             else:
                                 logger.debug(f"[CL batch] X NO MATCH: {normalized_reconstructed} vs {normalized_extracted}")
@@ -700,22 +709,40 @@ class UnifiedCitationProcessorV2:
                         if case_name:
                             # Clean up the case name - handle URL paths and extract actual case name
                             if 'courtlistener.com' in case_name or 'http' in case_name:
-                                # This is a URL path, try to extract case name from URL
-                                url_parts = case_name.split('/')
-                                # Look for meaningful parts in the URL
-                                for part in reversed(url_parts):
-                                    if part and part not in ['opinion', 'opinions', 'case', 'cases', '']:
-                                        # Clean up the part
-                                        clean_part = re.sub(r'[-–—_]', ' ', part)
-                                        clean_part = re.sub(r'\s+', ' ', clean_part).strip()
-                                        if len(clean_part) > 3 and not clean_part.isdigit():
-                                            case_name = clean_part
-                                            break
+                                # Handle the specific format with › characters
+                                if '›' in case_name:
+                                    # Split by › and take the last meaningful part
+                                    parts = case_name.split('›')
+                                    for part in reversed(parts):
+                                        clean_part = part.strip()
+                                        if clean_part and clean_part not in ['opinion', 'opinions', 'case', 'cases', '']:
+                                            # Remove URL parts
+                                            if 'courtlistener.com' in clean_part:
+                                                # Extract just the case name part
+                                                case_name_part = clean_part.replace('courtlistener.com', '').strip()
+                                                if case_name_part:
+                                                    case_name = case_name_part
+                                                    break
+                                            else:
+                                                case_name = clean_part
+                                                break
                                 else:
-                                    # If no good part found, try to extract from URL path
-                                    case_name = re.sub(r'.*/([^/]+)$', r'\1', case_name)
-                                    case_name = re.sub(r'[-–—_]', ' ', case_name)
-                                    case_name = re.sub(r'\s+', ' ', case_name).strip()
+                                    # This is a URL path, try to extract case name from URL
+                                    url_parts = case_name.split('/')
+                                    # Look for meaningful parts in the URL
+                                    for part in reversed(url_parts):
+                                        if part and part not in ['opinion', 'opinions', 'case', 'cases', '']:
+                                            # Clean up the part
+                                            clean_part = re.sub(r'[-–—_]', ' ', part)
+                                            clean_part = re.sub(r'\s+', ' ', clean_part).strip()
+                                            if len(clean_part) > 3 and not clean_part.isdigit():
+                                                case_name = clean_part
+                                                break
+                                        else:
+                                            # If no good part found, try to extract from URL path
+                                            case_name = re.sub(r'.*/([^/]+)$', r'\1', case_name)
+                                            case_name = re.sub(r'[-–—_]', ' ', case_name)
+                                            case_name = re.sub(r'\s+', ' ', case_name).strip()
                             
                             # Additional cleanup
                             case_name = re.sub(r'[-–—]', ' ', case_name)  # Replace dashes with spaces
@@ -724,6 +751,7 @@ class UnifiedCitationProcessorV2:
                             # Remove common URL artifacts
                             case_name = re.sub(r'^https?://[^/]+/?', '', case_name)
                             case_name = re.sub(r'^www\.', '', case_name)
+                            case_name = re.sub(r'^courtlistener\.com/?', '', case_name)
                             
                             # If it still looks like a URL, try to extract meaningful text
                             if case_name.startswith('courtlistener.com') or '/' in case_name:
@@ -2770,22 +2798,40 @@ class UnifiedCitationProcessorV2:
                         if case_name:
                             # Clean up the case name - handle URL paths and extract actual case name
                             if 'courtlistener.com' in case_name or 'http' in case_name:
-                                # This is a URL path, try to extract case name from URL
-                                url_parts = case_name.split('/')
-                                # Look for meaningful parts in the URL
-                                for part in reversed(url_parts):
-                                    if part and part not in ['opinion', 'opinions', 'case', 'cases', '']:
-                                        # Clean up the part
-                                        clean_part = re.sub(r'[-–—_]', ' ', part)
-                                        clean_part = re.sub(r'\s+', ' ', clean_part).strip()
-                                        if len(clean_part) > 3 and not clean_part.isdigit():
-                                            case_name = clean_part
-                                            break
+                                # Handle the specific format with › characters
+                                if '›' in case_name:
+                                    # Split by › and take the last meaningful part
+                                    parts = case_name.split('›')
+                                    for part in reversed(parts):
+                                        clean_part = part.strip()
+                                        if clean_part and clean_part not in ['opinion', 'opinions', 'case', 'cases', '']:
+                                            # Remove URL parts
+                                            if 'courtlistener.com' in clean_part:
+                                                # Extract just the case name part
+                                                case_name_part = clean_part.replace('courtlistener.com', '').strip()
+                                                if case_name_part:
+                                                    case_name = case_name_part
+                                                    break
+                                            else:
+                                                case_name = clean_part
+                                                break
                                 else:
-                                    # If no good part found, try to extract from URL path
-                                    case_name = re.sub(r'.*/([^/]+)$', r'\1', case_name)
-                                    case_name = re.sub(r'[-–—_]', ' ', case_name)
-                                    case_name = re.sub(r'\s+', ' ', case_name).strip()
+                                    # This is a URL path, try to extract case name from URL
+                                    url_parts = case_name.split('/')
+                                    # Look for meaningful parts in the URL
+                                    for part in reversed(url_parts):
+                                        if part and part not in ['opinion', 'opinions', 'case', 'cases', '']:
+                                            # Clean up the part
+                                            clean_part = re.sub(r'[-–—_]', ' ', part)
+                                            clean_part = re.sub(r'\s+', ' ', clean_part).strip()
+                                            if len(clean_part) > 3 and not clean_part.isdigit():
+                                                case_name = clean_part
+                                                break
+                                        else:
+                                            # If no good part found, try to extract from URL path
+                                            case_name = re.sub(r'.*/([^/]+)$', r'\1', case_name)
+                                            case_name = re.sub(r'[-–—_]', ' ', case_name)
+                                            case_name = re.sub(r'\s+', ' ', case_name).strip()
                             
                             # Additional cleanup
                             case_name = re.sub(r'[-–—]', ' ', case_name)  # Replace dashes with spaces
@@ -2794,6 +2840,7 @@ class UnifiedCitationProcessorV2:
                             # Remove common URL artifacts
                             case_name = re.sub(r'^https?://[^/]+/?', '', case_name)
                             case_name = re.sub(r'^www\.', '', case_name)
+                            case_name = re.sub(r'^courtlistener\.com/?', '', case_name)
                             
                             # If it still looks like a URL, try to extract meaningful text
                             if case_name.startswith('courtlistener.com') or '/' in case_name:
