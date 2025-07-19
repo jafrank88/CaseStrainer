@@ -436,7 +436,7 @@ class CitationService:
                     file_ext = os.path.splitext(file_path)[1].lower()
                     if file_ext == '.pdf' and PDF_HANDLER_AVAILABLE:
                         self.logger.info(f"[DEBUG _process_file_task] Using fast PDF handler for: {file_path}")
-                        text_result = extract_text_from_file(file_path, timeout=25)
+                        text_result = extract_text_from_file(file_path)
                     else:
                         # Fallback to document_processing_unified for non-PDF files
                         # Use the already imported extract_text_from_file from the top of the file
