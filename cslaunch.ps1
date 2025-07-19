@@ -1688,7 +1688,7 @@ function Show-Menu {
                 }
                 
                 try {
-                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                     $exitCode = $LASTEXITCODE
                     
                     if ($exitCode -eq 0) {
@@ -1717,6 +1717,10 @@ function Show-Menu {
         }
         "2" {
             $result = Start-DockerProduction
+            if (-not $result) {
+                Write-Host "❌ Docker production failed" -ForegroundColor Red
+                exit 1
+            }
             # Run production test suite
             Write-Host "Running production test suite..." -ForegroundColor Cyan
             $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
@@ -1729,7 +1733,7 @@ function Show-Menu {
             }
             
             try {
-                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                 $exitCode = $LASTEXITCODE
                 
                 if ($exitCode -eq 0) {
@@ -1752,6 +1756,10 @@ function Show-Menu {
         }
         "3" {
             $result = Start-DockerProduction -ForceRebuild
+            if (-not $result) {
+                Write-Host "❌ Docker production failed" -ForegroundColor Red
+                exit 1
+            }
             # Run production test suite
             Write-Host "Running production test suite..." -ForegroundColor Cyan
             $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
@@ -1764,7 +1772,7 @@ function Show-Menu {
             }
             
             try {
-                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                 $exitCode = $LASTEXITCODE
                 
                 if ($exitCode -eq 0) {
@@ -1804,7 +1812,7 @@ function Show-Menu {
             
             # Run tests with proper error handling
             try {
-                $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                 $exitCode = $LASTEXITCODE
                 
                 if ($exitCode -eq 0) {
