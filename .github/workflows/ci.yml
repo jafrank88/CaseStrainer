@@ -68,7 +68,7 @@ jobs:
       run: |
         # Bandit scan - only high severity issues are critical for CI
         # Medium/low issues are acceptable for this codebase (pickle for ML, subprocess for system ops)
-        bandit -r src/ -f json -o bandit-report.json -c .bandit || true
+        bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
@@ -236,7 +236,7 @@ jobs:
       run: |
         # Bandit scan - only high severity issues are critical for CI
         # Medium/low issues are acceptable for this codebase (pickle for ML, subprocess for system ops)
-        bandit -r src/ -f json -o bandit-report.json -c .bandit || true
+        bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high
 
     - name: Run Safety dependency check
       run: |
