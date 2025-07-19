@@ -57,7 +57,8 @@ jobs:
     - name: Run linting
       run: |
         ruff check src/ || true
-        bandit -r src/ -f json -o bandit-report.json || true
+        # Bandit scan - only high severity issues are critical for CI
+        bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high
 
   # Frontend Build Check
   test-frontend:
