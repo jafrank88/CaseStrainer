@@ -1,3 +1,23 @@
+# DEPRECATED: Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead of LegalWebSearchEngine.
+# This file is retained for legacy reference only and should not be used in new code.
+# 
+# The ComprehensiveWebSearchEngine provides:
+# - All features from LegalWebSearchEngine
+# - Enhanced Washington citation variants
+# - Advanced case name extraction
+# - Specialized legal database extraction
+# - Similarity scoring and validation
+# - Better reliability scoring
+#
+# Migration guide: See docs/WEB_SEARCH_MIGRATION.md
+
+import warnings
+warnings.warn(
+    "LegalWebSearchEngine is deprecated. Use ComprehensiveWebSearchEngine in src/comprehensive_websearch_engine.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 """
 Enhanced Legal Web Search Engine
 Focused, reliable web searching for legal citations with better error handling and maintainability
@@ -14,6 +34,7 @@ import json
 from datetime import datetime
 import hashlib
 import logging
+from src.citation_normalizer import normalize_citation, generate_citation_variants
 
 logger = logging.getLogger(__name__)
 
@@ -95,13 +116,24 @@ class LegalWebSearchEngine:
             match = re.search(pattern, citation, re.IGNORECASE)
             if match:
                 groups = match.groups()
+                reporter = groups[1]
+                
+                # Normalize Washington citations: Wn.2d -> Wash.2d, Wn.App -> Wash.App
+                if pattern_name == 'washington':
+                    if 'Wn.2d' in reporter or 'Wn. 2d' in reporter:
+                        reporter = reporter.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
+                    elif 'Wn.App' in reporter or 'Wn. App' in reporter:
+                        reporter = reporter.replace('Wn.', 'Wash.').replace('Wn ', 'Wash. ')
+                
+                normalized_citation = f"{groups[0]} {reporter} {groups[2]}"
+                
                 return {
                     'volume': groups[0],
-                    'reporter': groups[1],
+                    'reporter': reporter,
                     'page': groups[2],
                     'year': groups[3] if len(groups) > 3 and groups[3] else None,
                     'type': pattern_name,
-                    'normalized': f"{groups[0]} {groups[1]} {groups[2]}",
+                    'normalized': normalized_citation,
                     'original': citation
                 }
         
@@ -163,12 +195,17 @@ class LegalWebSearchEngine:
         """Generate focused, strategic search queries with better prioritization."""
         queries = []
         
-        # Extract citations with validation
+        # Extract citations with validation and normalization
         citations = set()
+        normalized_citations = set()
         for citation_obj in cluster.get('citations', []):
             citation = citation_obj.get('citation', '').strip()
             if citation and len(citation) > 5:  # Basic validation
                 citations.add(citation)
+                # Normalize citation for better websearch results
+                normalized = normalize_citation(citation)
+                if normalized.get('normalized') and normalized['normalized'] != citation:
+                    normalized_citations.add(normalized['normalized'])
         
         # Extract case names with validation
         case_names = set()
@@ -184,9 +221,10 @@ class LegalWebSearchEngine:
                 if year_match:
                     years.add(year_match.group(0))
         
-        # Priority 1: Exact citation on top canonical sources
+        # Priority 1: Exact citation on top canonical sources (original and normalized)
         top_domains = ['courtlistener.com', 'justia.com', 'leagle.com']
-        for citation in citations:
+        all_citations = list(citations) + list(normalized_citations)
+        for citation in all_citations:
             for domain in top_domains:
                 queries.append({
                     'query': f'site:{domain} "{citation}"',
@@ -196,8 +234,8 @@ class LegalWebSearchEngine:
                     'expected_reliability': 90
                 })
         
-        # Priority 2: Citation with legal context indicators
-        for citation in citations:
+        # Priority 2: Citation with legal context indicators (original and normalized)
+        for citation in all_citations:
             queries.append({
                 'query': f'"{citation}" (opinion OR court OR case OR decision)',
                 'priority': 2,
@@ -206,9 +244,9 @@ class LegalWebSearchEngine:
                 'expected_reliability': 75
             })
         
-        # Priority 3: Case name + citation on canonical sources
+        # Priority 3: Case name + citation on canonical sources (original and normalized)
         for case_name in list(case_names)[:3]:  # Limit to best case names
-            for citation in list(citations)[:2]:  # Limit citations
+            for citation in list(all_citations)[:2]:  # Limit citations
                 for domain in ['courtlistener.com', 'justia.com']:
                     queries.append({
                         'query': f'site:{domain} "{case_name}" "{citation}"',
@@ -229,8 +267,8 @@ class LegalWebSearchEngine:
                     'expected_reliability': 60
                 })
         
-        # Priority 5: Broader citation search (last resort)
-        for citation in list(citations)[:2]:
+        # Priority 5: Broader citation search (last resort) - original and normalized
+        for citation in list(all_citations)[:2]:
             queries.append({
                 'query': f'"{citation}"',
                 'priority': 5,
@@ -650,33 +688,45 @@ class LegalWebSearchEngine:
 # Convenience functions for backward compatibility
 def search_cluster_for_canonical_sources(cluster: Dict, max_results: int = 10) -> List[Dict]:
     """Main function to search for canonical legal sources."""
-    engine = LegalWebSearchEngine()
-    return engine.search_cluster_canonical(cluster, max_results)
+    try:
+        from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+        engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+        return engine.search_cluster_canonical(cluster, max_results)
+    except ImportError:
+        # Fallback to old engine if comprehensive engine not available
+        engine = LegalWebSearchEngine()
+        return engine.search_cluster_canonical(cluster, max_results)
 
 
 def search_all_engines(query: str, num_results: int = 5, engines: List[str] = None) -> List[Dict]:
     """Search multiple engines (backward compatibility)."""
-    engine = LegalWebSearchEngine()
-    
-    if engines is None:
-        engines = engine.enabled_engines
-    
-    all_results = []
-    seen_urls = set()
-    
-    for search_engine in engines:
-        if search_engine in engine.enabled_engines:
-            results = engine.search_with_engine(query, search_engine, num_results)
-            for result in results:
-                if result['url'] not in seen_urls:
-                    all_results.append(result)
-                    seen_urls.add(result['url'])
-                if len(all_results) >= num_results:
-                    break
-        if len(all_results) >= num_results:
-            break
-    
-    return all_results
+    try:
+        from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+        engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+        return engine.search_all_engines(query, num_results, engines)
+    except ImportError:
+        # Fallback to old engine if comprehensive engine not available
+        engine = LegalWebSearchEngine()
+        
+        if engines is None:
+            engines = engine.enabled_engines
+        
+        all_results = []
+        seen_urls = set()
+        
+        for search_engine in engines:
+            if search_engine in engine.enabled_engines:
+                results = engine.search_with_engine(query, search_engine, num_results)
+                for result in results:
+                    if result['url'] not in seen_urls:
+                        all_results.append(result)
+                        seen_urls.add(result['url'])
+                    if len(all_results) >= num_results:
+                        break
+            if len(all_results) >= num_results:
+                break
+        
+        return all_results
 
 
 def test_web_search():

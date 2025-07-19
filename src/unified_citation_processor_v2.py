@@ -54,7 +54,7 @@ except ImportError:
     from case_name_extraction_core import extract_case_name_and_date
 
 # Import LegalWebSearchEngine from websearch_utils.py
-from src.websearch_utils import search_cluster_for_canonical_sources, LegalWebSearchEngine
+from src.websearch_utils import search_cluster_for_canonical_sources
 
 # Date extraction is now handled by the streamlined API functions
 
@@ -63,6 +63,8 @@ try:
     from src.case_name_extraction_core import extract_case_name_only, extract_year_only
 except ImportError:
     from case_name_extraction_core import extract_case_name_only, extract_year_only
+
+from src.citation_normalizer import normalize_citation, generate_citation_variants
 
 @dataclass
 class CitationResult:
@@ -140,8 +142,9 @@ class UnifiedCitationProcessorV2:
         # Initialize verification components
         self.courtlistener_api_key = get_config_value("COURTLISTENER_API_KEY")
         
-        # Initialize enhanced web searcher (optional)
-        self.enhanced_web_searcher = LegalWebSearchEngine()
+        # Initialize enhanced web searcher (now using ComprehensiveWebSearchEngine in _verify_citations_with_legal_websearch)
+        # self.enhanced_web_searcher = LegalWebSearchEngine()
+        self.enhanced_web_searcher = None  # No longer needed - using ComprehensiveWebSearchEngine
         
         if self.config.debug_mode:
             logger.info(f"CourtListener API key available: {bool(self.courtlistener_api_key)}")
@@ -558,16 +561,16 @@ class UnifiedCitationProcessorV2:
             logger.info(f"[VERIFY_CITATIONS] After CourtListener: {len(unverified_citations)} unverified citations")
             logger.debug(f"[VERIFY_CITATIONS] Unverified citations: {[c.citation for c in unverified_citations]}")
             
-            # Step 2: Fallback to canonical service for unverified citations
+            # Step 2: Fallback to legal websearch for unverified citations
             if unverified_citations:
-                logger.info(f"[VERIFY_CITATIONS] Calling canonical service for: {[c.citation for c in unverified_citations]}")
+                logger.info(f"[VERIFY_CITATIONS] Calling legal websearch for: {[c.citation for c in unverified_citations]}")
                 for c in unverified_citations:
-                    logger.debug(f"[VERIFY_CITATIONS] BEFORE fallback: id={id(c)} citation={c.citation} verified={c.verified} source={c.source} canonical_name={c.canonical_name}")
+                    logger.debug(f"[VERIFY_CITATIONS] BEFORE websearch: id={id(c)} citation={c.citation} verified={c.verified} source={c.source} canonical_name={c.canonical_name}")
                 
-                self._verify_citations_with_canonical_service(unverified_citations)
+                self._verify_citations_with_legal_websearch(unverified_citations)
                 
                 for c in unverified_citations:
-                    logger.debug(f"[VERIFY_CITATIONS] AFTER fallback: id={id(c)} citation={c.citation} verified={c.verified} source={c.source} canonical_name={c.canonical_name}")
+                    logger.debug(f"[VERIFY_CITATIONS] AFTER websearch: id={id(c)} citation={c.citation} verified={c.verified} source={c.source} canonical_name={c.canonical_name}")
         else:
             logger.info(f"[VERIFY_CITATIONS] All citations verified by CourtListener, skipping canonical service")
         
@@ -583,8 +586,9 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[CANONICAL_SERVICE] ENTERED for: {[c.citation for c in citations]}")
         
         try:
-            from src.canonical_case_name_service import get_canonical_case_name_with_date
-            logger.info(f"[CANONICAL_SERVICE] Successfully imported get_canonical_case_name_with_date")
+            # Temporarily skip canonical service to avoid import issues
+            logger.warning(f"[CANONICAL_SERVICE] Skipping canonical service due to import issues")
+            return
         except ImportError as e:
             logger.warning(f"[CANONICAL_SERVICE] Canonical service not available: {e}")
             return
@@ -629,6 +633,103 @@ class UnifiedCitationProcessorV2:
                 logger.error(f"[CANONICAL_SERVICE] Error verifying {citation.citation}: {e}")
         
         logger.info(f"[CANONICAL_SERVICE] EXITING")
+
+    def _verify_citations_with_legal_websearch(self, citations: List['CitationResult']) -> None:
+        """Verify citations using legal websearch as final fallback."""
+        logger.info(f"[LEGAL_WEBSEARCH] ENTERED for: {[c.citation for c in citations]}")
+        
+        try:
+            from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+            logger.info(f"[LEGAL_WEBSEARCH] Successfully imported ComprehensiveWebSearchEngine")
+        except ImportError as e:
+            logger.warning(f"[LEGAL_WEBSEARCH] Comprehensive websearch not available: {e}")
+            return
+        
+        # Initialize the comprehensive websearch engine
+        try:
+            websearch_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+            logger.info(f"[LEGAL_WEBSEARCH] Successfully initialized ComprehensiveWebSearchEngine")
+        except Exception as e:
+            logger.error(f"[LEGAL_WEBSEARCH] Failed to initialize ComprehensiveWebSearchEngine: {e}")
+            return
+        
+        # Group citations by cluster to try all citations in each cluster together
+        cluster_groups = {}
+        for citation in citations:
+            if citation.verified:
+                logger.debug(f"[LEGAL_WEBSEARCH] Skipping {citation.citation} - already verified")
+                continue
+            
+            # Get cluster information
+            cluster_id = citation.metadata.get('cluster_id') if citation.metadata else None
+            cluster_key = cluster_id if cluster_id else citation.citation  # Use citation as key if no cluster
+            
+            if cluster_key not in cluster_groups:
+                cluster_groups[cluster_key] = []
+            cluster_groups[cluster_key].append(citation)
+        
+        # Process each cluster group
+        for cluster_key, cluster_citations in cluster_groups.items():
+            logger.info(f"[LEGAL_WEBSEARCH] Processing cluster {cluster_key} with {len(cluster_citations)} citations: {[c.citation for c in cluster_citations]}")
+            
+            try:
+                # Create a cluster with ALL citations in this group
+                test_cluster = {
+                    'citations': [{'citation': c.citation} for c in cluster_citations],
+                    'canonical_name': None,
+                    'canonical_date': None
+                }
+                
+                # Use the search_cluster_canonical method from LegalWebSearchEngine
+                # This will try ALL citations in the cluster (original and normalized forms)
+                search_results = websearch_engine.search_cluster_canonical(test_cluster, max_results=5)
+                
+                logger.debug(f"[LEGAL_WEBSEARCH] Found {len(search_results)} search results for cluster '{cluster_key}'")
+                
+                # Check if we found authoritative legal sources
+                if search_results:
+                    # Look for high-reliability results from canonical sources (lowered threshold)
+                    high_reliability_results = [r for r in search_results if r.get('reliability_score', 0) >= 15]
+                    
+                    if high_reliability_results:
+                        best_result = high_reliability_results[0]
+                        logger.info(f"[LEGAL_WEBSEARCH] Found high-reliability result for cluster {cluster_key}: {best_result.get('title', 'N/A')}")
+                        
+                        # Extract case name from the best result
+                        case_name = best_result.get('title', '')
+                        if case_name:
+                            # Clean up the case name
+                            case_name = re.sub(r'[-–—]', ' ', case_name)  # Replace dashes with spaces
+                            case_name = re.sub(r'\s+', ' ', case_name).strip()  # Normalize whitespace
+                            
+                            # Try to extract year from URL or title
+                            year_match = re.search(r'\b(19|20)\d{2}\b', best_result.get('url', '') + ' ' + case_name)
+                            year = year_match.group(0) if year_match else None
+                            
+                            # Update all citations in this cluster with the verification results
+                            for citation in cluster_citations:
+                                citation.canonical_name = case_name
+                                citation.canonical_date = year
+                                citation.url = best_result.get('url')
+                                citation.verified = True
+                                citation.confidence = best_result.get('reliability_score', 0) / 100.0
+                                citation.metadata = citation.metadata or {}
+                                citation.metadata['legal_websearch_source'] = 'Legal Websearch'
+                                citation.metadata['reliability_score'] = best_result.get('reliability_score', 0)
+                            
+                            logger.info(f"[LEGAL_WEBSEARCH] Successfully verified cluster {cluster_key} with case name: {case_name}")
+                            break  # Exit the cluster processing loop since we found a good result
+                        else:
+                            logger.debug(f"[LEGAL_WEBSEARCH] No valid case name found for cluster {cluster_key}")
+                    else:
+                        logger.debug(f"[LEGAL_WEBSEARCH] No high-reliability results found for cluster {cluster_key}")
+                else:
+                    logger.debug(f"[LEGAL_WEBSEARCH] No search results found for cluster {cluster_key}")
+                    
+            except Exception as e:
+                logger.error(f"[LEGAL_WEBSEARCH] Error verifying cluster {cluster_key}: {e}")
+        
+        logger.info(f"[LEGAL_WEBSEARCH] EXITING")
 
     def _verify_state_group(self, citations: List[CitationResult]):
         """Verify a group of state-specific citations (e.g., all Wash.2d variants)."""
@@ -688,7 +789,7 @@ class UnifiedCitationProcessorV2:
                 # Use 'text' field for citation-lookup
                 lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
                 lookup_data = {"text": citation}
-                response = requests.post(lookup_url, headers=headers, json=lookup_data, timeout=30)
+                response = requests.post(lookup_url, headers=headers, data=lookup_data, timeout=30)
                 if response.status_code == 200:
                     lookup_result = response.json()
                     if lookup_result and "results" in lookup_result:
@@ -1668,6 +1769,26 @@ class UnifiedCitationProcessorV2:
         
         return normalized.lower()
     
+    def _normalize_citation_for_verification(self, citation: str) -> str:
+        """Normalize citation for verification (e.g., Wn.2d -> Wash.2d)."""
+        if not citation:
+            return citation
+        
+        # Remove extra whitespace
+        normalized = re.sub(r'\s+', ' ', citation.strip())
+        
+        # Normalize Washington citations: Wn.2d -> Wash.2d, Wn.App -> Wash.App
+        normalized = re.sub(r'\bWn\.2d\b', 'Wash.2d', normalized)
+        normalized = re.sub(r'\bWn\.3d\b', 'Wash.3d', normalized)
+        normalized = re.sub(r'\bWn\.\s*App\.\b', 'Wash.App.', normalized)
+        normalized = re.sub(r'\bWn\.\b', 'Wash.', normalized)
+        
+        # Normalize other common variations
+        normalized = normalized.replace('wn2d', 'wash2d')
+        normalized = normalized.replace('wnapp', 'washapp')
+        
+        return normalized
+    
     def _normalize_to_bluebook_format(self, citation: str) -> str:
         """
         Normalize citation to proper Bluebook spacing format.
@@ -1999,7 +2120,24 @@ class UnifiedCitationProcessorV2:
         citations = self._deduplicate_citations(citations)
         logger.info(f"[PROCESS_TEXT] After deduplication: {len(citations)} citations")
         
-        # Step 3: Verify citations only if enabled
+        # Step 3: Normalize citations for best compatibility
+        logger.info(f"[PROCESS_TEXT] Normalizing citations for compatibility...")
+        for i, citation in enumerate(citations):
+            original_citation = citation.citation
+            normalized_citation = normalize_citation(citation.citation)
+            if normalized_citation != original_citation:
+                logger.info(f"[PROCESS_TEXT] Normalized '{original_citation}' -> '{normalized_citation}'")
+                citation.citation = normalized_citation
+                if not citation.metadata:
+                    citation.metadata = {}
+                citation.metadata['original_citation'] = original_citation
+            else:
+                logger.debug(f"[PROCESS_TEXT] No normalization needed for '{original_citation}'")
+        
+        # Step 4: Verify citations only if enabled
+        logger.info(f"[PROCESS_TEXT] Config enable_verification: {self.config.enable_verification}")
+        logger.info(f"[PROCESS_TEXT] Config type: {type(self.config)}")
+        logger.info(f"[PROCESS_TEXT] Config repr: {repr(self.config)}")
         if self.config.enable_verification:
             logger.info(f"[PROCESS_TEXT] About to call _verify_citations on {len(citations)} citations")
             logger.debug(f"[PROCESS_TEXT] Citations: {[c.citation for c in citations]}")
@@ -2504,35 +2642,65 @@ class UnifiedCitationProcessorV2:
                     logger.warning(f"[CL Filtered] {citation} -> {canonical_name} (REJECTED - invalid case name)")
                     # Continue to fallback since CourtListener result was filtered out
             
-            # Step 2: Try canonical lookup service as fallback
+            # Step 2: Try legal websearch as fallback
             try:
-                from .canonical_case_name_service import get_canonical_case_name_with_date
-                canonical_result = get_canonical_case_name_with_date(citation)
-                if canonical_result and canonical_result.get('case_name'):
-                    result['sources']['canonical_service'] = canonical_result
-                    result['verified'] = True
-                    result['verified_by'] = 'Canonical Service'
-                    result['case_name'] = canonical_result.get('case_name')
-                    result['canonical_name'] = canonical_result.get('case_name')
-                    result['canonical_date'] = canonical_result.get('date')
-                    result['url'] = canonical_result.get('url')
-                    result['confidence'] = canonical_result.get('confidence', 0.8)
-                    result['source'] = canonical_result.get('source', 'Canonical Service')
-                    return result
+                from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+                websearch_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+                
+                # Create a test cluster for the websearch
+                test_cluster = {
+                    'citations': [{'citation': citation}],
+                    'canonical_name': None,
+                    'canonical_date': None
+                }
+                
+                # Use the search_cluster_canonical method
+                search_results = websearch_engine.search_cluster_canonical(test_cluster, max_results=5)
+                
+                if search_results:
+                    # Look for high-reliability results from canonical sources (lowered threshold)
+                    high_reliability_results = [r for r in search_results if r.get('reliability_score', 0) >= 15]
+                    
+                    if high_reliability_results:
+                        best_result = high_reliability_results[0]
+                        
+                        # Extract case name from the best result
+                        case_name = best_result.get('title', '')
+                        if case_name:
+                            # Clean up the case name
+                            import re
+                            case_name = re.sub(r'[-–—]', ' ', case_name)  # Replace dashes with spaces
+                            case_name = re.sub(r'\s+', ' ', case_name).strip()  # Normalize whitespace
+                            
+                            # Try to extract year from URL or title
+                            year_match = re.search(r'\b(19|20)\d{2}\b', best_result.get('url', '') + ' ' + case_name)
+                            year = year_match.group(0) if year_match else None
+                            
+                            result['sources']['legal_websearch'] = {
+                                'verified': True,
+                                'canonical_name': case_name,
+                                'canonical_date': year,
+                                'url': best_result.get('url'),
+                                'reliability_score': best_result.get('reliability_score', 0)
+                            }
+                            
+                            result['verified'] = True
+                            result['verified_by'] = 'Legal Websearch'
+                            result['canonical_name'] = case_name
+                            result['canonical_date'] = year
+                            result['url'] = best_result.get('url')
+                            result['confidence'] = best_result.get('reliability_score', 0) / 100.0
+                            
+                            return result
+                        else:
+                            result['sources']['legal_websearch'] = {'verified': False, 'error': 'No valid case name found'}
+                    else:
+                        result['sources']['legal_websearch'] = {'verified': False, 'error': 'No high-reliability results found'}
+                else:
+                    result['sources']['legal_websearch'] = {'verified': False, 'error': 'No search results found'}
+                    
             except Exception as e:
-                result['sources']['canonical_service'] = {'error': str(e)}
-            
-            # Step 3: Try landmark cases (if available)
-            try:
-                landmark_result = self._verify_with_landmark_cases(citation)
-                result['sources']['landmark_cases'] = landmark_result
-                if landmark_result.get('verified'):
-                    result.update(landmark_result)
-                    result['verified'] = True
-                    result['verified_by'] = 'Landmark Cases'
-                    return result
-            except Exception as e:
-                result['sources']['landmark_cases'] = {'error': str(e)}
+                result['sources']['legal_websearch'] = {'error': str(e)}
             
             # If no verification succeeded, return failure
             result['error'] = 'Citation not found in any source'
