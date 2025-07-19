@@ -7,18 +7,21 @@ Most legal documents submitted by users will NOT have a Table of Authorities (To
 ## Current Challenges
 
 ### 1. **Case Name Extraction Issues**
+
 - Core function `extract_case_name_triple_comprehensive()` has only 28.6% accuracy
 - Regex patterns work better (92.9% accuracy) but need enhancement
 - Missing complex case name patterns (business entities, departments, etc.)
 - No context-aware extraction around citations
 
 ### 2. **Date/Year Extraction Problems**
+
 - Core function fails to extract years from most citation formats
 - Ninth Circuit citations like `(9th Cir. 1997)` are not handled
 - Multiple years in complex citations need better parsing
 - No validation of extracted years against reasonable ranges
 
 ### 3. **Clustering Reliability Issues**
+
 - Clustering depends on accurate case name and date extraction
 - No fallback mechanisms when extraction fails
 - Limited handling of parallel citations without structured ToA
@@ -29,8 +32,11 @@ Most legal documents submitted by users will NOT have a Table of Authorities (To
 ### Phase 1: Enhanced Case Name Extraction
 
 #### 1.1 Pattern Enhancement
+
 ```python
+
 # Add these patterns to case_name_extraction_core.py
+
 enhanced_patterns = [
     # Business entities with complex names
     r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s*,\s*[A-Za-z0-9&.,\'\-]+)*)\s+v\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s*,\s*[A-Za-z0-9&.,\'\-]+)*)\b',
@@ -44,9 +50,11 @@ enhanced_patterns = [
     # Multiple year citations
     r'\b([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s+v\.\s+([A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*)\s*,\s*\d+\s+[A-Za-z.]+(?:\s+\d+)*\s*\(\d{4}\)\s*,\s*overruled\s+by\s+[A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\-]+(?:\s+[A-Za-z0-9&.,\'\-]+)*\s*,\s*\d+\s+[A-Za-z.]+(?:\s+\d+)*\s*\(\d{4}\)\b'
 ]
-```
+
+```text
 
 #### 1.2 Context-Aware Extraction
+
 ```python
 def extract_case_name_with_context(text: str, citation: str) -> str:
     """Extract case name using context around citation."""
@@ -68,9 +76,11 @@ def extract_case_name_with_context(text: str, citation: str) -> str:
                 return case_name
     
     return ""
-```
+
+```text
 
 #### 1.3 Multi-Strategy Extraction
+
 ```python
 def extract_case_name_multi_strategy(text: str, citation: str) -> Dict[str, Any]:
     """Use multiple strategies for case name extraction."""
@@ -99,11 +109,13 @@ def extract_case_name_multi_strategy(text: str, citation: str) -> Dict[str, Any]
         return max(results, key=lambda x: x['confidence'])
     
     return {'case_name': '', 'strategy': 'none', 'confidence': 0.0}
-```
+
+```text
 
 ### Phase 2: Improved Date/Year Extraction
 
 #### 2.1 Enhanced Year Patterns
+
 ```python
 def extract_year_enhanced(citation: str) -> int:
     """Enhanced year extraction with multiple patterns."""
@@ -124,9 +136,11 @@ def extract_year_enhanced(citation: str) -> int:
                 return year
     
     return None
-```
+
+```text
 
 #### 2.2 Year Validation
+
 ```python
 def validate_extracted_year(year: int, context: str) -> bool:
     """Validate extracted year against context."""
@@ -142,11 +156,13 @@ def validate_extracted_year(year: int, context: str) -> bool:
         return True
     
     return False
-```
+
+```text
 
 ### Phase 3: Robust Clustering
 
 #### 3.1 Citation-Based Clustering
+
 ```python
 def cluster_citations_by_content(citations: List[str], text: str) -> List[Dict]:
     """Cluster citations based on content similarity."""
@@ -185,9 +201,11 @@ def cluster_citations_by_content(citations: List[str], text: str) -> List[Dict]:
             processed.add(i)
     
     return clusters
-```
+
+```text
 
 #### 3.2 Fallback Clustering
+
 ```python
 def fallback_clustering(citations: List[str], text: str) -> List[Dict]:
     """Fallback clustering when extraction fails."""
@@ -214,23 +232,25 @@ def fallback_clustering(citations: List[str], text: str) -> List[Dict]:
             })
     
     return clusters
-```
+
+```text
 
 ### Phase 4: Testing and Validation
 
 #### 4.1 Test Cases for No ToA Documents
+
 ```python
 no_toa_test_cases = [
     {
         'name': 'Mixed Citation Types',
         'text': '''
-        The Supreme Court has held that Brown v. Board of Education, 347 U.S. 483 (1954) established important precedent. 
-        In Washington, we follow State v. Johnson, 123 Wn. App. 456 (2004) and United States v. Doe, 123 F.3d 456 (9th Cir. 1997). 
+        The Supreme Court has held that Brown v. Board of Education, 347 U.S. 483 (1954) established important precedent.
+        In Washington, we follow State v. Johnson, 123 Wn. App. 456 (2004) and United States v. Doe, 123 F.3d 456 (9th Cir. 1997).
         The Ninth Circuit has also ruled on this matter.
         ''',
         'expected_citations': [
             '347 U.S. 483 (1954)',
-            '123 Wn. App. 456 (2004)', 
+            '123 Wn. App. 456 (2004)',
             '123 F.3d 456 (9th Cir. 1997)'
         ],
         'expected_case_names': [
@@ -243,7 +263,7 @@ no_toa_test_cases = [
     {
         'name': 'Business Entity Citations',
         'text': '''
-        The court considered Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022) 
+        The court considered Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
         and Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003).
         ''',
         'expected_citations': [
@@ -257,9 +277,11 @@ no_toa_test_cases = [
         'expected_years': [2022, 2003]
     }
 ]
-```
+
+```text
 
 #### 4.2 Performance Metrics
+
 ```python
 def calculate_extraction_metrics(test_results: List[Dict]) -> Dict[str, float]:
     """Calculate extraction performance metrics."""
@@ -287,21 +309,25 @@ def calculate_extraction_metrics(test_results: List[Dict]) -> Dict[str, float]:
         metrics[key] /= total_tests
     
     return metrics
-```
+
+```text
 
 ## Implementation Priority
 
 ### High Priority (Week 1-2)
+
 1. **Fix core case name extraction** - Improve `extract_case_name_triple_comprehensive()`
 2. **Add missing regex patterns** - Handle Ninth Circuit and business entity citations
 3. **Implement context-aware extraction** - Use text around citations
 
 ### Medium Priority (Week 3-4)
+
 1. **Enhance year extraction** - Add patterns for complex citations
 2. **Improve clustering reliability** - Add fallback mechanisms
 3. **Add validation functions** - Validate extracted data
 
 ### Low Priority (Week 5-6)
+
 1. **Performance optimization** - Speed up extraction for large documents
 2. **Machine learning integration** - Consider ML-based approaches
 3. **Multi-state support** - Extend to other state court systems
@@ -309,12 +335,14 @@ def calculate_extraction_metrics(test_results: List[Dict]) -> Dict[str, float]:
 ## Success Metrics
 
 ### Target Performance Goals
+
 - **Case name extraction accuracy**: 85%+ (currently 28.6%)
 - **Year extraction accuracy**: 90%+ (currently 92.9% with regex)
 - **Citation extraction accuracy**: 95%+ (currently good)
 - **Clustering quality**: 80%+ (needs measurement)
 
 ### Testing Requirements
+
 - Test on 100+ real legal documents without ToA
 - Validate against known citation databases
 - Measure performance across different document types
@@ -323,11 +351,13 @@ def calculate_extraction_metrics(test_results: List[Dict]) -> Dict[str, float]:
 ## Risk Mitigation
 
 ### Technical Risks
+
 1. **Over-extraction**: Implement strict validation rules
 2. **Performance degradation**: Use efficient regex patterns
 3. **False positives**: Add confidence scoring and filtering
 
 ### Business Risks
+
 1. **User dissatisfaction**: Provide clear feedback on extraction quality
 2. **Legal accuracy**: Validate against authoritative sources
 3. **Scalability**: Test with large document collections
@@ -341,4 +371,4 @@ The current system needs significant improvements to handle documents without Ta
 3. **Intelligent clustering** with fallback mechanisms
 4. **Comprehensive testing** with real-world documents
 
-These improvements will make the system much more effective for the majority of legal documents that users will submit. 
+These improvements will make the system much more effective for the majority of legal documents that users will submit.

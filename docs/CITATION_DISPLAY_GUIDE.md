@@ -7,12 +7,14 @@ CaseStrainer already extracts and displays case names and dates from citations. 
 ## Data Flow
 
 ### 1. Backend Processing
+
 - **Citation Extraction**: The system extracts citations from uploaded documents, pasted text, or URLs
 - **Case Name Extraction**: Uses multiple methods to extract case names from the document context
 - **Date Extraction**: Extracts dates from citations and surrounding text
 - **Multi-Source Verification**: Verifies citations against multiple legal databases (CourtListener, Justia, Google Scholar, etc.)
 
 ### 2. API Response Structure
+
 The backend returns citation data with the following key fields:
 
 ```json
@@ -43,27 +45,33 @@ The backend returns citation data with the following key fields:
     }
   ]
 }
-```
+
+```text
 
 ### 3. Frontend Display
+
 The Vue component `CitationResults.vue` displays this data in organized sections:
 
 #### Case Information Section
+
 - **Canonical Case Name**: Official case name from authoritative sources
 - **Extracted Case Name**: Case name extracted from the user's document
 - **Name Similarity**: Percentage match between extracted and canonical names
 - **Name Mismatch Warning**: Alerts when names differ significantly
 
 #### Decision Information Section
+
 - **Extracted Date**: Date extracted from the user's document
 - **Canonical Date**: Official date from authoritative sources
 - **Date Match**: Shows whether extracted and canonical dates match
 
 #### Court Information Section
+
 - **Court**: Court that decided the case
 - **Docket**: Docket number
 
 #### Additional Information
+
 - **Parallel Citations**: Alternative citation formats
 - **Verification Sources**: Which databases confirmed the citation
 - **Confidence Scores**: How confident the system is in the verification
@@ -92,28 +100,35 @@ getDocket(citation)             // Gets docket number
 getCitationUrl(citation)        // Gets citation URL
 getSource(citation)             // Gets verification source
 getParallelCitations(citation)  // Gets parallel citations
-```
+
+```text
 
 ## Troubleshooting
 
 If you're not seeing case names and dates in the frontend:
 
 ### 1. Check Backend Extraction
+
 Verify that the backend is properly extracting case names and dates:
 
 ```python
+
 # Check the citation processor
+
 from src.citation_processor import CitationProcessor
 processor = CitationProcessor()
 citations = processor.extract_citations(text, extract_case_names=True)
 
 # Check the enhanced verifier
+
 from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 verifier = EnhancedMultiSourceVerifier()
 result = verifier.verify_citation(citation_text, extracted_case_name=extracted_case_name)
-```
+
+```text
 
 ### 2. Check API Response
+
 Verify that the API response includes the expected fields:
 
 ```javascript
@@ -128,9 +143,11 @@ fetch('/api/analyze', {
   console.log('API Response:', data);
   console.log('First citation:', data.citations[0]);
 });
-```
+
+```text
 
 ### 3. Check Vue Component
+
 Verify that the Vue component is receiving and processing the data:
 
 ```javascript
@@ -138,12 +155,15 @@ Verify that the Vue component is receiving and processing the data:
 // Navigate to the citation results page and check:
 console.log('Citation results:', this.results);
 console.log('First citation:', this.results.citations[0]);
-```
+
+```text
 
 ### 4. Check for JavaScript Errors
+
 Open browser developer tools and check the console for any JavaScript errors that might prevent the data from displaying.
 
 ### 5. Verify Data Structure
+
 Ensure the citation objects have the expected structure:
 
 ```javascript
@@ -160,39 +180,49 @@ const expectedStructure = {
   verified: true,
   confidence: 0.95
 };
-```
+
+```text
 
 ## Common Issues and Solutions
 
 ### Issue: Case names not displaying
+
 **Possible causes:**
+
 - Backend not extracting case names properly
 - API response missing `case_name` or `case_name_extracted` fields
 - Vue component not receiving the data
 
 **Solutions:**
+
 1. Check backend logs for extraction errors
 2. Verify API response structure
 3. Check Vue component helper functions
 
 ### Issue: Dates not displaying
+
 **Possible causes:**
+
 - Date extraction failing in backend
 - Date format issues
 - Missing `extracted_date` or `date_filed` fields
 
 **Solutions:**
+
 1. Check date extraction logic in backend
 2. Verify date formats are consistent
 3. Check Vue date formatting function
 
 ### Issue: Data showing as "N/A"
+
 **Possible causes:**
+
 - Fields are null or undefined
 - Helper functions not finding the data
 - Data structure mismatch
 
 **Solutions:**
+
 1. Check if fields exist in API response
 2. Verify helper function logic
 3. Ensure consistent data structure
@@ -203,9 +233,11 @@ Run the test script to verify the system is working:
 
 ```bash
 python test_citation_display.py
-```
+
+```text
 
 This will demonstrate:
+
 - The expected data structure
 - How helper functions work
 - What should be displayed in the frontend
@@ -224,4 +256,4 @@ While the system already works, here are potential enhancements:
 
 The CaseStrainer system already extracts and displays case names and dates effectively. The data flows from backend extraction through API responses to frontend display, providing users with both extracted and canonical information for comparison.
 
-If you're experiencing issues with the display, follow the troubleshooting steps above to identify and resolve the problem. 
+If you're experiencing issues with the display, follow the troubleshooting steps above to identify and resolve the problem.

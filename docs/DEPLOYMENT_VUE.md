@@ -11,11 +11,13 @@
   - Never commit real secrets!
   - `.env` is already in `.gitignore`
 - **Install pre-commit hooks** for code quality and security:
+
   ```bash
   pip install pre-commit
   pre-commit install
   pre-commit run --all-files
-  ```
+  ```text
+
 - **Check logs** in the `logs/` directory if issues arise
 - **Docker logs** are available via `docker logs <container-name>`
 
@@ -40,7 +42,8 @@ The Vue.js version of CaseStrainer represents a complete modernization of the ap
 
 ### Frontend Structure
 
-```
+```text
+
 casestrainer-vue-new/
 ├── src/                # Vue source files
 │   ├── assets/         # Static assets
@@ -52,7 +55,8 @@ casestrainer-vue-new/
 │   └── main.js         # Application entry point
 ├── public/             # Static files
 └── package.json        # Dependencies and scripts
-```
+
+```text
 
 ## Prerequisites
 
@@ -75,7 +79,8 @@ casestrainer-vue-new/
 
 ```powershell
 .\launcher.ps1 -Environment DockerProduction
-```
+
+```text
 
 This starts the complete production stack:
 
@@ -90,7 +95,8 @@ This starts the complete production stack:
 
 ```powershell
 .\launcher.ps1 -Environment DockerDevelopment
-```
+
+```text
 
 This starts a development environment with:
 
@@ -103,7 +109,8 @@ This starts a development environment with:
 
 ```powershell
 .\launcher.ps1 -Environment Development
-```
+
+```text
 
 This starts local services:
 
@@ -115,7 +122,8 @@ This starts local services:
 
 ```powershell
 .\launcher.ps1 -Environment Production
-```
+
+```text
 
 This starts local production services:
 
@@ -134,9 +142,13 @@ services:
     image: redis:7-alpine
     container_name: casestrainer-redis-prod
     ports:
+
       - "6380:6379"
+
     volumes:
+
       - redis_data_prod:/data
+
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -151,20 +163,28 @@ services:
     container_name: casestrainer-backend-prod
     command: waitress-serve --port=5000 --threads=2 src.app_final_vue:app
     ports:
+
       - "5001:5000"
+
     depends_on:
       redis:
         condition: service_healthy
     env_file:
+
       - .env.production
+
     environment:
+
       - REDIS_URL=redis://casestrainer-redis-prod:6379/0
       - FLASK_ENV=production
       - FLASK_DEBUG=False
+
     volumes:
+
       - ./data:/app/data
       - ./logs:/app/logs
       - ./uploads:/app/uploads
+
     restart: unless-stopped
     mem_limit: 2g
     mem_reservation: 1g
@@ -184,12 +204,16 @@ services:
       redis:
         condition: service_healthy
     environment:
+
       - REDIS_URL=redis://casestrainer-redis-prod:6379/0
       - CASTRAINER_ENV=production
+
     volumes:
+
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
+
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "src/healthcheck_rq.py"]
@@ -200,12 +224,14 @@ services:
 
   # Frontend Production Build
   frontend-prod:
-    build: 
+    build:
       context: ./casestrainer-vue-new
       dockerfile: Dockerfile.prod
     container_name: casestrainer-frontend-prod
     ports:
+
       - "8080:80"
+
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -219,12 +245,16 @@ services:
     image: nginx:alpine
     container_name: casestrainer-nginx-prod
     ports:
+
       - "443:443"
       - "80:80"
+
     volumes:
+
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./ssl:/etc/nginx/ssl
       - ./static:/var/www/html
+
     depends_on:
       backend:
         condition: service_healthy
@@ -237,29 +267,36 @@ services:
       timeout: 30s
       retries: 8
       start_period: 180s
-```
+
+```text
 
 ### Environment Configuration
 
 Create `.env.production` for Docker production:
 
 ```ini
+
 # Flask Configuration
+
 FLASK_APP=src.app_final_vue
 FLASK_ENV=production
 SECRET_KEY=your-production-secret-key
 
 # API Keys
+
 COURTLISTENER_API_KEY=your-courtlistener-api-key
 LANGSEARCH_API_KEY=your-langsearch-api-key
 
 # Database
+
 DATABASE_FILE=/app/data/citations.db
 
 # Redis
+
 REDIS_URL=redis://casestrainer-redis-prod:6379/0
 
 # Email (UW SMTP)
+
 MAIL_SERVER=smtp.uw.edu
 MAIL_PORT=587
 MAIL_USE_TLS=True
@@ -268,8 +305,10 @@ MAIL_PASSWORD=your-password
 MAIL_DEFAULT_SENDER=your-netid@uw.edu
 
 # Worker Environment
+
 CASTRAINER_ENV=production
-```
+
+```text
 
 ## Files and Components
 
@@ -292,7 +331,8 @@ Install the required Python dependencies:
 
 ```bash
 pip install -r requirements.txt
-```
+
+```text
 
 ### 2. Build and Deploy the Vue.js Frontend
 
@@ -300,9 +340,11 @@ Run the build script to compile the Vue.js frontend:
 
 ```bash
 .\build_and_deploy_vue.bat
-```
+
+```text
 
 This script will:
+
 - Install npm dependencies
 - Build the Vue.js frontend for production
 - Copy the built files to the `static/vue` directory
@@ -315,34 +357,42 @@ Create the production environment file:
 
 ```bash
 copy .env.example .env.production
-```
+
+```text
 
 Edit `.env.production` and set your configuration:
 
 ```ini
-# Flask Configuration
+
+# Flask Configuration (2)
+
 FLASK_APP=src.app_final_vue
 FLASK_ENV=production
 SECRET_KEY=your-production-secret-key
 
-# API Keys
+# API Keys (2)
+
 COURTLISTENER_API_KEY=your-courtlistener-api-key
 LANGSEARCH_API_KEY=your-langsearch-api-key
 
-# Database
+# Database (2)
+
 DATABASE_FILE=/app/data/citations.db
 
-# Redis
+# Redis (2)
+
 REDIS_URL=redis://casestrainer-redis-prod:6379/0
 
-# Email (UW SMTP)
+# Email (UW SMTP) (2)
+
 MAIL_SERVER=smtp.uw.edu
 MAIL_PORT=587
 MAIL_USE_TLS=True
 MAIL_USERNAME=your-netid
 MAIL_PASSWORD=your-password
 MAIL_DEFAULT_SENDER=your-netid@uw.edu
-```
+
+```text
 
 ### 4. Start Docker Production Stack
 
@@ -350,9 +400,11 @@ Use the launcher to start the complete production stack:
 
 ```powershell
 .\launcher.ps1 -Environment DockerProduction
-```
+
+```text
 
 This will:
+
 - Build Docker images if needed
 - Start all containers with proper dependencies
 - Configure health checks and monitoring
@@ -363,14 +415,16 @@ This will:
 After deployment, verify that the application is working correctly:
 
 1. **Check container status**:
+
    ```powershell
    docker ps
-   ```
+   ```text
 
 2. **Check health status**:
+
    ```powershell
    .\launcher.ps1 -Environment DockerProduction -NoMenu
-   ```
+   ```text
 
 3. **Test endpoints**:
    - Backend health: `http://localhost:5001/casestrainer/api/health`
@@ -391,6 +445,7 @@ After deployment, verify that the application is working correctly:
 ### API Base Path
 
 All API endpoints are accessed under the `/casestrainer/api/` prefix. For example:
+
 - `https://your-domain.com/casestrainer/api/analyze`
 - `http://localhost:5001/casestrainer/api/analyze`
 
@@ -431,42 +486,49 @@ The system provides real-time monitoring through:
 If you see a 502 Bad Gateway error when accessing the application:
 
 1. **Check container status**:
+
    ```bash
    docker ps -a
-   ```
+   ```text
 
 2. **Check backend logs**:
+
    ```bash
    docker logs casestrainer-backend-prod
-   ```
+   ```text
 
 3. **Verify backend is running**:
+
    ```bash
    curl -f http://localhost:5001/casestrainer/api/health
-   ```
+   ```text
 
 4. **Check Nginx configuration**:
+
    ```bash
    docker exec casestrainer-nginx-prod nginx -t
-   ```
+   ```text
 
 ### Container Issues
 
 1. **Container won't start**:
+
    ```bash
    docker logs <container-name>
    docker-compose -f docker-compose.prod.yml up -d
-   ```
+   ```text
 
 2. **Health check failures**:
+
    ```bash
    docker inspect <container-name> | grep -A 10 Health
-   ```
+   ```text
 
 3. **Resource issues**:
+
    ```bash
    docker stats
-   ```
+   ```text
 
 ### Common Issues
 
@@ -478,10 +540,11 @@ If you see a 502 Bad Gateway error when accessing the application:
 ### Emergency Procedures
 
 1. **Stop all services**:
+
    ```powershell
    .\launcher.ps1 -Environment DockerProduction -NoMenu
    # Select option 4: Stop All Services
-   ```
+   ```text
 
 2. **Restart Docker Desktop**:
    - Close Docker Desktop
@@ -489,11 +552,12 @@ If you see a 502 Bad Gateway error when accessing the application:
    - Wait for it to become available
 
 3. **Clean restart**:
+
    ```bash
    docker-compose -f docker-compose.prod.yml down
    docker system prune -f
    docker-compose -f docker-compose.prod.yml up -d
-   ```
+   ```text
 
 ## Security Checklist
 
@@ -511,51 +575,70 @@ If you see a 502 Bad Gateway error when accessing the application:
 ### Docker Resource Limits
 
 ```yaml
+
 # Backend container
+
 mem_limit: 2g
 mem_reservation: 1g
 
 # RQ Worker containers
+
 mem_limit: 1g
 mem_reservation: 512m
-```
+
+```text
 
 ### Waitress Configuration
 
 ```python
+
 # Production WSGI server
+
 waitress-serve --port=5000 --threads=2 src.app_final_vue:app
-```
+
+```text
 
 ### Redis Persistence
 
 ```yaml
+
 # Redis container with persistence
+
 volumes:
+
   - redis_data_prod:/data
-```
+
+```text
 
 ## Backup and Recovery
 
 ### Database Backup
 
 ```bash
+
 # Backup SQLite database
+
 docker exec casestrainer-backend-prod sqlite3 /app/data/citations.db ".backup /app/data/citations_backup.db"
 
 # Copy backup to host
+
 docker cp casestrainer-backend-prod:/app/data/citations_backup.db ./data/
-```
+
+```text
 
 ### Configuration Backup
 
 ```bash
+
 # Backup environment files
+
 cp .env.production .env.production.backup
 
 # Backup Docker volumes
+
 docker run --rm -v casestrainer_redis_data_prod:/data -v $(pwd):/backup alpine tar czf /backup/redis_backup.tar.gz -C /data .
-```
+
+```text
 
 ## Support
 

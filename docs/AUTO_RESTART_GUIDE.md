@@ -39,13 +39,15 @@ Before using CaseStrainer with auto-restart, ensure you have:
 
 ```powershell
 cd "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-```
+
+```text
 
 ### 2. Start CaseStrainer
 
 ```powershell
 .\launcher.ps1
-```
+
+```text
 
 ### 3. Choose Environment
 
@@ -61,12 +63,14 @@ When the menu appears, select:
 Option 4 now includes comprehensive Docker diagnostics that help identify restart issues:
 
 #### **Docker Daemon & System Checks**
+
 - Docker daemon status and version
 - Container resource usage (CPU, memory, network I/O)
 - Docker system resource usage
 - Port conflict detection
 
 #### **Network Diagnostics**
+
 - Docker network inspection
 - Container-to-container connectivity tests
 - DNS resolution within containers
@@ -74,6 +78,7 @@ Option 4 now includes comprehensive Docker diagnostics that help identify restar
 - Network event monitoring
 
 #### **Container Health Monitoring**
+
 - Container health status
 - Restart history analysis
 - Recent Docker events
@@ -81,6 +86,7 @@ Option 4 now includes comprehensive Docker diagnostics that help identify restar
 - Error log scanning
 
 #### **Restart-Specific Diagnostics**
+
 - Container restart frequency analysis
 - Memory/CPU pressure detection
 - Network connectivity issues
@@ -88,6 +94,7 @@ Option 4 now includes comprehensive Docker diagnostics that help identify restar
 - IP address conflicts
 
 #### **Actionable Recommendations**
+
 - Automatic issue detection and reporting
 - Specific troubleshooting commands
 - Quick fix suggestions based on detected problems
@@ -96,7 +103,8 @@ Option 4 now includes comprehensive Docker diagnostics that help identify restar
 
 If Docker Desktop isn't running, you'll see:
 
-```
+```text
+
 === Redis Alternative Setup ===
 Docker Desktop is not running. Please choose an alternative:
 
@@ -104,9 +112,11 @@ Docker Desktop is not running. Please choose an alternative:
 2. Use Redis Cloud (free tier available)
 3. Skip Redis (some features will be limited)
 4. Start Docker Desktop and retry
-```
+
+```text
 
 **Select Option 4** - The launcher will automatically:
+
 - Start Docker Desktop
 - Wait for it to become available (30-60 seconds)
 - Start Redis container
@@ -155,7 +165,9 @@ The system automatically monitors and restarts:
 From the main menu, select **Option 13** (Service Monitoring Status)
 
 You'll see:
-```
+
+```text
+
 === Service Monitoring Status ===
 
 Auto-Restart: ENABLED
@@ -163,7 +175,8 @@ Monitoring: ACTIVE
 Restart Count: 0 / 5
 Last Restart: Never
 Crash Log: logs\crash_log_20250622_192247.log (2.5 KB)
-```
+
+```text
 
 ### Auto-Restart Management Options
 
@@ -179,7 +192,9 @@ Crash Log: logs\crash_log_20250622_192247.log (2.5 KB)
 ### Test Service Health
 
 Select **Option 5** to see:
-```
+
+```text
+
 === Service Health Check ===
 
 Environment: DockerProduction
@@ -189,24 +204,30 @@ Redis: HEALTHY
 RQ Worker: HEALTHY
 
 Overall Status: HEALTHY
-```
+
+```text
 
 ### Manual Service Management
 
 #### Stop All Services
+
 From main menu, select **Option 4** (Stop All Services)
 
 #### Restart Specific Services
+
 From main menu, select **Option 7** (Redis/RQ Management)
 
 Options:
+
 - Start/Stop Redis
 - Start/Stop RQ Worker
 - Restart Redis
 - Restart RQ Worker
 
 #### View Logs
+
 From main menu, select **Option 5** (View Logs)
+
 - Shows all log files with timestamps
 - Select a log file to view its contents
 - Press Ctrl+C to stop viewing logs
@@ -305,12 +326,15 @@ def check_rq_worker():
     except Exception as e:
         logger.warning(f"RQ worker check failed: {e}")
         return "down"
-```
+
+```text
 
 ### Docker Health Check Configuration
 
 ```yaml
+
 # Backend container health check
+
 healthcheck:
   test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
   interval: 60s
@@ -319,6 +343,7 @@ healthcheck:
   start_period: 180s
 
 # Redis container health check
+
 healthcheck:
   test: ["CMD", "redis-cli", "ping"]
   interval: 60s
@@ -327,13 +352,15 @@ healthcheck:
   start_period: 180s
 
 # RQ Worker health check
+
 healthcheck:
   test: ["CMD", "python", "src/healthcheck_rq.py"]
   interval: 60s
   timeout: 30s
   retries: 8
   start_period: 180s
-```
+
+```text
 
 ## Troubleshooting
 
@@ -342,26 +369,29 @@ healthcheck:
 If health checks are failing:
 
 1. **Check service status**:
+
    ```powershell
    .\launcher.ps1 -Environment DockerProduction -NoMenu
-   ```
+   ```text
 
 2. **View detailed logs**:
+
    ```powershell
    # From launcher menu, select Option 5 (View Logs)
    # Or check Docker logs directly
    docker logs casestrainer-backend-prod
    docker logs casestrainer-redis-prod
-   ```
+   ```text
 
 3. **Test connectivity manually**:
+
    ```powershell
    # Test backend health
    Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -TimeoutSec 5
    
    # Test Redis connection
    docker exec casestrainer-redis-prod redis-cli ping
-   ```
+   ```text
 
 ### Common Issues
 
@@ -384,10 +414,11 @@ If health checks are failing:
 ### Emergency Procedures
 
 1. **Stop all services**:
+
    ```powershell
    .\launcher.ps1 -Environment DockerProduction -NoMenu
    # Select option 4: Stop All Services
-   ```
+   ```text
 
 2. **Restart Docker Desktop**:
    - Close Docker Desktop
@@ -395,11 +426,12 @@ If health checks are failing:
    - Wait for it to become available
 
 3. **Clean restart**:
+
    ```bash
    docker-compose -f docker-compose.prod.yml down
    docker system prune -f
    docker-compose -f docker-compose.prod.yml up -d
-   ```
+   ```text
 
 ## Configuration
 
@@ -408,34 +440,42 @@ If health checks are failing:
 Key environment variables for auto-restart:
 
 ```ini
+
 # Auto-restart configuration
+
 AUTO_RESTART_ENABLED=true
 MAX_RESTART_ATTEMPTS=5
 HEALTH_CHECK_INTERVAL=30
 RESTART_DELAY=10
 
 # Service ports
+
 BACKEND_PORT=5001
 FRONTEND_PORT=5173
 REDIS_PORT=6379
 NGINX_PORT=443
-```
+
+```text
 
 ### Launcher Configuration
 
 The launcher uses these default settings:
 
 ```powershell
+
 # Health check configuration
+
 $config.HealthCheckInterval = 30  # seconds
 $config.MaxRestartAttempts = 5
 $config.RestartDelay = 10  # seconds
 
-# Service ports
+# Service ports (2)
+
 $config.BackendPort = 5001
 $config.FrontendPort = 5173
 $config.RedisPort = 6379
-```
+
+```text
 
 ## Log Files
 
@@ -443,38 +483,47 @@ $config.RedisPort = 6379
 
 Crash logs are stored in the `logs/` directory:
 
-```
+```text
+
 logs/
 ├── crash_log_20250622_192247.log
 ├── crash_log_20250623_143022.log
 └── backend_health_diag.log
-```
+
+```text
 
 ### Log Format
 
 Crash logs include:
 
-```
+```text
+
 2025-06-22T19:22:47.123Z [INFO] Auto-restart enabled
 2025-06-22T19:22:47.456Z [WARN] Backend health check failed: Connection timeout
 2025-06-22T19:22:47.789Z [INFO] Attempting to restart backend service
 2025-06-22T19:22:57.012Z [INFO] Backend service restarted successfully
-```
+
+```text
 
 ### Log Analysis
 
 To analyze logs:
 
 ```powershell
+
 # View recent crash log
+
 Get-Content "logs\crash_log_$(Get-Date -Format 'yyyyMMdd').log" -Tail 50
 
 # Search for errors
+
 Select-String -Path "logs\*.log" -Pattern "ERROR|WARN"
 
 # Monitor health checks
+
 Select-String -Path "logs\*.log" -Pattern "health|Health"
-```
+
+```text
 
 ## Performance Monitoring
 
@@ -483,12 +532,16 @@ Select-String -Path "logs\*.log" -Pattern "health|Health"
 Monitor resource usage:
 
 ```powershell
+
 # Docker container stats
+
 docker stats
 
 # System resource usage
+
 Get-Process | Where-Object {$_.ProcessName -like "*python*" -or $_.ProcessName -like "*node*"}
-```
+
+```text
 
 ### Health Check Performance
 
@@ -537,4 +590,4 @@ For issues with the auto-restart system:
 1. **Documentation**: Review this guide and other docs
 2. **Logs**: Check crash logs and Docker logs
 3. **Health checks**: Use launcher menu option 5
-4. **GitHub issues**: Report bugs and request features 
+4. **GitHub issues**: Report bugs and request features

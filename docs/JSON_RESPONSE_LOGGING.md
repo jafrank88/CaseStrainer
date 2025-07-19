@@ -67,13 +67,15 @@ def log_json_responses(response):
     except Exception as e:
         logger.error(f"Error in log_json_responses: {str(e)}")
         return response
-```
+
+```text
 
 ## Log Output Format
 
 When a JSON response is sent to the frontend, you'll see log entries like this:
 
-```
+```text
+
 ================================================================================
 JSON RESPONSE BEING SENT TO FRONTEND
 ================================================================================
@@ -96,7 +98,8 @@ RESPONSE BODY:
           "version": "0.5.8"
 }
 ================================================================================
-```
+
+```text
 
 ## Log File Locations
 
@@ -114,9 +117,11 @@ A test script is provided to verify that the logging system is working correctly
 
 ```bash
 python test_json_logging.py
-```
+
+```text
 
 This script will:
+
 1. Make requests to various API endpoints
 2. Display the responses
 3. Instruct you to check the logs for the JSON response entries
@@ -126,14 +131,16 @@ This script will:
 You can also test manually by:
 
 1. **Starting the application**:
+
    ```bash
    python src/app_final_vue.py
-   ```
+   ```text
 
 2. **Making API requests** using curl, Postman, or your browser:
+
    ```bash
    curl http://localhost:5000/casestrainer/api/health
-   ```
+   ```text
 
 3. **Checking the logs** for entries starting with "JSON RESPONSE BEING SENT TO FRONTEND"
 
@@ -144,9 +151,13 @@ You can also test manually by:
 To disable JSON response logging, you can comment out the `after_request` registration in each file:
 
 ```python
+
 # Comment out this line to disable logging
+
+
 # vue_api.after_request(log_json_responses)
-```
+
+```text
 
 ### Log Level Control
 
@@ -189,7 +200,8 @@ For additional debugging, you can enable debug logging:
 ```python
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
-```
+
+```text
 
 ## Integration with Existing Logging
 
@@ -217,4 +229,4 @@ If you encounter issues with the JSON response logging system:
 1. Check the application logs for error messages
 2. Verify that all blueprints have the after_request handler registered
 3. Test with the provided test script
-4. Review the Flask documentation on after_request handlers 
+4. Review the Flask documentation on after_request handlers

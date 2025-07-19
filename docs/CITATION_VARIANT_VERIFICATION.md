@@ -16,7 +16,8 @@ def generate_citation_variants(citation: str) -> List[str]:
     Generate all plausible variants of a citation for fallback/parallel search.
     Includes Washington-specific, normalized, and expanded forms.
     """
-```
+
+```text
 
 ### Example Variants Generated
 
@@ -37,22 +38,27 @@ For a Federal citation like `410 U.S. 113`, the system generates:
 ## Verification Process
 
 ### Step 1: Citation-Lookup API
+
 For each variant, the system first tries the CourtListener citation-lookup endpoint:
 
 ```python
 lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
 resp = requests.post(lookup_url, headers=headers, data={"text": variant}, timeout=10)
-```
+
+```text
 
 ### Step 2: Search API Fallback
+
 If citation-lookup fails for all variants, the system tries the search endpoint:
 
 ```python
 search_url = f"https://www.courtlistener.com/api/rest/v4/search/?q={variant}&format=json"
 resp = requests.get(search_url, headers=headers, timeout=10)
-```
+
+```text
 
 ### Step 3: Web Search Fallback
+
 If CourtListener fails entirely, the system falls back to web search using the EnhancedWebSearcher.
 
 ## Implementation Details
@@ -76,30 +82,36 @@ def _verify_with_courtlistener(self, citation: str, extracted_case_name: str = N
     # Try each variant with citation-lookup endpoint first
     for variant in citation_variants:
         # ... verification logic
-```
+
+```text
 
 ### Logging and Debugging
 
 The system provides detailed logging of the variant testing process:
 
-```
+```text
+
 INFO: Trying 6 citation variants for '171 Wn.2d 486': ['171 Wn 2d 486', '171 Wash. 2d 486', '171 Washington 2d 486', '171 Wn.2d 486', '171 Wn. 2d 486', '171 Wash.2d 486']
 INFO: Found citation with variant: 171 Wash. 2d 486
-```
+
+```text
 
 ## Benefits
 
 ### Improved Hit Rates
+
 - **Before**: Single citation format tested
 - **After**: Multiple citation formats tested automatically
 - **Result**: Significantly higher verification success rates
 
 ### Better User Experience
+
 - Users don't need to manually try different citation formats
 - System automatically handles format variations
 - More citations are verified and show canonical data
 
 ### Robust Error Handling
+
 - Graceful fallback between different verification methods
 - Detailed logging for troubleshooting
 - No single point of failure
@@ -107,23 +119,29 @@ INFO: Found citation with variant: 171 Wash. 2d 486
 ## Testing
 
 ### Manual Testing
+
 Use the test script to verify citation variant generation:
 
 ```bash
 python test_citation_variants.py
-```
+
+```text
 
 This will show:
+
 - Which citation variants are generated
 - Which variants get hits in CourtListener
 - The canonical data returned for each hit
 
 ### Example Test Output
-```
+
+```text
+
 === TESTING CITATION VARIANT GENERATION ===
 
 Original citation: '171 Wn.2d 486'
 Generated 6 variants:
+
   1. '171 Wn 2d 486'
   2. '171 Wash. 2d 486'
   3. '171 Washington 2d 486'
@@ -132,20 +150,25 @@ Generated 6 variants:
   6. '171 Wash.2d 486'
 
 === TESTING COURTLISTENER API WITH VARIANTS ===
+
 1. Testing variant: '171 Wash. 2d 486'
+
    ✓ FOUND via search!
       Case: Wash. Post v. McManus
       Date: 2019-01-03
       URL: /opinion/7333806/wash-post-v-mcmanus/
-```
+
+```text
 
 ## Configuration
 
 ### Environment Variables
+
 - `COURTLISTENER_API_KEY`: Required for CourtListener API access
 - `LANGSEARCH_API_KEY`: Optional for web search fallback
 
 ### Processing Configuration
+
 The variant testing can be configured in the `ProcessingConfig`:
 
 ```python
@@ -153,17 +176,20 @@ config = ProcessingConfig(
     enable_verification=True,  # Enable variant testing
     debug_mode=True           # Enable detailed logging
 )
-```
+
+```text
 
 ## Performance Considerations
 
 ### API Call Optimization
+
 - Citation-lookup endpoint is tried first (faster, more precise)
 - Search endpoint is used as fallback
 - Web search is used only as last resort
 - Results are cached to avoid repeated API calls
 
 ### Timeout Handling
+
 - 10-second timeout for each API call
 - Graceful handling of network failures
 - Detailed error logging for troubleshooting
@@ -187,26 +213,30 @@ config = ProcessingConfig(
    - Consider reducing variant generation for performance
 
 ### Debug Mode
+
 Enable debug logging to see detailed variant testing:
 
 ```python
 import logging
 logging.getLogger('src.unified_citation_processor_v2').setLevel(logging.DEBUG)
-```
+
+```text
 
 ## Future Enhancements
 
 ### Planned Improvements
+
 - **Machine Learning**: ML-based variant generation
 - **Custom Variants**: User-defined variant patterns
 - **Performance Optimization**: Parallel API calls for variants
 - **Advanced Caching**: Smarter caching strategies
 
 ### API Integration
+
 - **Additional Sources**: Integration with more legal databases
 - **Batch Processing**: Batch variant testing for multiple citations
 - **Real-time Updates**: Real-time variant testing results
 
 ## Conclusion
 
-The citation variant verification system significantly improves the accuracy and reliability of citation verification in CaseStrainer. By automatically testing multiple citation formats, the system ensures that more citations are found and verified, providing users with better results and more comprehensive canonical data. 
+The citation variant verification system significantly improves the accuracy and reliability of citation verification in CaseStrainer. By automatically testing multiple citation formats, the system ensures that more citations are found and verified, providing users with better results and more comprehensive canonical data.

@@ -24,48 +24,62 @@ This document outlines security best practices for CaseStrainer deployment and o
 #### Development Environment
 
 **Windows (PowerShell):**
+
 ```powershell
 $env:COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
 $env:LANGSEARCH_API_KEY="your_langsearch_api_key_here"
-```
+
+```text
 
 **Linux/macOS (bash):**
+
 ```bash
 export COURTLISTENER_API_KEY="your_courtlistener_api_key_here"
 export LANGSEARCH_API_KEY="your_langsearch_api_key_here"
-```
+
+```text
 
 #### Production Docker Deployment
 
 ```powershell
+
 # Set environment variables for Docker containers
+
 docker-compose -f docker-compose.prod.yml up -d --build \
   -e COURTLISTENER_API_KEY="your_courtlistener_api_key_here" \
   -e LANGSEARCH_API_KEY="your_langsearch_api_key_here"
-```
+
+```text
 
 #### Docker Compose Environment File (Recommended)
 
 Create a `.env` file (not committed to version control):
 
 ```bash
+
 # .env file
+
 COURTLISTENER_API_KEY=your_courtlistener_api_key_here
 LANGSEARCH_API_KEY=your_langsearch_api_key_here
-```
+
+```text
 
 Then reference it in docker-compose.yml:
+
 ```yaml
 services:
   backend-prod:
     environment:
+
       - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
       - LANGSEARCH_API_KEY=${LANGSEARCH_API_KEY}
-```
+
+```text
 
 ### Security Best Practices
 
 #### ✅ Do This
+
 - Store API keys as environment variables
 - Use different keys for development and production
 - Rotate API keys regularly
@@ -74,6 +88,7 @@ services:
 - Use HTTPS for all API communications
 
 #### ❌ Don't Do This
+
 - Store API keys in config files
 - Commit API keys to version control
 - Hardcode API keys in source code
@@ -109,16 +124,19 @@ If an API key is compromised:
 ## Network Security
 
 ### HTTPS/TLS
+
 - All external communications use HTTPS
 - SSL certificates are properly configured
 - TLS 1.2+ is enforced
 
 ### Firewall Configuration
+
 - Only necessary ports are exposed
 - Internal services are not directly accessible
 - API endpoints are properly rate-limited
 
 ### Container Security
+
 - Containers run with minimal privileges
 - Base images are regularly updated
 - Security patches are applied promptly
@@ -126,11 +144,13 @@ If an API key is compromised:
 ## Data Security
 
 ### File Uploads
+
 - All uploaded files are scanned for malware
 - File size limits are enforced
 - Only allowed file types are processed
 
 ### Data Storage
+
 - Sensitive data is not logged
 - Temporary files are properly cleaned up
 - Database connections use encryption
@@ -138,11 +158,13 @@ If an API key is compromised:
 ## Compliance
 
 ### Logging
+
 - No sensitive data in logs
 - Log rotation is configured
 - Access logs are monitored
 
 ### Access Control
+
 - API endpoints are properly authenticated
 - Rate limiting is enforced
 - Failed access attempts are logged
@@ -150,4 +172,4 @@ If an API key is compromised:
 ---
 
 **Last Updated**: January 2025  
-**Version**: 1.0 
+**Version**: 1.0

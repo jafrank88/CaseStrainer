@@ -6,12 +6,11 @@ Automatically fixes common markdownlint issues in documentation files.
 
 import re
 import os
+from pathlib import Path
 
 def fix_markdown_linting(file_path):
     """Fix common markdownlint issues in a markdown file."""
     
-    print(f"🔧 FIXING MARKDOWN LINTING ISSUES")
-    print("=" * 50)
     print(f"📄 Processing: {file_path}")
     
     try:
@@ -113,9 +112,6 @@ def fix_markdown_linting(file_path):
 def run_markdownlint_check(file_path):
     """Run markdownlint to check for remaining issues."""
     
-    print(f"\n🔍 RUNNING MARKDOWNLINT CHECK")
-    print("=" * 50)
-    
     try:
         import subprocess
         
@@ -135,17 +131,48 @@ def run_markdownlint_check(file_path):
     except Exception as e:
         print(f"   ❌ Error running markdownlint: {e}")
 
+def find_markdown_files():
+    """Find all markdown files in the project."""
+    
+    markdown_files = []
+    
+    # Get all .md files in current directory
+    for file in Path('.').glob('*.md'):
+        if file.name not in ['CONSOLIDATED_DOCUMENTATION.md']:  # Skip the large consolidated file
+            markdown_files.append(str(file))
+    
+    # Get all .md files in docs directory if it exists
+    docs_dir = Path('docs')
+    if docs_dir.exists():
+        for file in docs_dir.glob('**/*.md'):
+            markdown_files.append(str(file))
+    
+    return markdown_files
+
 def main():
     """Main function to fix markdownlint issues."""
     
     print("📝 MARKDOWN LINTING FIXES")
     print("=" * 60)
     
-    # Fix the consolidated documentation
-    fix_markdown_linting("CONSOLIDATED_DOCUMENTATION.md")
+    # Find all markdown files
+    markdown_files = find_markdown_files()
+    
+    print(f"🔧 FIXING MARKDOWN LINTING ISSUES")
+    print("=" * 50)
+    print(f"Found {len(markdown_files)} markdown files to process")
+    
+    # Fix each markdown file
+    for file_path in markdown_files:
+        fix_markdown_linting(file_path)
     
     # Check for remaining issues
-    run_markdownlint_check("CONSOLIDATED_DOCUMENTATION.md")
+    print(f"\n🔍 RUNNING MARKDOWNLINT CHECK")
+    print("=" * 50)
+    
+    for file_path in markdown_files:
+        print(f"\nChecking: {file_path}")
+        run_markdownlint_check(file_path)
     
     print(f"\n✅ MARKDOWN LINTING FIXES COMPLETE!")
     print("=" * 60)

@@ -7,12 +7,14 @@ The CaseStrainer application now includes comprehensive progress tracking for ci
 ## Features
 
 ### Real-Time Progress Updates
+
 - **Server-Sent Events (SSE)**: Primary method for real-time updates
 - **HTTP Polling**: Fallback method for compatibility
 - **WebSocket Support**: Alternative for real-time applications
 - **Chunked Processing**: Incremental progress as citations are found
 
 ### Progress Information
+
 - **Percentage Complete**: Visual progress bar with percentage
 - **Current Step**: Step-by-step progress indication
 - **Status Messages**: Descriptive status updates
@@ -25,17 +27,20 @@ The CaseStrainer application now includes comprehensive progress tracking for ci
 ### Backend Components
 
 #### 1. Progress Manager (`src/progress_manager.py`)
+
 - **SSEProgressManager**: Manages Server-Sent Events for real-time updates
 - **ProgressTracker**: Thread-safe progress tracking
 - **ChunkedCitationProcessor**: Processes documents in chunks for incremental progress
 - **WebSocketProgressManager**: WebSocket-based progress updates (alternative)
 
 #### 2. Flask Integration (`src/app_final_vue.py`)
+
 - Progress manager initialization in application factory
 - Progress-enabled routes registration
 - Integration with existing citation processing
 
 #### 3. API Endpoints
+
 - `/casestrainer/api/analyze/start` - Start citation analysis
 - `/casestrainer/api/analyze/progress/<task_id>` - Get progress updates
 - `/casestrainer/api/analyze/results/<task_id>` - Get final results
@@ -44,18 +49,21 @@ The CaseStrainer application now includes comprehensive progress tracking for ci
 ### Frontend Components
 
 #### 1. JavaScript Library (`static/js/citation-progress.js`)
+
 - **CitationProgressTracker**: Main progress tracking class
 - **useCitationProgress**: Vue.js composable
 - **Automatic fallback**: SSE to polling fallback
 - **Error handling**: Comprehensive error management
 
 #### 2. Vue.js Component (`casestrainer-vue-new/src/components/CitationProgressTracker.vue`)
+
 - **Reusable component**: Drop-in progress tracking
 - **Real-time updates**: Live progress display
 - **Partial results**: Show citations as they're found
 - **Final results**: Complete analysis display
 
 #### 3. Styling (`static/css/citation-progress.css`)
+
 - **Responsive design**: Works on all screen sizes
 - **Accessibility**: ARIA support and high contrast
 - **Animations**: Smooth progress transitions
@@ -66,6 +74,7 @@ The CaseStrainer application now includes comprehensive progress tracking for ci
 ### Basic Usage
 
 #### 1. Start Analysis with Progress
+
 ```javascript
 const tracker = new CitationProgressTracker();
 
@@ -86,9 +95,11 @@ tracker.startAnalysisWithSSE(
         console.error('Error:', error);
     }
 );
-```
+
+```text
 
 #### 2. Vue.js Component Usage
+
 ```vue
 <template>
   <div>
@@ -123,9 +134,11 @@ export default {
   }
 }
 </script>
-```
+
+```text
 
 #### 3. Vue.js Composable Usage
+
 ```javascript
 import { useCitationProgress } from '@/composables/useCitationProgress'
 
@@ -156,11 +169,13 @@ export default {
     }
   }
 }
-```
+
+```text
 
 ### Advanced Usage
 
 #### 1. Custom Progress UI
+
 ```javascript
 const tracker = new CitationProgressTracker();
 
@@ -178,9 +193,11 @@ tracker.startAnalysisWithSSE(
         showFinalResults(results);
     }
 );
-```
+
+```text
 
 #### 2. Manual Progress Control
+
 ```javascript
 const tracker = new CitationProgressTracker();
 
@@ -198,37 +215,51 @@ const pollProgress = setInterval(async () => {
         showResults(results);
     }
 }, 1000);
-```
+
+```text
 
 ## Configuration
 
 ### Backend Configuration
 
 #### 1. Redis Support (Optional)
+
 ```python
+
 # Enable Redis for multi-instance deployment
+
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-```
+
+```text
 
 #### 2. Chunk Processing Settings
+
 ```python
+
 # Adjust chunk size for different document types
+
 CHUNK_SIZE = 1000  # Characters per chunk
 PROGRESS_UPDATE_INTERVAL = 0.5  # Seconds between updates
-```
+
+```text
 
 #### 3. Timeout Settings
+
 ```python
+
 # Progress tracking timeouts
+
 PROGRESS_TIMEOUT = 3600  # 1 hour
 CLEANUP_INTERVAL = 300   # 5 minutes
-```
+
+```text
 
 ### Frontend Configuration
 
 #### 1. CSS Customization
+
 ```css
 /* Custom progress bar colors */
 .progress-bar {
@@ -239,19 +270,23 @@ CLEANUP_INTERVAL = 300   # 5 minutes
 .progress-container[data-status="processing"] .progress-bar {
     background: linear-gradient(90deg, #your-processing-color, #your-processing-color-dark);
 }
-```
+
+```text
 
 #### 2. JavaScript Configuration
+
 ```javascript
 // Configure tracker settings
 const tracker = new CitationProgressTracker();
 tracker.pollInterval = 2000;  // Poll every 2 seconds
 tracker.maxRetries = 3;       // Max retry attempts
-```
+
+```text
 
 ## API Reference
 
 ### Progress Data Structure
+
 ```javascript
 {
     task_id: "uuid-string",
@@ -265,9 +300,11 @@ tracker.maxRetries = 3;       // Max retry attempts
     timestamp: "2024-01-01T12:00:00Z",
     partial_results: [...]    // Citations found in this step
 }
-```
+
+```text
 
 ### Final Results Structure
+
 ```javascript
 {
     task_id: "uuid-string",
@@ -293,17 +330,20 @@ tracker.maxRetries = 3;       // Max retry attempts
         }
     ]
 }
-```
+
+```text
 
 ## Error Handling
 
 ### Common Errors
+
 1. **Network Errors**: Automatic fallback to polling
 2. **Server Errors**: Graceful error display
 3. **Timeout Errors**: Configurable timeout handling
 4. **Validation Errors**: Clear error messages
 
 ### Error Recovery
+
 ```javascript
 // Automatic retry with exponential backoff
 tracker.startAnalysisWithSSE(
@@ -321,17 +361,20 @@ tracker.startAnalysisWithSSE(
         }
     }
 );
-```
+
+```text
 
 ## Performance Considerations
 
 ### Backend Performance
+
 - **Chunked Processing**: Reduces memory usage for large documents
 - **Async Processing**: Non-blocking citation extraction
 - **Redis Caching**: Optional caching for multi-instance deployments
 - **Resource Cleanup**: Automatic cleanup of completed tasks
 
 ### Frontend Performance
+
 - **Efficient Updates**: Minimal DOM updates
 - **Memory Management**: Proper cleanup of event listeners
 - **Debounced Updates**: Prevents excessive UI updates
@@ -340,12 +383,14 @@ tracker.startAnalysisWithSSE(
 ## Deployment
 
 ### Production Setup
+
 1. **Enable Redis**: For multi-instance deployments
 2. **Configure Timeouts**: Adjust for your environment
 3. **Monitor Resources**: Track memory and CPU usage
 4. **Load Testing**: Test with concurrent users
 
 ### Development Setup
+
 1. **Local Redis**: Optional for development
 2. **Debug Logging**: Enable detailed progress logging
 3. **Hot Reload**: Automatic reload during development
@@ -355,22 +400,26 @@ tracker.startAnalysisWithSSE(
 ### Common Issues
 
 #### 1. Progress Not Updating
+
 - Check network connectivity
 - Verify SSE endpoint is accessible
 - Check browser console for errors
 - Try polling fallback
 
 #### 2. Memory Leaks
+
 - Ensure proper cleanup of event listeners
 - Monitor task cleanup in backend
 - Check for abandoned progress trackers
 
 #### 3. Performance Issues
+
 - Adjust chunk size for your documents
 - Monitor Redis memory usage
 - Check for excessive polling
 
 ### Debug Mode
+
 ```javascript
 // Enable debug logging
 localStorage.setItem('citation-progress-debug', 'true');
@@ -378,17 +427,20 @@ localStorage.setItem('citation-progress-debug', 'true');
 // Check debug logs in console
 const tracker = new CitationProgressTracker();
 tracker.debug = true;
-```
+
+```text
 
 ## Migration Guide
 
 ### From Legacy System
+
 1. **Replace Direct API Calls**: Use progress-enabled endpoints
 2. **Update UI Components**: Integrate progress components
 3. **Handle Progress Events**: Add progress callbacks
 4. **Test Fallback Behavior**: Verify polling works
 
 ### Backward Compatibility
+
 - Legacy endpoints continue to work
 - Progress tracking is optional
 - Graceful degradation if progress features unavailable
@@ -396,6 +448,7 @@ tracker.debug = true;
 ## Future Enhancements
 
 ### Planned Features
+
 1. **WebSocket Support**: Full bidirectional communication
 2. **Batch Processing**: Progress for multiple documents
 3. **Advanced Analytics**: Detailed processing metrics
@@ -403,6 +456,7 @@ tracker.debug = true;
 5. **Mobile Optimization**: Touch-friendly progress controls
 
 ### Integration Opportunities
+
 1. **Notification System**: Progress notifications
 2. **Analytics Dashboard**: Processing statistics
 3. **User Preferences**: Customizable progress settings
@@ -410,4 +464,4 @@ tracker.debug = true;
 
 ## Conclusion
 
-The progress bar integration provides a significant improvement to the user experience by offering real-time feedback during citation analysis. The system is designed to be robust, scalable, and maintainable while providing multiple fallback options for maximum compatibility. 
+The progress bar integration provides a significant improvement to the user experience by offering real-time feedback during citation analysis. The system is designed to be robust, scalable, and maintainable while providing multiple fallback options for maximum compatibility.

@@ -5,6 +5,7 @@ This document describes the database schema used by CaseStrainer for storing cit
 ## Overview
 
 CaseStrainer uses SQLite as its database system, with tables designed to store:
+
 - Citation data
 - Verification results
 - User sessions
@@ -29,7 +30,8 @@ CREATE TABLE citations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (document_id) REFERENCES documents(id)
 );
-```
+
+```text
 
 ### 2. Documents
 
@@ -46,7 +48,8 @@ CREATE TABLE documents (
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
-```
+
+```text
 
 ### 3. Verification Results
 
@@ -63,7 +66,8 @@ CREATE TABLE verification_results (
     details JSON,
     FOREIGN KEY (citation_id) REFERENCES citations(id)
 );
-```
+
+```text
 
 ### 4. Users
 
@@ -78,7 +82,8 @@ CREATE TABLE users (
     last_login TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE
 );
-```
+
+```text
 
 ### 5. Sessions
 
@@ -93,7 +98,8 @@ CREATE TABLE sessions (
     expires_at TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
-```
+
+```text
 
 ### 6. ML Classification Results
 
@@ -110,7 +116,8 @@ CREATE TABLE ml_classification_results (
     features JSON,
     FOREIGN KEY (citation_id) REFERENCES citations(id)
 );
-```
+
+```text
 
 ## Indexes
 
@@ -134,7 +141,8 @@ CREATE INDEX idx_documents_status ON documents(status);
 -- Sessions indexes
 CREATE INDEX idx_sessions_user ON sessions(user_id);
 CREATE INDEX idx_sessions_expires ON sessions(expires_at);
-```
+
+```text
 
 ## Relationships
 
@@ -180,7 +188,8 @@ To perform manual backup:
 
 ```bash
 sqlite3 casestrainer.db ".backup 'backup_$(date +%Y%m%d).db'"
-```
+
+```text
 
 ## Performance Considerations
 
@@ -231,4 +240,4 @@ The following metrics are monitored:
    - Failed queries
    - Deadlocks
    - Connection timeouts
-   - Data integrity errors 
+   - Data integrity errors

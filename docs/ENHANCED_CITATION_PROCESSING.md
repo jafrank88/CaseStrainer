@@ -19,6 +19,7 @@ The core citation processing engine that provides:
 - **Flexible Configuration**: Configurable extraction parameters for different document types
 
 **Key Features:**
+
 - Support for various citation formats (Bluebook, ALWD, etc.)
 - OCR error correction for scanned documents
 - Context-aware extraction with bracketed context windows
@@ -36,6 +37,7 @@ Handles citation normalization and variant generation:
 - **Pattern Matching**: Comprehensive regex patterns for all citation types
 
 **Example Variants Generated:**
+
 - `171 Wash. 2d 486` → `171 Wn.2d 486`, `171 Wn. 2d 486`, `171 Washington 2d 486`
 - `410 U.S. 113` → `410 US 113`, `410 United States 113`
 
@@ -55,31 +57,39 @@ Flask Blueprint that provides REST API endpoints for citation processing:
 The enhanced citation processing is integrated into the main Flask application (`src/app_final_vue.py`):
 
 ### Blueprint Registration
+
 ```python
 from src.citation_api import citation_api
 app.register_blueprint(citation_api, url_prefix='/casestrainer/api')
-```
+
+```text
 
 ### Processor Initialization
+
 ```python
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 self.citation_processor = UnifiedCitationProcessorV2()
-```
+
+```text
 
 ### Enhanced Analyze Endpoint
+
 The application includes an enhanced analyze endpoint that uses the new citation processor while maintaining backward compatibility with existing frontend code.
 
 ## Usage Examples
 
 ### Basic Citation Extraction
+
 ```python
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
 processor = UnifiedCitationProcessorV2()
 citations = processor.process_text("See Brown v. Board of Education, 347 U.S. 483 (1954).")
-```
+
+```text
 
 ### Document Analysis with Verification
+
 ```python
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 
@@ -95,24 +105,31 @@ processor = UnifiedCitationProcessorV2(config)
 results = processor.process_text(
     "The court held in State v. Rohrich, 149 Wn.2d 647, that..."
 )
-```
+
+```text
 
 ### API Usage
+
 ```bash
+
 # Analyze document citations
+
 curl -X POST http://localhost:5000/casestrainer/api/citations/analyze \
   -H "Content-Type: application/json" \
   -d '{"text": "See Brown v. Board of Education, 347 U.S. 483 (1954).", "document_type": "legal_brief"}'
 
 # Validate single citation
+
 curl -X POST http://localhost:5000/casestrainer/api/citations/validate \
   -H "Content-Type: application/json" \
   -d '{"citation": "Brown v. Board of Education, 347 U.S. 483 (1954)"}'
-```
+
+```text
 
 ## Configuration Options
 
 ### ProcessingConfig Parameters
+
 - `enable_verification`: Enable CourtListener API verification (default: True)
 - `extract_case_names`: Extract case names from context (default: True)
 - `extract_dates`: Extract dates from citations (default: True)
@@ -137,26 +154,31 @@ The system supports different document types with optimized processing:
 ## Processing Pipeline
 
 ### **1. Citation Extraction**
+
 - **Regex Extraction**: Primary extraction using comprehensive patterns
 - **Eyecite Extraction**: Secondary extraction using eyecite library (if available)
 - **Context Analysis**: Extract case names and dates from surrounding text
 
 ### **2. Citation Normalization**
+
 - **Washington Normalization**: Convert `Wn.` to `Wash.` formats
 - **Format Standardization**: Standardize spacing and punctuation
 - **Variant Generation**: Generate multiple citation formats for testing
 
 ### **3. Citation Verification**
+
 - **CourtListener API**: Primary verification using citation-lookup endpoint
 - **Search API Fallback**: Secondary verification using search endpoint
 - **Web Search Fallback**: Tertiary verification using web search (if enabled)
 
 ### **4. Citation Clustering**
+
 - **Parallel Detection**: Group citations that appear together
 - **Deduplication**: Remove duplicate citations
 - **Priority Assignment**: Assign priority to clusters over individual citations
 
 ### **5. Result Enhancement**
+
 - **Canonical Data**: Add canonical names, dates, and URLs
 - **Confidence Scoring**: Calculate confidence scores
 - **Metadata Addition**: Add processing metadata and timing information
@@ -164,6 +186,7 @@ The system supports different document types with optimized processing:
 ## Analysis Features
 
 ### Citation Analysis
+
 - **Summary Statistics**: Total citations, valid/invalid counts, average confidence
 - **Jurisdiction Analysis**: Distribution and primary jurisdiction identification
 - **Time Period Analysis**: Citation age analysis and recency assessment
@@ -173,6 +196,7 @@ The system supports different document types with optimized processing:
 - **Completeness Scoring**: Citation information completeness
 
 ### Recommendations
+
 - **Fix Invalid Citations**: High-priority fixes for invalid citations
 - **Resolve Ambiguous Citations**: Medium-priority resolution of ambiguous citations
 - **Improve Formatting**: Medium-priority formatting improvements
@@ -209,21 +233,25 @@ The enhanced system maintains backward compatibility:
 ## Recent Enhancements
 
 ### **Citation Variant Testing**
+
 - Automatic generation of multiple citation formats
 - Testing of all variants against CourtListener API
 - Improved hit rates for citations in different formats
 
 ### **Context-Aware Case Name Extraction**
+
 - Bracketed context windows for better extraction
 - Canonical name trimming using verification results
 - Intelligent fallback to regex-extracted candidates
 
 ### **Enhanced Clustering**
+
 - Better detection of parallel citations
 - Intelligent grouping to avoid duplication
 - Priority system for clusters over individual citations
 
 ### **Improved Verification**
+
 - CourtListener API integration with multiple endpoints
 - Fallback to web search for unverified citations
 - Enhanced error handling and logging
@@ -251,16 +279,20 @@ Planned improvements include:
 ### Debug Mode
 
 Enable debug logging for detailed troubleshooting:
+
 ```python
 import logging
 logging.getLogger('src.unified_citation_processor_v2').setLevel(logging.DEBUG)
-```
+
+```text
 
 ### Testing Citation Variants
 
 Use the test script to verify citation variant generation:
+
 ```bash
 python test_citation_variants.py
-```
 
-This will show which citation variants are generated and which ones get hits in CourtListener. 
+```text
+
+This will show which citation variants are generated and which ones get hits in CourtListener.

@@ -55,18 +55,23 @@ The Enhanced Validator exposes several API endpoints:
 
 ### 1. Enhanced Citation Validation
 
-```
+```text
+
 POST /enhanced-validate-citation
-```
+
+```text
 
 **Request Body:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)"
 }
-```
+
+```text
 
 **Response:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
@@ -103,22 +108,28 @@ POST /enhanced-validate-citation
   },
   "error": null
 }
-```
 
-### 2. Citation Context
+```text
 
-```
+### 2. Citation Context (2)
+
+```text
+
 POST /citation-context
-```
+
+```text
 
 **Request Body:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)"
 }
-```
+
+```text
 
 **Response:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
@@ -127,22 +138,28 @@ POST /citation-context
   "case_summary": "Landmark case that declared racial segregation in public schools unconstitutional",
   "legal_significance": "Overturned Plessy v. Ferguson and established that separate educational facilities are inherently unequal"
 }
-```
+
+```text
 
 ### 3. ML Classification
 
-```
+```text
+
 POST /classify-citation
-```
+
+```text
 
 **Request Body:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)"
 }
-```
+
+```text
 
 **Response:**
+
 ```json
 {
   "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
@@ -159,22 +176,28 @@ POST /classify-citation
     "case_recognition": 0.99
   }
 }
-```
 
-### 4. Correction Suggestions
+```text
 
-```
+### 4. Correction Suggestions (2)
+
+```text
+
 POST /suggest-citation-corrections
-```
+
+```text
 
 **Request Body:**
+
 ```json
 {
   "citation": "Brown v. Board of Educaton, 347 U.S. 483 (1954)"
 }
-```
+
+```text
 
 **Response:**
+
 ```json
 {
   "citation": "Brown v. Board of Educaton, 347 U.S. 483 (1954)",
@@ -191,7 +214,8 @@ POST /suggest-citation-corrections
     }
   ]
 }
-```
+
+```text
 
 ## Integration with CaseStrainer
 

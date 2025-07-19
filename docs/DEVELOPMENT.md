@@ -7,6 +7,7 @@ This guide provides comprehensive information for developers working on the Case
 ### Prerequisites
 
 1. **Python Environment**
+
    ```bash
    # Create virtual environment
    python -m venv venv
@@ -16,14 +17,15 @@ This guide provides comprehensive information for developers working on the Case
    
    # Install dependencies
    pip install -r requirements.txt
-   ```
+   ```text
 
 2. **Node.js Environment**
+
    ```bash
    # Install Node.js dependencies
    cd casestrainer-vue-new
    npm install
-   ```
+   ```text
 
 3. **Docker**
    - Install Docker Desktop for Windows
@@ -41,14 +43,16 @@ This guide provides comprehensive information for developers working on the Case
      - Prettier
 
 2. **Git Configuration**
+
    ```bash
    git config --global user.name "Your Name"
    git config --global user.email "your.email@example.com"
-   ```
+   ```text
 
 ## Project Structure
 
-```
+```text
+
 CaseStrainer/
 ├── src/                    # Backend source code
 │   ├── app_final_vue.py    # Main Flask application
@@ -66,7 +70,8 @@ CaseStrainer/
 ├── docs/                  # Documentation
 ├── logs/                  # Application logs
 └── tests/                 # Test files
-```
+
+```text
 
 ## Development Modes
 
@@ -74,7 +79,8 @@ CaseStrainer/
 
 ```powershell
 .\launcher.ps1 -Environment Development
-```
+
+```text
 
 - Backend: Flask development server on port 5000
 - Frontend: Vue.js dev server on port 5173
@@ -85,7 +91,8 @@ CaseStrainer/
 
 ```powershell
 .\launcher.ps1 -Environment DockerDevelopment
-```
+
+```text
 
 - Backend: Containerized Flask development server
 - Frontend: Containerized Vue.js dev server
@@ -96,7 +103,8 @@ CaseStrainer/
 
 ```powershell
 .\launcher.ps1 -Environment DockerProduction
-```
+
+```text
 
 - Full production stack with health checks
 - Waitress WSGI server
@@ -115,6 +123,7 @@ CaseStrainer/
    - Maximum line length: 88 characters
 
 2. **Code Organization**
+
    ```python
    # Imports
    import os
@@ -140,7 +149,7 @@ CaseStrainer/
    def process_document(file_path: str) -> List[Dict]:
        """Process a document for citations."""
        pass
-   ```
+   ```text
 
 3. **Configuration Management**
    - Use `src/config.py` for all configuration
@@ -151,6 +160,7 @@ CaseStrainer/
 ### Vue.js
 
 1. **Component Structure**
+
    ```vue
    <template>
      <div class="component-name">
@@ -188,7 +198,7 @@ CaseStrainer/
      /* Small mobile styles */
    }
    </style>
-   ```
+   ```text
 
 2. **Mobile Responsive Design**
    - **Touch-friendly targets**: Minimum 44px for buttons and interactive elements
@@ -200,6 +210,7 @@ CaseStrainer/
    - **Proper spacing**: Use consistent padding and margins for touch interaction
 
 3. **Mobile-First Approach**
+
    ```css
    /* Start with mobile styles */
    .component {
@@ -222,7 +233,7 @@ CaseStrainer/
        font-size: 20px;
      }
    }
-   ```
+   ```text
 
 2. **State Management**
    - Use Pinia for global state
@@ -251,7 +262,8 @@ def task_status(task_id):
 def health_check():
     """Health check endpoint."""
     pass
-```
+
+```text
 
 ### Response Format
 
@@ -265,7 +277,8 @@ def make_response(data=None, status="success", message="", status_code=200):
         "timestamp": datetime.utcnow().isoformat()
     }
     return jsonify(response), status_code
-```
+
+```text
 
 ### Error Handling
 
@@ -279,7 +292,8 @@ def handle_error(error):
         message="Internal server error",
         status_code=500
     )
-```
+
+```text
 
 ## UI/UX Development
 
@@ -287,7 +301,8 @@ def handle_error(error):
 
 The application uses Vue 3 with Composition API and follows a component-based architecture:
 
-```
+```text
+
 casestrainer-vue-new/src/
 ├── components/           # Reusable Vue components
 │   ├── CitationResults.vue    # Citation display and filtering
@@ -305,30 +320,35 @@ casestrainer-vue-new/src/
 └── composables/         # Reusable composition functions
     ├── useApi.js        # API interaction logic
     └── useLoadingState.js # Loading state management
-```
+
+```text
 
 ### Mobile Responsive Design
 
 The application is fully mobile-responsive with the following features:
 
 #### **Responsive Breakpoints**
+
 - **768px and below**: Tablet and mobile layouts
 - **480px and below**: Mobile-optimized layouts
 - **400px and below**: Small mobile device optimization
 
 #### **Touch-Friendly Design**
+
 - **Minimum 44px touch targets** for all interactive elements
 - **Proper spacing** between clickable elements
 - **Full-width buttons** on mobile devices
 - **Larger text inputs** to prevent zoom on iOS
 
 #### **Layout Adaptations**
+
 - **Vertical stacking** of horizontal layouts on mobile
 - **Collapsible sections** for complex interfaces
 - **Responsive tables** with horizontal scrolling
 - **Flexible grid systems** that adapt to screen size
 
 #### **Typography**
+
 - **Minimum 16px font size** to prevent mobile zoom
 - **Responsive font scaling** based on screen size
 - **Proper line heights** for readability
@@ -337,24 +357,28 @@ The application is fully mobile-responsive with the following features:
 ### Component-Specific Mobile Features
 
 #### **CitationResults.vue**
+
 - **Filter controls** stack vertically on mobile
 - **Layout mode buttons** become full-width
 - **Citation cards** adapt to narrow screens
 - **Search inputs** are full-width with proper sizing
 
 #### **AdvancedFilters.vue**
+
 - **Filter groups** stack vertically
 - **Search inputs** have proper mobile styling
 - **Toggle buttons** are touch-friendly
 - **Clear buttons** are easily accessible
 
 #### **BatchProcessor.vue**
+
 - **Upload areas** are optimized for mobile
 - **File lists** show essential information only
 - **Progress indicators** are mobile-friendly
 - **Action buttons** are full-width
 
 #### **ProcessingProgress.vue**
+
 - **Statistics cards** stack vertically
 - **Progress bars** are touch-friendly
 - **Time information** is clearly displayed
@@ -363,18 +387,21 @@ The application is fully mobile-responsive with the following features:
 ### Accessibility Features
 
 #### **Keyboard Navigation**
+
 - **Tab order** follows logical document flow
 - **Focus indicators** are clearly visible
 - **Skip links** for main content areas
 - **Keyboard shortcuts** for common actions
 
 #### **Screen Reader Support**
+
 - **Semantic HTML** structure
 - **ARIA labels** for interactive elements
 - **Alt text** for images and icons
 - **Descriptive link text**
 
 #### **Color and Contrast**
+
 - **WCAG AA compliance** for color contrast
 - **Color-independent** information design
 - **High contrast mode** support
@@ -383,12 +410,14 @@ The application is fully mobile-responsive with the following features:
 ### Performance Optimization
 
 #### **Lazy Loading**
+
 - **Component lazy loading** for route-based code splitting
 - **Image lazy loading** for better performance
 - **Progressive loading** of large datasets
 - **Virtual scrolling** for long lists
 
 #### **Caching Strategies**
+
 - **API response caching** to reduce server requests
 - **Component caching** for frequently used elements
 - **Local storage** for user preferences
@@ -399,6 +428,7 @@ The application is fully mobile-responsive with the following features:
 ### Backend Testing
 
 1. **Unit Tests**
+
    ```python
    import unittest
    
@@ -409,9 +439,10 @@ The application is fully mobile-responsive with the following features:
        def test_verify_citation(self):
            result = self.verifier.verify_citation("test citation")
            self.assertIsNotNone(result)
-   ```
+   ```text
 
 2. **Integration Tests**
+
    ```python
    class TestAPIEndpoints(unittest.TestCase):
        def setUp(self):
@@ -422,11 +453,12 @@ The application is fully mobile-responsive with the following features:
            response = self.client.post('/casestrainer/api/analyze',
                json={'text': 'test citation'})
            self.assertEqual(response.status_code, 200)
-   ```
+   ```text
 
 ### Frontend Testing
 
 1. **Unit Tests**
+
    ```javascript
    import { mount } from '@vue/test-utils'
    import CitationVerifier from '@/components/CitationVerifier.vue'
@@ -439,9 +471,10 @@ The application is fully mobile-responsive with the following features:
        expect(wrapper.text()).toContain('Verified')
      })
    })
-   ```
+   ```text
 
 2. **E2E Tests**
+
    ```javascript
    describe('Citation Verification', () => {
      it('verifies citation from home page', () => {
@@ -451,43 +484,56 @@ The application is fully mobile-responsive with the following features:
        cy.get('[data-test="result"]').should('be.visible')
      })
    })
-   ```
+   ```text
 
-## Docker Development
+## Docker Development (2)
 
 ### Development Container
 
 ```yaml
+
 # docker-compose.dev.yml
+
 services:
   backend-dev:
     build: .
     ports:
+
       - "5000:5000"
+
     volumes:
+
       - ./src:/app/src
       - ./logs:/app/logs
+
     environment:
+
       - FLASK_ENV=development
       - FLASK_DEBUG=1
-```
+
+```text
 
 ### Production Container
 
 ```yaml
+
 # docker-compose.prod.yml
+
 services:
   backend:
     build: .
     command: waitress-serve --port=5000 --threads=2 src.app_final_vue:app
     ports:
+
       - "5001:5000"
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
       interval: 60s
       timeout: 30s
       retries: 8
-```
+
+```text
 
 ## Health Checks
 
@@ -513,7 +559,8 @@ def check_db():
     except Exception as e:
         logger.warning(f"Database check failed: {e}")
         return "down"
-```
+
+```text
 
 ### Docker Health Checks
 
@@ -524,7 +571,8 @@ healthcheck:
   timeout: 30s
   retries: 8
   start_period: 180s
-```
+
+```text
 
 ## Logging
 
@@ -543,7 +591,8 @@ def configure_logging(log_level: int = logging.INFO) -> None:
         maxBytes=5 * 1024 * 1024,
         backupCount=5
     )
-```
+
+```text
 
 ### Usage
 
@@ -555,7 +604,8 @@ logger = logging.getLogger(__name__)
 logger.info("Application started")
 logger.warning("Deprecated function called")
 logger.error("Failed to process request", exc_info=True)
-```
+
+```text
 
 ## Background Tasks
 
@@ -577,27 +627,35 @@ def process_citation_task(task_id, task_type, task_data):
     except Exception as e:
         logger.error(f"Task {task_id} failed: {e}")
         set_task_status(task_id, "failed", str(e))
-```
+
+```text
 
 ### Worker Management
 
 ```bash
+
 # Start RQ worker
+
 python src/rq_worker.py worker casestrainer
 
 # Monitor workers
+
 rq info
 
 # Clear failed jobs
-rq requeue --all
-```
 
-## Performance Optimization
+rq requeue --all
+
+```text
+
+## Performance Optimization (2)
 
 ### Database Optimization
 
 ```python
+
 # Use connection pooling
+
 import sqlite3
 from contextlib import contextmanager
 
@@ -609,7 +667,8 @@ def get_db_connection():
         yield conn
     finally:
         conn.close()
-```
+
+```text
 
 ### Caching
 
@@ -620,7 +679,8 @@ from functools import lru_cache
 def get_citation_metadata(citation_id):
     """Cache citation metadata."""
     pass
-```
+
+```text
 
 ### Rate Limiting
 
@@ -632,7 +692,8 @@ import requests
 def api_call_with_retry(url, headers, data):
     """Make API call with exponential backoff."""
     return requests.post(url, headers=headers, data=data)
-```
+
+```text
 
 ## Security
 
@@ -651,15 +712,19 @@ def validate_file_upload(file):
         raise ValueError("File type not allowed")
     
     return True
-```
+
+```text
 
 ### Environment Variables
 
 ```python
+
 # Never hardcode sensitive values
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key')
 API_KEY = os.environ.get('COURTLISTENER_API_KEY')
-```
+
+```text
 
 ### CORS Configuration
 
@@ -672,7 +737,8 @@ CORS(app, resources={
         "methods": ["GET", "POST", "OPTIONS"]
     }
 })
-```
+
+```text
 
 ## Deployment
 
@@ -699,7 +765,8 @@ def server_stats():
         "cpu_usage": psutil.cpu_percent(),
         "active_requests": len(active_requests)
     })
-```
+
+```text
 
 ## Troubleshooting
 
@@ -714,20 +781,28 @@ def server_stats():
 ### Debug Mode
 
 ```python
+
 # Enable debug mode for development
+
 FLASK_DEBUG = True
 FLASK_ENV = 'development'
-```
+
+```text
 
 ### Log Analysis
 
 ```bash
+
 # View recent logs
+
 tail -f logs/casestrainer.log
 
 # Search for errors
+
 grep -i error logs/casestrainer.log
 
 # Monitor health checks
+
 grep -i health logs/casestrainer.log
-``` 
+
+```text
