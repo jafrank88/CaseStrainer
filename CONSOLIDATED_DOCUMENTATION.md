@@ -1,4 +1,4 @@
-# CaseStrainer - Consolidated Documentation
+# CaseStrainer - Comprehensive Documentation
 
 ## Table of Contents
 
@@ -11,6 +11,7 @@
 7. [Testing](#testing)
 8. [Troubleshooting](#troubleshooting)
 9. [Changelog](#changelog)
+10. [Contributing](#contributing)
 
 ---
 

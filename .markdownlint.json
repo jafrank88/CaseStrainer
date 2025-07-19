@@ -10,6 +10,7 @@
   "MD040": false,
   "MD009": false,
   "MD047": false,
+  "MD051": false,
   "ignore": [
     "archived_documentation/*.md",
     "CONSOLIDATED_DOCUMENTATION.md",

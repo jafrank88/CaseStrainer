@@ -26,6 +26,7 @@ Both files contain identical configurations to ensure maximum compatibility acro
   "MD040": false,
   "MD009": false,
   "MD047": false,
+  "MD051": false,
   "ignore": [
     "archived_documentation/*.md",
     "CONSOLIDATED_DOCUMENTATION.md",
@@ -92,6 +93,12 @@ Both files contain identical configurations to ensure maximum compatibility acro
 - **Purpose**: Requires single newline at file end
 - **Disabled**: Allows flexible file endings
 - **Reason**: Some tools may handle endings differently
+
+#### **MD051 - Link Fragments**
+- **Purpose**: Ensures link fragments point to valid headings
+- **Disabled**: Allows flexible link fragment usage
+- **Reason**: Large documentation files may have complex linking needs
+- **Note**: Automated tools handle link fragment validation and fixing
 
 ## Ignored Files and Patterns
 
