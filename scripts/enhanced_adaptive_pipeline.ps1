@@ -47,7 +47,7 @@ function Test-PythonAvailable {
 
 # Function to check and install required packages
 function Test-RequiredPackages {
-    $requiredPackages = @("psutil", "pathlib", "dataclasses")
+    $requiredPackages = @("psutil", "pathlib", "dataclasses", "fuzzywuzzy")
 
     foreach ($package in $requiredPackages) {
         try {

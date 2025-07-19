@@ -1853,16 +1853,26 @@ function Start-AdaptiveLearningPipeline {
     Write-Host "Starting adaptive learning pipeline..." -ForegroundColor Cyan
     
     try {
-        # Check if adaptive learning script exists
-        $adaptiveScript = Join-Path $PSScriptRoot "scripts\adaptive_learning_pipeline.ps1"
-        if (-not (Test-Path $adaptiveScript)) {
-            Write-Host "⚠️  Adaptive learning script not found: $adaptiveScript" -ForegroundColor Yellow
-            return $false
+        # Check if enhanced adaptive learning script exists
+        $enhancedAdaptiveScript = Join-Path $PSScriptRoot "scripts\enhanced_adaptive_pipeline.ps1"
+        if (-not (Test-Path $enhancedAdaptiveScript)) {
+            Write-Host "⚠️  Enhanced adaptive learning script not found: $enhancedAdaptiveScript" -ForegroundColor Yellow
+            # Fallback to original script
+            $adaptiveScript = Join-Path $PSScriptRoot "scripts\adaptive_learning_pipeline.ps1"
+            if (-not (Test-Path $adaptiveScript)) {
+                Write-Host "⚠️  Original adaptive learning script not found: $adaptiveScript" -ForegroundColor Yellow
+                return $false
+            }
+            Write-Host "Using original adaptive learning script as fallback..." -ForegroundColor Yellow
+            $scriptToRun = $adaptiveScript
+        } else {
+            Write-Host "Using enhanced adaptive learning pipeline..." -ForegroundColor Green
+            $scriptToRun = $enhancedAdaptiveScript
         }
 
         # Run adaptive learning pipeline
         Write-Host "Running adaptive learning pipeline..." -ForegroundColor Gray
-        $process = Start-Process -FilePath "powershell.exe" -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", $adaptiveScript) -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+        $process = Start-Process -FilePath "powershell.exe" -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", $scriptToRun) -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
 
         if ($process.ExitCode -eq 0) {
             Write-Host "✅ Adaptive learning pipeline completed successfully" -ForegroundColor Green
