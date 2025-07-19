@@ -1141,6 +1141,19 @@ function Start-DockerProduction {
 
         $dockerComposeFile = Join-Path $PSScriptRoot "docker-compose.prod.yml"
 
+        # Fix BOM issue in docker-compose file if present
+        try {
+            $content = Get-Content $dockerComposeFile -Raw
+            if ($content.StartsWith([char]0xFEFF)) {
+                Write-Host "Fixing BOM in docker-compose file..." -ForegroundColor Yellow
+                $content = $content.Substring(1)
+                $content | Out-File -FilePath $dockerComposeFile -Encoding UTF8 -NoNewline
+                Write-Host "BOM removed from docker-compose file" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "Warning: Could not check/fix BOM in docker-compose file" -ForegroundColor Yellow
+        }
+
         # Fast container management - Stop existing containers
         if ($PSCmdlet.ShouldProcess("Docker containers", "Stop existing")) {
             Write-Host "Stopping existing Docker containers..." -ForegroundColor Yellow
