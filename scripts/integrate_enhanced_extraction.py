@@ -12,7 +12,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from enhanced_extraction_improvements import EnhancedExtractionProcessor
-from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+try:
+    from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+except ImportError:
+    # Try importing from src directory
+    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+    try:
+        from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+    except ImportError:
+        print("Warning: enhanced_adaptive_processor not available, adaptive learning will be disabled")
+        EnhancedAdaptiveProcessor = None
 
 class IntegratedExtractionProcessor:
     """
@@ -21,7 +30,14 @@ class IntegratedExtractionProcessor:
     
     def __init__(self, learning_data_dir: str = None):
         self.enhanced_processor = EnhancedExtractionProcessor()
-        self.adaptive_processor = EnhancedAdaptiveProcessor(learning_data_dir) if learning_data_dir else None
+        if EnhancedAdaptiveProcessor and learning_data_dir:
+            try:
+                self.adaptive_processor = EnhancedAdaptiveProcessor(learning_data_dir)
+            except Exception as e:
+                print(f"Warning: Failed to initialize adaptive processor: {e}")
+                self.adaptive_processor = None
+        else:
+            self.adaptive_processor = None
         
     def process_text_integrated(self, text: str) -> dict:
         """

@@ -12,7 +12,24 @@ import re
 import json
 import os
 import requests
-from fuzzywuzzy import fuzz
+try:
+    from fuzzywuzzy import fuzz
+except ImportError:
+    # Fallback implementation if fuzzywuzzy is not available
+    def fuzz_ratio(s1, s2):
+        if not s1 or not s2:
+            return 0
+        s1, s2 = s1.lower(), s2.lower()
+        if s1 == s2:
+            return 100
+        # Simple similarity calculation
+        common_chars = sum(1 for c in s1 if c in s2)
+        return int((common_chars / max(len(s1), len(s2))) * 100)
+    
+    class fuzz:
+        @staticmethod
+        def ratio(s1, s2):
+            return fuzz_ratio(s1, s2)
 
 # Path to the citation database
 DOWNLOAD_DIR = "downloaded_briefs"

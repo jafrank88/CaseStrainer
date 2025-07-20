@@ -333,65 +333,56 @@ function Find-NpmExecutable {
     [OutputType([string])]
     param()
 
-    # Cache npm path for performance
-    if ($script:CachedChecks.NpmPath) {
-        # Verify cached path still exists
-        if (Test-Path $script:CachedChecks.NpmPath) {
-            return $script:CachedChecks.NpmPath
-        } else {
-            # Clear invalid cache
-            $script:CachedChecks.NpmPath = $null
-        }
-    }
-
-    # Try to find npm in PATH first (fastest)
+    # Check if npm is already in PATH and working
     try {
-        $npmCommand = Get-Command npm -ErrorAction SilentlyContinue
-        if ($npmCommand) {
-            $npmSource = $npmCommand.Source
-            # If it's a .ps1 file, look for .cmd or .exe in the same directory
-            if ($npmSource -like "*.ps1") {
-                $npmDir = Split-Path $npmSource -Parent
-                $npmCmd = Join-Path $npmDir "npm.cmd"
-                if (Test-Path $npmCmd) {
-                    $script:CachedChecks.NpmPath = $npmCmd
-                    return $npmCmd
-                }
-            }
-            $script:CachedChecks.NpmPath = $npmSource
-            return $npmSource
+        $npmVersion = npm --version 2>$null
+        if ($LASTEXITCODE -eq 0 -and $npmVersion) {
+            return "npm"
         }
     } catch {
-        Write-Host "Error finding npm in PATH: $($_.Exception.Message)" -ForegroundColor Gray
+        Write-Host "npm not found in PATH" -ForegroundColor Yellow
     }
 
-    # Quick check of common paths
-    $commonPaths = @(
-        "$env:APPDATA\npm\npm.cmd",
-        "$env:ProgramFiles\nodejs\npm.cmd",
-        "${env:ProgramFiles(x86)}\nodejs\npm.cmd",
+    # Check common npm installation locations
+    $possiblePaths = @(
         "C:\Program Files\nodejs\npm.cmd",
-        "C:\Program Files (x86)\nodejs\npm.cmd"
+        "C:\Program Files\nodejs\npm.exe",
+        "C:\Program Files (x86)\nodejs\npm.cmd",
+        "C:\Program Files (x86)\nodejs\npm.exe",
+        "$env:APPDATA\npm\npm.cmd",
+        "$env:APPDATA\npm\npm.exe",
+        "$env:LOCALAPPDATA\Programs\nodejs\npm.cmd",
+        "$env:LOCALAPPDATA\Programs\nodejs\npm.exe"
     )
 
-    foreach ($path in $commonPaths) {
+    foreach ($path in $possiblePaths) {
         if (Test-Path $path) {
-            $script:CachedChecks.NpmPath = $path
+            Write-Host "Found npm at: $path" -ForegroundColor Green
             return $path
         }
     }
 
-    # Last resort: try npx if available
+    # Try to find npm through node installation
     try {
-        $npxCommand = Get-Command npx -ErrorAction SilentlyContinue
-        if ($npxCommand) {
-            Write-Host "npm not found, but npx is available" -ForegroundColor Yellow
-            return "npx npm"
+        $nodePath = Get-Command node -ErrorAction SilentlyContinue
+        if ($nodePath) {
+            $nodeDir = Split-Path $nodePath.Source -Parent
+            $npmPath = Join-Path $nodeDir "npm.cmd"
+            if (Test-Path $npmPath) {
+                Write-Host "Found npm through node at: $npmPath" -ForegroundColor Green
+                return $npmPath
+            }
+            $npmPath = Join-Path $nodeDir "npm.exe"
+            if (Test-Path $npmPath) {
+                Write-Host "Found npm through node at: $npmPath" -ForegroundColor Green
+                return $npmPath
+            }
         }
     } catch {
-        Write-Host "npx also not available" -ForegroundColor Yellow
+        Write-Host "Could not find npm through node" -ForegroundColor Yellow
     }
 
+    Write-Host "ERROR: npm not found. Please install Node.js and npm first." -ForegroundColor Red
     return $null
 }
 
@@ -433,7 +424,7 @@ function Invoke-VueFrontendBuild {
 
         $npmPath = Find-NpmExecutable
         if (-not $npmPath) {
-            throw "Could not find npm executable"
+            throw "Could not find npm executable. Please install Node.js and npm first."
         }
         Write-Host "Using npm at: $npmPath" -ForegroundColor Gray
 
@@ -457,7 +448,11 @@ function Invoke-VueFrontendBuild {
             }
 
             Write-Host "Running: $npmPath $($installArgs -join ' ')" -ForegroundColor Gray
-            $installProcess = Start-Process -FilePath $npmPath -ArgumentList $installArgs -Wait -NoNewWindow -PassThru
+            
+            # Use cmd.exe to run npm to avoid PowerShell parameter parsing issues
+            $cmdArgs = @("/c", $npmPath) + $installArgs
+            $installProcess = Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -Wait -NoNewWindow -PassThru -WorkingDirectory $vueDir
+            
             if ($installProcess.ExitCode -ne 0) {
                 # Try to get more specific error information
                 Write-Host "npm install failed with exit code: $($installProcess.ExitCode)" -ForegroundColor Red
@@ -501,7 +496,11 @@ function Invoke-VueFrontendBuild {
             }
 
             Write-Host "Running: $npmPath $($buildArgs -join ' ')" -ForegroundColor Gray
-            $buildProcess = Start-Process -FilePath $npmPath -ArgumentList $buildArgs -Wait -NoNewWindow -PassThru
+            
+            # Use cmd.exe to run npm to avoid PowerShell parameter parsing issues
+            $cmdArgs = @("/c", $npmPath) + $buildArgs
+            $buildProcess = Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -Wait -NoNewWindow -PassThru -WorkingDirectory $vueDir
+            
             if ($buildProcess.ExitCode -ne 0) {
                 # Try to get more specific error information
                 Write-Host "npm build failed with exit code: $($buildProcess.ExitCode)" -ForegroundColor Red
@@ -1021,18 +1020,11 @@ function Start-DockerProduction {
             }
         }
 
-        # Check if we need Vue build in parallel - FIXED: Using proper $using: scope
-        $vueJob = $null
+        # Check if we need Vue build (removed parallel job to avoid Using variable issues)
+        $needsVueBuild = $false
         if (-not $SkipVueBuild -and -not $QuickStart) {
             Write-Host "Checking if Vue build is needed..." -ForegroundColor Yellow
-            $vueJob = Start-Job -ScriptBlock {
-                $vueDir = Join-Path $using:PSScriptRoot "casestrainer-vue-new"
-                $distDir = Join-Path $vueDir "dist"
-                $indexFile = Join-Path $distDir "index.html"
-                # If ForceRebuild is true, always return true (needs build)
-                # Otherwise check if dist directory and index.html exist
-                return ($using:ForceRebuild.IsPresent -or -not (Test-Path $distDir) -or -not (Test-Path $indexFile))
-            }
+            $needsVueBuild = Test-VueBuildNeeded -Force:$ForceRebuild
         }
 
         # Wait for Docker check
@@ -1067,11 +1059,9 @@ function Start-DockerProduction {
         if (-not $SkipVueBuild) {
             Write-Host "Processing Vue frontend build..." -ForegroundColor Yellow
 
-            if ($vueJob) {
-                $needsBuild = Receive-Job $vueJob -Wait
-                Remove-Job $vueJob
-            } else {
-                # Direct check if no job was started
+            # Use the pre-checked value or check now
+            $needsBuild = $needsVueBuild
+            if (-not $needsVueBuild) {
                 $needsBuild = Test-VueBuildNeeded -Force:$ForceRebuild
             }
 
@@ -1114,7 +1104,8 @@ function Start-DockerProduction {
                                 if ($npmPath) {
                                     Write-Host "Clearing npm cache..." -ForegroundColor Gray
                                     $cacheArgs = @("cache", "clean", "--force")
-                                    Start-Process -FilePath $npmPath -ArgumentList $cacheArgs -Wait -NoNewWindow -ErrorAction SilentlyContinue
+                                    $cmdArgs = @("/c", $npmPath) + $cacheArgs
+                                    Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -Wait -NoNewWindow -ErrorAction SilentlyContinue -WorkingDirectory $vueDir
                                     Write-Host "npm cache cleared" -ForegroundColor Gray
                                 }
                             } catch {

@@ -125,13 +125,32 @@ from typing import List, Dict, Any
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def main():
-    from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
-    from performance_monitor import PerformanceMonitor
-    from document_processing_unified import extract_text_from_file
+    try:
+        from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+    except ImportError:
+        # Try importing from src directory
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+        try:
+            from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+        except ImportError:
+            print("Error: enhanced_adaptive_processor not available")
+            return False
+    
+    try:
+        from performance_monitor import PerformanceMonitor
+    except ImportError:
+        print("Warning: performance_monitor not available, monitoring disabled")
+        PerformanceMonitor = None
+    
+    try:
+        from document_processing_unified import extract_text_from_file
+    except ImportError:
+        print("Error: document_processing_unified not available")
+        return False
 
     # Initialize components
     processor = EnhancedAdaptiveProcessor("$LearningDataDir")
-    monitor = PerformanceMonitor("$OutputDir/performance_data") if $MonitorPerformance else None
+    monitor = PerformanceMonitor("$OutputDir/performance_data") if $MonitorPerformance and PerformanceMonitor else None
 
     # Get brief files
     briefs_dir = Path("$BriefsDir")
@@ -229,6 +248,7 @@ def main():
 
     print(f"\\n✅ Enhanced adaptive learning completed!")
     print(f"Results saved to: $OutputDir")
+    return True
 
 if __name__ == "__main__":
     main()

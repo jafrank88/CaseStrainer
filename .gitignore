@@ -8,6 +8,10 @@ node_modules/
 *.crt
 *.key
 docker/ssl/
+# Allow SSL certificates in the main ssl directory for local development
+!ssl/*.crt
+!ssl/*.key
+!ssl/*.pem
 # -------------------------------------------------------------------------------
 
 #----------------------------------------------

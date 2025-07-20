@@ -130,6 +130,10 @@ ssl/
 *.csr
 *.p12
 *.pfx
+# Allow SSL certificates in the main ssl directory for nginx
+!ssl/*.crt
+!ssl/*.key
+!ssl/*.pem
 
 # Nginx (keep only config files)
 nginx/

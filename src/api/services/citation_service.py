@@ -130,7 +130,7 @@ class CitationService:
             import requests
             
             # Download file
-            response = requests.get(url, timeout=60, timeout=30)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             
             # Save to temporary file

@@ -1,72 +1,66 @@
 # Simplified CaseStrainer Docker Production Launcher
 # Focuses on core functionality with real-time feedback
 
+[CmdletBinding(SupportsShouldProcess)]
 param(
-    [ValidateSet("Production", "Diagnostics", "Menu")]
+    [Parameter(Position = 0)]
+    [ValidateSet("Menu", "Production", "Diagnostics")]
     [string]$Mode = "Menu",
-    [switch]$Help
+    
+    [Parameter()]
+    [switch]$AutoRestart
 )
 
-# Show help
-if ($Help) {
-    Write-Host @"
-Simplified CaseStrainer Docker Production Launcher
+# Set error action preference
+$ErrorActionPreference = "Stop"
 
-Usage:
-  .\prodlaunch_simple.ps1 [Options]
-
-Options:
-  -Mode Production    Start Docker Production Mode
-  -Mode Diagnostics   Run Production Diagnostics
-  -Mode Menu         Show interactive menu (default)
-  -Help              Show this help
-
-Examples:
-  .\prodlaunch_simple.ps1                    # Show menu
-  .\prodlaunch_simple.ps1 -Mode Production   # Start production directly
-  .\prodlaunch_simple.ps1 -Mode Diagnostics  # Run diagnostics directly
-"@ -ForegroundColor Cyan
-    exit 0
+# Logging function
+function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor Gray
 }
 
+# Test Docker availability
 function Test-DockerAvailability {
     try {
-        $null = docker info --format "{{.ServerVersion}}" 2>$null
+        $null = docker --version 2>$null
         return $LASTEXITCODE -eq 0
     } catch {
         return $false
     }
 }
 
+# Show menu
 function Show-Menu {
     Clear-Host
-    Write-Host "`n" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host " Simplified CaseStrainer Docker Launcher" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "=== CaseStrainer Production Launcher ===" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host " 1. Docker Production Mode" -ForegroundColor Green
-    Write-Host "    - Complete Docker Compose deployment" -ForegroundColor Gray
-    Write-Host "    - Redis, Backend, RQ Workers, Frontend, Nginx" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host " 2. Production Diagnostics" -ForegroundColor Cyan
-    Write-Host "    - Container health checks" -ForegroundColor Gray
-    Write-Host "    - Service status" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host " 0. Exit" -ForegroundColor Gray
+    Write-Host "1. Start Docker Production Mode" -ForegroundColor White
+    Write-Host "2. Show Diagnostics" -ForegroundColor White
+    Write-Host "0. Exit" -ForegroundColor White
     Write-Host ""
     
     do {
         $selection = Read-Host "Select an option (0-2)"
         if ($selection -match "^[0-2]$") {
             return $selection
-        } else {
-            Write-Host "Invalid selection. Please enter a number between 0 and 2." -ForegroundColor Red
         }
+        Write-Host "Invalid selection. Please enter 0, 1, or 2." -ForegroundColor Red
     } while ($true)
 }
 
 function Start-DockerProduction {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+    
+    if (-not $PSCmdlet.ShouldProcess("Docker Production Environment", "Start")) {
+        return
+    }
+    
     Write-Host "`n=== Starting Docker Production Mode ===`n" -ForegroundColor Green
     
     try {
@@ -101,8 +95,8 @@ function Start-DockerProduction {
             
             # Run npm install with real-time output
             $installJob = Start-Job -ScriptBlock {
-                param($VueDir)
-                Set-Location $VueDir
+                param($Using:VueDir)
+                Set-Location $Using:VueDir
                 & npm install 2>&1
             } -ArgumentList $vueDir
             
@@ -139,8 +133,8 @@ function Start-DockerProduction {
             
             # Run npm build with real-time output
             $buildJob = Start-Job -ScriptBlock {
-                param($VueDir)
-                Set-Location $VueDir
+                param($Using:VueDir)
+                Set-Location $Using:VueDir
                 & npm run build 2>&1
             } -ArgumentList $vueDir
             
@@ -188,9 +182,9 @@ function Start-DockerProduction {
         
         # Start containers in background and show progress
         $startJob = Start-Job -ScriptBlock {
-            param($DockerComposeFile, $WorkingDir)
-            Set-Location $WorkingDir
-            & docker-compose -f $DockerComposeFile up -d --build 2>&1
+            param($Using:DockerComposeFile, $Using:WorkingDir)
+            Set-Location $Using:WorkingDir
+            & docker-compose -f $Using:DockerComposeFile up -d --build 2>&1
         } -ArgumentList $dockerComposeFile, $PSScriptRoot
         
         # Show progress while containers start
@@ -267,7 +261,7 @@ function Wait-ForServices {
                 $redisPing = docker exec casestrainer-redis-prod redis-cli ping 2>$null
                 $redisHealthy = ($LASTEXITCODE -eq 0 -and $redisPing -like "*PONG*")
             } catch {
-                # Redis not ready yet
+                Write-Host "Redis not ready yet (attempt $attempt)" -ForegroundColor Gray
             }
             
             # Test API endpoint
@@ -277,7 +271,7 @@ function Wait-ForServices {
                     $healthResponse = Invoke-RestMethod -Uri "http://localhost:5001/casestrainer/api/health" -Method GET -TimeoutSec 5 -ErrorAction SilentlyContinue
                     $apiHealthy = $null -ne $healthResponse
                 } catch {
-                    # API not ready yet
+                    Write-Host "API not ready yet (attempt $attempt)" -ForegroundColor Gray
                 }
             }
             
@@ -365,9 +359,9 @@ try {
                 switch ($selection) {
                     "1" { Start-DockerProduction }
                     "2" { Show-Diagnostics }
-                    "0" { 
+                    "0" {
                         Write-Host "`nShutting down..." -ForegroundColor Yellow
-                        exit 0 
+                        exit 0
                     }
                 }
                 

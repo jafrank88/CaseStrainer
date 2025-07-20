@@ -12,7 +12,16 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+try:
+    from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+except ImportError:
+    # Try importing from src directory
+    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+    try:
+        from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+    except ImportError:
+        print("Warning: enhanced_adaptive_processor not available")
+        EnhancedAdaptiveProcessor = None
 
 def create_sample_data():
     """Create sample legal texts for testing."""

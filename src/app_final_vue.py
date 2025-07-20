@@ -6,6 +6,7 @@ Improved version with better error handling, performance, and maintainability
 import logging
 import os
 import sys
+import signal
 import threading
 from pathlib import Path
 from typing import Callable, Any, Union, Optional

@@ -13,7 +13,24 @@ from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass, asdict
 from collections import defaultdict, Counter
 import difflib
-from fuzzywuzzy import fuzz
+try:
+    from fuzzywuzzy import fuzz
+except ImportError:
+    # Fallback implementation if fuzzywuzzy is not available
+    def fuzz_ratio(s1, s2):
+        if not s1 or not s2:
+            return 0
+        s1, s2 = s1.lower(), s2.lower()
+        if s1 == s2:
+            return 100
+        # Simple similarity calculation
+        common_chars = sum(1 for c in s1 if c in s2)
+        return int((common_chars / max(len(s1), len(s2))) * 100)
+    
+    class fuzz:
+        @staticmethod
+        def ratio(s1, s2):
+            return fuzz_ratio(s1, s2)
 
 @dataclass
 class CaseNamePattern:

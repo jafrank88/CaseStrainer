@@ -3347,7 +3347,7 @@ class CacheManager:
     def _generate_key(self, *args) -> str:
         """Generate cache key from arguments."""
         key_string = "|".join(str(arg) for arg in args)
-        return hashlib.md5(key_string.encode(, usedforsecurity=False)).hexdigest()
+        return hashlib.md5(key_string.encode('utf-8'), usedforsecurity=False).hexdigest()
     
     def get(self, *args) -> Optional[Any]:
         """Get cached value."""

@@ -5,7 +5,7 @@ Consolidates all extraction logic into a clean, maintainable structure
 
 import re
 import logging
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List, Any
 from datetime import datetime
 from dataclasses import dataclass
 

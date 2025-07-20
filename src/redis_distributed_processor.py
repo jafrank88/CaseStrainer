@@ -113,9 +113,9 @@ class RedisDistributedPDFSystem:
             # Use file path + modification time + size for hash
             stat = os.stat(file_path)
             hash_input = f"{file_path}_{stat.st_mtime}_{stat.st_size}"
-            return hashlib.md5(hash_input.encode(, usedforsecurity=False)).hexdigest()
+            return hashlib.md5(hash_input.encode('utf-8'), usedforsecurity=False).hexdigest()
         except Exception:
-            return hashlib.md5(file_path.encode(, usedforsecurity=False)).hexdigest()
+            return hashlib.md5(file_path.encode('utf-8'), usedforsecurity=False).hexdigest()
     
     def _cache_get(self, key: str) -> Optional[Any]:
         """Get item from Redis cache."""

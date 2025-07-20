@@ -54,7 +54,7 @@ except ImportError:
     from case_name_extraction_core import extract_case_name_and_date
 
 # Import LegalWebSearchEngine from websearch_utils.py
-from src.websearch_utils import search_cluster_for_canonical_sources
+from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
 
 # Date extraction is now handled by the streamlined API functions
 
@@ -419,7 +419,7 @@ class UnifiedCitationProcessorV2:
             
             logger.debug(f"[CL batch] API request payload: {str(data)[:200]}...")
             
-            response = requests.post(url, headers=headers, json=data, timeout=10, timeout=30)
+            response = requests.post(url, headers=headers, json=data, timeout=30)
             logger.info(f"[CL batch] API response status: {response.status_code}")
             logger.debug(f"[CL batch] API raw response: {response.text[:500]}...")
             
@@ -918,7 +918,7 @@ class UnifiedCitationProcessorV2:
                 # Use 'text' field for citation-lookup
                 lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
                 lookup_data = {"text": citation}
-                response = requests.post(lookup_url, headers=headers, data=lookup_data, timeout=30, timeout=30)
+                response = requests.post(lookup_url, headers=headers, data=lookup_data, timeout=30)
                 if response.status_code == 200:
                     lookup_result = response.json()
                     if lookup_result and "results" in lookup_result:
@@ -955,7 +955,7 @@ class UnifiedCitationProcessorV2:
                         "type": "o",
                         "format": "json"
                     }
-                    response = requests.get(search_url, headers=headers, params=search_params, timeout=30, timeout=30)
+                    response = requests.get(search_url, headers=headers, params=search_params, timeout=30)
                     if response.status_code == 200:
                         search_result = response.json()
                         if search_result and "results" in search_result and search_result["results"]:

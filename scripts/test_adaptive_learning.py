@@ -106,37 +106,40 @@ def test_enhanced_processor():
     
     try:
         from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
-        
-        # Initialize enhanced processor
-        processor = EnhancedAdaptiveProcessor("test_learning_data")
-        
-        # Test text
-        test_text = """
-        The court held in Smith v. Jones, 200 Wn.2d 72, 514 P.3d 643 (2022) that the 
-        plaintiff's claim was valid. This decision was affirmed in Brown v. Wilson, 
-        171 Wn.2d 486, 256 P.3d 321 (2011). See also Dep't of Ecology v Campbell & Gwinn LLC 
-        146 Wn2d 1 at 9 (2003) for additional authority.
-        """
-        
-        # Extract with learned patterns
-        results = processor.extract_with_learned_patterns(test_text)
-        
-        print(f"Enhanced processor found {len(results)} citations:")
-        for i, result in enumerate(results, 1):
-            print(f"  {i}. {result.citation} (method: {result.method}, confidence: {result.confidence:.2f})")
-        
-        # Show learning stats
-        stats = processor.get_learning_stats()
-        print(f"\nEnhanced Processor Stats:")
-        print(f"  Total learned patterns: {stats['total_learned_patterns']}")
-        print(f"  Successful patterns: {stats['successful_patterns']}")
-        print(f"  Pattern success rate: {stats['pattern_success_rate']:.2f}")
-        
-        return stats
-        
-    except ImportError as e:
-        print(f"Could not import enhanced processor: {e}")
-        return None
+    except ImportError:
+        # Try importing from src directory
+        sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+        try:
+            from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
+        except ImportError:
+            print("Warning: enhanced_adaptive_processor not available")
+            return None
+    
+    # Initialize enhanced processor
+    processor = EnhancedAdaptiveProcessor("test_learning_data")
+    
+    # Test text
+    test_text = """
+    The court held in Smith v. Jones, 200 Wn.2d 72, 514 P.3d 643 (2022) that the 
+    plaintiff's claim was valid. This decision was affirmed in Brown v. Wilson, 
+    171 Wn.2d 486, 256 P.3d 321 (2011). See also Dep't of Ecology v Campbell & Gwinn LLC 
+    146 Wn2d 1 at 9 (2003) for additional authority.
+    """
+    
+    # Extract with learned patterns
+    results = processor.extract_case_names(test_text)
+    
+    print(f"Enhanced processor found {len(results)} case names:")
+    for i, result in enumerate(results, 1):
+        print(f"  {i}. {result.case_name} (confidence: {result.confidence:.2f})")
+    
+    # Show learning stats
+    stats = processor.get_performance_summary()
+    print(f"\nEnhanced Processor Stats:")
+    print(f"  Total learned patterns: {len(processor.learned_patterns)}")
+    print(f"  Performance metrics: {dict(stats)}")
+    
+    return stats
 
 def main():
     """Run the adaptive learning tests."""
