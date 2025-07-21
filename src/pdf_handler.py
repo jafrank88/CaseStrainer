@@ -17,7 +17,8 @@ import logging
 from typing import Optional, Tuple, Dict, Any, Union
 from dataclasses import dataclass
 from enum import Enum
-from src.extract_case_name import is_valid_case_name, clean_case_name
+# Note: extract_case_name is deprecated, functionality moved to case_name_extraction_core
+from src.case_name_extraction_core import CaseNameExtractor
 import warnings
 warnings.warn('src/pdf_handler.py is deprecated. Use src.document_processing_unified.extract_text_from_file instead.', DeprecationWarning)
 
@@ -418,12 +419,13 @@ class PDFHandler:
                     case_name = f"{plaintiff} v. {defendant}"
                 
                 # Use canonical cleaning and validation functions
-                case_name = clean_case_name(case_name)
+                extractor = CaseNameExtractor()
+                case_name = extractor._clean_case_name(case_name)
                 
                 # Filter out very short or very long case names
                 if case_name and 5 <= len(case_name) <= 200:
                     # Use canonical validation function
-                    if is_valid_case_name(case_name):
+                    if extractor._validate_case_name(case_name):
                         # Additional filtering to avoid header/footer text
                         if not any(skip_word in case_name.upper() for skip_word in [
                             'SUPREME COURT', 'FILED', 'RECORD', 'CLERK', 'OFFICE', 'STATE OF',

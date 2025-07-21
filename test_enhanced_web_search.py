@@ -5,7 +5,7 @@ Test script for the new EnhancedWebSearcher with all supported sources.
 
 import asyncio
 import time
-from src.websearch_utils import LegalWebsearchEngine
+from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebsearchEngine
 
 async def test_enhanced_web_search():
     """Test the enhanced web searcher with multiple citations."""

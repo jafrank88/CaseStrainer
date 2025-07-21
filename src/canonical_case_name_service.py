@@ -14,10 +14,8 @@ from functools import lru_cache
 from dataclasses import dataclass
 try:
     from .config import get_config_value
-    from .websearch_utils import search_cluster_for_canonical_sources
 except ImportError:
     from config import get_config_value
-    from websearch_utils import search_cluster_for_canonical_sources
 import os
 
 logger = logging.getLogger(__name__)

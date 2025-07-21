@@ -27,7 +27,7 @@ def test_citation(citation_text):
 def test_websearch_direct(citation):
     """Test websearch directly to see which citation yields better results"""
     try:
-        from src.websearch_utils import LegalWebSearchEngine
+        from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebSearchEngine
         engine = LegalWebSearchEngine()
         result = engine.search_cluster_canonical(citation)
         # Handle both dict and string responses

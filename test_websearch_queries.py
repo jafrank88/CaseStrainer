@@ -4,7 +4,7 @@ def test_websearch_normalization():
     print("=== Testing Websearch Citation Normalization ===\n")
     
     try:
-        from src.websearch_utils import LegalWebSearchEngine
+        from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebSearchEngine
         
         # Test the normalization function directly
         engine = LegalWebSearchEngine()

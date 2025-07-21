@@ -1,7 +1,7 @@
 import asyncio
 import random
 import time
-from src.websearch_utils import LegalWebsearchEngine
+from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebsearchEngine
 
 SAMPLE_CITATIONS = [
     "567 P.3d 625", "410 U.S. 113", "123 F.3d 456", "999 N.E.2d 123", "42 Cal. 3d 456",

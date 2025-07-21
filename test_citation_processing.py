@@ -22,7 +22,7 @@ def test_citation_processing():
     
     try:
         from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
-        from src.citation_format_utils import normalize_washington_synonyms
+        from src.citation_utils_consolidated import normalize_washington_synonyms
         
         verifier = EnhancedMultiSourceVerifier()
         print("✓ Created verifier instance")

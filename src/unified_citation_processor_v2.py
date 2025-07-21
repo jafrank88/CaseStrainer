@@ -598,54 +598,40 @@ class UnifiedCitationProcessorV2:
     def _verify_citations_with_canonical_service(self, citations: List['CitationResult']) -> None:
         """Verify citations using the canonical case name service."""
         logger.info(f"[CANONICAL_SERVICE] ENTERED for: {[c.citation for c in citations]}")
-        
-        try:
-            # Temporarily skip canonical service to avoid import issues
-            logger.warning(f"[CANONICAL_SERVICE] Skipping canonical service due to import issues")
-            return
-        except ImportError as e:
-            logger.warning(f"[CANONICAL_SERVICE] Canonical service not available: {e}")
-            return
-        
         for citation in citations:
             if citation.verified:
                 logger.debug(f"[CANONICAL_SERVICE] Skipping {citation.citation} - already verified")
                 continue
-            
             logger.debug(f"[CANONICAL_SERVICE] Processing: {citation.citation}")
-            
             try:
                 logger.debug(f"[CANONICAL_SERVICE] Calling get_canonical_case_name_with_date for: {citation.citation}")
                 canonical_result = get_canonical_case_name_with_date(citation.citation)
                 logger.debug(f"[CANONICAL_SERVICE] Result for '{citation.citation}': {canonical_result}")
-                
                 if canonical_result and canonical_result.get('case_name'):
                     logger.info(f"[CANONICAL_SERVICE] Found canonical result for {citation.citation}: {canonical_result.get('case_name')}")
-                    
-                    # Update citation with canonical data
                     citation.canonical_name = canonical_result.get('case_name')
                     citation.canonical_date = canonical_result.get('date')
                     citation.verified = True
-                    
-                    # Determine source
-                    fallback_source = canonical_result.get('source', 'canonical_service')
-                    citation.source = fallback_source
-                    
-                    # Add metadata
+                    # Use the actual site/service name if available
+                    fallback_source = canonical_result.get('source')
+                    if fallback_source:
+                        citation.source = fallback_source
+                    else:
+                        citation.source = "fallback"
                     if not citation.metadata:
                         citation.metadata = {}
                     citation.metadata.update({
                         'canonical_service_result': canonical_result,
-                        'fallback_source': fallback_source
+                        'fallback_source': fallback_source or 'fallback'
                     })
-                    
                     logger.info(f"[CANONICAL_SERVICE] SUCCESS: {citation.citation} -> {citation.canonical_name} (source: {citation.source})")
                 else:
                     logger.debug(f"[CANONICAL_SERVICE] No canonical result found for {citation.citation}")
-                    
+                    citation.source = "fallback"
             except Exception as e:
                 logger.error(f"[CANONICAL_SERVICE] Error verifying {citation.citation}: {e}")
-        
+                citation.source = "fallback"
+                citation.error = str(e)
         logger.info(f"[CANONICAL_SERVICE] EXITING")
 
     def _verify_citations_with_legal_websearch(self, citations: List['CitationResult']) -> None:

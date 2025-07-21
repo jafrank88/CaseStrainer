@@ -3,8 +3,10 @@ Consolidated Citation Utilities
 Combines citation normalization, formatting, and validation functions from multiple files.
 """
 
+import warnings
+import logging
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from eyecite import get_citations
 from eyecite.tokenizers import AhocorasickTokenizer
 
@@ -1268,3 +1270,51 @@ def _are_parallel_citations(citation1: Dict[str, Any], citation2: Dict[str, Any]
     
     except Exception:
         return False 
+
+# Legacy compatibility functions
+def extract_citations_from_text(text: str, logger: Optional[logging.Logger] = None) -> List[Dict[str, Any]]:
+    """
+    DEPRECATED: Extract citations from text using the unified processor.
+    Use UnifiedCitationProcessorV2 instead.
+    """
+    import warnings
+    warnings.warn(
+        "extract_citations_from_text is deprecated. Use UnifiedCitationProcessorV2 instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    
+    if logger is None:
+        logger = logging.getLogger(__name__)
+        
+    if not text or not isinstance(text, str):
+        logger.warning("Invalid text input for citation extraction")
+        return []
+
+    try:
+        logger.info(f"Starting citation extraction from text ({len(text)} characters)")
+        
+        # Use the unified citation processor
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        
+        processor = UnifiedCitationProcessorV2()
+        config = ProcessingConfig()
+        result = processor.process_text(text, config)
+        
+        # Convert to the expected format
+        citations = []
+        for citation in result.citations:
+            citations.append({
+                "citation": citation.citation,
+                "extracted_from": "text",
+                "confidence": citation.confidence,
+                "verified": citation.verified,
+                "source": "extraction"
+            })
+        
+        logger.info(f"Extracted {len(citations)} citations from text")
+        return citations
+        
+    except Exception as e:
+        logger.error(f"Error extracting citations from text: {str(e)}")
+        return [] 

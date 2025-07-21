@@ -1188,6 +1188,23 @@ function Start-DockerProduction {
             } else {
                 Write-Host "Containers stopped successfully" -ForegroundColor Green
             }
+
+            # --- Extra safeguard: Remove any remaining casestrainer containers ---
+            Write-Host "Checking for any remaining 'casestrainer' containers..." -ForegroundColor Yellow
+            $remaining = docker ps -a --filter "name=casestrainer" --format "{{.ID}} {{.Names}}"
+            if ($remaining) {
+                Write-Host "WARNING: Found remaining containers after down. Forcibly removing..." -ForegroundColor Red
+                $remaining | ForEach-Object {
+                    $parts = $_ -split ' '
+                    $id = $parts[0]
+                    $name = $parts[1]
+                    Write-Host "  Removing container: $name ($id)" -ForegroundColor Red
+                    docker rm -f $id | Out-Null
+                }
+                Write-Host "All remaining 'casestrainer' containers forcibly removed." -ForegroundColor Green
+            } else {
+                Write-Host "No remaining 'casestrainer' containers found." -ForegroundColor Green
+            }
         }
 
         # Optimized container startup

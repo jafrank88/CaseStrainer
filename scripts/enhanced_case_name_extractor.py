@@ -21,6 +21,7 @@ from nltk.tokenize import sent_tokenize
 # Import canonical case name extraction functions
 from src.extract_case_name import extract_case_name_from_text, extract_case_name_triple, extract_case_name_hinted
 from src.extract_case_name import clean_case_name, is_valid_case_name
+from src.citation_utils_consolidated import normalize_washington_synonyms
 
 class EnhancedCaseNameExtractor:
     def __init__(self, api_key: Optional[str] = None, cache_results: bool = True):

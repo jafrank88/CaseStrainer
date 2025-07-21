@@ -4,7 +4,7 @@ def test_cluster_websearch():
     print("=== Testing Cluster-Based Websearch ===\n")
     
     try:
-        from src.websearch_utils import LegalWebSearchEngine
+        from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebSearchEngine
         
         # Test with a cluster containing both Convoyant citations
         test_cluster = {

@@ -6,7 +6,7 @@ Comprehensive test to verify the entire pipeline is using ComprehensiveWebSearch
 import asyncio
 import logging
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from src.websearch_utils import search_cluster_for_canonical_sources
+from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources, ComprehensiveWebSearchEngine as LegalWebSearchEngine
 from src.canonical_case_name_service import get_canonical_case_name_with_date
 
 # Setup logging

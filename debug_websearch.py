@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 try:
-    from src.websearch_utils import LegalWebsearchEngine
+    from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine as LegalWebsearchEngine
 except ImportError as e:
     print(f"Import error: {e}")
     sys.exit(1)

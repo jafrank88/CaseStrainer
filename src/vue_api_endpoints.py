@@ -53,6 +53,11 @@ def health_check():
             'timestamp': datetime.utcnow().isoformat()
         }), 503
 
+# Add this alias route for /casestrainer/api/health
+@vue_api.route('/casestrainer/api/health', methods=['GET'])
+def health_check_alias():
+    return health_check()
+
 @vue_api.route('/db_stats', methods=['GET'])
 def db_stats():
     """Database statistics endpoint"""
@@ -66,27 +71,22 @@ def db_stats():
 
 @vue_api.route('/analyze', methods=['POST'])
 def analyze():
-    """Main analyze endpoint that handles text, file, and URL input"""
     logger.info("=== ANALYZE ENDPOINT CALLED ===")
     logger.info(f"Request method: {request.method}")
     logger.info(f"Content type: {request.content_type}")
-    
     try:
-        # Handle file upload
         if 'file' in request.files:
+            logger.info("File upload detected in request.files")
             return _handle_file_upload()
-        
-        # Handle JSON input
         elif request.is_json:
+            logger.info("JSON input detected in request")
             return _handle_json_input()
-        
-        # Handle form input
         elif request.form:
+            logger.info("Form input detected in request.form")
             return _handle_form_input()
-        
         else:
+            logger.error("Invalid or missing input. No file, JSON, or form data found.")
             return jsonify({'error': 'Invalid or missing input. Please provide text, file, or URL.'}), 400
-            
     except Exception as e:
         logger.error(f"Error in analyze endpoint: {e}", exc_info=True)
         return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
@@ -304,27 +304,31 @@ def _handle_file_upload():
         return jsonify({'error': f'Failed to process file: {str(e)}'}), 500
 
 def _handle_json_input():
-    """Handle JSON input processing"""
+    logger.info("_handle_json_input called")
     data = request.get_json()
+    logger.info(f"JSON data received: {data}")
     if not data:
+        logger.error("No JSON data provided")
         return jsonify({'error': 'No JSON data provided'}), 400
-    
     input_type = data.get('type', 'text')
-    
+    logger.info(f"Input type: {input_type}")
     if input_type == 'text':
         text = data.get('text', '')
+        logger.info(f"Text input received: {text[:100]}... (length: {len(text)})")
         if not text:
+            logger.error("No text provided in JSON input")
             return jsonify({'error': 'No text provided'}), 400
         return _process_text_input(text)
-        
     elif input_type == 'url':
         url = data.get('url', '')
+        logger.info(f"URL input received: {url}")
         if not url:
+            logger.error("No URL provided in JSON input")
             return jsonify({'error': 'No URL provided'}), 400
         return _process_url_input(url)
-        
     else:
-        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
+        logger.error(f"Invalid input type: {input_type}")
+        return jsonify({'error': 'Invalid input type. Use \"text\" or \"url\"'}), 400
 
 def _handle_form_input():
     """Handle form input processing"""
@@ -347,14 +351,15 @@ def _handle_form_input():
         return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
 
 def _process_text_input(text, source_name="pasted_text"):
-    """Process text input with proper async RQ worker processing for longer texts"""
+    logger.info(f"_process_text_input called with text length: {len(text)}")
     try:
-        # Check if should process immediately (short texts)
         if citation_service.should_process_immediately({'type': 'text', 'text': text}):
             logger.info("Processing short text immediately")
             result = citation_service.process_immediately({'type': 'text', 'text': text})
+            logger.info(f"Immediate processing result: {result}")
             
             if result['status'] in ['completed', 'success']:
+                logger.info("Returning successful immediate processing result")
                 return jsonify({
                     'citations': result['citations'],
                     'clusters': result.get('clusters', []),
@@ -363,12 +368,12 @@ def _process_text_input(text, source_name="pasted_text"):
                     'metadata': result.get('metadata', {})
                 })
             else:
+                logger.error(f"Immediate processing failed: {result.get('message', 'Text processing failed')}")
                 return jsonify({
                     'error': result.get('message', 'Text processing failed'),
                     'success': False
                 }), 500
         else:
-            # Process longer texts asynchronously with RQ workers
             logger.info("Processing longer text asynchronously with RQ workers")
             task_id = str(uuid.uuid4())
             
@@ -392,7 +397,7 @@ def _process_text_input(text, source_name="pasted_text"):
                 result_ttl=3600  # Keep results for 1 hour
             )
             
-            logger.info(f"Queued text processing task {task_id} for background processing")
+            logger.info(f"Queued text processing task {task_id} for background processing (job id: {job.id})")
             
             # Return immediately with task ID for polling
             return jsonify({

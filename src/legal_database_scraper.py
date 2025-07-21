@@ -960,7 +960,7 @@ def extract_canonical_metadata_from_findlaw_wa_supreme(url, html):
 
 # In your main extraction function:
 def extract_case_metadata(url):
-    resp = requests.get(url, timeout=10, timeout=30)
+    resp = requests.get(url, timeout=30)
     html = resp.text
     if "law.justia.com/cases/washington/supreme-court/" in url:
         return extract_canonical_metadata_from_justia_supreme(url, html)

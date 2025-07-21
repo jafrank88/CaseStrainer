@@ -33,13 +33,12 @@ class ExtractionResult:
                 self.year = year_match.group(1)
 
 class CaseNameExtractor:
-    """
-    Unified case name and date extraction with clear methodology
-    """
+    """Main case name and date extractor"""
     
     def __init__(self):
-        self.date_extractor = DateExtractor()
         self._setup_patterns()
+        # Remove the circular dependency - don't create DateExtractor here
+        # self.date_extractor = DateExtractor()
     
     def _setup_patterns(self):
         """Initialize extraction patterns"""
@@ -159,16 +158,18 @@ class CaseNameExtractor:
                 result.debug_info.update(case_extraction.get('debug', {}))
             
             # Step 3: Try date extraction
-            date_extraction = self.date_extractor.extract_date_from_context(
-                text, citation
-            ) if citation else self.date_extractor.extract_date_from_full_text(text)
+            # The DateExtractor is now initialized directly in extract_case_name_and_date
+            # date_extractor = DateExtractor() # This line is removed
+            # date_extraction = self.date_extractor.extract_date_from_context(
+            #     text, citation
+            # ) if citation else self.date_extractor.extract_date_from_full_text(text)
             
-            if date_extraction:
-                result.date = date_extraction
-                # Extract year from date
-                year_match = re.search(r'(\d{4})', date_extraction)
-                if year_match:
-                    result.year = year_match.group(1)
+            # if date_extraction:
+            #     result.date = date_extraction
+            #     # Extract year from date
+            #     year_match = re.search(r'(\d{4})', date_extraction)
+            #     if year_match:
+            #         result.year = year_match.group(1)
             
             logger.info(f"Extraction complete: {result.case_name} ({result.year}) - {result.method}")
             
@@ -350,55 +351,27 @@ class DateExtractor:
         ]
     
     def extract_date_from_context(self, text: str, citation: str) -> Optional[str]:
-        """
-        DEPRECATED: Use isolation-aware date extraction logic instead.
-        Extract date using citation as context anchor with improved isolation
-        """
-        warnings.warn(
-            "extract_date_from_context is deprecated. Use isolation-aware extraction instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        citation_pos = text.find(citation)
-        if citation_pos == -1:
-            return self.extract_date_from_full_text(text)
+        """Extract date from context around a citation"""
+        if not text or not citation:
+            return None
         
-        # Use improved context extraction with citation boundary awareness
-        context_start = max(0, citation_pos - 200)  # Increased from 100
-        context_end = min(len(text), citation_pos + len(citation) + 100)
-        
-        # Check for other citations in the context area to avoid cross-contamination
-        context_text = text[context_start:context_end]
-        
-        # Look for citation patterns that might indicate other cases
-        citation_patterns = [
-            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
-            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
-        ]
-        
-        # Find the last citation before our target citation in the context
-        last_citation_pos = 0
-        for pattern in citation_patterns:
-            matches = list(re.finditer(pattern, context_text))
-            for match in matches:
-                # Only consider citations that come before our target citation
-                if match.end() < (citation_pos - context_start):
-                    last_citation_pos = max(last_citation_pos, match.end())
-        
-        # Adjust context start to avoid other citations
-        if last_citation_pos > 0:
-            # Look for sentence boundaries after the last citation
-            sentence_pattern = re.compile(r'\.\s+[A-Z]')
-            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
-            if sentence_matches:
-                adjusted_start = context_start + sentence_matches[0].start() + 1
-                context_start = max(context_start, adjusted_start)
-            else:
-                # If no sentence boundary, start after the last citation
-                context_start = max(context_start, context_start + last_citation_pos)
-        
-        context = text[context_start:context_end]
-        return self._extract_date_from_text(context)
+        try:
+            # Find citation in text
+            index = text.find(citation)
+            if index == -1:
+                return None
+            
+            # Extract context around citation
+            context_start = max(0, index - 300)
+            context_end = min(len(text), index + len(citation) + 300)
+            context = text[context_start:context_end]
+            
+            # Extract date from context
+            return self._extract_date_from_text(context)
+            
+        except Exception as e:
+            logger.error(f"Error extracting date from context: {e}")
+            return None
     
     def extract_date_from_full_text(self, text: str) -> Optional[str]:
         """Extract date from full text"""
@@ -456,6 +429,20 @@ def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any
     extractor = get_extractor()
     result = extractor.extract(text, citation)
     
+    # Add date extraction here to avoid circular dependency
+    if not result.date or result.date == "":
+        date_extractor = DateExtractor()
+        date_extraction = date_extractor.extract_date_from_context(
+            text, citation
+        ) if citation else date_extractor.extract_date_from_full_text(text)
+        
+        if date_extraction:
+            result.date = date_extraction
+            # Extract year from date
+            year_match = re.search(r'(\d{4})', date_extraction)
+            if year_match:
+                result.year = year_match.group(1)
+    
     return {
         'case_name': result.case_name or "N/A",
         'date': result.date or "N/A", 
@@ -490,6 +477,75 @@ def extract_case_name_triple_comprehensive(text: str, citation: str = None) -> T
         result['date'], 
         str(result['confidence'])
     )
+
+def extract_case_name_triple(text: str, citation: str = None, api_key: str = None, context_window: int = 100) -> Tuple[str, str, str]:
+    """
+    Backward compatible triple extraction
+    Returns (case_name, year, confidence)
+    """
+    result = extract_case_name_and_date(text, citation)
+    return (
+        result['case_name'],
+        result['year'], 
+        str(result['confidence'])
+    )
+
+def extract_case_name_improved(text: str, citation: str = None) -> Tuple[str, str, str]:
+    """
+    Backward compatible triple extraction
+    Returns (case_name, year, confidence)
+    """
+    result = extract_case_name_and_date(text, citation)
+    return (
+        result['case_name'],
+        result['year'], 
+        str(result['confidence'])
+    )
+
+def extract_year_improved(text: str, citation: str = None) -> str:
+    """
+    Backward compatible year extraction
+    Returns year only
+    """
+    result = extract_case_name_and_date(text, citation)
+    return result['year']
+
+def extract_year_after_last_citation(text: str) -> str:
+    """
+    Backward compatible year extraction
+    Returns year only
+    """
+    result = extract_case_name_and_date(text)
+    return result['year']
+
+def get_canonical_case_name(citation: str) -> str:
+    """
+    Backward compatible canonical case name extraction
+    Returns case name only
+    """
+    result = extract_case_name_and_date("", citation)
+    return result['case_name']
+
+# Date extractor compatibility
+class DateExtractor:
+    """Simplified date extractor for backward compatibility"""
+    
+    def __init__(self):
+        self.extractor = get_extractor()
+    
+    def extract_date_from_context(self, text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
+        """Extract date from context"""
+        context = text[max(0, citation_start - context_window):min(len(text), citation_end + context_window)]
+        result = extract_case_name_and_date(context)
+        return result['date'] if result['date'] != "N/A" else None
+    
+    def extract_year_only(self, text: str, citation: str = None) -> Optional[str]:
+        """Extract year only"""
+        result = extract_case_name_and_date(text, citation)
+        return result['year'] if result['year'] != "N/A" else None
+
+# Global date extractor instance
+date_extractor = DateExtractor()
 
 def test_streamlined_extractor():
     """Test the streamlined extractor"""

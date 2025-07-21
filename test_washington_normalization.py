@@ -20,7 +20,7 @@ def test_washington_normalization():
     
     try:
         # Test the normalization functions
-        from src.citation_format_utils import normalize_washington_synonyms
+        from src.citation_utils_consolidated import normalize_washington_synonyms
         from src.citation_utils_consolidated import normalize_citation
         from src.citation_extractor import normalize_washington_citations
         

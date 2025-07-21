@@ -22,7 +22,7 @@ def test_citation_normalization():
         print(f"1. citation_normalizer.normalize_citation: '{normalized1}'")
         
         # Test 2: citation_format_utils.py
-        from src.citation_format_utils import normalize_washington_synonyms
+        from src.citation_utils_consolidated import normalize_washington_synonyms
         normalized2 = normalize_washington_synonyms(citation)
         print(f"2. citation_format_utils.normalize_washington_synonyms: '{normalized2}'")
         

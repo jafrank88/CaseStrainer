@@ -14,8 +14,8 @@ print = functools.partial(print, flush=True)
 project_root = str(Path(__file__).parent.absolute())
 sys.path.insert(0, project_root)
 
-# Now import the function we want to test
-from src.enhanced_validator_production import validate_citations_batch
+# Now import the unified processor instead of deprecated function
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
 
 def setup_logging():
@@ -68,47 +68,36 @@ def debug_print(*args, **kwargs):
 
 
 def test_citation_validation(citation_text):
-    """Test citation validation directly"""
+    """Test citation validation directly using unified processor"""
     debug_print("\n" + "=" * 50)
     debug_print(f"Testing citation: {citation_text}")
     debug_print("=" * 50 + "\n")
 
     try:
+        # Initialize the unified processor
+        processor = UnifiedCitationProcessorV2()
+        
         # Log the input
-        test_data = [{"citation_text": citation_text}]
-        debug_print(f"Test data: {json.dumps(test_data, indent=2)}")
+        debug_print(f"Test citation: {citation_text}")
 
         # Call the validation function directly
-        debug_print("Calling validate_citations_batch...")
-        results, stats = validate_citations_batch(test_data)
+        debug_print("Calling UnifiedCitationProcessorV2.verify_citation_unified_workflow...")
+        result = processor.verify_citation_unified_workflow(citation_text)
 
         # Print the raw results
         debug_print("\n=== RAW RESULTS ===")
-        debug_print(json.dumps(results, indent=2))
-        debug_print("\n=== STATS ===")
-        debug_print(json.dumps(stats, indent=2))
+        debug_print(json.dumps(result, indent=2))
 
         # Print formatted results
         debug_print("\n=== VALIDATION RESULTS ===")
-        if results and len(results) > 0:
-            result = results[0]
-            debug_print(f"Status: {result.get('validation_status', 'unknown')}")
-            debug_print(
-                f"Case Name: {result.get('metadata', {}).get('case_name', 'Not found')}"
-            )
-            debug_print(
-                f"Validation Method: {result.get('metadata', {}).get('validation_method', 'N/A')}"
-            )
-            debug_print(
-                f"Verified: {'Yes' if result.get('validation_status') == 'verified' else 'No'}"
-            )
+        if result:
+            debug_print(f"Status: {result.get('status', 'unknown')}")
+            debug_print(f"Citation: {result.get('citation', 'Not found')}")
+            debug_print(f"Canonical Name: {result.get('canonical_name', 'N/A')}")
+            debug_print(f"Canonical Date: {result.get('canonical_date', 'N/A')}")
+            debug_print(f"Verified: {'Yes' if result.get('status') == 'verified' else 'No'}")
         else:
             debug_print("No results returned from validation")
-
-        debug_print("\n=== STATISTICS ===")
-        debug_print(f"Verified: {stats.get('verified', 0)}")
-        debug_print(f"Not Found: {stats.get('not_found', 0)}")
-        debug_print(f"Errors: {stats.get('errors', 0)}")
 
         return True
 

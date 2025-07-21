@@ -10,6 +10,7 @@ import re
 import time
 import logging
 import unicodedata
+import warnings
 from typing import Dict, List, Any, Optional
 from urllib.parse import urlparse
 import requests
@@ -1058,7 +1059,7 @@ class UnifiedDocumentProcessor:
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
             }
             
-            response = requests.get(url, headers=headers, timeout=30, stream=True, timeout=30)
+            response = requests.get(url, headers=headers, timeout=30, stream=True)
             response.raise_for_status()
             
             content_type = response.headers.get('content-type', '').lower()
