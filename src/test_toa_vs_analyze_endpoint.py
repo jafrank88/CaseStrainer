@@ -4,7 +4,10 @@ Compare ToA parser vs unified citation processor on ToA lines.
 Test how each tool extracts case names and dates from the same ToA text.
 """
 
-from src.toa_parser import ToAParser
+import logging
+logger = logging.getLogger(__name__)
+
+from src.toa_parser import ImprovedToAParser
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
 def test_toa_line_comparison():
@@ -20,7 +23,7 @@ def test_toa_line_comparison():
     ]
     
     # Initialize processors
-    toa_parser = ToAParser()
+    toa_parser = ImprovedToAParser()
     citation_processor = UnifiedCitationProcessorV2()
     
     logger.info("COMPARISON: ToA Parser vs Unified Citation Processor")
@@ -32,7 +35,7 @@ def test_toa_line_comparison():
         
         # Test with ToA Parser
         logger.info("TOA PARSER RESULTS:")
-        toa_entry = toa_parser._parse_toa_line_flexible(line)
+        toa_entry = toa_parser._parse_chunk_flexible(line)
         if toa_entry:
             logger.info(f"  Case Name: {getattr(toa_entry, 'case_name', 'None')}")
             logger.info(f"  Citations: {getattr(toa_entry, 'citations', 'None')}")

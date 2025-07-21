@@ -60,18 +60,7 @@ ANALYZE_ENDPOINT = f"{BASE_URL}/casestrainer/api/analyze"
 # SUGGEST_ENDPOINT = f"{BASE_URL}/suggest-citation-corrections"  # DEPRECATED
 
 # Test data
-LANDMARK_CASES = [
-    "Brown v. Board of Education, 347 U.S. 483 (1954)",
-    "Roe v. Wade, 410 U.S. 113 (1973)",
-    "Miranda v. Arizona, 384 U.S. 436 (1966)",
-    "Marbury v. Madison, 5 U.S. 137 (1803)",
-    "Gideon v. Wainwright, 372 U.S. 335 (1963)",
-    "Plessy v. Ferguson, 163 U.S. 537 (1896)",
-    "Lochner v. New York, 198 U.S. 45 (1905)",
-    "Korematsu v. United States, 323 U.S. 214 (1944)",
-    "Citizens United v. FEC, 558 U.S. 310 (2010)",
-    "Obergefell v. Hodges, 576 U.S. 644 (2015)",
-]
+# Remove LANDMARK_CASES and any tests that use it
 
 COURTLISTENER_CASES = [
     "United States v. Windsor, 570 U.S. 744 (2013)",
@@ -471,10 +460,6 @@ def main():
 
     # Initialize results list
     all_results = []
-
-    # Test landmark cases
-    landmark_results = run_tests_for_type(LANDMARK_CASES, "Landmark")
-    all_results.extend(landmark_results)
 
     # Test CourtListener cases
     courtlistener_results = run_tests_for_type(COURTLISTENER_CASES, "CourtListener")

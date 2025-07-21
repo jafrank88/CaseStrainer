@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Install libmagic for python-magic
+RUN apt-get update && apt-get install -y libmagic1
+
 # Create non-root user first
 RUN useradd --create-home --shell /bin/bash app
 
@@ -28,6 +31,9 @@ RUN rm -f requirements.txt
 
 # Now copy the rest of the code as app user
 COPY --chown=app:app . .
+
+# Ensure /app/logs exists and is owned by app user
+RUN mkdir -p /app/logs && chown app:app /app/logs
 
 # Switch to app user and install Python dependencies
 RUN pip --version && pip install --no-cache-dir -r requirements.txt --verbose

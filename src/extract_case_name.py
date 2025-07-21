@@ -38,7 +38,7 @@ from bs4 import BeautifulSoup
 import json
 
 # Set up debug logging
-logging.basicConfig(filename='case_name_debug.log', level=logging.DEBUG, 
+logging.basicConfig(filename='logs/case_name_debug.log', level=logging.DEBUG, 
                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Set up module logger
@@ -1889,5 +1889,4 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
     
     return result
 
-from src.case_name_extraction_core import extract_case_name_fixed_comprehensive as extract_case_name_fixed
 from src.canonical_case_name_service import log_fallback_usage

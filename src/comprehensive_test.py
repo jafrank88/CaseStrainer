@@ -186,7 +186,7 @@ def test_file_upload() -> TestResult:
             return processing_result
 
         # Test all output tabs
-        tabs_result = test_all_tabs(analysis_id, "file upload")
+        tabs_result = check_all_tabs(analysis_id, "file upload")
         return TestResult(
             success=tabs_result.success,
             message="File upload test completed",
@@ -236,7 +236,7 @@ def test_text_paste() -> TestResult:
             return processing_result
 
         # Test all output tabs
-        tabs_result = test_all_tabs(analysis_id, "text paste")
+        tabs_result = check_all_tabs(analysis_id, "text paste")
         return TestResult(
             success=tabs_result.success,
             message="Text paste test completed",
@@ -279,7 +279,7 @@ def test_url_input() -> TestResult:
             return processing_result
 
         # Test all output tabs
-        tabs_result = test_all_tabs(analysis_id, "URL input")
+        tabs_result = check_all_tabs(analysis_id, "URL input")
         return TestResult(
             success=tabs_result.success,
             message="URL input test completed",
@@ -290,8 +290,9 @@ def test_url_input() -> TestResult:
         return TestResult(success=False, message="Error in URL input test", error=e)
 
 
+# Rename helper functions to avoid pytest collection
 @retry_on_failure
-def test_verified_tab(analysis_id: str) -> TestResult:
+def check_verified_tab(analysis_id: str) -> TestResult:
     """Test the Verified Citations tab."""
     logger.info("Testing Verified Citations tab...")
     try:
@@ -324,7 +325,7 @@ def test_verified_tab(analysis_id: str) -> TestResult:
 
 
 @retry_on_failure
-def test_unconfirmed_tab(analysis_id: str) -> TestResult:
+def check_unconfirmed_tab(analysis_id: str) -> TestResult:
     """Test the Unconfirmed Citations tab."""
     logger.info("Testing Unconfirmed Citations tab...")
     try:
@@ -357,7 +358,7 @@ def test_unconfirmed_tab(analysis_id: str) -> TestResult:
 
 
 @retry_on_failure
-def test_courtlistener_tab(analysis_id: str) -> TestResult:
+def check_courtlistener_tab(analysis_id: str) -> TestResult:
     """Test the CourtListener Cases tab."""
     logger.info("Testing CourtListener Cases tab...")
     try:
@@ -390,7 +391,7 @@ def test_courtlistener_tab(analysis_id: str) -> TestResult:
 
 
 @retry_on_failure
-def test_courtlistener_gaps_tab(analysis_id: str) -> TestResult:
+def check_courtlistener_gaps_tab(analysis_id: str) -> TestResult:
     """Test the CourtListener Gaps tab."""
     logger.info("Testing CourtListener Gaps tab...")
     try:
@@ -423,7 +424,7 @@ def test_courtlistener_gaps_tab(analysis_id: str) -> TestResult:
 
 
 @retry_on_failure
-def test_google_scholar_tab(analysis_id: str) -> TestResult:
+def check_google_scholar_tab(analysis_id: str) -> TestResult:
     """Test the Google Scholar Cases tab."""
     logger.info("Testing Google Scholar Cases tab...")
     try:
@@ -455,18 +456,18 @@ def test_google_scholar_tab(analysis_id: str) -> TestResult:
         )
 
 
-def test_all_tabs(analysis_id: str, input_method: str) -> TestResult:
+def check_all_tabs(analysis_id: str, input_method: str) -> TestResult:
     """Test all output tabs for a given analysis ID."""
     logger.info(f"\nTesting all output tabs for {input_method}...")
 
     success = True
     tab_results = {}
     tabs = {
-        "Verified Citations": test_verified_tab,
-        "Unconfirmed Citations": test_unconfirmed_tab,
-        "CourtListener Cases": test_courtlistener_tab,
-        "CourtListener Gaps": test_courtlistener_gaps_tab,
-        "Google Scholar Cases": test_google_scholar_tab,
+        "Verified Citations": check_verified_tab,
+        "Unconfirmed Citations": check_unconfirmed_tab,
+        "CourtListener Cases": check_courtlistener_tab,
+        "CourtListener Gaps": check_courtlistener_gaps_tab,
+        "Google Scholar Cases": check_google_scholar_tab,
     }
 
     for tab_name, test_func in tabs.items():
