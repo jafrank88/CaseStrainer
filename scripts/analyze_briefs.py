@@ -14,7 +14,7 @@ import re
 # Import CaseStrainer functions
 from file_utils import extract_text_from_file
 from app_final_vue import extract_citations
-from multi_source_verifier import MultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 # Constants
 BRIEFS_DIR = "downloaded_briefs"
@@ -217,7 +217,7 @@ def main():
     print("Starting Supreme Court Brief Citation Analyzer...")
 
     # Create a MultiSourceVerifier
-    verifier = MultiSourceVerifier()
+    verifier = EnhancedMultiSourceVerifier()
 
     # Load briefs from CSV
     briefs = load_briefs_from_csv()

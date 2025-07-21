@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 def test_process_courtlistener_result():
     """Test the _process_courtlistener_result method directly."""

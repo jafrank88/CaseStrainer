@@ -36,7 +36,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import from config with absolute path
-from config import ALLOWED_EXTENSIONS
+from src.config import ALLOWED_EXTENSIONS
 
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)

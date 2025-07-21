@@ -35,38 +35,39 @@ def test_email():
     print(f"Default sender: {app.config['MAIL_DEFAULT_SENDER']}")
 
     try:
-        # Create message
-        recipient = "jafrank@uw.edu"
-        print(f"Preparing email to: {recipient}")
+        with app.app_context():
+            # Create message
+            recipient = "jafrank@uw.edu"
+            print(f"Preparing email to: {recipient}")
 
-        msg = Message(
-            subject="Test Email from CaseStrainer (Flask-Mail)",
-            recipients=[recipient],
-            html="""
-            <h2>This is a test email from CaseStrainer</h2>
-            <p>If you're reading this, the Flask-Mail configuration is working correctly with UW SMTP!</p>
-            """,
-        )
+            msg = Message(
+                subject="Test Email from CaseStrainer (Flask-Mail)",
+                recipients=[recipient],
+                html="""
+                <h2>This is a test email from CaseStrainer</h2>
+                <p>If you're reading this, the Flask-Mail configuration is working correctly with UW SMTP!</p>
+                """,
+            )
 
-        print("Sending email...")
-        mail.send(msg)
-        print("✅ Email sent successfully!")
+            print("Sending email...")
+            mail.send(msg)
+            print("✅ Email sent successfully!")
 
-        return jsonify(
-            {
-                "status": "success",
-                "message": "Test email sent successfully!",
-                "details": {
-                    "server": app.config["MAIL_SERVER"],
-                    "port": app.config["MAIL_PORT"],
-                    "username": app.config["MAIL_USERNAME"],
-                    "sender": app.config["MAIL_DEFAULT_SENDER"],
-                    "recipient": recipient,
-                    "tls": app.config["MAIL_USE_TLS"],
-                    "ssl": app.config["MAIL_USE_SSL"],
-                },
-            }
-        )
+            return jsonify(
+                {
+                    "status": "success",
+                    "message": "Test email sent successfully!",
+                    "details": {
+                        "server": app.config["MAIL_SERVER"],
+                        "port": app.config["MAIL_PORT"],
+                        "username": app.config["MAIL_USERNAME"],
+                        "sender": app.config["MAIL_DEFAULT_SENDER"],
+                        "recipient": recipient,
+                        "tls": app.config["MAIL_USE_TLS"],
+                        "ssl": app.config["MAIL_USE_SSL"],
+                    },
+                }
+            )
 
     except Exception as e:
         error_msg = f"❌ Failed to send email: {str(e)}"

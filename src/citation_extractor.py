@@ -42,7 +42,7 @@ except ImportError:
     EYECITE_AVAILABLE = False
 
 # Updated: Use the unified verify_citation from enhanced_multi_source_verifier
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
 from src.extract_case_name import (
     extract_case_name_triple_from_text, 
     extract_case_name_from_context_unified,

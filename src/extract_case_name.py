@@ -1890,3 +1890,4 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
     return result
 
 from src.canonical_case_name_service import log_fallback_usage
+from src.citation_utils_consolidated import normalize_citation, generate_citation_variants

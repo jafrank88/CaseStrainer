@@ -5,6 +5,7 @@ Test script for Phase 3 advanced ComprehensiveWebSearchEngine features
 
 import asyncio
 from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+from src.citation_utils_consolidated import generate_citation_variants
 
 async def test_phase3_features():
     """Test the Phase 3 advanced engine features."""
@@ -91,7 +92,7 @@ async def test_phase3_features():
     print("\n4. Testing Full Integration:")
     
     # Test enhanced citation normalization (Phase 1)
-    variants = engine.citation_normalizer.generate_variants(test_citation)
+    variants = generate_citation_variants(test_citation)
     print(f"   Enhanced citation variants: {len(variants)} generated")
     
     # Test semantic matching (Phase 2)

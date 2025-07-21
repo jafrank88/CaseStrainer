@@ -8,7 +8,7 @@ import os
 import time
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 import logging
 
 # Set up logging

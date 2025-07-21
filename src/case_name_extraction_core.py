@@ -9,6 +9,8 @@ from typing import Dict, Optional, Tuple, List, Any
 from datetime import datetime
 from dataclasses import dataclass
 import warnings
+from src.extract_case_name import extract_case_name_from_text
+from src.extract_case_name import extract_case_name_hinted
 
 logger = logging.getLogger(__name__)
 
@@ -546,6 +548,17 @@ class DateExtractor:
 
 # Global date extractor instance
 date_extractor = DateExtractor()
+
+def extract_year_from_line(line):
+    """Extract a year from a line of text, looking for (YYYY) or any 4-digit year."""
+    import re
+    match = re.search(r'\((19|20)\d{2}\)', line)
+    if match:
+        return match.group(1)
+    match = re.search(r'(19|20)\d{2}', line)
+    if match:
+        return match.group(0)
+    return ""
 
 def test_streamlined_extractor():
     """Test the streamlined extractor"""

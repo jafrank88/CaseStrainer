@@ -11,7 +11,7 @@ import json
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 from web_search_extractor import WebSearchExtractor
 
 def test_extractor():

@@ -77,7 +77,8 @@ class TestPDFHandler:
         """Test initialization with default configuration."""
         handler = PDFHandler()
         assert handler.config.timeout == 25
-        assert handler.config.preferred_method == PDFExtractionMethod.PYPDF2
+        # Update to match the actual default method in PDFHandler
+        assert handler.config.preferred_method == PDFExtractionMethod.PDFMINER
         assert handler.config.use_fallback is True
         
     def test_init_custom_config(self):

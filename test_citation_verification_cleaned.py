@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.append('src')
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 import logging
 
 # Set up logging

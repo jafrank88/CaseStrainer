@@ -874,7 +874,7 @@ function Show-ContainerLogs {
         Write-Host ""
 
         Write-Host "Backend logs:" -ForegroundColor Yellow
-        $backendLogs = docker-compose -f $dockerComposeFile logs --tail=20 backend-prod 2>$null
+        $backendLogs = docker-compose -f $dockerComposeFile logs --tail=20 backend 2>$null
         if ($backendLogs) {
             Write-Host $backendLogs -ForegroundColor White
         } else {
@@ -882,7 +882,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nRQ Worker logs:" -ForegroundColor Yellow
-        $workerLogs = docker-compose -f $dockerComposeFile logs --tail=20 rqworker-prod 2>$null
+        $workerLogs = docker-compose -f $dockerComposeFile logs --tail=20 rqworker 2>$null
         if ($workerLogs) {
             Write-Host $workerLogs -ForegroundColor White
         } else {
@@ -890,7 +890,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nRedis logs:" -ForegroundColor Yellow
-        $redisLogs = docker-compose -f $dockerComposeFile logs --tail=10 redis-prod 2>$null
+        $redisLogs = docker-compose -f $dockerComposeFile logs --tail=10 redis 2>$null
         if ($redisLogs) {
             Write-Host $redisLogs -ForegroundColor White
         } else {
@@ -898,7 +898,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nNginx logs:" -ForegroundColor Yellow
-        $nginxLogs = docker-compose -f $dockerComposeFile logs --tail=10 nginx-prod 2>$null
+        $nginxLogs = docker-compose -f $dockerComposeFile logs --tail=10 nginx 2>$null
         if ($nginxLogs) {
             Write-Host $nginxLogs -ForegroundColor White
         } else {
@@ -1250,7 +1250,7 @@ function Start-DockerProduction {
                         try {
                             # First try to restart specific services
                             Write-Host "Restarting backend and worker containers..." -ForegroundColor Gray
-                            docker-compose -f $dockerComposeFile restart backend-prod rqworker-prod 2>$null
+                            docker-compose -f $dockerComposeFile restart backend rqworker 2>$null
                             Start-Sleep -Seconds 15
 
                             # Try health check again with shorter timeout

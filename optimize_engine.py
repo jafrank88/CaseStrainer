@@ -8,6 +8,7 @@ import time
 import json
 from typing import List
 from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+from src.citation_utils_consolidated import generate_citation_variants, normalize_citation
 
 class EngineOptimizer:
     """Optimizer for the enhanced ComprehensiveWebSearchEngine."""
@@ -71,12 +72,12 @@ class EngineOptimizer:
         start_time = time.time()
         
         for case in test_cases:
-            variants = self.engine.citation_normalizer.generate_variants(case['citation'])
+            variants = generate_citation_variants(case['citation'])
             total_variants += len(variants)
             
             # Test normalization speed
             for _ in range(100):  # Stress test
-                self.engine.citation_normalizer.normalize_citation(case['citation'])
+                normalize_citation(case['citation'])
         
         end_time = time.time()
         duration = end_time - start_time
@@ -307,7 +308,7 @@ class EngineOptimizer:
         start_time = time.time()
         for case in test_cases:
             for _ in range(100):
-                self.engine.citation_normalizer.generate_variants(case['citation'])
+                generate_citation_variants(case['citation'])
         citation_time = time.time() - start_time
         
         # Benchmark 2: Semantic matching

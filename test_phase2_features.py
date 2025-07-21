@@ -5,6 +5,7 @@ Test script for Phase 2 enhanced ComprehensiveWebSearchEngine features
 
 import asyncio
 from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+from src.citation_utils_consolidated import generate_citation_variants
 
 async def test_phase2_features():
     """Test the Phase 2 enhanced engine features."""
@@ -79,7 +80,7 @@ async def test_phase2_features():
     # Test 4: Enhanced Citation Normalization (Phase 1 + 2)
     print("\n4. Testing Enhanced Citation Normalization:")
     test_citation = "200 Wn.2d 72"
-    variants = engine.citation_normalizer.generate_variants(test_citation)
+    variants = generate_citation_variants(test_citation)
     print(f"   Original: {test_citation}")
     print(f"   Generated {len(variants)} enhanced variants")
     

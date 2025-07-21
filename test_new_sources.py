@@ -10,7 +10,7 @@ import os
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
 
 async def test_new_sources():
     """Test the new search sources."""

@@ -4,6 +4,7 @@ Test script for enhanced ComprehensiveWebSearchEngine features
 """
 
 from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+from src.citation_utils_consolidated import generate_citation_variants
 
 def test_enhanced_features():
     """Test the enhanced engine features."""
@@ -16,7 +17,7 @@ def test_enhanced_features():
     # Test 1: Enhanced Citation Normalization
     print("\n1. Testing Enhanced Citation Normalization:")
     test_citation = "200 Wn.2d 72"
-    variants = engine.citation_normalizer.generate_variants(test_citation)
+    variants = generate_citation_variants(test_citation)
     print(f"   Original: {test_citation}")
     print(f"   Generated {len(variants)} variants:")
     for i, variant in enumerate(variants[:5]):  # Show first 5
