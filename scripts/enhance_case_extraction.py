@@ -21,6 +21,34 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from case_name_extraction_core import extract_case_name_triple_comprehensive
 from src.file_utils import extract_text_from_file
 
+def extract_context_around_citation(text, pos, length):
+    """Extract context around a citation using isolation-aware logic."""
+    start = pos
+    end = pos + length
+    context_start = max(0, start - 300)
+    context_end = min(len(text), end + 100)
+    context_text = text[context_start:context_end]
+    import re
+    citation_patterns = [
+        r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',
+        r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',
+    ]
+    last_citation_pos = 0
+    for pattern in citation_patterns:
+        matches = list(re.finditer(pattern, context_text))
+        for match in matches:
+            if match.end() < (start - context_start):
+                last_citation_pos = max(last_citation_pos, match.end())
+    if last_citation_pos > 0:
+        sentence_pattern = re.compile(r'\.\s+[A-Z]')
+        sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+        if sentence_matches:
+            adjusted_start = context_start + sentence_matches[0].start() + 1
+            context_start = max(context_start, adjusted_start)
+        else:
+            context_start = max(context_start, context_start + last_citation_pos)
+    return text[context_start:context_end]
+
 class EnhancedCaseExtractor:
     """Enhanced case name extraction for documents without ToA."""
     

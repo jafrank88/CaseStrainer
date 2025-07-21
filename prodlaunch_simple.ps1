@@ -5,10 +5,7 @@
 param(
     [Parameter(Position = 0)]
     [ValidateSet("Menu", "Production", "Diagnostics")]
-    [string]$Mode = "Menu",
-    
-    [Parameter()]
-    [switch]$AutoRestart
+    [string]$Mode = "Menu"
 )
 
 # Set error action preference
@@ -55,6 +52,7 @@ function Show-Menu {
 
 function Start-DockerProduction {
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([System.Boolean])]
     param()
     
     if (-not $PSCmdlet.ShouldProcess("Docker Production Environment", "Start")) {
@@ -95,7 +93,6 @@ function Start-DockerProduction {
             
             # Run npm install with real-time output
             $installJob = Start-Job -ScriptBlock {
-                param($Using:VueDir)
                 Set-Location $Using:VueDir
                 & npm install 2>&1
             } -ArgumentList $vueDir
@@ -133,7 +130,6 @@ function Start-DockerProduction {
             
             # Run npm build with real-time output
             $buildJob = Start-Job -ScriptBlock {
-                param($Using:VueDir)
                 Set-Location $Using:VueDir
                 & npm run build 2>&1
             } -ArgumentList $vueDir
@@ -182,7 +178,6 @@ function Start-DockerProduction {
         
         # Start containers in background and show progress
         $startJob = Start-Job -ScriptBlock {
-            param($Using:DockerComposeFile, $Using:WorkingDir)
             Set-Location $Using:WorkingDir
             & docker-compose -f $Using:DockerComposeFile up -d --build 2>&1
         } -ArgumentList $dockerComposeFile, $PSScriptRoot

@@ -5,6 +5,15 @@ Uses reliable ToA parser for ToA sections and unified processor for main body.
 Highlights differences in case names and years.
 """
 
+# DEPRECATED: This file has been consolidated into src/toa_utils_consolidated.py
+# Please use: from src.toa_utils_consolidated import quick_toa_vs_body_comparison, normalize_text, compare_citations
+import warnings
+warnings.warn(
+    "quick_toa_vs_body_comparison.py is deprecated. Use toa_utils_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import os
 import sys
 import re
@@ -52,7 +61,15 @@ def extract_toa_section(text: str) -> str:
     return '\n'.join(lines[start:end])
 
 def normalize_text(text: str) -> str:
-    """Normalize text for comparison."""
+    """
+    DEPRECATED: Use isolation-aware text normalization logic instead.
+    Normalize text for comparison.
+    """
+    warnings.warn(
+        "normalize_text is deprecated. Use isolation-aware text normalization instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     if not text:
         return ""
     return re.sub(r'\s+', ' ', text.strip().lower())

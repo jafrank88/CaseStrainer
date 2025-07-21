@@ -298,13 +298,35 @@ class EnhancedAdaptiveProcessor:
         }
     
     def _extract_context_around_citation(self, text: str, citation) -> str:
-        """Extract context around a citation for analysis."""
-        start = getattr(citation, 'start_index', 0) or 0
-        end = getattr(citation, 'end_index', len(text)) or len(text)
-        
-        context_start = max(0, start - 100)
+        """Extract context around a citation for analysis using isolation-aware logic."""
+        start = citation.start_index or 0
+        end = citation.end_index or len(text)
+
+        # Use a larger window and avoid cross-contamination
+        context_start = max(0, start - 300)
         context_end = min(len(text), end + 100)
-        
+        context_text = text[context_start:context_end]
+
+        # Look for citation patterns that might indicate other cases
+        import re
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+        ]
+        last_citation_pos = 0
+        for pattern in citation_patterns:
+            matches = list(re.finditer(pattern, context_text))
+            for match in matches:
+                if match.end() < (start - context_start):
+                    last_citation_pos = max(last_citation_pos, match.end())
+        if last_citation_pos > 0:
+            sentence_pattern = re.compile(r'\.\s+[A-Z]')
+            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+            if sentence_matches:
+                adjusted_start = context_start + sentence_matches[0].start() + 1
+                context_start = max(context_start, adjusted_start)
+            else:
+                context_start = max(context_start, context_start + last_citation_pos)
         return text[context_start:context_end]
     
     def _suggest_pattern_from_context(self, context: str) -> Optional[str]:

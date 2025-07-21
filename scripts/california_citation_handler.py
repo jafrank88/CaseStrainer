@@ -261,6 +261,35 @@ class CaliforniaCitationHandler:
         return variations
 
 
+def extract_context_around_citation(text, match):
+    """Extract context around a citation using isolation-aware logic."""
+    start = match.start()
+    end = match.end()
+    context_start = max(0, start - 300)
+    context_end = min(len(text), end + 100)
+    context_text = text[context_start:context_end]
+    import re
+    citation_patterns = [
+        r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',
+        r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',
+    ]
+    last_citation_pos = 0
+    for pattern in citation_patterns:
+        matches = list(re.finditer(pattern, context_text))
+        for m in matches:
+            if m.end() < (start - context_start):
+                last_citation_pos = max(last_citation_pos, m.end())
+    if last_citation_pos > 0:
+        sentence_pattern = re.compile(r'\.\s+[A-Z]')
+        sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+        if sentence_matches:
+            adjusted_start = context_start + sentence_matches[0].start() + 1
+            context_start = max(context_start, adjusted_start)
+        else:
+            context_start = max(context_start, context_start + last_citation_pos)
+    return text[context_start:context_end]
+
+
 def test_california_citation_handler():
     """Test the California citation handler."""
     handler = CaliforniaCitationHandler()

@@ -586,7 +586,12 @@ class EnhancedDocumentProcessor:
             }
 
     def _fallback_extraction(self, text: str) -> List[Dict]:
-        """Fallback extraction using original processor."""
+        """Fallback extraction using original processor (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_fallback_extraction is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             # DEPRECATED: from .citation_extractor import CitationExtractor
             extractor = CitationExtractor(
@@ -1248,7 +1253,12 @@ class EnhancedDocumentProcessor:
             }
 
     def _fallback_extraction(self, text: str) -> List[Dict]:
-        """Fallback extraction using original processor."""
+        """Fallback extraction using original processor (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_fallback_extraction is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             # DEPRECATED: from .citation_extractor import CitationExtractor
             extractor = CitationExtractor(
@@ -1390,8 +1400,14 @@ def extract_text_from_url(url: str) -> str:
 # For backward compatibility with existing verification function
 def verify_citations_with_fallback(citations: List[Dict], text: str) -> List[Dict]:
     """
+    DEPRECATED: Use isolation-aware verification logic instead.
     Maintain compatibility with existing verification logic.
     """
+    warnings.warn(
+        "verify_citations_with_fallback is deprecated. Use isolation-aware verification instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
     
     logger.info(f"[VERIFY] Starting verification of {len(citations)} citations")

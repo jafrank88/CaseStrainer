@@ -17,7 +17,7 @@ def test_citation_normalization():
     # Test different normalization functions
     try:
         # Test 1: citation_normalizer.py
-        from src.citation_normalizer import normalize_citation
+        from src.citation_utils_consolidated import normalize_citation
         normalized1 = normalize_citation(citation)
         print(f"1. citation_normalizer.normalize_citation: '{normalized1}'")
         

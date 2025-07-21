@@ -1,3 +1,12 @@
+# DEPRECATED: This file has been consolidated into src/test_utilities_consolidated.py
+# Please use: from src.test_utilities_consolidated import get_local_ip, start_simple_server, SimpleTestServer
+import warnings
+warnings.warn(
+    "simple_server.py is deprecated. Use test_utilities_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import socket
 

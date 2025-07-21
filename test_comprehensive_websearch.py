@@ -27,7 +27,7 @@ def test_comprehensive_websearch():
             print(f"  {i+1}. {query['query']} (Priority: {query['priority']}, Type: {query['type']})")
         
         print("\nTesting citation variants:")
-        from src.citation_normalizer import generate_citation_variants
+        from src.citation_utils_consolidated import generate_citation_variants
         citation_variants = generate_citation_variants('200 Wn.2d 72')
         print(f"Citation variants for '200 Wn.2d 72':")
         for variant in citation_variants:

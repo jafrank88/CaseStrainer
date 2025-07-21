@@ -27,6 +27,7 @@ import unicodedata
 import os
 import collections
 from collections import defaultdict, deque
+import warnings
 
 # Import the main config module for proper environment variable handling
 from src.config import get_config_value
@@ -56,6 +57,12 @@ except ImportError:
 # Import LegalWebSearchEngine from websearch_utils.py
 from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
 
+# Import citation utilities from consolidated module
+try:
+    from src.citation_utils_consolidated import normalize_citation, generate_citation_variants
+except ImportError:
+    from citation_utils_consolidated import normalize_citation, generate_citation_variants
+
 # Date extraction is now handled by the streamlined API functions
 
 # Import individual extraction functions
@@ -63,8 +70,6 @@ try:
     from src.case_name_extraction_core import extract_case_name_only, extract_year_only
 except ImportError:
     from case_name_extraction_core import extract_case_name_only, extract_year_only
-
-from src.citation_normalizer import normalize_citation, generate_citation_variants
 
 @dataclass
 class CitationResult:
@@ -659,7 +664,8 @@ class UnifiedCitationProcessorV2:
             websearch_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
             logger.info(f"[LEGAL_WEBSEARCH] Successfully initialized ComprehensiveWebSearchEngine")
         except Exception as e:
-            logger.error(f"[LEGAL_WEBSEARCH] Failed to initialize ComprehensiveWebSearchEngine: {e}")
+            logger.warning(f"[LEGAL_WEBSEARCH] Failed to initialize ComprehensiveWebSearchEngine: {e}")
+            logger.info(f"[LEGAL_WEBSEARCH] Continuing without websearch functionality")
             return
         
         # Group citations by cluster to try all citations in each cluster together
@@ -1388,9 +1394,29 @@ class UnifiedCitationProcessorV2:
             # Use isolated context to prevent cross-contamination between citations
             context_start, context_end = self._get_isolated_context(text, citation, all_citations)
             if context_start is None or context_end is None:
-                # Fallback to smaller fixed window if isolation fails
-                context_start = max(0, citation.start_index - 100)  # Reduced from 150
-                context_end = min(len(text), citation.end_index + 50)
+                # Fallback to smaller fixed window if isolation fails, but still try to avoid other citations
+                fallback_start = max(0, citation.start_index - 200)  # Increased from 100 for better coverage
+                fallback_end = min(len(text), citation.end_index + 100)  # Increased from 50 for year extraction
+                
+                # If we have other citations, try to avoid them even in fallback
+                if all_citations:
+                    # Find the closest previous citation and start after it
+                    prev_citation = None
+                    for other_citation in all_citations:
+                        if (other_citation.start_index and 
+                            other_citation.start_index < citation.start_index and
+                            (prev_citation is None or other_citation.start_index > prev_citation.start_index)):
+                            prev_citation = other_citation
+                    
+                    if prev_citation and prev_citation.end_index:
+                        # Start after the previous citation ends
+                        context_start = max(fallback_start, prev_citation.end_index)
+                    else:
+                        context_start = fallback_start
+                else:
+                    context_start = fallback_start
+                
+                context_end = fallback_end
             
             context = text[context_start:context_end]
             logger.debug(f"[DEBUG] Context for '{citation.citation}' (pos {citation.start_index}-{citation.end_index}): '{context[:100]}...'")
@@ -1446,7 +1472,15 @@ class UnifiedCitationProcessorV2:
             return None
     
     def _extract_case_name_with_cluster_fallback(self, text: str, citation: CitationResult, all_citations: List[CitationResult] = None) -> Optional[str]:
-        """Extract case name with fallback to cluster's primary citation case name."""
+        """
+        DEPRECATED: Use isolation-aware case name extraction logic instead.
+        Extract case name with fallback to cluster's primary citation case name.
+        """
+        warnings.warn(
+            "_extract_case_name_with_cluster_fallback is deprecated. Use isolation-aware case name extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         # First try the normal extraction
         case_name = self._extract_case_name_from_context(text, citation, all_citations)
         
@@ -1560,8 +1594,24 @@ class UnifiedCitationProcessorV2:
                     if year_matches:
                         context_start = year_matches[-1].end()
                     else:
-                        # Fallback: use a reasonable window before the citation
-                        context_start = max(0, citation.start_index - 100)
+                        # Fallback: use a reasonable window before the citation, but check for other citations
+                        potential_start = max(0, citation.start_index - 300)  # Increased from 100
+                        
+                        # Look for any citation patterns in the potential context area
+                        citation_patterns = [
+                            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+                            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+                        ]
+                        
+                        # Find the last citation before our target citation
+                        last_citation_pos = potential_start
+                        for pattern in citation_patterns:
+                            matches = list(re.finditer(pattern, text[potential_start:citation.start_index]))
+                            if matches:
+                                last_match = matches[-1]
+                                last_citation_pos = max(last_citation_pos, potential_start + last_match.end())
+                        
+                        context_start = last_citation_pos
             else:
                 # No other citations, use year boundary or fallback
                 year_pattern = re.compile(r'\((19|20)\d{2}\)')
@@ -1569,7 +1619,24 @@ class UnifiedCitationProcessorV2:
                 if year_matches:
                     context_start = year_matches[-1].end()
                 else:
-                    context_start = max(0, citation.start_index - 100)
+                    # Fallback: use a reasonable window before the citation, but check for other citations
+                    potential_start = max(0, citation.start_index - 300)  # Increased from 100
+                    
+                    # Look for any citation patterns in the potential context area
+                    citation_patterns = [
+                        r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+                        r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+                    ]
+                    
+                    # Find the last citation before our target citation
+                    last_citation_pos = potential_start
+                    for pattern in citation_patterns:
+                        matches = list(re.finditer(pattern, text[potential_start:citation.start_index]))
+                        if matches:
+                            last_match = matches[-1]
+                            last_citation_pos = max(last_citation_pos, potential_start + last_match.end())
+                    
+                    context_start = last_citation_pos
         
         # Find the next citation to end context
         context_end = len(text)
@@ -1639,6 +1706,49 @@ class UnifiedCitationProcessorV2:
         logger.debug(f"[DEBUG] Isolated context for '{citation.citation}': {context_start}-{context_end} (size: {context_end - context_start})")
         
         return context_start, context_end
+    
+    def _get_isolated_context_for_citation(self, text: str, citation_start: int, citation_end: int, all_citations: List[CitationResult] = None) -> tuple[Optional[int], Optional[int]]:
+        """Get isolated context boundaries for a citation using start/end positions."""
+        # Create a temporary CitationResult for compatibility
+        temp_citation = CitationResult(
+            citation=text[citation_start:citation_end],
+            start_index=citation_start,
+            end_index=citation_end
+        )
+        return self._get_isolated_context(text, temp_citation, all_citations)
+    
+    def extract_date_from_context_isolated(self, text: str, citation_start: int, citation_end: int) -> Optional[str]:
+        """Extract date using isolated context to prevent cross-contamination."""
+        try:
+            # Use isolated context extraction
+            context_start, context_end = self._get_isolated_context_for_citation(text, citation_start, citation_end)
+            if context_start is None or context_end is None:
+                # Fallback to reasonable window
+                context_start = max(0, citation_start - 200)
+                context_end = min(len(text), citation_end + 100)
+            
+            context = text[context_start:context_end]
+            
+            # Find year patterns
+            year_patterns = [
+                r'\((\d{4})\)',  # (2022)
+                r',\s*(\d{4})\s*(?=[A-Z]|$)',  # , 2022
+                r'\b(19|20)\d{2}\b',  # Simple 4-digit year
+            ]
+            
+            for pattern in year_patterns:
+                match = re.search(pattern, context)
+                if match:
+                    if pattern.endswith(r'\b'):
+                        return match.group(0)
+                    else:
+                        return match.group(1)
+            
+            return None
+            
+        except Exception as e:
+            logger.debug(f"Error extracting date from isolated context: {e}")
+            return None
     
     def _extract_case_name_candidates(self, text: str) -> List[str]:
         """Extract 1-4 word candidates before 'v.' pattern."""
@@ -1711,17 +1821,22 @@ class UnifiedCitationProcessorV2:
         return intersection / union
     
     def _extract_date_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
-        """Extract date from context around citation using IMPROVED DateExtractor."""
+        """Extract date from context around citation using IMPROVED DateExtractor with isolation."""
         if not citation.start_index:
             return None
         
         try:
-            # Use the streamlined year extraction function
+            # Use the streamlined year extraction function with isolated context
             try:
                 from src.case_name_extraction_core import extract_year_only
-                # Create context around the citation
-                context_start = max(0, citation.start_index - 80)
-                context_end = min(len(text), citation.end_index + 40)
+                
+                # Use isolated context to prevent cross-contamination
+                context_start, context_end = self._get_isolated_context(text, citation, None)
+                if context_start is None or context_end is None:
+                    # Fallback to reasonable window if isolation fails
+                    context_start = max(0, citation.start_index - 200)  # Increased from 80
+                    context_end = min(len(text), citation.end_index + 100)  # Increased from 40
+                
                 context = text[context_start:context_end]
                 
                 # Calculate citation position in context
@@ -1735,10 +1850,13 @@ class UnifiedCitationProcessorV2:
                 return year_str if year_str else None
                 
             except ImportError:
-                # Fallback to simple year extraction
-                # Look for year patterns in context around citation
-                context_start = max(0, citation.start_index - 100)
-                context_end = min(len(text), citation.end_index + 100)
+                # Fallback to simple year extraction with isolated context
+                context_start, context_end = self._get_isolated_context(text, citation, None)
+                if context_start is None or context_end is None:
+                    # Fallback to reasonable window if isolation fails
+                    context_start = max(0, citation.start_index - 200)  # Increased from 100
+                    context_end = min(len(text), citation.end_index + 100)
+                
                 context = text[context_start:context_end]
                 
                 # Find year patterns
@@ -1821,9 +1939,43 @@ class UnifiedCitationProcessorV2:
         return True
     
     def _extract_context(self, text: str, start: int, end: int) -> str:
-        """Extract context around a citation."""
-        context_start = max(0, start - 150)
-        context_end = min(len(text), end + 150)
+        """Extract context around a citation with improved isolation."""
+        # Use larger context window for better extraction
+        context_start = max(0, start - 300)  # Increased from 150
+        context_end = min(len(text), end + 100)  # Increased from 150
+        
+        # Basic citation pattern detection to avoid cross-contamination
+        context_text = text[context_start:context_end]
+        
+        # Look for citation patterns that might indicate other cases
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+        ]
+        
+        # Find the last citation before our target position in the context
+        last_citation_pos = 0
+        target_pos_in_context = start - context_start
+        
+        for pattern in citation_patterns:
+            matches = list(re.finditer(pattern, context_text))
+            for match in matches:
+                # Only consider citations that come before our target position
+                if match.end() < target_pos_in_context:
+                    last_citation_pos = max(last_citation_pos, match.end())
+        
+        # Adjust context start to avoid other citations
+        if last_citation_pos > 0:
+            # Look for sentence boundaries after the last citation
+            sentence_pattern = re.compile(r'\.\s+[A-Z]')
+            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+            if sentence_matches:
+                adjusted_start = context_start + sentence_matches[0].start() + 1
+                context_start = max(context_start, adjusted_start)
+            else:
+                # If no sentence boundary, start after the last citation
+                context_start = max(context_start, context_start + last_citation_pos)
+        
         return text[context_start:context_end].strip()
     
     def _deduplicate_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
@@ -2662,7 +2814,15 @@ class UnifiedCitationProcessorV2:
         return False
 
     def _apply_fallback_clustering(self, citations: List[CitationResult], text: str) -> None:
-        """Apply fallback clustering using the original algorithm."""
+        """
+        DEPRECATED: Use isolation-aware clustering logic instead.
+        Apply fallback clustering using the original algorithm.
+        """
+        warnings.warn(
+            "_apply_fallback_clustering is deprecated. Use isolation-aware clustering instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             # Apply original clustering and update citation metadata
             raw_clusters = cluster_citations_by_citation_and_year(text)
@@ -2774,7 +2934,12 @@ class UnifiedCitationProcessorV2:
             # Step 2: Try legal websearch as fallback
             try:
                 from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
-                websearch_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+                try:
+                    websearch_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+                except Exception as e:
+                    logger.warning(f"[LEGAL_WEBSEARCH] Failed to initialize ComprehensiveWebSearchEngine: {e}")
+                    logger.info(f"[LEGAL_WEBSEARCH] Skipping websearch fallback")
+                    return result
                 
                 # Create a test cluster for the websearch
                 test_cluster = {
@@ -2972,9 +3137,15 @@ def extract_citations_unified(text: str, config: Optional[ProcessingConfig] = No
 
 def extract_case_clusters_by_name_and_year(text: str) -> list:
     """
+    DEPRECATED: Use isolation-aware clustering logic instead.
     Extract clusters of citations between a case name and a year/date.
     Returns a list of dicts: {case_name, year, citations, start, end}
     """
+    warnings.warn(
+        "extract_case_clusters_by_name_and_year is deprecated. Use isolation-aware clustering instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     import re
     clusters = []
     # Regex for case name (e.g., Smith v. Jones, ...)
@@ -3012,10 +3183,16 @@ def extract_case_clusters_by_name_and_year(text: str) -> list:
 
 def cluster_citations_by_citation_and_year(text: str) -> list:
     """
+    DEPRECATED: Use isolation-aware clustering logic instead.
     For each citation, create a cluster that includes all citations between the previous year (or 200 chars back)
     and the next year/date, discarding page/pincites between citations or citation and year.
     Returns a list of dicts: {case_name, year, citations, start, end}
     """
+    warnings.warn(
+        "cluster_citations_by_citation_and_year is deprecated. Use isolation-aware clustering instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     import re
     clusters = []
     # Regex for year in parentheses (e.g., (2011))

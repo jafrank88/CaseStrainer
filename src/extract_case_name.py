@@ -1791,7 +1791,7 @@ def extract_case_name_triple_with_debugging(text: str, citation: str, api_key: s
         if result['case_name'] == "N/A":
             logger.info("=== TRYING FALLBACK EXTRACTION ===")
             try:
-                from src.enhanced_extraction_utils import fallback_extraction_pipeline
+                from src.citation_utils_consolidated import fallback_extraction_pipeline
                 
                 # Find citation position in text
                 citation_pos = text.find(citation)

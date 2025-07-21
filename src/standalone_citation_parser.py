@@ -6,6 +6,7 @@ A simple citation parser that doesn't depend on other modules to avoid circular 
 import re
 import logging
 from typing import Dict, Optional, Any
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +93,37 @@ class CitationParser:
             result['full_citation_found'] = True
             result['matched_citation'] = matched_citation
 
-            # Get context before citation (up to 500 chars)
-            context_start = max(0, citation_index - 500)
+            # Get context before citation with isolation (up to 500 chars)
+            context_start = max(0, citation_index - 500)  # Already good size
+            context_before = text[context_start:citation_index]
+            
+            # Check for other citations in the context area to avoid cross-contamination
+            citation_patterns = [
+                r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+                r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+            ]
+            
+            # Find the last citation before our target citation in the context
+            last_citation_pos = 0
+            for pattern in citation_patterns:
+                matches = list(re.finditer(pattern, context_before))
+                for match in matches:
+                    # Only consider citations that come before our target citation
+                    if match.end() < (citation_index - context_start):
+                        last_citation_pos = max(last_citation_pos, match.end())
+            
+            # Adjust context start to avoid other citations
+            if last_citation_pos > 0:
+                # Look for sentence boundaries after the last citation
+                sentence_pattern = re.compile(r'\.\s+[A-Z]')
+                sentence_matches = list(sentence_pattern.finditer(context_before, last_citation_pos))
+                if sentence_matches:
+                    adjusted_start = context_start + sentence_matches[0].start() + 1
+                    context_start = max(context_start, adjusted_start)
+                else:
+                    # If no sentence boundary, start after the last citation
+                    context_start = max(context_start, context_start + last_citation_pos)
+            
             context_before = text[context_start:citation_index]
 
             logger.info(f"[DEBUG] Citation: '{citation}'")
@@ -225,7 +255,12 @@ class CitationParser:
         return text
     
     def _extract_year_from_context(self, context_before: str, citation: str, context_after: str = None) -> Optional[str]:
-        """Extract year from context before citation, after citation, or citation itself."""
+        """Extract year from context before citation, after citation, or citation itself (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_extract_year_from_context is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             # PRIORITY 1: Look for year in parentheses in the citation itself (most reliable)
             for pattern in self.date_patterns:
@@ -652,9 +687,40 @@ class DateExtractor:
             if citation_index == -1:
                 return self._extract_from_full_text(text)
             
-            # Get context around citation (200 chars before, 100 chars after)
-            context_start = max(0, citation_index - 200)
+            # Get context around citation with isolation (300 chars before, 100 chars after)
+            context_start = max(0, citation_index - 300)  # Increased from 200
             context_end = min(len(text), citation_index + len(citation) + 100)
+            
+            # Check for other citations in the context area to avoid cross-contamination
+            context_text = text[context_start:context_end]
+            
+            # Look for citation patterns that might indicate other cases
+            citation_patterns = [
+                r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+                r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+            ]
+            
+            # Find the last citation before our target citation in the context
+            last_citation_pos = 0
+            for pattern in citation_patterns:
+                matches = list(re.finditer(pattern, context_text))
+                for match in matches:
+                    # Only consider citations that come before our target citation
+                    if match.end() < (citation_index - context_start):
+                        last_citation_pos = max(last_citation_pos, match.end())
+            
+            # Adjust context start to avoid other citations
+            if last_citation_pos > 0:
+                # Look for sentence boundaries after the last citation
+                sentence_pattern = re.compile(r'\.\s+[A-Z]')
+                sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+                if sentence_matches:
+                    adjusted_start = context_start + sentence_matches[0].start() + 1
+                    context_start = max(context_start, adjusted_start)
+                else:
+                    # If no sentence boundary, start after the last citation
+                    context_start = max(context_start, context_start + last_citation_pos)
+            
             context = text[context_start:context_end]
             
             return self._parse_date_patterns(context)
@@ -879,9 +945,40 @@ class DateExtractor:
             if 1800 <= int(year) <= 2030:
                 return f"{year}-01-01"
         
-        # Strategy 3: Look for year in broader context around citation
-        context_start = max(0, citation_start - 100)
+        # Strategy 3: Look for year in broader context around citation with isolation
+        context_start = max(0, citation_start - 200)  # Increased from 100
         context_end = min(len(text), citation_end + 100)
+        
+        # Check for other citations in the context area to avoid cross-contamination
+        context_text = text[context_start:context_end]
+        
+        # Look for citation patterns that might indicate other cases
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+        ]
+        
+        # Find the last citation before our target citation in the context
+        last_citation_pos = 0
+        for pattern in citation_patterns:
+            matches = list(re.finditer(pattern, context_text))
+            for match in matches:
+                # Only consider citations that come before our target citation
+                if match.end() < (citation_start - context_start):
+                    last_citation_pos = max(last_citation_pos, match.end())
+        
+        # Adjust context start to avoid other citations
+        if last_citation_pos > 0:
+            # Look for sentence boundaries after the last citation
+            sentence_pattern = re.compile(r'\.\s+[A-Z]')
+            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+            if sentence_matches:
+                adjusted_start = context_start + sentence_matches[0].start() + 1
+                context_start = max(context_start, adjusted_start)
+            else:
+                # If no sentence boundary, start after the last citation
+                context_start = max(context_start, context_start + last_citation_pos)
+        
         context = text[context_start:context_end]
         
         year_matches = re.findall(r'\((\d{4})\)', context)
@@ -894,9 +991,15 @@ class DateExtractor:
     @staticmethod
     def extract_date_from_context(text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
         """
+        DEPRECATED: Use isolation-aware date extraction logic instead.
         Extract date from context around a citation. Now with expanded patterns and larger window.
         Enhanced: If no date is found by regex, scan the 50 characters after the citation for a 4-digit year in parentheses or after a comma/semicolon.
         """
+        warnings.warn(
+            "extract_date_from_context is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             context_start = max(0, citation_start - context_window)
             context_end = min(len(text), citation_end + context_window)

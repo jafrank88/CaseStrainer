@@ -11,7 +11,7 @@ import json
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from citation_normalizer import generate_citation_variants, normalize_citation
+from src.citation_utils_consolidated import generate_citation_variants, normalize_citation
 
 def test_citation_variants():
     """Test citation variant generation for Washington citations."""

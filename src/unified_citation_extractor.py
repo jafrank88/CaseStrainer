@@ -400,6 +400,7 @@ class UnifiedCitationExtractor:
     
     def extract_citations_simple(self, text: str) -> List[str]:
         """
+        DEPRECATED: Use isolation-aware extraction logic instead.
         Extract citations and return just the citation strings (for backward compatibility).
         
         Args:
@@ -408,6 +409,11 @@ class UnifiedCitationExtractor:
         Returns:
             List of citation strings
         """
+        warnings.warn(
+            "extract_citations_simple is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         results = self.extract_citations(text)
         return [result.citation for result in results]
 

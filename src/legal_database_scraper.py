@@ -333,9 +333,15 @@ class LegalDatabaseScraper:
     
     def _extract_from_google_snippet_fallback(self, url: str) -> Dict[str, str]:
         """
+        DEPRECATED: Use isolation-aware extraction logic instead.
         Extract metadata from Google search result snippets when the actual page is unavailable.
         This is a fallback method for cases where pages return 410, require authentication, etc.
         """
+        warnings.warn(
+            "_extract_from_google_snippet_fallback is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             # For Casetext URLs, we can extract some info from the URL itself
             if 'casetext.com/case/' in url:

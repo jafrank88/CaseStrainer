@@ -1636,7 +1636,15 @@ class EnhancedWebSearcher:
         return await self._fallback_search(citation, case_name)
 
     async def _fallback_search(self, citation: str, case_name: str = None) -> Dict:
-        """Fallback search using simpler methods when all primary methods fail."""
+        """
+        DEPRECATED: Use isolation-aware search logic instead.
+        Fallback search using simpler methods when all primary methods fail.
+        """
+        warnings.warn(
+            "_fallback_search is deprecated. Use isolation-aware search logic instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.logger.info(f"Attempting fallback search for citation: {citation}")
         
         try:

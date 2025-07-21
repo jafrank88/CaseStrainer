@@ -1,0 +1,685 @@
+"""
+Consolidated ToA (Table of Authorities) Utilities
+Combines ToA extraction, normalization, and comparison functions from multiple files.
+"""
+
+import os
+import logging
+from typing import List, Dict, Any, Optional
+from toa_parser import ToAParser
+from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
+# Initialize global instances
+toa_parser = ToAParser()
+citation_processor = UnifiedCitationProcessorV2()
+
+
+def normalize(s: str) -> str:
+    """
+    Simple string normalization for comparison.
+    
+    Args:
+        s: String to normalize
+        
+    Returns:
+        Normalized string (lowercase, stripped)
+    """
+    if not s:
+        return ''
+    return str(s).strip().lower()
+
+
+def extract_toa_section(text: str) -> str:
+    """
+    Extract the Table of Authorities section from text.
+    
+    Args:
+        text: Full document text
+        
+    Returns:
+        Extracted ToA section text
+    """
+    # Use ToAParser's section extraction logic if available, else simple heuristic
+    if hasattr(toa_parser, 'extract_toa_section'):
+        return toa_parser.extract_toa_section(text)
+    
+    # Fallback: look for 'table of authorities' and next blank line
+    lines = text.splitlines()
+    start, end = None, None
+    for i, line in enumerate(lines):
+        if 'table of authorities' in line.lower():
+            start = i
+            break
+    if start is not None:
+        for j in range(start+1, len(lines)):
+            if lines[j].strip() == '':
+                end = j
+                break
+    if start is not None and end is not None:
+        return '\n'.join(lines[start:end])
+    return ''
+
+
+def normalize_text(text: str) -> str:
+    """
+    Normalize text for comparison by removing extra whitespace and standardizing formatting.
+    
+    Args:
+        text: Text to normalize
+        
+    Returns:
+        Normalized text
+    """
+    if not text:
+        return ""
+    
+    # Remove extra whitespace
+    normalized = ' '.join(text.split())
+    
+    # Standardize common abbreviations
+    normalized = normalized.replace('v.', 'v.')
+    normalized = normalized.replace('vs.', 'v.')
+    normalized = normalized.replace('versus', 'v.')
+    
+    # Standardize punctuation
+    normalized = normalized.replace(' ,', ',')
+    normalized = normalized.replace(' .', '.')
+    normalized = normalized.replace(' ;', ';')
+    normalized = normalized.replace(' :', ':')
+    
+    return normalized.strip()
+
+
+def compare_citations(toa_citations: List[Dict], body_citations: List[Dict]) -> Dict[str, Any]:
+    """
+    Compare citations from Table of Authorities vs body text.
+    
+    Args:
+        toa_citations: List of citations from ToA
+        body_citations: List of citations from body text
+        
+    Returns:
+        Dictionary with comparison results
+    """
+    if not toa_citations or not body_citations:
+        return {
+            'total_toa': len(toa_citations),
+            'total_body': len(body_citations),
+            'matches': [],
+            'toa_only': toa_citations,
+            'body_only': body_citations,
+            'match_percentage': 0.0
+        }
+    
+    matches = []
+    toa_only = []
+    body_only = body_citations.copy()
+    
+    # Normalize all citations for comparison
+    normalized_toa = {}
+    for toa_cite in toa_citations:
+        toa_text = toa_cite.get('citation', '')
+        normalized_toa[normalize_text(toa_text)] = toa_cite
+    
+    normalized_body = {}
+    for body_cite in body_citations:
+        body_text = body_cite.get('citation', '')
+        normalized_body[normalize_text(body_text)] = body_cite
+    
+    # Find matches
+    for norm_toa, toa_cite in normalized_toa.items():
+        if norm_toa in normalized_body:
+            body_cite = normalized_body[norm_toa]
+            matches.append({
+                'toa_citation': toa_cite,
+                'body_citation': body_cite,
+                'normalized_text': norm_toa
+            })
+            # Remove from body_only
+            body_only = [cite for cite in body_only if cite != body_cite]
+        else:
+            toa_only.append(toa_cite)
+    
+    # Calculate match percentage
+    total_citations = len(toa_citations) + len(body_citations)
+    match_percentage = (len(matches) * 2 / total_citations * 100) if total_citations > 0 else 0
+    
+    return {
+        'total_toa': len(toa_citations),
+        'total_body': len(body_citations),
+        'matches': matches,
+        'toa_only': toa_only,
+        'body_only': body_only,
+        'match_percentage': round(match_percentage, 2)
+    }
+
+
+def compare_toa_vs_analyze(briefs_dir: str = '../wa_briefs_text/', max_briefs: int = 10) -> None:
+    """
+    Compare ToA parser vs unified citation processor on ToA lines from briefs.
+    Show only cases where the extracted name or date differ.
+    
+    Args:
+        briefs_dir: Directory containing brief text files
+        max_briefs: Maximum number of briefs to process
+    """
+    brief_files = sorted([f for f in os.listdir(briefs_dir) if f.endswith('.txt')])[:max_briefs]
+    
+    logger.info("Cases where ToA parser and unified processor differ (name or date):\n")
+    
+    for brief_file in brief_files:
+        with open(os.path.join(briefs_dir, brief_file), encoding='utf-8') as f:
+            text = f.read()
+        
+        toa_section = extract_toa_section(text)
+        if not toa_section.strip():
+            continue
+        
+        toa_lines = [l for l in toa_section.split('\n') if l.strip() and not l.strip().lower().startswith('table of authorities')]
+        
+        for i, line in enumerate(toa_lines, 1):
+            toa_entry = toa_parser._parse_toa_line_flexible(line)
+            toa_name = getattr(toa_entry, 'case_name', None)
+            toa_year = None
+            if getattr(toa_entry, 'years', None):
+                toa_year = toa_entry.years[0]
+            
+            # Clean line for processor
+            clean_line = line.split('.....................')[0].strip()
+            results = citation_processor.process_text(clean_line)
+            
+            # Compare each extracted citation
+            if results and hasattr(results, 'citations'):
+                for citation in results.citations:
+                    proc_name = getattr(citation, 'canonical_name', None) or getattr(citation, 'extracted_case_name', None)
+                    proc_date = getattr(citation, 'canonical_date', None) or getattr(citation, 'extracted_date', None)
+                    
+                    if normalize(toa_name) != normalize(proc_name) or str(toa_year) != str(proc_date):
+                        logger.info(f"{brief_file} | ToA line: {line}")
+                        logger.info(f"   ToA parser:   name='{toa_name}'  year='{toa_year}'")
+                        logger.info(f"   Processor:    name='{proc_name}'  date='{proc_date}'\n")
+
+
+def quick_toa_vs_body_comparison(text: str) -> Dict[str, Any]:
+    """
+    Perform a quick comparison between ToA and body citations.
+    
+    Args:
+        text: Full document text
+        
+    Returns:
+        Comparison results dictionary
+    """
+    # Extract ToA section
+    toa_section = extract_toa_section(text)
+    if not toa_section.strip():
+        return {
+            'error': 'No ToA section found',
+            'total_toa': 0,
+            'total_body': 0,
+            'matches': [],
+            'toa_only': [],
+            'body_only': [],
+            'match_percentage': 0.0
+        }
+    
+    # Parse ToA citations
+    toa_citations = []
+    toa_lines = [l for l in toa_section.split('\n') if l.strip() and not l.strip().lower().startswith('table of authorities')]
+    
+    for line in toa_lines:
+        toa_entry = toa_parser._parse_toa_line_flexible(line)
+        if toa_entry and hasattr(toa_entry, 'citations'):
+            for citation in toa_entry.citations:
+                toa_citations.append({
+                    'citation': citation,
+                    'case_name': getattr(toa_entry, 'case_name', ''),
+                    'years': getattr(toa_entry, 'years', []),
+                    'source': 'toa'
+                })
+    
+    # Extract body citations
+    body_citations = []
+    results = citation_processor.process_text(text)
+    
+    if results and hasattr(results, 'citations'):
+        for citation in results.citations:
+            body_citations.append({
+                'citation': citation.citation,
+                'case_name': getattr(citation, 'canonical_name', '') or getattr(citation, 'extracted_case_name', ''),
+                'years': [getattr(citation, 'canonical_date', '') or getattr(citation, 'extracted_date', '')] if getattr(citation, 'canonical_date', '') or getattr(citation, 'extracted_date', '') else [],
+                'source': 'body'
+            })
+    
+    # Compare citations
+    return compare_citations(toa_citations, body_citations)
+
+
+# Enhanced TOA Processing Functions (extracted from legal_case_extractor_enhanced.py)
+
+def extract_from_table_of_authorities(toa_text: str) -> List[Dict[str, Any]]:
+    """
+    Extract cases specifically from Table of Authorities with enhanced patterns.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    import re
+    from typing import List, Dict, Any
+    
+    extractions = []
+    
+    # TOA-specific patterns
+    toa_patterns = [
+        # Simple case name patterns common in TOA
+        r'([A-Z][^,]*?\s+v\.\s+[^,]*?)(?=\s*[,;]|\s*$)',
+        r'(In\s+re\s+[^,]*?)(?=\s*[,;]|\s*$)',
+        r'(State\s+v\.\s+[^,]*?)(?=\s*[,;]|\s*$)',
+    ]
+    
+    for pattern_str in toa_patterns:
+        pattern = re.compile(pattern_str, re.IGNORECASE)
+        matches = pattern.finditer(toa_text)
+        
+        for match in matches:
+            case_name = match.group(1).strip()
+            if _is_valid_case_name(case_name):
+                extraction = {
+                    'full_match': match.group(0),
+                    'case_name': case_name,
+                    'case_type': 'toa_extraction',
+                    'start_pos': match.start(),
+                    'end_pos': match.end(),
+                    'confidence': 0.6,
+                    'context': _get_context(toa_text, match.start(), match.end())
+                }
+                extractions.append(extraction)
+    
+    return _deduplicate_extractions(extractions)
+
+
+def _is_valid_case_name(case_name: str) -> bool:
+    """
+    Validate if a case name is reasonable.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    import re
+    
+    if not case_name or len(case_name) < 5:
+        return False
+    
+    # Must contain at least one letter
+    if not re.search(r'[a-zA-Z]', case_name):
+        return False
+    
+    # Must not be all caps (likely not a case name)
+    if re.match(r'^[A-Z\s]+$', case_name):
+        return False
+    
+    # Must contain common case name indicators
+    case_indicators = [' v. ', ' vs. ', ' versus ', 'In re ', 'State v. ', 'People v. ']
+    if not any(indicator.lower() in case_name.lower() for indicator in case_indicators):
+        return False
+    
+    return True
+
+
+def _get_context(text: str, start: int, end: int, window: int = 200) -> str:
+    """
+    Get context around a match.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    context_start = max(0, start - window)
+    context_end = min(len(text), end + window)
+    return text[context_start:context_end]
+
+
+def _deduplicate_extractions(extractions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Remove duplicate extractions based on case name similarity.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    if not extractions:
+        return []
+    
+    # Sort by confidence (highest first)
+    sorted_extractions = sorted(extractions, key=lambda x: x.get('confidence', 0), reverse=True)
+    
+    unique_extractions = []
+    seen_names = set()
+    
+    for extraction in sorted_extractions:
+        case_name = extraction.get('case_name', '').lower()
+        if case_name not in seen_names:
+            seen_names.add(case_name)
+            unique_extractions.append(extraction)
+    
+    return unique_extractions
+
+
+def validate_against_toa(body_extractions: List[Dict[str, Any]], 
+                        toa_extractions: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Validate body extractions against Table of Authorities with fuzzy matching.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    toa_case_names = {ext.get('case_name', '').lower() for ext in toa_extractions}
+    
+    validated = []
+    unvalidated = []
+    
+    for extraction in body_extractions:
+        case_name = extraction.get('case_name', '')
+        # Exact match
+        if case_name.lower() in toa_case_names:
+            validated.append(extraction)
+        else:
+            # Fuzzy match
+            best_match = _find_best_toa_match(case_name, toa_extractions)
+            if best_match and _calculate_similarity(case_name, best_match.get('case_name', '')) > 0.8:
+                validated.append(extraction)
+            else:
+                unvalidated.append(extraction)
+    
+    return {
+        'validated': validated,
+        'unvalidated': unvalidated,
+        'toa_only': [ext for ext in toa_extractions 
+                    if ext.get('case_name', '').lower() not in 
+                    {ext.get('case_name', '').lower() for ext in body_extractions}]
+    }
+
+
+def _find_best_toa_match(case_name: str, toa_extractions: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Find the best matching case name in TOA using fuzzy matching.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    from typing import Optional
+    
+    best_match = None
+    best_similarity = 0.0
+    
+    for toa_extraction in toa_extractions:
+        toa_case_name = toa_extraction.get('case_name', '')
+        similarity = _calculate_similarity(case_name, toa_case_name)
+        if similarity > best_similarity:
+            best_similarity = similarity
+            best_match = toa_extraction
+    
+    return best_match if best_similarity > 0.7 else None
+
+
+def _calculate_similarity(name1: str, name2: str) -> float:
+    """
+    Calculate similarity between two case names.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    import re
+    
+    # Simple similarity calculation - can be enhanced with more sophisticated algorithms
+    name1_clean = re.sub(r'[^\w\s]', '', name1.lower())
+    name2_clean = re.sub(r'[^\w\s]', '', name2.lower())
+    
+    words1 = set(name1_clean.split())
+    words2 = set(name2_clean.split())
+    
+    if not words1 or not words2:
+        return 0.0
+    
+    intersection = words1.intersection(words2)
+    union = words1.union(words2)
+    
+    return len(intersection) / len(union) if union else 0.0
+
+
+def get_extraction_stats(extractions: List[Dict[str, Any]]) -> Dict[str, int]:
+    """
+    Get comprehensive statistics about extractions.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    stats = {
+        'total': len(extractions),
+        'standard': len([e for e in extractions if e.get('case_type') == 'standard']),
+        'in_re': len([e for e in extractions if e.get('case_type') == 'in_re']),
+        'ex_parte': len([e for e in extractions if e.get('case_type') == 'ex_parte']),
+        'matter_of': len([e for e in extractions if e.get('case_type') == 'matter_of']),
+        'department': len([e for e in extractions if e.get('case_type') == 'department']),
+        'government': len([e for e in extractions if e.get('case_type') == 'government']),
+        'toa_extraction': len([e for e in extractions if e.get('case_type') == 'toa_extraction']),
+        'with_pincites': len([e for e in extractions if e.get('pincite')]),
+        'high_confidence': len([e for e in extractions if e.get('confidence', 0) > 0.8]),
+        'medium_confidence': len([e for e in extractions if 0.5 <= e.get('confidence', 0) <= 0.8]),
+        'low_confidence': len([e for e in extractions if e.get('confidence', 0) < 0.5])
+    }
+    return stats
+
+
+def get_cases_by_year_range(extractions: List[Dict[str, Any]], 
+                           start_year: int, end_year: int) -> List[Dict[str, Any]]:
+    """
+    Filter cases by year range.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    filtered = []
+    for extraction in extractions:
+        year = extraction.get('year')
+        if year and str(year).isdigit():
+            case_year = int(year)
+            if start_year <= case_year <= end_year:
+                filtered.append(extraction)
+    return filtered
+
+
+def get_cases_by_court(extractions: List[Dict[str, Any]], 
+                      court_pattern: str) -> List[Dict[str, Any]]:
+    """
+    Filter cases by court (using regex pattern).
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    import re
+    
+    filtered = []
+    pattern = re.compile(court_pattern, re.IGNORECASE)
+    for extraction in extractions:
+        court = extraction.get('court')
+        if court and pattern.search(court):
+            filtered.append(extraction)
+    return filtered
+
+
+def export_to_csv_format(extractions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Export extractions to CSV-ready format.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    csv_data = []
+    for extraction in extractions:
+        row = {
+            'case_name': extraction.get('case_name'),
+            'party_1': extraction.get('party_1'),
+            'party_2': extraction.get('party_2'),
+            'volume': extraction.get('volume'),
+            'reporter': extraction.get('reporter'),
+            'page': extraction.get('page'),
+            'pincite': extraction.get('pincite'),
+            'year': extraction.get('year'),
+            'month': extraction.get('month'),
+            'day': extraction.get('day'),
+            'court': extraction.get('court'),
+            'court_normalized': _normalize_court_name(extraction.get('court')) if extraction.get('court') else None,
+            'date_format': extraction.get('date_format'),
+            'full_date_string': extraction.get('full_date_string'),
+            'case_type': extraction.get('case_type'),
+            'confidence': extraction.get('confidence'),
+            'extraction_method': extraction.get('extraction_method'),
+            'full_match': extraction.get('full_match'),
+            'context': extraction.get('context', '')[:200] if extraction.get('context') else None  # Truncate for CSV
+        }
+        csv_data.append(row)
+    return csv_data
+
+
+def _normalize_court_name(court_string: str) -> str:
+    """
+    Normalize court name for consistent formatting.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    if not court_string:
+        return ""
+    
+    # Court abbreviations mapping
+    court_abbreviations = {
+        'D.': 'District Court',
+        'S.D.': 'Southern District',
+        'N.D.': 'Northern District',
+        'E.D.': 'Eastern District',
+        'W.D.': 'Western District',
+        'C.D.': 'Central District',
+        'M.D.': 'Middle District',
+        'Cir.': 'Circuit Court of Appeals',
+        'Fed.Cir.': 'Federal Circuit',
+        'D.C.Cir.': 'D.C. Circuit',
+        'Bankr.': 'Bankruptcy Court',
+        'Ct.Int\'l Trade': 'Court of International Trade',
+        'Fed.Cl.': 'Federal Claims Court',
+        'Tax Ct.': 'Tax Court',
+        'Wash.': 'Washington',
+        'Cal.': 'California',
+        'N.Y.': 'New York',
+        'Tex.': 'Texas',
+        'Fla.': 'Florida',
+        'Ill.': 'Illinois',
+        'Pa.': 'Pennsylvania',
+        'Ohio': 'Ohio',
+        'Ga.': 'Georgia',
+        'Mich.': 'Michigan',
+        'Va.': 'Virginia',
+        'Mass.': 'Massachusetts',
+        'Md.': 'Maryland',
+        'N.J.': 'New Jersey',
+        'Conn.': 'Connecticut',
+        'Or.': 'Oregon',
+        'Colo.': 'Colorado',
+        'Ariz.': 'Arizona',
+        'Nev.': 'Nevada',
+        'Utah': 'Utah',
+        'Okla.': 'Oklahoma',
+        'Kan.': 'Kansas',
+        'Mo.': 'Missouri',
+        'Ark.': 'Arkansas',
+        'La.': 'Louisiana',
+        'Miss.': 'Mississippi',
+        'Ala.': 'Alabama',
+        'Tenn.': 'Tennessee',
+        'Ky.': 'Kentucky',
+        'W.Va.': 'West Virginia',
+        'N.C.': 'North Carolina',
+        'S.C.': 'South Carolina',
+        'Ind.': 'Indiana',
+        'Wis.': 'Wisconsin',
+        'Minn.': 'Minnesota',
+        'Iowa': 'Iowa',
+        'N.D.': 'North Dakota',
+        'S.D.': 'South Dakota',
+        'Neb.': 'Nebraska',
+        'Mont.': 'Montana',
+        'Wyo.': 'Wyoming',
+        'Idaho': 'Idaho',
+        'Alaska': 'Alaska',
+        'Haw.': 'Hawaii',
+        'Vt.': 'Vermont',
+        'N.H.': 'New Hampshire',
+        'Maine': 'Maine',
+        'R.I.': 'Rhode Island',
+        'Del.': 'Delaware',
+        'D.C.': 'District of Columbia'
+    }
+    
+    # Try to find a match
+    for abbrev, full_name in court_abbreviations.items():
+        if abbrev in court_string:
+            return full_name
+    
+    return court_string
+
+
+def convert_to_citation_result(extraction: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert extraction dict to CitationResult format for integration with existing pipeline.
+    Extracted from legal_case_extractor_enhanced.py.
+    """
+    return {
+        'citation': extraction.get('full_match'),
+        'case_name': extraction.get('case_name'),
+        'extracted_case_name': extraction.get('case_name'),
+        'extracted_date': extraction.get('year'),
+        'canonical_date': extraction.get('year'),
+        'year': extraction.get('year'),
+        'confidence': extraction.get('confidence', 0.0),
+        'context': extraction.get('context', ''),
+        'method': extraction.get('extraction_method', 'enhanced_extractor'),
+        'start_index': extraction.get('start_pos'),
+        'end_index': extraction.get('end_pos'),
+        'metadata': {
+            'case_type': extraction.get('case_type'),
+            'party_1': extraction.get('party_1'),
+            'party_2': extraction.get('party_2'),
+            'volume': extraction.get('volume'),
+            'reporter': extraction.get('reporter'),
+            'page': extraction.get('page'),
+            'pincite': extraction.get('pincite'),
+            'court': extraction.get('court'),
+            'docket_number': extraction.get('docket_number'),
+            'publication_status': extraction.get('publication_status')
+        }
+    }
+
+
+def main():
+    """Main function for testing and demonstration."""
+    print("=== ToA Utilities Test ===")
+    
+    # Test normalization
+    test_text = "  Smith   v.   Jones  ,  123  Wn.2d  456  "
+    normalized = normalize_text(test_text)
+    print(f"Original: '{test_text}'")
+    print(f"Normalized: '{normalized}'")
+    
+    # Test ToA extraction
+    sample_text = """
+    TABLE OF AUTHORITIES
+    
+    Cases
+    Smith v. Jones, 123 Wn.2d 456 (2015).....................1
+    Brown v. Board, 347 U.S. 483 (1954)......................2
+    
+    Statutes
+    RCW 2.60.020................................................3
+    """
+    
+    toa_section = extract_toa_section(sample_text)
+    print(f"\nExtracted ToA section:\n{toa_section}")
+    
+    # Test citation comparison
+    toa_cites = [
+        {'citation': 'Smith v. Jones, 123 Wn.2d 456 (2015)', 'case_name': 'Smith v. Jones'},
+        {'citation': 'Brown v. Board, 347 U.S. 483 (1954)', 'case_name': 'Brown v. Board'}
+    ]
+    
+    body_cites = [
+        {'citation': 'Smith v. Jones, 123 Wn.2d 456 (2015)', 'case_name': 'Smith v. Jones'},
+        {'citation': 'Roe v. Wade, 410 U.S. 113 (1973)', 'case_name': 'Roe v. Wade'}
+    ]
+    
+    comparison = compare_citations(toa_cites, body_cites)
+    print(f"\nComparison results:")
+    print(f"Matches: {len(comparison['matches'])}")
+    print(f"ToA only: {len(comparison['toa_only'])}")
+    print(f"Body only: {len(comparison['body_only'])}")
+    print(f"Match percentage: {comparison['match_percentage']}%")
+
+
+if __name__ == "__main__":
+    main() 

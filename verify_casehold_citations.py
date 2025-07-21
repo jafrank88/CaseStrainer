@@ -3,6 +3,15 @@
 Verify citations from CaseHOLD dataset and gather statistics on method effectiveness.
 """
 
+# DEPRECATED: This file has been consolidated into src/test_utilities_consolidated.py
+# Please use: from src.test_utilities_consolidated import verify_casehold_citations, extract_citation_string
+import warnings
+warnings.warn(
+    "verify_casehold_citations.py is deprecated. Use test_utilities_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import json
 import time
 import re

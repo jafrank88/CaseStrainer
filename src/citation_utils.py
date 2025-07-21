@@ -5,14 +5,30 @@ This module provides functions for citation extraction, validation, and processi
 using the unified citation processor system.
 """
 
-import os
-import traceback
-import time
-import logging
-import sys
 import re
-from typing import List, Dict, Any, Optional, Tuple
-from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
+import logging
+import time
+from typing import List, Dict, Any, Optional, Tuple, Set
+from dataclasses import dataclass, asdict
+import unicodedata
+import warnings
+from collections import defaultdict, deque
+import os
+import sys
+from datetime import datetime
+import json
+import hashlib
+import sqlite3
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+# Import citation utilities from consolidated module
+try:
+    from src.citation_utils_consolidated import apply_washington_spacing_rules
+except ImportError:
+    from citation_utils_consolidated import apply_washington_spacing_rules
 
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +37,6 @@ if project_root not in sys.path:
 
 # Import from config with absolute path
 from config import ALLOWED_EXTENSIONS
-from citation_format_utils import apply_washington_spacing_rules
 
 # Setup logger (modules importing this should configure logging)
 logger = logging.getLogger(__name__)
@@ -172,6 +187,7 @@ def extract_citations_from_file(filepath: str, logger: Optional[logging.Logger] 
         if filepath.endswith(".pdf"):
             logger.info("Detected PDF file, using PDFHandler for extraction")
             # Always use PDFMiner as the only extraction method
+            from pdf_handler import PDFHandler, PDFExtractionConfig, PDFExtractionMethod
             handler = PDFHandler(PDFExtractionConfig(
                 preferred_method=PDFExtractionMethod.PDFMINER,
                 use_fallback=False,  # Only use PDFMiner

@@ -10,13 +10,6 @@ Use UnifiedCitationProcessorV2 instead for all new development.
 This module will be removed in a future version.
 """
 
-import warnings
-warnings.warn(
-    "CitationExtractor is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
-    DeprecationWarning,
-    stacklevel=2
-)
-
 import re
 import logging
 from typing import List, Dict, Any, Optional, Union
@@ -29,6 +22,17 @@ from urllib.parse import quote_plus
 import unicodedata
 import string
 from difflib import SequenceMatcher
+
+# Add src to path for imports
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+# Import citation utilities from consolidated module
+try:
+    from src.citation_utils_consolidated import normalize_citation
+except ImportError:
+    from citation_utils_consolidated import normalize_citation
 
 try:
     from eyecite import get_citations, resolve_citations
@@ -46,12 +50,14 @@ from src.extract_case_name import (
     clean_case_name
 )
 
-# Import the main regex patterns from citation_utils
-from citation_utils import extract_citations_from_text
+# Import the main regex patterns from citation_utils_consolidated
+try:
+    from src.citation_utils_consolidated import extract_citations_from_text
+except ImportError:
+    from citation_utils_consolidated import extract_citations_from_text
 
 # from case_name_extraction_core import extract_year_from_line  # Function does not exist
 
-from citation_normalizer import normalize_citation
 
 def deprecated_warning(func):
     """Decorator to show deprecation warnings."""
@@ -348,7 +354,12 @@ class CitationExtractor:
         return case_names
 
     def _extract_case_name_from_context(self, text, citation):
-        """Extract case name from context around a citation using canonical function."""
+        """Extract case name from context around a citation using canonical function (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_extract_case_name_from_context is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         idx = text.find(citation)
         if idx == -1:
             return None

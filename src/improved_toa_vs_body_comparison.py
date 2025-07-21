@@ -292,7 +292,15 @@ class SafeUnifiedProcessor:
             return []
 
 def normalize_text(text: str) -> str:
-    """Normalize text for comparison."""
+    """
+    DEPRECATED: Use isolation-aware text normalization logic instead.
+    Normalize text for comparison.
+    """
+    warnings.warn(
+        "normalize_text is deprecated. Use isolation-aware text normalization instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     if not text:
         return ""
     return re.sub(r'\s+', ' ', text.strip().lower())

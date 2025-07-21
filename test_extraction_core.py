@@ -10,6 +10,8 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+import src.citation_utils_consolidated as enhanced_extraction_utils
+
 def test_enhanced_extraction_utils():
     """Test enhanced extraction utils directly"""
     
@@ -23,7 +25,6 @@ def test_enhanced_extraction_utils():
     
     try:
         # Import the module directly
-        import enhanced_extraction_utils
         
         # Test the function
         result = enhanced_extraction_utils.extract_case_info_enhanced(test_text, test_citation)

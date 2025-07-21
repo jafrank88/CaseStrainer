@@ -3,6 +3,20 @@
 Script to verify that the JSON response logging is properly set up.
 """
 
+# DEPRECATED: This file has been consolidated into src/test_utilities_consolidated.py
+# Please use: from src.test_utilities_consolidated import verify_vue_api_logging, verify_citation_api_logging, etc.
+import warnings
+warnings.warn(
+    "verify_logging_setup.py is deprecated. Use test_utilities_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+import asyncio
+import aiohttp
+import logging
+from typing import Dict, Any
+
 import os
 import sys
 

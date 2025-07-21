@@ -1,3 +1,12 @@
+# DEPRECATED: This file has been consolidated into src/citation_utils_consolidated.py
+# Please use: from src.citation_utils_consolidated import apply_washington_spacing_rules, washington_state_to_bluebook, etc.
+import warnings
+warnings.warn(
+    "citation_format_utils.py is deprecated. Use citation_utils_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 import re
 
 

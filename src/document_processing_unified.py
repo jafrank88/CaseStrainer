@@ -228,7 +228,12 @@ class OCROptimizedPDFProcessor:
         return None
 
     def _extract_with_pypdf2(self, file_path: str) -> Optional[str]:
-        """Extract using PyPDF2 - fast fallback."""
+        """Extract using PyPDF2 - fast fallback (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_extract_with_pypdf2 is deprecated. Use isolation-aware PDF extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             import PyPDF2
             
@@ -281,9 +286,15 @@ class OCROptimizedPDFProcessor:
 
     def extract_text_non_ocr_fallback(self, file_path: str) -> str:
         """
+        DEPRECATED: Use isolation-aware PDF extraction logic instead.
         Fallback extraction for non-OCR'ed documents (born-digital PDFs).
         Uses minimal processing for maximum speed.
         """
+        warnings.warn(
+            "extract_text_non_ocr_fallback is deprecated. Use isolation-aware PDF extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         # PyPDF2 first - fastest for born-digital PDFs
         try:
             import PyPDF2

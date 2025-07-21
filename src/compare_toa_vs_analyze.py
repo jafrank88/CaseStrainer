@@ -1,3 +1,12 @@
+# DEPRECATED: This file has been consolidated into src/toa_utils_consolidated.py
+# Please use: from src.toa_utils_consolidated import compare_toa_vs_analyze, normalize, extract_toa_section
+import warnings
+warnings.warn(
+    "compare_toa_vs_analyze.py is deprecated. Use toa_utils_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 #!/usr/bin/env python3
 """
 Compare ToA parser vs unified citation processor on ToA lines from 10 briefs.

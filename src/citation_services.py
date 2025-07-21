@@ -13,6 +13,7 @@ from datetime import datetime
 from dataclasses import dataclass, asdict
 from pathlib import Path
 import json
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -540,11 +541,15 @@ class CitationServices:
         return 'unknown'
     
     def _extract_context(self, full_text: str, span: CitationSpan) -> str:
-        """Extract context around citation"""
+        """Extract context around citation (DEPRECATED: use isolation-aware logic instead)"""
+        warnings.warn(
+            "_extract_context is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         context_start = max(0, span.start - 100)
         context_end = min(len(full_text), span.end + 100)
         context = full_text[context_start:context_end]
-        
         # Clean up context
         context = re.sub(r'\s+', ' ', context).strip()
         return context

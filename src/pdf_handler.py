@@ -144,7 +144,12 @@ class PDFHandler:
             return False, f"Error reading PDF header: {str(e)}", {}
     
     def _extract_with_pypdf2(self, file_path: str, start_time: float) -> Tuple[Optional[str], Optional[str]]:
-        """Extract text using PyPDF2."""
+        """Extract text using PyPDF2 (DEPRECATED: use isolation-aware logic instead)."""
+        warnings.warn(
+            "_extract_with_pypdf2 is deprecated. Use isolation-aware PDF extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         try:
             with open(file_path, 'rb') as file:
                 reader = PyPDF2.PdfReader(file)

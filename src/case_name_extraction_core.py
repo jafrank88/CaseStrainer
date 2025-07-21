@@ -8,6 +8,7 @@ import logging
 from typing import Dict, Optional, Tuple, List, Any
 from datetime import datetime
 from dataclasses import dataclass
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -108,8 +109,14 @@ class CaseNameExtractor:
             },
             {
                 'name': 'matter_of',
-                'pattern': r'(Matter\s+of\s+[A-Z][A-Za-z0-9&.,\'\s-]+(?:\s+[A-Za-z0-9&.,\'\s-]+)*?)(?=,\s*\d|\s*\(|$)',
+                'pattern': r'(Matter\s+of\s+[A-Z][A-Za-z0-9&.,\'\s-]+(?:\s+[A-Za-z0-9&.,\'\s-]+)*?)(?=,\s*\d+\s+[A-Za-z.]+|\s*\(|$)',
                 'confidence_base': 0.8,
+                'format': lambda m: m.group(1).strip()
+            },
+            {
+                'name': 'matter_of_with_v',
+                'pattern': r'(Matter\s+of\s+[A-Z][A-Za-z0-9&.,\'\s-]+(?:\s+[A-Za-z0-9&.,\'\s-]+)*?\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\s-]+(?:\s+[A-Za-z0-9&.,\'\s-]+)*?)(?=,\s*\d+\s+[A-Za-z.]+|\s*\(|$)',
+                'confidence_base': 0.85,
                 'format': lambda m: m.group(1).strip()
             },
             {
@@ -172,7 +179,7 @@ class CaseNameExtractor:
         return result
     
     def _get_extraction_context(self, text: str, citation: str = None) -> str:
-        """Get relevant context for extraction"""
+        """Get relevant context for extraction with citation boundary awareness"""
         if not citation:
             return text
         
@@ -180,9 +187,42 @@ class CaseNameExtractor:
         if citation_pos == -1:
             return text
         
-        # Use smaller, more focused context window around citation
-        context_start = max(0, citation_pos - 150)
-        context_end = min(len(text), citation_pos + 50)
+        # Use larger context window for better extraction
+        # Increased from 150 to 300 characters before citation for long case names
+        # Increased from 50 to 100 characters after citation for year extraction
+        context_start = max(0, citation_pos - 300)
+        context_end = min(len(text), citation_pos + 100)
+        
+        # Check for other citations in the context area to avoid cross-contamination
+        context_text = text[context_start:context_end]
+        
+        # Look for citation patterns that might indicate other cases
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+        ]
+        
+        # Find the last citation before our target citation in the context
+        last_citation_pos = 0
+        for pattern in citation_patterns:
+            matches = list(re.finditer(pattern, context_text))
+            for match in matches:
+                # Only consider citations that come before our target citation
+                if match.end() < (citation_pos - context_start):
+                    last_citation_pos = max(last_citation_pos, match.end())
+        
+        # Adjust context start to avoid other citations
+        if last_citation_pos > 0:
+            # Look for sentence boundaries after the last citation
+            sentence_pattern = re.compile(r'\.\s+[A-Z]')
+            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+            if sentence_matches:
+                adjusted_start = context_start + sentence_matches[0].start() + 1
+                context_start = max(context_start, adjusted_start)
+            else:
+                # If no sentence boundary, start after the last citation
+                context_start = max(context_start, context_start + last_citation_pos)
+        
         return text[context_start:context_end]
     
     def _extract_case_name(self, context: str, citation: str = None) -> Optional[Dict]:
@@ -310,16 +350,54 @@ class DateExtractor:
         ]
     
     def extract_date_from_context(self, text: str, citation: str) -> Optional[str]:
-        """Extract date using citation as context anchor"""
+        """
+        DEPRECATED: Use isolation-aware date extraction logic instead.
+        Extract date using citation as context anchor with improved isolation
+        """
+        warnings.warn(
+            "extract_date_from_context is deprecated. Use isolation-aware extraction instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         citation_pos = text.find(citation)
         if citation_pos == -1:
             return self.extract_date_from_full_text(text)
         
-        # Get context around citation
-        context_start = max(0, citation_pos - 100)
-        context_end = min(len(text), citation_pos + len(citation) + 50)
-        context = text[context_start:context_end]
+        # Use improved context extraction with citation boundary awareness
+        context_start = max(0, citation_pos - 200)  # Increased from 100
+        context_end = min(len(text), citation_pos + len(citation) + 100)
         
+        # Check for other citations in the context area to avoid cross-contamination
+        context_text = text[context_start:context_end]
+        
+        # Look for citation patterns that might indicate other cases
+        citation_patterns = [
+            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
+        ]
+        
+        # Find the last citation before our target citation in the context
+        last_citation_pos = 0
+        for pattern in citation_patterns:
+            matches = list(re.finditer(pattern, context_text))
+            for match in matches:
+                # Only consider citations that come before our target citation
+                if match.end() < (citation_pos - context_start):
+                    last_citation_pos = max(last_citation_pos, match.end())
+        
+        # Adjust context start to avoid other citations
+        if last_citation_pos > 0:
+            # Look for sentence boundaries after the last citation
+            sentence_pattern = re.compile(r'\.\s+[A-Z]')
+            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
+            if sentence_matches:
+                adjusted_start = context_start + sentence_matches[0].start() + 1
+                context_start = max(context_start, adjusted_start)
+            else:
+                # If no sentence boundary, start after the last citation
+                context_start = max(context_start, context_start + last_citation_pos)
+        
+        context = text[context_start:context_end]
         return self._extract_date_from_text(context)
     
     def extract_date_from_full_text(self, text: str) -> Optional[str]:

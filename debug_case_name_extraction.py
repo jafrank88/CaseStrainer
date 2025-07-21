@@ -10,6 +10,8 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+import src.citation_utils_consolidated as enhanced_extraction_utils
+
 def test_case_name_patterns():
     """Test case name extraction patterns directly"""
     
@@ -78,8 +80,6 @@ def test_enhanced_extraction_utils():
     print("\n=== TESTING ENHANCED EXTRACTION UTILS ===")
     
     try:
-        import enhanced_extraction_utils
-        
         # Test the function
         result = enhanced_extraction_utils.extract_case_info_enhanced(test_text, test_citation)
         print(f"Result: {result}")

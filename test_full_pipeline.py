@@ -12,6 +12,7 @@ import inspect
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.citation_utils_consolidated import extract_case_info_enhanced_with_position
 
 def debug_date_assignment():
     """
@@ -122,7 +123,7 @@ def debug_citation_positions():
             print(f"  Text after actual: '{after_text}'")
             
             # Test date extraction at actual position
-            from src.enhanced_extraction_utils import extract_case_info_enhanced_with_position
+            from src.citation_utils_consolidated import extract_case_info_enhanced_with_position
             extraction_result = extract_case_info_enhanced_with_position(
                 sample_text, actual_pos, actual_pos + len(actual_cit)
             )
@@ -155,7 +156,7 @@ def test_date_extraction_isolation():
             print(f"Text after: '{after_citation}'")
             
             # Test enhanced extraction
-            from src.enhanced_extraction_utils import extract_case_info_enhanced_with_position
+            from src.citation_utils_consolidated import extract_case_info_enhanced_with_position
             extracted_result = extract_case_info_enhanced_with_position(
                 sample_text, citation_index, citation_index + len(citation)
             )
@@ -293,7 +294,7 @@ def test_specific_citation():
     print()
     
     # Test the extraction directly
-    from src.enhanced_extraction_utils import extract_case_info_enhanced_with_position
+    from src.citation_utils_consolidated import extract_case_info_enhanced_with_position
     
     # Find the citation position
     start_pos = test_text.find(citation)
@@ -308,7 +309,7 @@ def test_specific_citation():
     print()
     
     # Test with string-based extraction
-    from src.enhanced_extraction_utils import extract_case_info_enhanced
+    from src.citation_utils_consolidated import extract_case_info_enhanced_with_position as extract_case_info_enhanced
     result2 = extract_case_info_enhanced(test_text, citation)
     print(f"String-based extraction result: {result2}")
     print()

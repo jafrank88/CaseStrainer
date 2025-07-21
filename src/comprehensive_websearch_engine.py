@@ -4,20 +4,26 @@ Combines the best features from enhanced_web_searcher.py and websearch_utils.py
 """
 
 import re
-import requests
 import asyncio
 import aiohttp
-from bs4 import BeautifulSoup
-import random
-import time
-from urllib.parse import quote, urljoin, urlparse, quote_plus
-from typing import List, Dict, Set, Optional, Tuple, Any
-import json
-from datetime import datetime, timedelta
-import hashlib
 import logging
-from src.citation_normalizer import normalize_citation, generate_citation_variants
-from difflib import SequenceMatcher
+import time
+import json
+import random
+from typing import Dict, List, Any, Optional, Tuple, Set
+from urllib.parse import urlparse, quote_plus
+from dataclasses import dataclass, asdict
+import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import hashlib
+import os
+from datetime import datetime, timedelta
+
+# Import citation utilities from consolidated module
+try:
+    from src.citation_utils_consolidated import normalize_citation, generate_citation_variants
+except ImportError:
+    from citation_utils_consolidated import normalize_citation, generate_citation_variants
 
 logger = logging.getLogger(__name__)
 
@@ -2972,7 +2978,15 @@ class ComprehensiveWebSearchEngine:
             return await self._fallback_search(citation, case_name)
 
     async def _fallback_search(self, citation: str, case_name: str = None) -> Dict:
-        """Fallback search using simpler methods when all primary methods fail."""
+        """
+        DEPRECATED: Use isolation-aware search logic instead.
+        Fallback search using simpler methods when all primary methods fail.
+        """
+        warnings.warn(
+            "_fallback_search is deprecated. Use isolation-aware search logic instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         logger.info(f"Attempting fallback search for citation: {citation}")
         
         try:
@@ -4273,7 +4287,10 @@ class AdvancedErrorRecovery:
         case_name = context.get('case_name', '')
         
         # Try alternative citation variants
-        from src.citation_normalizer import generate_citation_variants
+        try:
+            from src.citation_utils_consolidated import generate_citation_variants
+        except ImportError:
+            from citation_utils_consolidated import generate_citation_variants
         variants = generate_citation_variants(citation)
         
         # Try broader search terms

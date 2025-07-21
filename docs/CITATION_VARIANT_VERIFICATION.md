@@ -73,7 +73,7 @@ def _verify_with_courtlistener(self, citation: str, extracted_case_name: str = N
     Enhanced verification: Try CourtListener API first, then EnhancedWebSearcher as fallback.
     Now tries multiple citation variants to improve hit rates.
     """
-    from src.citation_normalizer import generate_citation_variants
+    from src.citation_utils_consolidated import generate_citation_variants
     
     # Generate citation variants to try
     citation_variants = generate_citation_variants(citation)

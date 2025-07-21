@@ -1,3 +1,12 @@
+# DEPRECATED: This file has been consolidated into src/citation_utils_consolidated.py
+# Please use: from src.citation_utils_consolidated import validate_citation
+import warnings
+warnings.warn(
+    "validate_citation.py is deprecated. Use citation_utils_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 from eyecite import get_citations
 from eyecite.tokenizers import AhocorasickTokenizer
 

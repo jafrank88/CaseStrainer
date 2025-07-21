@@ -1,3 +1,12 @@
+# DEPRECATED: This file has been consolidated into src/test_utilities_consolidated.py
+# Please use: from src.test_utilities_consolidated import add_sample_citation
+import warnings
+warnings.warn(
+    "add_sample_citation.py is deprecated. Use test_utilities_consolidated.py instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
 """
 Add a sample citation to the citation database for testing.
 """

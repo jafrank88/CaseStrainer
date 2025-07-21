@@ -5,10 +5,29 @@ This module provides suggestions for correcting invalid or unverified citations
 by finding similar verified citations and applying intelligent correction rules.
 """
 
-import os
-import logging
 import sqlite3
+import logging
 import re
+import os
+import sys
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
+import json
+import time
+from datetime import datetime
+import warnings
+from collections import defaultdict
+import unicodedata
+
+# Add src to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+# Import citation utilities from consolidated module
+try:
+    from src.citation_utils_consolidated import apply_washington_spacing_rules
+except ImportError:
+    from citation_utils_consolidated import apply_washington_spacing_rules
+
 try:
     import Levenshtein
     LEVENSHTEIN_AVAILABLE = True
@@ -18,7 +37,6 @@ except ImportError:
 import sys
 from typing import List, Dict, Any
 from difflib import SequenceMatcher
-from .citation_format_utils import apply_washington_spacing_rules
 from .database_manager import get_database_manager
 
 # Add the project root to the Python path
