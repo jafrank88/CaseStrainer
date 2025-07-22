@@ -436,32 +436,27 @@ class UnifiedCitationProcessorV2:
             if response.status_code == 200:
                 result = response.json()
                 logger.info(f"[CL batch] Found {len(result)} result clusters")
+                print(f"[DEBUG PRINT] [CL batch] Found {len(result)} result clusters")
                 
                 # Process each cluster
                 for i, cluster in enumerate(result):
                     logger.debug(f"[CL batch] Cluster {i}: status={cluster.get('status')}, citations={len(cluster.get('clusters', []))}")
-                    
-                    # Fix: Check for status 200 (not 'ok') and handle citation objects
+                    print(f"[DEBUG PRINT] [CL batch] Cluster {i}: status={cluster.get('status')}, citations={len(cluster.get('clusters', []))}")
                     if cluster.get('status') == 200 and cluster.get('clusters'):
                         api_cluster = cluster['clusters'][0]  # Take first cluster
                         logger.debug(f"[CL batch] api_cluster structure: {str(api_cluster)[:500]}...")
-                        
-                        # Extract canonical data
+                        print(f"[DEBUG PRINT] [CL batch] api_cluster structure: {str(api_cluster)[:500]}...")
                         cl_case_name = api_cluster.get('case_name', '')
                         cl_date = api_cluster.get('date_filed', '')
                         cl_url = api_cluster.get('absolute_url', '')
-                        
-                        # Fix: Handle citations as objects, reconstruct the citation string
                         citations_data = api_cluster.get('citations', [])
                         if citations_data:
-                            # Take the first citation and reconstruct it
                             first_citation_obj = citations_data[0]
                             main_cite = f"{first_citation_obj.get('volume', '')} {first_citation_obj.get('reporter', '')} {first_citation_obj.get('page', '')}"
                         else:
                             main_cite = ''
-                        
                         logger.debug(f"[CL batch] API citation: {main_cite} -> {cl_case_name}")
-                        
+                        print(f"[DEBUG PRINT] [CL batch] API citation: {main_cite} -> {cl_case_name}")
                         # Update matching citations
                         for citation in citations:
                             if citation.citation == main_cite:
@@ -471,28 +466,22 @@ class UnifiedCitationProcessorV2:
                                 citation.verified = True
                                 citation.source = "CourtListener"
                                 logger.info(f"[CL batch] EXACT MATCH: {citation.citation} -> {citation.canonical_name}")
+                                print(f"[DEBUG PRINT] [CL batch] EXACT MATCH: {citation.citation} -> {citation.canonical_name}, canonical_date: {citation.canonical_date}")
                                 break
-                        
                         # Try to match by normalized citation
                         if not any(c.verified for c in citations if c.citation == main_cite):
                             for citation in citations:
-                                # Normalize citations for comparison
                                 def robust_normalize(s):
-                                    """Robust normalization for citation comparison."""
                                     if not s:
                                         return ""
-                                    # Remove spaces, punctuation, and convert to lowercase
                                     normalized = re.sub(r'[^\w]', '', s.lower())
-                                    # Remove common variations
                                     normalized = re.sub(r'wash', 'wn', normalized)
                                     normalized = re.sub(r'pacific', 'p', normalized)
                                     return normalized
-                                
                                 normalized_reconstructed = robust_normalize(main_cite)
                                 normalized_extracted = robust_normalize(citation.citation)
-                                
                                 logger.debug(f"[CL batch] Comparing robust-normalized '{normalized_reconstructed}' to '{normalized_extracted}'")
-                                
+                                print(f"[DEBUG PRINT] [CL batch] Comparing robust-normalized '{normalized_reconstructed}' to '{normalized_extracted}'")
                                 if normalized_reconstructed == normalized_extracted:
                                     citation.canonical_name = cl_case_name
                                     citation.canonical_date = cl_date
@@ -500,9 +489,10 @@ class UnifiedCitationProcessorV2:
                                     citation.verified = True
                                     citation.source = "CourtListener"
                                     logger.info(f"[CL batch] NORMALIZED MATCH: {citation.citation} -> {citation.canonical_name}")
+                                    print(f"[DEBUG PRINT] [CL batch] NORMALIZED MATCH: {citation.citation} -> {citation.canonical_name}, canonical_date: {citation.canonical_date}")
                                     break
-                            else:
-                                logger.debug(f"[CL batch] X NO MATCH: {normalized_reconstructed} vs {normalized_extracted}")
+                        else:
+                            logger.debug(f"[CL batch] X NO MATCH: {normalized_reconstructed} vs {normalized_extracted}")
             else:
                 logger.error(f"[CL batch] HTTP {response.status_code}: {response.text}")
                 
@@ -512,32 +502,32 @@ class UnifiedCitationProcessorV2:
     def _group_citations_by_cluster(self, citations: List['CitationResult'], cluster_assignments: Dict[int, List[int]]) -> None:
         """Group citations by their CourtListener cluster assignments."""
         if not cluster_assignments:
+            print("[DEBUG PRINT] No cluster assignments provided to _group_citations_by_cluster")
+            logger.info("[DEBUG PRINT] No cluster assignments provided to _group_citations_by_cluster")
             return
         
         logger.info(f"[CL grouping] Grouping {len(citations)} citations by {len(cluster_assignments)} clusters")
+        print(f"[DEBUG PRINT] Grouping {len(citations)} citations by {len(cluster_assignments)} clusters")
         
         for cluster_id, citation_indices in cluster_assignments.items():
             logger.debug(f"[CL grouping] Cluster {cluster_id}: {len(citation_indices)} citations")
-            
+            print(f"[DEBUG PRINT] Cluster {cluster_id}: {len(citation_indices)} citations")
             # Get the first citation in this cluster to extract cluster metadata
             if citation_indices and citation_indices[0] < len(citations):
                 first_citation = citations[citation_indices[0]]
                 cluster_metadata = first_citation.metadata or {}
-                
+                print(f"[DEBUG PRINT] Cluster {cluster_id} first_citation: {first_citation.citation}, metadata: {cluster_metadata}")
                 # Extract cluster-level metadata
                 cluster_canonical_name = cluster_metadata.get('case_name')
                 cluster_canonical_date = cluster_metadata.get('date_filed')
                 cluster_url = cluster_metadata.get('absolute_url')
-                
                 # Update all citations in this cluster with cluster metadata
                 for citation_idx in citation_indices:
                     if citation_idx < len(citations):
                         citation = citations[citation_idx]
-                        
                         # Add cluster metadata
                         if not citation.metadata:
                             citation.metadata = {}
-                        
                         citation.metadata.update({
                             'cluster_id': str(cluster_id),
                             'is_in_cluster': True,
@@ -546,15 +536,14 @@ class UnifiedCitationProcessorV2:
                             'cluster_url': cluster_url,
                             'cluster_size': len(citation_indices)
                         })
-                        
                         # Add cluster members
                         cluster_members = []
                         for member_idx in citation_indices:
                             if member_idx < len(citations):
                                 cluster_members.append(citations[member_idx].citation)
                         citation.metadata['cluster_members'] = cluster_members
-                        
                         logger.debug(f"[CL grouping] Updated citation {citation_idx}: {citation.citation} (cluster {cluster_id})")
+                        print(f"[DEBUG PRINT] Updated citation {citation_idx}: {citation.citation} (cluster {cluster_id}), metadata: {citation.metadata}")
 
     def _verify_citations(self, citations: List['CitationResult'], text: str = None) -> List['CitationResult']:
         """Verify citations using CourtListener and fallback services."""
@@ -2408,6 +2397,14 @@ class UnifiedCitationProcessorV2:
             self._verify_citations(citations, text)
             print(f"[DEBUG PRINT] After _verify_citations")
             logger.info(f"[PROCESS_TEXT] _verify_citations completed")
+            # --- Propagate canonical info to parallels ---
+            self._propagate_canonical_to_parallels(citations)
+            print(f"[DEBUG PRINT] After _propagate_canonical_to_parallels")
+            logger.info(f"[PROCESS_TEXT] _propagate_canonical_to_parallels completed")
+            # --- NEW: Propagate extracted name/date to parallels ---
+            self._propagate_extracted_to_parallels(citations)
+            print(f"[DEBUG PRINT] After _propagate_extracted_to_parallels")
+            logger.info(f"[PROCESS_TEXT] _propagate_extracted_to_parallels completed")
         else:
             print(f"[DEBUG PRINT] Verification disabled, skipping _verify_citations")
             logger.info(f"[PROCESS_TEXT] Verification disabled, skipping _verify_citations")
@@ -2522,7 +2519,7 @@ class UnifiedCitationProcessorV2:
         if not citations:
             return []
         
-        # Group citations by their cluster_id from metadata
+        # Group citations by their cluster_id from metadata (original logic)
         clusters_by_id = {}
         for citation in citations:
             # Handle both CitationResult objects and dictionaries
@@ -2547,6 +2544,45 @@ class UnifiedCitationProcessorV2:
                 if cluster_id not in clusters_by_id:
                     clusters_by_id[cluster_id] = []
                 clusters_by_id[cluster_id].append(citation)
+        # --- NEW LOGIC: Group by canonical name/date if not already clustered ---
+        # Build a mapping from (canonical_name, canonical_date) to citations
+        canonical_clusters = {}
+        for citation in citations:
+            canonical_name = getattr(citation, 'canonical_name', None) if hasattr(citation, 'canonical_name') else citation.get('canonical_name')
+            canonical_date = getattr(citation, 'canonical_date', None) if hasattr(citation, 'canonical_date') else citation.get('canonical_date')
+            verified = getattr(citation, 'verified', False) if hasattr(citation, 'verified') else citation.get('verified', False)
+            # Only cluster if canonical_name and canonical_date are present
+            if canonical_name and canonical_date:
+                key = (canonical_name, canonical_date)
+                if key not in canonical_clusters:
+                    canonical_clusters[key] = []
+                canonical_clusters[key].append(citation)
+        # Add canonical clusters to clusters_by_id if not already present
+        for key, members in canonical_clusters.items():
+            # Only add if more than one member and not already clustered
+            if len(members) > 1:
+                # Generate a synthetic cluster_id
+                cluster_id = f"canonical_{key[0]}_{key[1]}"
+                if cluster_id not in clusters_by_id:
+                    clusters_by_id[cluster_id] = []
+                # Only add citations not already in any cluster
+                for citation in members:
+                    already_clustered = False
+                    if hasattr(citation, 'metadata') and citation.metadata:
+                        already_clustered = citation.metadata.get('is_in_cluster', False)
+                    elif isinstance(citation, dict):
+                        already_clustered = citation.get('metadata', {}).get('is_in_cluster', False)
+                    if not already_clustered:
+                        clusters_by_id[cluster_id].append(citation)
+                        # Mark as in cluster
+                        if hasattr(citation, 'metadata'):
+                            citation.metadata = citation.metadata or {}
+                            citation.metadata['is_in_cluster'] = True
+                            citation.metadata['cluster_id'] = cluster_id
+                        elif isinstance(citation, dict):
+                            citation.setdefault('metadata', {})
+                            citation['metadata']['is_in_cluster'] = True
+                            citation['metadata']['cluster_id'] = cluster_id
         # DEBUG: Print formed clusters
         logger.debug(f"[DEBUG] clusters_by_id keys: {list(clusters_by_id.keys())}")
         for cid, members in clusters_by_id.items():
@@ -2560,7 +2596,6 @@ class UnifiedCitationProcessorV2:
                     member_citations.append(str(c))
             logger.debug(f"[DEBUG] Cluster {cid}: {member_citations}")
         logger.debug(f"[DEBUG] clusters_by_id full: {clusters_by_id}")
-        
         # Convert to the expected API format
         result_clusters = []
         for cluster_id, cluster_citations in clusters_by_id.items():
@@ -2568,7 +2603,6 @@ class UnifiedCitationProcessorV2:
                 logger.debug(f"[DEBUG] Formatting cluster {cluster_id} with {len(cluster_citations)} citations")
                 if not cluster_citations:
                     continue
-                
                 # Get cluster metadata from the first citation
                 first_citation = cluster_citations[0]
                 if hasattr(first_citation, 'metadata') and first_citation.metadata:
@@ -2577,43 +2611,34 @@ class UnifiedCitationProcessorV2:
                     cluster_metadata = first_citation.get('metadata', {})
                 else:
                     cluster_metadata = {}
-                
                 # Find the first verified citation in document order for cluster-level metadata
                 sorted_citations = sorted(cluster_citations, key=lambda c: getattr(c, 'start_index', 0) if hasattr(c, 'start_index') and c.start_index is not None else 0)
-                
-                # Helper function to check if citation is verified (handle both boolean and string values)
                 def is_citation_verified(citation):
                     verified = getattr(citation, 'verified', False)
                     if isinstance(verified, str):
                         return verified.lower() == 'true'
                     return bool(verified)
-                
                 first_verified = next((c for c in sorted_citations if is_citation_verified(c)), None)
                 best_citation = first_verified if first_verified else sorted_citations[0]
-                
                 # Debug: Print citation verification status
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - First verified citation: {first_verified.citation if first_verified else 'None'}")
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - Best citation: {best_citation.citation}")
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - Best citation verified: {is_citation_verified(best_citation)}")
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - Best citation canonical_name: {getattr(best_citation, 'canonical_name', None)}")
-                
                 # Set cluster-level metadata from the best citation
-                # Check if citation is verified (handle both boolean and string values)
                 is_verified = getattr(best_citation, 'verified', False)
                 if isinstance(is_verified, str):
                     is_verified = is_verified.lower() == 'true'
-                
-                cluster_canonical_name = getattr(best_citation, 'canonical_name', None) if is_verified else None
-                cluster_canonical_date = getattr(best_citation, 'canonical_date', None) if is_verified else None
+                cluster_canonical_name = getattr(best_citation, 'canonical_name', None) if is_verified else getattr(best_citation, 'canonical_name', None)
+                cluster_canonical_date = getattr(best_citation, 'canonical_date', None) if is_verified else getattr(best_citation, 'canonical_date', None)
                 cluster_extracted_case_name = getattr(best_citation, 'extracted_case_name', None)
                 cluster_extracted_date = getattr(best_citation, 'extracted_date', None)
-                cluster_url = getattr(best_citation, 'url', None) if is_verified else None
-                
+                cluster_url = getattr(best_citation, 'url', None) if is_verified else getattr(best_citation, 'url', None)
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - Final cluster_canonical_name: {cluster_canonical_name}")
                 logger.debug(f"[DEBUG] Cluster {cluster_id} - Final cluster_canonical_date: {cluster_canonical_date}")
-                
                 # Convert CitationResult objects to dictionaries
                 citation_dicts = []
+                any_verified = any(is_citation_verified(c) for c in cluster_citations)
                 for citation in cluster_citations:
                     if hasattr(citation, 'citation'):
                         citation_dict = {
@@ -2630,11 +2655,14 @@ class UnifiedCitationProcessorV2:
                             'verified': citation.verified,
                             'parallel_citations': citation.parallel_citations or []
                         }
+                        # If this citation is not verified but another in the cluster is, mark as true_by_parallel
+                        if not citation.verified and any_verified:
+                            citation_dict['true_by_parallel'] = True
                     else:
                         citation_dict = citation
-                    
+                        if not citation.get('verified', False) and any_verified:
+                            citation_dict['true_by_parallel'] = True
                     citation_dicts.append(citation_dict)
-                
                 # Create cluster dict with new field names only
                 cluster_dict = {
                     'cluster_id': cluster_id,
@@ -2648,13 +2676,11 @@ class UnifiedCitationProcessorV2:
                     'has_parallel_citations': len(citation_dicts) > 1,
                     'size': len(citation_dicts)
                 }
-                
                 result_clusters.append(cluster_dict)
             except Exception as e:
                 logger.error(f"[ERROR] Exception while formatting cluster {cluster_id}: {e}")
                 logger.error(f"[ERROR] Cluster citations: {cluster_citations}")
                 import traceback; traceback.print_exc()
-        
         return result_clusters
 
     def _merge_parallel_clusters(self, clusters: dict, cluster_meta: dict) -> dict:
@@ -3105,6 +3131,56 @@ class UnifiedCitationProcessorV2:
             return match.group(1)
         
         return normalized
+
+    def _propagate_canonical_to_parallels(self, citations: List['CitationResult']):
+        """
+        For each verified citation, propagate canonical_name and canonical_date to its unverified parallels.
+        Mark those as true_by_parallel.
+        """
+        # Build a lookup for citation text to CitationResult
+        citation_lookup = {c.citation: c for c in citations}
+        for citation in citations:
+            if citation.verified and citation.canonical_name and citation.canonical_date:
+                for parallel in (citation.parallel_citations or []):
+                    parallel_cite = citation_lookup.get(parallel)
+                    if parallel_cite and not parallel_cite.verified:
+                        # Propagate canonical info
+                        parallel_cite.canonical_name = citation.canonical_name
+                        parallel_cite.canonical_date = citation.canonical_date
+                        parallel_cite.url = citation.url
+                        parallel_cite.source = citation.source
+                        # Mark as true_by_parallel
+                        if not hasattr(parallel_cite, 'metadata') or parallel_cite.metadata is None:
+                            parallel_cite.metadata = {}
+                        parallel_cite.metadata['true_by_parallel'] = True
+
+    def _propagate_extracted_to_parallels(self, citations: List['CitationResult']):
+        """
+        For each group of parallel citations, propagate extracted_case_name and extracted_date to all members if any has them, regardless of verification status.
+        """
+        # Build a lookup for citation text to CitationResult
+        citation_lookup = {c.citation: c for c in citations}
+        # Track which citations have been processed
+        processed = set()
+        for citation in citations:
+            if citation.citation in processed:
+                continue
+            # Gather all citations in this parallel group (including self)
+            group = [citation]
+            for parallel in (citation.parallel_citations or []):
+                parallel_cite = citation_lookup.get(parallel)
+                if parallel_cite and parallel_cite not in group:
+                    group.append(parallel_cite)
+            # Find the best extracted_case_name and extracted_date in the group (prefer non-empty, non-N/A)
+            best_name = next((c.extracted_case_name for c in group if c.extracted_case_name and c.extracted_case_name != 'N/A'), None)
+            best_date = next((c.extracted_date for c in group if c.extracted_date and c.extracted_date != 'N/A'), None)
+            # Propagate to all group members if missing or N/A
+            for c in group:
+                if (not c.extracted_case_name or c.extracted_case_name == 'N/A') and best_name:
+                    c.extracted_case_name = best_name
+                if (not c.extracted_date or c.extracted_date == 'N/A') and best_date:
+                    c.extracted_date = best_date
+                processed.add(c.citation)
 
 # Convenience function for easy use
 def extract_citations_unified(text: str, config: Optional[ProcessingConfig] = None) -> List[CitationResult]:
