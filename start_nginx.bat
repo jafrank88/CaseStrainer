@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: Set paths
-set "NGINX_DIR=%~dp0nginx-1.27.5"
+set "NGINX_DIR=%~dp0nginx"
 set "CONFIG_FILE=%~dp0nginx-http.conf"
 set "NGINX_EXE=%NGINX_DIR%\nginx.exe"
 

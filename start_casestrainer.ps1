@@ -39,7 +39,7 @@ py -3.13 -m pip install -r requirements.txt
 $nginxProcess = Get-Process nginx -ErrorAction SilentlyContinue
 if (-not $nginxProcess) {
     Write-Host "Starting Nginx..."
-    Start-Process -FilePath "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\nginx.exe" -ArgumentList "-p `"C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5`" -c `"conf\nginx.conf`"" -NoNewWindow
+    Start-Process -FilePath "nginx/nginx.exe" -ArgumentList "-p `"nginx`" -c `"conf\nginx.conf`"" -NoNewWindow
 } else {
     Write-Host "Nginx is already running."
 }

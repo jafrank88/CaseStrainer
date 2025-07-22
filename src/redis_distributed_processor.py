@@ -26,6 +26,12 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 import pickle
 from dataclasses import dataclass, asdict
+import sys
+
+print("[DEBUG] sys.executable:", sys.executable)
+print("[DEBUG] sys.path:", sys.path)
+logging.warning(f"[DEBUG] sys.executable: {sys.executable}")
+logging.warning(f"[DEBUG] sys.path: {sys.path}")
 
 try:
     import redis
@@ -37,6 +43,7 @@ except ImportError:
     logging.warning("Redis/RQ not available - falling back to local processing")
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ProcessingResult:
@@ -396,27 +403,33 @@ class DockerOptimizedProcessor:
             loop.close()
     
     async def process_document(self, file_path: str, **kwargs) -> Dict[str, Any]:
-        """Full document processing with distributed citation extraction."""
+        print(f"[DEBUG PRINT] ENTERED process_document for file_path={file_path}")
+        import logging
+        logging.info(f"[DEBUG] ENTERED process_document for file_path={file_path}")
         start_time = time.time()
-        
         # Extract text
+        print(f"[DEBUG PRINT] About to call extract_text_distributed for file_path={file_path}")
+        logging.info(f"[DEBUG] About to call extract_text_distributed for file_path={file_path}")
         extraction_result = await self.system.extract_text_distributed(file_path)
+        print(f"[DEBUG PRINT] Returned from extract_text_distributed for file_path={file_path}, processor_used={getattr(extraction_result, 'processor_used', None)}")
+        logging.info(f"[DEBUG] Returned from extract_text_distributed for file_path={file_path}, processor_used={getattr(extraction_result, 'processor_used', None)}")
         text = extraction_result.text
-        
         if text.startswith('Error:'):
+            print(f"[DEBUG PRINT] Extraction error for file_path={file_path}: {text}")
+            logging.error(f"[DEBUG] Extraction error for file_path={file_path}: {text}")
             return {
                 'success': False,
                 'error': text,
                 'processing_time': time.time() - start_time
             }
-        
         # Process citations using existing citation service
+        print(f"[DEBUG PRINT] About to import and call CitationService for file_path={file_path}")
+        logging.info(f"[DEBUG] About to import and call CitationService for file_path={file_path}")
         from src.api.services.citation_service import CitationService
         citation_service = CitationService()
-        
-        # Use existing citation processing
         citation_result = citation_service.process_citations_from_text(text)
-        
+        print(f"[DEBUG PRINT] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
+        logging.info(f"[DEBUG] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
         return {
             'success': True,
             'text_length': len(text),

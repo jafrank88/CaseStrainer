@@ -309,6 +309,11 @@ async function pollForResults(requestId, startTime = Date.now()) {
 
 // Update the analyze function to use the consolidated /analyze endpoint
 export const analyze = async (requestData) => {
+    console.log('=== ANALYZE FUNCTION CALLED ===');
+    console.log('Request data:', requestData);
+    console.log('Request data type:', typeof requestData);
+    console.log('Is FormData:', requestData instanceof FormData);
+    
     // Set appropriate timeout based on input type
     let timeout;
     if (requestData.type === 'url') {
@@ -318,6 +323,8 @@ export const analyze = async (requestData) => {
     } else {
         timeout = 120000; // 2 minutes for text input
     }
+    
+    console.log('Timeout set to:', timeout);
     
     try {
         // Log the analyze request
@@ -346,20 +353,24 @@ export const analyze = async (requestData) => {
             'Content-Type': 'application/json'
         };
         
+        console.log('Request headers:', headers);
+        console.log('Making API call to:', `${baseURL}/analyze`);
+        
         const response = await api.post('/analyze', requestData, {
             timeout,
             headers,
             validateStatus: function (status) {
+                console.log('Response status received:', status);
                 return status < 500; // Accept any status less than 500
             }
         });
         
         // Log the analyze response
-        console.log('Analysis response:', {
-            status: response.status,
-            data: response.data,
-            headers: response.headers
-        });
+        console.log('Analysis response received:');
+        console.log('- Status:', response.status);
+        console.log('- Status text:', response.statusText);
+        console.log('- Headers:', response.headers);
+        console.log('- Data:', response.data);
         
         // Log the actual response data structure
         console.log('Response data details:', {
@@ -370,7 +381,9 @@ export const analyze = async (requestData) => {
             hasError: !!response.data.error,
             error: response.data.error,
             status: response.data.status,
-            message: response.data.message
+            message: response.data.message,
+            hasTaskId: !!response.data.task_id,
+            taskId: response.data.task_id
         });
         
         // If we get a processing status with task_id, start polling
@@ -383,14 +396,22 @@ export const analyze = async (requestData) => {
             return await pollForResults(response.data.task_id);
         }
         
+        console.log('Returning response data:', response.data);
         return response.data;
     } catch (error) {
+        console.error('=== ANALYZE FUNCTION ERROR ===');
         console.error('Error in analyze request:', {
             error,
             type: requestData.type,
             isFormData: requestData instanceof FormData,
             baseURL,
             endpoint: '/analyze'
+        });
+        console.error('Error details:', {
+            message: error.message,
+            code: error.code,
+            response: error.response,
+            request: error.request
         });
         throw error;
     }

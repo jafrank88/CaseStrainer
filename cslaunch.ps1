@@ -874,7 +874,7 @@ function Show-ContainerLogs {
         Write-Host ""
 
         Write-Host "Backend logs:" -ForegroundColor Yellow
-        $backendLogs = docker-compose -f $dockerComposeFile logs --tail=20 backend 2>$null
+        $backendLogs = docker-compose -f $dockerComposeFile logs --tail=20 backend-prod 2>$null
         if ($backendLogs) {
             Write-Host $backendLogs -ForegroundColor White
         } else {
@@ -882,7 +882,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nRQ Worker logs:" -ForegroundColor Yellow
-        $workerLogs = docker-compose -f $dockerComposeFile logs --tail=20 rqworker 2>$null
+        $workerLogs = docker-compose -f $dockerComposeFile logs --tail=20 rqworker-prod 2>$null
         if ($workerLogs) {
             Write-Host $workerLogs -ForegroundColor White
         } else {
@@ -890,7 +890,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nRedis logs:" -ForegroundColor Yellow
-        $redisLogs = docker-compose -f $dockerComposeFile logs --tail=10 redis 2>$null
+        $redisLogs = docker-compose -f $dockerComposeFile logs --tail=10 redis-prod 2>$null
         if ($redisLogs) {
             Write-Host $redisLogs -ForegroundColor White
         } else {
@@ -898,7 +898,7 @@ function Show-ContainerLogs {
         }
 
         Write-Host "`nNginx logs:" -ForegroundColor Yellow
-        $nginxLogs = docker-compose -f $dockerComposeFile logs --tail=10 nginx 2>$null
+        $nginxLogs = docker-compose -f $dockerComposeFile logs --tail=10 nginx-prod 2>$null
         if ($nginxLogs) {
             Write-Host $nginxLogs -ForegroundColor White
         } else {
@@ -1215,8 +1215,14 @@ function Start-DockerProduction {
             $composeArgs = @("-f", $dockerComposeFile, "up", "-d")
 
             if ($ForceRebuild) {
-                Write-Host "Force rebuild: Building images from scratch..." -ForegroundColor Yellow
-                $composeArgs += @("--build", "--force-recreate", "--renew-anon-volumes")
+                Write-Host "Force rebuild: Building all images from scratch with --no-cache..." -ForegroundColor Yellow
+                $buildArgs = @("-f", $dockerComposeFile, "build", "--no-cache")
+                Write-Host "Running: docker-compose $($buildArgs -join ' ')" -ForegroundColor Gray
+                $buildProcess = Start-Process -FilePath "docker-compose" -ArgumentList $buildArgs -Wait -NoNewWindow -PassThru -WorkingDirectory $PSScriptRoot
+                if ($buildProcess.ExitCode -ne 0) {
+                    Write-Host "ERROR: docker-compose build --no-cache failed (exit code: $($buildProcess.ExitCode))" -ForegroundColor Red
+                    return $false
+                }
             } elseif (Test-CodeChanges) {
                 Write-Host "Code changes detected: Rebuilding affected containers..." -ForegroundColor Yellow
                 $composeArgs += @("--build")
@@ -1250,7 +1256,7 @@ function Start-DockerProduction {
                         try {
                             # First try to restart specific services
                             Write-Host "Restarting backend and worker containers..." -ForegroundColor Gray
-                            docker-compose -f $dockerComposeFile restart backend rqworker 2>$null
+                            docker-compose -f $dockerComposeFile restart backend-prod rqworker-prod 2>$null
                             Start-Sleep -Seconds 15
 
                             # Try health check again with shorter timeout
@@ -2264,3 +2270,38 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "`n✅ [CaseStrainer] All production server tests passed!" -ForegroundColor Green
     Add-Content -Path $testLogFile -Value "[$timestamp] === Test Run Success ==="
 }
+
+# --- Nginx Config Templating for Docker Compose Production ---
+# Ensure BACKEND_SERVICE_NAME is set and template the Nginx config before starting containers
+$nginxConfTemplate = Join-Path $PSScriptRoot "nginx/conf.d/casestrainer.conf"
+$nginxConfTarget = $nginxConfTemplate  # Overwrite in place for Docker bind mount
+$backendServiceName = "casestrainer-backend-prod"
+
+# Set environment variable for Nginx templating
+[System.Environment]::SetEnvironmentVariable("BACKEND_SERVICE_NAME", $backendServiceName, "Process")
+
+# Check for envsubst (required for templating)
+$envsubst = "envsubst"
+$envsubstExists = $false
+try {
+    $null = & $envsubst --version 2>$null
+    $envsubstExists = $true
+} catch {
+    Write-Host "WARNING: envsubst not found. Nginx config will not be templated. Install GNU gettext or ensure envsubst is in PATH." -ForegroundColor Yellow
+}
+
+if ($envsubstExists) {
+    Write-Host "Templating Nginx config with BACKEND_SERVICE_NAME=$backendServiceName ..." -ForegroundColor Cyan
+    $templateContent = Get-Content $nginxConfTemplate -Raw
+    $tmpIn = [System.IO.Path]::GetTempFileName()
+    $tmpOut = [System.IO.Path]::GetTempFileName()
+    Set-Content -Path $tmpIn -Value $templateContent
+    Start-Process -FilePath $envsubst -ArgumentList @() -RedirectStandardInput $tmpIn -RedirectStandardOutput $tmpOut -NoNewWindow -Wait -PassThru
+    $templatedContent = Get-Content $tmpOut -Raw
+    Set-Content -Path $nginxConfTarget -Value $templatedContent
+    Remove-Item $tmpIn, $tmpOut -ErrorAction SilentlyContinue
+    Write-Host "Nginx config templated successfully." -ForegroundColor Green
+} else {
+    Write-Host "Skipping Nginx config templating (envsubst not found)." -ForegroundColor Yellow
+}
+# --- End Nginx Config Templating ---

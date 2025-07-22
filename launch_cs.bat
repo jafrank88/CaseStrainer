@@ -10,7 +10,7 @@ setlocal enabledelayedexpansion
 :: Configuration
 set "SCRIPT_DIR=%~dp0"
 set "LOG_DIR=%SCRIPT_DIR%logs"
-set "NGINX_DIR=%SCRIPT_DIR%nginx-1.27.5"
+set "NGINX_DIR=%SCRIPT_DIR%nginx"
 set "NGINX_EXE=%NGINX_DIR%\nginx.exe"
 set "NGINX_CONF=%NGINX_DIR%\conf\nginx.conf"
 set "FLASK_APP=app_final_vue.py"

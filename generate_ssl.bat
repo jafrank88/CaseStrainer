@@ -2,7 +2,7 @@
 setlocal
 
 set OPENSSL_PATH=openssl
-set SSL_DIR=nginx-1.27.5\conf\ssl
+set SSL_DIR=nginx\conf\ssl
 
 if not exist "%SSL_DIR%" (
     mkdir "%SSL_DIR%"

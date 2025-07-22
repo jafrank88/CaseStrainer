@@ -1,56 +1,5 @@
 # PowerShell script for launching CaseStrainer in production with improved error handling
-param(
-    [Parameter()]
-    [string]$Environment = "Production",
-    
-    [Parameter()]
-    [string]$BackendPort = "5000",
-    
-    [Parameter()]
-    [string]$FrontendPort = "443",
-    
-    [Parameter()]
-    [string]$SSL_CERT = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\WolfCertBundle.crt",
-    
-    [Parameter()]
-    [string]$SSL_KEY = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\wolf.law.uw.edu.key",
-    
-    [Parameter()]
-    [string]$CORS_ORIGINS = "https://wolf.law.uw.edu",
-    
-    [Parameter()]
-    [switch]$NoFrontend,
-    
-    [Parameter()]
-    [switch]$NoSSL,
-
-    [Parameter()]
-    [string]$LogLevel = "INFO",
-
-    [Parameter()]
-    [int]$WaitressThreads = 4,
-
-    [Parameter()]
-    [string]$DatabasePath = "data/citations.db",
-
-    [Parameter()]
-    [switch]$SkipHealthCheck,
-
-    [Parameter()]
-    [int]$HealthCheckRetries = 20,
-
-    [Parameter()]
-    [int]$HealthCheckInterval = 5,
-
-    [Parameter()]
-    [switch]$EnableMetrics,
-
-    [Parameter()]
-    [string]$MetricsPort = "9090",
-
-    [Parameter()]
-    [switch]$VerboseLogging
-)
+param()
 
 # Global variables
 $script:BackendProcess = $null
@@ -59,28 +8,32 @@ $script:MetricsProcess = $null
 $script:LogDirectory = "logs"
 
 # Path to nginx executable
-$nginxExe = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\nginx.exe"
+$nginxExe = "nginx/nginx.exe"  # Updated for new structure or use containerized nginx
 
 # Cleanup function for graceful shutdown
 function Stop-Services {
-    Write-Host "Shutting down services gracefully..." -ForegroundColor Yellow
-    
-    if ($script:BackendProcess -and !$script:BackendProcess.HasExited) {
-        Write-Host "Stopping Flask backend..." -ForegroundColor Yellow
-        Stop-Process -Id $script:BackendProcess.Id -Force -ErrorAction SilentlyContinue
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("services", "stop")) {
+        Write-Host "Shutting down services gracefully..." -ForegroundColor Yellow
+        
+        if ($script:BackendProcess -and !$script:BackendProcess.HasExited) {
+            Write-Host "Stopping Flask backend..." -ForegroundColor Yellow
+            Stop-Process -Id $script:BackendProcess.Id -Force -ErrorAction SilentlyContinue
+        }
+        
+        if ($script:NginxProcess -and !$script:NginxProcess.HasExited) {
+            Write-Host "Stopping Nginx..." -ForegroundColor Yellow
+            Stop-Process -Id $script:NginxProcess.Id -Force -ErrorAction SilentlyContinue
+        }
+        
+        if ($script:MetricsProcess -and !$script:MetricsProcess.HasExited) {
+            Write-Host "Stopping metrics server..." -ForegroundColor Yellow
+            Stop-Process -Id $script:MetricsProcess.Id -Force -ErrorAction SilentlyContinue
+        }
+        
+        Write-Host "All services stopped." -ForegroundColor Green
     }
-    
-    if ($script:NginxProcess -and !$script:NginxProcess.HasExited) {
-        Write-Host "Stopping Nginx..." -ForegroundColor Yellow
-        Stop-Process -Id $script:NginxProcess.Id -Force -ErrorAction SilentlyContinue
-    }
-    
-    if ($script:MetricsProcess -and !$script:MetricsProcess.HasExited) {
-        Write-Host "Stopping metrics server..." -ForegroundColor Yellow
-        Stop-Process -Id $script:MetricsProcess.Id -Force -ErrorAction SilentlyContinue
-    }
-    
-    Write-Host "All services stopped." -ForegroundColor Green
 }
 
 # Register cleanup on script exit
@@ -195,115 +148,123 @@ function Test-Prerequisites {
 }
 
 function Start-Frontend {
-    if ($NoFrontend) {
-        Write-Host "Skipping frontend build (NoFrontend flag set)" -ForegroundColor Yellow
-        return
-    }
-    
-    Write-Host "Building frontend for production..." -ForegroundColor Cyan
-    
-    Push-Location (Join-Path $PSScriptRoot "casestrainer-vue-new")
-    try {
-        Write-Host "  Installing dependencies..." -ForegroundColor Cyan
-        npm ci 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_install.log"
-        if ($LASTEXITCODE -ne 0) {
-            throw "npm ci failed. Check $script:LogDirectory/npm_install.log"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("frontend", "start")) {
+        if ($NoFrontend) {
+            Write-Host "Skipping frontend build (NoFrontend flag set)" -ForegroundColor Yellow
+            return
         }
         
-        Write-Host "  Building production assets..." -ForegroundColor Cyan
+        Write-Host "Building frontend for production..." -ForegroundColor Cyan
         
-        # Clear NODE_ENV to avoid Vite issues - Vite will set it to production automatically for build
-        $originalNodeEnv = $env:NODE_ENV
-        $env:NODE_ENV = $null
-        
+        Push-Location (Join-Path $PSScriptRoot "casestrainer-vue-new")
         try {
-            npm run build 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_build.log"
+            Write-Host "  Installing dependencies..." -ForegroundColor Cyan
+            npm ci 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_install.log"
             if ($LASTEXITCODE -ne 0) {
-                throw "npm run build failed. Check $script:LogDirectory/npm_build.log"
+                throw "npm ci failed. Check $script:LogDirectory/npm_install.log"
             }
+            
+            Write-Host "  Building production assets..." -ForegroundColor Cyan
+            
+            # Clear NODE_ENV to avoid Vite issues - Vite will set it to production automatically for build
+            $originalNodeEnv = $env:NODE_ENV
+            $env:NODE_ENV = $null
+            
+            try {
+                npm run build 2>&1 | Tee-Object -FilePath "../$script:LogDirectory/npm_build.log"
+                if ($LASTEXITCODE -ne 0) {
+                    throw "npm run build failed. Check $script:LogDirectory/npm_build.log"
+                }
+            }
+            finally {
+                # Restore original NODE_ENV
+                $env:NODE_ENV = $originalNodeEnv
+            }
+            
+            Write-Host "Frontend build completed successfully" -ForegroundColor Green
+        }
+        catch {
+            Write-Error "Frontend build failed: $_"
+            exit 1
         }
         finally {
-            # Restore original NODE_ENV
-            $env:NODE_ENV = $originalNodeEnv
+            Pop-Location
         }
-        
-        Write-Host "Frontend build completed successfully" -ForegroundColor Green
-    }
-    catch {
-        Write-Error "Frontend build failed: $_"
-        exit 1
-    }
-    finally {
-        Pop-Location
     }
 }
 
 function Start-Backend {
-    Write-Host "Starting Flask backend..." -ForegroundColor Cyan
-    
-    # Set environment variables
-    $env:FLASK_ENV = $Environment.ToLower()
-    $env:FLASK_APP = "src/app_final_vue.py"
-    $env:CORS_ORIGINS = $CORS_ORIGINS
-    $env:DATABASE_PATH = $DatabasePath
-    $env:LOG_LEVEL = $LogLevel
-    $env:PYTHONPATH = $PSScriptRoot  # Fix Python path issues
-    
-    # Create data directory if it doesn't exist
-    $dataDir = Split-Path $DatabasePath -Parent
-    if (![string]::IsNullOrEmpty($dataDir) -and !(Test-Path $dataDir)) {
-        New-Item -ItemType Directory -Path $dataDir -Force
-        Write-Host "  Created data directory: $dataDir" -ForegroundColor Green
-    }
-    
-    # Prepare log files
-    $backendLogPath = Join-Path $script:LogDirectory "backend.log"
-    $backendErrorPath = Join-Path $script:LogDirectory "backend_error.log"
-    
-    # Start Flask with Waitress (production WSGI server)
-    # Use --call to invoke the factory function
-    $waitressArgs = @(
-        "--host=127.0.0.1"
-        "--port=$BackendPort"
-        "--threads=$WaitressThreads"
-        "--call"
-        "src.app_final_vue:create_app"
-    )
-    
-    try {
-        Write-Host "  Starting Waitress server on port $BackendPort with $WaitressThreads threads..." -ForegroundColor Cyan
-        Write-Host "  Command: waitress-serve $($waitressArgs -join ' ')" -ForegroundColor Gray
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("backend", "start")) {
+        Write-Host "Starting Flask backend..." -ForegroundColor Cyan
         
-        # Use simpler process startup without event handlers that might cause issues
-        $script:BackendProcess = Start-Process -FilePath "waitress-serve" -ArgumentList $waitressArgs -NoNewWindow -PassThru -RedirectStandardOutput $backendLogPath -RedirectStandardError $backendErrorPath
+        # Set environment variables
+        $env:FLASK_ENV = $Environment.ToLower()
+        $env:FLASK_APP = "src/app_final_vue.py"
+        $env:CORS_ORIGINS = $CORS_ORIGINS
+        $env:DATABASE_PATH = $DatabasePath
+        $env:LOG_LEVEL = $LogLevel
+        $env:PYTHONPATH = $PSScriptRoot  # Fix Python path issues
         
-        Write-Host "Flask backend started (PID: $($script:BackendProcess.Id))" -ForegroundColor Green
-        Write-Host "  Logs: $backendLogPath" -ForegroundColor Gray
-        Write-Host "  Errors: $backendErrorPath" -ForegroundColor Gray
+        # Create data directory if it doesn't exist
+        $dataDir = Split-Path $DatabasePath -Parent
+        if (![string]::IsNullOrEmpty($dataDir) -and !(Test-Path $dataDir)) {
+            New-Item -ItemType Directory -Path $dataDir -Force
+            Write-Host "  Created data directory: $dataDir" -ForegroundColor Green
+        }
         
-        # Give it a moment to settle
-        Start-Sleep -Seconds 3
+        # Prepare log files
+        $backendLogPath = Join-Path $script:LogDirectory "backend.log"
+        $backendErrorPath = Join-Path $script:LogDirectory "backend_error.log"
         
-        # Check if process is still running
-        if ($script:BackendProcess.HasExited) {
-            $exitCode = $script:BackendProcess.ExitCode
-            Write-Host "Backend error log:" -ForegroundColor Red
+        # Start Flask with Waitress (production WSGI server)
+        # Use --call to invoke the factory function
+        $waitressArgs = @(
+            "--host=127.0.0.1"
+            "--port=$BackendPort"
+            "--threads=$WaitressThreads"
+            "--call"
+            "src.app_final_vue:create_app"
+        )
+        
+        try {
+            Write-Host "  Starting Waitress server on port $BackendPort with $WaitressThreads threads..." -ForegroundColor Cyan
+            Write-Host "  Command: waitress-serve $($waitressArgs -join ' ')" -ForegroundColor Gray
+            
+            # Use simpler process startup without event handlers that might cause issues
+            $script:BackendProcess = Start-Process -FilePath "waitress-serve" -ArgumentList $waitressArgs -NoNewWindow -PassThru -RedirectStandardOutput $backendLogPath -RedirectStandardError $backendErrorPath
+            
+            Write-Host "Flask backend started (PID: $($script:BackendProcess.Id))" -ForegroundColor Green
+            Write-Host "  Logs: $backendLogPath" -ForegroundColor Gray
+            Write-Host "  Errors: $backendErrorPath" -ForegroundColor Gray
+            
+            # Give it a moment to settle
+            Start-Sleep -Seconds 3
+            
+            # Check if process is still running
+            if ($script:BackendProcess.HasExited) {
+                $exitCode = $script:BackendProcess.ExitCode
+                Write-Host "Backend error log:" -ForegroundColor Red
+                if (Test-Path $backendErrorPath) {
+                    Get-Content $backendErrorPath | Write-Host -ForegroundColor Red
+                }
+                throw "Backend process exited immediately with code: $exitCode"
+            }
+            
+            Write-Host "  Backend process is running successfully" -ForegroundColor Green
+        }
+        catch {
+            Write-Error "Failed to start Flask backend: $_"
+            Write-Host "Check error log at: $backendErrorPath" -ForegroundColor Yellow
             if (Test-Path $backendErrorPath) {
+                Write-Host "Error log contents:" -ForegroundColor Red
                 Get-Content $backendErrorPath | Write-Host -ForegroundColor Red
             }
-            throw "Backend process exited immediately with code: $exitCode"
+            exit 1
         }
-        
-        Write-Host "  Backend process is running successfully" -ForegroundColor Green
-    }
-    catch {
-        Write-Error "Failed to start Flask backend: $_"
-        Write-Host "Check error log at: $backendErrorPath" -ForegroundColor Yellow
-        if (Test-Path $backendErrorPath) {
-            Write-Host "Error log contents:" -ForegroundColor Red
-            Get-Content $backendErrorPath | Write-Host -ForegroundColor Red
-        }
-        exit 1
     }
 }
 
@@ -399,33 +360,36 @@ function Test-BackendDirectly {
 }
 
 function New-NginxConfig {
-    Write-Host "Generating Nginx configuration..." -ForegroundColor Cyan
-    
-    # Convert Windows paths to forward slashes and properly escape for nginx
-    $frontendPath = (Join-Path $PSScriptRoot "casestrainer-vue-new/dist") -replace '\\', '/'
-    $sslCertPath = $SSL_CERT -replace '\\', '/'
-    $sslKeyPath = $SSL_KEY -replace '\\', '/'
-    
-    $sslBlock = ""
-    if (!$NoSSL) {
-        $sslBlock = @"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("nginx config", "create")) {
+        Write-Host "Generating Nginx configuration..." -ForegroundColor Cyan
+        
+        # Convert Windows paths to forward slashes and properly escape for nginx
+        $frontendPath = (Join-Path $PSScriptRoot "casestrainer-vue-new/dist") -replace '\\', '/'
+        $sslCertPath = $SSL_CERT -replace '\\', '/'
+        $sslKeyPath = $SSL_KEY -replace '\\', '/'
+        
+        $sslBlock = ""
+        if (!$NoSSL) {
+            $sslBlock = @"
         # SSL Configuration
         ssl_certificate     "$sslCertPath";
         ssl_certificate_key "$sslKeyPath";
         ssl_protocols       TLSv1.2 TLSv1.3;
         ssl_ciphers         HIGH:!aNULL:!MD5;
 "@
-    }
-    $listenLine = "listen       $FrontendPort" + $(if (!$NoSSL) { " ssl" } else { "" }) + ";"
-    $http2Line = if (!$NoSSL) { "http2 on;" } else { "" }
-    
-    # Create logs directory for nginx
-    $nginxLogsDir = "logs"
-    if (!(Test-Path $nginxLogsDir)) {
-        New-Item -ItemType Directory -Path $nginxLogsDir -Force | Out-Null
-    }
-    
-    $nginxConfig = @"
+        }
+        $listenLine = "listen       $FrontendPort" + $(if (!$NoSSL) { " ssl" } else { "" }) + ";"
+        $http2Line = if (!$NoSSL) { "http2 on;" } else { "" }
+        
+        # Create logs directory for nginx
+        $nginxLogsDir = "logs"
+        if (!(Test-Path $nginxLogsDir)) {
+            New-Item -ItemType Directory -Path $nginxLogsDir -Force | Out-Null
+        }
+        
+        $nginxConfig = @"
 worker_processes  1;
 
 events {
@@ -509,82 +473,90 @@ $sslBlock
 }
 "@
 
-    $configPath = "nginx.conf"
-    # Remove any existing config file first
-    if (Test-Path $configPath) {
-        Remove-Item $configPath -Force
+        $configPath = "nginx.conf"
+        # Remove any existing config file first
+        if (Test-Path $configPath) {
+            Remove-Item $configPath -Force
+        }
+        
+        # Write file as ASCII to completely avoid BOM issues
+        $nginxConfig | Out-File -FilePath $configPath -Encoding ASCII
+        Write-Host "Nginx configuration saved to: $configPath" -ForegroundColor Green
+        
+        # Verify the file was created correctly
+        if (Test-Path $configPath) {
+            $firstLine = Get-Content $configPath -TotalCount 1
+            Write-Host "First line of config: '$firstLine'" -ForegroundColor Gray
+        }
+        
+        return $configPath
     }
-    
-    # Write file as ASCII to completely avoid BOM issues
-    $nginxConfig | Out-File -FilePath $configPath -Encoding ASCII
-    Write-Host "Nginx configuration saved to: $configPath" -ForegroundColor Green
-    
-    # Verify the file was created correctly
-    if (Test-Path $configPath) {
-        $firstLine = Get-Content $configPath -TotalCount 1
-        Write-Host "First line of config: '$firstLine'" -ForegroundColor Gray
-    }
-    
-    return $configPath
 }
 
 function Start-Nginx {
-    $configPath = New-NginxConfig
-    
-    Write-Host "Starting Nginx..." -ForegroundColor Cyan
-    
-    try {
-        # Test nginx configuration
-        Write-Host "  Testing Nginx configuration..." -ForegroundColor Cyan
-        $configTest = & $nginxExe -t -c (Resolve-Path $configPath).Path 2>&1
-        Write-Host "  Config test result: $configTest" -ForegroundColor Gray
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("nginx", "start")) {
+        $configPath = New-NginxConfig
         
-        if ($LASTEXITCODE -ne 0) {
-            throw "Nginx configuration test failed: $configTest"
+        Write-Host "Starting Nginx..." -ForegroundColor Cyan
+        
+        try {
+            # Test nginx configuration
+            Write-Host "  Testing Nginx configuration..." -ForegroundColor Cyan
+            $configTest = & $nginxExe -t -c (Resolve-Path $configPath).Path 2>&1
+            Write-Host "  Config test result: $configTest" -ForegroundColor Gray
+            
+            if ($LASTEXITCODE -ne 0) {
+                throw "Nginx configuration test failed: $configTest"
+            }
+            
+            # Start nginx
+            $nginxConfPath = (Resolve-Path $configPath).Path
+            $nginxConfPathQuoted = '"' + $nginxConfPath + '"'
+            
+            $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $processStartInfo.FileName = $nginxExe
+            $processStartInfo.Arguments = "-c $nginxConfPathQuoted"
+            $processStartInfo.UseShellExecute = $false
+            $processStartInfo.WorkingDirectory = $PSScriptRoot
+            
+            $script:NginxProcess = New-Object System.Diagnostics.Process
+            $script:NginxProcess.StartInfo = $processStartInfo
+            $script:NginxProcess.Start()
+            
+            # Give nginx a moment to start
+            Start-Sleep -Seconds 2
+            
+            Write-Host "Nginx started (PID: $($script:NginxProcess.Id))" -ForegroundColor Green
+            
+            if (!$NoSSL) {
+                Write-Host "Server available at: https://localhost:$FrontendPort/casestrainer/" -ForegroundColor Green
+            } else {
+                Write-Host "Server available at: http://localhost:$FrontendPort/casestrainer/" -ForegroundColor Green
+            }
         }
-        
-        # Start nginx
-        $nginxConfPath = (Resolve-Path $configPath).Path
-        $nginxConfPathQuoted = '"' + $nginxConfPath + '"'
-        
-        $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-        $processStartInfo.FileName = $nginxExe
-        $processStartInfo.Arguments = "-c $nginxConfPathQuoted"
-        $processStartInfo.UseShellExecute = $false
-        $processStartInfo.WorkingDirectory = $PSScriptRoot
-        
-        $script:NginxProcess = New-Object System.Diagnostics.Process
-        $script:NginxProcess.StartInfo = $processStartInfo
-        $script:NginxProcess.Start()
-        
-        # Give nginx a moment to start
-        Start-Sleep -Seconds 2
-        
-        Write-Host "Nginx started (PID: $($script:NginxProcess.Id))" -ForegroundColor Green
-        
-        if (!$NoSSL) {
-            Write-Host "Server available at: https://localhost:$FrontendPort/casestrainer/" -ForegroundColor Green
-        } else {
-            Write-Host "Server available at: http://localhost:$FrontendPort/casestrainer/" -ForegroundColor Green
+        catch {
+            Write-Error "Failed to start Nginx: $_"
+            Write-Host "Check nginx error log at: logs/error.log" -ForegroundColor Yellow
+            exit 1
         }
-    }
-    catch {
-        Write-Error "Failed to start Nginx: $_"
-        Write-Host "Check nginx error log at: logs/error.log" -ForegroundColor Yellow
-        exit 1
     }
 }
 
 function Start-MetricsServer {
-    if (!$EnableMetrics) {
-        return
-    }
-    
-    Write-Host "Starting metrics server..." -ForegroundColor Cyan
-    
-    try {
-        # Create a simple metrics server
-        $metricsScript = @"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("metrics server", "start")) {
+        if (!$EnableMetrics) {
+            return
+        }
+        
+        Write-Host "Starting metrics server..." -ForegroundColor Cyan
+        
+        try {
+            # Create a simple metrics server
+            $metricsScript = @"
 import http.server
 import socketserver
 import json
@@ -616,17 +588,18 @@ print(f'Starting metrics server on port $MetricsPort')
 with socketserver.TCPServer(('127.0.0.1', $MetricsPort), MetricsHandler) as httpd:
     httpd.serve_forever()
 "@
-        
-        $metricsScriptPath = Join-Path $script:LogDirectory "metrics_server.py"
-        $metricsScript | Out-File -FilePath $metricsScriptPath -Encoding UTF8
-        
-        $script:MetricsProcess = Start-Process -FilePath "python" -ArgumentList $metricsScriptPath -NoNewWindow -PassThru
-        
-        Write-Host "Metrics server started on port $MetricsPort (PID: $($script:MetricsProcess.Id))" -ForegroundColor Green
-        Write-Host "  Metrics available at: http://localhost:$MetricsPort/metrics" -ForegroundColor Gray
-    }
-    catch {
-        Write-Warning "Failed to start metrics server: $_"
+            
+            $metricsScriptPath = Join-Path $script:LogDirectory "metrics_server.py"
+            $metricsScript | Out-File -FilePath $metricsScriptPath -Encoding UTF8
+            
+            $script:MetricsProcess = Start-Process -FilePath "python" -ArgumentList $metricsScriptPath -NoNewWindow -PassThru
+            
+            Write-Host "Metrics server started on port $MetricsPort (PID: $($script:MetricsProcess.Id))" -ForegroundColor Green
+            Write-Host "  Metrics available at: http://localhost:$MetricsPort/metrics" -ForegroundColor Gray
+        }
+        catch {
+            Write-Warning "Failed to start metrics server: $_"
+        }
     }
 }
 

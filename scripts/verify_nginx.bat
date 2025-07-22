@@ -28,8 +28,8 @@ if not exist "nginx.conf" (
 
 REM Verify Nginx configuration
 echo [%TIME%] Verifying Nginx configuration...
-if exist "nginx-1.27.5\nginx.exe" (
-    "nginx-1.27.5\nginx.exe" -t -c "%CD%\nginx.conf"
+if exist "nginx\nginx.exe" (
+    "nginx\nginx.exe" -t -c "%CD%\nginx.conf"
 ) else (
     nginx -t -c "%CD%\nginx.conf"
 )

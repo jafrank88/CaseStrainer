@@ -41,28 +41,34 @@ class CitationService:
             return {'status': 'error', 'message': str(e)}
     
     async def process_citation_task(self, task_id: str, input_type: str, input_data: Dict) -> Dict[str, Any]:
-        """
-        Process citation task asynchronously using Redis-distributed processing.
-        This is the main function called by RQ workers.
-        """
+        print(f"[DEBUG PRINT] ENTERED process_citation_task for task_id={task_id}, input_type={input_type}, input_data_keys={list(input_data.keys())}")
+        logger.info(f"[DEBUG] ENTERED process_citation_task for task_id={task_id}, input_type={input_type}, input_data_keys={list(input_data.keys())}")
         start_time = time.time()
         logger.info(f"Processing citation task {task_id} of type {input_type}")
-        
+        print(f"[DEBUG PRINT] About to dispatch to specific task type: {input_type}")
         try:
             if input_type == 'file':
-                return await self._process_file_task(task_id, input_data)
+                print(f"[DEBUG PRINT] Calling _process_file_task for task_id={task_id}")
+                logger.info(f"[DEBUG] Calling _process_file_task for task_id={task_id}")
+                result = await self._process_file_task(task_id, input_data)
+                print(f"[DEBUG PRINT] Returned from _process_file_task for task_id={task_id}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
+                logger.info(f"[DEBUG] Returned from _process_file_task for task_id={task_id}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
+                return result
             elif input_type == 'url':
+                print(f"[DEBUG PRINT] Calling _process_url_task for task_id={task_id}")
                 return await self._process_url_task(task_id, input_data)
             elif input_type == 'text':
+                print(f"[DEBUG PRINT] Calling _process_text_task for task_id={task_id}")
                 return await self._process_text_task(task_id, input_data)
             else:
+                print(f"[DEBUG PRINT] Unknown input type: {input_type} for task_id={task_id}")
                 return {
                     'status': 'failed',
                     'error': f'Unknown input type: {input_type}',
                     'task_id': task_id
                 }
-                
         except Exception as e:
+            print(f"[DEBUG PRINT] Exception in process_citation_task for task_id={task_id}: {e}")
             logger.error(f"Task {task_id} failed: {e}", exc_info=True)
             return {
                 'status': 'failed',
@@ -72,27 +78,34 @@ class CitationService:
             }
     
     async def _process_file_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:
-        """Process file upload task."""
+        print(f"[DEBUG PRINT] ENTERED _process_file_task for task_id={task_id}, input_data_keys={list(input_data.keys())}")
+        logger.info(f"[DEBUG] ENTERED _process_file_task for task_id={task_id}, input_data_keys={list(input_data.keys())}")
         file_path = input_data.get('file_path')
         filename = input_data.get('filename', 'unknown')
-        
+        print(f"[DEBUG PRINT] file_path={file_path}, filename={filename}")
+        logger.info(f"[DEBUG] file_path={file_path}, filename={filename}")
         if not file_path or not os.path.exists(file_path):
+            print(f"[DEBUG PRINT] File not found: {file_path} for task_id={task_id}")
+            logger.error(f"[DEBUG] File not found: {file_path} for task_id={task_id}")
             return {
                 'status': 'failed',
                 'error': f'File not found: {file_path}',
                 'task_id': task_id
             }
-        
         try:
-            # Use distributed processor for text extraction
+            print(f"[DEBUG PRINT] Before calling process_document for file_path={file_path}")
+            logger.info(f"[DEBUG] Before calling process_document for file_path={file_path}")
             result = await self.processor.process_document(file_path)
-            
+            print(f"[DEBUG PRINT] After process_document for file_path={file_path}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
+            logger.info(f"[DEBUG] After process_document for file_path={file_path}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
             # Clean up temporary file
             try:
                 os.remove(file_path)
-            except:
-                pass
-            
+                print(f"[DEBUG PRINT] Successfully removed file: {file_path}")
+                logger.info(f"[DEBUG] Successfully removed file: {file_path}")
+            except Exception as cleanup_exc:
+                print(f"[DEBUG PRINT] Failed to remove file: {file_path} - {cleanup_exc}")
+                logger.warning(f"[DEBUG] Failed to remove file: {file_path} - {cleanup_exc}")
             return {
                 'status': 'completed',
                 'task_id': task_id,
@@ -104,13 +117,17 @@ class CitationService:
                 },
                 'processing_time': result.get('processing_time', 0)
             }
-            
         except Exception as e:
+            print(f"[DEBUG PRINT] Exception in _process_file_task for task_id={task_id}: {e}")
+            logger.error(f"[DEBUG] Exception in _process_file_task for task_id={task_id}: {e}", exc_info=True)
             # Clean up on error
             try:
                 os.remove(file_path)
-            except:
-                pass
+                print(f"[DEBUG PRINT] Successfully removed file after exception: {file_path}")
+                logger.info(f"[DEBUG] Successfully removed file after exception: {file_path}")
+            except Exception as cleanup_exc:
+                print(f"[DEBUG PRINT] Failed to remove file after exception: {file_path} - {cleanup_exc}")
+                logger.warning(f"[DEBUG] Failed to remove file after exception: {file_path} - {cleanup_exc}")
             raise
     
     async def _process_url_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:
@@ -199,14 +216,20 @@ class CitationService:
             raise
     
     def process_citations_from_text(self, text: str) -> Dict[str, Any]:
-        """Process citations from extracted text using existing citation processor."""
+        print(f"[DEBUG PRINT] ENTERED process_citations_from_text, text_length={len(text)}")
+        logger.info(f"[DEBUG] ENTERED process_citations_from_text, text_length={len(text)}")
         try:
-            # Use existing citation processor
+            print(f"[DEBUG PRINT] About to import UnifiedCitationProcessorV2")
+            logger.info(f"[DEBUG] About to import UnifiedCitationProcessorV2")
             from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-            
+            print(f"[DEBUG PRINT] Imported UnifiedCitationProcessorV2, about to instantiate")
+            logger.info(f"[DEBUG] Imported UnifiedCitationProcessorV2, about to instantiate")
             processor = UnifiedCitationProcessorV2()
+            print(f"[DEBUG PRINT] Instantiated UnifiedCitationProcessorV2, about to call process_text")
+            logger.info(f"[DEBUG] Instantiated UnifiedCitationProcessorV2, about to call process_text")
             citation_results = processor.process_text(text)
-            
+            print(f"[DEBUG PRINT] Returned from process_text, results_count={len(citation_results)}")
+            logger.info(f"[DEBUG] Returned from process_text, results_count={len(citation_results)}")
             # Convert CitationResult objects to dictionaries
             processed_citations = []
             for citation in citation_results:
@@ -239,7 +262,8 @@ class CitationService:
                     'metadata': citation.metadata or {}
                 }
                 processed_citations.append(citation_dict)
-            
+            print(f"[DEBUG PRINT] Finished processing citations, processed_citations_count={len(processed_citations)}")
+            logger.info(f"[DEBUG] Finished processing citations, processed_citations_count={len(processed_citations)}")
             return {
                 'status': 'completed',
                 'citations': processed_citations,
@@ -248,8 +272,8 @@ class CitationService:
                     'text_length': len(text)
                 }
             }
-            
         except Exception as e:
+            print(f"[DEBUG PRINT] Exception in process_citations_from_text: {e}")
             logger.error(f"Citation processing failed: {e}")
             return {
                 'status': 'error',

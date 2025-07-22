@@ -128,69 +128,77 @@ function Test-RedisConnection {
 }
 
 function Restart-Backend {
-    Write-Log "Restarting backend..." -Level "WARN"
-    
-    # Stop existing backend processes
-    $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
-        Where-Object { $_.CommandLine -like '*waitress-serve*' -or $_.CommandLine -like '*app_final_vue*' }
-    
-    if ($backendProcesses) {
-        Write-Log "Stopping existing backend processes..." -Level "INFO"
-        $backendProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 2
-    }
-    
-    # Start backend using launcher
-    try {
-        $launcherPath = Join-Path $PSScriptRoot "launcher.ps1"
-        if (Test-Path $launcherPath) {
-            Write-Log "Starting backend via launcher..." -Level "INFO"
-            Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy", "Bypass", "-File", "`"$launcherPath`"", "-Environment", $Environment, "-NoMenu" -WindowStyle Hidden
-            Start-Sleep -Seconds $RestartDelay
-        } else {
-            Write-Log "Launcher not found, attempting direct start..." -Level "WARN"
-            # Fallback: try to start backend directly
-            $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
-            if (Test-Path $venvPython) {
-                Start-Process -FilePath $venvPython -ArgumentList "-m", "src.app_final_vue" -WindowStyle Hidden
-            }
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("backend", "restart")) {
+        Write-Log "Restarting backend..." -Level "WARN"
+        
+        # Stop existing backend processes
+        $backendProcesses = Get-Process python -ErrorAction SilentlyContinue | 
+            Where-Object { $_.CommandLine -like '*waitress-serve*' -or $_.CommandLine -like '*app_final_vue*' }
+        
+        if ($backendProcesses) {
+            Write-Log "Stopping existing backend processes..." -Level "INFO"
+            $backendProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
         }
         
-        $script:RestartCount++
-        $script:LastRestartTime = Get-Date
-        Write-Log "Backend restart completed (Attempt $($script:RestartCount) of $MaxRestartAttempts)" -Level "INFO"
-        
-    } catch {
-        Write-Log "Failed to restart backend: $($_.Exception.Message)" -Level "ERROR"
+        # Start backend using launcher
+        try {
+            $launcherPath = Join-Path $PSScriptRoot "launcher.ps1"
+            if (Test-Path $launcherPath) {
+                Write-Log "Starting backend via launcher..." -Level "INFO"
+                Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy", "Bypass", "-File", "`"$launcherPath`"", "-Environment", $Environment, "-NoMenu" -WindowStyle Hidden
+                Start-Sleep -Seconds $RestartDelay
+            } else {
+                Write-Log "Launcher not found, attempting direct start..." -Level "WARN"
+                # Fallback: try to start backend directly
+                $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+                if (Test-Path $venvPython) {
+                    Start-Process -FilePath $venvPython -ArgumentList "-m", "src.app_final_vue" -WindowStyle Hidden
+                }
+            }
+            
+            $script:RestartCount++
+            $script:LastRestartTime = Get-Date
+            Write-Log "Backend restart completed (Attempt $($script:RestartCount) of $MaxRestartAttempts)" -Level "INFO"
+            
+        } catch {
+            Write-Log "Failed to restart backend: $($_.Exception.Message)" -Level "ERROR"
+        }
     }
 }
 
 function Restart-Nginx {
-    Write-Log "Restarting Nginx..." -Level "WARN"
-    
-    # Stop existing Nginx processes
-    $nginxProcesses = Get-Process nginx -ErrorAction SilentlyContinue
-    if ($nginxProcesses) {
-        Write-Log "Stopping existing Nginx processes..." -Level "INFO"
-        $nginxProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 2
-    }
-    
-    # Start Nginx
-    try {
-        $nginxDir = Join-Path $PSScriptRoot "nginx-1.27.5"
-        $nginxExe = Join-Path $nginxDir "nginx.exe"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("nginx", "restart")) {
+        Write-Log "Restarting Nginx..." -Level "WARN"
         
-        if (Test-Path $nginxExe) {
-            Set-Location $nginxDir
-            & ".\nginx.exe" -c "production.conf" 2>&1 | Out-Null
-            Set-Location $PSScriptRoot
-            Write-Log "Nginx restarted successfully" -Level "INFO"
-        } else {
-            Write-Log "Nginx executable not found" -Level "ERROR"
+        # Stop existing Nginx processes
+        $nginxProcesses = Get-Process nginx -ErrorAction SilentlyContinue
+        if ($nginxProcesses) {
+            Write-Log "Stopping existing Nginx processes..." -Level "INFO"
+            $nginxProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
         }
-    } catch {
-        Write-Log "Failed to restart Nginx: $($_.Exception.Message)" -Level "ERROR"
+        
+        # Start Nginx
+        try {
+            $nginxDir = Join-Path $PSScriptRoot "nginx"
+            $nginxExe = Join-Path $nginxDir "nginx.exe"
+            
+            if (Test-Path $nginxExe) {
+                Set-Location $nginxDir
+                & ".\nginx.exe" -c "production.conf" 2>&1 | Out-Null
+                Set-Location $PSScriptRoot
+                Write-Log "Nginx restarted successfully" -Level "INFO"
+            } else {
+                Write-Log "Nginx executable not found" -Level "ERROR"
+            }
+        } catch {
+            Write-Log "Failed to restart Nginx: $($_.Exception.Message)" -Level "ERROR"
+        }
     }
 }
 
@@ -254,62 +262,66 @@ function Test-AllServices {
 
 # Main monitoring loop
 function Start-Monitoring {
-    Write-Log "Starting CaseStrainer service monitor" -Level "INFO"
-    Write-Log "Environment: $Environment" -Level "INFO"
-    Write-Log "Check Interval: $CheckInterval seconds" -Level "INFO"
-    Write-Log "Max Restart Attempts: $MaxRestartAttempts" -Level "INFO"
-    Write-Log "Log File: $LogFile" -Level "INFO"
-    Write-Log "Press Ctrl+C to stop monitoring" -Level "INFO"
-    Write-Log "========================================" -Level "INFO"
-    
-    $checkCount = 0
-    
-    while ($script:MonitoringActive) {
-        $checkCount++
-        Write-Log "Health check #$checkCount" -Level "DEBUG"
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+    if ($PSCmdlet.ShouldProcess("monitoring", "start")) {
+        Write-Log "Starting CaseStrainer service monitor" -Level "INFO"
+        Write-Log "Environment: $Environment" -Level "INFO"
+        Write-Log "Check Interval: $CheckInterval seconds" -Level "INFO"
+        Write-Log "Max Restart Attempts: $MaxRestartAttempts" -Level "INFO"
+        Write-Log "Log File: $LogFile" -Level "INFO"
+        Write-Log "Press Ctrl+C to stop monitoring" -Level "INFO"
+        Write-Log "========================================" -Level "INFO"
         
-        $serviceStatus = Test-AllServices
+        $checkCount = 0
         
-        if ($serviceStatus.Issues.Count -gt 0) {
-            Write-Log "Service issues detected:" -Level "WARN"
-            foreach ($issue in $serviceStatus.Issues) {
-                Write-Log "  - $issue" -Level "WARN"
+        while ($script:MonitoringActive) {
+            $checkCount++
+            Write-Log "Health check #$checkCount" -Level "DEBUG"
+            
+            $serviceStatus = Test-AllServices
+            
+            if ($serviceStatus.Issues.Count -gt 0) {
+                Write-Log "Service issues detected:" -Level "WARN"
+                foreach ($issue in $serviceStatus.Issues) {
+                    Write-Log "  - $issue" -Level "WARN"
+                }
+                
+                # Check if we should attempt restart
+                if ($script:RestartCount -lt $MaxRestartAttempts) {
+                    Write-Log "Attempting service restart..." -Level "WARN"
+                    
+                    # Restart backend if needed
+                    if (-not $serviceStatus.BackendProcess.Running -or -not $serviceStatus.BackendHealth.Healthy) {
+                        Restart-Backend
+                    }
+                    
+                    # Restart Nginx if needed (production mode)
+                    if ($Environment -eq "Production" -and -not $serviceStatus.NginxProcess.Running) {
+                        Restart-Nginx
+                    }
+                    
+                } else {
+                    Write-Log "Maximum restart attempts reached. Manual intervention required." -Level "ERROR"
+                    Write-Log "Stopping monitoring..." -Level "ERROR"
+                    break
+                }
+            } else {
+                Write-Log "All services healthy" -Level "DEBUG"
+                # Reset restart count if services are healthy
+                if ($script:RestartCount -gt 0) {
+                    Write-Log "Services recovered, resetting restart count" -Level "INFO"
+                    $script:RestartCount = 0
+                }
             }
             
-            # Check if we should attempt restart
-            if ($script:RestartCount -lt $MaxRestartAttempts) {
-                Write-Log "Attempting service restart..." -Level "WARN"
-                
-                # Restart backend if needed
-                if (-not $serviceStatus.BackendProcess.Running -or -not $serviceStatus.BackendHealth.Healthy) {
-                    Restart-Backend
-                }
-                
-                # Restart Nginx if needed (production mode)
-                if ($Environment -eq "Production" -and -not $serviceStatus.NginxProcess.Running) {
-                    Restart-Nginx
-                }
-                
-            } else {
-                Write-Log "Maximum restart attempts reached. Manual intervention required." -Level "ERROR"
-                Write-Log "Stopping monitoring..." -Level "ERROR"
-                break
+            # Show periodic statistics
+            if ($checkCount % 10 -eq 0) {
+                Show-Statistics
             }
-        } else {
-            Write-Log "All services healthy" -Level "DEBUG"
-            # Reset restart count if services are healthy
-            if ($script:RestartCount -gt 0) {
-                Write-Log "Services recovered, resetting restart count" -Level "INFO"
-                $script:RestartCount = 0
-            }
+            
+            Start-Sleep -Seconds $CheckInterval
         }
-        
-        # Show periodic statistics
-        if ($checkCount % 10 -eq 0) {
-            Show-Statistics
-        }
-        
-        Start-Sleep -Seconds $CheckInterval
     }
 }
 

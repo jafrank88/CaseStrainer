@@ -12,7 +12,7 @@ REM ===================================================
 set "LOGFILE=casestrainer_deploy.log"
 set "PROJECT_ROOT=%~dp0"
 set "VENV_PATH=C:\Users\jafrank\venv_casestrainer"
-set "NGINX_DIR=%PROJECT_ROOT%nginx-1.27.5"
+set "NGINX_DIR=%PROJECT_ROOT%nginx"
 set "NGINX_CONFIG=%NGINX_DIR%\conf\casestrainer.conf"
 set "HOST=0.0.0.0"
 set "PORT=5000"

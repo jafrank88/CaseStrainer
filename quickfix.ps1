@@ -5,7 +5,7 @@ Write-Host ""
 
 # Step 1: Check nginx directory structure
 Write-Host "Step 1: Checking nginx directory structure..." -ForegroundColor Cyan
-$nginxDir = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5"
+$nginxDir = "nginx"
 $nginxExe = Join-Path $nginxDir "nginx.exe"
 
 Write-Host "  Nginx directory: $nginxDir" -ForegroundColor Gray
@@ -66,8 +66,8 @@ $configLines = @(
     "        listen       443 ssl;",
     "        server_name  wolf.law.uw.edu localhost;",
     "        ",
-    "        ssl_certificate     `"C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/ssl/WolfCertBundle.crt`";",
-    "        ssl_certificate_key `"C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/ssl/wolf.law.uw.edu.key`";",
+    "        ssl_certificate     /etc/nginx/ssl/WolfCertBundle.crt;",
+    "        ssl_certificate_key /etc/nginx/ssl/wolf.law.uw.edu.key;",
     "        ssl_protocols       TLSv1.2 TLSv1.3;",
     "        ssl_ciphers         HIGH:!aNULL:!MD5;",
     "        ",
@@ -88,14 +88,14 @@ $configLines = @(
     "",
     "        # Vue.js assets",
     "        location /casestrainer/assets/ {",
-    "            alias `"C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/casestrainer-vue-new/dist/assets/`";",
+    "            alias /usr/share/nginx/html/assets/;",
     "            expires 1y;",
     "            add_header Cache-Control `"public, immutable`";",
     "        }",
     "",
     "        # Frontend - Vue.js SPA",
     "        location /casestrainer/ {",
-    "            alias `"C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/casestrainer-vue-new/dist/`";",
+    "            alias /usr/share/nginx/html/;",
     "            index index.html;",
     "            try_files `$uri `$uri/ /index.html;",
     "        }",

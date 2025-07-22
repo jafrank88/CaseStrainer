@@ -523,6 +523,12 @@ const stopProgressTracking = () => {
 const analyzeContent = async () => {
   if (!canAnalyze.value || isAnalyzing.value) return;
 
+  console.log('=== ANALYZE CONTENT STARTED ===');
+  console.log('Active tab:', activeTab.value);
+  console.log('Text content length:', textContent.value?.length || 0);
+  console.log('Can analyze:', canAnalyze.value);
+  console.log('Is analyzing:', isAnalyzing.value);
+
   isAnalyzing.value = true;
   startProgressTracking();
 
@@ -535,16 +541,12 @@ const analyzeContent = async () => {
       timestamp: new Date().toISOString()
     };
     
-    // if (activeTab.value !== 'file') {
-    //   addRecentInput(inputData);
-    //   localStorage.setItem('lastCitationInput', JSON.stringify(inputData));
-    // } else {
-    //   addRecentInput(inputData);
-    // }
+    console.log('Input data:', inputData);
 
     let response;
     
     if (activeTab.value === 'url' && urlContent.value.trim()) {
+      console.log('Navigating to enhanced-validator for URL input');
       router.push({ 
         path: '/enhanced-validator', 
         query: { 
@@ -558,24 +560,36 @@ const analyzeContent = async () => {
     switch (activeTab.value) {
       case 'paste':
         if (textContent.value.trim()) {
+          console.log('Making API call for text input...');
           response = await analyze({
             text: textContent.value.trim(),
             type: 'text'
           });
+          console.log('API response received:', response);
         }
         break;
         
       case 'file':
         if (selectedFile.value) {
+          console.log('Making API call for file input...');
           const formData = new FormData();
           formData.append('file', selectedFile.value);
           formData.append('type', 'file');
           response = await analyze(formData);
+          console.log('API response received:', response);
         }
         break;
     }
 
+    console.log('Response analysis:');
+    console.log('- Has response:', !!response);
+    console.log('- Has task_id:', response?.task_id);
+    console.log('- Has citations:', !!response?.citations);
+    console.log('- Citations count:', response?.citations?.length || 0);
+    console.log('- Success:', response?.success);
+
     if (response && response.task_id) {
+      console.log('Navigating to enhanced-validator with task_id:', response.task_id);
       router.push({
         name: 'EnhancedValidator',
         query: { task_id: response.task_id }
@@ -584,7 +598,8 @@ const analyzeContent = async () => {
     }
 
     if (response) {
-      router.push({ 
+      console.log('Navigating to enhanced-validator with results in state');
+      const navigationData = { 
         path: '/enhanced-validator', 
         query: { 
           tab: activeTab.value,
@@ -593,10 +608,18 @@ const analyzeContent = async () => {
         state: { 
           results: response 
         }
-      });
+      };
+      console.log('Navigation data:', navigationData);
+      router.push(navigationData);
+      console.log('Navigation completed');
+    } else {
+      console.log('No response received - no navigation');
     }
   } catch (error) {
-    console.error('Analysis error:', error);
+    console.error('=== ANALYSIS ERROR ===');
+    console.error('Error details:', error);
+    console.error('Error response:', error.response);
+    console.error('Error message:', error.message);
     
     let errorMessage = 'An error occurred during analysis. Please try again.';
     
@@ -623,8 +646,10 @@ const analyzeContent = async () => {
       errorMessage = 'Network error. Please check your connection and try again.';
     }
     
+    console.error('Final error message:', errorMessage);
     alert(errorMessage);
   } finally {
+    console.log('=== ANALYSIS COMPLETED ===');
     isAnalyzing.value = false;
     stopProgressTracking();
   }

@@ -72,7 +72,7 @@ This guide provides solutions for common issues that may arise when using or dep
    ```powershell
    docker stop casestrainer-nginx
    docker rm casestrainer-nginx
-   docker run -d --name casestrainer-nginx --network casestrainer_default -p 443:443 -v "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/ssl:/etc/nginx/ssl" -v "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/conf/nginx.conf.new:/etc/nginx/nginx.conf" -v "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/src/static:/etc/nginx/static" -v "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/logs:/var/log/nginx" nginx:latest
+   docker run -d --name casestrainer-nginx --network casestrainer_default -p 443:443 -v /path/to/ssl:/etc/nginx/ssl -v /path/to/nginx.conf:/etc/nginx/nginx.conf -v /path/to/static:/etc/nginx/static -v /path/to/logs:/var/log/nginx nginx:latest
    ```text
 
 ### 3. API Connection Issues

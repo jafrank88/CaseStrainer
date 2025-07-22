@@ -90,7 +90,9 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 def main():
-    """Main worker function."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logging.info('[DEBUG] ENTERED rq_worker.py main() - worker is starting up')
     # Set up signal handlers
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)

@@ -11,7 +11,7 @@ setlocal enabledelayedexpansion
 :: Configuration
 set "SCRIPT_DIR=%~dp0"
 set "LOG_DIR=%SCRIPT_DIR%logs"
-set "NGINX_DIR=%SCRIPT_DIR%nginx-1.27.5"
+set "NGINX_DIR=%SCRIPT_DIR%nginx"
 set "NGINX_CONF=%NGINX_DIR%\conf\nginx.conf"
 set "FLASK_APP=app_final_vue.py"
 set "FLASK_RUN_HOST=0.0.0.0"
@@ -371,7 +371,7 @@ REM === Log Cleanup (Optional) ===
 if exist logs\deploy.log del logs\deploy.log
 if exist logs\deploy_error.log del logs\deploy_error.log
 
-set NGINX_DIR=%~dp0nginx-1.27.5
+set NGINX_DIR=%~dp0nginx
 set PROD_CONF=%NGINX_DIR%\conf\nginx.conf
 set TEST_CONF=%NGINX_DIR%\conf\nginx_test.conf
 set FLASK_APP=src/app_final_vue.py

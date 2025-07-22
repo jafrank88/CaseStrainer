@@ -42,7 +42,7 @@ try {
 # Quick nginx log check
 Write-Host ""
 Write-Host "Nginx Logs:" -ForegroundColor Yellow
-$logFile = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\logs\error.log"
+$logFile = "nginx/logs/error.log"
 if (Test-Path $logFile) {
     $errors = Get-Content $logFile -Tail 3 -ErrorAction SilentlyContinue
     if ($errors) {

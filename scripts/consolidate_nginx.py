@@ -16,27 +16,17 @@ def consolidate_nginx():
     archive_dir = project_root / "archive" / f"nginx_{timestamp}"
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    # Move nginx-1.27.5 to archive
-    nginx_old = project_root / "nginx-1.27.5"
+    # Move nginx to archive
+    nginx_old = project_root / "nginx"
     if nginx_old.exists():
         try:
-            target = archive_dir / "nginx-1.27.5"
+            target = archive_dir / "nginx"
             shutil.move(str(nginx_old), str(target))
-            print(f"Moved nginx-1.27.5 to {target}")
+            print(f"Moved nginx to {target}")
         except Exception as e:
-            print(f"Error moving nginx-1.27.5: {e}")
+            print(f"Error moving nginx: {e}")
 
-    # Rename nginx-1.24.0 to just nginx
-    nginx_current = project_root / "nginx-1.24.0"
-    nginx_new = project_root / "nginx"
-    if nginx_current.exists():
-        try:
-            if nginx_new.exists():
-                shutil.rmtree(str(nginx_new))
-            shutil.move(str(nginx_current), str(nginx_new))
-            print("Renamed nginx-1.24.0 to nginx")
-        except Exception as e:
-            print(f"Error renaming nginx-1.24.0: {e}")
+    # (Removed nginx-1.24.0 logic; only current nginx folder is relevant)
 
     print(f"\nNginx consolidation complete. Old version archived in: {archive_dir}")
 

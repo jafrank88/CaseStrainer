@@ -28,7 +28,7 @@ echo     exit /b 1 >> run_cs.bat
 echo ^) >> run_cs.bat
 echo. >> run_cs.bat
 echo set "CASESTRAINER_DIR=C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer" >> run_cs.bat
-echo set "NGINX_DIR=%%CASESTRAINER_DIR%%\nginx-1.27.5" >> run_cs.bat
+echo set "NGINX_DIR=%%CASESTRAINER_DIR%%\nginx" >> run_cs.bat
 echo set "FRONTEND_DIR=%%CASESTRAINER_DIR%%\casestrainer-vue-new" >> run_cs.bat
 echo set "PROD_BACKEND_PORT=5002" >> run_cs.bat
 echo set "SSL_CERT_PATH=D:\CaseStrainer\ssl\WolfCertBundle.crt" >> run_cs.bat
@@ -102,7 +102,7 @@ echo     echo https://wolf.law.uw.edu/casestrainer/ >> run_cs.bat
 echo     echo. >> run_cs.bat
 echo ^) else ^( >> run_cs.bat
 echo     echo [ERROR] Nginx failed to start >> run_cs.bat
-echo     echo Check logs in nginx-1.27.5\logs\ >> run_cs.bat
+echo     echo Check logs in nginx\logs\ >> run_cs.bat
 echo ^) >> run_cs.bat
 echo. >> run_cs.bat
 echo pause >> run_cs.bat

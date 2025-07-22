@@ -30,7 +30,7 @@ taskkill /F /IM pythonw.exe >nul 2>&1
 :: Start Nginx
 echo.
 echo Starting Nginx...
-start "Nginx" cmd /k ""%SCRIPT_DIR%\nginx-1.27.5\nginx.exe" -c "%SCRIPT_DIR%\nginx-case-strainer.conf" && echo Nginx started successfully. Press any key to close... && pause >nul"
+start "Nginx" cmd /k ""%SCRIPT_DIR%\nginx\nginx.exe" -c "%SCRIPT_DIR%\nginx-case-strainer.conf" && echo Nginx started successfully. Press any key to close... && pause >nul"
 
 :: Wait for Nginx to start
 timeout /t 2 /nobreak >nul

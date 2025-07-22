@@ -35,8 +35,10 @@
 **/data/logs/**
 **/docker/logs/**
 **/nginx/logs/**
-**/nginx-1.24.0/logs/**
-**/nginx-1.27.5/logs/**
+**/nginx/html/**
+**/nginx/ssl/**
+**/nginx/temp/**
+**/nginx/nginx/**
 **/scripts/logs/**
 **/scripts/uploads/**
 **/scripts/wa_briefs/**
@@ -71,16 +73,6 @@
 **/docker/ssl/**
 **/docker/uploads/**
 **/docker/src/**
-**/nginx/html/**
-**/nginx/ssl/**
-**/nginx/temp/**
-**/nginx-1.24.0/html/**
-**/nginx-1.24.0/ssl/**
-**/nginx-1.24.0/temp/**
-**/nginx-1.27.5/html/**
-**/nginx-1.27.5/ssl/**
-**/nginx-1.27.5/temp/**
-**/nginx-1.27.5/nginx-1.27.5/**
 **/static/**
 **/templates/**
 **/ssl/**
@@ -130,7 +122,7 @@
 **/src/fixtures/**
 **/src/stubs/**
 **/src/typings/**
-**/src/types
+**/src/types/**
 
 # Exclude non-Python file types
 **/*.md

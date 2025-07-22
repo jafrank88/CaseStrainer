@@ -5,16 +5,14 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$CommitMessage,
-    
     [switch]$SkipLint,
-    [switch]$SkipTests,
-    [switch]$Force
+    [switch]$SkipTests
 )
 
 # Configuration
 $ProjectRoot = $PSScriptRoot
 $LogFile = Join-Path $ProjectRoot "deployment_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
-$NginxPath = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\nginx.exe"
+$NginxPath = "nginx/nginx.exe"
 $VirtualEnv = "C:\Users\jafrank\venv_casestrainer"
 $AppPort = 5000
 
@@ -57,14 +55,12 @@ function Write-Log {
 function Invoke-CommandWithStatus {
     param(
         [string]$Command,
-        [string]$WorkingDirectory = $ProjectRoot,
         [string]$ErrorMessage = "Command failed",
         [switch]$Fatal
     )
-    
     Write-Log "Executing: $Command"
     try {
-        $output = Invoke-Expression -Command $Command -ErrorAction Stop 2>&1 | Out-String
+        $output = & cmd /c $Command 2>&1 | Out-String
         Write-Log $output.Trim()
         return $true
     } catch {
@@ -196,7 +192,7 @@ if ($portInUse) {
 Write-Log "=== Starting Application ==="
 
 # Start Nginx
-$nginxDir = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5"
+$nginxDir = "nginx"
 $nginxConf = Join-Path $nginxDir "conf\nginx.conf"
 
 if (Test-Path $NginxPath) {

@@ -214,20 +214,19 @@ services:
 
   # Infrastructure Layer
   nginx:
-    image: nginx:alpine
+    image: nginx:latest
     container_name: casestrainer-nginx-prod
     ports:
-      - "443:443"
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./ssl:/etc/nginx/ssl
-      - ./static:/var/www/html
+      - ./nginx/conf.d/casestrainer.conf:/etc/nginx/conf.d/casestrainer.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./casestrainer-vue-new/dist:/usr/share/nginx/html:ro
+    environment:
+      - BACKEND_SERVICE_NAME=casestrainer-backend-prod
     depends_on:
-      backend:
-        condition: service_healthy
-      frontend-prod:
-        condition: service_healthy
+      - backend
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:80/health || exit 1"]

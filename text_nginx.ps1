@@ -20,8 +20,8 @@ http {
         http2 on;
         server_name  wolf.law.uw.edu localhost;
         
-        ssl_certificate     "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/ssl/WolfCertBundle.crt";
-        ssl_certificate_key "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/ssl/wolf.law.uw.edu.key";
+        ssl_certificate     /etc/nginx/ssl/WolfCertBundle.crt;
+        ssl_certificate_key /etc/nginx/ssl/wolf.law.uw.edu.key;
         ssl_protocols       TLSv1.2 TLSv1.3;
         ssl_ciphers         HIGH:!aNULL:!MD5;
         
@@ -43,7 +43,7 @@ http {
 
         # Frontend routes
         location /casestrainer/ {
-            alias   "C:/Users/jafrank/OneDrive - UW/Documents/GitHub/CaseStrainer/casestrainer-vue-new/dist/";
+            alias   /usr/share/nginx/html/;
             index   index.html;
             try_files `$uri `$uri/ /casestrainer/index.html;
         }
@@ -64,4 +64,4 @@ http {
 $nginxContent | Out-File -FilePath "nginx.conf" -Encoding ASCII
 
 # Test the config
-& "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.27.5\nginx.exe" -t -c (Resolve-Path "nginx.conf").Path
+& "nginx/nginx.exe" -t -c (Resolve-Path "nginx.conf").Path

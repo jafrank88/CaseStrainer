@@ -71,6 +71,9 @@ try:
 except ImportError:
     from case_name_extraction_core import extract_case_name_only, extract_year_only
 
+print('[DEBUG PRINT] TOP OF unified_citation_processor_v2.py MODULE LOADED')
+logging.info('[DEBUG] TOP OF unified_citation_processor_v2.py MODULE LOADED')
+
 @dataclass
 class CitationResult:
     """Unified citation result structure."""
@@ -138,6 +141,8 @@ class UnifiedCitationProcessorV2:
     """
     
     def __init__(self, config: Optional[ProcessingConfig] = None):
+        print('[DEBUG PRINT] ENTERED UnifiedCitationProcessorV2.__init__')
+        logging.info('[DEBUG] ENTERED UnifiedCitationProcessorV2.__init__')
         self.config = config or ProcessingConfig()
         self._init_patterns()
         self._init_case_name_patterns()
@@ -1126,26 +1131,27 @@ class UnifiedCitationProcessorV2:
         }
     
     def _extract_with_regex(self, text: str) -> List[CitationResult]:
-        """Extract citations using regex patterns."""
+        print('[DEBUG PRINT] ENTERED _extract_with_regex')
+        logger.info('[DEBUG] ENTERED _extract_with_regex')
         citations = []
         seen_citations = set()
-
-        # Define priority order for patterns (parallel citations first)
         priority_patterns = [
-            'parallel_citation_cluster',  # NEW: Comprehensive parallel citation pattern
-            'flexible_wash2d',           # Flexible patterns that handle parallel citations
+            'parallel_citation_cluster',
+            'flexible_wash2d',
             'flexible_p3d',
             'flexible_p2d',
-            'wash_complete',             # Complete patterns for parallel citations
+            'wash_complete',
             'wash_with_parallel',
             'parallel_cluster',
         ]
-        
-        # First pass: extract parallel citations with priority patterns
+        print('[DEBUG PRINT] Starting priority pattern loop')
         for pattern_name in priority_patterns:
+            print(f'[DEBUG PRINT] Priority pattern: {pattern_name}')
             if pattern_name in self.citation_patterns:
                 pattern = self.citation_patterns[pattern_name]
+                print(f'[DEBUG PRINT] Applying pattern: {pattern_name}')
                 matches = list(pattern.finditer(text))
+                print(f'[DEBUG PRINT] Pattern {pattern_name} found {len(matches)} matches')
                 if matches:
                     logger.debug(f"[DEBUG] Priority pattern '{pattern_name}' matched {len(matches)} times.")
                     for match in matches:
@@ -1156,16 +1162,12 @@ class UnifiedCitationProcessorV2:
                         continue
                     seen_citations.add(citation_str)
                     logger.debug(f"[DEBUG] Processing priority citation: '{citation_str}'")
-                    
-                    # Extract context around the citation
                     start_pos = match.start()
                     end_pos = match.end()
+                    print(f'[DEBUG PRINT] Calling _extract_context for {citation_str}')
                     context = self._extract_context(text, start_pos, end_pos)
-                    
-                    # Check if this is a parallel citation cluster
+                    print(f'[DEBUG PRINT] Returned from _extract_context for {citation_str}')
                     is_parallel = ',' in citation_str and any(reporter in citation_str for reporter in ['P.3d', 'P.2d', 'Wash.2d', 'Wn.2d'])
-                    
-                    # Build CitationResult
                     citation = CitationResult(
                         citation=citation_str,
                         start_index=start_pos,
@@ -1177,16 +1179,14 @@ class UnifiedCitationProcessorV2:
                         is_parallel=is_parallel
                     )
                     logger.debug(f"[DEBUG] Created CitationResult: {citation.citation} (parallel: {is_parallel})")
-                    
-                    # Add to list
                     citations.append(citation)
-        
-        # Second pass: extract individual citations with remaining patterns
+        print('[DEBUG PRINT] Starting second pass for remaining patterns')
         for pattern_name, pattern in self.citation_patterns.items():
             if pattern_name in priority_patterns:
-                continue  # Skip patterns already processed
-                
+                continue
+            print(f'[DEBUG PRINT] Applying pattern: {pattern_name}')
             matches = list(pattern.finditer(text))
+            print(f'[DEBUG PRINT] Pattern {pattern_name} found {len(matches)} matches')
             if matches:
                 logger.debug(f"[DEBUG] Pattern '{pattern_name}' matched {len(matches)} times.")
                 for match in matches:
@@ -1195,19 +1195,19 @@ class UnifiedCitationProcessorV2:
                 citation_str = match.group(0).strip()
                 if not citation_str or citation_str in seen_citations:
                     continue
-                # Check if this citation is contained within any existing citation
+                print(f'[DEBUG PRINT] Calling _is_citation_contained_in_any for {citation_str}')
                 if self._is_citation_contained_in_any(citation_str, seen_citations):
+                    print(f'[DEBUG PRINT] _is_citation_contained_in_any returned True for {citation_str}')
                     logger.debug(f"[DEBUG] Skipping contained citation: '{citation_str}'")
                     continue
+                print(f'[DEBUG PRINT] _is_citation_contained_in_any returned False for {citation_str}')
                 seen_citations.add(citation_str)
                 logger.debug(f"[DEBUG] Processing citation: '{citation_str}'")
-                
-                # Extract context around the citation
                 start_pos = match.start()
                 end_pos = match.end()
+                print(f'[DEBUG PRINT] Calling _extract_context for {citation_str}')
                 context = self._extract_context(text, start_pos, end_pos)
-                
-                # Build CitationResult
+                print(f'[DEBUG PRINT] Returned from _extract_context for {citation_str}')
                 citation = CitationResult(
                     citation=citation_str,
                     start_index=start_pos,
@@ -1218,21 +1218,10 @@ class UnifiedCitationProcessorV2:
                     source="regex"
                 )
                 logger.debug(f"[DEBUG] Created CitationResult: {citation.citation}")
-                
-                # Add to list
                 citations.append(citation)
-        
+        print(f'[DEBUG PRINT] _extract_with_regex completed, total citations: {len(citations)}')
         logger.debug(f"[DEBUG] Total citations created: {len(citations)}")
-        
-        # Now extract case names and dates with access to all citations
-        for citation in citations:
-            # Try to extract case name and date from context
-            citation.extracted_case_name = self._extract_case_name_with_cluster_fallback(text, citation, citations)
-            citation.extracted_date = self._extract_date_from_context(text, citation)
-            
-            # Calculate confidence
-            citation.confidence = self._calculate_confidence(citation, text)
-        
+        logger.info(f"[DEBUG] All extracted citations: {[c.citation for c in citations]}")
         return citations
     
     def _extract_with_eyecite(self, text: str) -> List[CitationResult]:
@@ -2356,43 +2345,50 @@ class UnifiedCitationProcessorV2:
         return None
 
     def process_text(self, text: str) -> List[CitationResult]:
-        """Process text and extract citations with verification."""
+        print(f"[DEBUG PRINT] ENTERED UnifiedCitationProcessorV2.process_text, text_length={len(text)}")
         logger.info("[PROCESS_TEXT] ENTERED")
         logger.info(f"[PROCESS_TEXT] Verification config: {getattr(self.config, 'enable_verification', None)}")
         if not text or not text.strip():
+            print(f"[DEBUG PRINT] Empty text, returning empty list")
             logger.info("[PROCESS_TEXT] Empty text, returning empty list")
             return []
-        
         citations = []
-        
         # Step 1: Extract citations using regex
+        print(f"[DEBUG PRINT] Before _extract_with_regex")
         if self.config.use_regex:
+            print(f"[DEBUG PRINT] Extracting with regex...")
             logger.info("[PROCESS_TEXT] Extracting with regex...")
             regex_citations = self._extract_with_regex(text)
-            citations.extend(regex_citations)
+            print(f"[DEBUG PRINT] After _extract_with_regex, found {len(regex_citations)} regex citations")
             logger.info(f"[PROCESS_TEXT] Found {len(regex_citations)} regex citations")
-        
+            citations.extend(regex_citations)
         # Step 2: Extract citations using eyecite (if available)
+        print(f"[DEBUG PRINT] Before _extract_with_eyecite")
         if self.config.use_eyecite:
             try:
+                print(f"[DEBUG PRINT] Extracting with eyecite...")
                 logger.info("[PROCESS_TEXT] Extracting with eyecite...")
                 eyecite_citations = self._extract_with_eyecite(text)
-                citations.extend(eyecite_citations)
+                print(f"[DEBUG PRINT] After _extract_with_eyecite, found {len(eyecite_citations)} eyecite citations")
                 logger.info(f"[PROCESS_TEXT] Found {len(eyecite_citations)} eyecite citations")
+                citations.extend(eyecite_citations)
             except Exception as e:
+                print(f"[DEBUG PRINT] Eyecite extraction failed: {e}")
                 logger.warning(f"[PROCESS_TEXT] Eyecite extraction failed: {e}")
-        
         # Deduplicate citations
+        print(f"[DEBUG PRINT] Before _deduplicate_citations: {len(citations)} citations")
         logger.info(f"[PROCESS_TEXT] Before deduplication: {len(citations)} citations")
         citations = self._deduplicate_citations(citations)
+        print(f"[DEBUG PRINT] After _deduplicate_citations: {len(citations)} citations")
         logger.info(f"[PROCESS_TEXT] After deduplication: {len(citations)} citations")
-        
         # Step 3: Normalize citations for best compatibility
+        print(f"[DEBUG PRINT] Normalizing citations for compatibility...")
         logger.info(f"[PROCESS_TEXT] Normalizing citations for compatibility...")
         for i, citation in enumerate(citations):
             original_citation = citation.citation
             normalized_citation = normalize_citation(citation.citation)
             if normalized_citation != original_citation:
+                print(f"[DEBUG PRINT] Normalized '{original_citation}' -> '{normalized_citation}'")
                 logger.info(f"[PROCESS_TEXT] Normalized '{original_citation}' -> '{normalized_citation}'")
                 citation.citation = normalized_citation
                 if not citation.metadata:
@@ -2400,23 +2396,27 @@ class UnifiedCitationProcessorV2:
                 citation.metadata['original_citation'] = original_citation
             else:
                 logger.debug(f"[PROCESS_TEXT] No normalization needed for '{original_citation}'")
-        
         # Step 4: Verify citations only if enabled
+        print(f"[DEBUG PRINT] Config enable_verification: {self.config.enable_verification}")
         logger.info(f"[PROCESS_TEXT] Config enable_verification: {self.config.enable_verification}")
         logger.info(f"[PROCESS_TEXT] Config type: {type(self.config)}")
         logger.info(f"[PROCESS_TEXT] Config repr: {repr(self.config)}")
         if self.config.enable_verification:
+            print(f"[DEBUG PRINT] Before _verify_citations on {len(citations)} citations")
             logger.info(f"[PROCESS_TEXT] About to call _verify_citations on {len(citations)} citations")
             logger.debug(f"[PROCESS_TEXT] Citations: {[c.citation for c in citations]}")
             self._verify_citations(citations, text)
+            print(f"[DEBUG PRINT] After _verify_citations")
             logger.info(f"[PROCESS_TEXT] _verify_citations completed")
         else:
+            print(f"[DEBUG PRINT] Verification disabled, skipping _verify_citations")
             logger.info(f"[PROCESS_TEXT] Verification disabled, skipping _verify_citations")
-        
+        print(f"[DEBUG PRINT] Final result: {len(citations)} citations")
         logger.info(f"[PROCESS_TEXT] Final result: {len(citations)} citations")
         for i, citation in enumerate(citations):
             logger.debug(f"[PROCESS_TEXT] Citation {i}: {citation.citation} -> verified={citation.verified}, source={citation.source}")
-        
+        logger.info(f"[PROCESS_TEXT] Final citations list: {[c.citation for c in citations]}")
+        print(f"[DEBUG PRINT] EXITING UnifiedCitationProcessorV2.process_text")
         logger.info("[PROCESS_TEXT] EXITING")
         return citations
 

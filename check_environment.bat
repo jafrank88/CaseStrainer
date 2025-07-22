@@ -35,11 +35,9 @@ if exist app_final_vue.py (
 
 echo.
 echo === Nginx Check ===
-if exist "nginx-1.27.5" (
-    echo Nginx directory exists
-    dir /b nginx-1.27.5\nginx.exe
-) else (
-    echo WARNING: nginx-1.27.5 directory not found
+if exist "nginx" (
+    dir /b nginx\nginx.exe
+    echo WARNING: nginx directory not found
 )
 
 echo.
