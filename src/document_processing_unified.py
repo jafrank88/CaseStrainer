@@ -51,6 +51,18 @@ except ImportError:
         except ImportError:
             logger.warning("Enhanced citation processor not available")
 
+# Try to import the enhanced v2 processor
+try:
+    from .enhanced_v2_processor import EnhancedV2Processor
+    _enhanced_v2_processor_available = True
+except ImportError:
+    try:
+        from enhanced_v2_processor import EnhancedV2Processor
+        _enhanced_v2_processor_available = True
+    except ImportError:
+        _enhanced_v2_processor_available = False
+        logger.warning("Enhanced v2 processor not available")
+
 # Public constants (read-only) - use different names to avoid conflicts
 UNIFIED_PROCESSOR_AVAILABLE_UNIFIED = _unified_processor_available
 ENHANCED_PROCESSOR_AVAILABLE_UNIFIED = _enhanced_processor_available
@@ -744,7 +756,14 @@ class UnifiedDocumentProcessor:
         
         # Initialize citation processor
         if UNIFIED_PROCESSOR_AVAILABLE:
-            self.citation_processor = UnifiedCitationProcessorV2()
+            # Use enhanced v2 processor for better accuracy
+            try:
+                from .enhanced_v2_processor import EnhancedV2Processor
+                self.citation_processor = EnhancedV2Processor()
+                logger.info("Using EnhancedV2Processor for improved accuracy")
+            except ImportError:
+                self.citation_processor = UnifiedCitationProcessorV2()
+                logger.info("Using standard UnifiedCitationProcessorV2")
         elif ENHANCED_PROCESSOR_AVAILABLE:
             self.citation_processor = UnifiedCitationProcessor()
         else:
@@ -1216,30 +1235,60 @@ class UnifiedDocumentProcessor:
             else:
                 try:
                     if UNIFIED_PROCESSOR_AVAILABLE:
-                        logger.info("Using unified citation processor v2")
+                        logger.info("Using enhanced citation processor")
                         
-                        # Configure processor
-                        config = ProcessingConfig(
-                            use_eyecite=True,
-                            use_regex=True,
-                            extract_case_names=extract_case_names,
-                            extract_dates=True,
-                            enable_clustering=True,
-                            enable_deduplication=True,
-                            debug_mode=debug_mode
-                        )
-                        
-                        processor = UnifiedCitationProcessorV2(config)
-                        citation_results = processor.process_text(preprocessed_text)
-                        
-                        # Convert CitationResult objects to dictionaries
-                        for citation in citation_results:
-                            try:
-                                citation_dict = self._convert_citation_to_dict(citation)
+                        # Check if we're using the enhanced processor
+                        if isinstance(self.citation_processor, EnhancedV2Processor):
+                            logger.info("Processing with EnhancedV2Processor")
+                            enhanced_results = self.citation_processor.process_text(preprocessed_text)
+                            
+                            # Convert enhanced results to standard format with clustering
+                            for result in enhanced_results:
+                                citation_dict = {
+                                    'citation': result['citation'],
+                                    'case_name': result.get('shared_case_name') or result['enhanced_case_name'] or result['original_case_name'],
+                                    'extracted_case_name': result.get('shared_case_name') or result['enhanced_case_name'] or result['original_case_name'],
+                                    'canonical_name': result['canonical_name'],
+                                    'extracted_date': result.get('shared_year') or result['enhanced_year'] or result['original_year'],
+                                    'canonical_date': result['canonical_date'],
+                                    'verified': result['api_verified'],
+                                    'court': '',  # Enhanced processor doesn't extract court
+                                    'confidence': result['confidence'],
+                                    'method': result['method'],
+                                    'context': '',  # Enhanced processor doesn't extract context
+                                    'is_parallel': result.get('is_parallel', False),
+                                    'parallel_citations': result.get('parallel_citations', []),
+                                    'url': '',  # Enhanced processor doesn't extract URLs
+                                    'source': result['method'],
+                                    'cluster_id': result.get('cluster_id'),
+                                    'total_citations': result.get('total_citations_in_cluster', 1)
+                                }
                                 formatted_citations.append(citation_dict)
-                            except Exception as e:
-                                logger.error(f"Error converting citation to dict: {e}")
-                                continue
+                        else:
+                            logger.info("Using standard UnifiedCitationProcessorV2")
+                            
+                            # Configure processor
+                            config = ProcessingConfig(
+                                use_eyecite=True,
+                                use_regex=True,
+                                extract_case_names=extract_case_names,
+                                extract_dates=True,
+                                enable_clustering=True,
+                                enable_deduplication=True,
+                                debug_mode=debug_mode
+                            )
+                            
+                            processor = UnifiedCitationProcessorV2(config)
+                            citation_results = processor.process_text(preprocessed_text)
+                            
+                            # Convert CitationResult objects to dictionaries
+                            for citation in citation_results:
+                                try:
+                                    citation_dict = self._convert_citation_to_dict(citation)
+                                    formatted_citations.append(citation_dict)
+                                except Exception as e:
+                                    logger.error(f"Error converting citation to dict: {e}")
+                                    continue
                         
                         # Calculate statistics
                         statistics = {
