@@ -1,17 +1,3 @@
-"""
-DEPRECATED: This module is deprecated in favor of src/unified_citation_processor_v2.py
-Use UnifiedCitationProcessorV2 instead for all new development.
-
-This module will be removed in a future version.
-"""
-
-import warnings
-warnings.warn(
-    "BriefCitationAnalyzer is deprecated. Use UnifiedCitationProcessorV2 from src/unified_citation_processor_v2.py instead.",
-    DeprecationWarning,
-    stacklevel=2
-)
-
 import os
 import sys
 import json
@@ -104,48 +90,36 @@ def download_brief(brief_url):
         return None
 
 
-def extract_citation_context(text, citation_text):
-    """Extract the context around a citation."""
-    logger.info(f"Extracting context for citation: {citation_text}")
-
-    try:
-        # Find all occurrences of the citation in the text
-        citation_positions = []
-        for match in re.finditer(re.escape(citation_text), text):
-            start_pos = match.start()
-            end_pos = match.end()
-            citation_positions.append((start_pos, end_pos))
-
-        if not citation_positions:
-            logger.info(f"Citation not found in text: {citation_text}")
-            return None
-
-        # Extract context for each occurrence
-        contexts = []
-        for start_pos, end_pos in citation_positions:
-            # Calculate context boundaries
-            context_start = max(0, start_pos - CONTEXT_CHARS)
-            context_end = min(len(text), end_pos + CONTEXT_CHARS)
-
-            # Extract context
-            context_before = text[context_start:start_pos]
-            context_after = text[end_pos:context_end]
-            full_context = context_before + citation_text + context_after
-
-            contexts.append(
-                {
-                    "context_before": context_before,
-                    "context_after": context_after,
-                    "full_context": full_context,
-                }
-            )
-
-        return contexts[0] if contexts else None
-
-    except Exception as e:
-        logger.error(f"Error extracting context for citation: {e}")
-        traceback.print_exc()
-        return None
+def extract_citation_context(text, citation_text, system=False):
+    """Extract context around a citation. If system=True, use citation-aware window; else, use 200 chars before, 100 after."""
+    import re
+    idx = text.find(citation_text)
+    if idx == -1:
+        return ""
+    if system:
+        start = idx
+        end = idx + len(citation_text)
+        citation_pattern = r'(\d{1,4}\s+[A-Za-z.]+(?:\s+[A-Za-z.]+)?\s+\d+(?:,\s*\d+)*\s*(?:\((17|18|19|20)\d{2}\))?)'
+        all_cites = list(re.finditer(citation_pattern, text))
+        prev_cite_end = 0
+        next_cite_start = len(text)
+        for m in all_cites:
+            if m.end() <= start:
+                prev_cite_end = m.end()
+            elif m.start() > end and m.start() < next_cite_start:
+                next_cite_start = m.start()
+        context_start = max(prev_cite_end, start - 100)
+        post = text[end:next_cite_start]
+        year_match = re.search(r'\((17|18|19|20)\d{2}\)', post)
+        if year_match:
+            context_end = end + year_match.end()
+        else:
+            context_end = min(next_cite_start, end + 100)
+        return text[context_start:context_end].strip()
+    else:
+        start = max(0, idx - 200)
+        end = min(len(text), idx + len(citation_text) + 100)
+        return text[start:end].strip()
 
 
 def load_api_key():

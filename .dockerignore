@@ -1,224 +1,42 @@
-# Node.js and frontend build artifacts
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm
-.yarn-integrity
-dist/
-build/
-.cache/
-.parcel-cache/
+# Always include essential source and config
+!src/
+!requirements.txt
+!app/
+!config/
+!templates/
+!static/
 
-# Python
+# Exclude Python cache and virtualenvs
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
 venv/
-venv2/
-venv_new/
 .venv/
+env/
 ENV/
 env.bak/
 venv.bak/
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.ruff_cache/
 
-# Git
-.git/
-.gitignore
-.gitattributes
-
-# Documentation
-*.md
-README*
-CHANGELOG*
-LICENSE*
-docs/
-
-# Logs and temporary files
+# Exclude logs, test data, and build artifacts
 *.log
 logs/
-temp_logs/
-temp/
-temp_uploads/
-temp-vue/
-temp-vue-app/
-temp-vue-fix/
-temp-docker-dev/
-temp-serve/
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Environment and config files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Data and uploads
-data/
-uploads/
-downloaded_briefs/
-wa_briefs/
-wa_briefs_text/
-sample_briefs/
-citation_cache/
-correction_cache/
-casestrainer_sessions/
-archived/
-archived_batch_files/
-cache/
-backup_before_update/
-
-# Testing
 test*/
 tests*/
-testing/
-spec/
-specs/
-fixtures/
-mocks/
-stubs/
-typings/
-types/
-cypress/
-deprecated_tests/
-deprecated_scripts/
-
-# Docker and deployment
-docker/
-docker-test/
-docker-test2/
-deployment/
-deployment_package/
-nginx/
-nginx-1.24.0/
-
-# Backup and archive directories
-casestrainer-vue-backup/
-!ARCHIVE_DIR!/
-
-# Development tools
-scripts/
-reports/
-results/
-enhanced_results/
-adaptive_results/
-models/
-learning_data/
-instance/
-flask_session/
-
-# SSL certificates (keep only what's needed)
-ssl/
-*.pem
-*.key
-*.crt
-*.csr
-*.p12
-*.pfx
-# Allow SSL certificates in the main ssl directory for nginx
-!ssl/*.crt
-!ssl/*.key
-!ssl/*.pem
-
-# Nginx (keep only config files)
-nginx/
-conf/
-
-# Frontend development
-frontend/
-casestrainer-vue-new/
-word_addin/
-
-# Python packages and eggs
+build/
+dist/
 *.egg-info/
 *.egg
-pip-log.txt
-pip-delete-this-directory.txt
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Archive files
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Large files that shouldn't be in container
-*.pdf
-*.mp4
-*.avi
-*.mov
-*.wmv
-*.flv
-*.webm
-
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Lock files
-yarn.lock
-poetry.lock
-Pipfile.lock
-
-# Configuration files that might contain secrets
-config_dev.py
-config_prod.py
-*.conf.disabled
-
-# Development specific
-python-hyperscan/
-hyperscan/
-vcpkg/
-.venv/
-venv_new/
-casestrainer-vue-backup/
+# Exclude node and frontend build artifacts
+node_modules/
 frontend/
-word_addin/
-
-# Keep only essential files for the application
-# Explicitly include what we need
-!requirements.txt
-!src/
-!app/
-!templates/
-!static/
-!config/casestrainer_only.conf
+casestrainer-vue-new/
 
 # Exclude build and cache directories that shouldn't be in container
-build/
 target/
 out/
 bin/

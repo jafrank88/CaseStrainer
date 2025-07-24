@@ -6,6 +6,7 @@ Debug script to test CourtListener API call directly.
 import json
 import requests
 import logging
+import sys
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -43,6 +44,11 @@ def test_courtlistener_api():
     
     # API endpoint
     endpoint = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    
+    # Prevent use of v3 CourtListener API endpoints
+    if 'v3' in endpoint:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
     
     for test_citation in test_citations:
         logger.info(f"\n{'='*60}")

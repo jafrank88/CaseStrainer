@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 # Disable API calls for testing
 os.environ['DISABLE_API_CALLS'] = '1'
 
-from src.extract_case_name import extract_case_name_hinted, extract_case_name_from_text
+from src.case_name_extraction_core import extract_case_name_hinted, extract_case_name_from_text
 
 def test_hinted_extraction():
     """Test hinted extraction with canonical name and misspelled party name."""

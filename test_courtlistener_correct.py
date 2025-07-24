@@ -6,6 +6,7 @@ Test CourtListener API with correct format.
 import requests
 import json
 import time
+import sys
 
 def test_courtlistener_correct():
     """Test CourtListener API with correct format."""
@@ -21,6 +22,11 @@ def test_courtlistener_correct():
     
     # API endpoint
     url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    
+    # Prevent use of v3 CourtListener API endpoints
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
     
     # Headers
     headers = {

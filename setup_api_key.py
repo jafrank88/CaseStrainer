@@ -5,6 +5,12 @@ Setup script for CourtListener API key
 
 import os
 import json
+import sys
+
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in url:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
 
 def setup_courtlistener_api_key():
     """Setup the CourtListener API key"""

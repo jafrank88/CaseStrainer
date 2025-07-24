@@ -27,11 +27,19 @@ def health_check():
         # Basic health checks
         db_manager = get_database_manager()
         db_stats = db_manager.get_database_stats()
-        
+
+        # Read version from VERSION file
+        version = 'unknown'
+        try:
+            with open(os.path.join(os.path.dirname(__file__), '../../VERSION'), 'r', encoding='utf-8') as vf:
+                version = vf.read().strip()
+        except Exception as e:
+            logger.warning(f"Could not read VERSION file: {e}")
+
         health_data = {
             'status': 'healthy',
             'timestamp': datetime.utcnow().isoformat(),
-            'version': '2.0',
+            'version': version,
             'components': {
                 'database': 'healthy',
                 'citation_processor': 'healthy',
@@ -42,9 +50,9 @@ def health_check():
                 'size_mb': round(db_stats.get('database_size_mb', 0), 2)
             }
         }
-        
+
         return jsonify(health_data), 200
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return jsonify({
@@ -71,6 +79,7 @@ def db_stats():
 
 @vue_api.route('/analyze', methods=['POST'])
 def analyze():
+    print("[DEBUG PRINT] /analyze endpoint called")
     logger.info("=== ANALYZE ENDPOINT CALLED ===")
     logger.info(f"Request method: {request.method}")
     logger.info(f"Content type: {request.content_type}")
@@ -86,10 +95,10 @@ def analyze():
             return _handle_form_input()
         else:
             logger.error("Invalid or missing input. No file, JSON, or form data found.")
-            return jsonify({'error': 'Invalid or missing input. Please provide text, file, or URL.'}), 400
+            return jsonify({'error': 'Invalid or missing input. Please provide text, file, or URL.', 'citations': [], 'clusters': []}), 400
     except Exception as e:
         logger.error(f"Error in analyze endpoint: {e}", exc_info=True)
-        return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
+        return jsonify({'error': 'Analysis failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
 
 @vue_api.route('/analyze_enhanced', methods=['POST'])
 def analyze_enhanced():
@@ -99,14 +108,14 @@ def analyze_enhanced():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({'error': 'No JSON data provided'}), 400
+            return jsonify({'error': 'No JSON data provided', 'citations': [], 'clusters': []}), 400
         
         input_type = data.get('type', 'text')
         
         if input_type == 'text':
             text = data.get('text', '')
             if not text:
-                return jsonify({'error': 'No text provided'}), 400
+                return jsonify({'error': 'No text provided', 'citations': [], 'clusters': []}), 400
             
             # Check if this should be processed immediately
             if citation_service.should_process_immediately({'type': 'text', 'text': text}):
@@ -140,11 +149,11 @@ def analyze_enhanced():
                 }), 500
         
         else:
-            return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
+            return jsonify({'error': 'File upload processing not implemented in this endpoint', 'citations': [], 'clusters': []}), 501
             
     except Exception as e:
         logger.error(f"Error in enhanced analyze endpoint: {e}", exc_info=True)
-        return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500
+        return jsonify({'error': 'Analysis failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
 
 @vue_api.route('/task_status/<task_id>', methods=['GET'])
 def task_status(task_id):
@@ -164,7 +173,9 @@ def task_status(task_id):
         if not job:
             return jsonify({
                 'error': 'Task not found',
-                'task_id': task_id
+                'task_id': task_id,
+                'citations': [],
+                'clusters': []
             }), 404
         
         # Check job status
@@ -186,7 +197,9 @@ def task_status(task_id):
                     'status': 'failed',
                     'task_id': task_id,
                     'error': result.get('error', 'Processing failed') if result else 'Unknown error',
-                    'success': False
+                    'success': False,
+                    'citations': [],
+                    'clusters': []
                 })
         
         elif job.is_failed:
@@ -195,7 +208,9 @@ def task_status(task_id):
                 'status': 'failed',
                 'task_id': task_id,
                 'error': str(job.exc_info) if job.exc_info else 'Job failed',
-                'success': False
+                'success': False,
+                'citations': [],
+                'clusters': []
             })
         
         elif job.is_started:
@@ -204,7 +219,9 @@ def task_status(task_id):
                 'status': 'processing',
                 'task_id': task_id,
                 'message': 'Task is currently being processed',
-                'success': True
+                'success': True,
+                'citations': [],
+                'clusters': []
             })
         
         else:
@@ -214,7 +231,9 @@ def task_status(task_id):
                 'task_id': task_id,
                 'message': 'Task is queued and waiting to be processed',
                 'position': queue.get_job_position(task_id),
-                'success': True
+                'success': True,
+                'citations': [],
+                'clusters': []
             })
             
     except Exception as e:
@@ -222,7 +241,9 @@ def task_status(task_id):
         return jsonify({
             'error': 'Failed to check task status',
             'details': str(e),
-            'task_id': task_id
+            'task_id': task_id,
+            'citations': [],
+            'clusters': []
         }), 500
 
 def _handle_file_upload():
@@ -233,18 +254,18 @@ def _handle_file_upload():
         from redis import Redis
         
         if 'file' not in request.files:
-            return jsonify({'error': 'No file provided'}), 400
+            return jsonify({'error': 'No file provided', 'citations': [], 'clusters': []}), 400
         
         file = request.files['file']
         if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+            return jsonify({'error': 'No file selected', 'citations': [], 'clusters': []}), 400
         
         # Validate file type
         allowed_extensions = {'pdf', 'txt', 'doc', 'docx', 'rtf'}
         file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
         
         if file_ext not in allowed_extensions:
-            return jsonify({'error': f'File type not allowed. Allowed types: {", ".join(allowed_extensions)}'}), 400
+            return jsonify({'error': f'File type not allowed. Allowed types: {", ".join(allowed_extensions)}', 'citations': [], 'clusters': []}), 400
         
         # Generate unique filename
         filename = file.filename
@@ -301,7 +322,7 @@ def _handle_file_upload():
             
     except Exception as e:
         logger.error(f"File upload error: {e}", exc_info=True)
-        return jsonify({'error': f'Failed to process file: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to process file: {str(e)}', 'citations': [], 'clusters': []}), 500
 
 def _handle_json_input():
     logger.info("_handle_json_input called")
@@ -309,26 +330,27 @@ def _handle_json_input():
     logger.info(f"JSON data received: {data}")
     if not data:
         logger.error("No JSON data provided")
-        return jsonify({'error': 'No JSON data provided'}), 400
+        return jsonify({'error': 'No JSON data provided', 'citations': [], 'clusters': []}), 400
     input_type = data.get('type', 'text')
     logger.info(f"Input type: {input_type}")
     if input_type == 'text':
         text = data.get('text', '')
+        print(f"[DEBUG PRINT] Received text at /analyze, length: {len(text)}")
         logger.info(f"Text input received: {text[:100]}... (length: {len(text)})")
         if not text:
             logger.error("No text provided in JSON input")
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({'error': 'No text provided', 'citations': [], 'clusters': []}), 400
         return _process_text_input(text)
     elif input_type == 'url':
         url = data.get('url', '')
         logger.info(f"URL input received: {url}")
         if not url:
             logger.error("No URL provided in JSON input")
-            return jsonify({'error': 'No URL provided'}), 400
+            return jsonify({'error': 'No URL provided', 'citations': [], 'clusters': []}), 400
         return _process_url_input(url)
     else:
         logger.error(f"Invalid input type: {input_type}")
-        return jsonify({'error': 'Invalid input type. Use \"text\" or \"url\"'}), 400
+        return jsonify({'error': 'Invalid input type. Use \"text\" or \"url\"', 'citations': [], 'clusters': []}), 400
 
 def _handle_form_input():
     """Handle form input processing"""
@@ -338,17 +360,17 @@ def _handle_form_input():
     if input_type == 'text':
         text = data.get('text', '')
         if not text:
-            return jsonify({'error': 'No text provided'}), 400
+            return jsonify({'error': 'No text provided', 'citations': [], 'clusters': []}), 400
         return _process_text_input(text)
         
     elif input_type == 'url':
         url = data.get('url', '')
         if not url:
-            return jsonify({'error': 'No URL provided'}), 400
+            return jsonify({'error': 'No URL provided', 'citations': [], 'clusters': []}), 400
         return _process_url_input(url)
         
     else:
-        return jsonify({'error': 'Invalid input type. Use "text" or "url"'}), 400
+        return jsonify({'error': 'Invalid input type. Use "text" or "url"', 'citations': [], 'clusters': []}), 400
 
 def _process_text_input(text, source_name="pasted_text"):
     logger.info(f"_process_text_input called with text length: {len(text)}")
@@ -369,10 +391,7 @@ def _process_text_input(text, source_name="pasted_text"):
                 })
             else:
                 logger.error(f"Immediate processing failed: {result.get('message', 'Text processing failed')}")
-                return jsonify({
-                    'error': result.get('message', 'Text processing failed'),
-                    'success': False
-                }), 500
+                return jsonify({'error': result.get('message', 'Text processing failed'), 'success': False, 'citations': [], 'clusters': []}), 500
         else:
             logger.info("Processing longer text asynchronously with RQ workers")
             task_id = str(uuid.uuid4())
@@ -410,7 +429,7 @@ def _process_text_input(text, source_name="pasted_text"):
             
     except Exception as e:
         logger.error(f"Error processing text input: {e}", exc_info=True)
-        return jsonify({'error': 'Text processing failed', 'details': str(e)}), 500
+        return jsonify({'error': 'Text processing failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
 
 def _process_url_input(url):
     """Process URL input with proper async RQ worker processing"""
@@ -451,4 +470,4 @@ def _process_url_input(url):
         
     except Exception as e:
         logger.error(f"Error queuing URL input: {e}", exc_info=True)
-        return jsonify({'error': 'URL processing failed', 'details': str(e)}), 500
+        return jsonify({'error': 'URL processing failed', 'details': str(e), 'citations': [], 'clusters': []}), 500

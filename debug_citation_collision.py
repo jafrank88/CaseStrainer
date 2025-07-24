@@ -8,6 +8,12 @@ import requests
 import json
 import time
 from typing import Dict, Any
+import sys
+
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in url or 'v3' in search_url:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
 
 def test_citation_collision():
     """Test why 146 Wn.2d 1 is returning different cases."""

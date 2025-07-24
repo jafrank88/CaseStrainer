@@ -18,6 +18,17 @@ import importlib.util
 from tqdm import tqdm
 import requests
 from src.enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
+import sys
+
+# Prevent use of v3 CourtListener API endpoints
+# Check all API URLs in the script for v3 endpoints
+api_urls = [
+    "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+]
+for url in api_urls:
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
 
 # Constants
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")

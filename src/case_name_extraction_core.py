@@ -9,10 +9,582 @@ from typing import Dict, Optional, Tuple, List, Any
 from datetime import datetime
 from dataclasses import dataclass
 import warnings
-from src.extract_case_name import extract_case_name_from_text
-from src.extract_case_name import extract_case_name_hinted
+import os
 
 logger = logging.getLogger(__name__)
+
+def is_valid_case_name(case_name: str) -> bool:
+    """
+    Validate if a case name is reasonable and complete.
+    """
+    if not case_name:
+        return False
+    case_name = case_name.strip()
+    if len(case_name) < 5:
+        return False
+    if is_citation_like(case_name):
+        return False
+    if not re.search(r'[A-Za-z]', case_name):
+        return False
+    if not re.match(r'^[A-Za-z]|^In\s+re|^Estate\s+of|^Matter\s+of|^State\s+v\.|^People\s+v\.|^United\s+States\s+v\.', case_name, re.IGNORECASE):
+        return False
+    if not re.search(r'\s+v\.\s+|\s+vs\.\s+|^In\s+re|^Estate\s+of|^Matter\s+of', case_name, re.IGNORECASE):
+        return False
+    if len(case_name) > 200:
+        return False
+    return True
+
+def is_citation_like(text: str) -> bool:
+    """
+    Check if text looks like a citation rather than a case name.
+    Enhanced version with better pattern matching.
+    """
+    if not text:
+        return True
+    text = text.strip()
+    citation_patterns = [
+        r'^\d+\s+[A-Z]',
+        r'^\d+\s*[A-Z]+\s+\d+',
+        r'^[A-Z]+\s+\d+',
+        r'^\d+\s*[A-Z]+\s*\(\d+\)',
+        r'^[A-Z]+\s*\(\d+\)',
+        r'^\d+\s*[A-Z]+\s*\d+\s*\(\d+\)',
+        r'^[A-Z]+\s*Rep\.',
+        r'^[A-Z]+\s*Supp\.',
+        r'^[A-Z]+\s*2d',
+        r'^[A-Z]+\s*3d',
+        r'^F\.\s*\d+',
+        r'^U\.\s*S\.',
+        r'^S\.\s*Ct\.',
+        r'^L\.\s*Ed\.',
+        r'^L\.\s*Ed\.\s*2d',
+    ]
+    for pattern in citation_patterns:
+        if re.match(pattern, text, re.IGNORECASE):
+            return True
+    if len(text) < 5:
+        return True
+    if re.match(r'^[A-Z0-9\s\.]+$', text) and any(c.isdigit() for c in text):
+        return True
+    return False
+
+def clean_case_name_enhanced(case_name: str) -> str:
+    """
+    Enhanced case name cleaning with better punctuation and signal word removal.
+    """
+    if not case_name:
+        return ""
+    signal_words = [
+        r'^See\s+generally\s+',
+        r'^See\s+',
+        r'^According\s+to\s+',
+        r'^As\s+held\s+in\s+',
+        r'^The\s+court\s+in\s+',
+        r'^The\s+court\s+',
+        r'^In\s+the\s+case\s+of\s+',
+        r'^In\s+',
+    ]
+    for pattern in signal_words:
+        case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE)
+    case_name = re.sub(r'[\,\s]+$', '', case_name)
+    case_name = case_name.rstrip('.,;:')
+    case_name = case_name.strip()
+    case_name = re.sub(r'\s+', ' ', case_name)
+    return case_name
+
+def extract_case_name_precise(context_before: str, citation: str) -> str:
+    """
+    Extract case name with precise patterns to avoid capturing too much text.
+    Handles 'v.', 'vs.', 'In re', 'Estate of', and 'State v.' cases.
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not context_before:
+        return ""
+    context = context_before[-80:] if len(context_before) > 80 else context_before
+    # Print all 'v.' matches in the context for 136 Wn. App. 104
+    if citation == '136 Wn. App. 104':
+        print(f"[DEBUG] Context for 136 Wn. App. 104 (repr): {repr(context)}")
+        print(f"[DEBUG] Context length: {len(context)}")
+        # Print 80 chars around 'Holder'
+        idx_holder = context.find('Holder')
+        if idx_holder != -1:
+            start = max(0, idx_holder-20)
+            end = min(len(context), idx_holder+60)
+            snippet = context[start:end]
+            with open('case_name_debug.txt', 'w', encoding='utf-8') as f:
+                f.write(f"Snippet: {repr(snippet)}\n")
+                f.write('Unicode code points:\n')
+                f.write(' '.join(str(ord(c)) for c in snippet) + '\n')
+        # Simple regex search for 'v.'
+        simple_v_matches = list(re.finditer(r'v\.', context))
+        print(f"[DEBUG] Simple 'v.' regex found {len(simple_v_matches)} matches in context for 136 Wn. App. 104.")
+        for idx, m in enumerate(simple_v_matches):
+            start = max(0, m.start()-20)
+            end = min(len(context), m.end()+20)
+            print(f"[DEBUG] Simple v. match {idx+1}: '{context[start:end]}' at {m.start()}-{m.end()}")
+        # Check where the backward scan starts
+        scan_start = len(context) - 1
+        print(f"[DEBUG] Backward scan for 'v.' should start at index {scan_start} (end of context)")
+        # If the scan is starting elsewhere, print a warning
+        if scan_start < len(context) - 1:
+            print(f"[WARNING] Backward scan is not starting at the end! Actual start: {scan_start}")
+        v_matches = list(re.finditer(r'([A-Z][A-Za-z0-9&.,\'\- ]{1,100})\s+v\.?\s+([A-Z][A-Za-z0-9&.,\'\- ]{1,100})(?=,|\s)', context))
+        print(f"[DEBUG] Found {len(v_matches)} 'v.' matches in context for 136 Wn. App. 104.")
+        for idx, m in enumerate(v_matches):
+            print(f"[DEBUG] v. match {idx+1}: '{m.group(0)}' at {m.start()}-{m.end()}")
+    # Use the relaxed regex for all extractions
+    v_matches = list(re.finditer(r'([A-Z][A-Za-z0-9&.,\'\- ]{1,100})\s+v\.?\s+([A-Z][A-Za-z0-9&.,\'\- ]{1,100})(?=,|\s)', context))
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    logger.debug(f"[extract_case_name_precise] Context: '{context}'")
+    logger.debug(f"[extract_case_name_precise] Citation: '{citation}'")
+    logger.debug(f"[extract_case_name_precise] Found {len(v_matches)} v. matches.")
+    for idx, m in enumerate(v_matches):
+        logger.debug(f"[extract_case_name_precise] v. match {idx+1}: '{m.group(0)}' at {m.start()}-{m.end()}")
+        between = context[m.end():]
+        between_clean = re.sub(r'\s+', '', between)
+        between_clean = re.sub(r'^[,\d]*', '', between_clean)
+        logger.debug(f"[extract_case_name_precise] Text between v. match {idx+1} and citation: '{between_clean[:50]}'")
+    if v_matches:
+        last_v_match = v_matches[-1]
+        between = context[last_v_match.end():]
+        between_clean = re.sub(r'\s+', '', between)
+        between_clean = re.sub(r'^[,\d]*', '', between_clean)
+        if between_clean.startswith(citation.replace(' ', '')):
+            case_name = clean_case_name_enhanced(last_v_match.group(0))
+            logger.debug(f"[extract_case_name_precise] Closest v. match accepted: '{case_name}'")
+            if (case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name)
+                and not _is_header_or_clerical_text(case_name) and len(case_name.split()) <= 10):
+                logger.debug(f"[extract_case_name_precise] Valid case name found: '{case_name}'")
+                return case_name
+    patterns = [
+        # Allow for optional numbers and commas between case name and citation
+        r'([A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5}\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5}\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*\(\d{4}\)',
+        r'(In\s+re\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(In\s+re\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*\(\d{4}\)',
+        r'(Estate\s+of\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(Estate\s+of\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*\(\d{4}\)',
+        r'(State\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(People\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(United\s+States\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5}\s+v\.?\s+[A-Z][A-Za-z\'\-]+(?:\s+[A-Z][A-Za-z\'\-]+){0,5})\s*,\s*\d+',
+    ]
+    for i, pattern in enumerate(patterns):
+        matches = list(re.finditer(pattern, context, re.IGNORECASE))
+        logger.debug(f"[extract_case_name_precise] Pattern {i+1}: found {len(matches)} matches")
+        if matches:
+            match = matches[-1]
+            case_name = clean_case_name_enhanced(match.group(1))
+            logger.debug(f"[extract_case_name_precise] Found case name: '{case_name}'")
+            if (case_name and 
+                is_valid_case_name(case_name) and 
+                not starts_with_signal_word(case_name) and
+                not _is_header_or_clerical_text(case_name) and
+                len(case_name.split()) <= 10):
+                logger.debug(f"[extract_case_name_precise] Valid case name found: '{case_name}'")
+                return case_name
+    logger.debug(f"[extract_case_name_precise] No valid case names found")
+    return ""
+
+def extract_case_name_with_date_adjacency(context_before: str, citation: str) -> str:
+    """
+    Extract case name with focus on adjacency between case name and date.
+    Looks for patterns like "Case Name v. Defendant, 123 Reporter 456 (2023)"
+    Uses narrow context and specific patterns to avoid header text.
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not context_before:
+        return ""
+    narrow_context = context_before[-50:] if len(context_before) > 50 else context_before
+    date_adjacent_patterns = [
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+        r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,(?:\s*\d+,?)*\s*' + re.escape(citation),
+    ]
+    for i, pattern in enumerate(date_adjacent_patterns):
+        matches = list(re.finditer(pattern, narrow_context, re.IGNORECASE))
+        logger.debug(f"[extract_case_name_with_date_adjacency] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
+        if matches:
+            match = matches[-1]
+            case_name = clean_case_name_enhanced(match.group(1))
+            logger.debug(f"[extract_case_name_with_date_adjacency] Found case name with date adjacency: '{case_name}'")
+            if (case_name and 
+                is_valid_case_name(case_name) and 
+                not starts_with_signal_word(case_name) and
+                not _is_header_or_clerical_text(case_name)):
+                logger.debug(f"[extract_case_name_with_date_adjacency] Valid case name found: '{case_name}'")
+                return case_name
+            else:
+                logger.debug(f"[extract_case_name_with_date_adjacency] Case name invalid, starts with signal word, or is header text: '{case_name}'")
+    logger.debug(f"[extract_case_name_with_date_adjacency] No valid case names with date adjacency found")
+    return ""
+
+def extract_case_name_from_complex_citation(context: str, citation: str) -> str:
+    """
+    Extract case name from complex citation patterns like "State v. Waldon, 148 Wn. App. 952, 962-63, 202 P.3d 325 (2009)"
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not context or not citation:
+        return ""
+    complex_citation_patterns = [
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?,\s*\d+.*?\(\d{4}\)',
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+\s*\(\d{4}\)',
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?,\s*\d+',
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+        r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+        r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+        r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*\d+\s+[A-Za-z\.\s]+\d+.*?\(\d{4}\)',
+    ]
+    for i, pattern in enumerate(complex_citation_patterns):
+        matches = list(re.finditer(pattern, context, re.IGNORECASE))
+        logger.debug(f"[extract_case_name_from_complex_citation] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
+        if matches:
+            match = matches[-1]
+            case_name = clean_case_name_enhanced(match.group(1))
+            logger.debug(f"[extract_case_name_from_complex_citation] Found case name in complex citation: '{case_name}'")
+            if case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name):
+                if is_case_name_associated_with_citation(context, case_name, citation):
+                    logger.debug(f"[extract_case_name_from_complex_citation] Valid case name found: '{case_name}'")
+                    return case_name
+    logger.debug(f"[extract_case_name_from_complex_citation] No valid case names in complex citations found")
+    return ""
+
+def starts_with_signal_word(text: str) -> bool:
+    if not text:
+        return False
+    signal_words = [
+        'see generally',
+        'see',
+        'according to',
+        'as held in',
+        'the court in',
+        'the court',
+        'in the case of',
+    ]
+    text_lower = text.lower().strip()
+    for signal_word in signal_words:
+        if text_lower.startswith(signal_word):
+            return True
+    return False
+
+def _is_header_or_clerical_text(text: str) -> bool:
+    if not text:
+        return True
+    text_lower = text.lower()
+    header_words = {
+        'clerk', 'supreme', 'court', 'state', 'washington', 'filed', 'record', 
+        'opinion', 'judge', 'justice', 'chief', 'associate', 'district', 'appeals',
+        'circuit', 'federal', 'united', 'states', 'department', 'attorney', 
+        'prosecuting', 'sheriff', 'county', 'municipal', 'organization', 'petitioners',
+        'respondents', 'cross', 'individuals', 'similarly', 'situated', 'behalf',
+        'others', 'married', 'couple', 'en', 'banc', 'file', 'office', 'june',
+        'december', 'january', 'february', 'march', 'april', 'may', 'july', 'august',
+        'september', 'october', 'november', 'am', 'pm', 'morning', 'afternoon',
+        'pendleton', 'sarah', 'r.', 'r', 'supreme', 'court', 'clerk'
+    }
+    text_words = set(text_lower.split())
+    if text_words.intersection(header_words):
+        return True
+    header_patterns = [
+        r'^[A-Z\s]+$',
+        r'clerk.*court',
+        r'supreme.*court.*state',
+        r'filed.*record',
+        r'opinion.*filed',
+        r'^[A-Z]+\s+[A-Z]+\s+[A-Z]+$',
+        r'pendleton.*supreme.*court.*clerk',
+        r'^[A-Z]+\s+[A-Z]+\s+[A-Z]+\s+[A-Z]+',
+        r'clerk.*john.*doe',
+        r'^[A-Z]+\s+[A-Z]+\s+[A-Z]+\s+[A-Z]+\s+[A-Z]+',
+    ]
+    for pattern in header_patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    if len(text) > 100:
+        return True
+    word_count = len(text.split())
+    if word_count > 12:
+        return True
+    problematic_patterns = [
+        r'R\.PENDLETON',
+        r'PENDLETON.*SUPREME.*COURT.*CLERK',
+        r'CLERK.*JOHN.*DOE.*ET.*AL',
+        r'SUPREME.*COURT.*CLERK.*JOHN.*DOE',
+    ]
+    for pattern in problematic_patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
+def is_case_name_associated_with_citation(context: str, case_name: str, citation: str) -> bool:
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    pattern = rf'{re.escape(case_name)}\s*,\s*{re.escape(citation)}'
+    if re.search(pattern, context, re.IGNORECASE):
+        logger.debug(f"[is_case_name_associated_with_citation] Case name '{case_name}' is directly associated with citation '{citation}'")
+        return True
+    case_name_index = context.find(case_name)
+    citation_index = context.find(citation)
+    if case_name_index != -1 and citation_index != -1:
+        if case_name_index < citation_index:
+            distance = citation_index - case_name_index
+            if distance <= 50:
+                logger.debug(f"[is_case_name_associated_with_citation] Case name '{case_name}' is within {distance} chars of citation '{citation}'")
+                return True
+    logger.debug(f"[is_case_name_associated_with_citation] Case name '{case_name}' is NOT associated with citation '{citation}'")
+    return False
+
+def extract_case_name_from_context_enhanced(context_before: str, citation: str) -> str:
+    """
+    Enhanced context-based case name extraction with better line break handling and signal word filtering.
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not context_before:
+        return ""
+    patterns = [
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)\s*\(\d{4}\)',
+        r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+        r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)\s*,\s*' + re.escape(citation),
+    ]
+    for i, pattern in enumerate(patterns):
+        matches = list(re.finditer(pattern, context_before, re.IGNORECASE))
+        logger.debug(f"[extract_case_name_from_context_enhanced] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
+        for j, match in enumerate(matches):
+            logger.debug(f"[extract_case_name_from_context_enhanced] Match {j+1}: '{match.group(1)}'")
+        if matches:
+            match = matches[-1]
+            case_name = clean_case_name_enhanced(match.group(1))
+            logger.debug(f"[extract_case_name_from_context_enhanced] Cleaned case name: '{case_name}'")
+            if (case_name and 
+                is_valid_case_name(case_name) and 
+                not starts_with_signal_word(case_name) and
+                not _is_header_or_clerical_text(case_name)):
+                logger.debug(f"[extract_case_name_from_context_enhanced] Valid case name found: '{case_name}'")
+                return case_name
+            else:
+                logger.debug(f"[extract_case_name_from_context_enhanced] Case name invalid, starts with signal word, or is header text: '{case_name}'")
+    logger.debug(f"[extract_case_name_from_context_enhanced] No valid case names found")
+    return ""
+
+def extract_case_name_global_search(text: str, citation: str) -> str:
+    """
+    Global search for case name patterns in the entire text.
+    Used as a fallback when local context extraction fails.
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not text or not citation:
+        return ""
+    patterns = [
+        r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(Matter\s+of\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+        r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=[,;\s]+|$)',
+    ]
+    for i, pattern in enumerate(patterns):
+        matches = list(re.finditer(pattern, text, re.IGNORECASE))
+        logger.debug(f"[extract_case_name_global_search] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
+        for j, match in enumerate(matches):
+            logger.debug(f"[extract_case_name_global_search] Match {j+1}: '{match.group(1)}'")
+        if matches:
+            match = matches[-1]
+            case_name = clean_case_name_enhanced(match.group(1))
+            logger.debug(f"[extract_case_name_global_search] Cleaned case name: '{case_name}'")
+            if case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name):
+                logger.debug(f"[extract_case_name_global_search] Valid case name found: '{case_name}'")
+                return case_name
+            else:
+                logger.debug(f"[extract_case_name_global_search] Case name invalid or starts with signal word: '{case_name}'")
+    logger.debug(f"[extract_case_name_global_search] No valid case names found")
+    return ""
+
+# --- Moved from extract_case_name.py (now archived) ---
+def extract_case_name_from_text(text: str, citation_text: str, all_citations: list = None, canonical_name: str = None) -> Optional[str]:
+    """
+    Extract case name from text using multiple strategies.
+    Enhanced version with better handling of complex citations and case name-citation association.
+    Uses narrow 100-character context window and focuses on adjacency between case name and date.
+    Args:
+        text: The full text
+        citation_text: The specific citation to find case name for
+        all_citations: List of all citations in the text (for context)
+        canonical_name: Known canonical case name for the case
+    Returns:
+        str: Extracted case name or empty string
+    """
+    import logging
+    logger = logging.getLogger("case_name_extraction")
+    if not text or not citation_text:
+        logger.debug("[extract_case_name_from_text] Empty text or citation_text.")
+        return ""
+    norm_text = re.sub(r'\s+', ' ', text)
+    logger.debug(f"[extract_case_name_from_text] Normalized text: '{norm_text[:200]}...'")
+    logger.debug(f"[extract_case_name_from_text] Looking for citation: '{citation_text}'")
+    citation_index = norm_text.find(citation_text)
+    if citation_index != -1:
+        context_before = norm_text[max(0, citation_index - 100):citation_index]
+        context_after = norm_text[citation_index:min(len(norm_text), citation_index + 100)]
+        full_context = context_before + context_after
+        logger.debug(f"[extract_case_name_from_text] Context before citation: '{context_before}'")
+        logger.debug(f"[extract_case_name_from_text] Context after citation: '{context_after}'")
+        logger.debug(f"[extract_case_name_from_text] Full context (200 chars): '{full_context}'")
+        if canonical_name and not hasattr(extract_case_name_from_text, '_in_hinted_call'):
+            try:
+                extract_case_name_from_text._in_hinted_call = True
+                case_name = extract_case_name_hinted(text, citation_text, canonical_name)
+                if case_name and is_valid_case_name(case_name):
+                    logger.debug(f"[extract_case_name_from_text] Found case name with hinted extraction: '{case_name}'")
+                    return case_name
+            finally:
+                if hasattr(extract_case_name_from_text, '_in_hinted_call'):
+                    delattr(extract_case_name_from_text, '_in_hinted_call')
+        case_name = extract_case_name_precise(context_before, citation_text)
+        if case_name:
+            logger.debug(f"[extract_case_name_from_text] Found case name with precise extraction: '{case_name}'")
+            return case_name
+        case_name = extract_case_name_with_date_adjacency(context_before, citation_text)
+        if case_name:
+            logger.debug(f"[extract_case_name_from_text] Found case name with date adjacency: '{case_name}'")
+            return case_name
+        case_name = extract_case_name_from_complex_citation(full_context, citation_text)
+        if case_name:
+            logger.debug(f"[extract_case_name_from_text] Found case name in complex citation: '{case_name}'")
+            return case_name
+        case_name = extract_case_name_from_context_enhanced(context_before, citation_text)
+        if case_name:
+            logger.debug(f"[extract_case_name_from_text] Found case name in context: '{case_name}'")
+            return case_name
+    else:
+        logger.debug(f"[extract_case_name_from_text] Citation '{citation_text}' not found in text.")
+    logger.debug(f"[extract_case_name_from_text] Trying global search...")
+    case_name = extract_case_name_global_search(norm_text, citation_text)
+    if case_name:
+        logger.debug(f"[extract_case_name_from_text] Found case name in global search: '{case_name}'")
+        return case_name
+    if canonical_name and canonical_name.lower() in norm_text.lower():
+        logger.debug(f"[extract_case_name_from_text] Using canonical name as fallback (found in text): '{canonical_name}'")
+        return canonical_name
+    logger.debug(f"[extract_case_name_from_text] No case name found")
+    return ""
+
+def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
+    """
+    Safe version that NEVER returns canonical name directly.
+    Only returns names actually found in the document text.
+    """
+    try:
+        if not canonical_name:
+            return ""
+        citation_index = text.find(citation.replace("Wash. 2d", "Wn.2d"))
+        if citation_index == -1:
+            citation_index = text.find(citation)
+        if citation_index == -1:
+            return ""
+        context_before = text[max(0, citation_index - 100):citation_index]
+        variants = []
+        patterns = [
+            r'([A-Z][A-Za-z"\.",&]+\s+v\.\s+[A-Z][A-Za-z"\.",&]+)',
+            r'([A-Z][A-Za-z"\.",&]+\s+vs\.\s+[A-Z][A-Za-z"\.",&]+)',
+            r'(Dep\'t\s+of\s+[A-Za-z\s,&]+\s+v\.\s+[A-Za-z\s,&]+)',
+            r'(State\s+v\.\s+[A-Za-z\s,&]+)',
+            r'(In\s+re\s+[A-Za-z\s,&]+)'
+        ]
+        for pattern in patterns:
+            matches = re.findall(pattern, context_before)
+            for match in matches:
+                cleaned = clean_case_name_enhanced(match)
+                if cleaned and is_valid_case_name(cleaned):
+                    variants.append(cleaned)
+        if not variants:
+            return ""
+        from difflib import SequenceMatcher
+        best_variant = ""
+        best_score = 0.0
+        for variant in variants:
+            score = SequenceMatcher(None, variant.lower(), canonical_name.lower()).ratio()
+            if score > best_score and score > 0.6:
+                best_variant = variant
+                best_score = score
+        if best_variant and best_variant != canonical_name:
+            if best_variant.replace("'", "").replace(".", "") in context_before.replace("'", "").replace(".", ""):
+                return best_variant
+        return ""
+    except Exception as e:
+        import logging
+        logging.warning(f"Safe hinted extraction failed: {e}")
+        return ""
+
+def get_canonical_case_name_from_courtlistener(citation, api_key=None):
+    """
+    Get canonical case name using the unified citation processor.
+    This replaces the stub implementation with a working one.
+    """
+    try:
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        processor = UnifiedCitationProcessor()
+        result = processor.verify_citation_unified_workflow(citation)
+        if result and result.get('verified') == 'true':
+            case_name = result.get('case_name', '')
+            if case_name and case_name != 'N/A':
+                return {
+                    'case_name': case_name,
+                    'date': result.get('canonical_date', ''),
+                    'source': 'courtlistener_verification'
+                }
+        return None
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to get canonical name from CourtListener verification: {e}")
+        return None
+
+def get_canonical_case_name_from_google_scholar(citation, api_key=None):
+    """
+    Get canonical case name using the unified citation processor.
+    This replaces the stub implementation with a working one.
+    """
+    try:
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        processor = UnifiedCitationProcessor()
+        result = processor.verify_citation_unified_workflow(citation)
+        if result and result.get('verified') == 'true':
+            case_name = result.get('case_name', '')
+            if case_name and case_name != 'N/A':
+                return {
+                    'case_name': case_name,
+                    'date': result.get('canonical_date', ''),
+                    'source': 'google_scholar_verification'
+                }
+        return None
+    except Exception as e:
+        import logging
+        logging.warning(f"Failed to get canonical name from Google Scholar verification: {e}")
+        return None
 
 @dataclass
 class ExtractionResult:
@@ -145,11 +717,17 @@ class CaseNameExtractor:
         Returns:
             ExtractionResult with case name, date, and metadata
         """
+        def debug_write(msg):
+            log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            with open(os.path.join(log_dir, 'case_name_debug.txt'), 'a', encoding='utf-8') as f:
+                f.write(msg + '\n')
+        debug_write(f"[DEBUG] CaseNameExtractor.extract CALLED: citation={citation}, text[0:100]={text[:100]}")
         result = ExtractionResult()
         
         try:
             # Step 1: Get context around citation if provided
-            context = self._get_extraction_context(text, citation)
+            context = self._get_system_extraction_context(text, citation)
             
             # Step 2: Try case name extraction
             case_extraction = self._extract_case_name(context, citation)
@@ -182,99 +760,96 @@ class CaseNameExtractor:
         return result
     
     def _get_extraction_context(self, text: str, citation: str = None) -> str:
-        """Get relevant context for extraction with citation boundary awareness"""
+        """Get user-facing context: 200 characters before, 100 after citation."""
         if not citation:
             return text
-        
         citation_pos = text.find(citation)
         if citation_pos == -1:
             return text
-        
-        # Use larger context window for better extraction
-        # Increased from 150 to 300 characters before citation for long case names
-        # Increased from 50 to 100 characters after citation for year extraction
-        context_start = max(0, citation_pos - 300)
-        context_end = min(len(text), citation_pos + 100)
-        
-        # Check for other citations in the context area to avoid cross-contamination
-        context_text = text[context_start:context_end]
-        
-        # Look for citation patterns that might indicate other cases
-        citation_patterns = [
-            r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
-            r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
-        ]
-        
-        # Find the last citation before our target citation in the context
-        last_citation_pos = 0
-        for pattern in citation_patterns:
-            matches = list(re.finditer(pattern, context_text))
-            for match in matches:
-                # Only consider citations that come before our target citation
-                if match.end() < (citation_pos - context_start):
-                    last_citation_pos = max(last_citation_pos, match.end())
-        
-        # Adjust context start to avoid other citations
-        if last_citation_pos > 0:
-            # Look for sentence boundaries after the last citation
-            sentence_pattern = re.compile(r'\.\s+[A-Z]')
-            sentence_matches = list(sentence_pattern.finditer(context_text, last_citation_pos))
-            if sentence_matches:
-                adjusted_start = context_start + sentence_matches[0].start() + 1
-                context_start = max(context_start, adjusted_start)
-            else:
-                # If no sentence boundary, start after the last citation
-                context_start = max(context_start, context_start + last_citation_pos)
-        
-        return text[context_start:context_end]
+        start = max(0, citation_pos - 200)
+        end = min(len(text), citation_pos + len(citation) + 100)
+        return text[start:end].strip()
+
+    def _get_system_extraction_context(self, text: str, citation: str = None) -> str:
+        """Get citation-aware context for extraction: always 200 chars before citation, 100 after."""
+        if not citation:
+            return text
+        citation_pos = text.find(citation)
+        if citation_pos == -1:
+            return text
+        start = max(0, citation_pos - 200)
+        end = min(len(text), citation_pos + len(citation) + 100)
+        return text[start:end].strip()
     
     def _extract_case_name(self, context: str, citation: str = None) -> Optional[Dict]:
-        """Extract case name using pattern matching"""
-        
-        # Clean context
-        context = re.sub(r'\s+', ' ', context.strip())
-        
-        best_match = None
-        best_confidence = 0.0
-        
-        for pattern_info in self.case_patterns:
-            pattern = re.compile(pattern_info['pattern'], re.IGNORECASE)
-            
-            for match in pattern.finditer(context):
-                # Format the case name
-                try:
-                    case_name = pattern_info['format'](match)
-                    cleaned_name = self._clean_case_name(case_name)
-                    
-                    if not self._validate_case_name(cleaned_name):
-                        continue
-                    
-                    # Calculate confidence
-                    confidence = self._calculate_confidence(
-                        cleaned_name, 
-                        pattern_info['confidence_base'],
-                        match,
-                        context
-                    )
-                    
-                    if confidence > best_confidence:
-                        best_confidence = confidence
-                        best_match = {
-                            'name': cleaned_name,
-                            'confidence': confidence,
-                            'method': pattern_info['name'],
-                            'debug': {
-                                'pattern': pattern_info['name'],
-                                'raw_match': match.group(0),
-                                'match_position': match.span()
-                            }
-                        }
-                        
-                except Exception as e:
-                    logger.debug(f"Error processing match: {e}")
-                    continue
-        
-        return best_match
+        import re
+        STOPWORDS = {"of", "and", "the", "in", "for", "on", "at", "by", "with", "to", "from", "as", "but", "or", "nor", "so", "yet", "a", "an", "re"}
+        def debug_write(msg):
+            log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+            os.makedirs(log_dir, exist_ok=True)
+            with open(os.path.join(log_dir, 'case_name_debug.txt'), 'a', encoding='utf-8') as f:
+                f.write(msg + '\n')
+        debug_write(f"[DEBUG] CALL: citation={citation}, context[0:100]={context[:100]}")
+        if not context or len(context) < 10:
+            debug_write(f"[DEBUG] Early exit: context too short or empty.")
+            return None
+        # Instead of stopping at a delimiter, just use the full context window before the citation
+        citation_pos = context.rfind(citation) if citation else len(context)
+        context_before_citation = context[:citation_pos]
+        debug_write(f"[DEBUG] context_before_citation for citation={citation}: {context_before_citation[-200:]}")
+        # Try In re / Ex parte first
+        inre_match = re.search(r'(In\s+re|Ex\s+parte)[^,;\n]*', context_before_citation, re.IGNORECASE)
+        if inre_match:
+            case_name = inre_match.group(0).rstrip(',;').rstrip()  # Only trim trailing comma/semicolon/whitespace
+            debug_write(f"[DEBUG] In re/Ex parte match: {case_name}")
+            return {'name': case_name, 'confidence': 0.9, 'method': 'inre_exparte', 'debug': {'case_name': case_name}}
+        # Try v. pattern
+        v_match = list(re.finditer(r'\bv\.', context_before_citation))
+        if v_match:
+            last_v = v_match[-1].start()
+            debug_write(f"[DEBUG] Found last 'v.': char_pos={last_v}")
+            # Scan backward from v. to find the start of the first party
+            words = list(re.finditer(r"[\w'&.,-]+", context_before_citation))
+            v_word_idx = None
+            for i, m in enumerate(words):
+                if m.start() >= last_v:
+                    v_word_idx = i
+                    break
+            if v_word_idx is None:
+                v_word_idx = len(words) - 1
+            # Scan backward to first non-capitalized, non-stopword
+            start_idx = v_word_idx - 1
+            while start_idx >= 0:
+                w = words[start_idx].group(0)
+                if (not w[0].isupper()) and (w.lower() not in STOPWORDS):
+                    debug_write(f"[DEBUG] Stopped backward scan at index: {start_idx}, word: {w}")
+                    break
+                start_idx -= 1
+            # Move forward to next capitalized word
+            start_idx += 1
+            while start_idx < v_word_idx and not words[start_idx].group(0)[0].isupper():
+                start_idx += 1
+            debug_write(f"[DEBUG] Final start index for case name: {start_idx}")
+            # Collect all words from start_idx through the party after v.
+            # Find the next capitalized word after v. (start of second party)
+            after_v_idx = v_word_idx + 1
+            while after_v_idx < len(words) and not words[after_v_idx].group(0)[0].isupper():
+                after_v_idx += 1
+            # Stop at the first citation-like pattern after the party names
+            citation_pattern = re.compile(r"\d+\s+(Wn\.?\s*2d|Wash\.?\s*2d|P\.?\s*3d|P\.?\s*2d|F\.?\s*3d|F\.?\s*2d|U\.?S\.|S\.?Ct\.|L\.?Ed\.|A\.?2d|A\.?3d|So\.?2d|So\.?3d)", re.IGNORECASE)
+            stop_idx = len(words)
+            for i in range(after_v_idx, len(words)):
+                if citation_pattern.match(' '.join(words[j].group(0) for j in range(i, min(i+3, len(words))))):
+                    stop_idx = i
+                    debug_write(f"[DEBUG] Stopping case name at citation-like pattern: index={stop_idx}")
+                    break
+            # Collect all words from start_idx up to stop_idx
+            case_name_words = [words[i].group(0) for i in range(start_idx, stop_idx)]
+            case_name = ' '.join(case_name_words).rstrip(',;').rstrip()  # Only trim trailing comma/semicolon/whitespace
+            debug_write(f"[DEBUG] v. match case name: {case_name}")
+            return {'name': case_name, 'confidence': 0.9, 'method': 'v_pattern', 'debug': {'case_name': case_name}}
+        debug_write(f"[DEBUG] No case name extracted.")
+        return None
     
     def _clean_case_name(self, case_name: str) -> str:
         """Clean and normalize case name"""
@@ -420,38 +995,36 @@ def get_extractor() -> CaseNameExtractor:
 def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any]:
     """
     Main extraction function - replaces all the complex variants
-    
     Args:
         text: Document text
         citation: Citation to search for (optional)
-        
     Returns:
         Dict with case_name, date, year, confidence, method
     """
+    def debug_write(msg):
+        log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        with open(os.path.join(log_dir, 'case_name_debug.txt'), 'a', encoding='utf-8') as f:
+            f.write(msg + '\n')
+    debug_write(f"[DEBUG] extract_case_name_and_date CALLED: citation={citation}, text[0:100]={text[:100]}")
     extractor = get_extractor()
     result = extractor.extract(text, citation)
-    
-    # Add date extraction here to avoid circular dependency
-    if not result.date or result.date == "":
-        date_extractor = DateExtractor()
-        date_extraction = date_extractor.extract_date_from_context(
-            text, citation
-        ) if citation else date_extractor.extract_date_from_full_text(text)
-        
-        if date_extraction:
-            result.date = date_extraction
-            # Extract year from date
-            year_match = re.search(r'(\d{4})', date_extraction)
-            if year_match:
-                result.year = year_match.group(1)
-    
+    # Date extraction
+    date_extractor = DateExtractor()
+    if citation:
+        date = date_extractor.extract_date_from_context(text, citation)
+    else:
+        date = date_extractor.extract_date_from_full_text(text)
+    result.date = date
+    result.year = date
+    debug_write(f"[DEBUG] Extracted date: {date}")
     return {
-        'case_name': result.case_name or "N/A",
-        'date': result.date or "N/A", 
-        'year': result.year or "N/A",
+        'case_name': result.case_name,
+        'date': result.date,
+        'year': result.year,
         'confidence': result.confidence,
         'method': result.method,
-        'debug_info': result.debug_info
+        'debug': result.debug_info
     }
 
 def extract_case_name_only(text: str, citation: str = None) -> str:
@@ -527,27 +1100,6 @@ def get_canonical_case_name(citation: str) -> str:
     """
     result = extract_case_name_and_date("", citation)
     return result['case_name']
-
-# Date extractor compatibility
-class DateExtractor:
-    """Simplified date extractor for backward compatibility"""
-    
-    def __init__(self):
-        self.extractor = get_extractor()
-    
-    def extract_date_from_context(self, text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
-        """Extract date from context"""
-        context = text[max(0, citation_start - context_window):min(len(text), citation_end + context_window)]
-        result = extract_case_name_and_date(context)
-        return result['date'] if result['date'] != "N/A" else None
-    
-    def extract_year_only(self, text: str, citation: str = None) -> Optional[str]:
-        """Extract year only"""
-        result = extract_case_name_and_date(text, citation)
-        return result['year'] if result['year'] != "N/A" else None
-
-# Global date extractor instance
-date_extractor = DateExtractor()
 
 def extract_year_from_line(line):
     """Extract a year from a line of text, looking for (YYYY) or any 4-digit year."""

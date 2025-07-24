@@ -6,6 +6,7 @@ Fast test to verify CourtListener API is working correctly.
 import requests
 import json
 import time
+import sys
 
 def test_courtlistener_api():
     """Test CourtListener API directly."""
@@ -22,6 +23,11 @@ def test_courtlistener_api():
     # API endpoint
     url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
     
+    # Prevent use of v3 CourtListener API endpoints
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
+
     # Headers
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",

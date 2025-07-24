@@ -115,20 +115,6 @@ def extract_toa_section(text: str) -> str:
         end = len(lines)
     return '\n'.join(lines[start:end])
 
-def normalize_text(text: str) -> str:
-    """
-    DEPRECATED: Use isolation-aware text normalization logic instead.
-    Normalize text for comparison.
-    """
-    warnings.warn(
-        "normalize_text is deprecated. Use isolation-aware text normalization instead.",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    if not text:
-        return ""
-    return re.sub(r'\s+', ' ', text.strip().lower())
-
 def process_text_safe(text: str, max_text_size: int = 100000, max_citations: int = 100) -> List[Dict]:
     """Safe version of citation processing with limits and timeouts for debugging."""
     import time
@@ -218,12 +204,12 @@ def compare_citations(toa_citations: List[Dict], body_citations: List[Dict]) -> 
     # Create lookup dictionaries
     toa_lookup = {}
     for cit in toa_citations:
-        key = normalize_text(cit.get('citation', ''))
+        key = cit.get('citation', '').strip()
         toa_lookup[key] = cit
     
     body_lookup = {}
     for cit in body_citations:
-        key = normalize_text(cit.get('citation', ''))
+        key = cit.get('citation', '').strip()
         body_lookup[key] = cit
     
     # Find matches and differences
@@ -235,8 +221,8 @@ def compare_citations(toa_citations: List[Dict], body_citations: List[Dict]) -> 
         
         if toa_cit and body_cit:
             # Both have this citation - compare details
-            toa_name = normalize_text(toa_cit.get('case_name', ''))
-            body_name = normalize_text(body_cit.get('case_name', ''))
+            toa_name = toa_cit.get('case_name', '').strip()
+            body_name = body_cit.get('case_name', '').strip()
             toa_year = toa_cit.get('year', '')
             body_year = body_cit.get('year', '')
             

@@ -87,23 +87,6 @@ def save_correction_cache(cache):
         logger.error(f"Error saving correction cache: {e}")
 
 
-def normalize_citation(citation_text):
-    """
-    DEPRECATED: Use isolation-aware citation normalization logic instead.
-    Normalize citation text for comparison.
-    """
-    warnings.warn(
-        "normalize_citation is deprecated. Use isolation-aware citation normalization instead.",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    # Remove punctuation and convert to lowercase
-    normalized = re.sub(r"[^\w\s]", "", citation_text.lower())
-    # Remove extra whitespace
-    normalized = re.sub(r"\s+", " ", normalized).strip()
-    return normalized
-
-
 def extract_citation_components(citation_text):
     """Extract components from a citation for better matching."""
     components = {}
@@ -199,8 +182,8 @@ def find_similar_citations(citation_text, api_key=None):
                         if citation:
                             # Calculate similarity score
                             similarity = fuzz.ratio(
-                                normalize_citation(citation_text),
-                                normalize_citation(citation),
+                                citation_text,
+                                citation,
                             )
 
                             if similarity > 60:  # Only include if reasonably similar
@@ -227,7 +210,7 @@ def find_similar_citations(citation_text, api_key=None):
         if confirmed_text:
             # Calculate similarity score
             similarity = fuzz.ratio(
-                normalize_citation(citation_text), normalize_citation(confirmed_text)
+                citation_text, confirmed_text
             )
 
             # Also check component-based similarity

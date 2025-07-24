@@ -1760,6 +1760,12 @@ function Show-Menu {
             exit 0
         }
         "2" {
+            Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
+            Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
+            Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "Rebuilding backend image to ensure all Python code changes are included..." -ForegroundColor Yellow
+            docker-compose -f docker-compose.prod.yml build backend-prod
+
             $result = Start-DockerProduction
             if (-not $result) {
                 Write-Host "❌ Docker production failed" -ForegroundColor Red
@@ -1799,6 +1805,9 @@ function Show-Menu {
             exit 0
         }
         "3" {
+            Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
+            Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
+            Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
             $result = Start-DockerProduction -ForceRebuild
             if (-not $result) {
                 Write-Host "❌ Docker production failed" -ForegroundColor Red
@@ -2009,7 +2018,17 @@ try {
                 exit 0
             }
             2 {
+                Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
+                Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
+                Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+                Write-Host "Rebuilding backend image to ensure all Python code changes are included..." -ForegroundColor Yellow
+                docker-compose -f docker-compose.prod.yml build backend-prod
+
                 $result = Start-DockerProduction
+                if (-not $result) {
+                    Write-Host "❌ Docker production failed" -ForegroundColor Red
+                    exit 1
+                }
                 # Run production test suite
                 Write-Host "Running production test suite..." -ForegroundColor Cyan
                 $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
@@ -2022,7 +2041,7 @@ try {
                 }
                 
                 try {
-                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                     $exitCode = $LASTEXITCODE
                     
                     if ($exitCode -eq 0) {
@@ -2044,6 +2063,9 @@ try {
                 exit 0
             }
             3 {
+                Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
+                Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
+                Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                 $result = Start-DockerProduction -ForceRebuild
                 # Run production test suite
                 Write-Host "Running production test suite..." -ForegroundColor Cyan
@@ -2057,7 +2079,7 @@ try {
                 }
                 
                 try {
-                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                     $exitCode = $LASTEXITCODE
                     
                     if ($exitCode -eq 0) {
@@ -2305,3 +2327,17 @@ if ($envsubstExists) {
     Write-Host "Skipping Nginx config templating (envsubst not found)." -ForegroundColor Yellow
 }
 # --- End Nginx Config Templating ---
+
+# Ensure logs directory exists and start transcript for full console logging
+$logsDir = Join-Path $PSScriptRoot "logs"
+if (-not (Test-Path $logsDir)) {
+    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+}
+$transcriptPath = Join-Path $logsDir "console_output.log"
+if (-not (Test-Path $transcriptPath)) {
+    New-Item -ItemType File -Path $transcriptPath -Force | Out-Null
+}
+Start-Transcript -Path $transcriptPath -Append
+
+# At the very end of the script, before any final exit or after all main logic, add:
+Stop-Transcript

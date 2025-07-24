@@ -1,0 +1,3765 @@
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wash. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wash. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wash. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+mand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+cessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+2). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+(2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+ons are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+dure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+h procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442

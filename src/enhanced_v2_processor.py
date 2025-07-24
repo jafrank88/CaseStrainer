@@ -1,8 +1,8 @@
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 from src.toa_parser import ImprovedToAParser
-from a_plus_citation_processor import extract_case_name_from_context, extract_year_after_citation
 import re
 from typing import List, Dict, Any, Optional
+import logging
 
 class EnhancedV2Processor:
     """Production-ready enhanced v2 processor with A+ context extraction and ToA ground truth."""
@@ -12,7 +12,7 @@ class EnhancedV2Processor:
         self.toa_parser = ImprovedToAParser()
     
     def process_text(self, text: str) -> List[Dict[str, Any]]:
-        """Process text with enhanced document-based extraction."""
+        """Process text with robust case-based clustering and extraction."""
         
         # Step 1: Extract ToA ground truth
         toa_ground_truth = self._extract_toa_ground_truth(text)
@@ -28,9 +28,27 @@ class EnhancedV2Processor:
             enhanced_citations.append(enhanced_citation)
         
         # Step 4: Group parallel citations into clusters
-        clustered_results = self._cluster_parallel_citations(enhanced_citations, text)
+        clusters = self._cluster_by_case_name(text, enhanced_citations)
         
-        return clustered_results
+        # Flatten for output, but preserve cluster info
+        result = []
+        for cluster in clusters:
+            # Inherit cluster case name and year for all citations
+            for citation in cluster['citations']:
+                citation_with_cluster = citation.copy()
+                citation_with_cluster['enhanced_case_name'] = cluster['case_name']
+                citation_with_cluster['enhanced_year'] = cluster['year']
+                citation_with_cluster.update({
+                    'cluster_id': cluster['cluster_id'],
+                    'is_parallel': len(cluster['citations']) > 1,
+                    'parallel_citations': [c['citation'] for c in cluster['citations'] if c['citation'] != citation['citation']],
+                    'shared_case_name': cluster['case_name'],
+                    'shared_year': cluster['year'],
+                    'total_citations_in_cluster': len(cluster['citations'])
+                })
+                result.append(citation_with_cluster)
+        
+        return result
     
     def _extract_toa_ground_truth(self, text: str) -> Dict[str, Dict[str, Any]]:
         """Extract ToA data as ground truth."""
@@ -49,32 +67,74 @@ class EnhancedV2Processor:
         
         return ground_truth
     
+    def _extract_case_name_enhanced(self, text: str, citation: str) -> Optional[str]:
+        citation_pos = text.find(citation)
+        if citation_pos == -1:
+            return None
+        # Find the end of the previous citation (if any)
+        prev_cite_end = 0
+        citation_pattern = r'(\d+\s+[A-Za-z.]+(?:\s+[A-Za-z.]+)?\s+\d+)'  # e.g., 136 Wn. App. 104
+        for m in re.finditer(citation_pattern, text):
+            if m.end() < citation_pos:
+                prev_cite_end = m.end()
+            else:
+                break
+        # Window: go back 100 chars or to end of previous citation, whichever is closer
+        start = max(prev_cite_end, citation_pos - 100)
+        context = text[start: citation_pos]
+        print(f"[DEBUG] Case name extraction context for citation '{citation}':\n{context}\n---")
+        matches = list(re.finditer(r'([A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*)\s+v\.?\s+([A-Z][A-Za-z0-9&.,\'-]+)', context))
+        print(f"[DEBUG] Matches in window: {[f'{m.group(1)} v. {m.group(2)}' for m in matches]}")
+        if matches:
+            last = matches[-1]
+            return f"{last.group(1)} v. {last.group(2)}"
+        # Fallback: search from prev_cite_end all the way up to citation_pos
+        if start > prev_cite_end:
+            context = text[prev_cite_end: citation_pos]
+            print(f"[DEBUG] (Fallback) Case name extraction context for citation '{citation}':\n{context}\n---")
+            matches = list(re.finditer(r'([A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*)\s+v\.?\s+([A-Z][A-Za-z0-9&.,\'-]+)', context))
+            print(f"[DEBUG] (Fallback) Matches: {[f'{m.group(1)} v. {m.group(2)}' for m in matches]}")
+            if matches:
+                last = matches[-1]
+                return f"{last.group(1)} v. {last.group(2)}"
+        # In re pattern
+        matches = list(re.finditer(r'(In re [A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*)|(State v\. [A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*)', context))
+        if matches:
+            print(f"[DEBUG] In re/State v. matches: {[m.group(0) for m in matches]}")
+            # Prioritize In re over State v.
+            if any(m.group(0).startswith("In re ") for m in matches):
+                return matches[0].group(0).replace("In re ", "")
+            elif any(m.group(0).startswith("State v. ") for m in matches):
+                return matches[0].group(0).replace("State v. ", "")
+        return None
+
+    def _strip_pincite(self, citation: str) -> str:
+        """Extract only the main citation (volume, reporter, page)."""
+        # Match patterns like '147 P.3d 641', '136 Wn. App. 104', etc.
+        match = re.search(r'(\d+\s+[A-Za-z.]+(?:\s+[A-Za-z.]+)?\s+\d+)', citation)
+        if match:
+            return match.group(1)
+        return citation.strip()
+
     def _enhance_citation(self, citation, text: str, toa_ground_truth: Dict) -> Dict[str, Any]:
-        """Enhance a single citation with document-based extraction."""
-        
         normalized_citation = self._normalize_citation(citation.citation)
-        
-        # Check if we have ToA ground truth
         if normalized_citation in toa_ground_truth:
-            # Use ToA as ground truth
             toa_data = toa_ground_truth[normalized_citation]
             enhanced_case_name = toa_data['case_name']
             enhanced_year = toa_data['year']
             method = 'toa_ground_truth'
             confidence = 'high'
         else:
-            # Use enhanced A+ context extraction
             enhanced_case_name = self._extract_case_name_enhanced(text, citation.citation)
             enhanced_year = self._extract_year_enhanced(text, citation.citation)
             method = 'enhanced_context'
             confidence = 'medium'
-        
-        # Verify in document
         case_name_in_doc = self._verify_in_document(text, enhanced_case_name)
         year_in_doc = self._verify_in_document(text, enhanced_year) if enhanced_year else False
-        
+        # Strip pincites from citation
+        main_citation = self._strip_pincite(citation.citation)
         return {
-            'citation': citation.citation,
+            'citation': main_citation,
             'original_case_name': citation.extracted_case_name,
             'enhanced_case_name': enhanced_case_name,
             'original_year': citation.extracted_date,
@@ -89,26 +149,38 @@ class EnhancedV2Processor:
             'clusters': citation.clusters if hasattr(citation, 'clusters') else []
         }
     
-
-    
-    def _extract_case_name_enhanced(self, text: str, citation: str) -> Optional[str]:
-        """Enhanced case name extraction using A+ patterns."""
-        citation_pos = text.find(citation)
-        if citation_pos == -1:
-            return None
-        
-        # Use A+ context extraction logic
-        return extract_case_name_from_context(text, citation_pos)
-    
     def _extract_year_enhanced(self, text: str, citation: str) -> Optional[str]:
         """Enhanced year extraction using A+ patterns."""
         citation_pos = text.find(citation)
         if citation_pos == -1:
             return None
         
-        # Use A+ year extraction logic
-        return extract_year_after_citation(text, citation_pos + len(citation))
-    
+        # Improved: look forward up to 40 chars for a year
+        context_window = 40
+        end = min(len(text), citation_pos + len(citation) + context_window)
+        context = text[citation_pos + len(citation): end]
+        match = re.search(r'(19|20)\d{2}', context)
+        if match:
+            return match.group(0)
+        return None
+
+    def _extract_year_after_cluster(self, text: str, last_citation: str, window: int = 120) -> Optional[str]:
+        # Find the end of the last citation
+        last_pos = text.find(last_citation)
+        if last_pos == -1:
+            return None
+        end = last_pos + len(last_citation)
+        # Look forward window chars for a year in parentheses
+        context = text[end:end+window]
+        match = re.search(r'\((19|20)\d{2}\)', context)
+        if match:
+            return match.group(0).strip('()')
+        # Fallback: look for a year not in parentheses
+        match = re.search(r'(19|20)\d{2}', context)
+        if match:
+            return match.group(0)
+        return None
+
     def _normalize_citation(self, citation: str) -> str:
         """Normalize citation for matching."""
         normalized = re.sub(r'[^\w]', '', citation.lower())
@@ -121,49 +193,104 @@ class EnhancedV2Processor:
             return False
         return str(item) in text
     
-    def _cluster_parallel_citations(self, enhanced_citations: List[Dict[str, Any]], text: str) -> List[Dict[str, Any]]:
-        """Group parallel citations into clusters that share case names and years."""
-        
-        if not enhanced_citations:
-            return []
-        
-        # Use context-based clustering for better results
-        clusters = self._find_parallel_citations_by_context(enhanced_citations, text)
-        
-        # Convert clusters to individual citations with cluster info
-        result = []
-        for i, cluster in enumerate(clusters):
-            # Find the best shared case name and year for this cluster
-            shared_case_name = None
-            shared_year = None
-            
-            for citation in cluster:
-                case_name = citation['enhanced_case_name'] or citation['original_case_name']
-                year = citation['enhanced_year'] or citation['original_year']
-                
-                if case_name and not shared_case_name:
-                    shared_case_name = case_name
-                if year and not shared_year:
-                    shared_year = year
-            
-            # If no shared case name found, try to extract from context
-            if not shared_case_name and len(cluster) > 1:
-                shared_case_name = self._extract_shared_case_name_from_cluster(cluster, text)
-            
-            for citation in cluster:
-                # Add cluster information to each citation
-                citation_with_cluster = citation.copy()
-                citation_with_cluster.update({
-                    'cluster_id': f"cluster_{i}",
-                    'is_parallel': len(cluster) > 1,
-                    'parallel_citations': [c['citation'] for c in cluster if c != citation],
-                    'shared_case_name': shared_case_name,
-                    'shared_year': shared_year,
-                    'total_citations_in_cluster': len(cluster)
-                })
-                result.append(citation_with_cluster)
-        
-        return result
+    def _extract_party_names(self, context: str) -> Optional[str]:
+        v_pattern = re.compile(r'([A-Z][A-Za-z0-9&.,\'-]+(?:[\s,]+[A-Za-z0-9&.,\'-]+)*)\s+v\.?\s+([A-Z][A-Za-z0-9&.,\'-]+(?:[\s,]+[A-Za-z0-9&.,\'-]+)*?)(?=[,;\(])')
+        stopwords = set(['of', 'the', 'and', 'for', 'in', 'on', 'at', 'by', 'with', 'to', 'from', 'as', 'but', 'or', 'nor', 'so', 'yet', 'a', 'an'])
+        matches = list(v_pattern.finditer(context))
+        if not matches:
+            return None
+        last = matches[-1]
+        left = last.group(1)
+        right = last.group(2)
+        tokens = re.findall(r"[A-Za-z0-9&.,'-]+", left)
+        start_idx = 0
+        found_lower_nonstop = False
+        for i in range(len(tokens)-1, -1, -1):
+            t = tokens[i]
+            if t.islower() and t.lower() not in stopwords:
+                found_lower_nonstop = True
+                # Now move forward to the next capitalized word
+                for j in range(i+1, len(tokens)):
+                    if tokens[j][0].isupper():
+                        start_idx = j
+                        break
+                else:
+                    start_idx = len(tokens)
+                break
+        if not found_lower_nonstop:
+            start_idx = 0
+        left_clean = ' '.join(tokens[start_idx:]).strip()
+        right_clean = re.split(r'[;,\(]', right)[0].strip()
+        return f"{left_clean} v. {right_clean}"
+
+    def _cluster_by_case_name(self, text: str, citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Cluster citations by the nearest preceding case name pattern and extract year after last citation. Extract case name at cluster level with robust window."""
+        case_name_pattern = r'([A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*\s+v\.?\s+[A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*)|In re [A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*|State v\. [A-Z][A-Za-z0-9&.,\'-]+(?:\s+[A-Za-z0-9&.,\'-]+)*'
+        citation_positions = [(text.find(c['citation']), c) for c in citations if text.find(c['citation']) != -1]
+        citation_positions.sort()
+        clusters = []
+        current_cluster = None
+        for pos, citation in citation_positions:
+            preceding_case = None
+            for m in re.finditer(case_name_pattern, text):
+                if m.start() <= pos:
+                    preceding_case = (m.start(), m.end(), m.group(0))
+                else:
+                    break
+            if preceding_case is None:
+                continue
+            if not current_cluster or current_cluster['case_name'] != preceding_case[2]:
+                if current_cluster:
+                    last_cite = current_cluster['citations'][-1]['citation']
+                    year = self._extract_year_after_cluster(text, last_cite)
+                    if year:
+                        current_cluster['year'] = year
+                    clusters.append(current_cluster)
+                first_cite_pos = pos
+                para_start = text.rfind('\n\n', 0, first_cite_pos)
+                if para_start == -1:
+                    para_start = 0
+                else:
+                    para_start += 2
+                context = text[para_start:first_cite_pos]
+                context_clean = re.sub(r',[ ]*\d+(?=,|$)', '', context)
+                context_clean = re.sub(r'[\n\r]', ' ', context_clean)
+                context_clean = re.sub(r'\s+', ' ', context_clean)
+                cluster_idx = len(clusters)
+                print(f"\n====================\n[DEBUG] cluster_{cluster_idx} CONTEXT WINDOW\n====================")
+                print(f"[DEBUG] cluster_{cluster_idx}: context (raw, paragraph):\n{context}\n---")
+                print(f"[DEBUG] cluster_{cluster_idx}: cleaned context:\n{context_clean}\n---")
+                # Use the new party name extraction logic
+                cluster_case_name = self._extract_party_names(context_clean)
+                print(f"[DEBUG] cluster_{cluster_idx}: extracted party name: {cluster_case_name}")
+                if not cluster_case_name:
+                    matches = list(re.finditer(r'(In re [A-Z][A-Za-z0-9&.,\'-]+)', context_clean))
+                    print(f"[DEBUG] cluster_{cluster_idx}: In re matches: {[m.group(1) for m in matches]}")
+                    if matches:
+                        cluster_case_name = matches[-1].group(1)
+                    else:
+                        matches = list(re.finditer(r'(State v\. [A-Z][A-Za-z0-9&.,\'-]+)', context_clean))
+                        print(f"[DEBUG] cluster_{cluster_idx}: State v. matches: {[m.group(1) for m in matches]}")
+                        if matches:
+                            cluster_case_name = matches[-1].group(1)
+                        else:
+                            cluster_case_name = None
+                current_cluster = {
+                    'cluster_id': f"cluster_{len(clusters)}",
+                    'case_name': cluster_case_name,
+                    'citations': [],
+                    'year': None
+                }
+            current_cluster['citations'].append(citation)
+        if current_cluster and current_cluster['citations']:
+            last_cite = current_cluster['citations'][-1]['citation']
+            year = self._extract_year_after_cluster(text, last_cite, window=200)
+            if year:
+                current_cluster['year'] = year
+            clusters.append(current_cluster)
+        return clusters
+
+    # The per-citation case name extraction is now only used for fallback or debugging
     
     def _extract_shared_case_name_from_cluster(self, cluster: List[Dict[str, Any]], text: str) -> Optional[str]:
         """Extract a shared case name from the context around a cluster of citations."""
@@ -281,44 +408,38 @@ class EnhancedV2Processor:
     
     def _are_citations_likely_same_case(self, citation1: Dict[str, Any], citation2: Dict[str, Any], text: str) -> bool:
         """Determine if two citations are likely the same case using multiple heuristics."""
-        
-        # Check if they have similar case names
+        # Loosen heuristics for better recall
         case1 = citation1['enhanced_case_name'] or citation1['original_case_name']
         case2 = citation2['enhanced_case_name'] or citation2['original_case_name']
         
         if case1 and case2:
-            # Simple similarity check
             case1_clean = re.sub(r'[^\w\s]', '', case1.lower())
             case2_clean = re.sub(r'[^\w\s]', '', case2.lower())
-            
-            # Check if one contains the other or they're very similar
-            if case1_clean in case2_clean or case2_clean in case1_clean:
-                return True
-            
-            # Check for common words
+            # Loosen: 2+ common words
             words1 = set(case1_clean.split())
             words2 = set(case2_clean.split())
             common_words = words1.intersection(words2)
-            
-            if len(common_words) >= 3:  # At least 3 common words for more precise matching
+            if len(common_words) >= 2:
+                logging.debug(f"[CLUSTER] {case1} ~ {case2} (common words: {common_words}) => SAME CASE")
                 return True
-        
-        # Check if they're close together in text (likely parallel citations)
+            # Loosen: substring match
+            if case1_clean in case2_clean or case2_clean in case1_clean:
+                logging.debug(f"[CLUSTER] {case1} ~ {case2} (substring) => SAME CASE")
+                return True
+        # Loosen: proximity window
         pos1 = text.find(citation1['citation'])
         pos2 = text.find(citation2['citation'])
-        
         if pos1 != -1 and pos2 != -1:
             distance = abs(pos2 - pos1)
-            if distance <= 100:  # Very close together (reduced distance for more precise clustering)
+            if distance <= 200:
+                logging.debug(f"[CLUSTER] {citation1['citation']} ~ {citation2['citation']} (distance {distance}) => SAME CASE")
                 return True
-        
-        # Check if they have similar years
+        # Loosen: same year
         year1 = citation1['enhanced_year'] or citation1['original_year']
         year2 = citation2['enhanced_year'] or citation2['original_year']
-        
         if year1 and year2 and year1 == year2:
+            logging.debug(f"[CLUSTER] {citation1['citation']} ~ {citation2['citation']} (year {year1}) => SAME CASE")
             return True
-        
         return False
     
     def _contexts_share_case_name(self, context1: str, context2: str) -> bool:

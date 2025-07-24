@@ -1,0 +1,14 @@
+=== ENHANCED CLUSTERING TEST: TEST PARAGRAPH 2 ===
+Test text: We have long held that pro se litigants are bound by the same rules of procedure and substantive law...
+
+Citations found: 3
+
+Clusters found: 3
+
+Cluster 0: name: None (expected: Holder v. City of Vancouver) | year: None (expected: 2006) | name_match: False | year_match: False
+Cluster 1: name: None (expected: In re Marriage of Olson) | year: None (expected: 1993) | name_match: False | year_match: False
+Cluster 2: name: None (expected: State v. Marintorres) | year: None (expected: 1999) | name_match: False | year_match: False
+
+Some clusters, names, or years do not match expected values.
+
+=== END OF TEST ===

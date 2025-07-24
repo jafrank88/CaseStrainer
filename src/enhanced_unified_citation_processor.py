@@ -7,6 +7,7 @@ import re
 import logging
 import requests
 import time
+import sys
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime
@@ -544,6 +545,11 @@ class EnhancedUnifiedCitationProcessor:
                 # Process CourtListener response
                 # (Implementation details from UnifiedProcessorV2)
                 return {"verified": False}  # Simplified for example
+            
+            # Prevent use of v3 CourtListener API endpoints
+            if 'v3' in url:
+                print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+                sys.exit(1)
             
         except Exception as e:
             logger.error(f"CourtListener verification failed: {e}")

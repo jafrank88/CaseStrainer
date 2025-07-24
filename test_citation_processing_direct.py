@@ -10,6 +10,11 @@ import json
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in url:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
+
 def test_direct_processing():
     """Test citation processing directly using the processor."""
     print("TESTING DIRECT CITATION PROCESSING")

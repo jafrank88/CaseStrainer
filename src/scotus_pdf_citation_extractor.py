@@ -277,7 +277,7 @@ class SCOTUSPDFCitationExtractor:
                 )
                 logger.info(f"Test citations: {test_citations}")
 
-            # Use AhocorasickTokenizer (hyperscan removed due to compatibility issues)
+            # Use AhocorasickTokenizer
             tokenizer = AhocorasickTokenizer()
 
             # Process text in larger chunks with overlap to avoid missing citations at boundaries
@@ -374,8 +374,8 @@ class SCOTUSPDFCitationExtractor:
                 f"{self.COURTLISTENER_API_BASE}/api/rest/v4/opinion-cites/find-citations/",
                 params={"citation__cite": citation_text},
                 headers={"Authorization": f"Token {self.courtlistener_api_key}"},
-                timeout=10,
-            , timeout=30)
+                timeout=10
+            )
 
             if response.status_code == 200 and response.json().get("count", 0) > 0:
                 result = response.json()["results"][0]
@@ -404,8 +404,8 @@ class SCOTUSPDFCitationExtractor:
                     f"{self.COURTLISTENER_API_BASE}/api/rest/v4/search/",
                     params={"q": f'"{case_name}"', "type": "opinion"},
                     headers={"Authorization": f"Token {self.courtlistener_api_key}"},
-                    timeout=10,
-                , timeout=30)
+                    timeout=10
+                )
 
                 if (
                     search_response.status_code == 200

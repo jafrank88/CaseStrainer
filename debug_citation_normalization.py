@@ -93,6 +93,10 @@ def test_courtlistener_with_normalized():
         
         try:
             url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+            # Prevent use of v3 CourtListener API endpoints
+            if 'v3' in url:
+                print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+                sys.exit(1)
             response = requests.post(url, headers=headers, data={"text": citation}, timeout=10)
             
             if response.status_code == 200:

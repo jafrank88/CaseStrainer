@@ -5,9 +5,10 @@ Comprehensive fix for canonical case matching and case name extraction issues.
 
 import re
 import logging
+import sys
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
 from src.case_name_extraction_core import extract_case_name_triple_comprehensive
-from src.extract_case_name import extract_case_name_from_text  # Use canonical extraction if needed
+from src.case_name_extraction_core import extract_case_name_from_text  # Use canonical extraction if needed
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -203,6 +204,12 @@ def create_canonical_matching_fix():
         try:
             base_citation = processor._get_base_citation(citation)
             search_url = f"https://www.courtlistener.com/api/rest/v4/search/?q={base_citation}&format=json"
+            
+            # Prevent use of v3 CourtListener API endpoints
+            if 'v3' in search_url:
+                print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+                sys.exit(1)
+
             resp = requests.get(search_url, headers=headers, timeout=10)
             
             if resp.status_code == 200:

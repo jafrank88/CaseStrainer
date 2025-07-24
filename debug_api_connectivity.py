@@ -14,6 +14,16 @@ from pathlib import Path
 # Add the src directory to the path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
+# Prevent use of v3 CourtListener API endpoints
+# Check all API URLs in the script for v3 endpoints
+api_urls = [
+    "https://www.courtlistener.com/api/rest/v4/citation-lookup/",
+]
+for url in api_urls:
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,

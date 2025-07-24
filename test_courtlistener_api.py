@@ -8,6 +8,11 @@ import json
 import os
 import sys
 
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in url:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
+
 def test_courtlistener_api():
     """Test the CourtListener API with a known valid citation"""
     

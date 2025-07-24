@@ -7,7 +7,11 @@ import sys
 import os
 sys.path.append('src')
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+from src.citation_clustering import group_citations_into_clusters
 
 def test_integrated_clustering():
     """Test the integrated clustering with the standard test paragraph."""
@@ -33,7 +37,7 @@ def test_integrated_clustering():
     print(f"Found {len(results)} citations")
     
     # Test clustering
-    clusters = processor.group_citations_into_clusters(results, original_text=test_text)
+    clusters = group_citations_into_clusters(results, original_text=test_text)
     
     print(f"\n=== CLUSTERS ===")
     print(f"Found {len(clusters)} clusters")

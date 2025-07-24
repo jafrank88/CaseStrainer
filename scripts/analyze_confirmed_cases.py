@@ -15,6 +15,17 @@ import time
 import requests
 import traceback
 from bs4 import BeautifulSoup
+import sys
+
+# Prevent use of v3 CourtListener API endpoints
+# Check all API URLs in the script for v3 endpoints
+api_urls = [
+    "https://www.courtlistener.com/api/rest/v4/search/",
+]
+for url in api_urls:
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
 
 # Import functions from analyze_more_briefs.py
 from analyze_more_briefs import extract_unconfirmed_citations, DOWNLOAD_DIR

@@ -596,7 +596,7 @@ function downloadAllCitations() {
               <template v-else>
                 <!-- Line 1: Verified Name & Date -->
                 <div class="citation-row flex-names-row">
-                  <span class="row-label">Verified:</span>
+                  <span class="row-label">Verifying Source:</span>
                   <span>
                     <template v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'">
                       {{ getCanonicalCaseName(cluster.citations[0]) }}
@@ -628,7 +628,7 @@ function downloadAllCitations() {
                     <span class="citation-text">{{ getCitation(citation) }}</span>
                     <span class="verification-badge" :class="getVerificationStatus(citation)">
                       <template v-if="getVerificationStatus(citation) === 'verified'">VERIFIED</template>
-                      <template v-else-if="getVerificationStatus(citation) === 'true_by_parallel'">PARALLEL</template>
+                      <template v-else-if="getVerificationStatus(citation) === 'true_by_parallel'">verified by parallel citation</template>
                       <template v-else>UNVERIFIED</template>
                     </span>
                   </div>
@@ -739,7 +739,7 @@ function downloadAllCitations() {
             <div class="cluster-main-content">
               <!-- First line: Verified name and date -->
               <div class="canonical-line">
-                <span class="canonical-label">Verified:</span>
+                <span class="canonical-label">Verifying Source:</span>
                 <span v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'" 
                       :class="['canonical-name', getCaseNameClass(cluster.citations[0])]">
                   {{ getCanonicalCaseName(cluster.citations[0]) }}
@@ -920,7 +920,7 @@ function downloadAllCitations() {
         <div v-for="citation in filteredCitations" :key="getCitation(citation)" class="citation-item individual">
           <!-- New format: Verified first, then From Document, then citations -->
           <div class="citation-row citation-row-canonical flex-names-row">
-            <span class="row-label">Verified:</span>
+            <span class="row-label">Verifying Source:</span>
             <span>
               <span v-if="getCanonicalCaseName(citation) && getCanonicalCaseName(citation) !== 'N/A'">
                 {{ getCanonicalCaseName(citation) }}

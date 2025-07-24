@@ -5,7 +5,7 @@ Test script to verify the citation matching fix.
 
 # DEPRECATED: # DEPRECATED: from src.citation_extractor import CitationExtractor
 # from src.document_processing import extract_and_verify_citations  # Function does not exist
-from src.extract_case_name import extract_case_name_hinted
+from src.case_name_extraction_core import extract_case_name_hinted
 
 def test_citation_matching():
     """Test citation matching with the fix."""

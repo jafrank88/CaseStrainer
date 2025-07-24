@@ -5,6 +5,7 @@ Simple test to verify the CourtListener API key is working
 
 import os
 import requests
+import sys
 
 def test_courtlistener_api():
     """Test the CourtListener API with the configured key"""
@@ -21,6 +22,12 @@ def test_courtlistener_api():
     
     # Test with a simple citation
     url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    
+    # Prevent use of v3 CourtListener API endpoints
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
+
     headers = {"Authorization": f"Token {api_key}"}
     data = {"citations": ["123 F.3d 456"]}
     

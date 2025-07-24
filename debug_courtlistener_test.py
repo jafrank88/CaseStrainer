@@ -5,6 +5,7 @@ Test CourtListener API for a specific citation and print the raw response.
 import os
 import requests
 import json
+import sys
 
 def test_courtlistener_citation(citation):
     api_key = os.environ.get('COURTLISTENER_API_KEY')

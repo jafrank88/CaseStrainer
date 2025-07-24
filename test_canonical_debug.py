@@ -5,6 +5,7 @@ Debug script to test why canonical data is not being populated from CourtListene
 
 import json
 import requests
+import sys
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
 def test_canonical_extraction():
@@ -91,6 +92,11 @@ def test_canonical_extraction():
         base_citation = processor._get_base_citation(test_citation)
         search_url = f"https://www.courtlistener.com/api/rest/v4/search/?q={base_citation}&format=json"
         
+        # Prevent use of v3 CourtListener API endpoints
+        if 'v3' in search_url:
+            print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+            sys.exit(1)
+
         try:
             resp = requests.get(search_url, headers=headers, timeout=10)
             if resp.status_code == 200:

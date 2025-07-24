@@ -13,7 +13,7 @@ import logging
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 from src.document_processing_unified import process_document
-from src.extract_case_name import extract_case_name_hinted
+from src.case_name_extraction_core import extract_case_name_hinted
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

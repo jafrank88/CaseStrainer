@@ -134,8 +134,8 @@ def configure_logging():
     Returns:
         logging.Logger: The configured logger instance
     """
-    # Use /home/app/logs in Docker or ./logs locally
-    log_dir = "/home/app/logs" if os.path.exists("/home/app/logs") else "./logs"
+    # Use /app/logs in Docker or ./logs locally
+    log_dir = "/app/logs" if os.path.exists("/app/logs") else "./logs"
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, "casestrainer.log")
     

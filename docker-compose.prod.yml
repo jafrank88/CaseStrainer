@@ -43,7 +43,7 @@ services:
       - LOG_LEVEL_CASE_NAME_EXTRACTION=${LOG_LEVEL_CASE_NAME_EXTRACTION:-WARNING}
     volumes:
       - ./data:/app/data
-      - ./logs:/home/app/logs
+      - ./logs:/app/logs
       - ./uploads:/app/uploads
       - ./citation_cache:/app/citation_cache
       - ./correction_cache:/app/correction_cache

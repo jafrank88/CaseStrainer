@@ -1,9 +1,13 @@
+# Use official Python image
 FROM python:3.10-slim
 
 WORKDIR /app
 
+# Copy requirements and install dependencies first (cache efficient)
 COPY requirements.txt requirements.txt
-RUN ls -l /app
+# Install git before pip install
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -17,41 +21,32 @@ RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     git \
+    libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install libmagic for python-magic
-RUN apt-get update && apt-get install -y libmagic1
-
-# Create non-root user first
+# Create non-root user
 RUN useradd --create-home --shell /bin/bash app
 
-# Copy requirements file and install dependencies as root
-RUN pip --version && pip install --no-cache-dir -r requirements.txt --verbose
-RUN rm -f requirements.txt
+# Copy only essential source code and config
+COPY --chown=app:app src/ /app/src/
+COPY --chown=app:app app/ /app/app/
+COPY --chown=app:app config/ /app/config/
+COPY --chown=app:app templates/ /app/templates/
+COPY --chown=app:app static/ /app/static/
+# Clean up any .pyc files and __pycache__ directories after copy
+RUN find . -type d -name '__pycache__' -exec rm -r {} + && find . -type f -name '*.pyc' -delete
 
-# Now copy the rest of the code as app user
-COPY --chown=app:app . .
+# (Optional) Add build arg and label for cache busting
+ARG SOURCE_COMMIT=dev
+LABEL source_commit=$SOURCE_COMMIT
 
 # Ensure /app/logs exists and is owned by app user
 RUN mkdir -p /app/logs && chown app:app /app/logs
 
-# Switch to app user and install Python dependencies
-RUN pip --version && pip install --no-cache-dir -r requirements.txt --verbose
-RUN rm -f requirements.txt
-
 # Create necessary directories as root
-RUN mkdir -p /home/app/data /home/app/logs /home/app/uploads /home/app/temp_uploads /app/citation_cache && \
-    chown -R app:app /home/app /app/citation_cache
+RUN mkdir -p /home/app/data /home/app/logs /home/app/uploads /home/app/temp_uploads /app/citation_cache
 
-# Switch to non-root user for running the app
+# Switch to app user
 USER app
 
-# Expose port
-EXPOSE 5000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/casestrainer/api/health || exit 1
-
-# Set the default command
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Entrypoint and command are set in docker-compose

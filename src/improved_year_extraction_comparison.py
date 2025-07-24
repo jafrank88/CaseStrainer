@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Import case name extraction functions
 try:
-    from src.extract_case_name import extract_case_name_from_text, is_valid_case_name, clean_case_name_enhanced
+    from src.case_name_extraction_core import extract_case_name_from_text, is_valid_case_name, clean_case_name_enhanced
 except ImportError:
     # Fallback if the module is not available
     def extract_case_name_from_text(text, citation_text):

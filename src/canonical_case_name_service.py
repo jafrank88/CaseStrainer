@@ -17,6 +17,9 @@ try:
 except ImportError:
     from config import get_config_value
 import os
+from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
+import concurrent.futures
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -405,43 +408,252 @@ class CanonicalCaseNameService:
             return None
     
     def _lookup_web_sources(self, citation: str) -> Optional[CanonicalResult]:
-        """Lookup using intelligent web scraping with LegalWebsearchEngine."""
+        """Lookup using intelligent web scraping with EnhancedLegalSearchEngine and multiple engines, with cluster batching and a global timeout. Site-specific legal DBs are tried before general search engines."""
         try:
             import logging
+            import asyncio
+            import time
+            from src.enhanced_legal_search_engine import EnhancedLegalSearchEngine
+            from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
             logger = logging.getLogger(__name__)
-            logger.info("[LegalWebsearchEngine] Using new websearch_utils for citation: %s", citation)
-            # Build a minimal cluster dict for compatibility
-            cluster = {'citations': [{'citation': citation}]}
-            logger.info(f"[CANONICAL_SERVICE] Calling search_cluster_for_canonical_sources for citation: {citation}")
-            results = search_cluster_for_canonical_sources(cluster, max_results=1)
-            logger.info(f"[CANONICAL_SERVICE] search_cluster_for_canonical_sources returned {len(results) if results else 0} results")
-            if results and len(results) > 0:
-                result = results[0]
-                logger.info(f"[CANONICAL_SERVICE] Fallback result dict: {result}")
-                candidate_name = result.get('title') or result.get('case_name')
-                logger.info(f"[CANONICAL_SERVICE] Checking candidate name: '{candidate_name}' for citation: '{citation}'")
-                is_valid = is_valid_case_name(candidate_name)
-                logger.info(f"[CANONICAL_SERVICE] is_valid_case_name('{candidate_name}') returned {is_valid}")
-                if not is_valid:
-                    logger.info(f"[CANONICAL_SERVICE] Rejected fallback result for '{citation}': '{candidate_name}' is not a valid case name.")
-                    return None
-                logger.info(f"[CANONICAL_SERVICE] Accepted fallback result for '{citation}': '{candidate_name}' is a valid case name.")
+            print(f"[DEBUG] [WEBSEARCH] Attempting enhanced websearch for citation: {citation} and variants")
+
+            # --- Playwright Justia search (before other site-specific engines) ---
+            import subprocess
+            import sys
+            try:
+                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Attempting Playwright Justia search for: {citation}")
+                result = subprocess.run([
+                    sys.executable, "playwright_search_justia.py", citation
+                ], capture_output=True, text=True, timeout=12)
+                output = result.stdout.strip()
+                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Output: {output}")
+                # Parse output for case name
+                if "Case name:" in output:
+                    case_name = output.split("Case name:")[-1].strip()
+                    if case_name and case_name.lower() != 'none':
+                        print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Found case name: {case_name}")
+                        return CanonicalResult(
+                            case_name=case_name,
+                            date=None,
+                            url=None,
+                            source="justia (playwright)",
+                            confidence=0.85,
+                            verified=True
+                        )
+            except Exception as e:
+                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Exception: {e}")
+            # --- End Playwright Justia search ---
+
+            enhanced_engine = EnhancedLegalSearchEngine()
+            web_engine = ComprehensiveWebSearchEngine()
+            queries = enhanced_engine.generate_enhanced_legal_queries(citation)
+            all_results = []
+            seen_urls = set()
+            max_results = 40
+            error_threshold = 2
+            query_limit = 3
+            global_timeout = 15  # seconds
+
+            # --- Clustered search: batch queries for parallel citations ---
+            cluster_citations = [citation]
+            all_variants = set()
+            for cit in cluster_citations:
+                all_variants.add(cit.strip())
+                all_variants.add(enhanced_engine.normalize_citation(cit))
+                if enhanced_engine.is_washington_citation(cit):
+                    all_variants.update(enhanced_engine.generate_washington_variants(cit))
+            or_query = ' OR '.join([f'"{v}"' for v in all_variants if v])
+            batched_queries = [{'query': or_query, 'priority': 0, 'type': 'batched_cluster', 'citation': citation}]
+            queries = batched_queries + queries
+
+            # Phase 1: Site-specific legal database searches
+            site_specific_engines = ['casetext', 'leagle', 'casemine', 'justia', 'findlaw', 'openjurist', 'vlex']
+            error_counts = {engine: 0 for engine in site_specific_engines}
+            found_valid_result = None
+            def run_site_query(engine_name, query):
+                if error_counts[engine_name] >= error_threshold:
+                    print(f"[DEBUG] [WEBSEARCH] Skipping {engine_name} due to repeated errors.")
+                    return []
+                try:
+                    # Use the async search_* methods for site-specific engines
+                    search_method = getattr(web_engine, f'search_{engine_name}', None)
+                    if search_method is None:
+                        print(f"[DEBUG] [WEBSEARCH] No search method for {engine_name}")
+                        return []
+                    # Run the async method using asyncio.run()
+                    import asyncio
+                    results = asyncio.run(search_method(query, None))
+                    time.sleep(1.5)
+                    # If the result is a dict, wrap in a list for uniformity
+                    if isinstance(results, dict):
+                        results = [results]
+                    return results
+                except Exception as e:
+                    print(f"[DEBUG] [WEBSEARCH] {engine_name} search error: {e}")
+                    error_counts[engine_name] += 1
+                    return []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+                future_to_info = {}
+                for query_info in queries[:query_limit]:
+                    query = query_info['query']
+                    for engine_name in site_specific_engines:
+                        if error_counts[engine_name] < error_threshold:
+                            future = executor.submit(run_site_query, engine_name, query)
+                            future_to_info[future] = (engine_name, query)
+                start_time = time.time()
+                try:
+                    for future in concurrent.futures.as_completed(future_to_info, timeout=global_timeout):
+                        engine_name, query = future_to_info[future]
+                        results = future.result()
+                        if not results:
+                            print(f"[DEBUG] [WEBSEARCH] No results from {engine_name} for query: {query}")
+                            continue
+                        for result in results:
+                            url = result.get('url')
+                            if url and url not in seen_urls:
+                                seen_urls.add(url)
+                                all_results.append(result)
+                                legal_results = enhanced_engine.filter_legal_results([result])
+                                if legal_results:
+                                    best = legal_results[0]
+                                    candidate_name = best.get('title')
+                                    is_valid = is_valid_case_name(candidate_name)
+                                    if is_valid:
+                                        print(f"[DEBUG] [WEBSEARCH] Found valid canonical result (site-specific): {candidate_name} | URL: {best.get('url')}")
+                                        found_valid_result = best
+                                        break
+                            if len(all_results) >= max_results or found_valid_result:
+                                break
+                        if len(all_results) >= max_results or found_valid_result:
+                            break
+                        if time.time() - start_time > global_timeout:
+                            print(f"[DEBUG] [WEBSEARCH] Timeout reached, stopping websearch early (site-specific phase).")
+                    if found_valid_result:
+                        pass
+                except concurrent.futures.TimeoutError:
+                    print(f"[DEBUG] [WEBSEARCH] Global websearch timeout ({global_timeout}s) reached (site-specific phase).")
+                finally:
+                    pass
+            if found_valid_result:
+                candidate_name = found_valid_result.get('title')
                 return CanonicalResult(
                     case_name=candidate_name,
                     date=None,  # Date extraction can be added if available
                     court=None,
                     docket_number=None,
-                    url=result.get('url'),
-                    source=f"fallback: {result.get('source', 'Web Search')}",
-                    confidence=result.get('reliability_score', 0.7),
-                    verified=result.get('reliability_score', 0) >= 70
+                    url=found_valid_result.get('url'),
+                    source=f"fallback: {found_valid_result.get('source', 'Web Search')}",
+                    confidence=found_valid_result.get('legal_relevance_score', 0) / 100.0,
+                    verified=found_valid_result.get('legal_relevance_score', 0) >= 70
+                )
+
+            # Phase 2: General search engines (Google, Bing, DDG)
+            engines = ['google', 'bing', 'ddg']
+            error_counts = {engine: 0 for engine in engines}
+            found_valid_result = None
+            def run_query(engine_name, query):
+                if error_counts[engine_name] >= error_threshold:
+                    print(f"[DEBUG] [WEBSEARCH] Skipping {engine_name} due to repeated errors.")
+                    return []
+                try:
+                    results = web_engine.search_with_engine(query, engine_name, num_results=20)
+                    time.sleep(1.5)
+                    return results
+                except Exception as e:
+                    print(f"[DEBUG] [WEBSEARCH] {engine_name} search error: {e}")
+                    error_counts[engine_name] += 1
+                    return []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+                future_to_info = {}
+                for query_info in queries[:query_limit]:
+                    query = query_info['query']
+                    for engine_name in engines:
+                        if error_counts[engine_name] < error_threshold:
+                            future = executor.submit(run_query, engine_name, query)
+                            future_to_info[future] = (engine_name, query)
+                start_time = time.time()
+                try:
+                    for future in concurrent.futures.as_completed(future_to_info, timeout=global_timeout):
+                        engine_name, query = future_to_info[future]
+                        results = future.result()
+                        if not results:
+                            print(f"[DEBUG] [WEBSEARCH] No results from {engine_name} for query: {query}")
+                            continue
+                        for result in results:
+                            url = result.get('url')
+                            if url and url not in seen_urls:
+                                seen_urls.add(url)
+                                all_results.append(result)
+                                legal_results = enhanced_engine.filter_legal_results([result])
+                                if legal_results:
+                                    best = legal_results[0]
+                                    candidate_name = best.get('title')
+                                    is_valid = is_valid_case_name(candidate_name)
+                                    if is_valid:
+                                        print(f"[DEBUG] [WEBSEARCH] Found valid canonical result: {candidate_name} | URL: {best.get('url')}")
+                                        found_valid_result = best
+                                        break
+                            if len(all_results) >= max_results or found_valid_result:
+                                break
+                        if len(all_results) >= max_results or found_valid_result:
+                            break
+                        if time.time() - start_time > global_timeout:
+                            print(f"[DEBUG] [WEBSEARCH] Timeout reached, stopping websearch early.")
+                    if found_valid_result:
+                        pass
+                except concurrent.futures.TimeoutError:
+                    print(f"[DEBUG] [WEBSEARCH] Global websearch timeout ({global_timeout}s) reached.")
+                finally:
+                    pass
+            if found_valid_result:
+                candidate_name = found_valid_result.get('title')
+                return CanonicalResult(
+                    case_name=candidate_name,
+                    date=None,  # Date extraction can be added if available
+                    court=None,
+                    docket_number=None,
+                    url=found_valid_result.get('url'),
+                    source=f"fallback: {found_valid_result.get('source', 'Web Search')}",
+                    confidence=found_valid_result.get('legal_relevance_score', 0) / 100.0,
+                    verified=found_valid_result.get('legal_relevance_score', 0) >= 70
+                )
+
+            # TODO: Integrate Google Custom Search API here if/when available
+
+            # Filter and score results
+            legal_results = enhanced_engine.filter_legal_results(all_results)
+            print(f"[DEBUG] [WEBSEARCH] Top filtered legal results:")
+            for res in legal_results[:5]:
+                print(f"  Score: {res.get('legal_relevance_score', 0)} | Title: {res.get('title')} | URL: {res.get('url')}")
+
+            # Use the best result for canonical extraction
+            if legal_results:
+                best = legal_results[0]
+                candidate_name = best.get('title')
+                is_valid = is_valid_case_name(candidate_name)
+                print(f"[DEBUG] [WEBSEARCH] Candidate name: {candidate_name}, is_valid: {is_valid}")
+                if not is_valid:
+                    print(f"[DEBUG] [WEBSEARCH] Rejected candidate name: {candidate_name}")
+                    return None
+                print(f"[DEBUG] [WEBSEARCH] Accepted candidate name: {candidate_name}")
+                return CanonicalResult(
+                    case_name=candidate_name,
+                    date=None,  # Date extraction can be added if available
+                    court=None,
+                    docket_number=None,
+                    url=best.get('url'),
+                    source=f"fallback: {best.get('source', 'Web Search')}",
+                    confidence=best.get('legal_relevance_score', 0) / 100.0,
+                    verified=best.get('legal_relevance_score', 0) >= 70
                 )
             else:
-                logger.info(f"[CANONICAL_SERVICE] No results returned from search_cluster_for_canonical_sources for citation: {citation}")
+                print(f"[DEBUG] [WEBSEARCH] No legal results returned for citation: {citation}")
         except Exception as e:
             logger.error(f"Web search lookup failed: {e}")
             import traceback
             logger.error(f"Exception traceback: {traceback.format_exc()}")
+            print(f"[DEBUG] [WEBSEARCH] Exception occurred: {e}")
         return None
 
 def is_valid_case_name(name: str) -> bool:

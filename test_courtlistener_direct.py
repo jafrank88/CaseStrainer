@@ -9,6 +9,11 @@ import requests
 import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in url:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
+
 def test_courtlistener_direct():
     """Test CourtListener API directly"""
     

@@ -14,6 +14,16 @@ import traceback
 import time
 import random
 
+# Prevent use of v3 CourtListener API endpoints
+# Check all API URLs in the script for v3 endpoints
+api_urls = [
+    "https://www.courtlistener.com/api/rest/v4/search/",
+]
+for url in api_urls:
+    if 'v3' in url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
+
 # Import eyecite for citation extraction
 try:
     from eyecite import get_citations

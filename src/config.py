@@ -212,13 +212,13 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
     """
     import sys
 
-    # Use project root logs directory, or fallback to /home/app/logs in Docker
+    # Use project root logs directory, or fallback to /app/logs in Docker
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     logs_dir = os.path.join(project_root, "logs")
     
-    # In Docker, use /home/app/logs which the app user can write to
-    if os.path.exists("/home/app/logs"):
-        logs_dir = "/home/app/logs"
+    # In Docker, use /app/logs which the app user can write to
+    if os.path.exists("/app/logs"):
+        logs_dir = "/app/logs"
     
     os.makedirs(logs_dir, exist_ok=True)
 

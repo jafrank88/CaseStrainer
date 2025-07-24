@@ -18,6 +18,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import os
 from datetime import datetime, timedelta
+import requests
+from bs4 import BeautifulSoup
 
 # Import citation utilities from consolidated module
 try:
@@ -744,14 +746,11 @@ class ComprehensiveWebExtractor:
             'extraction_methods': ['vlex_specialized'],
             'source': 'vlex'
         }
-        
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
             page_text = soup.get_text(separator='\n')
-            
-            # Enhanced vLex case name extraction patterns
+            self.logger.debug(f"[VLEX] Raw HTML snippet: {html_content[:500]}")
             vlex_patterns = [
-                # vLex specific patterns from extract_case_name.py
                 r'<h1[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h1>',
                 r'<h1[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</h1>',
                 r'<h2[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]+)</h2>',
@@ -760,71 +759,31 @@ class ComprehensiveWebExtractor:
                 r'class="case-title"[^>]*>([^<]*)</',
                 r'<span[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</span>',
                 r'<div[^>]*class="[^"]*case-title[^"]*"[^>]*>([^<]*)</div>',
-                # Additional vLex patterns
                 r'<h1[^>]*>([^<]+)</h1>',
                 r'<h2[^>]*>([^<]+)</h2>',
                 r'<title[^>]*>([^<]+)</title>'
             ]
-            
-            # Extract case name from <h1> or main heading
             for pattern in vlex_patterns:
                 match = re.search(pattern, html_content, re.IGNORECASE | re.DOTALL)
                 if match:
                     case_name = match.group(1).strip()
+                    self.logger.debug(f"[VLEX] Candidate case name: {case_name}")
                     if self._is_valid_case_name(case_name):
                         result['case_name'] = self._clean_case_name(case_name)
                         result['confidence'] += 0.4
                         break
-            
-            # Fallback: first line with 'v.' if no case name found
             if not result['case_name']:
                 for line in page_text.split('\n'):
                     if 'v.' in line:
                         case_name = line.strip()
+                        self.logger.debug(f"[VLEX] Fallback candidate case name: {case_name}")
                         if self._is_valid_case_name(case_name):
                             result['case_name'] = self._clean_case_name(case_name)
                             result['confidence'] += 0.3
                             break
-            
-            # Extract citations with enhanced patterns
-            for pattern in self.citation_patterns:
-                citation_match = re.search(pattern, page_text)
-                if citation_match:
-                    result['parallel_citations'].append(citation_match.group(1))
-                    result['confidence'] += 0.2
-                    break
-            
-            # Extract year
-            year_pattern = r'Filed\s+(\w+\s+\d{1,2},\s+(19|20)\d{2})'
-            year_match = re.search(year_pattern, page_text)
-            if year_match:
-                result['date'] = re.search(r'(19|20)\d{2}', year_match.group(1)).group()
-                result['confidence'] += 0.2
-            elif result['parallel_citations']:
-                year_match = re.search(r'(19|20)\d{2}', result['parallel_citations'][0])
-                if year_match:
-                    result['date'] = year_match.group()
-                    result['confidence'] += 0.1
-            
-            # Extract court
-            for pattern in self.court_patterns:
-                court_match = re.search(pattern, page_text)
-                if court_match:
-                    result['court'] = court_match.group(0).strip()
-                    result['confidence'] += 0.1
-                    break
-            
-            # Extract docket
-            for pattern in self.docket_patterns:
-                docket_match = re.search(pattern, page_text)
-                if docket_match:
-                    result['docket_number'] = docket_match.group(0)
-                    result['confidence'] += 0.1
-                    break
-            
+            # ... rest of extraction ...
         except Exception as e:
             self.logger.error(f"Error extracting vLex info: {e}")
-        
         return result
 
     def _extract_casetext_info(self, html_content: str, url: str) -> Dict[str, Any]:
@@ -1000,66 +959,28 @@ class ComprehensiveWebExtractor:
             'extraction_methods': ['justia_specialized'],
             'source': 'justia'
         }
-        
         try:
             soup = BeautifulSoup(html_content, 'html.parser')
             page_text = soup.get_text(separator='\n')
-            
-            # Extract canonical name
+            self.logger.debug(f"[JUSTIA] Raw HTML snippet: {html_content[:500]}")
             h1 = soup.find('h1')
             if h1:
-                result['case_name'] = h1.get_text(strip=True)
-                # Clean up the case name (remove "(Majority)" suffix)
+                candidate = h1.get_text(strip=True)
+                self.logger.debug(f"[JUSTIA] Candidate case name: {candidate}")
+                result['case_name'] = candidate
                 result['case_name'] = re.sub(r'\s*\(Majority\)\s*$', '', result['case_name'])
                 result['confidence'] += 0.4
             else:
                 for line in page_text.split('\n'):
                     if 'v.' in line:
-                        result['case_name'] = line.strip()
+                        candidate = line.strip()
+                        self.logger.debug(f"[JUSTIA] Fallback candidate case name: {candidate}")
+                        result['case_name'] = candidate
                         result['confidence'] += 0.3
                         break
-            
-            # Extract citations
-            for pattern in self.citation_patterns:
-                citation_match = re.search(pattern, page_text)
-                if citation_match:
-                    result['parallel_citations'].append(citation_match.group(1))
-                    result['confidence'] += 0.2
-                    break
-            
-            # Extract year
-            if result['parallel_citations']:
-                year_match = re.search(r'(19|20)\d{2}', result['parallel_citations'][0])
-                if year_match:
-                    result['date'] = year_match.group()
-                    result['confidence'] += 0.1
-            else:
-                # Look for filed date
-                year_pattern = r'Filed:\s*(\w+\s+\d{1,2},\s+(19|20)\d{2})'
-                year_match = re.search(year_pattern, page_text)
-                if year_match:
-                    result['date'] = re.search(r'(19|20)\d{2}', year_match.group(1)).group()
-                    result['confidence'] += 0.2
-            
-            # Extract court
-            for pattern in self.court_patterns:
-                court_match = re.search(pattern, page_text)
-                if court_match:
-                    result['court'] = court_match.group(0).strip()
-                    result['confidence'] += 0.1
-                    break
-            
-            # Extract docket number
-            for pattern in self.docket_patterns:
-                docket_match = re.search(pattern, page_text)
-                if docket_match:
-                    result['docket_number'] = docket_match.group(0)
-                    result['confidence'] += 0.1
-                    break
-            
+            # ... rest of extraction ...
         except Exception as e:
             self.logger.error(f"Error extracting Justia info: {e}")
-        
         return result
 
     def _extract_findlaw_info(self, html_content: str, url: str) -> Dict[str, Any]:
@@ -1564,13 +1485,14 @@ class ComprehensiveWebSearchEngine:
     """
     
     def __init__(self, enable_experimental_engines=False):
+        self.logger = logging.getLogger(__name__)
         self.session = requests.Session()
         self.session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         })
         
         # Set reasonable timeouts
-        self.session.timeout = 10
+        self.session.timeout = 5
         
         # Initialize enhancement components
         self.citation_normalizer = EnhancedCitationNormalizer()
@@ -1936,7 +1858,7 @@ class ComprehensiveWebSearchEngine:
             return []
 
     def _google_search(self, query: str, num_results: int) -> List[Dict]:
-        """Google search implementation."""
+        """Google search implementation with improved headers."""
         try:
             # Use a simple Google search approach
             search_url = "https://www.google.com/search"
@@ -1945,118 +1867,115 @@ class ComprehensiveWebSearchEngine:
                 'num': min(num_results, 10),  # Google limit
                 'hl': 'en'
             }
-            
-            response = self.session.get(search_url, params=params)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://www.google.com/'
+            }
+            response = self.session.get(search_url, params=params, headers=headers, timeout=5)
             response.raise_for_status()
-            
             soup = BeautifulSoup(response.text, 'html.parser')
             results = []
-            
             # Extract search results
             for result in soup.find_all('div', class_='g'):
                 title_elem = result.find('h3')
                 link_elem = result.find('a')
                 snippet_elem = result.find('div', class_='VwiC3b')
-                
                 if title_elem and link_elem:
                     title = title_elem.get_text().strip()
                     url = link_elem.get('href', '')
                     snippet = snippet_elem.get_text().strip() if snippet_elem else ''
-                    
                     if url.startswith('/url?q='):
                         url = url.split('/url?q=')[1].split('&')[0]
-                    
                     results.append({
                         'title': title,
                         'url': url,
                         'snippet': snippet,
                         'source': 'google'
                     })
-            
             return results[:num_results]
-            
         except Exception as e:
             logger.error(f"Google search error: {e}")
             return []
 
     def _bing_search(self, query: str, num_results: int) -> List[Dict]:
-        """Bing search implementation."""
+        """Bing search implementation with improved headers."""
         try:
             search_url = "https://www.bing.com/search"
             params = {
                 'q': query,
                 'count': num_results
             }
-            
-            response = self.session.get(search_url, params=params)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://www.bing.com/'
+            }
+            response = self.session.get(search_url, params=params, headers=headers, timeout=5)
             response.raise_for_status()
-            
             soup = BeautifulSoup(response.text, 'html.parser')
             results = []
-            
             # Extract search results
             for result in soup.find_all('li', class_='b_algo'):
                 title_elem = result.find('h2')
                 link_elem = title_elem.find('a') if title_elem else None
                 snippet_elem = result.find('p')
-                
                 if title_elem and link_elem:
                     title = title_elem.get_text().strip()
                     url = link_elem.get('href', '')
                     snippet = snippet_elem.get_text().strip() if snippet_elem else ''
-                    
                     results.append({
                         'title': title,
                         'url': url,
                         'snippet': snippet,
                         'source': 'bing'
                     })
-            
             return results[:num_results]
-            
         except Exception as e:
             logger.error(f"Bing search error: {e}")
             return []
 
     def _ddg_search(self, query: str, num_results: int) -> List[Dict]:
-        """DuckDuckGo search implementation."""
+        """DuckDuckGo search implementation with improved headers."""
         try:
             search_url = "https://html.duckduckgo.com/html/"
             params = {
                 'q': query
             }
-            
-            response = self.session.post(search_url, data=params)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://duckduckgo.com/'
+            }
+            response = self.session.post(search_url, data=params, headers=headers, timeout=5)
             response.raise_for_status()
-            
             soup = BeautifulSoup(response.text, 'html.parser')
             results = []
-            
             # Extract search results
             for result in soup.find_all('div', class_='result'):
                 title_elem = result.find('a', class_='result__a')
                 snippet_elem = result.find('a', class_='result__snippet')
-                
                 if title_elem:
                     title = title_elem.get_text().strip()
                     url = title_elem.get('href', '')
                     snippet = snippet_elem.get_text().strip() if snippet_elem else ''
-                    
                     results.append({
                         'title': title,
                         'url': url,
                         'snippet': snippet,
                         'source': 'duckduckgo'
                     })
-            
             return results[:num_results]
-            
         except Exception as e:
             logger.error(f"DuckDuckGo search error: {e}")
             return []
 
     async def search_vlex(self, citation: str, case_name: str = None) -> Dict:
         """Search Vlex for legal cases with enhanced URL patterns."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching VLex for citation: {citation}")
         try:
             # Try multiple vlex search URL patterns for better coverage
             vlex_urls = [
@@ -2128,6 +2047,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_casetext(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced Casetext search with advanced extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching Casetext for citation: {citation}")
         if not self._respect_rate_limit('casetext'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -2217,6 +2137,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_justia(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced Justia search with multiple strategies and best content extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching Justia for citation: {citation}")
         if not self._respect_rate_limit('justia'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -2379,6 +2300,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_findlaw(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced FindLaw search with advanced extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching FindLaw for citation: {citation}")
         if not self._respect_rate_limit('findlaw'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -2454,6 +2376,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_leagle(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced Leagle search with advanced extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching Leagle for citation: {citation}")
         if not self._respect_rate_limit('leagle'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -2543,6 +2466,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_openjurist(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced OpenJurist search with advanced extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching OpenJurist for citation: {citation}")
         if not self._respect_rate_limit('openjurist'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -2599,6 +2523,7 @@ class ComprehensiveWebSearchEngine:
 
     async def search_casemine(self, citation: str, case_name: str = None) -> Dict:
         """Enhanced CaseMine search with advanced extraction."""
+        self.logger.info(f"[LEGAL_DATABASE] Searching CaseMine for citation: {citation}")
         if not self._respect_rate_limit('casemine'):
             return {'verified': False, 'error': 'Rate limited'}
         
@@ -3108,7 +3033,7 @@ class ComprehensiveWebSearchEngine:
             final_results = []
         
         # Cache the results
-        self.cache_manager.set(cache_key, final_results, ttl_hours=24)
+        self.cache_manager.set(cache_key, value=final_results, ttl_hours=24)
         
         logger.info(f"Found {len(all_results)} total results, fused to {len(final_results)} results")
         

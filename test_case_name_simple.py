@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 # Disable API calls for testing
 os.environ['DISABLE_API_CALLS'] = '1'
 
-from src.extract_case_name import extract_case_name_from_text  # Use the modern, supported function
+from src.case_name_extraction_core import extract_case_name_from_text  # Use the modern, supported function
 
 def test_case_name_extraction_direct():
     """Test case name extraction function directly without API calls."""

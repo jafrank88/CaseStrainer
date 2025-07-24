@@ -84,16 +84,16 @@ class ImprovedToAParser:
             r'Legal\s+Authorities?',
         ]
         
-        # Simplified entry patterns to avoid catastrophic backtracking
+        # Improved ToA entry patterns: more flexible matching
         self.toa_entry_patterns = [
-            # Pattern 1: Full case name (greedy up to v./vs./versus), citation (year)
-            r'^(.+?\s+v\.?\s+.+?),\s*([^,\(]+\(\d{4}\))',
-            r'^(.+?\s+vs\.?\s+.+?),\s*([^,\(]+\(\d{4}\))',
-            r'^(.+?\s+versus\s+.+?),\s*([^,\(]+\(\d{4}\))',
-            # Pattern 2: Case name, citation, year separately  
-            r'^(.+?),\s*([^,]+),\s*(\d{4})',
-            # Pattern 3: Simple case name, citation
-            r'^(.+?),\s*(\d+\s+[A-Za-z\.\s]+\d+)',
+            # Pattern 1: Full case name (e.g., 'Smith v. Jones, 534 F.3d 1290 (2008)')
+            r'([A-Z][A-Za-z\'\-\s\.]+? v\.? [A-Z][A-Za-z\'\-\s\.]+?),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            # Pattern 2: In re ...
+            r'(In\s+re\s+[A-Z][A-Za-z\'\-\s\.]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            # Pattern 3: Dep't of ... v. ...
+            r'(Dep[\'`]t of [A-Za-z0-9&.,\'\s\-]+ v\. [A-Z][A-Za-z0-9&.,\'\s\-]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            # Pattern 4: More flexible case name pattern
+            r'([A-Z][A-Za-z\'\-\s\.]+? v\.? [A-Z][A-Za-z\'\-\s\.]+?)(?:,|\s+)([\dA-Za-z\.\s]+\(\d{4}\))',
         ]
         
         # Simplified patterns
@@ -465,6 +465,49 @@ class ImprovedToAParser:
             logger.error(f"[TOA MAP] Error creating citation map: {e}")
         
         return citation_year_map
+
+    def parse_toa_section_simple(self, text: str) -> List[ToAEntry]:
+        """Simple, direct parsing of ToA section without complex chunking."""
+        logger.info(f"[TOA SIMPLE] Starting simple parse of {len(text):,} characters...")
+        entries = []
+        
+        # Find the ToA section
+        toa_bounds = self.detect_toa_section(text)
+        if not toa_bounds:
+            return entries
+            
+        start, end = toa_bounds
+        toa_section = text[start:end]
+        
+        # Simple pattern to find case names followed by citations
+        # Look for: Case Name, Citation (Year)
+        simple_pattern = r'([A-Z][A-Za-z\'\-\s\.]+? v\.? [A-Z][A-Za-z\'\-\s\.]+?),?\s+([\dA-Za-z\.\s]+\(\d{4}\))'
+        
+        matches = re.finditer(simple_pattern, toa_section, re.MULTILINE)
+        for match in matches:
+            case_name = match.group(1).strip()
+            citation_text = match.group(2).strip()
+            
+            # Extract years from citation
+            years = self._extract_years_safe(citation_text)
+            
+            # Extract citations
+            citations = self._extract_citations_safe(citation_text)
+            
+            if case_name and citations:
+                entry = ToAEntry(
+                    case_name=case_name,
+                    citations=citations,
+                    years=years,
+                    page_numbers=[],
+                    confidence=0.8,
+                    source_line=match.group(0)
+                )
+                entries.append(entry)
+                logger.info(f"[TOA SIMPLE] Found: {case_name} - {citations} - {years}")
+        
+        logger.info(f"[TOA SIMPLE] Found {len(entries)} entries")
+        return entries
 
 
 # Convenience functions for backward compatibility

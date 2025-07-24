@@ -13,6 +13,7 @@ import logging
 import time
 import random
 import requests
+import sys
 from src.citation_extractor import extract_all_citations
 from src.unified_citation_extractor import extract_all_citations
 def get_unified_citations(text, logger=None):

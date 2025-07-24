@@ -222,20 +222,37 @@ class CitationService:
             print(f"[DEBUG PRINT] About to import UnifiedCitationProcessorV2")
             logger.info(f"[DEBUG] About to import UnifiedCitationProcessorV2")
             from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            from src.citation_clustering import group_citations_into_clusters
             print(f"[DEBUG PRINT] Imported UnifiedCitationProcessorV2, about to instantiate")
             logger.info(f"[DEBUG] Imported UnifiedCitationProcessorV2, about to instantiate")
             processor = UnifiedCitationProcessorV2()
             print(f"[DEBUG PRINT] Instantiated UnifiedCitationProcessorV2, about to call process_text")
             logger.info(f"[DEBUG] Instantiated UnifiedCitationProcessorV2, about to call process_text")
             citation_results = processor.process_text(text)
-            print(f"[DEBUG PRINT] Returned from process_text, results_count={len(citation_results)}")
-            logger.info(f"[DEBUG] Returned from process_text, results_count={len(citation_results)}")
-            # Convert CitationResult objects to dictionaries
+            print(f"[DEBUG PRINT] Returned from process_text, results_count={len(citation_results['citations'])}")
+            logger.info(f"[DEBUG] Returned from process_text, results_count={len(citation_results['citations'])}")
+
+            # Ensure clusters are present
+            if 'clusters' not in citation_results or not citation_results['clusters']:
+                # Build clusters if not present
+                clusters = group_citations_into_clusters(citation_results['citations'], original_text=text)
+                citation_results['clusters'] = clusters
+            else:
+                clusters = citation_results['clusters']
+
+            # Build a mapping from citation string to cluster members
+            citation_to_members = {}
+            for cluster in clusters:
+                member_citations = [c['citation'] if isinstance(c, dict) else getattr(c, 'citation', None) for c in cluster['citations']]
+                for c in cluster['citations']:
+                    cite_str = c['citation'] if isinstance(c, dict) else getattr(c, 'citation', None)
+                    citation_to_members[cite_str] = member_citations
+
             processed_citations = []
-            for citation in citation_results:
+            for citation in citation_results['citations']:
                 citation_dict = {
                     'citation': citation.citation,
-                    'case_name': citation.extracted_case_name or citation.case_name,
+                    'case_name': citation.canonical_name or citation.extracted_case_name or 'Unknown',
                     'extracted_case_name': citation.extracted_case_name,
                     'canonical_name': citation.canonical_name,
                     'extracted_date': citation.extracted_date,
@@ -251,7 +268,7 @@ class CitationService:
                     'is_parallel': citation.is_parallel,
                     'is_cluster': citation.is_cluster,
                     'parallel_citations': citation.parallel_citations,
-                    'cluster_members': citation.cluster_members,
+                    'cluster_members': citation_to_members.get(citation.citation, []),
                     'pinpoint_pages': citation.pinpoint_pages,
                     'docket_numbers': citation.docket_numbers,
                     'case_history': citation.case_history,
@@ -267,6 +284,7 @@ class CitationService:
             return {
                 'status': 'completed',
                 'citations': processed_citations,
+                'clusters': clusters,
                 'statistics': {
                     'total_citations': len(processed_citations),
                     'text_length': len(text)

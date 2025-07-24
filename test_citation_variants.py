@@ -59,9 +59,15 @@ def test_courtlistener_api():
     for i, variant in enumerate(variants, 1):
         print(f"\n{i}. Testing variant: '{variant}'")
         
+        # Prevent use of v3 CourtListener API endpoints
+        lookup_url = f"https://www.courtlistener.com/api/rest/v4/citation-lookup/?citation={variant}"
+        search_url = f"https://www.courtlistener.com/api/rest/v4/search/?q={variant}&format=json"
+        if 'v3' in lookup_url or 'v3' in search_url:
+            print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+            sys.exit(1)
+
         # Try citation-lookup endpoint first
         try:
-            lookup_url = f"https://www.courtlistener.com/api/rest/v3/citation-lookup/?citation={variant}"
             resp = requests.get(lookup_url, headers=headers, timeout=10)
             
             if resp.status_code == 200:
@@ -85,7 +91,6 @@ def test_courtlistener_api():
         
         # Try search endpoint
         try:
-            search_url = f"https://www.courtlistener.com/api/rest/v4/search/?q={variant}&format=json"
             resp = requests.get(search_url, headers=headers, timeout=10)
             
             if resp.status_code == 200:

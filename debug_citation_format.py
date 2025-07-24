@@ -6,6 +6,7 @@ Debug script to test different citation formats for the citation-lookup API.
 import os
 import requests
 import json
+import sys
 
 def test_citation_formats():
     """Test different citation formats to see what the API expects."""
@@ -18,6 +19,11 @@ def test_citation_formats():
     
     headers = {"Authorization": f"Token {api_key}"}
     lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+    
+    # Prevent use of v3 CourtListener API endpoints
+    if 'v3' in lookup_url:
+        print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+        sys.exit(1)
     
     # Test different request formats based on the error message
     test_requests = [

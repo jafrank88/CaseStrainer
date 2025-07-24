@@ -13,6 +13,7 @@ import json
 import re
 from typing import Dict, List, Optional, Any
 from urllib.parse import quote_plus
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +22,16 @@ class EnhancedCourtListenerAPI:
     
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.base_url = "https://www.courtlistener.com/api/rest/v3"
+        self.base_url = "https://www.courtlistener.com/api/rest/v4"
         self.headers = {
             'Authorization': f'Token {api_key}',
             'Content-Type': 'application/json'
         }
+        
+        # Prevent use of v3 CourtListener API endpoints
+        if 'v3' in self.base_url:
+            print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+            sys.exit(1)
     
     def verify_complex_citation(self, citation_data: Dict) -> Dict[str, Any]:
         """Verify a complex citation using multiple strategies."""

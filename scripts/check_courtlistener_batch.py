@@ -1,7 +1,12 @@
 import requests
 import sys
 
-API_URL = 'https://www.courtlistener.com/api/rest/v3/citation-lookup/'
+API_URL = 'https://www.courtlistener.com/api/rest/v4/citation-lookup/'
+
+# Prevent use of v3 CourtListener API endpoints
+if 'v3' in API_URL:
+    print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
+    sys.exit(1)
 
 # Example usage: python check_courtlistener_batch.py citations.txt
 
