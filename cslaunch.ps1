@@ -2066,30 +2066,77 @@ try {
                 Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
                 Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                 
+                # Ensure we have latest code from git
+                Write-Host "Ensuring latest code from git..." -ForegroundColor Cyan
+                try {
+                    $gitStatus = git status --porcelain 2>$null
+                    if (-not $gitStatus) {
+                        # No uncommitted changes, safe to pull
+                        $pullResult = git pull origin main 2>&1
+                        if ($LASTEXITCODE -eq 0) {
+                            Write-Host "✅ Git pull completed" -ForegroundColor Green
+                            if ($pullResult -match "Already up to date") {
+                                Write-Host "   No new changes from remote" -ForegroundColor Gray
+                            } else {
+                                Write-Host "   Updated with remote changes" -ForegroundColor Green
+                            }
+                        } else {
+                            Write-Host "⚠️ Git pull failed - proceeding with local code" -ForegroundColor Yellow
+                        }
+                    } else {
+                        Write-Host "⚠️ Uncommitted changes detected - skipping git pull" -ForegroundColor Yellow
+                        Write-Host "   Uncommitted files: $($gitStatus.Count)" -ForegroundColor Gray
+                    }
+                } catch {
+                    Write-Host "⚠️ Could not update from git - proceeding with local code" -ForegroundColor Yellow
+                }
+                
                 # Smart rebuild detection
                 Write-Host "Analyzing code changes to determine rebuild strategy..." -ForegroundColor Cyan
                 $needsFullRebuild = $false
                 
                 try {
-                    # Check for import/dependency changes that require full rebuild
-                    $recentChanges = git log --name-only --pretty=format: --since="1 hour ago" 2>$null | Where-Object { $_ -ne "" }
-                    if ($recentChanges) {
-                        $importChanges = $recentChanges | Where-Object { 
-                            $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
+                    # Check for recent changes that require full rebuild - expand time window
+                    $recentChanges = git log --name-only --pretty=format: --since="6 hours ago" 2>$null | Where-Object { $_ -ne "" }
+                    
+                    # Also check for uncommitted changes
+                    $uncommittedChanges = git status --porcelain 2>$null | ForEach-Object { $_.Substring(3) }
+                    $allChanges = @($recentChanges) + @($uncommittedChanges) | Where-Object { $_ -ne "" } | Sort-Object -Unique
+                    
+                    if ($allChanges) {
+                        Write-Host "Found recent changes: $($allChanges.Count) files" -ForegroundColor Gray
+                        # Show a sample of changed files for transparency
+                        $sampleFiles = $allChanges | Select-Object -First 3
+                        foreach ($file in $sampleFiles) {
+                            Write-Host "   - $file" -ForegroundColor DarkGray
                         }
-                        $depChanges = $recentChanges | Where-Object { 
-                            $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
+                        if ($allChanges.Count -gt 3) {
+                            Write-Host "   - ... and $($allChanges.Count - 3) more" -ForegroundColor DarkGray
                         }
                         
-                        if ($importChanges -or $depChanges) {
+                        $importChanges = $allChanges | Where-Object { 
+                            $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
+                        }
+                        $depChanges = $allChanges | Where-Object { 
+                            $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
+                        }
+                        $criticalPyFiles = $allChanges | Where-Object {
+                            $_ -match "src/(unified_citation_processor|citation_clustering|api/services).*\.py$"
+                        }
+                        
+                        if ($importChanges -or $depChanges -or $criticalPyFiles) {
                             $needsFullRebuild = $true
-                            Write-Host "⚠️ Detected import/dependency changes - recommending full rebuild for safety" -ForegroundColor Yellow
+                            Write-Host "⚠️ Detected critical changes - recommending full rebuild for safety" -ForegroundColor Yellow
                             if ($importChanges) { Write-Host "   - Python import changes detected" -ForegroundColor Gray }
                             if ($depChanges) { Write-Host "   - Dependency file changes detected" -ForegroundColor Gray }
+                            if ($criticalPyFiles) { Write-Host "   - Critical Python module changes detected" -ForegroundColor Gray }
                         }
+                    } else {
+                        Write-Host "No recent changes detected - proceeding with backend-only rebuild" -ForegroundColor Green
                     }
                 } catch {
-                    Write-Host "⚠️ Could not analyze git history - proceeding with backend rebuild" -ForegroundColor Yellow
+                    Write-Host "⚠️ Could not analyze git history - proceeding with full rebuild for safety" -ForegroundColor Yellow
+                    $needsFullRebuild = $true
                 }
                 
                 if ($needsFullRebuild) {
@@ -2100,8 +2147,8 @@ try {
                     docker-compose -f docker-compose.prod.yml build backend
                     $result = Start-DockerProduction
                 }
-
-                $result = Start-DockerProduction
+                
+                # Result already set above - no need to call Start-DockerProduction again
                 if (-not $result) {
                     Write-Host "❌ Docker production failed" -ForegroundColor Red
                     exit 1
