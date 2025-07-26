@@ -1009,10 +1009,13 @@ class UnifiedCitationProcessorV2:
                     citation.extracted_case_name = None
             if self.config.extract_dates:
                 try:
-                    citation.extracted_date = self._extract_date_from_context(text, citation)
+                    # Only extract date if we don't already have one from pattern-based extraction
+                    if not citation.extracted_date:
+                        citation.extracted_date = self._extract_date_from_context(text, citation)
                 except Exception as e:
                     logger.debug(f"Error extracting date: {e}")
-                    citation.extracted_date = None
+                    if not citation.extracted_date:
+                        citation.extracted_date = None
             try:
                 citation.confidence = self._calculate_confidence(citation, text)
             except Exception as e:
