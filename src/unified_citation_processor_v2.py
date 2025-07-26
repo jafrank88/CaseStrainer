@@ -1043,7 +1043,7 @@ class UnifiedCitationProcessorV2:
         # First, try to find pattern with date AFTER the citation
         citation_with_date_after_pattern = (
             r'([A-Z][A-Za-z\s,&.\'-]+\s+v\.\s+[A-Z][A-Za-z\s,&.\'-]+)\s*,\s*'
-            r'([^;]*?' + re.escape(citation.citation) + r'[^;()]*?)'
+            r'([^;]*?' + re.escape(citation.citation) + r'[^;]*?)'
             r'\((\d{4})\)'
         )
         
