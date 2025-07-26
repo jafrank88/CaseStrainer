@@ -64,7 +64,7 @@
           <label>Feedback Type:</label>
           <select v-model="corrections[index].feedback_type" class="feedback-select">
             <option value="">Select feedback type...</option>
-            <option value="case_name_wrong">Case name is wrong</option>
+            <option value="canonical_name_wrong">Case Name mismatch</option>
             <option value="date_wrong">Date is wrong</option>
             <option value="citation_format_wrong">Citation format is wrong</option>
             <option value="false_positive">This is not a citation</option>

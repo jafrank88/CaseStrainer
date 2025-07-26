@@ -80,16 +80,20 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                         citation.setdefault('metadata', {})
                         citation['metadata']['is_in_cluster'] = True
                         citation['metadata']['cluster_id'] = cluster_id
+            # DISABLE DANGEROUS PROPAGATION: This was contaminating unverified citations
+            # with case names from other citations. Only verified citations should 
+            # propagate their canonical names, not extracted names to unverified citations.
+            # 
             # Conservative propagation: only fill missing extracted_case_name
-            best_extracted = None
-            for c in members:
-                if getattr(c, 'extracted_case_name', None):
-                    best_extracted = c.extracted_case_name
-                    break
-            if best_extracted:
-                for c in members:
-                    if not getattr(c, 'extracted_case_name', None):
-                        c.extracted_case_name = best_extracted
+            # best_extracted = None
+            # for c in members:
+            #     if getattr(c, 'extracted_case_name', None):
+            #         best_extracted = c.extracted_case_name
+            #         break
+            # if best_extracted:
+            #     for c in members:
+            #         if not getattr(c, 'extracted_case_name', None):
+            #             c.extracted_case_name = best_extracted
     # --- IMPROVED PROPAGATION: Propagate normalized extracted case name and year to all citations in a group ---
     def normalize_case_name(name):
         if not name:
@@ -109,42 +113,52 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
             norm_name = normalize_case_name(name)
             if norm_name:
                 date_to_names.setdefault(date, []).append(norm_name)
-    # For each date, pick the most common normalized name
-    date_to_best_name = {}
-    for date, names in date_to_names.items():
-        from collections import Counter
-        best_name, _ = Counter(names).most_common(1)[0]
-        date_to_best_name[date] = best_name
-    # Propagate the best name to all citations with that date
-    for c in citations:
-        date = getattr(c, 'extracted_date', None)
-        if date and date in date_to_best_name:
-            setattr(c, 'extracted_case_name', date_to_best_name[date])
+    # DISABLE DANGEROUS DATE-BASED PROPAGATION: This was contaminating citations
+    # with case names from other citations just because they shared extracted dates.
+    # This caused 578 U.S. 5 to get "Gideon v. Wainwright" because both had date "1963"
+    # (even though 578 U.S. 5 should have date "2016").
+    #
+    # # For each date, pick the most common normalized name
+    # date_to_best_name = {}
+    # for date, names in date_to_names.items():
+    #     from collections import Counter
+    #     best_name, _ = Counter(names).most_common(1)[0]
+    #     date_to_best_name[date] = best_name
+    # # Propagate the best name to all citations with that date ONLY if they don't already have an extracted case name
+    # # AND they don't already belong to a cluster with a different case name
+    # for c in citations:
+    #     date = getattr(c, 'extracted_date', None)
+    #     if date and date in date_to_best_name:
+    #         # Only propagate if the citation doesn't already have an extracted case name
+    #         if not getattr(c, 'extracted_case_name', None):
+    #             # Check if this citation already belongs to a cluster with a different case name
+    #             existing_cluster_id = getattr(c, 'cluster_id', None)
+    #             if existing_cluster_id:
+    #                 # Find other citations in the same cluster
+    #                 cluster_members = [other for other in citations if getattr(other, 'cluster_id', None) == existing_cluster_id]
+    #                 # Check if any cluster member already has a different case name
+    #                 cluster_case_names = [member.extracted_case_name for member in cluster_members if getattr(member, 'extracted_case_name', None)]
+    #                 if cluster_case_names:
+    #                     # Use the existing case name from the cluster instead of propagating
+    #                     best_cluster_name = cluster_case_names[0]  # Use the first one found
+    #                     setattr(c, 'extracted_case_name', best_cluster_name)
+    #                 else:
+    #                     # No existing case name in cluster, safe to propagate
+    #                     setattr(c, 'extracted_case_name', date_to_best_name[date])
+    #             else:
+    #                 # No existing cluster, safe to propagate
+    #                 setattr(c, 'extracted_case_name', date_to_best_name[date])
+    
     # Try to infer missing extracted case names from canonical name or previous citation with same date
     for i, c in enumerate(citations):
         if not getattr(c, 'extracted_case_name', None) and getattr(c, 'extracted_date', None):
-            # Try canonical name
+            # Try canonical name first (most reliable)
             if getattr(c, 'canonical_name', None):
                 c.extracted_case_name = c.canonical_name
-            else:
-                # Try previous citation with same date
-                for prev in reversed(citations[:i]):
-                    if getattr(prev, 'extracted_date', None) == c.extracted_date and getattr(prev, 'extracted_case_name', None):
-                        c.extracted_case_name = prev.extracted_case_name
-                        break
-    # --- NEW: Propagate canonical name to adjacent citations with same date if one has it ---
-    for i, c in enumerate(citations):
-        if not getattr(c, 'extracted_case_name', None) and getattr(c, 'extracted_date', None):
-            for j, other in enumerate(citations):
-                if i == j:
-                    continue
-                if getattr(other, 'extracted_date', None) == getattr(c, 'extracted_date', None) and getattr(other, 'canonical_name', None):
-                    # Check adjacency (within 100 characters)
-                    if hasattr(c, 'start_index') and hasattr(other, 'end_index') and c.start_index is not None and other.end_index is not None:
-                        if 0 <= c.start_index - other.end_index <= 100:
-                            c.extracted_case_name = other.canonical_name
-                            break
-    # --- NEW: Group sequences matching [case name], [citation], [page], [citation], ..., ([year]) ---
+            # If still no extracted case name, only propagate from verified parallel citations
+            # DO NOT propagate based on adjacency and date alone - this causes cross-contamination!
+    
+    # --- Group sequences matching [case name], [citation], [page], [citation], ..., ([year]) ---
     import re
     STOPWORDS = {"of", "and", "the", "in", "for", "on", "at", "by", "with", "to", "from", "as", "but", "or", "nor", "so", "yet", "a", "an"}
     LEGAL_ABBREVS = {"Dep't", "McDonald", "O'Connor", "Inc.", "LLC", "Co.", "Corp.", "Ltd.", "Assoc.", "Bros.", "Dr.", "Jr.", "Sr.", "St.", "Mt.", "Ft.", "Univ.", "Nat'l", "Fed.", "Comm'n", "Bd.", "Ctr.", "Dept.", "Hosp.", "Ctrs.", "Ctr.", "Ctrs.", "Ctrs."}
@@ -228,39 +242,43 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
             last_context = getattr(last_c, 'context', '') or ''
             year_match = re.search(r"\((\d{4})\)", last_context)
             year = year_match.group(1) if year_match else getattr(last_c, 'extracted_date', None)
-            # Assign filtered case name and year to all in group
-            if filtered_case_name and year:
-                for gc in group:
-                    gc.extracted_case_name = filtered_case_name
-                    gc.extracted_date = year
+            # DISABLE DANGEROUS PROPAGATION: This contaminates citations with wrong case names
+            # based on proximity and date matching, causing 578 U.S. 5 to get Gideon case name
+            #
+            # # Assign filtered case name and year to all in group
+            # if filtered_case_name and year:
+            #     for gc in group:
+            #         gc.extracted_case_name = filtered_case_name
+            #         gc.extracted_date = year
             i = j
         else:
             i += 1
-    # --- NEW: For each group of adjacent citations with the same date, propagate case name from first and year from last ---
-    n = len(citations)
-    i = 0
-    while i < n:
-        # Start of a potential group
-        group = [citations[i]]
-        date = getattr(citations[i], 'extracted_date', None)
-        j = i + 1
-        while j < n:
-            next_date = getattr(citations[j], 'extracted_date', None)
-            if next_date == date:
-                group.append(citations[j])
-                j += 1
-            else:
-                break
-        if len(group) > 1 and date:
-            # Try to get case name from first, year from last
-            first_case_name = getattr(group[0], 'extracted_case_name', None)
-            last_year = getattr(group[-1], 'extracted_date', None)
-            # If at least one has a case name and one has a year, propagate
-            if first_case_name and last_year:
-                for c in group:
-                    c.extracted_case_name = first_case_name
-                    c.extracted_date = last_year
-        i = j
+    # --- DISABLE: For each group of adjacent citations with the same date, propagate case name from first and year from last ---
+    # This was causing contamination by grouping citations incorrectly based on dates
+    # n = len(citations)
+    # i = 0
+    # while i < n:
+    #     # Start of a potential group
+    #     group = [citations[i]]
+    #     date = getattr(citations[i], 'extracted_date', None)
+    #     j = i + 1
+    #     while j < n:
+    #         next_date = getattr(citations[j], 'extracted_date', None)
+    #         if next_date == date:
+    #             group.append(citations[j])
+    #             j += 1
+    #         else:
+    #             break
+    #     if len(group) > 1 and date:
+    #         # Try to get case name from first, year from last
+    #         first_case_name = getattr(group[0], 'extracted_case_name', None)
+    #         last_year = getattr(group[-1], 'extracted_date', None)
+    #         # If at least one has a case name and one has a year, propagate
+    #         if first_case_name and last_year:
+    #             for c in group:
+    #                 c.extracted_case_name = first_case_name
+    #                 c.extracted_date = last_year
+    #     i = j
     # Debug output: show extracted case name and date for every citation after propagation
     import logging
     logger = logging.getLogger(__name__)
@@ -318,12 +336,11 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
             fallback_clusters[key].append(citation)
     print("[DEBUG] Fallback cluster keys and members:")
     for key, members in fallback_clusters.items():
-        print(f"  Key: {key} | Members: {[getattr(m, 'citation', None) for m in members]}")
-    logger.debug(f"[FALLBACK CLUSTERING] Keys: {list(fallback_clusters.keys())}")
-    for key, members in fallback_clusters.items():
-        logger.debug(f"[FALLBACK CLUSTERING] Key: {key}, Members: {[getattr(m, 'citation', None) for m in members]}")
-    # Assign fallback clusters
-    for key, members in fallback_clusters.items():
+        # Only cluster if all normalized extracted names in the group are identical
+        norm_names = set(normalize_case_name_for_key(getattr(c, 'extracted_case_name', None)) for c in members)
+        if len(norm_names) > 1:
+            # Skip clustering if there are different extracted names
+            continue
         if len(members) > 1:
             cluster_id = f"fallback_extracted_{key[0]}_{key[1]}"
             if cluster_id not in clusters_by_id:
@@ -357,7 +374,7 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                     clusters_by_id[cluster_id].append(citation)
     # Ensure all clusters in clusters_by_id are included in result_clusters
     result_clusters = []
-    clustered_citations = set()
+    clustered_citations = set(getattr(c, 'citation', None) for c in citations)
     for cluster_id, cluster_citations in clusters_by_id.items():
         try:
             print(f"[DEBUG] Adding cluster to result_clusters: {cluster_id} | Members: {[getattr(c, 'citation', None) for c in cluster_citations]}")
@@ -380,11 +397,12 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                 return bool(verified)
             first_verified = next((c for c in sorted_citations if is_citation_verified(c)), None)
             best_citation = first_verified if first_verified else sorted_citations[0]
+            # Only set canonical_name/date if verified
             is_verified = getattr(best_citation, 'verified', False)
             if isinstance(is_verified, str):
                 is_verified = is_verified.lower() == 'true'
-            cluster_canonical_name = getattr(best_citation, 'canonical_name', None) if is_verified else getattr(best_citation, 'canonical_name', None)
-            cluster_canonical_date = getattr(best_citation, 'canonical_date', None) if is_verified else getattr(best_citation, 'canonical_date', None)
+            cluster_canonical_name = getattr(best_citation, 'canonical_name', None) if is_verified else None
+            cluster_canonical_date = getattr(best_citation, 'canonical_date', None) if is_verified else None
             cluster_extracted_case_name = getattr(best_citation, 'extracted_case_name', None)
             cluster_extracted_date = getattr(best_citation, 'extracted_date', None)
             cluster_url = getattr(best_citation, 'url', None) if is_verified else getattr(best_citation, 'url', None)
@@ -416,8 +434,8 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                 citation_dicts.append(citation_dict)
             cluster_dict = {
                 'cluster_id': cluster_id,
-                'canonical_name': cluster_canonical_name or cluster_extracted_case_name,
-                'canonical_date': cluster_canonical_date or cluster_extracted_date,
+                'canonical_name': cluster_canonical_name,
+                'canonical_date': cluster_canonical_date,
                 'extracted_case_name': cluster_extracted_case_name,
                 'extracted_date': cluster_extracted_date,
                 'url': cluster_url,
@@ -432,6 +450,7 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
             logger.error(f"[ERROR] Cluster citations: {cluster_citations}")
             import traceback; traceback.print_exc()
     # NEW: Add singleton clusters for any citation not already in a cluster
+    singleton_count = 0
     all_citations_set = set(getattr(c, 'citation', None) for c in citations)
     for citation in citations:
         if getattr(citation, 'citation', None) not in clustered_citations:
@@ -463,6 +482,10 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                 'size': 1
             }
             result_clusters.append(cluster_dict)
+            singleton_count += 1
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"[CLUSTERING] Total clusters created: {len(result_clusters)} (Singletons: {singleton_count})")
     return result_clusters
 
 def _merge_parallel_clusters(clusters: dict, cluster_meta: dict) -> dict:
@@ -633,54 +656,66 @@ def _propagate_canonical_to_parallels(citations: List['CitationResult']):
                         if citation.canonical_date and not other.canonical_date:
                             other.canonical_date = citation.canonical_date
 
-def _propagate_extracted_to_parallels(citations: List['CitationResult']):
+def _propagate_extracted_to_parallels_clusters(citations: list):
     """
     Propagate extracted case name and date to all parallel citations in the group.
     """
-    for citation in citations:
-        if citation.parallel_citations:
-            for parallel in citation.parallel_citations:
-                for other in citations:
-                    if other.citation == parallel:
-                        if citation.extracted_case_name and not other.extracted_case_name:
-                            other.extracted_case_name = citation.extracted_case_name
-                        if citation.extracted_date and not other.extracted_date:
-                            other.extracted_date = citation.extracted_date
+    # DISABLE DANGEROUS PROPAGATION: This contaminates citations with wrong case names
+    # based on parallel citation detection which incorrectly groups different cases
+    #
+    # for citation in citations:
+    #     if citation.parallel_citations:
+    #         for parallel in citation.parallel_citations:
+    #             for other in citations:
+    #                 if other.citation == parallel:
+    #                     if citation.extracted_case_name and not other.extracted_case_name:
+    #                         other.extracted_case_name = citation.extracted_case_name
+    #                     if citation.extracted_date and not other.extracted_date:
+    #                         other.extracted_date = citation.extracted_date
+    pass
 
 def _propagate_best_extracted_to_clusters(citations: list):
     """
     Propagate the best extracted case name and date to all citations in a cluster.
     """
-    def is_valid_name(name):
-        if not name or name == 'N/A':
-            return False
-        if len(name) < 5:
-            return False
-        if not any(c.isalpha() for c in name):
-            return False
-        return True
+    # DISABLE DANGEROUS PROXIMITY-BASED PROPAGATION: This was the main source of contamination!
+    # It propagates case names between citations within 100 characters of each other,
+    # causing 578 U.S. 5 to get "Gideon v. Wainwright" because they're close in the text.
+    #
+    # def is_valid_name(name):
+    #     if not name or name == 'N/A':
+    #         return False
+    #     if len(name) < 5:
+    #         return False
+    #     if not any(c.isalpha() for c in name):
+    #         return False
+    #     return True
+    #
+    # # Forward propagation
+    # for i, citation in enumerate(citations):
+    #     if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
+    #         for j, other in enumerate(citations):
+    #             if i == j:
+    #                 continue
+    #             if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
+    #                 if 0 <= other.start_index - citation.end_index <= 100:
+    #                     if is_valid_name(getattr(other, 'extracted_case_name', None)):
+    #                         citation.extracted_case_name = other.extracted_case_name
+    #                     if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
+    #                         citation.extracted_date = other.extracted_date
+    # # Backward propagation
+    # for i, citation in enumerate(citations):
+    #     if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
+    #         for j, other in enumerate(citations):
+    #             if i == j:
+    #                 continue
+    #             if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
+    #                 if 0 <= other.start_index - citation.end_index <= 100:
+    #                     if is_valid_name(getattr(other, 'extracted_case_name', None)):
+    #                         citation.extracted_case_name = other.extracted_case_name
+    #                     if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
+    #                         citation.extracted_date = other.extracted_date
+    pass
 
-    # Forward propagation
-    for i, citation in enumerate(citations):
-        if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
-            for j, other in enumerate(citations):
-                if i == j:
-                    continue
-                if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
-                    if 0 <= other.start_index - citation.end_index <= 100:
-                        if is_valid_name(getattr(other, 'extracted_case_name', None)):
-                            citation.extracted_case_name = other.extracted_case_name
-                        if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
-                            citation.extracted_date = other.extracted_date
-    # Backward propagation
-    for i, citation in enumerate(citations):
-        if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
-            for j, other in enumerate(citations):
-                if i == j:
-                    continue
-                if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
-                    if 0 <= other.start_index - citation.end_index <= 100:
-                        if is_valid_name(getattr(other, 'extracted_case_name', None)):
-                            citation.extracted_case_name = other.extracted_case_name
-                        if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
-                            citation.extracted_date = other.extracted_date 
+    # Return the clusters that were built
+    return list(clusters_by_id.values()) 

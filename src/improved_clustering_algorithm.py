@@ -161,29 +161,71 @@ class ImprovedClusteringAlgorithm:
         return True
     
     def _detect_parallel_citations(self, citations: List[Dict[str, Any]], text: str) -> List[CitationCluster]:
-        """Detect citations that are parallel citations to the same case."""
+        """
+        Detect citations that are parallel citations to the same case.
+        
+        This improved version:
+        1. Groups by normalized case name
+        2. Handles common legal abbreviations and variations
+        3. Considers citations with the same volume/page as potential parallels
+        """
         if not citations:
             return []
         
-        # Group by case name similarity
+        # Group by normalized case name and volume/page
         case_groups = defaultdict(list)
+        volume_page_groups = defaultdict(list)
         
         for citation in citations:
-            case_name = citation.get('extracted_case_name') or citation.get('canonical_name')
-            if case_name:
-                # Normalize case name for grouping
-                normalized_name = self._normalize_case_name(case_name)
-                case_groups[normalized_name].append(citation)
+            # Get all possible case names
+            case_names = []
+            if 'extracted_case_name' in citation:
+                case_names.append(citation['extracted_case_name'])
+            if 'canonical_name' in citation and citation['canonical_name'] not in case_names:
+                case_names.append(citation['canonical_name'])
+            
+            # Add to case groups
+            for case_name in case_names:
+                if case_name:
+                    normalized_name = self._normalize_case_name(case_name)
+                    case_groups[normalized_name].append(citation)
+            
+            # Also group by volume/page for cases with missing case names
+            if 'volume' in citation and 'page' in citation:
+                vol_page_key = f"{citation['volume']}:{citation['page']}"
+                volume_page_groups[vol_page_key].append(citation)
         
         clusters = []
+        processed = set()
+        
+        # Process case-based groups
         for case_name, group_citations in case_groups.items():
             if len(group_citations) >= self.min_cluster_size:
                 # Check if they have similar years
                 year_groups = self._group_by_year(group_citations)
                 for year, year_citations in year_groups.items():
                     if len(year_citations) >= self.min_cluster_size:
-                        cluster = self._create_cluster_from_citations(year_citations, "parallel")
-                        clusters.append(cluster)
+                        # Create a unique key for this cluster to avoid duplicates
+                        cluster_key = f"{case_name}:{year}"
+                        if cluster_key not in processed:
+                            cluster = self._create_cluster_from_citations(year_citations, "parallel")
+                            clusters.append(cluster)
+                            processed.add(cluster_key)
+        
+        # Process volume/page groups
+        for vol_page, vol_page_citations in volume_page_groups.items():
+            if len(vol_page_citations) >= self.min_cluster_size and vol_page not in processed:
+                # Check if these citations are already in any existing cluster
+                already_clustered = False
+                for cluster in clusters:
+                    if any(c in cluster.citations for c in vol_page_citations):
+                        already_clustered = True
+                        break
+                
+                if not already_clustered:
+                    cluster = self._create_cluster_from_citations(vol_page_citations, "parallel")
+                    clusters.append(cluster)
+                    processed.add(vol_page)
         
         return clusters
     
@@ -260,17 +302,60 @@ class ImprovedClusteringAlgorithm:
         return len(intersection) / len(union)
     
     def _normalize_case_name(self, case_name: str) -> str:
-        """Normalize case name for comparison."""
+        """
+        Normalize case name for comparison.
+        
+        Handles:
+        - Case insensitivity
+        - Common legal abbreviations
+        - Punctuation and whitespace
+        - Common name variations
+        """
         if not case_name:
             return ""
         
-        # Remove common prefixes and suffixes
-        normalized = case_name.lower()
-        normalized = re.sub(r'\b(inc|llc|ltd|corp|corporation|company)\b', '', normalized)
+        # Convert to lowercase and remove extra whitespace
+        normalized = case_name.lower().strip()
+        
+        # Common legal abbreviations mapping
+        abbreviations = {
+            r'\bv\.?\b': 'v',  # v. or v
+            r'\bno\.?\b': 'no',  # no. or no
+            r'\binc\.?\b': 'inc',  # inc. or inc
+            r'\bltd\.?\b': 'ltd',  # ltd. or ltd
+            r'\bcorp\.?\b': 'corp',  # corp. or corp
+            r'\bllc\b': 'llc',
+            r'\bco\b': 'company',
+            r'\bass[\'']?n\b': 'association',
+            r'\buniv\b': 'university',
+            r'\bunited states\b': 'us',
+            r'\bstate of\b': 'state',
+            r'\bcounty of\b': '',
+            r'\bcity of\b': '',
+            r'\bof the\b': '',
+            r'\bthe\b': '',
+            r'\bet\s+al\b': '',  # et al.
+            r'\bin re\b': '',  # in re
+            r'\bex parte\b': '',  # ex parte
+            r'\bex rel\b': '',  # ex rel
+            r'\bappeal of\b': '',  # appeal of
+            r'\bmatter of\b': '',  # matter of
+        }
+        
+        # Apply abbreviations
+        for pattern, replacement in abbreviations.items():
+            normalized = re.sub(pattern, replacement, normalized)
+        
+        # Remove punctuation and extra whitespace
         normalized = re.sub(r'[^\w\s]', ' ', normalized)
         normalized = re.sub(r'\s+', ' ', normalized).strip()
         
-        return normalized
+        # Remove common words that don't help with matching
+        stop_words = {'and', 'or', 'the', 'in', 'for', 'of', 'on', 'at', 'to', 'as'}
+        words = [word for word in normalized.split() if word not in stop_words]
+        
+        # Sort words to handle different word orders
+        return ' '.join(sorted(set(words)))
     
     def _are_years_similar(self, year1: str, year2: str) -> bool:
         """Check if two years are similar within tolerance."""
@@ -314,28 +399,63 @@ class ImprovedClusteringAlgorithm:
         return year_groups
     
     def _create_cluster_from_citations(self, citations: List[Dict[str, Any]], cluster_type: str) -> CitationCluster:
-        """Create a CitationCluster from a list of citations."""
+        """
+        Create a CitationCluster from a list of citations.
+        
+        This enhanced version:
+        1. Sets the is_cluster flag
+        2. Ensures all citations in the cluster reference each other
+        3. Adds additional metadata for debugging
+        """
         if not citations:
             return None
-        
-        # Extract cluster metadata from the best citation
+            
+        # Select the best citation to represent the cluster
         best_citation = self._select_best_citation(citations)
         
+        # Create a unique cluster ID based on citation contents
+        citation_strings = tuple(sorted(set(c['citation'] for c in citations if 'citation' in c)))
+        cluster_id = f"cluster_{cluster_type}_{abs(hash(citation_strings))}"
+        
+        # Calculate average confidence and other stats
+        avg_confidence = sum(float(c.get('confidence', 0)) for c in citations) / len(citations)
+        
+        # Mark all citations as being in a cluster
+        for citation in citations:
+            citation['is_in_cluster'] = True
+            citation['cluster_id'] = cluster_id
+            if 'metadata' not in citation:
+                citation['metadata'] = {}
+            citation['metadata']['cluster_type'] = cluster_type
+        
+        # Create the cluster
         cluster = CitationCluster(
-            cluster_id=f"cluster_{cluster_type}_{len(citations)}",
-            citations=[c.get('citation', '') for c in citations],
-            case_name=best_citation.get('extracted_case_name'),
-            year=best_citation.get('extracted_date'),
+            cluster_id=cluster_id,
+            citations=citation_strings,
+            case_name=best_citation.get('extracted_case_name') or best_citation.get('canonical_name'),
+            year=best_citation.get('extracted_date') or best_citation.get('canonical_date'),
             canonical_name=best_citation.get('canonical_name'),
             canonical_date=best_citation.get('canonical_date'),
             url=best_citation.get('url'),
-            confidence=sum(c.get('confidence', 0) for c in citations) / len(citations),
+            confidence=avg_confidence,
             cluster_type=cluster_type,
             metadata={
                 'size': len(citations),
-                'citation_objects': citations
+                'citation_objects': citations,
+                'is_cluster': True,
+                'cluster_members': [c['citation'] for c in citations if 'citation' in c],
+                'created_at': datetime.datetime.utcnow().isoformat(),
+                'cluster_source': 'improved_algorithm',
+                'cluster_version': '2.0'
             }
         )
+        
+        # Set cluster reference in each citation
+        for citation in citations:
+            if 'metadata' not in citation:
+                citation['metadata'] = {}
+            citation['metadata']['cluster_id'] = cluster_id
+            citation['metadata']['cluster_type'] = cluster_type
         
         return cluster
     

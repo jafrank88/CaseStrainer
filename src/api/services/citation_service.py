@@ -242,11 +242,44 @@ class CitationService:
 
             # Build a mapping from citation string to cluster members
             citation_to_members = {}
-            for cluster in clusters:
-                member_citations = [c['citation'] if isinstance(c, dict) else getattr(c, 'citation', None) for c in cluster['citations']]
-                for c in cluster['citations']:
-                    cite_str = c['citation'] if isinstance(c, dict) else getattr(c, 'citation', None)
-                    citation_to_members[cite_str] = member_citations
+            try:
+                for cluster in clusters:
+                    if not isinstance(cluster, dict) or 'citations' not in cluster:
+                        logger.warning(f"Invalid cluster structure: {type(cluster)}")
+                        continue
+                        
+                    # Extract citation strings more robustly
+                    member_citations = []
+                    for c in cluster['citations']:
+                        try:
+                            if isinstance(c, dict):
+                                cite_str = c.get('citation')
+                            else:
+                                cite_str = getattr(c, 'citation', None)
+                            
+                            if cite_str:
+                                member_citations.append(cite_str)
+                        except Exception as e:
+                            logger.warning(f"Error processing citation in cluster: {e}")
+                            continue
+                    
+                    # Map each citation to its cluster members
+                    for c in cluster['citations']:
+                        try:
+                            if isinstance(c, dict):
+                                cite_str = c.get('citation')
+                            else:
+                                cite_str = getattr(c, 'citation', None)
+                                
+                            if cite_str:
+                                citation_to_members[cite_str] = member_citations
+                        except Exception as e:
+                            logger.warning(f"Error mapping citation to cluster members: {e}")
+                            continue
+                            
+            except Exception as e:
+                logger.error(f"Error processing clusters: {e}")
+                citation_to_members = {}  # Fall back to empty mapping
 
             processed_citations = []
             for citation in citation_results['citations']:
@@ -281,6 +314,62 @@ class CitationService:
                 processed_citations.append(citation_dict)
             print(f"[DEBUG PRINT] Finished processing citations, processed_citations_count={len(processed_citations)}")
             logger.info(f"[DEBUG] Finished processing citations, processed_citations_count={len(processed_citations)}")
+            
+            # Debug cluster information
+            print(f"[DEBUG PRINT] Final clusters count: {len(clusters)}")
+            logger.info(f"[DEBUG] Final clusters count: {len(clusters)}")
+            
+            if not clusters:
+                print(f"[DEBUG PRINT] No clusters found, checking if we can rebuild from citation metadata")
+                logger.warning(f"No clusters found, checking if we can rebuild from citation metadata")
+                
+                # Try to rebuild clusters from citation metadata if clusters are empty
+                cluster_map = {}
+                for citation in citation_results['citations']:
+                    cluster_id = getattr(citation, 'metadata', {}).get('cluster_id')
+                    if cluster_id:
+                        if cluster_id not in cluster_map:
+                            cluster_map[cluster_id] = []
+                        cluster_map[cluster_id].append(citation)
+                
+                if cluster_map:
+                    print(f"[DEBUG PRINT] Rebuilt {len(cluster_map)} clusters from metadata")
+                    logger.info(f"Rebuilt {len(cluster_map)} clusters from metadata")
+                    # Convert to expected cluster format
+                    rebuilt_clusters = []
+                    for cluster_id, cluster_citations in cluster_map.items():
+                        cluster_data = {
+                            'cluster_id': cluster_id,
+                            'citations': [
+                                {
+                                    'citation': c.citation,
+                                    'extracted_case_name': c.extracted_case_name,
+                                    'extracted_date': c.extracted_date,
+                                    'canonical_name': c.canonical_name,
+                                    'canonical_date': c.canonical_date,
+                                    'confidence': c.confidence,
+                                    'source': c.source,
+                                    'url': c.url,
+                                    'court': c.court or '',
+                                    'context': c.context,
+                                    'verified': c.verified,
+                                    'parallel_citations': c.parallel_citations or []
+                                } for c in cluster_citations
+                            ],
+                            'size': len(cluster_citations),
+                            'has_parallel_citations': len(cluster_citations) > 1,
+                            'canonical_name': cluster_citations[0].canonical_name if cluster_citations else None,
+                            'canonical_date': cluster_citations[0].canonical_date if cluster_citations else None,
+                            'extracted_case_name': cluster_citations[0].extracted_case_name if cluster_citations else None,
+                            'extracted_date': cluster_citations[0].extracted_date if cluster_citations else None,
+                            'url': cluster_citations[0].url if cluster_citations else None,
+                            'source': cluster_citations[0].source if cluster_citations else 'fallback'
+                        }
+                        rebuilt_clusters.append(cluster_data)
+                    clusters = rebuilt_clusters
+                    print(f"[DEBUG PRINT] Using rebuilt clusters: {len(clusters)}")
+                    logger.info(f"Using rebuilt clusters: {len(clusters)}")
+            
             return {
                 'status': 'completed',
                 'citations': processed_citations,

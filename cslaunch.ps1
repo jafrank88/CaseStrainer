@@ -550,6 +550,17 @@ function Invoke-VueFrontendBuild {
     finally {
         Pop-Location
     }
+
+    # After Vue frontend build, copy assets to static/assets
+    $distDir = Join-Path $PSScriptRoot "casestrainer-vue-new\dist"
+    $staticAssetsDir = Join-Path $PSScriptRoot "static\assets"
+    if (Test-Path $distDir) {
+        Write-Host "Copying Vue build assets to static/assets..." -ForegroundColor Yellow
+        Copy-Item -Path (Join-Path $distDir "*") -Destination $staticAssetsDir -Recurse -Force
+        Write-Host "Assets copied to $staticAssetsDir" -ForegroundColor Green
+    } else {
+        Write-Host "Vue build output directory not found: $distDir" -ForegroundColor Red
+    }
 }
 
 function Test-DockerAvailability {
@@ -1763,8 +1774,41 @@ function Show-Menu {
             Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
             Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
             Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-            Write-Host "Rebuilding backend image to ensure all Python code changes are included..." -ForegroundColor Yellow
-            docker-compose -f docker-compose.prod.yml build backend-prod
+            
+            # Smart rebuild detection
+            Write-Host "Analyzing code changes to determine rebuild strategy..." -ForegroundColor Cyan
+            $needsFullRebuild = $false
+            
+            try {
+                # Check for import/dependency changes that require full rebuild
+                $recentChanges = git log --name-only --pretty=format: --since="1 hour ago" 2>$null | Where-Object { $_ -ne "" }
+                if ($recentChanges) {
+                    $importChanges = $recentChanges | Where-Object { 
+                        $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
+                    }
+                    $depChanges = $recentChanges | Where-Object { 
+                        $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
+                    }
+                    
+                    if ($importChanges -or $depChanges) {
+                        $needsFullRebuild = $true
+                        Write-Host "⚠️ Detected import/dependency changes - recommending full rebuild for safety" -ForegroundColor Yellow
+                        if ($importChanges) { Write-Host "   - Python import changes detected" -ForegroundColor Gray }
+                        if ($depChanges) { Write-Host "   - Dependency file changes detected" -ForegroundColor Gray }
+                    }
+                }
+            } catch {
+                Write-Host "⚠️ Could not analyze git history - proceeding with backend rebuild" -ForegroundColor Yellow
+            }
+            
+            if ($needsFullRebuild) {
+                Write-Host "🔄 Performing full rebuild due to detected changes..." -ForegroundColor Yellow
+                $result = Start-DockerProduction -ForceRebuild
+            } else {
+                Write-Host "🔄 Rebuilding backend image to ensure Python code changes are included..." -ForegroundColor Cyan
+                docker-compose -f docker-compose.prod.yml build backend
+                $result = Start-DockerProduction
+            }
 
             $result = Start-DockerProduction
             if (-not $result) {
@@ -2021,8 +2065,41 @@ try {
                 Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
                 Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
                 Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-                Write-Host "Rebuilding backend image to ensure all Python code changes are included..." -ForegroundColor Yellow
-                docker-compose -f docker-compose.prod.yml build backend-prod
+                
+                # Smart rebuild detection
+                Write-Host "Analyzing code changes to determine rebuild strategy..." -ForegroundColor Cyan
+                $needsFullRebuild = $false
+                
+                try {
+                    # Check for import/dependency changes that require full rebuild
+                    $recentChanges = git log --name-only --pretty=format: --since="1 hour ago" 2>$null | Where-Object { $_ -ne "" }
+                    if ($recentChanges) {
+                        $importChanges = $recentChanges | Where-Object { 
+                            $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
+                        }
+                        $depChanges = $recentChanges | Where-Object { 
+                            $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
+                        }
+                        
+                        if ($importChanges -or $depChanges) {
+                            $needsFullRebuild = $true
+                            Write-Host "⚠️ Detected import/dependency changes - recommending full rebuild for safety" -ForegroundColor Yellow
+                            if ($importChanges) { Write-Host "   - Python import changes detected" -ForegroundColor Gray }
+                            if ($depChanges) { Write-Host "   - Dependency file changes detected" -ForegroundColor Gray }
+                        }
+                    }
+                } catch {
+                    Write-Host "⚠️ Could not analyze git history - proceeding with backend rebuild" -ForegroundColor Yellow
+                }
+                
+                if ($needsFullRebuild) {
+                    Write-Host "🔄 Performing full rebuild due to detected changes..." -ForegroundColor Yellow
+                    $result = Start-DockerProduction -ForceRebuild
+                } else {
+                    Write-Host "🔄 Rebuilding backend image to ensure Python code changes are included..." -ForegroundColor Cyan
+                    docker-compose -f docker-compose.prod.yml build backend
+                    $result = Start-DockerProduction
+                }
 
                 $result = Start-DockerProduction
                 if (-not $result) {
@@ -2067,6 +2144,10 @@ try {
                 Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
                 Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                 $result = Start-DockerProduction -ForceRebuild
+                if (-not $result) {
+                    Write-Host "❌ Docker production failed" -ForegroundColor Red
+                    exit 1
+                }
                 # Run production test suite
                 Write-Host "Running production test suite..." -ForegroundColor Cyan
                 $testLog = Join-Path $PSScriptRoot "logs/production_test.log"

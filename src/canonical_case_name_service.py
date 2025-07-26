@@ -537,13 +537,20 @@ class CanonicalCaseNameService:
                     pass
             if found_valid_result:
                 candidate_name = found_valid_result.get('title')
+                url = found_valid_result.get('url')
+                domain = None
+                if url:
+                    from urllib.parse import urlparse
+                    domain = urlparse(url).netloc.lower()
+                if not domain:
+                    domain = found_valid_result.get('source', 'Web Search')
                 return CanonicalResult(
                     case_name=candidate_name,
                     date=None,  # Date extraction can be added if available
                     court=None,
                     docket_number=None,
-                    url=found_valid_result.get('url'),
-                    source=f"fallback: {found_valid_result.get('source', 'Web Search')}",
+                    url=url,
+                    source=domain,
                     confidence=found_valid_result.get('legal_relevance_score', 0) / 100.0,
                     verified=found_valid_result.get('legal_relevance_score', 0) >= 70
                 )
@@ -608,13 +615,20 @@ class CanonicalCaseNameService:
                     pass
             if found_valid_result:
                 candidate_name = found_valid_result.get('title')
+                url = found_valid_result.get('url')
+                domain = None
+                if url:
+                    from urllib.parse import urlparse
+                    domain = urlparse(url).netloc.lower()
+                if not domain:
+                    domain = found_valid_result.get('source', 'Web Search')
                 return CanonicalResult(
                     case_name=candidate_name,
                     date=None,  # Date extraction can be added if available
                     court=None,
                     docket_number=None,
-                    url=found_valid_result.get('url'),
-                    source=f"fallback: {found_valid_result.get('source', 'Web Search')}",
+                    url=url,
+                    source=domain,
                     confidence=found_valid_result.get('legal_relevance_score', 0) / 100.0,
                     verified=found_valid_result.get('legal_relevance_score', 0) >= 70
                 )
@@ -637,13 +651,20 @@ class CanonicalCaseNameService:
                     print(f"[DEBUG] [WEBSEARCH] Rejected candidate name: {candidate_name}")
                     return None
                 print(f"[DEBUG] [WEBSEARCH] Accepted candidate name: {candidate_name}")
+                url = best.get('url')
+                domain = None
+                if url:
+                    from urllib.parse import urlparse
+                    domain = urlparse(url).netloc.lower()
+                if not domain:
+                    domain = best.get('source', 'Web Search')
                 return CanonicalResult(
                     case_name=candidate_name,
                     date=None,  # Date extraction can be added if available
                     court=None,
                     docket_number=None,
-                    url=best.get('url'),
-                    source=f"fallback: {best.get('source', 'Web Search')}",
+                    url=url,
+                    source=domain,
                     confidence=best.get('legal_relevance_score', 0) / 100.0,
                     verified=best.get('legal_relevance_score', 0) >= 70
                 )

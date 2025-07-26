@@ -194,18 +194,21 @@ const citationsNeedingAttention = computed(() => {
       })
     })
   }
-  
   // For individual citations (no clusters)
   if (props.results?.citations) {
     const imperfectCitations = props.results.citations.filter(citation => {
       const score = calculateCitationScore(citation)
       return score < 4
     })
-    
-    // Return as a single cluster for display consistency
-    return imperfectCitations.length > 0 ? [{ citations: imperfectCitations }] : []
+    // Group by extracted_case_name + extracted_date
+    const grouped = {};
+    imperfectCitations.forEach(c => {
+      const key = `${c.extracted_case_name || 'N/A'}||${c.extracted_date || 'N/A'}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(c);
+    });
+    return Object.values(grouped).map(citations => ({ citations }));
   }
-  
   return []
 })
 
@@ -256,6 +259,31 @@ const isStatuteOrRegulation = (citation) => {
          /\d+\s+C\.?\s*F\.?\s*R\.?\s*[§]?\s*\d+/i.test(text)
 }
 
+// Utility: Acceptable web content sites for legal citations
+const ACCEPTABLE_WEB_SITES = [
+  'courtlistener.com',
+  'justia.com',
+  'leagle.com',
+  'caselaw.findlaw.com',
+  'scholar.google.com',
+  'cetient.com',
+  'casetext.com',
+  'openjurist.org',
+  'vlex.com',
+  'supremecourt.gov',
+  'uscourts.gov',
+  'law.cornell.edu',
+  'law.duke.edu',
+  'westlaw.com',
+  'lexis.com',
+  'anylaw.com' // explicitly included as requested
+];
+
+function isAcceptableWebSource(domain) {
+  if (!domain) return false;
+  return ACCEPTABLE_WEB_SITES.some(site => domain.endsWith(site));
+}
+
 // Remove clustersPerPage, totalClusterPages, paginatedClusters
 // Only use filteredClusters for rendering
 
@@ -267,11 +295,11 @@ const filters = computed(() => [
 
 // Helper functions to handle the actual data structure
 const getCaseName = (citation) => {
-  return citation.case_name || citation.canonical_name || citation.extracted_case_name || null
+  return citation.canonical_name || citation.extracted_case_name || null
 }
 
 const getCanonicalCaseName = (citation) => {
-  return citation.case_name || citation.canonical_name || null
+  return citation.canonical_name || null
 }
 
 const getExtractedCaseName = (citation) => {

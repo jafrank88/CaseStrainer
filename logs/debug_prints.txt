@@ -615,3 +615,1358 @@ P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App.
 Marintorres, 
 ---
 [DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 100 Wn. 2d 212
+[DEBUG] Context:
+el is of “paramount importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)
+---
+[DEBUG] No case name match for citation: 100 Wn. 2d 212
+[DEBUG] Citation: 196 Wn. 2d 285
+[DEBUG] Context:
+to actively provide criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 466 P.3d 231 (2020)
+---
+[DEBUG] No case name match for citation: 196 Wn. 2d 285
+[DEBUG] Citation: 193 Wn. 2d 102
+[DEBUG] Context:
+ot entitled to reimbursement from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 440 P.3d 988 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 102
+[DEBUG] Citation: 144 Wn. 2d 403
+[DEBUG] Context:
+e in question,’ ” and (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 27 P.3d 1149 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 403
+[DEBUG] Citation: 193 Wn. 2d 704
+[DEBUG] Context:
+ights that do not belong to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 445 P.3d 533 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 704
+[DEBUG] Citation: 124 Wn. 2d 402
+[DEBUG] Context:
+o only parties who were intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 879 P.2d 920 (1994)
+---
+[DEBUG] No case name match for citation: 124 Wn. 2d 402
+[DEBUG] Citation: 195 Wn. 2d 742
+[DEBUG] Context:
+dividual constitutional guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 466 P.3d 213 (2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 742
+[DEBUG] Citation: 162 Wn. 2d 474
+[DEBUG] Context:
+acked standing to challenge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 172 P.3d 705 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 474
+[DEBUG] Citation: 199 Wn. 2d 1008
+[DEBUG] Context:
+(county lacked standing to challenge statute for violating the Second Amendment) , review denied , 199 Wn.2d 1008 (2022)
+---
+[DEBUG] No case name match for citation: 199 Wn. 2d 1008
+[DEBUG] Citation: 103 Wn. 2d 663
+[DEBUG] Context:
+, 199 Wn.2d 1008 (2022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 694 P.2d 641 (1985)
+---
+[DEBUG] No case name match for citation: 103 Wn. 2d 663
+[DEBUG] Citation: 150 Wn. 2d 791
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 83 P.3d 419 (2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 791
+[DEBUG] Citation: 87 Wn. 2d 697
+[DEBUG] Context:
+ot escape review.” Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 555 P.2d 1343 (1976)
+---
+[DEBUG] No case name match for citation: 87 Wn. 2d 697
+[DEBUG] Citation: 68 Wn. 2d 652
+[DEBUG] Context:
+constitutional duty.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 414 P.2d 784 (1966)
+---
+[DEBUG] No case name match for citation: 68 Wn. 2d 652
+[DEBUG] Citation: 118 Wn. 2d 709
+[DEBUG] Context:
+y private corporations to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 826 P.2d 1081 (1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 709
+[DEBUG] Citation: 49 Wn. 2d 66
+[DEBUG] Context:
+9- 6-II 23 and their right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 298 P.2d 500 (1956)
+---
+[DEBUG] No case name match for citation: 49 Wn. 2d 66
+[DEBUG] Citation: 466 P.3d 231
+[DEBUG] Context:
+criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 231
+[DEBUG] Citation: 440 P.3d 988
+[DEBUG] Context:
+ment from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 
+---
+[DEBUG] No case name match for citation: 440 P.3d 988
+[DEBUG] Citation: 568 P.3d 1158
+[DEBUG] Context:
+motion to dismiss under 12(b)(6) de novo. Tavaglione v. Dehkhoda & Qadri, P.C., ___Wn. App. 2d___, 
+---
+[DEBUG] No case name match for citation: 568 P.3d 1158
+[DEBUG] Citation: 347 P.3d 487
+[DEBUG] Context:
+tation marks omitted) (quoting Jackson v. Quality Loan Serv. Corp. of Wash., 186 Wn. App. 838, 843, 
+---
+[DEBUG] No case name match for citation: 347 P.3d 487
+[DEBUG] Citation: 508 P.3d 1071
+[DEBUG] Context:
+d 902, 908, 
+---
+[DEBUG] No case name match for citation: 508 P.3d 1071
+[DEBUG] Citation: 150 P.3d 610
+[DEBUG] Context:
+.3d 1071 (2022) (internal quotation marks omitted) (quoting State v. Link , 136 W n. App. 685, 692, 
+---
+[DEBUG] No case name match for citation: 150 P.3d 610
+[DEBUG] Citation: 27 P.3d 1149
+[DEBUG] Context:
+d (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 
+---
+[DEBUG] No case name match for citation: 27 P.3d 1149
+[DEBUG] Citation: 445 P.3d 533
+[DEBUG] Context:
+long to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 
+---
+[DEBUG] No case name match for citation: 445 P.3d 533
+[DEBUG] Citation: 466 P.3d 213
+[DEBUG] Context:
+nal guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 213
+[DEBUG] Citation: 172 P.3d 705
+[DEBUG] Context:
+nge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 
+---
+[DEBUG] No case name match for citation: 172 P.3d 705
+[DEBUG] Citation: 499 P.3d 917
+[DEBUG] Context:
+d 34, 37, 46, No. 60179- 6-II 11 
+---
+[DEBUG] No case name match for citation: 499 P.3d 917
+[DEBUG] Citation: 83 P.3d 419
+[DEBUG] Context:
+s omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 
+---
+[DEBUG] No case name match for citation: 83 P.3d 419
+[DEBUG] Citation: 667 P.2d 630
+[DEBUG] Context:
+importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 
+---
+[DEBUG] No case name match for citation: 667 P.2d 630
+[DEBUG] Citation: 650 P.2d 238
+[DEBUG] Context:
+4- 05, 440 P.3d 988 (2019) (alteration in original) (quoting State v. Agren, 32 W n. App. 827, 828, 
+---
+[DEBUG] No case name match for citation: 650 P.2d 238
+[DEBUG] Citation: 585 P.2d 71
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Seattle Sch. Dist. No. 1 v. State , 90 W n.2d 476, 493- 94, 
+---
+[DEBUG] No case name match for citation: 585 P.2d 71
+[DEBUG] Citation: 879 P.2d 920
+[DEBUG] Context:
+ere intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 
+---
+[DEBUG] No case name match for citation: 879 P.2d 920
+[DEBUG] Citation: 694 P.2d 641
+[DEBUG] Context:
+022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 
+---
+[DEBUG] No case name match for citation: 694 P.2d 641
+[DEBUG] Citation: 555 P.2d 1343
+[DEBUG] Context:
+Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 
+---
+[DEBUG] No case name match for citation: 555 P.2d 1343
+[DEBUG] Citation: 414 P.2d 784
+[DEBUG] Context:
+.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 
+---
+[DEBUG] No case name match for citation: 414 P.2d 784
+[DEBUG] Citation: 826 P.2d 1081
+[DEBUG] Context:
+ns to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 
+---
+[DEBUG] No case name match for citation: 826 P.2d 1081
+[DEBUG] Citation: 298 P.2d 500
+[DEBUG] Context:
+eir right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 
+---
+[DEBUG] No case name match for citation: 298 P.2d 500
+[DEBUG] Citation: 186 Wn. App. 838
+[DEBUG] Context:
+Quality Loan Serv. Corp. of Wash., 
+---
+[DEBUG] No case name match for citation: 186 Wn. App. 838
+[DEBUG] Citation: 372 U.S.335
+[DEBUG] Context:
+to provide counsel to indigent defendants through the Fourteenth Amendment. Gideon v. Wainwright , 372 U.S. 335, 342- 44,
+---
+[DEBUG] No case name match for citation: 372 U.S.335
+[DEBUG] Citation: 578 U.S.5
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 136 S. Ct. 1083,
+---
+[DEBUG] No case name match for citation: 578 U.S.5
+[DEBUG] Citation: 477 U.S.365
+[DEBUG] Context:
+s of individual defendants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574,
+---
+[DEBUG] No case name match for citation: 477 U.S.365
+[DEBUG] Citation: 380 U.S.24
+[DEBUG] Context:
+d efendants, it is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 85 S. Ct. 783,
+---
+[DEBUG] No case name match for citation: 380 U.S.24
+[DEBUG] Citation: 83 S. Ct. 792
+[DEBUG] Context:
+- 44, 
+---
+[DEBUG] No case name match for citation: 83 S. Ct. 792
+[DEBUG] Citation: 136 S. Ct. 1083
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 
+---
+[DEBUG] No case name match for citation: 136 S. Ct. 1083
+[DEBUG] Citation: 106 S. Ct. 2574
+[DEBUG] Context:
+endants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 
+---
+[DEBUG] No case name match for citation: 106 S. Ct. 2574
+[DEBUG] Citation: 85 S. Ct. 783
+[DEBUG] Context:
+is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 
+---
+[DEBUG] No case name match for citation: 85 S. Ct. 783
+[DEBUG] Citation: 9 L. Ed. 2d 799
+[DEBUG] Context:
+- 44, 83 S. Ct. 792, 
+---
+[DEBUG] No case name match for citation: 9 L. Ed. 2d 799
+[DEBUG] Citation: 194 L. Ed. 2d 256
+[DEBUG] Context:
+S. Ct. 1083, 
+---
+[DEBUG] No case name match for citation: 194 L. Ed. 2d 256
+[DEBUG] Citation: 91 L. Ed. 2d 305
+[DEBUG] Context:
+S. Ct. 2574, 
+---
+[DEBUG] No case name match for citation: 91 L. Ed. 2d 305
+[DEBUG] Citation: 13 L. Ed. 2d 630
+[DEBUG] Context:
+S. Ct. 783, 
+---
+[DEBUG] No case name match for citation: 13 L. Ed. 2d 630
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 100 Wn. 2d 212
+[DEBUG] Context:
+el is of “paramount importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)
+---
+[DEBUG] No case name match for citation: 100 Wn. 2d 212
+[DEBUG] Citation: 196 Wn. 2d 285
+[DEBUG] Context:
+to actively provide criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 466 P.3d 231 (2020)
+---
+[DEBUG] No case name match for citation: 196 Wn. 2d 285
+[DEBUG] Citation: 193 Wn. 2d 102
+[DEBUG] Context:
+ot entitled to reimbursement from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 440 P.3d 988 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 102
+[DEBUG] Citation: 144 Wn. 2d 403
+[DEBUG] Context:
+e in question,’ ” and (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 27 P.3d 1149 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 403
+[DEBUG] Citation: 193 Wn. 2d 704
+[DEBUG] Context:
+ights that do not belong to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 445 P.3d 533 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 704
+[DEBUG] Citation: 124 Wn. 2d 402
+[DEBUG] Context:
+o only parties who were intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 879 P.2d 920 (1994)
+---
+[DEBUG] No case name match for citation: 124 Wn. 2d 402
+[DEBUG] Citation: 195 Wn. 2d 742
+[DEBUG] Context:
+dividual constitutional guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 466 P.3d 213 (2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 742
+[DEBUG] Citation: 162 Wn. 2d 474
+[DEBUG] Context:
+acked standing to challenge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 172 P.3d 705 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 474
+[DEBUG] Citation: 199 Wn. 2d 1008
+[DEBUG] Context:
+(county lacked standing to challenge statute for violating the Second Amendment) , review denied , 199 Wn.2d 1008 (2022)
+---
+[DEBUG] No case name match for citation: 199 Wn. 2d 1008
+[DEBUG] Citation: 103 Wn. 2d 663
+[DEBUG] Context:
+, 199 Wn.2d 1008 (2022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 694 P.2d 641 (1985)
+---
+[DEBUG] No case name match for citation: 103 Wn. 2d 663
+[DEBUG] Citation: 150 Wn. 2d 791
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 83 P.3d 419 (2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 791
+[DEBUG] Citation: 87 Wn. 2d 697
+[DEBUG] Context:
+ot escape review.” Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 555 P.2d 1343 (1976)
+---
+[DEBUG] No case name match for citation: 87 Wn. 2d 697
+[DEBUG] Citation: 68 Wn. 2d 652
+[DEBUG] Context:
+constitutional duty.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 414 P.2d 784 (1966)
+---
+[DEBUG] No case name match for citation: 68 Wn. 2d 652
+[DEBUG] Citation: 118 Wn. 2d 709
+[DEBUG] Context:
+y private corporations to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 826 P.2d 1081 (1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 709
+[DEBUG] Citation: 49 Wn. 2d 66
+[DEBUG] Context:
+9- 6-II 23 and their right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 298 P.2d 500 (1956)
+---
+[DEBUG] No case name match for citation: 49 Wn. 2d 66
+[DEBUG] Citation: 466 P.3d 231
+[DEBUG] Context:
+criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 231
+[DEBUG] Citation: 440 P.3d 988
+[DEBUG] Context:
+ment from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 
+---
+[DEBUG] No case name match for citation: 440 P.3d 988
+[DEBUG] Citation: 568 P.3d 1158
+[DEBUG] Context:
+motion to dismiss under 12(b)(6) de novo. Tavaglione v. Dehkhoda & Qadri, P.C., ___Wn. App. 2d___, 
+---
+[DEBUG] No case name match for citation: 568 P.3d 1158
+[DEBUG] Citation: 347 P.3d 487
+[DEBUG] Context:
+tation marks omitted) (quoting Jackson v. Quality Loan Serv. Corp. of Wash., 186 Wn. App. 838, 843, 
+---
+[DEBUG] No case name match for citation: 347 P.3d 487
+[DEBUG] Citation: 508 P.3d 1071
+[DEBUG] Context:
+d 902, 908, 
+---
+[DEBUG] No case name match for citation: 508 P.3d 1071
+[DEBUG] Citation: 150 P.3d 610
+[DEBUG] Context:
+.3d 1071 (2022) (internal quotation marks omitted) (quoting State v. Link , 136 W n. App. 685, 692, 
+---
+[DEBUG] No case name match for citation: 150 P.3d 610
+[DEBUG] Citation: 27 P.3d 1149
+[DEBUG] Context:
+d (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 
+---
+[DEBUG] No case name match for citation: 27 P.3d 1149
+[DEBUG] Citation: 445 P.3d 533
+[DEBUG] Context:
+long to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 
+---
+[DEBUG] No case name match for citation: 445 P.3d 533
+[DEBUG] Citation: 466 P.3d 213
+[DEBUG] Context:
+nal guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 213
+[DEBUG] Citation: 172 P.3d 705
+[DEBUG] Context:
+nge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 
+---
+[DEBUG] No case name match for citation: 172 P.3d 705
+[DEBUG] Citation: 499 P.3d 917
+[DEBUG] Context:
+d 34, 37, 46, No. 60179- 6-II 11 
+---
+[DEBUG] No case name match for citation: 499 P.3d 917
+[DEBUG] Citation: 83 P.3d 419
+[DEBUG] Context:
+s omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 
+---
+[DEBUG] No case name match for citation: 83 P.3d 419
+[DEBUG] Citation: 667 P.2d 630
+[DEBUG] Context:
+importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 
+---
+[DEBUG] No case name match for citation: 667 P.2d 630
+[DEBUG] Citation: 650 P.2d 238
+[DEBUG] Context:
+4- 05, 440 P.3d 988 (2019) (alteration in original) (quoting State v. Agren, 32 W n. App. 827, 828, 
+---
+[DEBUG] No case name match for citation: 650 P.2d 238
+[DEBUG] Citation: 585 P.2d 71
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Seattle Sch. Dist. No. 1 v. State , 90 W n.2d 476, 493- 94, 
+---
+[DEBUG] No case name match for citation: 585 P.2d 71
+[DEBUG] Citation: 879 P.2d 920
+[DEBUG] Context:
+ere intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 
+---
+[DEBUG] No case name match for citation: 879 P.2d 920
+[DEBUG] Citation: 694 P.2d 641
+[DEBUG] Context:
+022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 
+---
+[DEBUG] No case name match for citation: 694 P.2d 641
+[DEBUG] Citation: 555 P.2d 1343
+[DEBUG] Context:
+Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 
+---
+[DEBUG] No case name match for citation: 555 P.2d 1343
+[DEBUG] Citation: 414 P.2d 784
+[DEBUG] Context:
+.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 
+---
+[DEBUG] No case name match for citation: 414 P.2d 784
+[DEBUG] Citation: 826 P.2d 1081
+[DEBUG] Context:
+ns to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 
+---
+[DEBUG] No case name match for citation: 826 P.2d 1081
+[DEBUG] Citation: 298 P.2d 500
+[DEBUG] Context:
+eir right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 
+---
+[DEBUG] No case name match for citation: 298 P.2d 500
+[DEBUG] Citation: 186 Wn. App. 838
+[DEBUG] Context:
+Quality Loan Serv. Corp. of Wash., 
+---
+[DEBUG] No case name match for citation: 186 Wn. App. 838
+[DEBUG] Citation: 372 U.S.335
+[DEBUG] Context:
+to provide counsel to indigent defendants through the Fourteenth Amendment. Gideon v. Wainwright , 372 U.S. 335, 342- 44,
+---
+[DEBUG] No case name match for citation: 372 U.S.335
+[DEBUG] Citation: 578 U.S.5
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 136 S. Ct. 1083,
+---
+[DEBUG] No case name match for citation: 578 U.S.5
+[DEBUG] Citation: 477 U.S.365
+[DEBUG] Context:
+s of individual defendants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574,
+---
+[DEBUG] No case name match for citation: 477 U.S.365
+[DEBUG] Citation: 380 U.S.24
+[DEBUG] Context:
+d efendants, it is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 85 S. Ct. 783,
+---
+[DEBUG] No case name match for citation: 380 U.S.24
+[DEBUG] Citation: 83 S. Ct. 792
+[DEBUG] Context:
+- 44, 
+---
+[DEBUG] No case name match for citation: 83 S. Ct. 792
+[DEBUG] Citation: 136 S. Ct. 1083
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 
+---
+[DEBUG] No case name match for citation: 136 S. Ct. 1083
+[DEBUG] Citation: 106 S. Ct. 2574
+[DEBUG] Context:
+endants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 
+---
+[DEBUG] No case name match for citation: 106 S. Ct. 2574
+[DEBUG] Citation: 85 S. Ct. 783
+[DEBUG] Context:
+is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 
+---
+[DEBUG] No case name match for citation: 85 S. Ct. 783
+[DEBUG] Citation: 9 L. Ed. 2d 799
+[DEBUG] Context:
+- 44, 83 S. Ct. 792, 
+---
+[DEBUG] No case name match for citation: 9 L. Ed. 2d 799
+[DEBUG] Citation: 194 L. Ed. 2d 256
+[DEBUG] Context:
+S. Ct. 1083, 
+---
+[DEBUG] No case name match for citation: 194 L. Ed. 2d 256
+[DEBUG] Citation: 91 L. Ed. 2d 305
+[DEBUG] Context:
+S. Ct. 2574, 
+---
+[DEBUG] No case name match for citation: 91 L. Ed. 2d 305
+[DEBUG] Citation: 13 L. Ed. 2d 630
+[DEBUG] Context:
+S. Ct. 783, 
+---
+[DEBUG] No case name match for citation: 13 L. Ed. 2d 630
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 123 U.S.456
+[DEBUG] Context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+---
+[DEBUG] No case name match for citation: 123 U.S.456
+[DEBUG] Citation: 100 Wn. 2d 212
+[DEBUG] Context:
+el is of “paramount importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)
+---
+[DEBUG] No case name match for citation: 100 Wn. 2d 212
+[DEBUG] Citation: 196 Wn. 2d 285
+[DEBUG] Context:
+to actively provide criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 466 P.3d 231 (2020)
+---
+[DEBUG] No case name match for citation: 196 Wn. 2d 285
+[DEBUG] Citation: 193 Wn. 2d 102
+[DEBUG] Context:
+ot entitled to reimbursement from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 440 P.3d 988 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 102
+[DEBUG] Citation: 144 Wn. 2d 403
+[DEBUG] Context:
+e in question,’ ” and (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 27 P.3d 1149 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 403
+[DEBUG] Citation: 193 Wn. 2d 704
+[DEBUG] Context:
+ights that do not belong to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 445 P.3d 533 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 704
+[DEBUG] Citation: 124 Wn. 2d 402
+[DEBUG] Context:
+o only parties who were intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 879 P.2d 920 (1994)
+---
+[DEBUG] No case name match for citation: 124 Wn. 2d 402
+[DEBUG] Citation: 195 Wn. 2d 742
+[DEBUG] Context:
+dividual constitutional guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 466 P.3d 213 (2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 742
+[DEBUG] Citation: 162 Wn. 2d 474
+[DEBUG] Context:
+acked standing to challenge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 172 P.3d 705 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 474
+[DEBUG] Citation: 199 Wn. 2d 1008
+[DEBUG] Context:
+(county lacked standing to challenge statute for violating the Second Amendment) , review denied , 199 Wn.2d 1008 (2022)
+---
+[DEBUG] No case name match for citation: 199 Wn. 2d 1008
+[DEBUG] Citation: 103 Wn. 2d 663
+[DEBUG] Context:
+, 199 Wn.2d 1008 (2022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 694 P.2d 641 (1985)
+---
+[DEBUG] No case name match for citation: 103 Wn. 2d 663
+[DEBUG] Citation: 150 Wn. 2d 791
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 83 P.3d 419 (2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 791
+[DEBUG] Citation: 87 Wn. 2d 697
+[DEBUG] Context:
+ot escape review.” Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 555 P.2d 1343 (1976)
+---
+[DEBUG] No case name match for citation: 87 Wn. 2d 697
+[DEBUG] Citation: 68 Wn. 2d 652
+[DEBUG] Context:
+constitutional duty.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 414 P.2d 784 (1966)
+---
+[DEBUG] No case name match for citation: 68 Wn. 2d 652
+[DEBUG] Citation: 118 Wn. 2d 709
+[DEBUG] Context:
+y private corporations to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 826 P.2d 1081 (1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 709
+[DEBUG] Citation: 49 Wn. 2d 66
+[DEBUG] Context:
+9- 6-II 23 and their right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 298 P.2d 500 (1956)
+---
+[DEBUG] No case name match for citation: 49 Wn. 2d 66
+[DEBUG] Citation: 466 P.3d 231
+[DEBUG] Context:
+criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 231
+[DEBUG] Citation: 440 P.3d 988
+[DEBUG] Context:
+ment from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 
+---
+[DEBUG] No case name match for citation: 440 P.3d 988
+[DEBUG] Citation: 568 P.3d 1158
+[DEBUG] Context:
+motion to dismiss under 12(b)(6) de novo. Tavaglione v. Dehkhoda & Qadri, P.C., ___Wn. App. 2d___, 
+---
+[DEBUG] No case name match for citation: 568 P.3d 1158
+[DEBUG] Citation: 347 P.3d 487
+[DEBUG] Context:
+tation marks omitted) (quoting Jackson v. Quality Loan Serv. Corp. of Wash., 186 Wn. App. 838, 843, 
+---
+[DEBUG] No case name match for citation: 347 P.3d 487
+[DEBUG] Citation: 508 P.3d 1071
+[DEBUG] Context:
+d 902, 908, 
+---
+[DEBUG] No case name match for citation: 508 P.3d 1071
+[DEBUG] Citation: 150 P.3d 610
+[DEBUG] Context:
+.3d 1071 (2022) (internal quotation marks omitted) (quoting State v. Link , 136 W n. App. 685, 692, 
+---
+[DEBUG] No case name match for citation: 150 P.3d 610
+[DEBUG] Citation: 27 P.3d 1149
+[DEBUG] Context:
+d (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 
+---
+[DEBUG] No case name match for citation: 27 P.3d 1149
+[DEBUG] Citation: 445 P.3d 533
+[DEBUG] Context:
+long to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 
+---
+[DEBUG] No case name match for citation: 445 P.3d 533
+[DEBUG] Citation: 466 P.3d 213
+[DEBUG] Context:
+nal guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 213
+[DEBUG] Citation: 172 P.3d 705
+[DEBUG] Context:
+nge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 
+---
+[DEBUG] No case name match for citation: 172 P.3d 705
+[DEBUG] Citation: 499 P.3d 917
+[DEBUG] Context:
+d 34, 37, 46, No. 60179- 6-II 11 
+---
+[DEBUG] No case name match for citation: 499 P.3d 917
+[DEBUG] Citation: 83 P.3d 419
+[DEBUG] Context:
+s omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 
+---
+[DEBUG] No case name match for citation: 83 P.3d 419
+[DEBUG] Citation: 667 P.2d 630
+[DEBUG] Context:
+importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 
+---
+[DEBUG] No case name match for citation: 667 P.2d 630
+[DEBUG] Citation: 650 P.2d 238
+[DEBUG] Context:
+4- 05, 440 P.3d 988 (2019) (alteration in original) (quoting State v. Agren, 32 W n. App. 827, 828, 
+---
+[DEBUG] No case name match for citation: 650 P.2d 238
+[DEBUG] Citation: 585 P.2d 71
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Seattle Sch. Dist. No. 1 v. State , 90 W n.2d 476, 493- 94, 
+---
+[DEBUG] No case name match for citation: 585 P.2d 71
+[DEBUG] Citation: 879 P.2d 920
+[DEBUG] Context:
+ere intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 
+---
+[DEBUG] No case name match for citation: 879 P.2d 920
+[DEBUG] Citation: 694 P.2d 641
+[DEBUG] Context:
+022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 
+---
+[DEBUG] No case name match for citation: 694 P.2d 641
+[DEBUG] Citation: 555 P.2d 1343
+[DEBUG] Context:
+Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 
+---
+[DEBUG] No case name match for citation: 555 P.2d 1343
+[DEBUG] Citation: 414 P.2d 784
+[DEBUG] Context:
+.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 
+---
+[DEBUG] No case name match for citation: 414 P.2d 784
+[DEBUG] Citation: 826 P.2d 1081
+[DEBUG] Context:
+ns to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 
+---
+[DEBUG] No case name match for citation: 826 P.2d 1081
+[DEBUG] Citation: 298 P.2d 500
+[DEBUG] Context:
+eir right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 
+---
+[DEBUG] No case name match for citation: 298 P.2d 500
+[DEBUG] Citation: 186 Wn. App. 838
+[DEBUG] Context:
+Quality Loan Serv. Corp. of Wash., 
+---
+[DEBUG] No case name match for citation: 186 Wn. App. 838
+[DEBUG] Citation: 372 U.S.335
+[DEBUG] Context:
+to provide counsel to indigent defendants through the Fourteenth Amendment. Gideon v. Wainwright , 372 U.S. 335, 342- 44,
+---
+[DEBUG] No case name match for citation: 372 U.S.335
+[DEBUG] Citation: 578 U.S.5
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 136 S. Ct. 1083,
+---
+[DEBUG] No case name match for citation: 578 U.S.5
+[DEBUG] Citation: 477 U.S.365
+[DEBUG] Context:
+s of individual defendants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574,
+---
+[DEBUG] No case name match for citation: 477 U.S.365
+[DEBUG] Citation: 380 U.S.24
+[DEBUG] Context:
+d efendants, it is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 85 S. Ct. 783,
+---
+[DEBUG] No case name match for citation: 380 U.S.24
+[DEBUG] Citation: 83 S. Ct. 792
+[DEBUG] Context:
+- 44, 
+---
+[DEBUG] No case name match for citation: 83 S. Ct. 792
+[DEBUG] Citation: 136 S. Ct. 1083
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 
+---
+[DEBUG] No case name match for citation: 136 S. Ct. 1083
+[DEBUG] Citation: 106 S. Ct. 2574
+[DEBUG] Context:
+endants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 
+---
+[DEBUG] No case name match for citation: 106 S. Ct. 2574
+[DEBUG] Citation: 85 S. Ct. 783
+[DEBUG] Context:
+is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 
+---
+[DEBUG] No case name match for citation: 85 S. Ct. 783
+[DEBUG] Citation: 9 L. Ed. 2d 799
+[DEBUG] Context:
+- 44, 83 S. Ct. 792, 
+---
+[DEBUG] No case name match for citation: 9 L. Ed. 2d 799
+[DEBUG] Citation: 194 L. Ed. 2d 256
+[DEBUG] Context:
+S. Ct. 1083, 
+---
+[DEBUG] No case name match for citation: 194 L. Ed. 2d 256
+[DEBUG] Citation: 91 L. Ed. 2d 305
+[DEBUG] Context:
+S. Ct. 2574, 
+---
+[DEBUG] No case name match for citation: 91 L. Ed. 2d 305
+[DEBUG] Citation: 13 L. Ed. 2d 630
+[DEBUG] Context:
+S. Ct. 783, 
+---
+[DEBUG] No case name match for citation: 13 L. Ed. 2d 630
+[DEBUG] Citation: 100 Wn. 2d 212
+[DEBUG] Context:
+el is of “paramount importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)
+---
+[DEBUG] No case name match for citation: 100 Wn. 2d 212
+[DEBUG] Citation: 196 Wn. 2d 285
+[DEBUG] Context:
+to actively provide criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 466 P.3d 231 (2020)
+---
+[DEBUG] No case name match for citation: 196 Wn. 2d 285
+[DEBUG] Citation: 193 Wn. 2d 102
+[DEBUG] Context:
+ot entitled to reimbursement from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 440 P.3d 988 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 102
+[DEBUG] Citation: 144 Wn. 2d 403
+[DEBUG] Context:
+e in question,’ ” and (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 27 P.3d 1149 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 403
+[DEBUG] Citation: 193 Wn. 2d 704
+[DEBUG] Context:
+ights that do not belong to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 445 P.3d 533 (2019)
+---
+[DEBUG] No case name match for citation: 193 Wn. 2d 704
+[DEBUG] Citation: 124 Wn. 2d 402
+[DEBUG] Context:
+o only parties who were intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 879 P.2d 920 (1994)
+---
+[DEBUG] No case name match for citation: 124 Wn. 2d 402
+[DEBUG] Citation: 195 Wn. 2d 742
+[DEBUG] Context:
+dividual constitutional guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 466 P.3d 213 (2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 742
+[DEBUG] Citation: 162 Wn. 2d 474
+[DEBUG] Context:
+acked standing to challenge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 172 P.3d 705 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 474
+[DEBUG] Citation: 199 Wn. 2d 1008
+[DEBUG] Context:
+(county lacked standing to challenge statute for violating the Second Amendment) , review denied , 199 Wn.2d 1008 (2022)
+---
+[DEBUG] No case name match for citation: 199 Wn. 2d 1008
+[DEBUG] Citation: 103 Wn. 2d 663
+[DEBUG] Context:
+, 199 Wn.2d 1008 (2022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 694 P.2d 641 (1985)
+---
+[DEBUG] No case name match for citation: 103 Wn. 2d 663
+[DEBUG] Citation: 150 Wn. 2d 791
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 83 P.3d 419 (2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 791
+[DEBUG] Citation: 87 Wn. 2d 697
+[DEBUG] Context:
+ot escape review.” Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 555 P.2d 1343 (1976)
+---
+[DEBUG] No case name match for citation: 87 Wn. 2d 697
+[DEBUG] Citation: 68 Wn. 2d 652
+[DEBUG] Context:
+constitutional duty.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 414 P.2d 784 (1966)
+---
+[DEBUG] No case name match for citation: 68 Wn. 2d 652
+[DEBUG] Citation: 118 Wn. 2d 709
+[DEBUG] Context:
+y private corporations to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 826 P.2d 1081 (1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 709
+[DEBUG] Citation: 49 Wn. 2d 66
+[DEBUG] Context:
+9- 6-II 23 and their right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 298 P.2d 500 (1956)
+---
+[DEBUG] No case name match for citation: 49 Wn. 2d 66
+[DEBUG] Citation: 466 P.3d 231
+[DEBUG] Context:
+criminal defense services to those who cannot afford it. See Davison v. State , 196 Wn.2d 285, 293, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 231
+[DEBUG] Citation: 440 P.3d 988
+[DEBUG] Context:
+ment from the State. ’ ” Thurston County ex rel. Snaza v. City of Olympia , 193 Wn.2d 102, 104- 05, 
+---
+[DEBUG] No case name match for citation: 440 P.3d 988
+[DEBUG] Citation: 568 P.3d 1158
+[DEBUG] Context:
+motion to dismiss under 12(b)(6) de novo. Tavaglione v. Dehkhoda & Qadri, P.C., ___Wn. App. 2d___, 
+---
+[DEBUG] No case name match for citation: 568 P.3d 1158
+[DEBUG] Citation: 347 P.3d 487
+[DEBUG] Context:
+tation marks omitted) (quoting Jackson v. Quality Loan Serv. Corp. of Wash., 186 Wn. App. 838, 843, 
+---
+[DEBUG] No case name match for citation: 347 P.3d 487
+[DEBUG] Citation: 508 P.3d 1071
+[DEBUG] Context:
+d 902, 908, 
+---
+[DEBUG] No case name match for citation: 508 P.3d 1071
+[DEBUG] Citation: 150 P.3d 610
+[DEBUG] Context:
+.3d 1071 (2022) (internal quotation marks omitted) (quoting State v. Link , 136 W n. App. 685, 692, 
+---
+[DEBUG] No case name match for citation: 150 P.3d 610
+[DEBUG] Citation: 27 P.3d 1149
+[DEBUG] Context:
+d (2) that they have suffered “injury in fact. ” To-Ro Trade Shows v. Collins , 144 Wn.2d 403, 414, 
+---
+[DEBUG] No case name match for citation: 27 P.3d 1149
+[DEBUG] Citation: 445 P.3d 533
+[DEBUG] Context:
+long to them. See Wash. State Hous. Fin. Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 
+---
+[DEBUG] No case name match for citation: 445 P.3d 533
+[DEBUG] Citation: 466 P.3d 213
+[DEBUG] Context:
+nal guarantees . See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way , 195 Wn.2d 742, 773, 
+---
+[DEBUG] No case name match for citation: 466 P.3d 213
+[DEBUG] Citation: 172 P.3d 705
+[DEBUG] Context:
+nge city’s excise tax for violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482- 83, 
+---
+[DEBUG] No case name match for citation: 172 P.3d 705
+[DEBUG] Citation: 499 P.3d 917
+[DEBUG] Context:
+d 34, 37, 46, No. 60179- 6-II 11 
+---
+[DEBUG] No case name match for citation: 499 P.3d 917
+[DEBUG] Citation: 83 P.3d 419
+[DEBUG] Context:
+s omitted) (quoting Grant County Fire Prot. Dist. No. 5 v. City of Moses Lake , 150 Wn.2d 791, 803, 
+---
+[DEBUG] No case name match for citation: 83 P.3d 419
+[DEBUG] Citation: 667 P.2d 630
+[DEBUG] Context:
+importance to all persons appearing in our courts.” City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 
+---
+[DEBUG] No case name match for citation: 667 P.2d 630
+[DEBUG] Citation: 650 P.2d 238
+[DEBUG] Context:
+4- 05, 440 P.3d 988 (2019) (alteration in original) (quoting State v. Agren, 32 W n. App. 827, 828, 
+---
+[DEBUG] No case name match for citation: 650 P.2d 238
+[DEBUG] Citation: 585 P.2d 71
+[DEBUG] Context:
+ernal quotation marks omitted) (quoting Seattle Sch. Dist. No. 1 v. State , 90 W n.2d 476, 493- 94, 
+---
+[DEBUG] No case name match for citation: 585 P.2d 71
+[DEBUG] Citation: 879 P.2d 920
+[DEBUG] Context:
+ere intended to be affected by the statute being challenged) ; Walker v. Munro, 124 Wn.2d 402, 419, 
+---
+[DEBUG] No case name match for citation: 879 P.2d 920
+[DEBUG] Citation: 694 P.2d 641
+[DEBUG] Context:
+022) . But this “is not an insurmountable barrier .” City of Seattle v. State , 103 Wn.2d 663, 668, 
+---
+[DEBUG] No case name match for citation: 694 P.2d 641
+[DEBUG] Citation: 555 P.2d 1343
+[DEBUG] Context:
+Grant County , 150 Wn.2d at 803 (emphasis omitted) ; see, e.g., Vovos v. Grant , 87 Wn.2d 697, 701, 
+---
+[DEBUG] No case name match for citation: 555 P.2d 1343
+[DEBUG] Citation: 414 P.2d 784
+[DEBUG] Context:
+.” Opening Br. at 41 (quoting Davison , 196 Wn.2d at 293; State v. Kanistanaux , 68 Wn.2d 652, 654, 
+---
+[DEBUG] No case name match for citation: 414 P.2d 784
+[DEBUG] Citation: 826 P.2d 1081
+[DEBUG] Context:
+ns to assert standing for constitutional claims); City of Ellensburg v. State , 118 Wn.2d 709, 715, 
+---
+[DEBUG] No case name match for citation: 826 P.2d 1081
+[DEBUG] Citation: 298 P.2d 500
+[DEBUG] Context:
+eir right to counsel. See id ; Davison, 196 Wn.2d at 295; see also State v. Case , 49 Wn.2d 66, 71, 
+---
+[DEBUG] No case name match for citation: 298 P.2d 500
+[DEBUG] Citation: 186 Wn. App. 838
+[DEBUG] Context:
+Quality Loan Serv. Corp. of Wash., 
+---
+[DEBUG] No case name match for citation: 186 Wn. App. 838
+[DEBUG] Citation: 372 U.S.335
+[DEBUG] Context:
+to provide counsel to indigent defendants through the Fourteenth Amendment. Gideon v. Wainwright , 372 U.S. 335, 342- 44,
+---
+[DEBUG] No case name match for citation: 372 U.S.335
+[DEBUG] Citation: 578 U.S.5
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 136 S. Ct. 1083,
+---
+[DEBUG] No case name match for citation: 578 U.S.5
+[DEBUG] Citation: 477 U.S.365
+[DEBUG] Context:
+s of individual defendants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574,
+---
+[DEBUG] No case name match for citation: 477 U.S.365
+[DEBUG] Citation: 380 U.S.24
+[DEBUG] Context:
+d efendants, it is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 85 S. Ct. 783,
+---
+[DEBUG] No case name match for citation: 380 U.S.24
+[DEBUG] Citation: 83 S. Ct. 792
+[DEBUG] Context:
+- 44, 
+---
+[DEBUG] No case name match for citation: 83 S. Ct. 792
+[DEBUG] Citation: 136 S. Ct. 1083
+[DEBUG] Context:
+L. Ed. 2d 799 (1963); Luis v. United States , 578 U.S. 5, 11, 
+---
+[DEBUG] No case name match for citation: 136 S. Ct. 1083
+[DEBUG] Citation: 106 S. Ct. 2574
+[DEBUG] Context:
+endants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 
+---
+[DEBUG] No case name match for citation: 106 S. Ct. 2574
+[DEBUG] Citation: 85 S. Ct. 783
+[DEBUG] Context:
+is also a legitimate interest of government itself . See Singer v. United States , 380 U.S. 24, 36, 
+---
+[DEBUG] No case name match for citation: 85 S. Ct. 783
+[DEBUG] Citation: 9 L. Ed. 2d 799
+[DEBUG] Context:
+- 44, 83 S. Ct. 792, 
+---
+[DEBUG] No case name match for citation: 9 L. Ed. 2d 799
+[DEBUG] Citation: 194 L. Ed. 2d 256
+[DEBUG] Context:
+S. Ct. 1083, 
+---
+[DEBUG] No case name match for citation: 194 L. Ed. 2d 256
+[DEBUG] Citation: 91 L. Ed. 2d 305
+[DEBUG] Context:
+S. Ct. 2574, 
+---
+[DEBUG] No case name match for citation: 91 L. Ed. 2d 305
+[DEBUG] Citation: 13 L. Ed. 2d 630
+[DEBUG] Context:
+S. Ct. 783, 
+---
+[DEBUG] No case name match for citation: 13 L. Ed. 2d 630

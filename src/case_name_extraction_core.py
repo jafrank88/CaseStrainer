@@ -68,10 +68,11 @@ def is_citation_like(text: str) -> bool:
         return True
     return False
 
-def clean_case_name_enhanced(case_name: str) -> str:
+def clean_case_name_enhanced(case_name: str, context_before: str = "") -> str:
     """
     Enhanced case name cleaning with better punctuation and signal word removal.
-    If the result starts with 'v.' or 'vs.', treat as a fragment and return empty string.
+    If the result starts with 'v.' or 'vs.', attempt to prepend the word before 'v.' from the context window.
+    If no such word exists, return empty string.
     """
     if not case_name:
         return ""
@@ -91,9 +92,14 @@ def clean_case_name_enhanced(case_name: str) -> str:
     case_name = case_name.rstrip('.,;:')
     case_name = case_name.strip()
     case_name = re.sub(r'\s+', ' ', case_name)
-    # If the cleaned case name starts with 'v.' or 'vs.', treat as a fragment and return empty string
+    # If the cleaned case name starts with 'v.' or 'vs.', try to prepend the word before 'v.' from context
     if re.match(r'^(v\.|vs\.)\b', case_name, re.IGNORECASE):
-        return ""
+        # Try to find the word before 'v.' in the context
+        match = re.search(r'(\b\w+)\s+(v\.|vs\.)\b', context_before[-100:])
+        if match:
+            case_name = f"{match.group(1)} {case_name}"
+        else:
+            return ""
     return case_name
 
 def preprocess_contractions(text: str) -> str:
@@ -107,41 +113,101 @@ def preprocess_contractions(text: str) -> str:
 
 def extract_case_name_precise(context_before: str, citation: str) -> str:
     """
-    Extract case name with precise patterns to avoid capturing too much text.
-    Handles 'v.', 'vs.', 'In re', 'Estate of', and 'State v.' cases.
-    Prints debug output of the context window and regex matches.
+    Extract case name with robust patterns to avoid capturing too much text.
+    Handles 'v.', 'vs.', 'In re', 'Estate of', 'State v.', and allows for lowercase prefixes (e.g., 'ex rel.').
+    Enhanced to better handle Washington State Reports citations.
     """
     import logging
     logger = logging.getLogger("case_name_extraction")
+    
     if not context_before:
         return ""
-    context = context_before[-80:] if len(context_before) > 80 else context_before
-    # Preprocess contractions
+    
+    # For Washington State Reports, use a larger context window
+    is_washington_cite = any(pat in citation for pat in ['Wn.', 'Wn.2d', 'Wash.', 'Wash.2d'])
+    context_window = 500 if is_washington_cite else 200  # Larger window for Washington citations
+    
+    # Get context window, ensuring we don't go beyond the start of the text
+    context = context_before[-context_window:] if len(context_before) > context_window else context_before
+    
+    # Preprocess contractions and normalize whitespace
     context = preprocess_contractions(context)
-    # Debug: print the context window
-    print("\n[DEBUG] Context window for extract_case_name_precise:")
-    print(repr(context))
-    # Updated regex: allow for lowercase after apostrophe in party names
-    party_pattern = r"[A-Z][A-Za-z0-9&.,'\- ]*(?:’[a-zA-Z])?[A-Za-z0-9&.,'\- ]*"
-    case_name_pattern = rf"({party_pattern})\s+v\.?\s+({party_pattern})(?=,|\s)"
-    v_matches = list(re.finditer(case_name_pattern, context))
-    print(f"[DEBUG] Found {len(v_matches)} 'v.' matches in context.")
-    for idx, m in enumerate(v_matches):
-        print(f"[DEBUG] v. match {idx+1}: '{m.group(0)}' at {m.start()}-{m.end()}")
-    if v_matches:
-        last_v_match = v_matches[-1]
-        print(f"[DEBUG] Selected v. match: '{last_v_match.group(0)}' at {last_v_match.start()}-{last_v_match.end()}")
-        between = context[last_v_match.end():]
-        between_clean = re.sub(r'\s+', '', between)
-        between_clean = re.sub(r'^[,\d]*', '', between_clean)
-        if between_clean.startswith(citation.replace(' ', '')):
-            case_name = clean_case_name_enhanced(last_v_match.group(0))
-            print(f"[DEBUG] Closest v. match accepted: '{case_name}'")
-            if (case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name)
-                and not _is_header_or_clerical_text(case_name) and len(case_name.split()) <= 10):
-                print(f"[DEBUG] Valid case name found: '{case_name}'")
+    context = ' '.join(context.split())  # Normalize all whitespace to single spaces
+    
+    # Debug logging
+    logger.debug(f"[extract_case_name_precise] Processing citation: {citation}")
+    logger.debug(f"[extract_case_name_precise] Context: {context}")
+    
+    # Define patterns for different citation types
+    patterns = []
+    
+    # 1. Standard v. pattern (most common)
+    prefix_pattern = r"(?:[A-Z][a-z]+|[a-z]+(?: [a-z]+)*\.?|In re|Estate of|State|People|United States|City|County|Town|Village|Board|Department|Commission|Committee|District|School District|The)"
+    party_pattern = r"[A-Z][A-Za-z0-9&.,'’\- ]*(?:’[a-zA-Z])?[A-Za-z0-9&.,'’\- ]*"
+    
+    # Standard v. pattern with flexible spacing
+    patterns.append(
+        (rf"({prefix_pattern}\s+{party_pattern})\s+v\.?\s+({party_pattern})(?=[,\s\n]|{re.escape(citation)})", 1.0)
+    )
+    
+    # 2. Washington-specific patterns (more permissive with spacing and punctuation)
+    if is_washington_cite:
+        # Pattern for State v. Defendant, 999 Wn.2d 999
+        patterns.append(
+            (r"(State\s+v\.\s+[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.9)
+        )
+        # Pattern for In re Something, 999 Wn.2d 999
+        patterns.append(
+            (r"(In\s+re\s+[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.9)
+        )
+    
+    # 3. More general patterns
+    patterns.extend([
+        # Case name ending with comma before citation
+        (r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.8),
+        # Case name ending with comma and spaces before citation
+        (r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.7),
+    ])
+    
+    # Try each pattern in order of specificity
+    for pattern, confidence in patterns:
+        try:
+            matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL))
+            if matches:
+                # Get the match closest to the citation (last match in the context)
+                best_match = matches[-1]
+                case_name = best_match.group(1).strip()
+                
+                # Clean up the case name
+                case_name = clean_case_name_enhanced(case_name, context_before)
+                
+                # Validate the case name
+                if (case_name and 
+                    is_valid_case_name(case_name) and 
+                    not starts_with_signal_word(case_name) and
+                    not _is_header_or_clerical_text(case_name) and 
+                    len(case_name.split()) <= 15):
+                    
+                    logger.debug(f"[extract_case_name_precise] Found case name with pattern {pattern}: {case_name}")
+                    return case_name
+                    
+        except Exception as e:
+            logger.debug(f"[extract_case_name_precise] Error with pattern {pattern}: {e}")
+    
+    # Fallback: Look for case name immediately before the citation
+    if is_washington_cite:
+        # For Washington citations, look for patterns like "State v. Defendant, 999 Wn.2d 999"
+        fallback_pattern = r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation)
+        fallback_matches = list(re.finditer(fallback_pattern, context, re.IGNORECASE | re.DOTALL))
+        
+        if fallback_matches:
+            best_match = fallback_matches[-1]
+            case_name = clean_case_name_enhanced(best_match.group(1), context_before)
+            if is_valid_case_name(case_name):
+                logger.debug(f"[extract_case_name_precise] Found fallback case name: {case_name}")
                 return case_name
-    # Fallback: try other patterns (not shown here for brevity)
+    
+    logger.debug(f"[extract_case_name_precise] No valid case name found for citation: {citation}")
     return ""
 
 def extract_case_name_with_date_adjacency(context_before: str, citation: str) -> str:
@@ -173,7 +239,7 @@ def extract_case_name_with_date_adjacency(context_before: str, citation: str) ->
         logger.debug(f"[extract_case_name_with_date_adjacency] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
         if matches:
             match = matches[-1]
-            case_name = clean_case_name_enhanced(match.group(1))
+            case_name = clean_case_name_enhanced(match.group(1), context_before)
             logger.debug(f"[extract_case_name_with_date_adjacency] Found case name with date adjacency: '{case_name}'")
             if (case_name and 
                 is_valid_case_name(case_name) and 
@@ -210,7 +276,7 @@ def extract_case_name_from_complex_citation(context: str, citation: str) -> str:
         logger.debug(f"[extract_case_name_from_complex_citation] Pattern {i+1}: '{pattern}' found {len(matches)} matches")
         if matches:
             match = matches[-1]
-            case_name = clean_case_name_enhanced(match.group(1))
+            case_name = clean_case_name_enhanced(match.group(1), context)
             logger.debug(f"[extract_case_name_from_complex_citation] Found case name in complex citation: '{case_name}'")
             if case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name):
                 if is_case_name_associated_with_citation(context, case_name, citation):
@@ -332,7 +398,7 @@ def extract_case_name_from_context_enhanced(context_before: str, citation: str) 
             logger.debug(f"[extract_case_name_from_context_enhanced] Match {j+1}: '{match.group(1)}'")
         if matches:
             match = matches[-1]
-            case_name = clean_case_name_enhanced(match.group(1))
+            case_name = clean_case_name_enhanced(match.group(1), context_before)
             logger.debug(f"[extract_case_name_from_context_enhanced] Cleaned case name: '{case_name}'")
             if (case_name and 
                 is_valid_case_name(case_name) and 
@@ -370,7 +436,7 @@ def extract_case_name_global_search(text: str, citation: str) -> str:
             logger.debug(f"[extract_case_name_global_search] Match {j+1}: '{match.group(1)}'")
         if matches:
             match = matches[-1]
-            case_name = clean_case_name_enhanced(match.group(1))
+            case_name = clean_case_name_enhanced(match.group(1), text)
             logger.debug(f"[extract_case_name_global_search] Cleaned case name: '{case_name}'")
             if case_name and is_valid_case_name(case_name) and not starts_with_signal_word(case_name):
                 logger.debug(f"[extract_case_name_global_search] Valid case name found: '{case_name}'")
@@ -474,7 +540,7 @@ def extract_case_name_hinted(text: str, citation: str, canonical_name: str = Non
         for pattern in patterns:
             matches = re.findall(pattern, context_before)
             for match in matches:
-                cleaned = clean_case_name_enhanced(match)
+                cleaned = clean_case_name_enhanced(match, context_before)
                 if cleaned and is_valid_case_name(cleaned):
                     variants.append(cleaned)
         if not variants:

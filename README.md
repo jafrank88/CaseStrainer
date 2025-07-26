@@ -248,13 +248,18 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ### Fixed Issues
 
+- **Date Contamination**: Fixed critical issue where citations were extracting wrong dates from adjacent citations. System now prioritizes dates that appear AFTER citations (pattern: `case name, citation(s), year`) over dates that appear before them
 - **Citation Verification**: Improved hit rates through variant testing
 - **Case Name Extraction**: More accurate extraction with context awareness
 - **Duplicate Citations**: Better deduplication and clustering logic
+- **Case Name Propagation**: Removed 6 dangerous case name/date propagation mechanisms that were causing cross-contamination between citations
 - **API Response**: Enhanced canonical metadata in API responses
 
 ### Improvements
 
+- **Context Isolation**: Enhanced `_extract_isolated_citation_context` method with intelligent boundary detection and date priority logic
+- **Citation Processing**: Improved clustering algorithm with safer propagation mechanisms
+- **cslaunch Enhancement**: Smart rebuild detection in Option 2 - automatically escalates to full rebuild when import/dependency changes are detected
 - **Documentation**: Updated documentation to reflect current system state
 - **Backend Processing**: Improved citation processing pipeline with multiple extraction methods
 - **Error Handling**: Better error messages and fallback mechanisms

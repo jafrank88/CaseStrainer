@@ -1517,7 +1517,7 @@ class ComprehensiveWebSearchEngine:
             'casetext.com': {'weight': 75, 'type': 'primary', 'official': False},
             'openjurist.org': {'weight': 65, 'type': 'secondary', 'official': False},
             'vlex.com': {'weight': 80, 'type': 'primary', 'official': False},
-            
+            'anylaw.com': {'weight': 80, 'type': 'primary', 'official': False},
             # Government sources (very high reliability)
             'supremecourt.gov': {'weight': 100, 'type': 'government', 'official': True},
             'uscourts.gov': {'weight': 100, 'type': 'government', 'official': True},
@@ -1980,7 +1980,10 @@ class ComprehensiveWebSearchEngine:
             # Try multiple vlex search URL patterns for better coverage
             vlex_urls = [
                 f"https://vlex.com/search?q={quote_plus(citation)}",
-                f"https://vlex.com/sites/search?q={quote_plus(citation)}"
+                f"https://vlex.com/sites/search?q={quote_plus(citation)}",
+                # Enhanced: direct app.vlex.com search by citation
+                f"https://app.vlex.com/search/jurisdiction:US/%22{quote_plus(citation)}%22",
+                f"https://app.vlex.com/search/jurisdiction:US/%22{quote_plus(citation)}%22/vid/"
             ]
             
             if case_name:
@@ -1988,7 +1991,10 @@ class ComprehensiveWebSearchEngine:
                 combined_query = f'"{citation}" "{case_name}"'
                 vlex_urls.extend([
                     f"https://vlex.com/search?q={quote_plus(combined_query)}",
-                    f"https://vlex.com/sites/search?q={quote_plus(combined_query)}"
+                    f"https://vlex.com/sites/search?q={quote_plus(combined_query)}",
+                    # Enhanced: direct app.vlex.com search by citation and case name (if supported)
+                    f"https://app.vlex.com/search/jurisdiction:US/%22{quote_plus(citation)}%22%20{quote_plus(case_name)}",
+                    f"https://app.vlex.com/search/jurisdiction:US/%22{quote_plus(citation)}%22%20{quote_plus(case_name)}/vid/"
                 ])
             
             headers = {

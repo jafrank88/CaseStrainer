@@ -4,12 +4,74 @@ Examine ToA context to understand case name extraction issues from a real brief.
 """
 
 import re
+import fitz  # PyMuPDF
 from pathlib import Path
-from typing import List, Set
+from typing import List, Dict, Tuple, Optional, Set
+import json
 
-# Use pdfminer.six for PDF extraction
-from io import StringIO
-from pdfminer.high_level import extract_text
+def extract_citation_contexts(pdf_path: str, window_size: int = 200) -> List[Dict]:
+    """Extract text around citations with context.
+    
+    Args:
+        pdf_path: Path to the PDF file
+        window_size: Number of characters to include before and after citation
+        
+    Returns:
+        List of dicts with citation and its context
+    """
+    doc = fitz.open(pdf_path)
+    results = []
+    
+    # Common citation patterns
+    citation_patterns = [
+        r'\b\d+\s+Wn\.?\s*\d+[a-z]?\b',  # Washington Reports
+        r'\b\d+\s+Wn\.?\s*2d\s+\d+\b',  # Washington Reports 2d
+        r'\b\d+\s+Wash\.?\s*\d+\b',     # Washington Reports (alternate)
+        r'\b\d+\s+Wash\.?\s*App\.?\s*\d+\b',  # Washington Appellate Reports
+        r'\b\d+\s+U\.?\s*S\.?\s*\d+\b',  # US Reports
+        r'\b\d+\s+S\.?\s*Ct\.?\s*\d+\b',  # Supreme Court Reporter
+    ]
+    
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        text = page.get_text()
+        
+        for pattern in citation_patterns:
+            for match in re.finditer(pattern, text):
+                start = max(0, match.start() - window_size)
+                end = min(len(text), match.end() + window_size)
+                context = text[start:end]
+                
+                # Try to find the case name before the citation
+                preceding_text = text[max(0, match.start() - 300):match.start()]
+                case_name = extract_case_name(preceding_text, match.group(0))
+                
+                results.append({
+                    'citation': match.group(0),
+                    'page': page_num + 1,
+                    'context': context,
+                    'case_name': case_name,
+                    'preceding_text': preceding_text[-100:],  # Last 100 chars before citation
+                })
+    
+    doc.close()
+    return results
+
+def extract_case_name(text: str, citation: str) -> str:
+    """Extract case name from text preceding a citation."""
+    # Look for patterns like "State v. Smith, 123 Wn.2d 456"
+    patterns = [
+        r'([A-Z][A-Za-z0-9&.,\'\- ]+?\sv\.\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*' + re.escape(citation),
+        r'(In\s+re\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*' + re.escape(citation),
+        r'([A-Z][A-Za-z0-9&.,\'\- ]+?\sv\.\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s+' + re.escape(citation),
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+        if match:
+            return match.group(1).strip()
+    
+    return ""
 
 def extract_toa_section(text):
     """

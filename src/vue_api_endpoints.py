@@ -471,3 +471,83 @@ def _process_url_input(url):
     except Exception as e:
         logger.error(f"Error queuing URL input: {e}", exc_info=True)
         return jsonify({'error': 'URL processing failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
+
+
+@vue_api.route('/processing_progress', methods=['GET'])
+def processing_progress():
+    """
+    Legacy processing progress endpoint for frontend compatibility.
+    Since we now use immediate processing for small texts and RQ tasks for large files,
+    this endpoint provides appropriate responses for both cases.
+    """
+    try:
+        # Get query parameters
+        total_param = request.args.get('total', '0')
+        task_id = request.args.get('task_id', None)
+        
+        # If we have a task_id, check the RQ task status
+        if task_id:
+            try:
+                from rq import Queue
+                from redis import Redis
+                
+                redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+                redis_conn = Redis.from_url(redis_url)
+                queue = Queue('casestrainer', connection=redis_conn)
+                
+                job = queue.fetch_job(task_id)
+                if job:
+                    if job.is_finished:
+                        result = job.result
+                        if result and result.get('status') in ['success', 'completed']:
+                            citation_count = len(result.get('citations', []))
+                            return jsonify({
+                                'status': 'success',
+                                'processed_citations': citation_count,
+                                'total_citations': citation_count,
+                                'is_complete': True,
+                                'task_id': task_id
+                            })
+                    elif job.is_failed:
+                        return jsonify({
+                            'status': 'error',
+                            'processed_citations': 0,
+                            'total_citations': int(total_param) if total_param.isdigit() else 0,
+                            'is_complete': False,
+                            'error': str(job.exc_info) if job.exc_info else 'Processing failed',
+                            'task_id': task_id
+                        })
+                    else:
+                        # Still processing
+                        estimated_total = int(total_param) if total_param.isdigit() else 100
+                        return jsonify({
+                            'status': 'success',
+                            'processed_citations': 0,
+                            'total_citations': estimated_total,
+                            'is_complete': False,
+                            'task_id': task_id
+                        })
+            except Exception as e:
+                logger.warning(f"Error checking RQ task {task_id}: {e}")
+        
+        # For immediate processing (no task_id), return completed state
+        # This handles the case where small texts are processed immediately
+        estimated_total = int(total_param) if total_param.isdigit() else 0
+        
+        return jsonify({
+            'status': 'success',
+            'processed_citations': estimated_total,
+            'total_citations': estimated_total,
+            'is_complete': True,
+            'message': 'Immediate processing completed'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in processing_progress endpoint: {e}")
+        return jsonify({
+            'status': 'error',
+            'processed_citations': 0,
+            'total_citations': 0,
+            'is_complete': False,
+            'error': str(e)
+        }), 500

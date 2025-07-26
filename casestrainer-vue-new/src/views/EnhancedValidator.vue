@@ -296,7 +296,7 @@ export default {
         if (!clusters.has(primaryCitation)) {
           clusters.set(primaryCitation, {
             cluster_id: `cluster_${primaryCitation.replace(/[^a-zA-Z0-9]/g, '_')}`,
-            canonical_name: citation.canonical_name || citation.case_name || 'N/A',
+            canonical_name: citation.canonical_name || 'N/A',
             canonical_date: citation.canonical_date || null,
             extracted_case_name: citation.extracted_case_name || 'N/A',
             extracted_date: citation.extracted_date || null,
