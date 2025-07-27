@@ -2144,7 +2144,8 @@ try {
                     $result = Start-DockerProduction -ForceRebuild
                 } else {
                     Write-Host "🔄 Rebuilding backend image to ensure Python code changes are included..." -ForegroundColor Cyan
-                    docker-compose -f docker-compose.prod.yml build backend
+                    # Force rebuild of backend to ensure code changes are picked up
+                    docker-compose -f docker-compose.prod.yml build --no-cache backend
                     $result = Start-DockerProduction
                 }
                 

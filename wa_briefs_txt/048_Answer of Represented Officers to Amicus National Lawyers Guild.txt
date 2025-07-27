@@ -1,0 +1,1130 @@
+
+--- Page 1 ---
+ 
+ 
+Case No. 99901-5 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IN THE SUPREME COURT OF 
+THE STATE OF WASHINGTON 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+JANE and JOHN DOES, 1 through 6, 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Appellants, 
+ 
+v. 
+ 
+SEATTLE POLICE DEPARTMENT and the SEATTLE POLICE 
+DEPARTMENT OFFICE OF POLICE ACCOUNTABILITY et al. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Respondents. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ANSWER OF REPRESENTED OFFICERS TO BRIEF OF AMICI 
+CURIAE NATIONAL LAWYERS GUILD  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+TOMLINSON BOMSZTYK RUSS 
+OID NO. 91197 
+ 
+Aric S. Bomsztyk, WSBA #38020 
+Blair M. Russ, WSBA #40374 
+Attorneys for Appellants  
+1000 Second Avenue, Suite 3660 
+Seattle, Washington 98104 
+Telephone: (206) 621-1871 
+Facsimile: (206) 621-9907 
+Email: asb@tbr-law.com 
+ 
+ 
+ 
+ 
+ 
+ 
+bmr@tbr-law.com
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+1012012021 2 :23 PM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+ 
+TABLE OF CONTENTS  
+Page 
+ 
+I. 
+INTRODUCTION  ............................................................. 1 
+ 
+II. RESPONSE TO ISSUES OF CONCERN TO NLG BRIEF
+ ............................................................................................ 3 
+ 
+III. STATEMENT OF THE CASE .......................................... 4 
+ 
+IV. ARGUMENT ...................................................................... 4 
+ 
+1. The Represented Officers Constitutional Rights 
+Supersede the PRA  ....................................................... 5 
+ 
+2. NLG Amici’s Defamatory and Reckless Attempt to 
+Establish a “Compelling Interest” Only Serves to 
+Support Plaintiffs’ Need For First Amendment 
+Protections  ....................................................................  8 
+ 
+a. The NLG Amici Pejoratively Assert a Reckless 
+Unsubstantiated Narrative against the Represented 
+Officers Without Any Support  .................................... 9   
+ 
+3. Amici’s Constitutional Analysis Does Not Account For 
+The Facts Before This Court  ...................................... 15 
+ 
+a. The Represented Officers’ Briefed Their Constitutional 
+Argument and Appropriate Standard  ...................... 15 
+ 
+b. NLG Amici Do Not Discuss the Most Relevant Cases 
+or Properly Explain How A Court Evaluates First 
+Amendment Challenges to a PRA Disclosure  .......... 17 
+ 
+
+--- Page 3 ---
+ 
+i. 
+Doe v. Reed has definite, but limited, value to 
+this Court here  ............................................... 17 
+ 
+ii. 
+Instead of relying on Doe v. Reed, this Court 
+should look to truly instructive First Amendment 
+Expression cases  ............................................ 20 
+ 
+c. The Facts Have Changed Since March 2021 and An 
+Undisputable Chilling Effect Exists Today  .............. 25 
+ 
+4. 
+CONCLUSION ............................................................... 29 
+ 
+ 
+ 
+
+--- Page 4 ---
+ 
+TABLE OF AUTHORITIES 
+Page(s) 
+ 
+WASHINGTON CASES 
+ 
+Freedom Found. v. Gregoire, 178 Wn.2d 686, 695, 310 P.3d 
+1252 (2013)  ........................................................................... 5, 7 
+ 
+Roe v. Anderson, No. 3:14-CV-05810 RBL, 2015 WL 4724739, 
+at *3 (W.D. Wash. Aug. 10, 2015)  .................................... 21, 24 
+ 
+Seattle Times Co. v. Serko, 170 Wn.2d 581, 594-97, 243 P.3d 919 
+(2010)  ..................................................................................... 5-6 
+ 
+Yakima County v. Yakima Herald–Republic, 170 Wn.2d 775, 
+808, 246 P.3d 768 (2011)  .......................................................... 6 
+ 
+ 
+NON-WASHINGTON CASES 
+ 
+Deja Vu of Nashville, Inc. v. Metro. Gov't of Nashville & 
+Davidson Cty., Tennessee, 274 F.3d 377, 395 (6th Cir. 2001)  ...  
+ ............................................................................................. 22-23 
+ 
+Does 1-10 v. Univ. of Washington, 798 F. App’x 1009, 1010 (9th 
+Cir. 2020)  ........................................................................... 21, 23 
+ 
+Dream Palace v. Cty. of Maricopa, 384 F.3d 990, 1012 (9th Cir. 
+2004)  ......................................................................... 5, 20-22, 24 
+ 
+John Doe No. 1 v. Reed, 561 U.S. 186, 200, 130 S.Ct. 2811, 2820, 
+177 L.Ed.2d 493 (2010)  ..................................................... 17-21 
+ 
+McIntyre v. Ohio Elections Comm’n, 514 U.S. 334, 342, 115 
+S.Ct. 1511, 1516, 131 L.Ed.2d 426 (1995)  ......................... 7, 23 
+
+--- Page 5 ---
+ 
+ 
+Nat'l Ass’n for Advancement of Colored People v. State of Ala. 
+ex rel. Patterson, 357 U.S. 449, 462, 78 S.Ct. 1163, 1172, 2 
+L.Ed.2d 1488 (1958)  ................................................................. 7 
+ 
+Shuttlesworth v. City of Birmingham, Ala., 394 U.S. 147, 152, 89 
+S. Ct. 935, 939, 22 L. Ed. 2d 162 (1969)  .................................. 6 
+ 
+Talley v. California, 362 U.S. 60, 64, 80 S.Ct. 536, 538, 4 
+L.Ed.2d 559 (1960)  ................................................................... 7 
+ 
+United States v. O'Brien, 391 U.S. 367, 377, 88 S.Ct. 1673, 20 
+L.Ed.2d 672 (1968)  ................................................................. 22 
+ 
+Watchtower Bible, 536 U.S. 150, 166, 122 S. Ct. 2080, 2089, 153 
+L. Ed. 2d 205 (2002)  .............................................................. 6-7 
+ 
+ 
+ 
+
+--- Page 6 ---
+-1- 
+I. 
+INTRODUCTION  
+The current case before this Court arises from requests 
+under the Washington Public Records Act (“PRA”) pertaining to 
+an investigation by the City of Seattle’s Office of Police 
+Accountability (“OPA”).  These requests sought the whereabouts 
+of six (6) off duty Seattle Police Officers on January 6, 2021 and 
+their activities at ex-President Donald Trump’s “Stop the Steal 
+Rally”.  On March 10, 2021, the trial court declined to issue a 
+preliminary injunction preventing release of OPA’s records 
+before it completed its investigation.  CP 399-404.  This appeal 
+ensued.  
+In early July 2021, after the completion of their 
+comprehensive investigation, OPA made its findings public 
+during the pendency of this appeal (“OPA Summary”) by issuing 
+a 21-page report.  See 9/21/21 Resp. Mot. at Ex. 1.  In summary, 
+no sanction was recommended as to these four Officers 
+represented by the undersigned (“Represented Officers”).  
+
+--- Page 7 ---
+-2- 
+The OPA unequivocally recognized the Represented 
+Officers’ Constitutional right to attend a political demonstration 
+while off duty.  The OPA could not have been any clearer: these 
+Represented Officers did not commit any misconduct, participate 
+in any insurrection, and they were fit to continue serving as 
+Seattle Police Officers without sanction.  The OPA issued its 
+determination while fully recognizing “the political and factual 
+views espoused at the rally were antithetical to the beliefs of a 
+strong majority of the Seattle community.”  Id. at p. 20.  Indeed, 
+Andrew Myerberg, Director of the Office of Police 
+Accountability virtuously recognized this Constitutional right, 
+even if he “as the decider in this matter, disagree vehemently 
+with everything the rally stood for.”  Id.    
+Reviewing the facts today in October 2021, after the 
+release of the OPA Summary—as well as after taking judicial 
+notice of considerable press attention and the submission of 
+inflammatory and reckless Amicus Curiae—the facts and issues 
+of this case have not only crystalized.  The facts have 
+
+--- Page 8 ---
+-3- 
+fundamentally changed from the March 2021 TRO hearing. 
+These developments have strengthened the Represented 
+Officers’ Constitutional position prohibiting disclosure.   
+Specifically, here, the intentionally incitive Brief of 
+Amicus Curiae The National Lawyers Guild Inc. (“NLG Brief”) 
+does not change the fact that the Represented Officers’ First 
+Amendment Constitutional rights supersede the PRA’s 
+disclosure presumption.   
+II. RESPONSE TO ISSUES OF CONCERN TO NLG 
+BRIEF  
+ 
+1. 
+With the July 2021 release of the full OPA 
+Summary and the names of the Police Officers who committed 
+misconduct, there is now no “compelling government or public 
+interest” in disclosing the names of the Represented Officers who 
+were cleared of any misconduct. 
+2. 
+The First Amendment to Constitution supersedes 
+the PRA and protects the Represented Officers against public 
+disclosure of their names.   
+
+--- Page 9 ---
+-4- 
+III. 
+STATEMENT OF THE CASE  
+ 
+ 
+The Represented Officers hereby reincorporate the facts 
+contained in their Supplemental Brief filed on September 30, 
+2021, pp. 2-5.   
+IV.   ARGUMENT  
+ 
+Nobody denies that an element of the crowd that 
+assembled on January 6, 2021 failed to assemble peacefully and, 
+instead, proceeded to advance on the Capitol in a horrific riot.   
+Indeed, two (2) Seattle Police officers (“Unrepresented 
+Officers”) were deemed to have trespassed on U.S. Capitol 
+grounds.   The OPA Summary found these two (2) Unrepresented 
+Officers to have committed misconduct. They were subsequently 
+terminated.  See 9/21/21 Resp. Mot. at Ex. 1, pp. 1, 15-18.  Their 
+names have been released.1  They are not the Represented 
+Officers.   
+ 
+1 2 Seattle cops who were at US Capitol in January are fired (apnews.com) at 
+https://apnews.com/article/seattle-police-reform-da98b06a9245d496204bf13e7b32ca90 
+
+--- Page 10 ---
+-5- 
+However, the public OPA Summary determined that the 
+four (4) Represented Officers did assemble peacefully, broke no 
+laws whatsoever, did not participate in any riot, and, ultimately, 
+“that the officers attended this rally is absolutely protected by the 
+Constitution.”  Id. at p. 20.  Here, these very Constitutional rights 
+of speech, petition, and peaceful assembly supersede any PRA 
+predisposition to disclose the Represented Officers’ identities.  
+This is because disclosure of their names would lead to, inter 
+alia, harassment and a “chilling effect” upon the Officers’ First 
+Amendment Constitutional rights—the actual standard this 
+Court should apply when evaluating this case.  See Dream 
+Palace v. Cty. of Maricopa, 384 F.3d 990, 1012 (9th Cir. 2004). 
+1. The Represented Officers Constitutional Rights 
+Supersede the PRA 
+At the outset, the PRA “must give way to constitutional 
+mandate.”  Freedom Found. v. Gregoire, 178 Wn.2d 686, 695, 
+310 P.3d 1252 (2013) (citation omitted).  As such, the PRA’s 
+catch-all “other statutes” exemption incorporates any protections 
+afforded by the Washington or United States Constitutions.  Id.; 
+
+--- Page 11 ---
+-6- 
+see also Seattle Times Co. v. Serko, 170 Wn.2d 581, 594-97, 243 
+P.3d 919 (2010) (discussing how constitutional fair trial rights 
+may serve as an exemption under the PRA); Yakima County v. 
+Yakima Herald–Republic, 170 Wn.2d 775, 808, 246 P.3d 768 
+(2011) (noting in dictum that the argument that constitutional 
+provisions can serve as PRA exemptions “has force”). 
+As recognized by the OPA Summary, and basic 
+Constitutional knowledge, public picketing and protesting is free 
+speech in and of itself.  Shuttlesworth v. City of Birmingham, 
+Ala., 394 U.S. 147, 152, 89 S. Ct. 935, 939, 22 L. Ed. 2d 162 
+(1969).  Moreover, the United States Supreme Court has 
+repeatedly recognized a right to remain anonymous, yet active 
+and in plain sight in the context of First Amendment protected 
+activity.  As Justice Stevens observed in Watchtower Bible, 536 
+U.S. 150, 166, 122 S. Ct. 2080, 2089, 153 L. Ed. 2d 205 (2002), 
+a Jehovah Witness proselytizing door-to-door, in public, still 
+retained a right to anonymity.  Id. (“…there are a significant 
+number of persons who support causes anonymously… 
+
+--- Page 12 ---
+-7- 
+anonymity may be motivated by fear of economic or official 
+retaliation, by concern about social ostracism, or merely by a 
+desire to preserve as much of one’s privacy as possible”).  The 
+same right to be anonymous, yet active and in plain sight, applies 
+to political speech and association.  See e.g. Talley v. California, 
+362 U.S. 60, 64, 80 S.Ct. 536, 538, 4 L.Ed.2d 559 (1960) 
+(holding First Amendment protects the anonymous distribution 
+of unsigned handbills); McIntyre v. Ohio Elections Comm’n, 514 
+U.S. 334, 342, 115 S.Ct. 1511, 1516, 131 L.Ed.2d 426 (1995) 
+(holding similarly to Talley); Nat'l Ass’n for Advancement of 
+Colored People v. State of Ala. ex rel. Patterson, 357 U.S. 449, 
+462, 78 S.Ct. 1163, 1172, 2 L.Ed.2d 1488 (1958) (privacy in 
+group association may be indispensable to preservation of 
+freedom of association). 
+Quite simply, if one can prove that “constitutional 
+principles provide [them] with a constitutional privilege [then a] 
+PRA claim must fail”.  Freedom Found, 178 Wn.2d at 695.  
+Here, since there is a clear First Amendment right being 
+
+--- Page 13 ---
+-8- 
+exercised, and no compelling interest identified, the PRA must 
+give way to the Constitutional rights of the Represented Officers 
+to remain anonymous and not have their activities “chilled.”   
+2. NLG Amici’s Defamatory and Reckless Attempt to 
+Establish a “Compelling Interest” Only Serves to 
+Support Plaintiffs’ Need For First Amendment 
+Protections   
+The public OPA Summary cleared the Represented 
+Officers and deemed them fit to continue to serve.  This report 
+fully details the OPA’s investigative process, the evidence 
+gathered and reviewed, the ultimate decision finding no 
+misconduct, and the rationale behind that determination. 
+Unfortunately, reading the NLG Brief, it is almost certain 
+the NLG Amici went ahead and filed without reading the OPA 
+Summary.  For instance, the NLG Amici consistently (i) 
+references six (6) officers, when there are only four (4) officers 
+being represented2, (ii) demand “disclosure of… administrative 
+proceedings” when the OPA Summary has already been 
+ 
+2 NLG Brief at p. 18. 
+
+--- Page 14 ---
+-9- 
+released3, and (iii) state the unrefuted point that criminal acts take 
+one outside the ambit of First Amendment, when it is clear the 
+Represented Officers committed no crime.4   Even if the NLG 
+Amici read the OPA Summary, which is hard to believe, the 
+NLG Brief does not discuss the OPA Summary even one time.  
+This glaring omission discredits the NLG Brief at the outset 
+rendering many of its points moot, if not recklessly misleading.         
+a. The NLG Amici Pejoratively Assert a Reckless 
+Unsubstantiated 
+Narrative 
+against 
+the 
+Represented Officers Without Any Support.   
+The NLG Brief states that the “general public” has a 
+compelling interest in knowing the identities of “white 
+supremacist—affiliated police officers.”5  The NLG Brief then 
+churns through a series of news articles and reports all related to 
+a deplorable list of racist Facebook posts, emails, texts, videos, 
+and other actions by police officers.  The NLG Brief then 
+discusses distressing statistics regarding how race plays into 
+ 
+3 Id. at p. 23. 
+4 Id. at p. 29. 
+5 Id. at pp. 4-5. 
+
+--- Page 15 ---
+-10- 
+wrongful arrests and convictions.6  Finally, the NLG Brief goes 
+over the alarming disparity in deaths by race at the hands of 
+police.7  This is all disgusting and horrifying.  The NLG Brief 
+concludes their meta-conglomeration—purposely written to 
+shock the conscious of any reader—by stating:  
+The issue of white supremacy in policing leads to 
+worse outcomes for Black, Indigenous, and other 
+people of color than their white counterparts, and 
+non-white citizens should be armed with at least the 
+knowledge of which officers are more likely to be 
+dangerous than others.  This Court, viewing the 
+appeal in light of these distressing and well 
+documented facts, should find a compelling public 
+informational interest in disclosure of the identities 
+and administrative proceedings pertaining to the 
+police officer plaintiffs who chose to associate with 
+avowed white supremacist at the January 6, “Stop 
+the Steal” rally. 
+ 
+See NLG Brief at p. 6. 
+ 
+However, there is a large shameless hole in the NLG Brief.  
+The NLG Brief attributes all these horrible things—wanton racist 
+texts and emails, wrongful racist arrests, racist convictions, and 
+ 
+6 Id. at pp. 10-12, 14-15, 18-19. 
+7 Id. at p. 20. 
+
+--- Page 16 ---
+-11- 
+even civilian deaths—to these four (4) Represented Officers who 
+the NLG Amici know nothing about. 
+The OPA Summary states the only thing that these the 
+Represented Officers did do which was attend “a political rally 
+in support of a President who was and is still reviled by many in 
+Seattle and that was in furtherance of a theory of election fraud 
+that was, at best, discredited and, at worst, knowingly 
+fabricated.”  See 9/21/21 Resp. Mot. at Ex. 1, p. 20.  These are 
+the only facts that the NLG Amici, or anyone else, actually know 
+about the Represented Officers. 
+Thus, before smearing these Represented Officers as 
+racists with guns merely for supporting ex-President Donald 
+Trump and his discredited theories, the NLG Amici should have 
+looked out their cloister’s window (or connected to the internet) 
+and they would have easily learned: 
+• 74,224,319 people voted for Donald Trump in 2020, 
+which is 46.9% of all votes cast.8 
+ 
+ 
+8 
+Presidential 
+Election 
+Results 
+and 
+Electoral 
+Map 
+2020 
+(cnn.com) 
+at 
+https://www.cnn.com/election/2020/results/president. 
+
+--- Page 17 ---
+-12- 
+• 20% of all Black men voted for Donald Trump in 2020.  
+Including 20% of Black men with advanced educational 
+degrees.9    
+ 
+• Donald Trump received over 30% of the Latino vote.10 
+ 
+• One third of all Americans believe that election fraud cost 
+Donald Trump the election11 
+ 
+While the NLG Amici can assert that everyone who 
+supported Donald Trump is an incorrigible racist, that position 
+cannot be supported by tens of millions of racial minorities who 
+voted for Donald Trump.  And, if the NLG Amici allege that only 
+vile racists believe the election was stolen, even with this 
+narrower subset, NLG Amici’s math is such that over 68,000,000 
+voting age Americans are white supremacists who support 
+racially based wrongful convictions and police-caused deaths. 12 
+ 
+9 Black men shift slightly toward Trump in record numbers, polls show (nbcnews.com) 
+https://www.nbcnews.com/news/nbcblk/black-men-drifted-democrats-toward-trump-
+record-numbers-polls-show-n1246447. 
+10 Trump gained with Latino voters in 2020. Democrats could win many back, new data 
+suggests - Vox https://www.vox.com/policy-and-politics/22436307/catalist-equis-2020-
+latino-vote-trump-biden-florida-texas. 
+11 One-third of Americans believe Biden won because of voter fraud: poll | TheHill 
+https://thehill.com/homenews/campaign/559402-one-third-of-americans-believe-biden-
+won-because-of-voter-fraud-poll. 
+12 The United States has 209,128,094 million adults over 18 years of age. 1/3 of that number 
+is approximately 68,000,000 United States Demographic Statistics | Infoplease  
+https://www.infoplease.com/us/census/demographic-statistics. 
+
+--- Page 18 ---
+-13- 
+Moreover, contrary to the incendiary assertions in the 
+NLG Brief, the January 6, 2021 “Stop the Steal” rally was not 
+about race or white supremacy.  In all of their dangerously 
+assumptive diatribe against the Represented Officers, the NLG 
+Amici point to no statement calling for racists to assemble on 
+January 6, 2021 to celebrate white supremacy, undertake racist 
+acts, or cheer on extra-judicial minority arrests and killings. 
+There is no doubt the speakers at the “Stop the Steal” rally 
+podium spewed all sundry of discredited theories on January 6, 
+2021.  However, not even the NLG Brief is reckless enough to 
+assert that even one speaker on the podium asserted any racist or 
+white supremacist language to the crowd before it. 
+Thus, in the end, the NLG Amici offer nothing to this 
+Court to show that these off duty Represented Officers did 
+anything but attend a politically unpopular rally—under the 
+belief that election fraud caused their favored candidate to lose 
+the election.  This is not a crime.  This is not white supremacy.  
+This does not lead to extra-judicial racist arrests and deaths. 
+
+--- Page 19 ---
+-14- 
+The politically accountable leaders of Seattle’s democratic 
+institutions established the OPA to investigate claims of 
+misconduct and make determinations.  Here the OPA found the 
+Represented Officers’ lawful off duty attendance was within 
+their First Amendment rights—even as those rights may be more 
+narrow for public employees and even narrower for police 
+officers.   
+Perhaps before filing their inflammatory brief, the NLG 
+Amici should have reflected on the OPA Summary’s principled 
+assessment of what the Represented Officers actually did and the 
+principled reason why no misconduct was found: 
+However, absent any acts on their part that were 
+illegal, that the officers attended this rally is 
+absolutely protected by the Constitution. These 
+officers were entitled to exercise their freedom of 
+expression and to assemble. That they did so in a 
+manner contrary to the majority view in Seattle does 
+not alter this view. This is the case even if I, as the 
+decider in this matter, disagree vehemently with 
+everything the rally stood for. 
+ 
+Any contrary result would be incorrect–both 
+constitutionally and morally–and would undermine 
+the rule of law that is the bedrock of our society. It 
+
+--- Page 20 ---
+-15- 
+would also serve to speed up the current decline of 
+reason, objectivity, and fundamental fairness that 
+plagues America and its contemporary collective 
+discourse. To OPA, that would be simply 
+unpalatable and unacceptable. While this decision 
+may be unpopular with some, OPA believes that it 
+is supported by the law and is consistent with due 
+process. 
+ 
+See OPA Summary at p. 21. 
+ 
+ 
+In the end, there is no “compelling interest” here to root 
+out “white supremacists” by exposing the identities of these 
+Represented Officers because the NLG Amici have not proven 
+that any of these Represented Officers are “white supremacists,” 
+or, even, that the “Stop the Steal” rally, discredited as it may be, 
+was about white supremacy at all.   
+3. Amici’s Constitutional Analysis Does Not Account 
+For The Facts Before This Court 
+ 
+a. The Represented Officers’ Briefed Their 
+Constitutional 
+Argument 
+and 
+Appropriate 
+Standard  
+Contrary to the NLG Brief’s assertion, the Represented 
+Officers briefed their First Amendment Constitutional arguments 
+and standard for this Court to evaluate. 
+
+--- Page 21 ---
+-16- 
+First, the Represented Officers’ Complaint clearly alleged 
+a First Amendment Constitutional basis to prevent release of 
+their identity due to their free speech, assembly, association, and 
+petition rights.  See CP 12-13, §F “Disclosure of the Except 
+Information Would Violate Plaintiff’s Constitutional Rights”, 
+The First Amendment Constitutional basis which supersedes the 
+PRA was again asserted in Plaintiffs Motion For Temporary 
+Restraining Order.  See CP 52-53.  Finally, the same basis was 
+once again asserted in the Appellants Opening Brief.  See App. 
+Opening Br. at pp. 28-29.  The Appellants Opening Brief also 
+included the appropriate standard this Court should apply when 
+evaluating whether First Amendment rights supersede disclosure 
+pursuant the PRA.13 This was, again, repeated in the Appellants’ 
+Supplemental Briefing at pp. 16-18.  Thus, it is only the NLG 
+ 
+13 See Appellant’s Opening Brief at p. 28 (“A proposed PRA production infringing on First 
+Amendment rights must enjoined where the party enjoining where the party opposing the 
+production shows “a reasonable probability that the compelled disclosure of personal 
+information will subject those individuals or groups of individuals to threats, harassment, 
+or reprisals’ that would have a chilling effect on that activity.”).   
+
+--- Page 22 ---
+-17- 
+Brief that fails to address the relevant standards and case law—
+as fully explained below.  
+b. NLG Amici Do Not Discuss the Most Relevant 
+Cases or Properly Explain How A Court 
+Evaluates First Amendment Challenges to a 
+PRA Disclosure    
+ 
+i. 
+Doe v. Reed has definite, but limited, 
+value to this Court 
+ 
+The NLG Brief discusses Doe v. Reed at length.  John Doe 
+No. 1 v. Reed, 561 U.S. 186, 200, 130 S.Ct. 2811, 2820, 177 
+L.Ed.2d 493 (2010).  The Represented Officers believe that Doe 
+v. Reed has some applicability to establish that Courts have not 
+hesitated to prohibit PRA disclosures on First Amendment 
+grounds, if those resisting disclosure can show “a reasonable 
+probability that the compelled disclosure [of personal 
+information] will subject them to threats, harassment, or reprisals 
+from either Government officials or private parties.”  Id. at 200.   
+However, Doe v. Reed is of limited applicability here.  Moreover, 
+the NLG Brief ignores what the Doe v. Reed case ruled upon—
+and what the case forwent ruling upon. 
+
+--- Page 23 ---
+-18- 
+The Doe v. Reed Court ultimately determined they were 
+called to decide only a facial challenge to whether the PRA could 
+apply to compelled disclosure of signatory names on all petitions 
+in Washington.  In short, the Doe v. Reed Plaintiffs would 
+ultimately seek an injunction barring the secretary of state “from 
+making referendum petitions available to the public.”  Id. at 194.  
+The Court stated “[the Plaintiffs] must therefore satisfy our 
+standards for a facial challenge to the extent of that reach.”  Id. 
+at 194.  The Court ultimately ruled that as a facial challenge the 
+disclosure of “referendum petitions in general” under the PRA 
+“would not violate the First Amendment.”  Id. at 202.  
+However, as the NLG Brief fails to discuss, Doe v. Reed 
+did not determine a narrow “as-applied” analysis to the specific 
+petition and referendum R-71 at issue.  Indeed, that Court stated: 
+The issue at this stage of the case is not whether 
+disclosure of this particular petition would violate 
+the First Amendment, but whether disclosure of 
+referendum petitions in general would do so….We 
+leave it to the lower courts to consider in the first 
+instance the signers' more focused claim concerning 
+
+--- Page 24 ---
+-19- 
+disclosure of the information on this particular 
+petition, which is pending before the District Court. 
+ 
+John Doe No. 1 v. Reed at 191 (emphasis added)  
+ 
+ 
+Even the venerable Sam Reed, the then-Secretary of State 
+in Washington, “acknowledge[d] that plaintiffs may press the 
+narrower challenge [as applied to R-71 specifically] in 
+proceedings pending before the District Court.”  Id. at 202.  In 
+other words, the actual litigated issue in that case – whether 
+disclosure of R-71’s signatories’ information under the PRA 
+would violate the signatories’ First Amendment Constitutional 
+rights – was never decided by Doe v. Reed. 
+The only issue that Doe v. Reed decided was that there was 
+no broad facial reason to prevent petition signatories’ names—in 
+all situations—from being released to third parties under the 
+PRA.  Much of the general discussion in Doe v. Reed discussed 
+the signatories’ rights vis-à-vis a compelling government interest 
+in strengthening the actual referendum process.  For example, 
+public disclosure helps to root out fraud, bureaucratic mistakes, 
+
+--- Page 25 ---
+-20- 
+and bolsters accountability in the referendum process.  Id. at 
+199.14  The Doe v. Reed Court also acknowledged that many 
+referendums would not engender strong emotions because  
+typical referendum petitions “concern tax policy, revenue, 
+budget, or other state law issues,” which would have much less 
+of an impact upon signatories’ willingness to participate.  Id. at 
+200. 
+Ultimately, Doe v. Reed is of some, but limited, 
+instructiveness here.  First, it establishes First Amendment 
+Rights can, in fact, supersede the PRA.  Second, it articulates the 
+standard for ruling when First Amendment Rights supersede the 
+PRA disclosure mandate which is described more fully below.  
+ii. 
+Instead of relying on Doe v. Reed, this 
+Court should look to truly instructive First 
+Amendment Expression cases  
+ 
+The standard set forth in Doe v. Reed as applied to 
+expressive First Amendment speech is set forth in case law–and 
+ 
+14 Doe v. Reed at 199 (“Public disclosure thus helps ensure that the only signatures counted 
+are those that should be, and that the only referenda placed on the ballot are those that 
+garner enough valid signatures. Public disclosure also promotes transparency and 
+accountability in the electoral process to an extent other measures cannot.”)  
+
+--- Page 26 ---
+-21- 
+was addressed in Appellants’ Opening Brief and Appellants 
+Supplemental Briefing.15  Dream Palace v. Cty. of Maricopa, 
+384 F.3d 990, 1012 (9th Cir. 2004); Does 1-10 v. Univ. of 
+Washington, 798 F. App’x 1009, 1010 (9th Cir. 2020); Roe v. 
+Anderson, No. 3:14-CV-05810 RBL, 2015 WL 4724739, at *3 
+(W.D. Wash. Aug. 10, 2015). 
+In Dream Palace, the 9th Circuit recognized the 
+established precedent that adult erotic dancing is a form of First 
+Amendment expression.  Dream Palace v. Cty. of Maricopa, 384 
+F.3d 990, 998 (9th Cir. 2004).  As such, while the dancers could 
+be compelled to provide their personal information to Arizona 
+because that did not “inhibit[ ] the ability or the inclination to 
+engage in the protected expression,” that did not mean that 
+Arizona could then turn around provide that information to the 
+public without infringing on those dancers First Amendment 
+rights.  Id. at 1010.  Dream Palace states as follows: 
+The First Amendment does not permit the county to 
+put 
+employees 
+of 
+adult 
+entertainment 
+ 
+15 See Appellant’s Opening Brief at p. 28; Appellants’ Supplemental Briefing at pp. 16-18. 
+
+--- Page 27 ---
+-22- 
+establishments to the choice of either applying for a 
+permit to engage in protected expression in 
+circumstances where they expose themselves to 
+“unwelcome harassment from aggressive suitors 
+and overzealous opponents” of such activity or of 
+choosing not to engage in such activity out of 
+concern for their personal safety. The chilling effect 
+on those wishing to engage in First Amendment 
+activity is obvious. Given the choice with which 
+they are faced, we think it likely that those willing 
+to engage in such activity will decline to do so… 
+ 
+Dream Palace at 1012.   
+ 
+This same sort of analysis and standard appears in other 
+Courts.  While reporting information relating to one’s First 
+Amendment activities to the government does not sufficiently 
+impinge on First Amendment rights pursuant to an O’Brien 
+Constitutional analysis, the government’s subsequent disclosure 
+of that same information to the public pursuant to a public 
+records act request does impermissibly impinge on First 
+Amendment rights.16  See e.g., Deja Vu of Nashville, Inc. v. 
+ 
+16 Regulations that are unrelated to the content of speech are subject to an intermediate 
+level of scrutiny which was first enunciated as a four-step test in United States v. 
+O'Brien, 391 U.S. 367, 377, 88 S.Ct. 1673, 20 L.Ed.2d 672 (1968).  Government regulation 
+of conduct is sufficiently justified if it is within constitutional power of government; if it 
+furthers important or substantial governmental interest; if governmental interest is 
+
+--- Page 28 ---
+-23- 
+Metro. Gov't of Nashville & Davidson Cty., Tennessee, 274 F.3d 
+377, 395 (6th Cir. 2001) (“Metropolitan Nashville cannot 
+publicly release such private information…Anonymity is a 
+shield from the tyranny of the majority”, McIntyre, 514 U.S. at 
+357, 115 S.Ct. 1511, but it is not a shield from all legitimate 
+regulation”); see also Does 1-10 v. Univ. of Washington, 798 F. 
+App'x 1009, 1010 (9th Cir. 2020) (to prevail on their First 
+Amendment claim, the Doe plaintiffs must show that particular 
+individuals or groups of individuals were engaged in activity 
+protected by the First Amendment and “‘a reasonable probability 
+that the compelled disclosure of personal information will 
+subject’” those individuals or groups of individuals “‘to threats, 
+harassment, or reprisals’” that would have a chilling effect on 
+that activity.)   
+ 
+unrelated to suppression of free expression; and if incidental restriction on alleged First 
+Amendment freedom is no greater than is essential to furtherance of that interest. Id.  
+ 
+ 
+ 
+
+--- Page 29 ---
+-24- 
+Indeed, this exact same standard regarding disclosure has 
+already been accepted under Washington’s Public Records Act: 
+The disclosure of Plaintiffs’ information here would 
+have a similarly unconstitutional chilling effect. As 
+erotic dance studio employees, Plaintiffs are 
+uniquely vulnerable to harassment, shaming, 
+stalking, or worse. Plaintiffs have express concern 
+regarding the enhanced risk that disclosure of their 
+real names and other licensing information might 
+bring. They plausibly claim that they would not 
+have engaged in their profession had they known 
+that their erotic license information could be so 
+easily disclosed to any member of the public. This 
+is exactly the kind of chilling effect that the Ninth 
+Circuit held to be unconstitutional in Dream 
+Palace. Thus, the Plaintiffs’ information is 
+protected under the First Amendment, and it is 
+exempted from disclosure under the PRA.” 
+ 
+Roe v. Anderson, No. 3:14-CV-05810 RBL, 2015 WL 4724739, 
+at *3 (W.D. Wash. Aug. 10, 2015). 
+ 
+ 
+Thus, the standard, already stated in previous briefing, is 
+whether there is a “reasonable probability” that disclosure would 
+subject an objector to “threats, harassment, or reprisals” that 
+would have a “chilling effect.”  This is where the Court should 
+focus its attention.  
+
+--- Page 30 ---
+-25- 
+c. The Facts Have Changed Since March 2021 & 
+An Undisputable Chilling Effect Exists Today  
+  
+Regardless of the Trial Court’s erroneous legal 
+determinations during the March 10, 2021 preliminary injunction 
+hearing, the facts today are fundamentally different.  
+First, most importantly, the OPA Summary was not 
+completed or published in March 2021.  Once published in July 
+2021, the OPA Summary unequivocally established that the 
+Represented Officers were off duty, lawfully exercising their 
+First Amendment Rights, and committed no misconduct on 
+January 6, 2021.    
+Second, the Represented Officers each submitted 
+sufficient declarations at the preliminary injunction stage related 
+to their various concerns, which were not “extremely vague and 
+self-serving affidavits,” but, considering the timeline, time 
+constraints and need for anonymity fully sufficient.17  However, 
+even considering only the limited amount of new evidence 
+ 
+17 See Appellant’s Reply Brief at pp. 5-6. 
+
+--- Page 31 ---
+-26- 
+judicial notice would allow under ER 201, the Represented 
+Officers’ concerns have been amplified by an order of 
+magnitude.  This case has been the subject of at least five (5) 
+Seattle Times articles.18  Indeed, the case was deemed so 
+important that the Supreme Court took this case on direct review, 
+bypassing the Court of Appeals, because “whether the identity of 
+these officers should be revealed is an issue of considerable 
+public interest.”  See Commissioners Johnston 8/4/21 Ruling at 
+p. 4.  Would anyone ever make a political statement, only to have 
+ 
+18 Judge says records ID’ing Seattle officers who attended rally before Capitol riot can be 
+released — but not yet |  
+https://www.seattletimes.com/seattle-news/appeals-court-extends-order-blocking-release-
+of-identities-of-seattle-officers-who-attended-rally-before-capitol-riot 
+ 
+Washington Supreme Court to hear case about Seattle officers who attended D.C. rally 
+before U.S. Capitol attack | 
+https://www.seattletimes.com/seattle-news/washington-supreme-court-to-hear-case-
+about-seattle-officers-who-attended-d-c-rally-before-u-s-capitol-attack/ 
+ 
+Lawyers for Seattle officers who attended Trump rally before U.S. Capitol attack seek to 
+withdraw from public records lawsuit | 
+https://www.seattletimes.com/seattle-news/lawyers-for-seattle-officers-who-attended-
+trump-rally-before-u-s-capitol-attack-seek-to-withdraw-from-public-records-lawsuit/ 
+Appeals court extends order blocking release of identities of Seattle officers who attended 
+rally before Capitol riot  
+https://www.seattletimes.com/seattle-news/appeals-court-extends-order-blocking-release-
+of-identities-of-seattle-officers-who-attended-rally-before-capitol-riot/ 
+ 
+Two Seattle officers trespassed on U.S. Capitol grounds during riot and should be fired, 
+investigation finds | The Seattle Times 
+https://www.seattletimes.com/seattle-news/two-seattle-officers-trespassed-on-u-s-capitol-
+grounds-during-riot-and-should-be-fired-investigation-finds/   
+
+--- Page 32 ---
+-27- 
+their names involuntarily splashed across newspapers in their 
+hometown where their political beliefs are “reviled?”  
+Third, the Represented Officers have been targeted by 
+various Amici, including the National Lawyers Guild, who have 
+no qualms stating, without any basis, that these officers are 
+affiliated with “white supremacists” and are a cause of racially 
+motivated extrajudicial arrests, incarceration, and killings.  
+Indeed, the NLG Brief did not even bother to discuss the 
+vindicating OPA Summary, or frankly have the basic decency to 
+make it clear that these Represented Officers did not participate 
+in any insurrection, committed no crimes, but merely attended 
+the lawful rally beforehand.  The filing of this reckless NLG 
+Brief in Washington’s highest court, publicly available to anyone 
+on Westlaw, alone constitutes harassment.  See Brief of Amicus 
+Curiae The National Lawyers Guild cited at 2021 WL 4804274. 
+Finally, any neutral observer, observing posture of the 
+case today, can predict with “reasonable probability” that the 
+
+--- Page 33 ---
+-28- 
+Represented Officers will be subject to further “threats, 
+harassment, or reprisals” which would have a “chilling effect.”  
+The Represented Officers reiterate the bottom line one 
+final time: the OPA Summary has been released.  This fully 
+details the OPA investigative process, the evidence gathered and 
+reviewed, the ultimate finding of no misconduct, and the 
+rationale behind that determination.  The police officers who did 
+engage in misconduct have been named and fired.  The oversight 
+process was transparent and has worked as designed.     
+The neutral observer only needs to ask one question today: 
+Why?  Why do the NLG Amici, and the Respondents, still 
+demand the names of the Represented Officers when they 
+already know everything about their activities on January 6, 
+2021?  What exactly are they going to do with the Represented 
+Officers’ names once they receive them?  Keep them secret?   
+Hardly.19 
+ 
+19 Similarly, the National Lawyers Guild Seattle Chapter has not updated their website to 
+reflect the OPA Summary has already been released and much of the material in their 
+publicized brief on the site is outdated (and as such is now very misleading standing alone). 
+
+--- Page 34 ---
+-29- 
+The Represented Officers’ names will surely be further 
+publicized by NLG Amici, the Respondents, other Amici (who 
+are no less than “24 Media and Transparency Organizations)20,” 
+not to mention the Seattle Times and other local and national 
+news outlets.  The Represented Officers’ names will be 
+involuntarily publicized throughout a community that reviles 
+their political beliefs even though the Represented Officers did 
+nothing more than exercise their Constitutional rights while off 
+duty. 
+How could any neutral observer state that this unwanted 
+publicity does not constitute harassment?  Likewise, how could 
+this unwanted publicity regarding unpopular views not have an 
+instant chilling effect?  
+V.  
+CONCLUSION  
+  
+The NLG Brief does not establish a “compelling interest.”  
+The NLG Brief employs the wrong analysis of First Amendment 
+ 
+https://www.nlg-seattle.org/posts/seattle-chapter-members-represent-nlg-student-
+member-in-john-and-jane-does-1-6-vs-seattle-pd-opa-sueoka-et-al       
+20 2021 WL 4804271 (Wash.). 
+ 
+
+--- Page 35 ---
+-30- 
+challenges to the PRA.  Finally, the NLG Briefs fails to 
+acknowledge the “reasonable probability” of “harassment and 
+reprisals” that “chills” First Amendment expression—of which 
+the recklessly inflammatory NLG Brief is quite clearly a perfect 
+case-in-point.  The Represented Officers’ Constitutional Rights 
+supersede the PRA. 
+ 
+Respectfully, as stated in the Supplemental Brief, this 
+Court should reverse the trial court’s order denying the 
+Represented Officers’ request for a preliminary injunction, and 
+remand with instructions to the trial court to enjoin production of 
+the Represented Officers names or identities. 
+ 
+This brief contains 4,998 words, excluding the parts of the 
+document exempted from the word count by RAP 18.17(b). 
+DATED this 20th day of October, 2021. 
+ 
+ 
+ 
+ 
+ 
+Respectfully submitted, 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Aric Bomsztyk, WSBA #38020 
+Blair M. Russ, WSBA #40374 
+Tomlinson Bomsztyk Russ 
+1000 Second Avenue, Ste 3660 
+Seattle, Washington 98104 
+Telephone: 206.621.1871 
+Email: asb@tbr-law.com 
+            bmr@tbr-law.com 
+
+--- Page 36 ---
+-31- 
+ 
+ 
+CERTIFICATE OF SERVICE 
+ 
+I am employed by the law firm of Tomlinson Bomsztyk Russ, 
+over the age of 18, not a party to this action, and competent to be a 
+witness herein. 
+ 
+On Wednesday, October 20, 2021, I caused true and correct 
+copies of the foregoing document to be delivered to the following via 
+the Supreme Court E-Filing Portal:  
+ 
+Carolyn U. Boies, WSBA #40395 (carolyn.boies@seattle.gov) 
+Assistant City Attorney 
+PETER S. HOLMES 
+Seattle City Attorney’s Office 
+701 Fifth Avenue, Suite 2050 
+Seattle, Washington 98104 
+ 
+Neil M. Fox, WSBA #15277 (nf@neilfoxlaw.com) 
+Law Office of Neil Fox PLLC 
+2125 Western Avenue, Suite 330 
+Seattle, Washington 98121 
+ 
+Janet Thoman, WSBA #37985 (thomanlegal@gmail.com) 
+Law Office of Janet L. Thoman 
+P.O. Box 80 
+Maple Valley, Washington 98038 
+ 
+I declare under penalty of perjury under the laws of the State of 
+Washington that the following is true and correct.  
+ 
+DATED this 20th day of October, 2021, in Snohomish, WA. 
+ 
+Signature: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Lisa Sebree 
+ 
+
+--- Page 37 ---
+TOMLINSON BOMSZTYK RUSS
+October 20, 2021 - 2:23 PM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99901-5
+Appellate Court Case Title:
+Jane & John Does 1-6 v. Seattle Police Department et al.
+The following documents have been uploaded:
+999015_Briefs_20211020142228SC347522_3363.pdf 
+    This File Contains: 
+     Briefs - Answer to Amicus Curiae 
+     The Original File Name was 2021.10.20 Answer of Represented Officers to Nat Lawyers Guild.pdf
+A copy of the uploaded files will be sent to:
+Carolyn.Boies@seattle.gov
+Marisa.Johnson@seattle.gov
+ambikadoran@dwt.com
+bbrown@rcfp.org
+bmr@tbr-law.com
+christinekruger@dwt.com
+ericstahl@dwt.com
+gabe@galandabroadman.com
+jfreeman@jflpllc.com
+jimdavy@allriselaw.org
+jonathan.wallace80@gmail.com
+kim.fabel@seattle.gov
+ktownsend@rcfp.org
+lae@tbr-law.com
+lesleysmith@dwt.com
+nf@neilfoxlaw.com
+pass.gandjlaw@gmail.com
+ryan@galandabroadman.com
+sjankowski@rcfp.org
+thomanlegal@gmail.com
+Comments:
+Sender Name: Lisa Sebree - Email: lae@bmatlaw.com 
+    Filing on Behalf of: Aric Sana Bomsztyk - Email: asb@tbr-law.com (Alternate Email: )
+Address: 
+1000 Second Avenue
+Suite 3660 
+Seattle, WA, 98104 
+Phone: (206) 621-1871
+Note: The Filing Id is 20211020142228SC347522
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+
+--- Page 38 ---

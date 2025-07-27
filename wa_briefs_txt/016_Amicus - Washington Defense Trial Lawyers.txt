@@ -1,0 +1,423 @@
+
+--- Page 1 ---
+NO. 99956-2 
+IN THE SUPREME COURT FOR THE STATE OF 
+WASHINGTON 
+CERTIFICATION FROM THE UNITED STATES DISTRICT 
+COURT FOR THE WESTERN DISTRICT OF 
+WASHINGTON 
+DAVID J. DEARINGER and GANNA P. DEARINGER, 
+Petitioners-Plaintiffs, 
+v. 
+ELI LILLY AND COMPANY, 
+Respondent-Defendant. 
+AMICUS CURIAE BRIEF OF WASHINGTON 
+DEFENSE TRIAL LAWYERS 
+Noah Jaffe, WSBA No. 43454 
+Amicus Committee Chair 
+Washington Defense Trial 
+Lawyers 
+701 Pike Street, Suite 1400 
+Seattle, WA  98101 
+NJaffe@nicollblack.com 
+Telephone: (206) 838-7545 
+Facsimile: (206) 838-7515
+Daniel L. Syhre, WSBA #34158 
+Attorney for Washington 
+Defense Trial Lawyers 
+Betts Patterson & Mines 
+701 Pike Street, Suite 1400 
+Seattle WA  98101-3927  
+dsyhre@bpmlaw.com 
+Telephone: (206) 292-9988 
+Facsimile: (206) 343-7053
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+1212712021 4:37 PM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+i 
+TABLE OF CONTENTS 
+Page
+TABLE OF AUTHORITIES ................................................. ii 
+I.
+IDENTITY AND INTEREST OF AMICUS .............. 1
+II.
+ARGUMENT ............................................................... 2
+A.
+The Principle of Stare Decisis Favors 
+Retaining The Learned Intermediary 
+Doctrine Without Modification ......................... 2
+B.
+Adopting a DTC Exception Would Make 
+Washington and Outlier Jurisdiction ................. 5
+C.
+DTC Advertising Does Not Conflict with 
+the Rationale for the Learned Intermediary 
+Doctrine ............................................................. 7
+III.
+CONCLUSION ............................................................ 9
+----
+
+--- Page 3 ---
+ii 
+TABLE OF AUTHORITIES 
+Page
+WASHINGTON CASES
+Deggs v. Asbestos Corp. Ltd., 186 Wn.2d 716, 381 P.3d 
+32 (2016) ............................................................................... 3 
+Lunsford v. Saberhagen Holdings, Inc., 166 Wn.2d 264, 
+208 P.3d 1092, 1099–100 (2009) .......................................... 3 
+Terhune v. A. H. Robins Co., 90 Wn.2d 9, 577 P.2d 975 
+(1978) ............................................................................ 3, 4, 9 
+W.G. Clark Constr. Co. v. Pac. Nw. Reg’l Council of 
+Carpenters, 180 Wn.2d 54, 322 P.3d 1207 (2014) ............... 3 
+OTHER AUTHORITIES
+Michael C. Allen, Medicine Goes Madison Avenue: An 
+Evaluation of the Effect of Direct-to-Consumer 
+Pharmaceutical Advertising on the Learned 
+Intermediary Doctrine, 20 Campbell L. Rev. 113 
+(1997) .................................................................................... 6 
+Paul F. Strain & Christina L. Gaarder, Direct-to-
+Consumer Advertising and the Learned Intermediary 
+Doctrine: Unsettling A Settled Question, 30 U. Balt. 
+L. Rev. 377 (2001) ................................................................ 6 
+
+--- Page 4 ---
+1 
+I.
+IDENTITY AND INTEREST OF AMICUS 
+The Washington Defense Trial Lawyers Association 
+(WDTL), established in 1962, includes more than 750 
+Washington attorneys engaged in civil defense litigation and 
+trial work.  The purpose of WDTL is to promote the highest 
+professional and ethical standards for Washington civil defense 
+attorneys and to serve our members through education, 
+recognition, collegiality, professional development and 
+advocacy.  One important way in which WDTL represents its 
+member is through amicus curiae submissions in cases that 
+present issues of statewide concern to Washington civil defense 
+attorneys and their clients.  The certified question in this case 
+implicates applicable concerns for WDTL, whose members 
+have an interest in the preservation of common law principles 
+of liability.  In particular, this case goes to the integrity of the 
+learned intermediary doctrine as recognized in this Court’s 
+precedents.  
+
+--- Page 5 ---
+2 
+II.
+ARGUMENT 
+A.
+The Principle of Stare Decisis Favors Retaining The 
+Learned Intermediary Doctrine Without Modification 
+The principle of stare decisis provides stability in the 
+common law and precludes re-decision of decided issues as if 
+they were cases of first impression: 
+In Washington, stare decisis protects reliance 
+interests by requiring “‘a clear showing that an 
+established rule is incorrect and harmful before 
+it is abandoned.’”  State v. Devin, 158 Wn.2d 157, 
+168, 142 P.3d 599 (2006) [citations omitted].  The 
+substantive restraints placed on courts to “not only 
+heed the relevant judicial past in arriving at a 
+decision, but also to arrive at it within as straight 
+and narrow a path as possible,” ordinarily produces 
+changes in the law “with a minimum of shock to 
+those who act in reliance upon judicial decisions.” 
+Roger J. Traynor, Quo Vadis, Prospective 
+Overruling: A Question of Judicial Responsibility,
+28 Hastings L.J. 533, 537 (1976).  The constraints 
+of stare decisis prevent the law from becoming 
+“subject to incautious action or the whims of 
+current holders of judicial office.”  In re Rights to 
+Waters of Stranger Creek, 77 Wn.2d 649, 653, 
+466 P.2d 508 (1920).  Although stare decisis limits 
+judicial discretion, it also protects the interests of 
+litigants by providing clear standards for 
+determining their rights and the merits of their 
+claims.  Therefore, overruling prior precedent 
+should not be taken lightly.  Keene v. Edie, 
+131 Wn.2d 822, 831, 935 P.2d 588 (1997). 
+
+--- Page 6 ---
+3 
+Lunsford v. Saberhagen Holdings, Inc., 166 Wn.2d 264, 278, 
+208 P.3d 1092, 1099–100 (2009) (emphasis added).  This Court 
+also recently observed: “we can reconsider our precedent not 
+only when it has been shown to be incorrect and harmful but 
+also when the legal underpinnings of our precedent have 
+changed or disappeared altogether.”  Deggs v. Asbestos Corp. 
+Ltd., 186 Wn.2d 716, 729–30, 381 P.3d 32, 39 (2016) (citing 
+W.G.  Clark Constr. Co. v. Pac. Nw. Reg’l Council of 
+Carpenters, 180 Wn.2d 54, 66, 322 P.3d 1207 (2014)). 
+The learned intermediary doctrine has been settled law in 
+Washington since this Court decided Terhune v. A. H. Robins 
+Co., 90 Wn.2d 9, 10, 577 P.2d 975 (1978).  In Terhune, the 
+Court articulated the reasons for its adoption of the rule as 
+follows: 
+The reasons for this rule should be obvious.  
+Where a product is available only on prescription 
+or through the services of a physician, the 
+physician acts as a “learned intermediary” between 
+the manufacturer or seller and the patient.  It is his 
+duty to inform himself of the qualities and 
+characteristics of those products which he 
+
+--- Page 7 ---
+4 
+prescribes for or administers to or uses on his 
+patients, and to exercise an independent judgment, 
+taking into account his knowledge of the patient as 
+well as the product.  The patient is expected to and, 
+it can be presumed, does place primary reliance 
+upon that judgment.  The physician decides what 
+facts should be told to the patient.  Thus, if the 
+product is properly labeled and carries the 
+necessary instructions and warnings to fully 
+apprise the physician of the proper procedures for 
+use and the dangers involved, the manufacturer 
+may reasonably assume that the physician will 
+exercise the informed judgment thereby gained in 
+conjunction with his own independent learning, in 
+the best interest of the patient.  It has also been 
+suggested that the rule is made necessary by the 
+fact that it is ordinarily difficult for the 
+manufacturer to communicate directly with the 
+consumer. 
+Terhune, 90 Wn.2d at 14, 577 P.2d at 975.  Plaintiff has not 
+shown that the emergence of DTC advertising has rendered the 
+unqualified doctrine incorrect or harmful.  The increased use of 
+DTC advertising starting in the 1990s in the wake of guidance 
+from the FDA did not affect or undermine the rationale for the 
+Court’s original adoption rule.  At best, it affects only what this 
+Court deemed a possible additional supporting reason for the 
+rule – that it is “ordinarily difficult for the manufacturer to 
+
+--- Page 8 ---
+5 
+communicate directly with the consumer.”  Even that 
+alternative rationale is not undermined by DTC advertising 
+because it remains the case that manufacturers are not situated 
+to provide more than the very general information about the 
+drug permitted by the FDA’s advertising regulations rather than 
+warnings tailored to the needs of an individual patient.   Only a 
+physician is qualified to do so.
+Moreover, it would be particularly ill-advised for the 
+Court to reconsider or limit past precedent in this case where 
+there is an insufficient record to form the basis of anything 
+other than an abstract ruling on a significant issue of products 
+liability law.
+B.
+Adopting a DTC Exception Would Make Washington 
+and Outlier Jurisdiction 
+Even though prescription drug companies have been 
+advertising to consumers for decades, only New Jersey has 
+adopted an exception for DTC advertising.  New Jersey’s 
+adoption took place in 1999 and has not been followed by any 
+other jurisdiction.  The idea of a DTC exception was common 
+
+--- Page 9 ---
+6 
+topic of law review articles in the late 1990s and early 2000s 
+when DTC advertising first became common in response to 
+updated FDA guidance.  E.g., Michael C. Allen, Medicine Goes 
+Madison Avenue: An Evaluation of the Effect of Direct-to-
+Consumer Pharmaceutical Advertising on the Learned 
+Intermediary Doctrine, 20 Campbell L. Rev. 113 (1997); 
+Paul F. Strain & Christina L. Gaarder, Direct-to-Consumer 
+Advertising and the Learned Intermediary Doctrine: Unsettling 
+A Settled Question, 30 U. Balt. L. Rev. 377 (2001).  The legal 
+community has had decades to digest the effects of DTC 
+advertising and the idea that DTC advertising somehow affects 
+the learned intermediary doctrine has met with almost no 
+acceptance from courts or state legislatures.  
+The lack of acceptance of the DTC exception not only 
+counsels against the wisdom of the doctrine but also creates 
+additional consequences if it is adopted in Washington.  That is, 
+Washington would naturally become a target of forum shopping 
+for plaintiffs and classes of plaintiffs contending that they 
+
+--- Page 10 ---
+7 
+should have been directly warned by a drug company of 
+technical information about potential risks drugs prescribed for 
+them by their own physician even though the manufacturer had 
+provided appropriate warnings to the prescribing physician. 
+C.
+DTC Advertising Does Not Conflict with the 
+Rationale for the Learned Intermediary Doctrine 
+The general lack of adoption of a DTC exception is not 
+surprising because direct advertising does not conflict in any 
+way with the premise of the learned intermediary doctrine as 
+announced in Terhune.  That rationale is largely one and the 
+same with the rationale for making the drug available only with 
+a prescription.   
+Prescription drugs require a prescription because the 
+general public is unable to understand and process the relative 
+risks and benefits of drug both in general and as applied to their 
+particular situation.  For this reason, the drug company’s duty 
+to warn is discharged by giving adequate warnings to the 
+prescribing physician intermediary.  There is no conceivable 
+alternative audience for an “adequate” warning because 
+
+--- Page 11 ---
+8 
+consumers cannot adequately process information about 
+prescription drugs without the aid of a prescribing physician 
+even if more detailed warning information is given directly to 
+consumers.   
+DTC advertising may prompt consumers to initiate 
+contact with their physician about whether a particular drug is 
+“right for you,” but DTC advertising in no way makes the 
+consumer the appropriate audience for technical drug 
+information.  Even in a situation where the consumer is 
+prompted to initiate a consultation about a drug, the physician is 
+still in the best position to explain the risks, benefits, and 
+alternatives to taking a particular drug.   
+Thus, while one can debate whether DTC advertising is a 
+good thing for reasons unrelated to drug safety, advertising in 
+no way undermines the rationale for the learned intermediary 
+doctrine.  
+
+--- Page 12 ---
+9 
+III.
+CONCLUSION 
+DTC advertising does not undermine the rationale for the 
+learned intermediary doctrine as announced by this Court in 
+Terhune.  The Court should therefore adhere to its precedent 
+and to the sound policies supporting the learned intermediary 
+doctrine.  
+Pursuant to RAP 18.17(c), I certify that this document 
+contains 1,438 words, excluding the title sheet, the table of 
+contents, the table of authorities, the certificate of service, and 
+signature blocks. 
+RESPECTFULLY SUBMITTED this 27th day of 
+December, 2021. 
+BETTS, PATTERSON & MINES, P.S. 
+By:    
+Daniel L. Syhre, WSBA #34158  
+Attorneys for Amicus Washington Defense 
+Trial Lawyers 
+
+--- Page 13 ---
+10 
+CERTIFICATE OF SERVICE 
+I, Valerie D. Marsh, declare as follows: 
+1) 
+I am a citizen of the United States and a resident of 
+the State of Washington.  I am over the age of 18 years and not 
+a party to the within entitled cause.  I am employed by the law 
+firm of Betts Patterson & Mines, One Convention Place, Suite 
+1400, 701 Pike Street, Seattle, Washington 98101-3927. 
+2) 
+By the end of the business day on December 27, 
+2021, I caused to be served upon counsel of record at the 
+addresses and in the manner described below, the following 
+documents: 
+
+Amicus Curiae Brief Of Washington Defense 
+Trial Lawyers; and 
+
+Certificate of Service. 
+Petitioner-Plaintiffs: 
+David J. Dearinger, pro se 
+10218 38th P1 SE 
+Lake Stevens, WA 98258-5738 
+(425) 220-3690 
+daviddearinger@comcast.net 
+
+
+
+
+
+Appellate Portal 
+U.S. Mail 
+Hand Delivery 
+Telefax 
+UPS 
+
+--- Page 14 ---
+11 
+Counsel for Respondent Eli Lilly & Co.: 
+Anne M. Talcott 
+Schwabe, Williamson & Wyatt PC 
+1211 SW 5th Avenue, Suite 1900 
+Portland, OR  97204 
+Email: atalcott@schwabe.com 
+Kainui M. Smith 
+Schwabe, Williamson & Wyatt PC 
+1420 Fifth Avenue, Suite 3400 
+Seattle, WA  98101 
+Email: ksmith@schwabe.com 
+
+
+
+
+
+Appellate Portal 
+U.S. Mail 
+Hand Delivery 
+Telefax 
+UPS 
+I declare under penalty of perjury under the laws of the 
+State of Washington that the foregoing is true and correct. 
+DATED this 27th day of December, 2021. 
+Valerie D. Marsh 
+
+--- Page 15 ---
+BETTS, PATTERSON & MINES, P.S.
+December 27, 2021 - 4:37 PM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99956-2
+Appellate Court Case Title:
+David J. Dearinger et al. v. Eli Lilly Company
+The following documents have been uploaded:
+999562_Briefs_20211227163310SC628303_4512.pdf 
+    This File Contains: 
+     Briefs - Amicus Curiae 
+     The Original File Name was WDTL AMICUS BRIEF 1842677.pdf
+999562_Motion_20211227163310SC628303_9899.pdf 
+    This File Contains: 
+     Motion 1 - Amicus Curiae Brief 
+     The Original File Name was WDTL - MOTION RE AMICUS BRIEF 1842675.pdf
+A copy of the uploaded files will be sent to:
+AppellateAssistants@schwabe.com
+Ksmith@schwabe.com
+atalcott@schwabe.com
+cosgrove@carneylaw.com
+daviddearinger@comcast.net
+deagles@cov.com
+eullman@cov.com
+king@carneylaw.com
+mimbroscio@cov.com
+pschmidt@cov.com
+vial@carneylaw.com
+Comments:
+Sender Name: Diane Marsh - Email: dmarsh@bpmlaw.com 
+    Filing on Behalf of: Daniel L Syhre - Email: dsyhre@bpmlaw.com (Alternate Email: dmarsh@bpmlaw.com)
+Address: 
+701 Pike St.
+Suite 1400 
+Seattle, WA, 98101 
+Phone: (206) 292-9988
+Note: The Filing Id is 20211227163310SC628303
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 

@@ -195,15 +195,16 @@ class CitationService:
                 'error': 'No text provided',
                 'task_id': task_id
             }
-        
+
         try:
             # Process citations from text
             result = self.process_citations_from_text(text)
-            
+
             return {
                 'status': 'completed',
                 'task_id': task_id,
                 'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),  # ✅ FIX: Include clusters in async response
                 'statistics': result.get('statistics', {}),
                 'metadata': {
                     'source_name': source_name,
@@ -211,7 +212,7 @@ class CitationService:
                 },
                 'processing_time': time.time() - time.time()  # Will be set by caller
             }
-            
+
         except Exception as e:
             raise
     

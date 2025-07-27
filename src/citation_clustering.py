@@ -717,5 +717,5 @@ def _propagate_best_extracted_to_clusters(citations: list):
     #                         citation.extracted_date = other.extracted_date
     pass
 
-    # Return the clusters that were built
-    return list(clusters_by_id.values()) 
+    # Return the properly formatted clusters
+    return result_clusters 

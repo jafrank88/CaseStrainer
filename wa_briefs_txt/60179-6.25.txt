@@ -1,0 +1,878 @@
+
+--- Page 1 ---
+ 
+ 
+IN THE COURT OF APPEALS OF THE STATE OF WASHINGTON 
+ 
+DIVISION  II 
+ 
+WASHINGTON STATE ASSOCIATION OF 
+No.  60179-6-II 
+COUNTIES, a Washington non-profit  
+ 
+association; LINCOLN COUNTY, a political 
+subdivision of the State of Washington;  
+ 
+PACIFIC COUNTY, a political subdivision of  
+ 
+the State of Washington; and YAKIMA 
+ 
+COUNTY, a political subdivision of the State 
+PUBLISHED OPINION 
+of Washington,  
+ 
+ 
+ 
+ 
+ 
+ 
+Appellants,  
+ 
+ 
+ 
+v. 
+ 
+ 
+ 
+STATE OF WASHINGTON,  
+ 
+ 
+ 
+ 
+ 
+ 
+Respondents. 
+ 
+ 
+ 
+ 
+ 
+ 
+PRICE, J. — This case involves a constitutional challenge to the way criminal defense for 
+indigent defendants is funded in this state.  Currently, the State pays only a small percentage of 
+these costs.  See RCW 10.101.050, .060; RCW 43.330.190.  Washington’s counties are responsible 
+for providing the remainder of the funding for indigent defense services.   
+ 
+These indigent defense services must meet certain standards.  Counties must adhere to 
+guidelines regarding attorney compensation, caseload limits, attorney monitoring, attorney 
+qualifications, and attorney training and are responsible for implementing these guidelines and 
+creating and administering local indigent defense services within their county.  RCW 10.101.030. 
+Filed 
+Washington State 
+Court of Appeals 
+Division Two 
+ 
+July 22, 2025 
+
+--- Page 2 ---
+No. 60179-6-II 
+ 
+2 
+ 
+Washington State Association of Counties,1 Lincoln County, Pacific County, and Yakima 
+County (collectively “the Counties”) have brought this action against the State claiming that the 
+funding system for indigent defense services is unconstitutional.  The Counties allege that the 
+system does not provide sufficient funding for their indigent defense services to meet constitutional 
+standards.  Additionally, the Counties allege that there are gross disparities among their abilities 
+to raise funding for indigent defense, which adversely affects poorer counties.  These systemic 
+deficiencies, according to the Counties, violate equal protection and the right to counsel in the state 
+and federal constitutions.   
+ 
+The Counties’ complaint seeks both declaratory judgment and a permanent injunction.  The 
+permanent injunction would require the State to provide adequate funding for indigent defense 
+services.   
+ 
+The State moved under CR 12(b)(6) to dismiss the Counties’ complaint on the basis of 
+standing.  The State argued that the complaint was premised on rights held by individual 
+defendants, not the Counties, and that even if the Counties had standing, the superior court could 
+not issue a permanent injunction without violating separation of powers principles.   
+ 
+Without reaching the issue of the permanent injunction, the superior court agreed with the 
+State that the Counties lacked standing, and it dismissed the Counties’ complaint with prejudice.   
+ 
+Our task is not to adjudicate the merits of the Counties’ complaint nor to offer opinions 
+about the desirability of the current system of funding indigent criminal defense in our state.  Our 
+                                                 
+1 Washington State Association of Counties is a coordinating agency for county legislative 
+authorities, authorized by RCW 36.32.350. 
+
+--- Page 3 ---
+No. 60179-6-II 
+ 
+3 
+sole task is to determine whether the Counties have standing to bring their claims.  We hold that 
+they do.  Accordingly, we reverse the superior court and remand for further proceedings.   
+FACTS 
+ 
+Before discussing the parties’ dispute, we begin with a brief background about the right to 
+counsel and the administration of indigent defense services in Washington. 
+I.  RIGHT TO COUNSEL 
+ 
+The Sixth Amendment to the United States Constitution states that “[i]n all criminal 
+prosecutions, the accused shall enjoy the right to . . . have the assistance of counsel for his defense.”  
+The right to counsel is a fundamental right, and thus, it imposes an obligatory duty on to the states 
+to provide counsel to indigent defendants through the Fourteenth Amendment.  Gideon v. 
+Wainwright, 372 U.S. 335, 342-44, 83 S. Ct. 792, 9 L. Ed. 2d 799 (1963); Luis v. United States, 
+578 U.S. 5, 11, 136 S. Ct. 1083, 194 L. Ed. 2d 256 (2016). 
+ 
+Similarly, article I, section 22 of Washington’s constitution guarantees, “In criminal 
+prosecutions the accused shall have the right to appear and defend in person, or by counsel . . . .”  
+And article I, section 3, mirroring the Fourteenth Amendment, provides, “No person shall be 
+deprived of life liberty, or property, without due process of law.”  WASH. CONST. art. I, § 3.   
+ 
+Our Supreme Court has declared that the right to counsel is of “paramount importance to 
+all persons appearing in our courts.”  City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 
+(1983).  Due to its fundamental nature, it is not enough that the State refrain from interfering with 
+a criminal defendant’s ability to obtain criminal legal counsel; the right to counsel requires the 
+State to actively provide criminal defense services to those who cannot afford it.  See Davison v. 
+State, 196 Wn.2d 285, 293, 466 P.3d 231 (2020) (“The State plainly has a duty to provide indigent 
+
+--- Page 4 ---
+No. 60179-6-II 
+ 
+4 
+public defense services—both our state and federal constitutions guarantee the accused the right 
+to counsel.”).   
+ 
+Moreover, the right to counsel is essential to principles of due process and the right to a 
+fair trial.  Gideon, 372 U.S. at 340-42.  The right to counsel protects not only the rights of individual 
+defendants but also the legitimacy of the adversary process.  Kimmelman v. Morrison, 477 U.S. 
+365, 374, 106 S. Ct. 2574, 91 L. Ed. 2d 305 (1986) (“The essence of an ineffective-assistance 
+claim is that counsel’s unprofessional errors so upset the adversarial balance between defense and 
+prosecution that the trial was rendered unfair and the verdict rendered suspect.”).  Thus, its 
+protection is not only the State’s obligation owed to criminal defendants, it is also a legitimate 
+interest of government itself.  See Singer v. United States, 380 U.S. 24, 36, 85 S. Ct. 783, 
+13 L. Ed. 2d 630 (1965) (“[T]he Government . . . has a legitimate interest in seeing that cases in 
+which it believes a conviction is warranted are tried before the tribunal which the Constitution 
+regards as most likely to produce a fair result.”). 
+II.  ADMINISTRATION OF INDIGENT DEFENSE SERVICES IN WASHINGTON 
+ 
+In Washington, the State’s duty to “safeguard the right to counsel” is shared among the 
+legislative, executive, and judicial branches, as well as political subdivisions.  Davison, 196 Wn.2d 
+at 295; RCW 10.101.005.  Thus, counties and cities also have a constitutional duty alongside the 
+State to ensure criminal defendants have the right to counsel and the right to a fair trial.  Davison, 
+196 Wn.2d at 295; RCW 10.101.005.   
+ 
+Indeed, counties and cities are largely responsible for the administration of indigent defense 
+services.  Davison, 196 Wn.2d at 289 (“Our legislature has delegated the duty to enforce the right 
+
+--- Page 5 ---
+No. 60179-6-II 
+ 
+5 
+to counsel to local governments—counties and cities.”).  For example, RCW 10.101.030 mandates 
+that cities and counties “adopt standards for the delivery of public defense services” that include: 
+Compensation of counsel, duties and responsibilities of counsel, case load limits 
+and types of cases, responsibility for expert witness fees and other costs associated 
+with representation, administrative expenses, support services, reports of attorney 
+activity and vouchers, training, supervision, monitoring and evaluation of 
+attorneys, substitution of attorneys or assignment of contracts, limitations on 
+private practice of contract attorneys, qualifications of attorneys, disposition of 
+client complaints, cause for termination of contract or removal of attorney, and 
+nondiscrimination. . . .  
+ 
+ 
+In addition to being responsible for administering constitutionally adequate indigent 
+defense services, counties are also responsible for funding the majority of these services.  “ ‘[T]he 
+general rule is that counties are burdened with the cost of administering the criminal laws within 
+their boundaries and, in the absence of statutory authority, are not entitled to reimbursement from 
+the State.’ ”  Thurston County ex rel. Snaza v. City of Olympia, 193 Wn.2d 102, 104-05, 440 P.3d 
+988 (2019) (alteration in original) (quoting State v. Agren, 32 Wn. App. 827, 828, 650 P.2d 238 
+(1982)).  The State is required to provide indigent defense funding only in the context of specific 
+grant or reimbursement programs, which allow counties to apply for funding that goes toward 
+expenses only related to “improving the quality of public defense services” or related to aggravated 
+murder cases.  See RCW 10.101.050, .060; RCW 43.330.190.   
+ 
+Our Supreme Court has recognized that there may be flaws in the statutory scheme for 
+indigent defense.  In Davison, the court commented that the high number of ineffective assistance 
+of counsel claims “might be a symptom of structural problems with [Washington’s] current state 
+system governing indigent public defense.”  196 Wn.2d at 303 n.7.  The court also noted that 
+despite counties and cities bearing the brunt of financing indigent defense services, “the legislature 
+retains ultimate responsibility for drafting a statutory scheme that sufficiently safeguards the 
+
+--- Page 6 ---
+No. 60179-6-II 
+ 
+6 
+constitutional right to counsel.”  Id. at 300.2  Even more recently, when ordering reduced caseload 
+maximums for indigent defense attorneys, our Supreme Court described public defense in 
+Washington to be in a “crisis” that “requires action now . . . to support quality defense 
+representation at every level.”  In re Standards for Indigent Defense Implementation of  
+CrR 3.1, CrRLJ 3.1, and JuCR 9.2, Ord. No. 25700-A-1644, at 2 (Wash. Jun. 9, 2025), 
+https://www.courts.wa.gov/content/publicUpload/Supreme%20Court%20Orders/Order%202570
+0-A-1644.pdf. 
+III.  THE COUNTIES’ COMPLAINT AND ITS DISMISSAL BY THE SUPERIOR COURT 
+ 
+In September 2023, the Counties filed a complaint against the State to challenge this 
+statutory scheme for funding indigent defense.  The complaint alleges that the funding scheme 
+violates the right to counsel under the Sixth and Fourteenth Amendments to the United States 
+Constitution and article I, sections 3, and 22 of the Washington State Constitution and violates the 
+equal protection provisions guaranteed by the Fourteenth Amendment to the United States 
+Constitution and article I, section 12 of the Washington Constitution.   
+ 
+The complaint alleges that the State “delegates the vast majority of trial court indigent 
+defense obligations to counties” and, under the current system, over 96 percent of the cost of trial 
+court indigent defense is paid for by counties.  Clerk’s Papers (CP) at 4.  This, combined with 
+limits on county taxing authority, “systematically fails to provide counties across Washington with 
+                                                 
+2 The Davison concurrence also called attention to multiple legislative initiatives seeking to 
+improve public defense dating back to the 1980s, multiple articles “documenting chronic public 
+defense deficiencies,” and lawsuits brought against counties for “systematically failing to provide 
+adequate public defense,” observing that “[t]he State has known for a long time” that the current 
+statutory public defense scheme “has often led to the systematic deprivation of effective assistance 
+of counsel.”  196 Wn.2d at 304-05 (González, J., concurring). 
+ 
+
+--- Page 7 ---
+No. 60179-6-II 
+ 
+7 
+the authority and means necessary to furnish constitutionally adequate indigent defense services 
+and denies indigent defendants equal access to justice.”  CP at 4.  In support of this claim, the 
+complaint cites to numerous reports, dating back over 30 years, that detail the negative impacts of 
+Washington’s statutory scheme for indigent defense.3   
+ 
+The complaint also alleges that the current funding scheme impacts indigent criminal 
+defendants differently “based solely on their ability to pay and/or the jurisdiction where they are 
+charged,” creating inadequacies and disparities that “infring[e] on their fundamental right to 
+counsel.”  CP at 34.  It highlights disparities among counties for funding indigent defense services, 
+citing differences in indigent defense budgets, attorney salaries, and oversight.  For example, the 
+complaint alleges that Washington’s counties that have the most resources spend an average of 
+$3,463 per case, which is over two times the average amount spent per case statewide.  “At the 
+other end of the spectrum, . . . spending per case is about $737—about half the statewide average.”  
+CP at 19.  Similarly, compensation for indigent defense attorneys can vary from $40 to $125 per 
+                                                 
+3 Among other reports, the complaint cites findings from a legislative taskforce in 1988 that found 
+that extremely high caseloads, local concerns over increasing public defense costs, and variances 
+of public defense standards “threatened the ‘continued delivery of services to meet minimum 
+constitutional requirements.’ ”  CP at 20, 212, 269 (quoting OFF. OF ADM’R FOR CTS., INDIGENT 
+DEFENSE IN WASHINGTON STATE: 1990 REPORT OF THE INDIGENT DEFENSE TASK FORCE 1 (June 
+1990) [https://perma.cc/8JQK-P2VA]).  The task force recommended that the State fund up to 
+50 percent of indigent defense costs.  Another report cited was a 2003 report from the Washington 
+Office of Juvenile Justice and others that found that “ ‘the quality of counsel a child encounters 
+depends significantly on where he or she lives,’ and not[ed] that most counties had failed to adopt 
+and/or implement and enforce standards for delivery of public defense as required under 
+[Washington law].”  CP at 24, 212, 552 (quoting ELIZABETH M. CALVIN, AM. BAR ASS’N, 
+WASHINGTON: AN ASSESSMENT OF ACCESS TO COUNSEL AND QUALITY OF REPRESENTATION IN 
+JUVENILE OFFENDER MATTERS 45 (Oct. 2003) [https://perma.cc/V6AS-D4DB]).  The report also 
+concluded that “ ‘[i]ncreasingly limited state and local funding [was] affecting the availability of 
+investigation funding for juvenile cases.’ ”  CP at 24, 212, 552 (quoting CALVIN, supra, at 31).  
+Copies of these, and other, reports were later attached to additional pleadings and filed with the 
+superior court.   
+
+--- Page 8 ---
+No. 60179-6-II 
+ 
+8 
+hour.  The complaint also cites to reports that suggest that these disparities in attorney 
+compensation have led to some counties struggling to retain sufficient attorneys to represent 
+indigent defendants—resulting in those counties having less resources and having attorneys with 
+higher caseloads.   
+ 
+According to the complaint, these disparities are not new.  Discussed in the complaint, a 
+2003 report—describing the quality of youth representation as “inconsistent and unpredictable” 
+and leading to many children failing to receive “effective legal representation”—found that 
+although generally youth defendants had representation at most criminal hearings, “some counties 
+do not ever provide counsel at probable cause hearings, and, in some counties, young people go 
+forward in a variety of hearings without the assistance of counsel.”  CP at 23-24, 508, 510.4   
+ 
+The complaint requests a declaration that Washington’s indigent defense system is 
+unconstitutional, as well as a permanent injunction “requiring the State to provide stable, 
+dependable, and regular state funding sufficient to enable counties across Washington to provide 
+constitutionally adequate . . . indigent defense services in addition to other critical services they 
+must provide for their residents.”  CP at 37.   
+ 
+The State moved to dismiss the Counties’ complaint under CR 12(b)(6).  The State argued 
+that the Counties lacked standing “to assert constitutional claims premised on the right to counsel, 
+equal protection, or due process” because those rights “belong[ed]” to indigent criminal 
+defendants.  CP at 42.  This lack of standing, the State argued, could not be cured simply by 
+alleging that the matter was of “public importance.”  CP at 42 (internal quotation marks omitted).  
+The State also argued that separation of powers principles prevented the superior court from 
+                                                 
+4 CALVIN, supra, at 510. 
+
+--- Page 9 ---
+No. 60179-6-II 
+ 
+9 
+granting the Counties a permanent injunction, which the State characterized as a “funding request.” 
+CP at 43.   
+ 
+Following a hearing, the superior court dismissed the Counties’ complaint with prejudice 
+on the basis of standing.  Because the dismissal was based solely on standing, the superior court 
+did not reach the issue of whether a permanent injunction would be an appropriate remedy. 
+ 
+The Counties appeal. 
+ANALYSIS 
+I.  LEGAL PRINCIPLES 
+ 
+A.  12(b)(6) MOTION TO DISMISS 
+ 
+We review an order granting a motion to dismiss under 12(b)(6) de novo.  Tavaglione v. 
+Dehkhoda & Qadri, P.C., ___Wn. App. 2d___, 568 P.3d 1158, 1160 (2025).  When evaluating 
+whether dismissal was appropriate, we presume all the allegations in the complaint to be true.  Id. 
+at 1161.  “ ‘[A]ny hypothetical situation conceivably raised by the complaint . . . is legally 
+sufficient to support the plaintiff’s claim.’ ”  Id. (second alteration in original) (internal quotation 
+marks omitted) (quoting Jackson v. Quality Loan Serv. Corp. of Wash., 186 Wn. App. 838, 843, 
+347 P.3d 487 (2015)).  
+ 
+B.  STANDING 
+ 
+“ ‘Standing is a party’s right to make a legal claim or seek judicial enforcement of a duty 
+or right.’ ”  Kanam v. Kmet, 21 Wn. App. 2d 902, 908, 508 P.3d 1071 (2022) (internal quotation 
+marks omitted) (quoting State v. Link, 136 Wn. App. 685, 692, 150 P.3d 610 (2007)).  To establish 
+standing to challenge the constitutionality of a statute, a party must show (1) that, by bringing suit, 
+they are seeking to protect an interest that “ ‘is arguably within the zone of interests to be protected 
+
+--- Page 10 ---
+No. 60179-6-II 
+ 
+10 
+or regulated by the statute or constitutional guarantee in question,’ ” and (2) that they have suffered 
+“injury in fact.”  To-Ro Trade Shows v. Collins, 144 Wn.2d 403, 414, 27 P.3d 1149 (2001) (internal 
+quotation marks omitted) (quoting Seattle Sch. Dist. No. 1 v. State, 90 Wn.2d 476, 493-94, 
+585 P.2d 71 (1978)).  Standing is a legal question that we review de novo.  Kanam, 21 Wn. App. 
+at 909.   
+ 
+The “zone of interest” requirement, as a component of standing, helps to ensure that parties 
+bringing legal action do not assert rights that do not belong to them.  See Wash. State Hous. Fin. 
+Comm’n v. Nat’l Homebuyers Fund, Inc., 193 Wn.2d 704, 715, 445 P.3d 533 (2019) (the “zone of 
+interest” requirement generally limits standing to only parties who were intended to be affected by 
+the statute being challenged); Walker v. Munro, 124 Wn.2d 402, 419, 879 P.2d 920 (1994).  In 
+order to determine whether a party falls within the zone of interest regulated or protected by the 
+statute or constitutional guarantee in question, we look at the statute or constitutional guarantee’s 
+purpose.  Nat’l Homebuyers Fund, 193 Wn.2d at 715; To-Ro Trade Shows, 144 Wn.2d 
+at 414-15.   
+ 
+Because constitutional rights are directed at the protection of individual interests, 
+municipal corporations are not typically within the zone of interest of individual constitutional 
+guarantees.  See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way, 195 Wn.2d 742, 773, 
+466 P.3d 213 (2020) (sewer and water district lacked standing to challenge city’s excise tax for 
+violating due process); Locke v. City of Seattle, 162 Wn.2d 474, 482-83, 172 P.3d 705 (2007) (city 
+lacked standing to challenge “right to sue” provision of statute for violating the privileges and 
+immunities clause); Stevens County v. Stevens County Sheriff’s Dep’t, 20 Wn. App. 2d 34, 37, 46, 
+
+--- Page 11 ---
+No. 60179-6-II 
+ 
+11 
+499 P.3d 917 (2021) (county lacked standing to challenge statute for violating the Second 
+Amendment), review denied, 199 Wn.2d 1008 (2022).   
+ 
+But this “is not an insurmountable barrier.”  City of Seattle v. State, 103 Wn.2d 663, 668, 
+694 P.2d 641 (1985).  For example, in City of Seattle, our Supreme Court held that the City of 
+Seattle (City) was within the zone of interest of the constitutional guarantee of equal protection 
+(even though the equal protection clause typically protects individuals and not entities), when there 
+was an intertwining of the interests of individuals’ rights and the direct interests of the municipal 
+corporation.  Id. at 668-69 (holding that the plaintiff city had standing to challenge statute because 
+it “ha[d] a direct interest in the fairness and constitutionality of the process by which it annexes 
+territory” and because “it ha[d] a duty to represent the interests of [its] residents, as well as its 
+own”).  Municipal corporations can also show that they fall within the zone of interest of a 
+constitutional guarantee if the challenged statute imposes “financial constraints” that impede the 
+municipal corporation’s ability to meet its constitutional obligations that have been delegated to it 
+by the state of Washington.  Seattle Sch. Dist., 90 Wn.2d at 493-94.   
+ 
+The “injury in fact” requirement “precludes those whose injury is speculative or abstract, 
+rather than actual, from bringing an action.”  Nat’l Homebuyers Fund, 193 Wn.2d at 716.  An 
+injury in fact may include economic or noneconomic injury.  Id.   
+ 
+Additionally, we afford standing more liberally when the relevant controversy is of 
+substantial public importance.  Id. at 718 (“[T]his court has taken a ‘less rigid and more liberal’ 
+approach to standing when necessary to ensure that an issue of substantial public importance does 
+not escape review.”) (internal quotation marks omitted) (quoting Grant County Fire Prot. Dist. 
+No. 5 v. City of Moses Lake, 150 Wn.2d 791, 803, 83 P.3d 419 (2004)).  When determining whether 
+
+--- Page 12 ---
+No. 60179-6-II 
+ 
+12 
+this liberal approach should be applied, courts will look at whether the resolution of the case will 
+have a direct effect on both the people and the economy of the state.  Id. at 718-19.   
+ 
+Typically, this “liberal approach” has been applied “only in cases where the plaintiff whose 
+standing was challenged was the only plaintiff in the case and the liberal approach was necessary 
+to ensure that the important public issues raised did not escape review.”  Grant County, 150 Wn.2d 
+at 803 (emphasis omitted); see, e.g., Vovos v. Grant, 87 Wn.2d 697, 701, 555 P.2d 1343 (1976) 
+(applying more liberal view of standing in order to allow public defender to raise issues of youth 
+because the youth would have had “difficulty . . . vindicat[ing] their rights on their own”).  If 
+another party could “more effectively” raise the arguments alleged in the complaint, this liberal 
+approach will generally not be applied.  Grant County, 150 Wn.2d at 803.   
+II.  THE PARTIES DISPUTE THE COUNTIES’ STANDING  
+ 
+In this appeal, the Counties argue that their standing to bring their complaint is clear.  
+Relying heavily on our Supreme Court’s decisions in City of Seattle and Seattle School District, 
+the Counties contend that because they are charged with fulfilling the State’s constitutional duty 
+to provide indigent defense, they are well within the zone of interest to challenge the State’s 
+financing system for that duty.  According to the Counties, the financing system directly harms 
+their ability to obtain the revenue necessary to provide constitutionally sufficient indigent defense 
+services while, at the same time, funding other critical services for their residents.  This impact, 
+they assert, is also sufficient to establish an injury in fact.  Moreover, even if the question of their 
+standing was a “close call,” the Counties argue that the liberal approach to standing should be 
+applied because the issue is of “serious public importance.”  Opening Br. at 61.   
+
+--- Page 13 ---
+No. 60179-6-II 
+ 
+13 
+ 
+The State disagrees, contending that at its core, the Counties’ complaint alleges the 
+aggregated claims of individual criminal defendants.  The State argues that the right to counsel is 
+“personally held” by these criminal defendants and that state and federal precedent have warned 
+in other contexts that such rights cannot be asserted “vicariously” or through third parties.  Wash. 
+Ct. of Appeals oral arg., Wash. State Ass’n of Counties v. State, No. 60179-6 (Jun. 16, 2025), at 
+14 min., 51 sec. through 15 min., 8 sec., 16 min., 28 sec. through 16 min., 41 sec., video recording 
+by TVW, Washington State’s Public Affair’s Network, https://tvw.org/video/division-2-court-of-
+appeals-2025061180/?eventID=2025061180.  According to the State, because these rights belong 
+solely to the defendants, the Counties cannot be within the zone of interest.5   
+ 
+The State also alleges that the Counties lack standing because they cannot show sufficient 
+factual injury.  The State points out that the Counties do not actually allege that they are failing to 
+fulfill their constitutional duty, they merely argue that they have to reallocate their finances from 
+other projects.  This, the State contends, is a far cry from a harm of constitutional magnitude—it 
+is merely a “budgetary case.”  Resp’t’s Br. at 62.   
+ 
+Finally, the State argues that the Counties also should not benefit from a liberalized 
+approach to standing for issues of significant public importance.  The State contends that the 
+Counties’ interest in bringing this suit is self-serving and that the Counties seek to bring this claim 
+only as a way to obtain more revenue from the State.  The State essentially argues that if the 
+Counties are allowed to bring this challenge, the criminal justice system as a whole will get worse 
+                                                 
+5 Like the Counties, the State also heavily relies on City of Seattle and Seattle School District; 
+except that the State argues these cases actually support its position, not the Counties’.  We address 
+the applicability of City of Seattle and Seattle School District below. 
+ 
+
+--- Page 14 ---
+No. 60179-6-II 
+ 
+14 
+for criminal defendants, not better.  The State explains that a funding scheme in which the Counties 
+are forced to pay for indigent defense is critical to the balance of the criminal justice system.  If 
+the Counties are no longer paying for criminal defense, the State speculates that the Counties would 
+choose to increase their funding for law enforcement and prosecutions without worrying about 
+cost consequences on criminal defense funding—leading to more law enforcement.  Because this 
+would harm criminal defendants in the long run, the State suggests that criminal defendants must 
+bring these claims themselves, making the liberal approach to standing for issues of public 
+importance inapplicable.   
+III.  ZONE OF INTEREST 
+ 
+We begin our discussion with the zone of interest requirement.  The Counties must show 
+that they are within the zone of interest of the rights they assert, specifically the rights to counsel 
+and equal protection, within the context of their claim challenging the structural deficiencies in the 
+statutory scheme for indigent defense services.  We base our analysis on the applicability of the 
+case law extensively cited by both parties—City of Seattle and Seattle School District.   
+ 
+A.  APPLICABILITY OF CITY OF SEATTLE 
+ 
+In City of Seattle, the plaintiff City challenged the constitutionality of two statutes 
+governing annexation of territory.  103 Wn.2d at 665-66.  The superior court dismissed the City’s 
+complaint, in part, on the issue of standing.  In reversing, our Supreme Court acknowledged that a 
+municipal corporation has standing to challenge a statute for violating equal protection and the 
+right to vote under some circumstances.  Id. at 668.  The court suggested that although the right to 
+vote is an individual right, it implicates the integrity of the democratic process.  Id.  And because 
+a local government has its own direct interest in protecting the integrity of the democratic process, 
+
+--- Page 15 ---
+No. 60179-6-II 
+ 
+15 
+the local government would be in the zone of interest of an equal protection claim regarding the 
+right to vote.  Id. at 669.   
+Our Supreme Court explained, “Protection for the integrity of the political process, as well 
+as individuals’ rights, is within the zone of interests protected by the equal protection clause.”  Id. 
+at 668-69.  And, because the City would be “constrained by the procedures established by the 
+State” if it chose to annex territory, it “ha[d] a direct interest in the fairness and constitutionality 
+of the process by which it annexes territory.”  Id. at 669.  In addition to its own “personal” interest, 
+the City also had an interest in a sort of representative capacity because its interests in raising this 
+equal protection claim were intertwined with those of its residents.  Id.  (“Once the City has 
+initiated or approved an annexation petition, it has a duty to represent the interests of area residents, 
+as well as its own interests in further proceedings.”).  Thus, the combination of the City’s 
+independent, direct interest in the statute’s implications for the integrity of the democratic process, 
+and the fact this interest was closely tethered to the constitutional rights of the City’s individual 
+residents, was sufficient for the City to be within the zone of interest to bring this claim.  
+ 
+The Counties contend that, like in City of Seattle, they “have a direct interest in the 
+constitutional integrity of the State’s statutory scheme.”  Reply Br. at 17.  Therefore, because their 
+complaint’s allegations “show the State’s scheme requires them to provide public defense services 
+while failing to provide adequate funding . . . to do so in a constitutionally adequate manner,” the 
+Counties are within the zone of interest to challenge that scheme on equal protection grounds.  
+Reply Br. at 17. 
+ 
+The State draws the opposite conclusion from City of Seattle.  The State reasons that the 
+plaintiff City was within the zone of interest to challenge the annexation statutes because the City, 
+
+--- Page 16 ---
+No. 60179-6-II 
+ 
+16 
+as a municipality, had both a direct interest in statutes that affect its potential annexation of territory 
+and because the City’s interest was aligned with the interests of the City’s residents (who had clear 
+standing).  However, here, the State contends that the rights that are implicated are strictly personal 
+to individual indigent defendants.  And, far from being aligned, the Counties’ interests, because 
+they actually prosecute criminal defendants, are in fact adverse to those of indigent defendants, 
+making any sort of representational standing impossible.   
+ 
+We disagree that City of Seattle helps the State.  The functioning of the criminal justice 
+system (through the adequate provision of indigent defense counsel) is a direct interest for 
+counties.  See City of Seattle, 103 Wn.2d at 669.  Indeed, although the right to counsel belongs to 
+individual defendants, the right is integral to our legal system, which counties are required to 
+administer.  See Kimmelman, 477 U.S. at 374; Singer v. United States, 380 U.S. at 36; RCW 
+10.101.030.  Focusing on only the Counties’ coexistent responsibility to fund criminal 
+prosecutions views the Counties’ interests too narrowly.  The Counties have equal duties to 
+prosecute criminal defendants and to safeguard defendants’ right to counsel.  See Kimmelman, 
+477 U.S. at 374; Singer v. United States, 380 U.S. at 36; RCW 10.101.005; Davison, 196 Wn.2d 
+at 295.  The Counties also have a direct interest in the constitutionality and fairness of the criminal 
+legal system, and in that way, their interests are closely aligned with those of indigent defendants—
+accordingly, City of Seattle supports the conclusion that the Counties are within the zone of interest 
+for their claim.6 
+                                                 
+6 At oral argument, the State suggested that the City in City of Seattle was granted standing only 
+because “there was an overlap of interests between those of the property owners who had equal 
+protection rights and that of the City” and “because the City was able to have representative 
+standing.”  Wash. Ct. of Appeals oral arg., supra, at 13 min., 0 sec. through 13 min., 12 sec.; 13 
+min., 26 sec. though 13 min., 30 sec.  We agree that City of Seattle requires a municipal corporation 
+
+--- Page 17 ---
+No. 60179-6-II 
+ 
+17 
+ 
+Having established that City of Seattle supports the Counties’ position, we turn to Seattle 
+School District—another case each party claims is dispositive of a result in their favor.  
+ 
+B.  APPLICABILITY OF SEATTLE SCHOOL DISTRICT 
+ 
+In Seattle School District, our Supreme Court addressed whether Seattle School District 
+No. 1 (District) had standing to bring suit against the State related to school funding.  90 Wn.2d at 
+490-95.  The District alleged that the State’s system for funding school districts violated the State’s 
+“ ‘paramount duty’ ” under the Washington Constitution “ ‘to make ample provision’ ” for 
+education and its duty to “ ‘provide for a general and uniform system of public schools.’ ”  Id. at 
+485-86, 493 (quoting WASH. CONST. art. 9, §§ 1, 2).   
+ 
+In analyzing the District’s standing, our Supreme Court evaluated how Washington’s 
+school financing system “ha[d] been found insufficient to provide the basic operation and 
+maintenance of schools.”  Id. at 492.  Under this system, school districts were broadly required to 
+meet statutory educational standards, but they allegedly received insufficient funding from the 
+State to meet these standards.  Id. at 485.  Instead, school districts were somewhat expected to seek 
+more adequate funding through local special excess levy elections.  Id.  However, these special 
+levies were not dependable sources of funding, and when the levies failed, school districts were 
+entirely dependent on state funding.  Id.  This led to schools being forced to defer maintenance, 
+                                                 
+to have their own direct interest and have “an overlap of interest” with the individuals who clearly 
+have standing.  However, we disagree that this “overlap of interest” can only exist if a municipal 
+corporation also has representative standing.  While meeting the requirements for representational 
+standing is certainly one way to show sufficiently aligned interests, it is not required.  In fact, the 
+State’s overly narrow reading of City of Seattle is belied by the fact that the court discussed the 
+City’s direct interests in the “integrity of the political process” and its alignment with the interests 
+of its voters separately from the City’s potential representational standing.  See 103 Wn.2d at 668-
+69.   
+
+--- Page 18 ---
+No. 60179-6-II 
+ 
+18 
+cutback on educational programs and teaching material, and reduce teaching staff.  Id. at 493.  In 
+addition to having a direct negative impact on the schools’ ability to educate its students, this 
+insufficient funding also resulted in increasing lawsuits against school districts.  Id.   
+ 
+Given the ways that the State’s school financing system imposed “actual financial 
+constraints” on the District that impeded its ability to comply with constitutional requirements, our 
+Supreme Court said that it would be “difficult to imagine” a party with a greater interest in this 
+litigation than the District.  Id. at 492.  It explained, 
+The interests of the District are not theoretical; they involve actual financial 
+constraints imposed upon the District by the challenged system itself.  In short, the 
+interests sought to be protected by the District are within the zone of interest either 
+regulated by the challenged regulations and legislation or by Const. art. 9, §§ 1 and 
+2.  Under these circumstances it would be unreasonable to deny standing to the 
+District which, far from being a nominal party, stands at the very vortex of the entire 
+financing system. 
+ 
+Id. at 493-94.   
+ 
+Here, the Counties argue that Seattle School District stands for the principle that local 
+governments are within the zone of interest to “challeng[e] the failure of a statutory scheme to 
+provide sufficient resources for them to carry out an ‘obligatory’ constitutional duty.”  Opening 
+Br. at 41 (quoting Davison, 196 Wn.2d at 293; State v. Kanistanaux, 68 Wn.2d 652, 654, 414 P.2d 
+784 (1966)).  Likening themselves (and their obligation to fund indigent criminal defense) to 
+school districts, the Counties argue the two situations are analogous in terms of funding—just like 
+school funding, the State’s funding scheme delegates the State’s constitutional duty to provide 
+indigent defense services to the Counties, while at the same time failing to provide them with 
+sufficient means to carry out this duty.   
+
+--- Page 19 ---
+No. 60179-6-II 
+ 
+19 
+ 
+The State rejects this comparison, arguing that the rights at issue in Seattle School District 
+and the rights at issue here are too “fundamentally different.”  Resp’t’s Br. at 37.  The State makes 
+the distinction that the right to a funded education is a “freestanding” right that “belongs to all 
+children within our [s]tate” whereas the right to counsel is “an individual right that is triggered 
+when the government prosecutes an indigent person.”  Resp’t’s Br. at 38.  The State also reasons 
+that in Seattle School District, our Supreme Court emphasized (and has repeatedly emphasized 
+since) that the State’s duty to fund education is “ ‘unique’ ” and “ ‘paramount’ ” because it is 
+derived from the express language of Washington’s Constitution.  Resp’t’s Br. at 35, 37, 39 
+(quoting Seattle Sch. Dist., 90 Wn.2d at 510, 513).  In contrast, even though criminal defendants 
+have a right to counsel, the state constitution does not expressly mention an affirmative duty for 
+the State to fund indigent defense services.   
+ 
+In emphasizing the unique nature of the right to education, the State seems to contend that 
+the applicability of Seattle School District should be limited to cases involving the right to 
+education.  Pointing to multiple other cases where municipal corporations failed to show they were 
+within the zone of interest to make constitutional claims, the State contends that “Seattle School 
+District did not confer broad, general standing for counties to sue the [S]tate over financial burdens 
+or ‘obligations’ imposed by state law, even under a more ‘liberalized view.’ ”  Resp’t’s Br. at 42.  
+It warns that granting standing to the Counties here would be an expansion that not only goes 
+against “decades of precedent” but also would “explode the standing doctrine to afford political 
+subdivisions nearly unlimited power to bring suit.”  Resp’t’s Br. at 29, 47.   
+ 
+The State also argues that not only are the rights involved in Seattle School District and 
+this case too different, the parties in the two cases “are not similarly situated.”  Resp’t’s Br. at 36.  
+
+--- Page 20 ---
+No. 60179-6-II 
+ 
+20 
+The State contends that the District was within the zone of interest to challenge Washington’s 
+education system because providing education is “ ‘[t]he basic reason school districts exist.’ ”  
+Resp’t’s Br. at 36 (quoting Seattle Sch. Dist., 90 Wn.2d at 493-94).  Counties, on the other hand, 
+exist to do many things other than paying for criminal defense.  Additionally, the State highlights 
+that the District was not representing the constitutional interests of students alone, the District was 
+joined by students and parents as co-plaintiffs.  But, here, the State points out that the Counties are 
+acting alone, asserting the rights of indigent defendants without them.  Because of these 
+differences, the State argues Seattle School District does not support the Counties’ standing in this 
+case.  We are unpersuaded by the State’s arguments.   
+ 
+The State is correct that there are differences between Seattle School District and this case.  
+School districts are not the same as counties, and the State’s duty to fund education is expressly 
+stated in the state constitution and the duty to fund indigent defense is not.  And certainly, Seattle 
+School District should not be seen as broadly supporting standing for municipal corporations to 
+make constitutional claims in all cases.   
+ 
+But, at the same time, the similarities are striking.  Both Seattle School District and this 
+case involve rights that are significant and constitutionally based, notwithstanding that only the 
+duty to fund education is found in the text of the state constitution.  See Davison, 196 Wn.2d at 
+293 (“The State plainly has a duty to provide indigent public defense services—both our state and 
+federal constitutions guarantee the accused the right to counsel.”)   
+ 
+In fact, the similarities of this case with Seattle School District make it strongly supportive 
+of standing for the Counties here.  As described in their complaint, the Counties are like the 
+District—they “stand[] at the very vortex of the entire financing system” for indigent defense 
+
+--- Page 21 ---
+No. 60179-6-II 
+ 
+21 
+services.  Seattle Sch. Dist., 90 Wn.2d at 494.  And they are required to fulfill the State’s 
+constitutional duty to provide indigent defense services and to meet minimum standards.  RCW 
+10.101.030.  And yet, the Counties allege that the State neither provides the Counties sufficient 
+funding or adequate or consistent means to provide or maintain indigent defense services that meet 
+basic constitutional requirements.   
+ 
+It is this connection between the Counties’ primary role (and responsibility) in providing 
+this fundamental constitutional requirement and the inadequate statutory funding scheme that 
+makes them and the District in Seattle School District “similarly situated.”  Despite the State’s 
+argument to the contrary, it does not matter that providing education is “ ‘[t]he basic reason school 
+districts exist’ ” while providing indigent defense services is just one of a county’s many duties.  
+Resp’t’s Br. at 36 (quoting Seattle Sch. Dist., 90 Wn.2d at 493-94).  Nor does it matter that the 
+Counties bring this claim alone and not as co-plaintiffs with indigent defendants.  These 
+differences are immaterial to the natural extension of Seattle School District’s rationale to this 
+case.  There is little daylight between these allegations and those previously made by the District.7   
+                                                 
+7 We are also unpersuaded by the State’s position that because there have been other cases where 
+municipal corporations have failed to establish standing, that we should view Seattle School 
+District very narrowly.  None of the other cases cited by the State support an overly narrow reading 
+of Seattle School District, nor do they have clear application to this case.  See Locke, 162 Wn.2d 
+at 482, 483 n.2 (denying city’s standing based on the privileges and immunities aspect of WASH. 
+CONST. art. I, § 12, yet still acknowledging that with relaxed standing requirements, a municipal 
+corporation can have standing to bring an equal protection challenge); Lakehaven Water and Sewer 
+Dist., 195 Wn.2d at 770-71 (denying sewer and water districts personal standing by distinguishing 
+that municipal corporations do not have “personhood” like private corporations and thus cannot 
+rely on cases by private corporations to assert standing for constitutional claims); City of 
+Ellensburg v. State, 118 Wn.2d 709, 715, 826 P.2d 1081 (1992) (denying the relevance of Seattle 
+School District on the narrow question of whether WASH. CONST. art. 11, § 11  (Police and Sanitary 
+Regulations) requires municipalities to provide fire protection services); Stevens County, 20 Wn. 
+App. 2d at 42-46 (denying county standing because having to enforce an allegedly unconstitutional 
+
+--- Page 22 ---
+No. 60179-6-II 
+ 
+22 
+ 
+We also do not share the State’s fears that granting the Counties standing here will open 
+the floodgates for other municipal corporations to broadly assert the rights of individuals.  Rights 
+like the right to education and the right to counsel are relatively rare; they require the government 
+to act.  See Gideon, 372 U.S. at 342-44; Seattle Sch. Dist., 90 Wn.2d at 485-86.  Like the District, 
+the Counties’ constitutional duties here are not to merely enforce existing laws or refrain from 
+encroaching on their citizens’ rights; rather, the Counties have to create, fund, and manage a whole 
+indigent defense system within their jurisdictions and ensure that that system is constitutionally 
+compliant.  See Gideon, 372 U.S. at 342-44; Seattle Sch. Dist., 90 Wn.2d at 485-86; 
+RCW 10.101.030.  Thus, the Counties’ interests here are neither “theoretical” nor adverse to the 
+interests of indigent defendants—“they involve actual financial constraints imposed upon the 
+[counties] by the challenged system itself.”  Seattle Sch. Dist., 90 Wn.2d at 493.  Because there 
+are few other circumstances that impact a municipal corporation to the same extent, there are no 
+floods to fear from granting standing to the Counties.  We agree with the Counties that Seattle 
+School District supports the conclusion that they are sufficiently within the zone of interest to have 
+standing to bring their complaint.   
+Indeed, it would also be “difficult to imagine” a party better suited to challenge the alleged 
+systemic constitutional failures of our statutory scheme for providing indigent defense.  Seattle 
+Sch. Dist., 90 Wn.2d. at 492.  As discussed above, counties have a legitimate interest in ensuring 
+the integrity of the legal system.  See Singer, 380 U.S. at 36.  While counties have a duty to 
+prosecute criminal defendants, they have an equal duty to safeguard defendants’ right to a fair trial 
+                                                 
+statute and potentially being at risk for being sued was not enough to establish injury in fact or 
+being in the zone of interest).   
+
+--- Page 23 ---
+No. 60179-6-II 
+ 
+23 
+and their right to counsel.  See id; Davison, 196 Wn.2d at 295; see also State v. Case, 49 Wn.2d 
+66, 71, 298 P.2d 500 (1956) (“ ‘The [prosecutor] is . . . representing the state, which seeks equal 
+and impartial justice, and it is as much his duty to see that no innocent man suffers as it is to see 
+that no guilty man escapes.’ ”) (quoting People v. Fielding, 158 N.Y. 542, 555, 53 N.E. 497 (1899) 
+(Haight, J. dissenting)).  And, as administrators of indigent defense services, the Counties also 
+have more insight into how the current system impacts public defender caseloads, county budgets, 
+public defender retention, public defender training and quality, and wait times for appointment of 
+counsel.  Thus, we hold that the Counties’ interests are within the zone of interest of the 
+constitutional guarantees on which they rely.8   
+IV.  INJURY IN FACT 
+ 
+Even if the Counties satisfy the zone of interest requirement, the State contends they fail 
+to meet the second requirement of injury in fact.  The State characterizes the Counties’ complaint 
+                                                 
+8 The State also argues that Davison, precludes the Counties from bringing a claim based on 
+individual rights.  The State ties this assertion to a narrow reading of the opinion’s language: 
+To the extent that the plaintiff class has alleged systemic and structural deficiencies 
+in our state system delegating authority to local governments, that allegation 
+expresses a valid ground for State liability.  But to prevail on this claim, we hold 
+the plaintiff class must show that the current statutory scheme systemically fails to 
+provide local governments, across Washington, with the authority and means 
+necessary to furnish constitutionally adequate indigent public defense services. 
+Davison, 196 Wn.2d at 300 (emphasis added).  According to the State, because our Supreme Court 
+chose to specify that a “plaintiff class” can bring a systemic claim challenging the indigent defense 
+funding system, only a plaintiff class can bring such a claim—counties cannot.  The Counties reject 
+this reading, arguing, “That [the Washington Supreme Court] referred to ‘the plaintiff class’ in 
+describing the required showing merely reflects the identity of the plaintiffs there, and does not 
+limit the scope of the claim or who can pursue it.”  Reply Br. at 10.  Like the Counties, we are 
+unpersuaded that this language from Davison is dispositive to the question of the Counties’ 
+standing in this case. 
+ 
+
+--- Page 24 ---
+No. 60179-6-II 
+ 
+24 
+as a “budgetary case premised on hypothetical constitutional violations.”  Resp’t’s Br. at 62.  The 
+State alleges that even accepting the Counties’ complaint as true, the current statutory scheme for 
+funding indigent defense services merely requires the Counties to make “financial trade[-]offs” in 
+order to fund public defense services.  Resp’t’s Br. at 61.  According to the State, the scheme in 
+no way precludes the Counties from funding public defense.  These “decision[s] to lessen funding 
+for other county services in order to provide public defense” are issues of local policy, not issues 
+of constitutional magnitude.  Resp’t’s Br. at 61.  Thus, the State argues that the Counties’ claims 
+are not based on harms related to violations of the right to counsel or equal protection; rather, they 
+are based on the Counties’ own “reluctance to impose additional economic responsibilities on their 
+residents” and their “ ‘failure to allocate [their] resources equitably.’ ”  Resp’t’s Br. at 61-62 
+(quoting Davison, 196 Wn.2d at 300).  
+ 
+The Counties respond that the State’s arguments “ignore the systemic nature of [their] 
+suit.”  Reply Br. at 19.  Because their claims are systemic, the Counties contend that they are not 
+required to support their claim with “actual deprivations of the right to counsel, due process, or 
+equal protection,” or to plead that “any particular county is ‘currently unable to provide public 
+defense services because of a lack of state funding or delegated taxing authority.’ ”  Reply Br. at 
+19 (quoting Resp’t’s Br. at 59).  Rather, the Counties contend that they must only allege that the 
+current system imposes financial constraints that impede the Counties’ ability to provide adequate 
+indigent defense services.   
+ 
+We agree that the Counties have adequately shown injury in fact, especially when we 
+construe the facts alleged in the complaint as true.  The Counties’ complaint does not allege 
+theoretical harm from the indigent defense funding system; rather, it alleges that the system’s 
+
+--- Page 25 ---
+No. 60179-6-II 
+ 
+25 
+financial constraints have directly harmed its ability to meet its constitutional duty to provide 
+indigent defense—a problem that, as seen in the many reports attached to the pleadings, has 
+spanned over three decades.  See Seattle Sch. Dist., 90 Wn.2d at 494 (explaining that school 
+district’s showing that financial constraints from statutory scheme inhibited its ability to provide 
+constitutionally adequate education was sufficient to show injury in fact).  In addition to broad 
+systemic failures, the complaint also alleges disparities among the counties, with some struggling 
+more than others to fund indigent defense services—leading to a patchwork of defense services 
+with indigent defendants, otherwise similarly situated, being subjected to the consequences of far 
+fewer resources, based solely on their own financial circumstances and the jurisdiction where they 
+are charged.  These failures not only harm the Counties’ ability to meet their constitutional duty, 
+they also harm their legitimate governmental interests, within the protections of the equal 
+protection clause, to protect the legitimacy of the criminal legal system.  See City of Seattle 103 
+Wn.2d at 668-69 (holding that city had a direct interest of the “fairness and constitutionality” of 
+its processes within the protections of the equal protection clause); Singer, 380 U.S. at 36; 
+Kimmelman, 477 U.S. at 374.  Presuming these allegations as true, the Counties have thus alleged 
+sufficient factual injury.  
+V.  ISSUE OF SUBSTANTIAL PUBLIC IMPORTANCE 
+ 
+Our conclusion is further supported by applying standing requirements with the more 
+liberal approach used when a claim involves an issue of public importance.  See Nat’l Homebuyers 
+Fund, 193 Wn.2d at 719-20.  The public importance of adequate funding for indigent criminal 
+
+--- Page 26 ---
+No. 60179-6-II 
+ 
+26 
+defense is self-evident, notwithstanding the State’s arguments to the contrary.9  As highlighted by 
+the complaint, the legislature and the public have been made aware for over 30 years that the 
+current indigent defense system does not “meet minimum constitutional requirements.”  CP at 20, 
+212, 269; see also Davison, 196 Wn.2d at 304-05 (González, J., concurring) (“The State has known 
+for a long time” that the current statutory public defense scheme “has often led to the systematic 
+deprivation of effective assistance of counsel.”).  The funding disparities among the counties, as 
+pled in the complaint, exacerbates the hardships experienced by indigent defendants and the 
+decline of our criminal justice system.  And with the recent modifications of maximum caseload 
+standards for indigent defense counsel, demands on these limited resources will be increasing.  As 
+the landscape is presented in the Counties’ complaint, any improvement is unlikely without some 
+sort of change.  These issues, thus far, have escaped review—even if other plaintiffs could 
+effectively bring a similar systemic challenge to the State’s funding scheme for indigent defense, 
+none has. 
+Our Supreme Court has suggested that in order to “ensure that an issue of substantial public 
+importance does not escape review,” viewing standing through the liberal lens of the public interest 
+approach is appropriate when needed to resolve a “close call,” or when it is “unclear whether a 
+                                                 
+9 One of the State’s arguments that this lawsuit does not represent an issue of public importance is 
+that if funding for criminal defense is shifted away from the counties, the counties would, as a 
+result, increase their funding of prosecutions.  This argument appears to suggest that counties 
+currently fund their prosecutorial functions at a lower level because they are also responsible for 
+funding criminal defense.  Thus, removing the counties’ obligation to fund defense would actually 
+harm defendants in the long run.  Not only does this argument have little to do with whether 
+adequate funding for indigent criminal defense is an issue of public importance, we do not share 
+the State’s cynicism in how our State’s counties approach their responsibilities to administer 
+criminal justice in their jurisdictions. 
+ 
+
+--- Page 27 ---
+No. 60179-6-II 
+ 
+27 
+party had satisfied [the] standard two part test.”  Nat’l Homebuyers Fund, 193 Wn.2d at 718-19.  
+We have concluded that the Counties have satisfied the standard test for standing.  But even if one 
+of the two requirements could be considered a close call, we would still find standing because of 
+the public importance of these issues. 
+CONCLUSION 
+ 
+We offer no opinion about the wisdom of the current scheme for funding indigent defense 
+in this state.  Nor do we predict the ultimate outcome of the Counties’ lawsuit.  But based on the 
+standards applied to CR 12(b)(6) motions, the Counties have alleged sufficient facts to demonstrate 
+both that they are within the zone of interest and that they have shown injury in fact sufficient to 
+have standing to bring this case.   
+ 
+We reverse the superior court and remand for further proceedings. 
+ 
+ 
+ 
+PRICE, J.  
+We concur: 
+ 
+ 
+ 
+MAXA, P.J.  
+ 
+GLASGOW, J. 
+ 
+ 

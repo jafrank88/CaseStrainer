@@ -150,7 +150,7 @@ export default {
   methods: {
     initializeTracker() {
       // Import the tracker dynamically
-      import('/casestrainer/static/js/citation-progress.js').then(() => {
+      import('/static/vue/js/citation-progress.js').then(() => {
         this.tracker = new window.CitationProgressTracker();
       }).catch(error => {
         console.error('Failed to load citation progress tracker:', error);
@@ -269,7 +269,7 @@ export default {
 
 <style scoped>
 /* Import the progress styles */
-@import '/casestrainer/static/css/citation-progress.css';
+@import '/static/vue/css/citation-progress.css';
 
 .citation-progress-tracker {
   width: 100%;

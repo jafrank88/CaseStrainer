@@ -1,0 +1,1121 @@
+
+--- Page 1 ---
+ 
+NO. 
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON 
+IN RE THE PERSONAL RESTRAINT PETITION OF 
+ROBERT AYERST 
+Petitioner. 
+ON PETITION FOR REVIEW FROM DIVISION THREE OF THE 
+COURT OF APPEALS #369650-III 
+Asotin Cause No. 16-1-00150-7 
+Scott D. Gallina, (Former) Judge 
+BRIEF OF AMICUS CURIAE THE DEFENDER INITIATIVE 
+ROBERT C. BORUCHOWITZ WSBA 4563 
+Attorney for AMICUS 
+901 12th Avenue 
+P.O. Box 222000 
+Seattle, Washington 98122 
+206-398-4151
+PRV41136SC
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+71212021 11:31 AM 
+BY SUSAN L. CARLSON 
+CLERK 
+99941-4
+
+--- Page 2 ---
+i 
+Table of Contents 
+Table of Authorities   
+ 
+ 
+ 
+ 
+ 
+ii 
+I. Interest of Amicus The Defender Initiative  
+ 
+ 
+1 
+II. Introduction                                                                                     3 
+III. Statement of the Case                                                                     6 
+IV. Argument  
+ 
+ 
+ 
+ 
+ 
+ 
+ 9 
+A. Summary  
+ 
+ 
+ 
+ 
+ 
+ 9 
+B. The Appointed Counsel Did Not Comply with the Required 
+Court rules on Indigent Defense Representation              10 
+C. The Lack of Regulatory Review Resulted in Not Discovering 
+Past Deficiencies in the Lawyer’s Public Defense Practice 13 
+D. It appears that Mr. Van Idour violated the misdemeanor of 
+practicing law without a license.                                       14 
+E. This Court’s Precedent Requires Reversal 
+ 
+  17 
+F. Conclusion 
+ 
+ 
+ 
+ 
+ 
+  19 
+V. Appendix                                    
+ 
+ 
+ 
+ 
+A 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 3 ---
+ii 
+Table of Authorities 
+Cases 
+City of Seattle v. Ratliff, 100 Wash.2d 212 (1983) ...................... 5,17,18,19 
+Davison v. State, 196 Wn.2d 285, 297 (2020), as amended on denial of 
+reconsideration (Oct. 20, 2020) .................................................... 4,5,12 
+State v. Hunt, 75 Wn. App. 795, 803, 880 P.2d 96, 100 (1994), citing 
+Dauphin Cty. Bar Ass'n v. Mazzacaro, 465 Pa. 545, 551, 351 A.2d 229, 
+232 (1976).......................................................................................... 14 
+Hurrell-Harring v. State ........................................................................... 2 
+Matter of Ayerst, 486 P.3d 943 (Wash. Ct. App. 2021) ................ 3,4,5,8,17 
+Matter of Simmons, 190 Wn.2d 374, 387 (2018). ..................................... 6 
+Mt. Vernon v. Weston, 68 Wn. App. 411(1992) ........................................ 2 
+Solina v. United States, 709 F.2d 160, 167 (2d Cir. 1983), ..................... 17 
+State v. A.N.J., 168 Wn.2d 91 (2010) .................................................. 4,10 
+State v. Ayerst, 8 Wn. App. 2d 1028 (2019) (unpublished opinion) ........... 8 
+State v. Yishmael, 195 Wn.2d 155, 177 (2020) ............................... 4,14,15 
+Strickland v. Washington, 466 U.S. 668, 688 (1984) ........................... 3,12 
+Statutes 
+RCW 2.38.180(1)(b) .............................................................................. 16 
+RCW 2.48.180(2)(a) .............................................................................. 15 
+RCW 2.48.180(3). .................................................................................. 14 
+Other Authorities 
+Answer to Disciplinary Board, No.19#00008, filed June 6, 2019 ........ 9, 16 
+Email from Asotin County Clerk, June 18, 2021 .................................... 12 
+Formal Complaint, Disciplinary Board of the Washington Supreme Court, 
+In re Robert Jerry Van Idour, Proceeding No. 19#00008, April 19, 
+2019. .............................................................................................. 6,8,9 
+NLADA,“The Guarantee of Counsel: Advocacy & Due Process in Idaho’s 
+Trial Courts,” ..................................................................................... 13 
+Rules 
+APR 3 (c) ................................................................................................. 7 
+APR 3(c) ................................................................................................ 16 
+APR 8 .................................................................................................... 18 
+APR 8(c). ............................................................................................... 16 
+APR 9(D)(2) .......................................................................................... 18 
+ ..................................................................................................................  
+Cr.R. 3.1 Stds ................................................................................. 3,11,12 
+Criminal Rule on Standards for Indigent Defense ..................................... 9 
+
+--- Page 4 ---
+iii 
+CrR 3.1(d)(4) ......................................................................................... 12 
+RPC 5.5 (c)(1). ....................................................................................... 16 
+Standard 14.1 ................................................................................... 11, 12 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 5 ---
+1 
+I. 
+Interest of Amicus The Defender Initiative 
+The Defender Initiative began in 2008 and is a law school-based 
+project aimed at providing better representation for people accused of 
+crimes and facing loss of their liberty in criminal, juvenile, and other court 
+proceedings and in the process increasing fairness in and respect for the 
+courts. The Initiative is part of the Fred T. Korematsu Center for Law and 
+Equality at Seattle University School of Law, whose mission is to advance 
+justice and equality through a unified vision that combines research, 
+advocacy, and education. The first major projects of the Initiative included 
+a report on misdemeanor practice in conjunction with the National 
+Association of Criminal Defense Lawyers entitled “Minor Crimes, 
+Massive Waste”, and a project funded by the Foundation to Promote Open 
+Society to increase access to counsel in misdemeanor courts in several 
+states.  For the past several years, the Initiative has worked with The Sixth 
+Amendment Center on evaluations of public defense in several states, 
+including current projects in Illinois and New Hampshire.  This work is 
+funded by a grant from the United States Department of Justice. 
+The Defender Initiative has a deep interest and significant 
+experience in right to counsel issues.  The Director of the Defender 
+Initiative, Robert C. Boruchowitz, has worked on defender standards 
+nationally and in Washington State for more than 30 years. He is an 
+
+--- Page 6 ---
+2 
+emeritus member of the Washington State Bar Council on Public Defense, 
+for which he chairs the Standards Committee.  He has written and spoken 
+widely about the right to counsel, and was Director of The Defender 
+Association in Seattle for 28 years and President of the Washington 
+Defender Association for 20 years before joining the Seattle University 
+School of Law faculty in January 2007.  He is a Professor from Practice 
+and has taught Criminal Procedure-Adjudicative, a Right to Counsel 
+seminar, and the Youth Advocacy Clinic.  He led a committee that 
+developed the American Council of Chief Defenders Statement on 
+Caseloads and Workloads in 2007.   In 2003, he was a Soros Senior 
+Fellow working on issues related to right to counsel in misdemeanor 
+courts.  He was amicus counsel in City of Mt. Vernon v. Weston, 68 Wn. 
+App. 411(1992), the first published Washington appellate court opinion to 
+refer to defender standards. 
+Professor Boruchowitz has been an expert witness in systemic 
+litigation concerning effective public defense representation in 
+Washington, New York, and Louisiana. The New York Supreme Court 
+Appellate Division found that he qualifies as an expert “on the operation 
+of indigent defense systems and the evaluation of such systems in light of 
+prevailing professional standards.” Hurrell-Harring v. State, 119 A.D.3d 
+1052, 1053, 990 N.Y.S.2d 286, 288 (N.Y. App. Div. 2014). 
+
+--- Page 7 ---
+3 
+The amicus incorporates by reference the full statement of interest 
+in the Motion to File an Amicus Brief herein. 
+ 
+The Defender Initiative does not, in this brief or otherwise, 
+represent the official views of Seattle University or its School of Law. 
+II. 
+Introduction. 
+ 
+Mr. Ayerst was convicted at a trial in which he was represented by 
+a lawyer who was not admitted to the Washington Bar.  Matter of Ayerst, 
+__Wn.App.2d__,486 P.3d 943 (Wash. Ct. App. 2021).  The Court of 
+Appeals erred when it rejected his claim that the failure to provide 
+licensed counsel was structural error.  While the Court cited Strickland v. 
+Washington, 466 U.S. 668, 688 (1984), it misapprehended the teaching of 
+that case concerning prevailing professional norms and its application in 
+Washington.  Prevailing professional norms in Washington require 
+compliance with Cr.R. 3.1 Stds.  The unlicensed lawyer, Robert Van 
+Idour, did not comply with the rule. 
+ 
+The Court of Appeals acknowledged that state and federal 
+constitutional protections to the right to counsel are undermined when trial 
+counsel is engaged in criminal activity. Matter of Ayerst, 486 P.3d at 945. 
+But it found that Mr. Ayerst had not provided sufficient proof of the 
+criminal conduct of his trial lawyer, speculating the lawyer, who appeared 
+on behalf of more than 100 accused persons in nine months, might have 
+
+--- Page 8 ---
+4 
+been confused. (Id. at 947.)  This analysis ignored the fact that unlawful 
+practice of law is a strict liability crime. State v. Yishmael, 195 Wn.2d 155, 
+177 (2020). 
+The Court of Appeals ignored the teaching of State v. A.N.J., 168 
+Wn.2d 91 (2010), and the history of standards adopted by this Court as 
+explained in Davison v. State, 196 Wn.2d 285, 297 (2020).   
+The Court of Appeals found no evidence that the lawyer 
+intentionally failed to comply with the Admission to Practice Rules. In 
+fact, it appears that the unlicensed lawyer violated the misdemeanor of 
+unlawful practice of law, which is a strict liability crime. While confusion 
+might be a defense in a bar discipline case, it does not overcome a strict 
+liability criminal prosecution. The logical inference from the Court’s 
+analysis is that if the lawyer had purposely evaded Washington’s licensing 
+requirements, he would have had a conflict of interest that interfered with 
+representation of Mr. Ayerst.  Matter of Ayerst, 486 P.3d at 947.  
+Even though he had applied for admission to the Washington Bar, 
+Mr. Van Idour’s application was never finally approved. The Court 
+speculated that Mr. Van Idour could have been licensed under APR 8. But 
+while the Court of Appeals wrote that the unlicensed lawyer was 
+“supervised” by a Washington lawyer, which is required under APR 8, in 
+fact the pleadings in Mr. Ayerst’s case were signed only by Mr. Van 
+
+--- Page 9 ---
+5 
+Idour, without a bar number, and no Washington attorney was “of record” 
+as required by APR 8.1  The rule requires that the Washington attorney be 
+the lawyer of record and responsible for the conduct of the matter. 
+The Court of Appeals also misapprehended the holding of City of 
+Seattle v. Ratliff, 100 Wash.2d 212 (1983).  The Court acknowledged, 
+citing Ratliff, that “because Mr. Ayerst's attorney was not licensed in 
+Washington, he did not have ‘counsel’ as that term is defined for 
+constitutional purposes.”  Matter of Ayerst, 486 P.3d at 946.  But the Court 
+veered into an analysis of federal cases about lawyers licensed in other 
+states, and did not adequately address the Ratliff holding. 
+ 
+This Court has responded to the well-documented problems in 
+public defense in the state by adopting court rules that require certain 
+standards to be met and certificates of compliance to be filed.  Davison, 
+196 Wn.2d at 298–99.  But these rules did not protect Mr. Ayerst because 
+his unlicensed lawyer in this case did not comply with the standards or 
+timely submit certificates of compliance. 
+                                               
+1 “In any such matter, litigation, or administrative proceeding, the applicant shall be 
+associated with an active lawyer member of the Bar, who shall be the lawyer of record 
+and responsible for the conduct of the matter, litigation, or administrative proceeding.” 
+APR 8 (c )(2) 
+ 
+ 
+
+--- Page 10 ---
+6 
+ 
+While Mr. Van Idour was admitted in Idaho, he did not comply 
+with Washington’s rules and Mr. Ayerst was deprived of a lawyer who 
+met the Standards required to represent indigent clients.   
+This Court has made clear that the bar admission process is not a 
+meaningless formality. “The court’s ultimate responsibility in matters 
+relating to admission of attorneys is to guard the public and its confidence 
+in the judicial system.” Matter of Simmons, 190 Wn.2d 374, 387 (2018).  
+ 
+This Court should grant the Personal Restraint Petition. Mr. 
+Ayerst’s lawyer was not admitted to the bar, he likely committed unlawful 
+practice of law, and the APR’s purpose of protection was thwarted.  This 
+Court’s aim of protecting public defense clients by implementing the court 
+rule on standards also was thwarted. 
+III. 
+Statement of the Case. 
+On or about January 16, 2017, Mr. Van Idour submitted an 
+application for admission to the state bar, pursuant to APR 3(c). 2 
+Approximately a month earlier, he had sought a public defense contract in 
+Asotin County.3 On January 29, 2017, Mr. Van Idour signed an indigent 
+defense contract with Asotin County.4  The contract required him to be 
+                                               
+2  Formal Complaint, Disciplinary Board of the Washington Supreme Court, In re Robert 
+Jerry Van Idour, Proceeding No. 19#00008, April 19, 2019. 
+3 Id. 
+4 Formal Complaint, In re Robert Jerry Van Idour, supra. 
+
+--- Page 11 ---
+7 
+admitted to the Washington bar. 5 Mr. Van Idour was never admitted to 
+practice in Washington. 6 
+ 
+On March 28, 2017,  the trial court appointed Mr. Van Idour to 
+represent Robert Ayerst. CP 36.   
+ On October 6, 2017, former Asotin County Superior Court Judge 
+Scott Galina signed an Order for Limited Admission to Practice that 
+purported to admit Mr. Van Idour provisionally to provide indigent 
+defense services in Asotin County.  The order was dated “Nunc Pro Tunc 
+to February 1, 2017.”7 
+On or about October 26, 2017, the WSBA advised Mr. Van Idour 
+that his application for admission under APR 3 (c) was approved, 
+contingent on completing additional steps.8   
+Mr. Ayerst was convicted by a jury of attempted burglary in the 
+second degree, malicious mischief in the second degree, and bail jumping 
+on November 17, 2017. CP 98.   
+                                               
+5 Mr. Van Idour is now an inactive member of the Idaho State Bar. Idaho Attorney Roster 
+Search, https://isb.idaho.gov/licensing-mcle/attorney-roster-search/, last checked June 19, 
+2021. Mr. Van Idour had been licensed to practice law in Idaho for approximately 30 
+years. 
+6 Complaint, supra. 
+7 Id. 
+8 Complaint, supra. 
+
+--- Page 12 ---
+8 
+On or about November 27, 2017, Mr. Van Idour was notified that 
+his application under APR 8(c) was denied.9 10 
+ On December 18, 2017, Mr. Ayerst was sentenced to 55.5 months 
+in prison. Matter of Ayerst, supra; State v. Ayerst, 8 Wn. App. 2d 
+1028 (2019) (unpublished opinion).   
+On April 19, 2019, the WSBA filed a formal complaint against Mr. 
+Van Idour, alleging that he was not authorized to practice law in 
+Washington as an out-of-state attorney.11. Mr. Van Idour appeared for 
+more than100 accused persons under his Asotin contract.12 
+Approximately three months after his contract began, Mr. Van 
+Idour submitted an application for limited admission to the WSBA under 
+APR 8 (c), 13 which permits attorneys working in public defense and who 
+are eligible to apply for admission under APR 3, upon application and 
+approval, to practice law in Washington but with two important conditions 
+that Mr. Van Idour did not meet.  Under APR 8 (c), that lawyer must be 
+associated with an active member of the Washington bar “who shall be the 
+lawyer of record and responsible for the conduct of the matter”. The 
+                                               
+9 Complaint, supra. 
+10 Id.  As documented in the email in the appendix below, Mr. Van Idour on October 30, 
+2017, told the Asotin County superior court administrator that he did not have a bar 
+number and he had to answer an 80-question open book exam. 
+11 Complaint, Disciplinary Board of the Washington Supreme Court, In re Robert Jerry 
+Van Idour, Proceeding No. 19#00008, April 19, 2019. 
+12 Id. 
+13 Id. 
+
+--- Page 13 ---
+9 
+applicant must apply for and take the first available bar examination after 
+the date the applicant was granted authorization to practice under the rule 
+or have filed an application for admission by motion of Uniform Bar 
+Exam score transfer.  APR 8 (c).  
+Mr. Van Idour admitted to the Washington State Bar (WSBA) that 
+he was not a member of the WSBA but said whether he was admitted to 
+the practice of law “and/or did not gain admission during the term of the 
+contract is a question of law which” he was not required to admit or 
+deny.14 He asserted that “the court repeatedly appointed” him “to represent 
+specific indigent defendants” 15and that based on that he “believed this 
+was a proper admission to practice for those matters.”16 He claimed that he 
+had been admitted “on a pro hac vice basis”.17 Mr. Van Idour was never 
+admitted to practice law in Washington under any rule.18   
+IV. 
+Argument 
+ 
+A. 
+Summary 
+ 
+ 
+The Admission to Practice Rules and the Criminal Rule on 
+Standards for Indigent Defense require that counsel be admitted and that 
+                                               
+14 Answer to Disciplinary Board, No.19#00008, filed June 6, 2019. 
+15 The judge who appointed him is no longer on the bench and is facing multiple felony 
+charges. See, “Gallina Asking for Another Delay to Trial”, Lewiston Tribune,  March 3, 
+2021, at https://lmtribune.com/northwest/gallina-asking-for-another-delay-to-
+trial/article_9e29af2e-0fee-58da-82bb-a915ffbe8669.html.  
+16 Answer, supra. 
+17 Id. 
+18 Complaint, supra. 
+
+--- Page 14 ---
+10 
+counsel file quarterly certificates of compliance. The appointed counsel 
+was never admitted and filed only one certificate of compliance in ten 
+months, after Mr. Ayerst’s trial. His attempt to be admitted pro hac vice 
+months after his appointment to represent Mr. Ayerst did not comply with 
+the rules and was rejected by the State Bar. To permit a conviction under 
+such circumstances to stand would drastically undermine the APR and the 
+Standards, which are designed to protect the public. 
+B. 
+The Appointed Counsel Did Not Comply With the 
+Required Court Rules on Indigent Defense Representation 
+ 
+In reversing a juvenile conviction because of ineffective assistance 
+of counsel, this Court discussed the statute that requires each county to 
+adopt public defense standards. State v. A.N.J., 168 Wn.2d 91, 113 (2010). 
+The Court rejected the argument that the WSBA standards had been 
+incorporated into the statutes, noting that the law in 2004 when A.N.J. 
+pled guilty provided that the bar association endorsed standards “may 
+serve as guidelines to local legislative authorities in adopting standards.”  
+The Court said it was not adopting the standards, but they could be 
+considered in determining effective assistance of counsel.  A.N.J., 168 
+Wn.2d 91, 110.  But in 2005, the statute was changed to read “should 
+serve as guidelines to local legislative authorities in adopting standards.” 
+RCW 10.101.030. 
+
+--- Page 15 ---
+11 
+And effective October 1, 2012, the Court adopted standards and a 
+required “Certification of Appointed Counsel of Compliance with 
+Standards.” CrR 3.1 Stds. The certification states in part: “I meet the 
+minimum basic professional qualifications in Standard 14.1.”  Standard 
+14.1 provides in part that attorneys providing defense services shall 
+“Satisfy the minimum requirements for practicing law in Washington as 
+determined by the Washington Supreme Court;” 
+As then Chief Justice Madsen wrote in July 2012, 
+we have learned that in areas of our state, the promise of 
+access to effective assistance of counsel promised by our 
+constitution has not been met and that we needed to take 
+new measures to fully enact the rights and protections due 
+to those who enter the criminal justice system.19 
+ 
+She added that the changes regarding certification and caseload guidelines 
+“are necessary to address documented ongoing flaws in indigent defense 
+programs throughout the state.’20 
+When Mr. Van Idour represented Mr. Ayerst without complying 
+with the Standards and the court rule, he thwarted this Court’s efforts to 
+protect Mr. Ayerst’s right to counsel. Reversing the convictions in this 
+case will make it clear that the Court intends to enforce the Standards it 
+has adopted. 
+                                               
+19 Chief Justice Barbara Madsen, “Enacting Standards for public defenders is a difficult 
+but necessary balancing act”, Full Court Press, July 2012. 
+20 Id. 
+
+--- Page 16 ---
+12 
+The “prevailing professional norms” referenced in Strickland, 
+supra, in Washington are guided by the Standards. 
+This Court in Davison discussed the Standards and emphasized the 
+court rule that provides: 
+Before appointing a lawyer for an indigent person, or at the 
+first appearance of the lawyer in the case, the court shall 
+require the lawyer to certify to the court that he or she 
+complies with the applicable Standards for Indigent 
+Defense Services. CrR 3.1(d)(4).    
+ 
+Davison v. State, 196 Wn.2d 285, 298–99. 
+ 
+There is nothing in the record to show that the trial judge complied 
+with this court rule.  But it is unlikely, as Mr. Van Idour did not comply 
+with CrR3.1 STDS that requires a quarterly certification of compliance 
+with the standards for public defense adopted by the Supreme Court.  
+First, he only filed one certification during 2017 in Asotin County, on 
+December 1, 2017, on which he circled “3rd” before “Calendar Quarter”.21  
+Second, he certified that he met the minimum basic professional 
+qualifications in Standard 14.1, but that was not true, as 14.1 provides: 
+Standard 14.1. In order to assure that indigent accused receive the 
+effective assistance of counsel to which they are constitutionally 
+entitled, attorneys providing defense services shall meet the 
+following minimum professional qualifications: A. Satisfy the 
+minimum requirements for practicing law in Washington as 
+determined by the Washington Supreme Court; … 
+ 
+                                               
+21 See email from Asotin County Clerk, June 18, 2021, and copy of the Certification, in 
+Appendix. 
+
+--- Page 17 ---
+13 
+Third, he left blank the first line on the certification regarding what 
+percentage of his total practice was devoted to indigent defense cases. And, 
+as with every other pleading he filed in this case, he left the WSBA# blank, 
+as he did not have one. 
+C. 
+The Lack of Regulatory Review Resulted in Not 
+Discovering Past Deficiencies in the Lawyer’s Public Defense 
+Practice 
+ 
+Without some regulatory review of a bar applicant, past indicators 
+of problems are overlooked. In 2010, The National Legal Aid and 
+Defender Association (NLADA) wrote a critical evaluation of public 
+defense in Idaho, and highlighted Nez Perce County as an example of the 
+problems.22  Mr. Van Idour’s firm had the county’s public defense 
+contract, both for direct representation and for overseeing the conflict 
+lawyers. The  report found “near unanimous agreement” among the 
+county’s judges “that there is not a single thing about the public defense 
+system in their county that they believe is worth replicating anywhere 
+else.”23  
+In a paragraph that underscores the importance of the Washington  
+Standards designed to protect defender clients, NLADA reported: 
+                                               
+22 NLADA, “The Guarantee of Counsel: Advocacy & Due Process in Idaho’s Trial 
+Courts,” 
+http://www.righttocounselproject.org/sites/default/files/id_guaranteeofcounseljseri01-
+2010_report.pdf, p.10. 
+23 Id. 
+
+--- Page 18 ---
+14 
+The district and magistrate judges all with one voice expressed 
+concern that public defense clients do not receive high quality 
+representation. Their biggest complaint is they do not believe the 
+public defenders meet with their clients in advance of appearing in 
+court, but instead they believe these public defenders meet with 
+their clients primarily only at the courthouse. Though most 
+criminal justice system stakeholders agree Fitzgerald and Van 
+Idour “have a wealth of experience,” the big complaint is their lack 
+of day-to-day communication with their clients. 24 
+ 
+In that context, Mr. Ayerst’s letter to the trial judge May 28, 2017, 
+provides additional support for holding that the failure to have a licensed 
+Washington attorney requires reversal of the conviction.  Asking that he 
+be released or the charges against him be dismissed, Mr. Ayerst stated, “I 
+wrote Mr. Van Idour for almost two week[sic] with no answer.”25 
+As Division II of the Court of Appeals has written, when people 
+holding themselves out as lawyers are not adequately “regulated, the 
+dangers to the public are manifest....” State v. Hunt, 75 Wn. App. 795, 
+803, 880 P.2d 96, 100 (1994), citing Dauphin Cty. Bar Ass'n v. 
+Mazzacaro, 465 Pa. 545, 551, 351 A.2d 229, 232 (1976). 
+D. 
+It appears that Mr. Van Idour violated the misdemeanor of 
+practicing law without a license 
+ 
+Practicing law without a license in Washington is a gross 
+misdemeanor. RCW 2.48.180(3).  It is a strict liability offense. State v. 
+Yishmael, 195 Wn.2d 155, 177 (2020). No proof of intent is required.  A 
+                                               
+24 Id, at 60. 
+25 This letter is provided in full in the Appendix. 
+
+--- Page 19 ---
+15 
+factual finding that the defendant’s actions constitute the practice of law 
+and that the defendant was never admitted to the WSBA is sufficient to 
+convict. 
+In holding that the crime is a strict liability offense, this Court 
+noted the lack of protection for clients of unlawfully practicing lawyers: 
+When lawfully practicing attorneys cause harm, malpractice 
+insurance and the victims’ compensation fund can provide some 
+relief for their clients. 
+ By contrast, the unlawful practice of law often causes harm 
+without any of the protections for malpractice by lawyers. Because 
+these harms are predictable, the unlawful practice of law is a 
+crime.  
+ 
+Yishmael, 195 Wn.2d at 160. 
+ 
+ 
+The court expressed concern for the victims of unlawful lawyer 
+practice: “Victims in this case became homeless, were jailed, and lost 
+almost everything they owned.” Yishmael, 195 Wn.2d at160. The Court 
+noted that the statute prohibiting unlawful practice of law “protects the 
+public from the harm of poor legal advice. Society might reasonably 
+expect those unlicensed to practice law should not practice law.”  Id., at 
+168 [footnote omitted].   
+RCW 2.48.180(2)(a) provides: “The following constitutes unlawful 
+practice of law: (a) A nonlawyer practices law, or holds himself or herself 
+out as entitled to practice law;…” 
+
+--- Page 20 ---
+16 
+Mr. Van Idour meets the definition of “nonlawyer” in RCW 
+2.38.180(1)(b): “a person who is not an active member in good standing of 
+the state bar….”  There is no question that Mr. Van Idour was practicing 
+law by providing legal advice and filing trial motions and legal documents 
+and appearing in court on behalf of accused persons.  
+While the WSBA case against Mr. Van Idour has not yet been 
+resolved, Mr. Van Idour admits in his answer to the WSBA complaint that 
+he had not been admitted to the WSBA pursuant to APR 3(c) or APR 8(c). 
+Instead, Mr. Van Idour asserts that he was admitted on a pro hac vice 
+basis. 26 
+Washington permits pro hac vice representation, but Mr. Van Idour 
+did not meet the requirements of the rule: 
+A lawyer admitted in another United States jurisdiction, and not 
+disbarred or suspended from practice in any jurisdiction, may 
+provide legal services on a temporary basis in this jurisdiction that: 
+(1) are undertaken in association with a lawyer who is admitted to 
+practice in this jurisdiction and who actively participates in the 
+matter; 
+ 
+RPC 5.5 (c)(1). [Emphasis added.] 
+ 
+The Court of Appeals stated that Mr. Van Idour “was working 
+under the supervision of a Washington attorney named Neil Cox.” The 
+                                               
+26 Answer to Disciplinary Board, No.19#00008, filed June 6, 2019. 
+
+--- Page 21 ---
+17 
+record does not support a conclusion that Mr. Cox actively participated in 
+the Ayerst matter.   
+ 
+Mr. Van Idour’s pro hac vice claim is meritless. No pro hac vice 
+order had been entered before the purported order in October 2017.    
+The framing of the rule suggests that pro hac vice admission is per case, 
+not per 100 cases. And it is clear that “temporary” in the rule cannot mean 
+one year, purportedly representing more than 100 people. 
+ 
+In effect, Mr. Van Idour was committing a crime the entire time he 
+was attempting to represent Mr. Ayerst.  
+E. 
+This Court’s Precedent Requires Reversal 
+ 
+The Court of Appeals admits that “because Mr. Ayerst's attorney 
+was not licensed in Washington, he did not have ‘counsel’ as that term is 
+defined for constitutional purposes. See City of Seattle v. Ratliff, 100 
+Wash.2d 212, 217, 667 P.2d 630 (1983).”  Matter of Ayerst, 486 P.3d at 
+946.  But the Court then veered into a review of cases citing Solina v. 
+United States, 709 F.2d 160, 167 (2d Cir. 1983), involving out of state 
+lawyers.  Matter of Ayerst, 486 P.3d 943, 946.  The Court wrote: “In the 
+decades since Solina, courts have generally agreed structural error applies 
+to representation by an unlicensed attorney only if the attorney has never 
+been licensed in any jurisdiction.” Id., at 946.  
+
+--- Page 22 ---
+18 
+  
+The Court of Appeals misapprehended Ratliff’s holding. It ignored  
+Justice Utter’s clear language that applies here: “Although one who is 
+authorized to practice only under certain conditions, such as a legal intern, 
+may be considered ‘counsel’ for constitutional purposes, this is so only 
+when he or she complies with those conditions.”  City of Seattle v. Ratliff, 
+100 Wn.2d at 218.  Mr. Van Idour did not comply with the conditions that 
+might have allowed him to practice under any of the rules that the Court of 
+Appeals speculated could have applied. And he did not comply with the 
+conditions that apply to all appointed lawyers representing accused 
+persons in Washington—satisfying the minimum requirements to practice 
+law and certifying quarterly that he complies with certain standards. 
+ 
+Mr. Ratliff was represented by a Rule 9 intern who was not 
+allowed by the trial court to consult with his supervisor before trial. This 
+Court emphasized that the supervising attorney “must supervise and 
+assume professional responsibility for the legal intern's work. APR 
+9(D)(2).” Ratliff, 100 Wn.2d at 216.  Although the Court of Appeals 
+suggested that Mr. Van Idour was supervised by a Washington attorney, 
+there is no record of that, and the supervision requirement of someone 
+seeking to practice under APR 8 was not met. 
+ 
+This Court held: 
+
+--- Page 23 ---
+19 
+Thus, in contrast to representation in accordance with governing 
+rules, representation by a law student intern who fails to comply 
+with the conditions placed upon his or her practice does constitute 
+an absolute denial of the right to counsel which requires reversal. 
+ Ratliff, 100 Wn.2d at 219. 
+ 
+ 
+If one substitutes “unlicensed out of state lawyer” for “law student 
+intern” in that holding, it is clear that Mr. Van Idour’s failure to comply 
+with Washington’s court rule on standards constitutes an absolute denial 
+of the right to counsel. This finding requires reversal, without a showing 
+of prejudice. 
+In language that controls this case, this Court held: “Denial of 
+representation by one actually authorized to practice in court constitutes a 
+denial of counsel, not merely ineffective assistance.” Ratliff, 100 Wn.2d at 
+220.   
+Mr. Ayerst was denied counsel and his conviction should be 
+reversed. 
+F. 
+Conclusion. 
+This Court has written: “the right to counsel is of paramount 
+importance to all persons appearing in our courts and must be jealously 
+guarded.” Ratliff, supra, 100 Wn.2d 212, 218. In keeping with that 
+holding, Mr. Ayerst’s petition for review should be granted and his 
+conviction should be reversed. 
+ 
+
+--- Page 24 ---
+20 
+Respectfully submitted, 
+ 
+__________________ 
+Robert C. Boruchowitz WSBA #4563. 
+901 12th Avenue 
+Seattle, Washington 98122 
+206 398-4151 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 25 ---
+A 
+ 
+V. 
+Appendix 
+ 
+ 
+ 
+ 
+ 
+From: McKenzie Campbell <MCampbell@co.as0tin.wa.uS> 
+Date: June 18, 2021 at 11 :24:49 AM PDT 
+To: "Story, Maddison" <mstory@seattleu.edu> 
+Subject: RE: B. Vanldour 
+Maddi, 
+Yes that is correct. 
+McKenzie 
+From: Story, Maddison (mailto:mstory@seattleu.edu1 
+Sent: Friday, June 18, 2021 11 :05 AM 
+To: McKenzie Campbell <MCampbell@co.asotin.wa.us> 
+Subject: Re: B. Vanldour 
+Hello McKenzie, 
+Thank you for sending these along. 
+Just to confirm- this is the only certification Mr. Van ldour filed for the year 2017? 
+Best, 
+Maddi Story 
+On Jun 18, 2021, at 10:33 AM, McKenzie Campbell <MCampbell@co.asotin.wa.us> wrote: 
+Hello, 
+I have attached the documents we discussed on the phone. 
+Let me know if you need anything else. 
+McKenzie A. Campbell 
+Asotin County Clerk 
+P.O. Box 159 
+Asotin, WA 99402 
+Phone - (509) 243-2081 
+Fax - (509) 243-4978 
+mcampbell@co.asotin.wa.us 
+This e-mail and your response are considered a public record and will be subject to disclosure under Washington's Public Disclosure Act 
+
+--- Page 26 ---
+B 
+ 
+ 
+ 
+ 
+,N:SUPERIOR COURT 
+[ I JUVENILE DEPARTMENT 
+[ I DISTRICT COURT 
+I J MUNICIPAL COURT 
+FOR 
+[ 1 CITY OF I I COUNTY OF~------' 
+STATE OF WASIDNGTON 
+CERTIFICATION BY: 
+[NAME], [WSBA#] l'\,iL .. .:-1: j -\.l«_.,,_ f, )~ 
+FOR 
+[1,rr ),ND 3 , 4'"] CALENDAR QUARTER OF [YEAR] 
+The undersigned attorney hereby certifies: 
+]No.: _____ 
+_ 
+] Administrative Filing 
+CERTIFICATION 
+OF 
+APPOINTED 
+COUNSEL 
+OF 
+COMPIJANCE 
+WITH 
+STANDARDS REQUlRED BY CRR 3.1 / 
+CRRU3.l / JUCR9.2 
+1. 
+Approximately __ % of my total practice time is devoted to indigent defense cases. 
+2. 
+I am familiar with the applicable Standards adopted by the Supreme Court for attorneys 
+appointed to represent indigent persons and that: 
+a. Bask Qualifications: I meet the minimum basic professional qualifications in Standard 
+14.1. 
+b. Office: I have access to an office that accommodates confidential meetings with clients, 
+and I have a postal address and adequate telephone services to ensure prompt response to 
+client contact, in compliance with Standard 5.2. 
+c. Investigators: I have investigators available to me and will use investigative services as 
+appropriate, in compliance with Standard 6.1. 
+d. Caseload: I will comply with Standard 3.2 during representation of the defendant in my 
+cases. [Effective October 1, 2013 for felony and juvenile offender caseloads; effective 
+January 1, 2015 for misdemeanor caseloads: I should not accept a greater number of cases 
+(or a proportional mix of different case types) than specified in Standard 3.4, prorated if the 
+amount of time spent for indigent defense is less than full time, and taking into account the 
+case counting and weighting system applicable in my jurisdiction.] 
+e. Case Specific Qualifications: I am familiar with the specific case qualifications in 
+Standard 14.2, Sections B-K and will not. accept appointment in a case as lead counsel 
+unless Lme_~t t the ~cations for that case. [Effective October 1( 2013] 
+rur1- l14=--
+_ ~-t-\3:: 
+Signature, WSB ~# 
+Date 
+
+--- Page 27 ---
+C 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I 
+SUPERIOR COURT OF WASHINGTON 
+FOR ASOTIN COUNTY 
+·~.-: 
+z:n JUN 12' P 3: 22 
+f>/CKEIIZIE KELLEY 
+-· "'.ffY CLERI< 
+. . . : !JU!.-HY. WA · 
+STATE OF WASHINGTON, 
+Plaintiff, 
+CASE NO. 16-1-00150-7 
+V. 
+ROBERT AYERST, 
+Defendant. 
+CORRESPONDENCE. Copy sent to counsel. 
+. -
+:, ... ··--- .. 
+-Y'Y\ '1 -- -N a. V'v'\....~ - .. , ~ 
+\~ o ".lo'e.c.T 
+_ , A~ e--r-s:T '. 
+••• • 
+c •• ~·1vc1. :r: '::Ta.\ l(tcl.. 
+.+-c.i 
+~UV ... i ~ -
+~OVv" -
+- ~ 
+\,-. c,,.\"'0. \{I~~ 5... 
+. o__ . 
+C.o _; ~ \ ~ 
+'i-i ""''le S. . . • CA. \.oJ,. \ 
+:. "'Ch.'~ - -w~r.-r..<>-,.,J~ . ·nr..~\ 
+. 
+v,L°'-.~ .. ?-v...~ ·_ 
+o ' . 
+· 
+· \ 
+Th · 
+. . 
+· 
+· ' 
+.. 
+. __:.::...~ - --
+'{V\_,~ .. • ' A(P_. I 
+-
+'.7. - .. _ ... ,:i. . .I-'-~/lv:v\ -
+-- ---- .J r''-'I i'_IJ 1-·· ·_ :t-u - . ---~1-.e.1: . Th ,'..s .. ;_ -re so.l 0-ta.c . __ qµJ . 
+_:_ · ,: 1-<.T .. : . . \-\o~ ... ..1.. 
+.- u.,o..s. 
+-~1,,1.-.,, ; 
+lf':-\C..<'".r 1' ~- ~ 
+.. .. 0r-!<l.. 
+0....""'-. 
+... l<.),e<!...~ e.. ~- . 
+Q.. ~ -
+~ o.~ 
+~ __ .. 
+' 
+·+·· 
+.,'-~-
+. ·. _._ --
+-~'-'} - --c°'-'-\-tor.1.J<t..'1 _ at-· .. ¼,.__ ·_ 
+\ ~ 
+- - ... 
+.. _ -
+---:::S-c,~\t-\ . 
+.(?G(_.-,w1. 
+.· 
+C.e<.l l«..sl. .. ~ 
+. __ Cl\..✓o'"",-.J~ 
+()---'. ~ --
+f,,r-_s't~ 
+pC{-c'T : 
+a>·{ 
+C\.? v'.:,-\ . _.Ctµ)~ 
+, 
+r, 
+'-~ 
+. . '"r-\ 
+. ...,_ 
+Q 
+L 
+\ 
+. .::) C\_1--~ --- .. \ "'C:-..: \ 
+.. _ .v\"-."\· . 
+~ V· '-. . .
+. yyC. \i 
+__ _ 
+. --- w~~ 
+fjClf,vc1 _ 
+-~ 
+. 
+B,~ __ . ~(:)$ ~6i.J.e..\.. -. 
+'. .. .. ... a~c!. 
+. Pi:..: . 
+-~
+0 :'\~ 
+q -:e,i" 
+ii,L ~ovc...\-\ . 
+___
+____ w _,\"'-- -- _...,v....,._ _ , .i-..) 
+ci..c.o;.."-vl~ 
+- \)c-.1.\s 
+t--le-
+f-Je.v~v:.. 
+C.et(l~d . 
+wu_ . 
+6c . 'I. 
+. 
+. Cc...\,,._Q. · -\-¼_, 
+C:_e,"-y:~· 
+C._\e.-c '<: .: _ i ,::ZJJ ,:J 
+. . ..f'o vt. ,-.J d.. -
+DI.A.--\ . - :.\:. 
+~Ct~ 
+\'S e..-c, f..J .. -
+. - . :U'J ,' ,..; 1- _ Ro~•V'\ 
+.\j0.10 ~ cl.c,.,v 
+-
+:..\-- --- Cc.-(/.( .ed. · · IM I"" 
+lj c:tf'I j_Qj,0'-'1 /' 
+- -{b.,,--
+.. : .... - 41 WlO ,S. •t -
+~ v.J. ~~ \C. 
+\J.J "-- ~ 
+>-) 0 
+... . ~,u. ~w_e.,,,..- . I . · · C..a.. / l ~ d. . 
+t'\--.!...___. . f.' r.6~~ '-v\¼,c.s 
+...... 6-Elt i' c.."' 
+-:r: , . C...et I k ,l· 
+. 'i o 0 - _,- , a. ,.; r;t_ 
+. \....U Ct..~ _· . "tb \ cl 
+\. -\-
+\..,.lJ O V \ l 
+: ~ ~ 
+ta. /Le. rJ . 
+Co.v"-~ 
+6 t 
+}..Jo v,-> r . ~-· i iJ 
+\ 
+------
+• \ 
+Ol.._c C . ,.J 
+.-,-
+r,n I 
+• / ' 
+_, 
+. 
+---.J°'-.\ 
+. 
+. 
+\ \, 
+--1-- . 
+'--"--
+S CJ 
+. /• e Cif' "-
+. 
+. _ 
+__ 
+_ __ _ i,Yt.i_ ·-
+Sf fe. dj 
+t-r.:v....\ 
+. \(" : c,Y\.""t -· f(ll)d..-ed. 
+--- -
+l;l__/i4../_11p 
+-I-
+C\..vVI.._ 
+.-
+Q_s_t::_ : ~ 7 
+C(t 
+
+--- Page 28 ---
+D 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+_______ 171_;_~-----b:..~
+-__ 
+- i=o _____ .e___,J·=-~
+--~--Z.~-LLte,v->..c< 
+_ ____ -~C/{. _____ c,J,L _
+_ ~ -v\~- -----~ -c,-~1--
+- ()_C. __ _ -Qu_c__ -------
+----- --- - Q¼-A-c.7 ~✓-----h..i-. - -.. _1:$3,.,.. _ ____ (i(.$ __ \~ ..,:_~l -€-~-----L-- ------
+------- -Ca.1'.l!.\..L_ __ ±c:) ___ _ .C.o-1A.<..:.\"_: _____ ,fb_r ____ -~~-----vn..o 1u.:/:.Jfs._ 
+------ --· vJ_1'!-J~ ____ Q_ ~ 
+\ ____ Qc.-...,~_\_ ·- ____ C)_f' ____ \J\,J~---,11_t\i):_1!. __ -C_ -
+J'2....\)_-e£~
+-V-i~5:_.____I.. ___ a_~ ____ o._:..s; __ k:it04 
+__ 
+____,:-tQ.._ ~-= 
+.- "' 
+1~:>-.<( ____ cL\~s_€..L ____ 0-,~- - ------
+~ A 
+-
+\ 
+... r,.. "S 
+!Cr,,...,,....._ . I l 
+--··-
+-
+_ sJOv...L'-/_ 
+j ___ v,._ ~ - _ ----1r-..,.::...->--/- l; L R.,_____ _ 
+, 
+___ _ 
+----- ------~ ._,'!>··. -----··-- ·· - ·----
+- ---- --- -----------------
+. ·. -·----
+--
+----
+. 
+. -- --- .:::::;.---'( ----. ------.. ----·J 
+-------
+----+---------------. __ J_b_Q~-C ------~( Cl 
+·---
+----------------- _________ V u--1 .. -'M. -A..d-\ __ £c:£'\o"'t- _ 
+_ , -... ____ -------------------------------T, J\6.4..~------------
+---.------------------------- -- ------- ----------
+--- -----------·-----
+-----
+---------· ---- ----- . ___ £ _L~ L~( ____ L~\- -----------
+-------.. :---~-== ==-~-=-~-~-=~~- ~bRQ=~a~e~=-~ 
+-
+- -----. ----- ---
+-------·------ Ro\o£.(T ... ___ L ___ A '6 --~c~T-~ --
+---- - ------ ---------- - ----------------
+------· -
+------------------------------------
+-----.-- --------· ------- -- - - -- ------- - ---- ----- -- ----------
+--- •--------- ~------· ~--- -.. - ------ ···------- ---------- --- - --- -----------
+., 
+/ 
+-------1-------------------- --- . - ---- ··-·· -·--------,···------------·-·---·----
+-- - -------·--------- ···----·------- -- - --------·--------
+
+--- Page 29 ---
+LAW OFFICES OF LISE ELLNER
+July 02, 2021 - 11:31 AM
+Filing Petition for Review
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   Case Initiation
+Appellate Court Case Title:
+Personal Restraint Petition of Robert Lloyd Ayerst (369650)
+The following documents have been uploaded:
+PRV_Petition_for_Review_Plus_20210702113038SC381653_7266.pdf 
+    This File Contains: 
+     Other - Amicus for Ayerst 
+     Petition for Review 
+     The Original File Name was final amicus.pdf
+A copy of the uploaded files will be sent to:
+bnichols@co.asotin.wa.us
+boruchor@seattleu.edu
+cliedkie@co.asotin.wa.us
+Comments:
+Sender Name: Lise Ellner - Email: liseellnerlaw@comcast.net 
+Address: 
+PO BOX 2711 
+VASHON, WA, 98070-2711 
+Phone: 206-930-1090
+Note: The Filing Id is 20210702113038SC381653
+• 
+• 
+• 
+• 

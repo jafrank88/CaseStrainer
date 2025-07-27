@@ -1,0 +1,428 @@
+
+--- Page 1 ---
+ 
+No. 99939-2 
+ 
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON 
+ 
+ 
+IN RE THE PERSONAL RESTRAINT PETITION OF 
+JUSTIN LEWIS, 
+ 
+Petitioner 
+ 
+ 
+MEMORANDUM OF AMICUS CURIAE AMERICAN CIVIL 
+LIBERTIES UNION OF WASHINGTON IN SUPPORT OF 
+REVIEW 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+John Midgley, WSBA #6511 
+Nancy Talner, WSBA #11196  
+Jaime Hawk, WSBA # 35632 
+ 
+ACLU OF WASHINGTON FOUNDATION  
+P.O. Box 2728  
+Seattle, WA 98111  
+Ph: (206) 624-2184 
+jmidgley@aclu-wa.org 
+talner@aclu-wa.org 
+jhawk@aclu-wa.org 
+ 
+Counsel for Amicus Curiae 
+ACLU OF WASHINGTON  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+712912021 2:57 PM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+i 
+TABLE OF CONTENTS 
+I. 
+IDENTITY AND INTEREST OF AMICUS CURIAE ................... 1 
+II. 
+COURT OF APPEALS DECISION ............................................. 1 
+III. 
+STATEMENT OF THE CASE ..................................................... 1 
+IV. 
+REASONS WHY REVIEW SHOULD BE GRANTED................ 1 
+ 
+The Court of Appeals decision is contrary to this Court’s 
+decision on the significant constitutional question whether 
+structural constitutional error occurs when a person 
+representing a criminal defendant has not complied with all 
+conditions necessary to legally practice law. ..................... 2 
+ 
+This case presents additional issues of public importance 
+regarding this Court’s regulation of those who practice law, 
+particularly those who represent criminal defendants, and 
+the duty of courts of this state to enforce the court rules. ... 4 
+V. 
+CONCLUSION ............................................................................ 8 
+ 
+ 
+ 
+ 
+A. 
+B. 
+
+--- Page 3 ---
+ii 
+TABLE OF AUTHORITIES 
+Washington State Cases 
+City of Seattle v. Ratliff, 100 Wn.2d 212, 667 P.2d 630 
+(1983) ................................................................................... 2, 4 
+Davison v. State of Washington, 196 Wn.2d 285, 298-99, 
+466 P. 3d 231 (2020) ................................................................. 6 
+Personal Restraint Petition of Justin Lewis, Court of 
+Appeals No. 37284-7 (Div. III May 4, 2021), 2021 WL 
+1750935  ............................................................................... 1, 3 
+Federal Cases 
+Solina v United States, 709 F.2d 160, (2d Cir. 1983) ................. 3, 4 
+Court Rules 
+CrR 3.1 Stds .................................................................................. 5 
+CrR 3.1(d)(4) ................................................................................ 6 
+CrRLJ 3.1(d)(4) ............................................................................ 6 
+JuCR 9.2(d) ................................................................................... 6 
+RAP 13.4(b) .................................................................................. 1 
+RAP 13.4(b)(1) ............................................................................. 2 
+RAP 13.4(b)(3) ............................................................................. 2 
+RAP 13.4(b)(4) ............................................................................. 2 
+RAP 13.5A(b) ............................................................................... 1 
+ 
+
+--- Page 4 ---
+1 
+ 
+I. 
+IDENTITY AND INTEREST OF AMICUS CURIAE 
+The identity and interest of Amicus are set forth in the Motion for 
+Leave to File Memorandum of Amicus Curiae in Support of Review. 
+II. 
+COURT OF APPEALS DECISION  
+This memorandum is filed in support of Petitioner Lewis’s Motion 
+for Discretionary Review of the published Court of Appeals decision in In 
+the Matter of the Personal Restraint of Justin Lewis, Court of Appeals No. 
+37284-7 (Div. III May 4, 2021), 2021 WL 1750935.  
+III. 
+STATEMENT OF THE CASE 
+Amicus adopts Petitioner’s Statement of the Case. 
+IV. 
+REASONS WHY REVIEW SHOULD BE GRANTED 
+As this Court knows, the criteria for discretionary review in this 
+case are set forth in RAP 13.4(b), via RAP 13.5A(b). The Court should 
+grant review in this case because it squarely fits most of the criteria for 
+review: it raises a significant constitutional issue, the Court of Appeals 
+decision was contrary to this Court’s previous decision on that issue, and it 
+is of substantial public interest for these reasons but also because it 
+implicates this Court’s constitutional duty to govern the practice of law 
+
+--- Page 5 ---
+2 
+and the duty of the courts to enforce the court rules promulgated by this 
+Court. RAP 13.4(b)(1), (3), and (4).1 
+ 
+The Court of Appeals decision is contrary to this Court’s 
+decision on the significant constitutional question whether 
+structural constitutional error occurs when a person 
+representing a criminal defendant has not complied with all 
+conditions necessary to legally practice law.  
+ 
+The petitioner has extensively discussed the important 
+constitutional issue presented here and the related need to grant review 
+because the Court of Appeals misinterpreted this Court’s decision in City 
+of Seattle v. Ratliff, 100 Wn.2d 212, 667 P.2d 630 (1983).2 Amicus ACLU-
+WA wishes to add only the following supplemental points.  
+The Court of Appeals suggested that what happened in Ratliff was 
+a more serious denial of counsel than shown by the facts of the present 
+case. But if anything, this case presents a much greater threat to the 
+integrity of the criminal justice system and protection of the right to 
+counsel than did Ratliff. An isolated incident in a misdemeanor case 
+spawned Ratliff: a municipal court judge prevented a licensed legal intern 
+from contacting a supervisor as was required for the intern to proceed. The 
+ 
+1 Identical issues are presented in the motion for discretionary review 
+pending before this Court in In re the Personal Restraint Petition of 
+Robert L. Ayerst, No. 99941-4. 
+2 See also Amicus of the Defender Initiative filed in this Court in the 
+Ayerst matter.  
+A. 
+
+--- Page 6 ---
+3 
+present case arises in the context of ongoing unauthorized representation 
+of criminal defendants in felony cases by a person knowingly hired by a 
+county to represent indigent defendants even though he was not qualified 
+to practice in Washington and never took the necessary steps to become 
+qualified. It also involves the trial court and prosecutor most likely 
+knowing (and certainly on notice to know) that the person was not 
+qualified to practice in Washington. Contrary to the Court of Appeals’ 
+conclusion, this situation did emphatically create the presumptive 
+undermining of the constitutional right to counsel recognized in Ratliff and 
+requires a finding of actual denial of counsel without any need to show 
+prejudice.  
+The Court of Appeals’ truncated view of the threat to the right to 
+counsel in the present case also led that court to erroneously find that 
+Solina v United States, 709 F.2d 160, (2d Cir. 1983) supported denying 
+Mr. Lewis’s petition. Lewis, 2021 WL at *2 (“The federal court reasoned 
+the concept of prejudice was inapplicable because Mr. Solina’s case 
+involved an inherent conflict of interest.”) This was incorrect: the Solina 
+court, addressing a situation where the person representing the criminal 
+defendant, unknown to the defendant, was actually not a member of any 
+bar but had been to law school, said if the standard to be applied was 
+harmless error, it would not be satisfied. 709 F.2d at 164-65. But the court 
+
+--- Page 7 ---
+4 
+in Solina concluded that it was obligated instead to apply a per se rule of 
+outright denial of counsel due to the meaning of “counsel” in the Sixth 
+Amendment as interpreted by Supreme Court authority. Id. at 168-69. 
+Solina thus supports the claim that this Court should apply here, as it did 
+in Ratliff, the per se rule.3 This Court should grant review and vacate the 
+conviction on this ground.  
+ 
+ 
+This case presents additional issues of public importance 
+regarding this Court’s regulation of those who practice law, 
+particularly those who represent criminal defendants, and the 
+duty of courts of this state to enforce the court rules.    
+In Ratliff, this Court discussed at length its inherent and plenary 
+constitutional power to determine the conditions under which persons may 
+practice law in this state. 100 Wn.2d at 215-216. Of great importance in 
+the present case, those statements of the Court’s broad powers in this 
+arena were made in the context of a claim that a person who was 
+ 
+3 Even if the presence of the considerations of potential conflict that the 
+Court of Appeals drew from Solina should determine the outcome, in the 
+present case they would require overturning the conviction. Solina made 
+clear that this point was not about the competence of counsel but rather 
+structural constraints on counsel’s performance. In Solina, the constraints 
+were found to be theoretical but not real. Here, they were all too real: Mr. 
+Van Idour might well have been committing a crime, and as he was 
+practicing without a Washington license or any recognized exception he 
+was at the mercy of local authorities, including judge and prosecutor, thus 
+creating just the kinds of dangers the Court of Appeals felt were necessary 
+for Mr. Lewis to be granted relief.  
+B. 
+
+--- Page 8 ---
+5 
+prevented from following the rules for being a properly qualified counsel 
+for an accused person rendered the proceeding essentially void.  
+Since Ratliff, this Court has significantly modified the 
+qualifications for persons representing the accused at public expense. In 
+the exercise of its powers to promulgate mandatory court rules and its 
+corollary powers to regulate the practice of law, the Court has established 
+detailed qualifications that criminal defense counsel must possess and 
+publicly certify they meet. See “Standards for Indigent Defense” 
+promulgated “to address certain basic elements of public defense related to 
+the effective assistance of counsel” CrR 3.1 Stds (Preamble). Standard 14 
+requires that all persons representing criminal defendants at public 
+expense meet “minimum professional qualifications,” and, not 
+surprisingly, the first one listed is: “Satisfy the minimum requirements for 
+practicing law in Washington as determined by the Washington Supreme 
+Court.” In addition to many other requirements listed in Standard 14 
+(including familiarity with court rules), counsel covered by these standards 
+must certify quarterly that they meet all of the qualifications this Court has  
+established.  
+ 
+This Court recently discussed duties under the Indigent Defense 
+Standards:  
+
+--- Page 9 ---
+6 
+Court rules […] provide, “Before appointing a lawyer for an 
+indigent person, or at the first appearance of the lawyer in the case, 
+the court shall require the lawyer to certify to the court that he or 
+she complies with the applicable Standards for Indigent Defense 
+Services.” CrR 3.1(d)(4); CrRLJ 3.1(d)(4); JuCR 9.2(d). Our 
+standards for indigent defense apply to any attorney appointed by 
+the court to provide public defense representation.  
+ 
+Davison v. State of Washington, 196 Wn.2d 285, 298-99, 466 P. 3d 231 
+(2020). As with all court rules, the courts have a role and a duty in 
+implementation and enforcement of these rules and standards.4  
+ 
+The Indigent Defense Standards and the general Admission to 
+Practice Rules show that this Court has acted deliberately to establish clear 
+rules governing not only general qualifications for all who wish to practice 
+law in Washington, but also very specific qualifications—presumably 
+grounded in the perceived need to protect the constitutional right to 
+counsel—for persons representing the accused at public expense. Sadly, 
+the record in this case appears to clearly demonstrate that none of the 
+Court’s relevant rules were complied with. Because the personal restraint 
+petition at issue here involves a criminal prosecution, the facts do raise a 
+significant constitutional issue, as described above and in the motion for 
+ 
+4 And while the Court in Davison held that the State Office of Public 
+Defense (OPD) is not empowered to “sweep in and remediate” problems 
+in the provision of trial level public defense, Id. at 301, OPD is surely not 
+prohibited from documenting and seeking to remedy local issues through 
+persuasion and other non-coercive means. Thus OPD can and should be an 
+important participant in efforts to implement the standards.  
+
+--- Page 10 ---
+7 
+discretionary review and amicus brief of The Defender Initiative. But 
+these facts also pointedly raise the question of enforcement of the Court’s 
+rules and the role played by the trial court and prosecutor in this case.  
+The record strongly suggests that the trial court and prosecutor 
+knew—or at least certainly should have known—that the person 
+purporting to represent Mr. Lewis was not authorized to practice in 
+Washington and did not meet the most basic of the Indigent Defense 
+Standards. See Lewis Petition (converted to motion for discretionary 
+review) at 2, 12-13. Neither of these important actors in the justice system, 
+particularly the court, should be free to facilitate this, or even to passively 
+allow it. With all due respect, looking the other way is not in the job 
+description for these public servants; following and enforcing the rules set 
+out by this Court is part of their jobs.  
+These issues are of public importance due to the Court’s role in 
+protecting the integrity of the justice system and also protecting the public, 
+including any members of the public who may be accused of crimes. This 
+Court should accept review to make clear that the Admission to Practice 
+Rules and Indigent Defense Standards are mandatory and that courts and 
+public prosecutors are duty-bound to make sure they are followed.  
+
+--- Page 11 ---
+8 
+V. 
+CONCLUSION 
+  
+For these reasons, Amicus asks this Court to grant Petitioner 
+Lewis’s Motion for Discretionary Review. 
+RESPECTFULLY SUBMITTED this 29th day of July, 2021.  
+ 
+By: s/John Midgley 
+John Midgley, WSBA #6511 
+jmidgley@aclu-wa.org  
+ 
+ 
+ 
+ 
+        Nancy Talner, WSBA #11196  
+ 
+ 
+ 
+ 
+        talner@aclu-wa.org 
+ 
+ 
+ 
+                    Jaime Hawk, WSBA #35632 
+ 
+ 
+ 
+ 
+        jhawk@aclu-wa.org 
+P.O. Box 2728 
+Seattle, WA 98111  
+Ph: (206) 624-2184 
+ 
+Counsel for Amicus Curiae  
+AMERICAN CIVIL LIBERTIES UNION OF 
+WASHINGTON FOUNDATION 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 12 ---
+9 
+CERTIFICATE OF SERVICE 
+ 
+I certify that on the 29th day of July, 2021, I caused a true and 
+correct copy of this document to be served on all parties by e-filing this 
+document through the Washington State Appellate Courts’ Secure Portal. 
+Signed this 29th day of July, 2021 at Seattle, WA. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+By: /s/ Tracie Wells  
+ 
+ 
+Tracie Wells, Paralegal 
+ACLU OF WASHINGTON 
+FOUNDATION 
+P.O. Box 2728 
+Seattle, Washington 98111 
+(206) 624-2184 
+ 
+
+--- Page 13 ---
+ACLU OF WASHINGTON FOUNDATION
+July 29, 2021 - 2:57 PM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99939-2
+Appellate Court Case Title:
+Personal Restraint Petition of Justin C. Lewis
+Superior Court Case Number:
+17-1-00053-3
+The following documents have been uploaded:
+999392_Briefs_20210729145528SC042070_0591.pdf 
+    This File Contains: 
+     Briefs - Amicus Curiae 
+     The Original File Name was 2021-07-29 - PRP of Lewis - ACLU Memo in Support of Review - FINAL.pdf
+999392_Motion_20210729145528SC042070_3065.pdf 
+    This File Contains: 
+     Motion 1 - Amicus Curiae Brief 
+     The Original File Name was 2021-07-29 - PRP of Lewis - ACLU Motion in Support of Review - FINAL.pdf
+A copy of the uploaded files will be sent to:
+Liseellnerlaw@comcast.net
+bnichols@co.asotin.wa.us
+cliedkie@co.asotin.wa.us
+jhawk@aclu-wa.org
+paralegal@aclu-wa.org
+talner@aclu-wa.org
+Comments:
+Sender Name: John Midgley - Email: jmidgley@aclu-wa.org 
+Address: 
+PO BOX 2728 
+SEATTLE, WA, 98111-2728 
+Phone: 206-624-2184
+Note: The Filing Id is 20210729145528SC042070
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 

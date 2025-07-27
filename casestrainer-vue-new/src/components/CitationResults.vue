@@ -7,7 +7,18 @@ import ProcessingProgress from './ProcessingProgress.vue'
 const props = defineProps({
   results: { type: Object, default: null },
   showLoading: { type: Boolean, default: false },
-  error: { type: String, default: '' }
+  error: { type: String, default: '' },
+  elapsedTime: { type: Number, default: 0 },
+  remainingTime: { type: Number, default: 0 },
+  totalProgress: { type: Number, default: 0 },
+  currentStep: { type: String, default: '' },
+  currentStepProgress: { type: Number, default: 0 },
+  processingSteps: { type: Array, default: () => [] },
+  citationInfo: { type: Object, default: null },
+  rateLimitInfo: { type: Object, default: null },
+  processingError: { type: String, default: '' },
+  canRetry: { type: Boolean, default: false },
+  timeout: { type: Number, default: null }
 })
 
 const emit = defineEmits(['copy-results', 'download-results', 'toast'])
@@ -80,7 +91,7 @@ watch(() => props.results, (newVal, oldVal) => {
 }, { immediate: true, deep: true })
 
 const shouldShowProgressBar = computed(() => {
-  return props.showLoading && progress.value > 0 && progress.value < 100
+  return props.showLoading
 })
 
 const validCount = computed(() => {
@@ -580,14 +591,39 @@ function downloadAllCitations() {
 </script>
 
 <template>
-  <div v-if="noCitationsFound" class="no-citations-found text-center my-5">
+  <div v-if="showLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Processing citations...</p>
+    <ProcessingProgress 
+      v-if="shouldShowProgressBar"
+      :elapsed-time="props.elapsedTime"
+      :remaining-time="props.remainingTime"
+      :total-progress="props.totalProgress"
+      :current-step="props.currentStep"
+      :current-step-progress="props.currentStepProgress"
+      :processing-steps="props.processingSteps"
+      :citation-info="props.citationInfo"
+      :rate-limit-info="props.rateLimitInfo"
+      :error="props.processingError"
+      :can-retry="props.canRetry"
+      :timeout="props.timeout"
+    />
+  </div>
+
+  <div v-else-if="error" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>Error Processing Citations</h3>
+    <p>{{ error }}</p>
+  </div>
+
+  <div v-else-if="noCitationsFound" class="no-citations-found text-center my-5">
     <img src="/no-results.svg" alt="No citations found" style="width:120px; margin:20px 0;">
     <p class="lead">No case citations found in your {{ inputType }}.</p>
     <a :href="`mailto:jafrank@uw.edu?subject=CaseStrainer%20feedback&body=I%20submitted%20the%20following%20${inputType}:%0A${encodeURIComponent(inputValue)}%0Aand%20no%20citations%20were%20found.`" class="btn btn-outline-primary mt-2">
       Report a possible extraction error
     </a>
   </div>
-  <div class="citation-results">
+  <div v-else class="citation-results">
 
     <!-- CITATIONS THAT NEED ATTENTION SECTION AT TOP -->
     <div v-if="results && (results.clusters || results.citations)" class="prominent-citations-section">
@@ -678,31 +714,6 @@ function downloadAllCitations() {
           </div>
         </div>
       </div>
-    </div>
-
-    <div v-if="showLoading" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Processing citations...</p>
-      <ProcessingProgress 
-        v-if="shouldShowProgressBar"
-        :elapsed-time="0"
-        :remaining-time="etaSeconds || 0"
-        :total-progress="progress"
-        :current-step="'Processing Citations'"
-        :current-step-progress="progress"
-        :processing-steps="[]"
-        :citation-info="null"
-        :rate-limit-info="null"
-        :error="''"
-        :can-retry="false"
-        :timeout="null"
-      />
-    </div>
-
-    <div v-else-if="error" class="error-state">
-      <div class="error-icon">⚠️</div>
-      <h3>Error Processing Citations</h3>
-      <p>{{ error }}</p>
     </div>
 
     <!-- CLUSTERED DISPLAY: Check for clusters first and prioritize this display -->

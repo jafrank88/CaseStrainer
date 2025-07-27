@@ -1,0 +1,1137 @@
+
+--- Page 1 ---
+ 
+Consolidated Under No. 99939-2 
+ 
+ 
+IN THE SUPREME COURT OF THE STATE OF 
+WASHINGTON 
+ 
+ 
+In the Matter of the Personal Restraint of JUSTIN C. 
+LEWIS and ROBERT L. AYERST,  
+ 
+Petitioners. 
+ 
+ 
+ AMICUS CURIAE BRIEF OF AMERICAN CIVIL 
+LIBERTIES UNION OF WASHINGTON 
+ 
+ 
+John Midgley, WSBA No. 6511  
+Nancy Talner, WSBA No. 11196  
+Jaime Hawk, WSBA No. 35632 
+AMERICAN CIVIL LIBERTIES 
+UNION OF WASHINGTON 
+FOUNDATION 
+P.O. Box 2728 
+Seattle, WA 98111 
+Phone: 206.624.2184 
+jmidgley@aclu-wa.org 
+talner@aclu-wa.org 
+jhawk@aclu-wa.org  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+41812022 3:34 PM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+i 
+TABLE OF CONTENTS 
+ 
+I. 
+IDENTITY AND INTEREST of AMICI ....................... 1 
+II. 
+POSITION OF AMICI .................................................. 1 
+III. 
+STATEMENT OF THE CASE ...................................... 1 
+IV. 
+INTRODUCTION ......................................................... 2 
+V. 
+ARGUMENT................................................................. 3 
+A. 
+The flouting of all rules and standards regarding 
+the practice of law and public defense 
+representation fundamentally undermined 
+Petitioners’ right to be represented by the 
+“counsel” required by the Constitution................. 3 
+B. 
+This fundamental deprivation of the “counsel” 
+required by the Constitution requires relief. ........11 
+VI. 
+CONCLUSION ............................................................17 
+ 
+ 
+ 
+
+--- Page 3 ---
+ii 
+TABLE OF AUTHORITIES 
+Washington State Cases 
+City of Seattle v. Ratliff, 100 Wn. 2d 212, 667 P.2d 
+630 (1983) .......................................................... passim 
+Davison v. State of Washington, 196 Wn.2d 285, 
+466 P. 3d 231 (2020) ........................................... 4, 6, 7 
+In re Personal Restraint of Cross, 180 Wn.2d 664, 
+677, 327 P.3d 660 (2014) .......................................... 16 
+In re Richardson, 100 Wn.2d 669, 679, 675 P.2d 
+209 (1983) ....................................................... 11,12,15  
+State v. A.N.J., 168 Wn.2d 91, 225 P.3d 956 
+(2010) .......................................................................... 5 
+State v. Flores, 197 Wn.App.1, 386 P.3d 298 
+(2016), rev denied, 188 Wn.2d 1003 (2017) ........ 5, 6, 7 
+Other State Cases 
+People v. Chin Min Foo, 144 Misc.2d 589, 545 
+N.Y.S. 55 (1989) ....................................................... 13 
+People v. Kenny,  30 P.3d 734 (Colo. Court of 
+Appeals 2000) ........................................................... 13 
+Federal Cases 
+McKinzie v. Ellis, 287 F.2d 549 (5th Cir. 1961) ............. 13 
+Solina v. United States, 709 F.2d 160 (2d Cir. 
+1983) .................................................................... 12,15 
+Wilbur v. City of Mt. Vernon¸ 989 F.Supp.2d 1122 
+(W.D.Wash. 2013)....................................................... 7 
+
+--- Page 4 ---
+iii 
+Statutes 
+RCW 10.101.030 ............................................................ 7 
+RCW 10.101.040 ............................................................ 9 
+Court Rules 
+CrR 3.1 Stds.................................................................... 3 
+CrR 3.1(d)(4) .................................................................. 4 
+CrRLJ 3.1(d)(4) .............................................................. 4 
+JuCR 9.2(d)..................................................................... 4 
+RAP 16.4(b) .................................................................. 16 
+RAP 16.4(c) .................................................................. 16 
+ 
+  
+ 
+ 
+
+--- Page 5 ---
+1 
+I. 
+IDENTITY AND INTEREST OF AMICI  
+The identity and interest of Amici are set forth in the 
+Motion for Leave to File Brief of Amicus Curiae. 
+II. 
+ POSITION OF AMICI 
+This brief is filed in support of Petitioners. 
+III. 
+STATEMENT OF THE CASE 
+Amicus adopts Petitioners’ statements of facts. Additional 
+facts include that Mr. Van Idour, the lawyer whose actions are 
+at issue in this case, stipulated to discipline and this Court 
+added significant punishment to the punishment agreed to in the 
+stipulation.  See Appendices A and B, attached. The stipulation 
+included that: the lawyer signed a contract with Asotin County 
+to represent persons charged with crimes that required him to be 
+a member of the Washington Bar Association even though he 
+was not admitted in Washington; he “did not gain admission at 
+any time during the term of the contract” and he knew that a 
+judge’s order purporting to grant him limited admission did not 
+accomplish admission to the Bar; and that he was never 
+
+--- Page 6 ---
+2 
+admitted under any rule. Appendix A. He stipulated to 
+practicing law without a license and a six-month suspension (in 
+effect precluding any application for admission), Id., but this 
+Court imposed instead an 18-month suspension based on the 
+stipulation of facts. Appendix B.   
+IV. 
+INTRODUCTION 
+This case involves ongoing unauthorized representation 
+of criminal defendants in felony cases by a person hired by a 
+county to represent indigent defendants even though he never 
+took the necessary steps to become qualified to practice law in 
+Washington or to meet this Court’s Standards for Public 
+Defense, and yet held himself out as qualified. Contrary to the 
+Court of Appeals’ conclusion and the County’s arguments here, 
+this situation did fundamentally undermine Petitioners’ 
+constitutional right to counsel recognized in City of Seattle v. 
+Ratliff, 100 Wn. 2d 212, 667 P.2d 630 (1983), and requires a 
+finding of actual denial of counsel without any need to show 
+additional prejudice.  
+
+--- Page 7 ---
+3 
+V. 
+ARGUMENT 
+A. 
+ The flouting of all rules and standards regarding the 
+practice of law and public defense representation 
+fundamentally undermined Petitioners’ right to be 
+represented by the “counsel” required by the Constitution.   
+In Ratliff, this Court discussed at length its inherent and 
+plenary constitutional power to determine the conditions under 
+which persons may practice law in this state. 100 Wn.2d at 215-
+216. Since Ratliff, this Court has made much more specific the 
+qualifications for persons representing the accused at public 
+expense. In the exercise of its powers to promulgate mandatory 
+court rules and its corollary powers to regulate the practice of 
+law, the Court has established detailed qualifications that 
+criminal defense counsel must possess and publicly certify they 
+meet. See “Standards for Indigent Defense” promulgated “to 
+address certain basic elements of public defense related to the 
+effective assistance of counsel” CrR 3.1 Stds (Preamble). 
+Standard 14 requires that all persons representing criminal 
+defendants at public expense meet “minimum professional 
+qualifications,” and, not surprisingly, the first one listed is: 
+
+--- Page 8 ---
+4 
+“Satisfy the minimum requirements for practicing law in 
+Washington as determined by the Washington Supreme Court.” 
+In addition to many other requirements listed in Standard 14 
+(including familiarity with court rules), counsel covered by 
+these standards must certify quarterly that they meet all of the 
+qualifications this Court has established.  
+ 
+This Court recently discussed duties under the Indigent 
+Defense Standards:  
+Court rules […] provide, “Before appointing a lawyer for 
+an indigent person, or at the first appearance of the 
+lawyer in the case, the court shall require the lawyer to 
+certify to the court that he or she complies with the 
+applicable Standards for Indigent Defense Services.” 
+CrR 3.1(d)(4); CrRLJ 3.1(d)(4); JuCR 9.2(d). Our 
+standards for indigent defense apply to any attorney 
+appointed by the court to provide public defense 
+representation.  
+ 
+Davison v. State of Washington, 196 Wn.2d 285, 298-99, 466 P. 
+3d 231 (2020)(emphasis added).  
+ 
+The Indigent Defense Standards and the general 
+Admission to Practice Rules show that this Court has acted 
+deliberately to establish clear rules governing not only general 
+
+--- Page 9 ---
+5 
+qualifications for all who wish to practice law in Washington, 
+but also very specific qualifications—grounded in the need to 
+protect the constitutional right to counsel—for persons 
+representing the accused at public expense. Sadly, the record in 
+this case demonstrates that none of the Court’s relevant rules 
+were complied with. 
+ 
+This Court’s Standards for Public Defense are mandatory 
+court rules. Contrary to the County’s claims here (Supplemental 
+Br. at 18-20), these rules are not the same as the professional 
+standards and guidelines for the practice of criminal defense 
+such as those that this court held in State v. A.N.J., 168 Wn.2d 
+91, 225 P.3d 956 (2010) were evidence of, but not conclusive 
+of, the question of effective assistance of counsel. 168 Wn.2d 
+109-110. These are court rules that establish minimums 
+required to be qualified counsel to undertake representation of 
+criminal defendants as a public defender in Washington.1 
+ 
+1 The Court of Appeals in State v. Flores, 197 Wn.App.1, 386 
+P.3d 298 (2016), rev denied, 188 Wn.2d 1003 (2017), failed to 
+recognize this crucial distinction and incorrectly equated the 
+
+--- Page 10 ---
+6 
+Concurring in Davison, then-Justice González recounted 
+the history of cases alleging systemic failures to provide 
+adequate counsel in the state over many years, and how this 
+Court’s rules establishing specific requirements for the practice 
+of public defense grew out of the information obtained through 
+those cases. The common thread running through all of these 
+cases is that the counties and cities involved have opted not to 
+provide public defense through dedicated public defense offices 
+that would provide the supervision, oversight and training that 
+prevent systemic failures of counsel. Instead, the jurisdictions 
+that have generated serious claims of the failure of the system 
+to provide adequate defense counsel have employed contract 
+lawyers—including in Davison itself and the present case—to 
+provide public defense.2 This history shows that the contract 
+ 
+professional guidelines discussed in A.N.J. with this Court’s 
+mandatory rules. 197 Wn.App. 13-15. This Court’s public 
+defense rules and standards were promulgated after A.N.J. and 
+are far more than professional guidelines and recommendations.  
+2 In addition to the present case and Davison, see Best v. Grant 
+County, cited in Davison, 196 Wn.2d at 305 (concurrence); 
+
+--- Page 11 ---
+7 
+system is a major weakness in the state’s public defense system 
+that has unfortunately spawned multiple systemic failures of 
+counties and cities to provide adequate counsel.  
+ 
+In addition, as the Court majority recounted in detail in 
+Davison, 196 Wn.2d at 297-98, the Legislature has required 
+that cities and counties must each adopt standards for public 
+defense “safeguarding the right to counsel” that include many 
+subjects but most importantly “attorney qualifications,” and 
+“training, supervision, evaluation and monitoring of attorneys.” 
+RCW 10.101.030. This Court said that this statute creates a 
+duty to “adopt, implement, and administer” these standards, and 
+appropriately placed special emphasis on implementation of 
+supervision and monitoring by pointing to the Court’s Standard 
+For Indigent Defense 11’s call to “establish a procedure for 
+systematic monitoring and evaluation of attorney 
+performance…” Id. at 298. The purpose of all of these 
+ 
+A.N.J., 168 Wn.2d at 100; Wilbur v. City of Mt. Vernon¸ 989 
+F.Supp.2d 1122 (W.D.Wash. 2013); Flores, 197 Wn.App. at 5.  
+
+--- Page 12 ---
+8 
+standards is to protect an indigent defendant’s right to counsel 
+as defined in our state. 
+These essential functions recognized both by this Court 
+and the Legislature were absent in the current cases-leaving the 
+County to feel free to hire a person unqualified to practice law 
+in Washington State as a public defender. There is no evidence 
+in the record that anything resembling enforcement of any of 
+the standards was occurring in Asotin County. The contract 
+attorney was not even properly licensed to practice law in 
+Washington, but county officials, the court, and the prosecutor 
+nevertheless allowed him to continue to represent defendants, 
+utterly without the necessary “training, supervision, monitoring 
+and evaluation.” And surely “attorney qualifications” of counsel 
+under the statute must include this Court’s rules for the practice 
+of law and the Court’s very specific rules requiring particular 
+qualifications for representing criminal defendants, but these 
+were being egregiously flouted. Neither Mr. Van Idour nor 
+Asotin County and its officials, who issued the contract, 
+
+--- Page 13 ---
+9 
+complied with their clear duties to make sure that these 
+standards and requirements were complied with.3  
+ 
+The serious policy question whether the contract system 
+should be eliminated is not before this Court. However, what is 
+before the Court is whether a contract attorney such as Mr. Van 
+Idour, who fails to meet the minimum requirements for practice 
+in Washington, and who repeatedly committed the crime of 
+practicing without a license and knowingly failed to follow the 
+Rules of Professional Conduct and Admission to Practice 
+Rules, can be considered constitutionally-required “counsel” in 
+any meaningful sense.  
+ 
+3 In addition to all of these problems that are so clear on this 
+record, the contract system can create a lack of independence of 
+public defense from judges and other public officials. Certainly 
+public defense systems must be accountable to public officials, 
+but independence of public defense from the pressures that can 
+sometimes be brought to bear by public officials is essential to 
+the proper functioning of the system. The Legislature 
+recognized this in part through RCW 10.101.040, which 
+prohibits prosecutors and law enforcement officers from 
+selecting public defenders, but unfortunately pressures can also 
+be brought to bear by county elected officials and even judges.  
+
+--- Page 14 ---
+10 
+If such a person can be considered counsel and allowed 
+to represent people accused of felonies, these statutes and rules 
+are of no practical effect. Counsel from other states could do the 
+same, or worse, with impunity. Respectfully, the rules call out 
+for enforcement to protect defendants, and more than just 
+sanctioning counsel is needed where, as here, simply asking 
+counties, judges and counsel to please follow the rules that are 
+designed to protect the constitutional right to counsel is not 
+enough.  
+ 
+Amicus does not suggest that any small technical violation 
+of these rules and standards, such as a properly-admitted 
+Washington attorney failing to file a report, would equal a total 
+denial of counsel. However, this Court should find there has been 
+a complete denial of counsel when, as here, there was a total lack 
+of following of—or enforcement of—any of these rules allowing 
+someone never licensed in Washington to pretend to be a 
+qualified lawyer and to be substantively deceptive about that—
+keeping the reality from his clients as well as knowingly 
+
+--- Page 15 ---
+11 
+violating the ethical and admission rules and the criminal law. 
+This total failure of both the lawyer involved and of the court and 
+county that are specifically charged with the crucial duty of 
+protecting the right to counsel by making sure minimum 
+standards are in place and enforced equals a denial of the 
+“counsel” required by the Constitution.   
+B. 
+This fundamental deprivation of the “counsel” 
+required by the Constitution requires relief.    
+The denial of counsel in Mr. Ayerst’s and Mr. Lewis’s  
+cases is the kind of constitutional error that, even on collateral 
+review, “…give[s] rise to a conclusive presumption of 
+prejudice…” In re Richardson, 100 Wn.2d 669, 679, 675 P.2d 
+209 (1983). In Richardson, the error for which prejudice was 
+presumed was acting as a lawyer for both a criminal defendant 
+and a witness in the same case, creating a conflict of interest 
+that fundamentally undermined the right to counsel. In Ratliff, it 
+was the failure of a lawyer admitted to practice in Washington 
+to be present to defend the accused, another species of 
+fundamental undermining of the right to counsel.  
+
+--- Page 16 ---
+12 
+The present case, like Solina v. United States, 709 F.2d 
+160 (2d Cir. 1983), contains both types of fatal compromise of  
+the right to counsel. As in Solina, the lawyer in the present case 
+was committing a crime, thus inherently compromising his 
+required undivided loyalty to his client. And even more so than 
+in Ratliff¸ where the legal intern was faithfully trying to follow 
+the rules but was prevented from doing so, the lawyer in this 
+case was not authorized to do what he did: he was not admitted 
+or authorized to practice in Washington, could not honestly and 
+did not certify his compliance with the rules that applied 
+specifically to public defenders, and failed to disclose these 
+facts to his clients. On this record, prejudice must be presumed 
+without more.  
+The County tries to distinguish Ratliff and Solina (and 
+doesn’t mention Richardson) by incorrectly suggesting that all 
+courts in other jurisdictions find an outright deprivation of 
+counsel requiring relief only in cases in which someone who has 
+never been admitted to practice in any jurisdiction represents a 
+
+--- Page 17 ---
+13 
+defendant, no matter how egregious the flouting of the rules of 
+the state in which the representation occurs. On the contrary, 
+circumstances matter: courts have found a fundamental 
+deprivation of counsel requiring relief in many situations where 
+a lawyer who was or had been licensed was involved. See People 
+v. Kenny,  30 P.3d 734, 742-44 (Colo. Court of Appeals 
+2000)(discussion of approaches and factors that have been 
+considered in different states regarding whether per se rule will 
+be applied when counsel has been suspended from practice). See 
+also, e.g., McKinzie v. Ellis, 287 F.2d 549 (5th Cir. 1961)(even 
+lawyer disqualified for continued bar membership only for 
+nonpayment of dues not considered to be “counsel” in a capital 
+case; court referenced Texas state case finding that a lawyer who 
+was not current on dues is not “counsel” under state right to 
+counsel statute); People v. Chin Min Foo, 144 Misc.2d 589, 545 
+N.Y.S. 55 (1989)(lawyer was licensed but obtained license 
+through fraud). A rule that, no matter how egregious the violation 
+of state rules, any lawyer who has ever been licensed will do 
+
+--- Page 18 ---
+14 
+would of course make no sense and would be inconsistent with 
+Washington precedent. It would also be contrary to the 
+Washington Constitution, which, as outlined in Ratliff, vests 
+power in this Court alone to determine and ensure any person 
+practicing in our courts meets the minimum criteria to be entitled 
+to appear in court. 
+This Court underscored its commitment to ensuring that 
+only those properly authorized to practice law in Washington  
+may be considered “counsel” when it imposed significant 
+additional punishment on Mr. Van Idour beyond what he agreed 
+to in his stipulation with the Bar Association. Exhibit B. All of 
+this Court’s rules and relevant legislation lead in the same 
+direction:  Persons such as Mr. Van Idour cannot be considered  
+constitutionally-required “counsel” in Washington, where they 
+fail to meet the minimum requirements for practice and make no 
+serious efforts to obtain it. Under these circumstances, no further 
+prejudice need be shown.   
+
+--- Page 19 ---
+15 
+Direct application of Richardson, Ratliff, and Solina and 
+this Court’s rules should lead to relief here without a further 
+showing of prejudice. But even applying a case-by-case 
+approach as some other states do would show that the violations 
+and conduct in the present case went to the heart of the reasons 
+for jealous protection of the right to counsel and require relief. 
+Especially in light of this Court’s rules for indigent defense and 
+the Legislature’s insistence on standards that counties and cities 
+are bound to enforce discussed above, this was a deprivation of 
+counsel requiring relief without any further showing.  
+ 
+The County also suggests that Ratliff’s conclusion that 
+the deprivation of counsel there required automatic reversal 
+does not apply in this personal restraint proceeding, and that the 
+Petitioners must show prejudice in the conduct of the trial. 
+Supplemental Br. 8-10. But as shown above, this Court’s cases 
+say that a deprivation of the “counsel” required by the 
+Constitution is the kind of fundamental error that requires 
+automatic relief on collateral attack as well as on direct appeal.  
+
+--- Page 20 ---
+16 
+Furthermore, there should be no requirement to show 
+further prejudice here because the Petitioners could not have 
+raised this structural defect on direct appeal as they did not know 
+about Mr. Van Idour’s failure to be a qualified Washington 
+attorney in time to raise it on direct appeal. Petitioners should be 
+deemed to be in the same position as Ratliff: In Ratliff, the defect 
+was apparent on the face of the trial record and thus could be 
+raised on direct appeal, while Petitioners raised the issue in their 
+personal restraint petitions as soon as they could because the 
+defect was not on the record. Their showing that they were not 
+provided the “counsel” required by the Constitution must be 
+presumed prejudicial on this record.4 The deprivation of counsel 
+here requires relief without further showing.  
+ 
+4 See, e.g., In re Personal Restraint of Cross, 180 Wn.2d 
+664, 677, 327 P.3d 660 (2014)(where there has been no 
+opportunity for previous review, “the petitioner need show only 
+that he is restrained under RAP 16.4(b) and that the restraint is 
+unlawful under RAP 16.4(c).”) 
+ 
+
+--- Page 21 ---
+17 
+VI. 
+CONCLUSION 
+For the foregoing reasons, this Court should find that the 
+deprivation of counsel was of constitutional magnitude and was 
+of such a fundamental nature that a separate showing of 
+prejudice is not required, vacate Petitioners’ convictions, and 
+remand for a new trial.  
+The undersigned hereby certifies that this brief contains 
+2,820 words. 
+RESPECTFULLY SUBMITTED this 8th day of April, 
+2022. 
+ 
+ 
+/s/ John Midgley 
+ 
+ 
+ 
+John Midgley, WSBA No. 6511 
+ 
+Nancy Talner, WSBA No. 11196 
+ 
+Jaime Hawk, WSBA No. 35632 
+ 
+COUNSEL FOR AMERICAN CIVIL 
+LIBERTIES UNION OF WASHINGTON 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 22 ---
+18 
+CERTIFICATE OF SERVICE 
+I certify that on the 8th day of April, 2022, I caused a true 
+and correct copy of this document to be served on all parties by 
+e-filing this document through the Washington State Appellate 
+Courts Secure Portal. 
+Signed this 8th day of April, 2022 at Seattle, WA. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+/s/ Tracie Wells  
+ 
+ 
+Tracie Wells, Paralegal 
+ACLU OF WASHINGTON 
+FOUNDATION 
+P.O. Box 2728 
+Seattle, WA  98111 
+(206) 624-2184 
+ 
+ 
+ 
+
+--- Page 23 ---
+Stipulation to Discipline 
+Page 1 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24
+DISCIPLINARY BOARD  
+WASHINGTON STATE BAR ASSOCIATION 
+In re 
+ROBERT JERRY VAN IDOUR, 
+Lawyer. 
+Proceeding No. 19#00008 
+ODC File No. 17-01923 
+STIPULATION TO SUSPENSION 
+Under Rule 9.1 of the Washington Supreme Court’s Rules for Enforcement of Lawyer 
+Conduct (ELC), the following Stipulation to Suspension is entered into by the Office of 
+Disciplinary Counsel (ODC) of the Washington State Bar Association (WSBA) through 
+Disciplinary Counsel Benjamin J. Attanasio, Respondent’s Counsel Kevin M. Bank, and 
+Respondent lawyer Robert Jerry Van Idour.   
+Respondent understands that he is entitled under the ELC to a hearing, to present 
+exhibits and witnesses on his behalf, and to have a hearing officer determine the facts, 
+misconduct and sanction in this case.  Respondent further understands that he is entitled under 
+the ELC to appeal the outcome of a hearing to the Disciplinary Board, and, in certain cases, the 
+Supreme Court.  Respondent further understands that a hearing and appeal could result in an 
+outcome more favorable or less favorable to him.  Respondent chooses to resolve this 
+FILED 
+Disciplinary 
+ Board 
+Jul 28, 2021
+Docket # 059
+Appendix A
+
+--- Page 24 ---
+ 
+Stipulation to Discipline 
+Page 2 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+proceeding now by entering into the following stipulation to facts, misconduct, and sanction to 
+avoid the risk, time, and expense attendant to further proceedings.   
+I.  ADMISSION TO PRACTICE 
+1. 
+Respondent Robert Jerry Van Idour was admitted to the practice of law in the State 
+of Idaho on September 25, 1980. 
+2. 
+Respondent has never been admitted to the practice of law in the State of 
+Washington.   
+II.  STIPULATED FACTS 
+3. 
+On December 13, 2016, Respondent submitted a letter of interest to the Asotin 
+County, Washington Board of Commissioners seeking a contract to provide indigent defense 
+services in the county.   
+4. 
+Respondent’s letter stated that he was in the process of applying for admission to 
+practice law in Washington.   
+5. 
+On January 16, 2017, Respondent submitted an application for admission by 
+motion to the WSBA under Washington Admission and Practice Rule (APR) 3(c). 
+6. 
+Respondent was awarded the indigent defense contract with Asotin County (the 
+“contract”). 
+7. 
+On January 29, 2017, Respondent signed the contract.    
+8. 
+The contract required Respondent to be a member of the WSBA throughout its 
+term, which ran from February 1, 2017 through January 31, 2018.   
+9. 
+Respondent was not admitted to practice law in Washington at the time he 
+executed the contract and did not gain admission at any time during the term of the contract.   
+10. During the term of the contract, Respondent was appointed to represent over 100 
+
+--- Page 25 ---
+ 
+Stipulation to Discipline 
+Page 3 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+clients in Asotin County Superior Court.   
+11. On February 20, 2017, Respondent submitted an application for limited admission 
+to the WSBA under APR 8(c).  
+12. That application was never approved. 
+13. On October 6, 2017, Asotin County Superior Court Judge Scott Gallina signed an 
+Order for Limited Admission to Practice (the “Order”) that purported to provisionally admit 
+Respondent in Asotin County “for the purpose of providing indigent defense services in 
+accordance with APR 8.”   
+14. The Order was dated “Nunc Pro Tunc to February 1, 2017.”   
+15. The Order did not constitute admission to practice law in Washington.  
+16. Respondent knew that the Order did not constitute admission to practice law in 
+Washington. 
+17. On or about October 26, 2017, Respondent received notice that his application for 
+admission by motion under APR 3(c) was approved and that Respondent was required to 
+complete additional steps prior to gaining admission.   
+18. The approval of the application did not constitute admission to practice law in 
+Washington. 
+19. Respondent knew that the approval of the application did not constitute admission 
+to practice law in Washington. 
+20. Respondent was never admitted to practice law in Washington on the basis of his 
+application for admission by motion under APR 3(c). 
+21. On or about November 27, 2017, Respondent received notice that his application 
+for limited admission under APR 8(c) was denied because he did not meet the criteria for 
+
+--- Page 26 ---
+ 
+Stipulation to Discipline 
+Page 4 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+limited admission under that rule.   
+22. Respondent was never admitted or authorized to practice law in Washington on 
+any other basis. 
+23. Respondent states he believed he was authorized to practice in Asotin County 
+Superior Court because he had applied for admission under APR 3(c) and 8(c) and because the 
+court appointed him as counsel beginning in February 2017. 
+24. Respondent agrees that neither the pending applications nor the court appointments 
+authorized him to practice and that he should have confirmed his authority to practice during the 
+term of the contract. 
+III.  STIPULATION TO MISCONDUCT 
+25. By practicing law in Washington without authorization, Respondent violated RPC 
+5.5(a) and RPC 5.5(b). 
+IV.  PRIOR DISCIPLINE 
+26. Respondent has no record of prior discipline. 
+V.  APPLICATION OF ABA STANDARDS 
+27. The following American Bar Association Standards for Imposing Lawyer 
+Sanctions (1991 ed. & Feb. 1992 Supp.) apply to this case: 
+7.0 Violations of Duties Owed as a Professional 
+Absent aggravating or mitigating circumstances, upon application of the 
+factors set out in Standard 3.0, the following sanctions are generally appropriate 
+in cases involving false or misleading communication about the lawyer or the 
+lawyer’s services, improper communication of fields of practice, improper 
+solicitation of professional employment from a prospective client, unreasonable 
+or improper fees, unauthorized practice of law, improper withdrawal from 
+representation, or failure to report professional misconduct. 
+7.1 
+Disbarment is generally appropriate when a lawyer knowingly engages in 
+conduct that is a violation of a duty owed as a professional with the intent 
+to obtain a benefit for the lawyer or another, and causes serious or 
+potentially serious injury to a client, the public, or the legal system. 
+
+--- Page 27 ---
+ 
+Stipulation to Discipline 
+Page 5 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+7.2 
+Suspension is generally appropriate when a lawyer knowingly engages in 
+conduct that is a violation of a duty owed as a professional and causes 
+injury or potential injury to a client, the public, or the legal system. 
+7.3 
+Reprimand is generally appropriate when a lawyer negligently engages in 
+conduct that is a violation of a duty owed as a professional and causes 
+injury or potential injury to a client, the public, or the legal system. 
+7.4 
+Admonition is generally appropriate when a lawyer engages in an 
+isolated instance of negligence that is a violation of a duty owed as a 
+professional, and causes little or no actual or potential injury to a client, 
+the public, or the legal system. 
+ 
+28. Respondent acted knowingly. 
+29. Respondent’s conduct caused potential injury to his clients and the legal system. 
+30. The presumptive sanction is suspension under ABA Standard 7.2. 
+31. The following aggravating factor applies under ABA Standard 9.22: 
+ 
+(i) substantial experience in the practice of law (admitted in 1980). 
+32. The following mitigating factors apply under ABA Standard 9.32: 
+ 
+(a) absence of a prior disciplinary record; 
+ 
+(g) character or reputation; and 
+ 
+(l) remorse. 
+33. On balance, the aggravating and mitigating factors do not require a departure from 
+the presumptive sanction. 
+VI.  STIPULATED DISCIPLINE  
+34. The parties stipulate that Respondent shall receive a six-month suspension for his 
+conduct.  
+35. Because Respondent is not currently licensed in Washington, the parties further 
+stipulate that Respondent shall be enjoined from practicing law in Washington or from seeking 
+admission to practice law in Washington in any form during the period of suspension.   
+
+--- Page 28 ---
+ 
+Stipulation to Discipline 
+Page 6 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+VII.  RESTITUTION 
+36. No restitution is required by this stipulation. 
+VIII.  COSTS AND EXPENSES 
+37. Respondent shall pay attorney fees and administrative costs of $500 in accordance 
+with ELC 13.9(i).  The WSBA will seek a money judgment under ELC 13.9(l) if these costs are 
+not paid within 30 days of approval of this stipulation.  Reinstatement from suspension and 
+eligibility for admission to practice law in Washington in any form is conditioned on payment 
+of costs. 
+IX.  VOLUNTARY AGREEMENT 
+38. Respondent states that prior to entering into this Stipulation he has consulted 
+independent legal counsel regarding this Stipulation, that Respondent is entering into this 
+Stipulation voluntarily, and that no promises or threats have been made by ODC, the WSBA, 
+nor by any representative thereof, to induce Respondent to enter into this Stipulation except as 
+provided herein. 
+39. Once fully executed, this Stipulation is a contract governed by the legal principles 
+applicable to contracts, and may not be unilaterally revoked or modified by either party. 
+X.  LIMITATIONS 
+40. This Stipulation is a compromise agreement intended to resolve this matter in 
+accordance with the purposes of lawyer discipline while avoiding further proceedings and the 
+expenditure of additional resources by the Respondent and ODC.  Both Respondent and ODC 
+acknowledge that the result after further proceedings in this matter might differ from the result 
+agreed to herein. 
+41. This Stipulation is not binding upon ODC or Respondent as a statement of all 
+
+--- Page 29 ---
+ 
+Stipulation to Discipline 
+Page 7 
+OFFICE OF DISCIPLINARY COUNSEL  
+OF THE WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA  98101-2539 
+(206) 727-8207 
+  
+ 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+existing facts relating to the professional conduct of the respondent lawyer, and any additional 
+existing facts may be proven in any subsequent disciplinary proceedings. 
+42. This Stipulation results from the consideration of various factors by both parties, 
+including the benefits to both by promptly resolving this matter without the time and expense of 
+hearings, Disciplinary Board appeals, and Supreme Court appeals or petitions for review.  As 
+such, approval of this Stipulation will not constitute precedent in determining the appropriate 
+sanction to be imposed in other cases; but, if approved, this Stipulation will be admissible in 
+subsequent proceedings against Respondent to the same extent as any other approved 
+Stipulation. 
+43. Under ELC 9.1(d)(4), the Disciplinary Board reviews a stipulation based solely on 
+the record agreed to by the parties.  Under ELC 3.1(b), all documents that form the record 
+before the Board for its review become public information on approval of the Stipulation by the 
+Board, unless disclosure is restricted by order or rule of law.   
+44. If this Stipulation is approved by the Disciplinary Board and Supreme Court, it will 
+be followed by the disciplinary action agreed to in this Stipulation.  All notices required in the 
+Rules for Enforcement of Lawyer Conduct will be made. Respondent represents that he is 
+admitted to practice law in the following jurisdictions, whether current status is active, inactive, 
+or suspended: Idaho. 
+45. If this Stipulation is not approved by the Disciplinary Board and Supreme Court, 
+this Stipulation will have no force or effect, and neither it nor the fact of its execution will be 
+admissible as evidence in the pending disciplinary proceeding, in any subsequent disciplinary 
+proceeding, or in any civil or criminal action. 
+
+--- Page 30 ---
+4/2/21
+1 
+WHEREFORE the undersigned being fully advised, adopt and agree to this Stipulation 
+2 
+to Suspension as set forth above. 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+~~~-1~.----
+RobertJev ~ 
+our 
+Respondent 
+, ar o. 28935 
+ounsel for Respondent 
+~ 
+Disciplinary Counsel 
+Stipulation to Discipline 
+Page8 
+Dated: 7 / 2- /2a·2 l 
+I 
+7 
+Dated: -------
+OFFICE OF DISCIPLINARY COUNSEL 
+OF TIIB WASHINGTON STATE BAR ASSOCIATION 
+1325 4th Avenue, Suite 600 
+Seattle, WA 98101-2539 
+(206) 727-8207 
+
+--- Page 31 ---
+THE SUPREME COURT OF WASHINGTON 
+IN RE: 
+ROBERT JERRY VAN IDOUR, 
+Attorney at Law 
+_____________________________________
+)
+)
+) 
+) 
+) 
+) 
+) 
+Supreme Court No.  
+202,021-6 
+ORDER IMPOSING
+18-MONTH SUSPENSION
+This matter came before the Court to consider the Washington State Bar 
+Association Disciplinary Board’s Order Conditionally Approving Stipulation.  The Court 
+reviewed the order and the stipulation, and determined unanimously that an order 
+imposing an eighteen-month suspension should be entered.   
+IT IS ORDERED: 
+Robert Jerry Van Idour is suspended from the practice of law for eighteen months.  
+Pursuant to ELC 13.2, the effective date of suspension is seven days from the date of this 
+order.  Respondent is enjoined from practicing law in Washington or from seeking 
+admission to practice law in Washington in any form during the period of suspension.
+DATED at Olympia, Washington this 7th day of September, 2021. 
+For the Court 
+FILED
+SUPREME COURT
+STATE OF WASHINGTON 
+SEPTEMBER 7, 2021 
+BY ERIN L. LENNON
+CLERK
+Docket # 062
+FILED 
+Disciplinary 
+ Board 
+Sep 7, 2021
+Appendix B
+
+--- Page 32 ---
+ACLU OF WASHINGTON FOUNDATION
+April 08, 2022 - 3:34 PM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99939-2
+Appellate Court Case Title:
+Personal Restraint Petition of Justin C. Lewis
+Superior Court Case Number:
+17-1-00053-3
+The following documents have been uploaded:
+999392_Briefs_20220408152653SC572403_9760.pdf 
+    This File Contains: 
+     Briefs - Amicus Curiae 
+     The Original File Name was 2022-04-08 - PRP of Lewis-Ayerst - ACLU Amicus Brief - FINAL.pdf
+999392_Motion_20220408152653SC572403_4968.pdf 
+    This File Contains: 
+     Motion 1 - Amicus Curiae Brief 
+     The Original File Name was 2022-04-08 - PRP of Lewis-Ayerst - ACLU Amicus Motion - FINAL.pdf
+A copy of the uploaded files will be sent to:
+JYoung@co.asotin.wa.us
+Liseellnerlaw@comcast.net
+ali@defensenet.org
+bnichols@co.asotin.wa.us
+boruchor@seattleu.edu
+cliedkie@co.asotin.wa.us
+jaimehawk@hotmail.com
+jeffrey.even@atg.wa.gov
+jhawk@aclu-wa.org
+rcboru@aol.com
+sgoolyef@atg.wa.gov
+talner@aclu-wa.org
+Comments:
+Sender Name: John Midgley - Email: jmidgley@aclu-wa.org 
+Address: 
+PO BOX 2728 
+SEATTLE, WA, 98111-2728 
+Phone: 206-624-2184
+Note: The Filing Id is 20220408152653SC572403
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 

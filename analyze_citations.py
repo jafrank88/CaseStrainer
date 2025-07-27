@@ -55,7 +55,13 @@ def extract_case_name(text: str, citation: str) -> str:
     - In re: In re Something, 123 Wn.2d 456
     - Multiple parties: Party1, Party2 & Party3 v. Defendant, 123 Wn.2d 456
     """
-    # Escape the citation for regex, handling special characters
+    # First, try to find the specific pattern we're looking for
+    specific_pattern = r'([A-Z][A-Za-z0-9&\-\s\.]+v\.\s+[A-Z][A-Za-z0-9&\-\s\.]+?)\s*,\s*' + re.escape(citation)
+    match = re.search(specific_pattern, text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    
+    # If specific pattern not found, try more general patterns
     escaped_citation = re.escape(citation)
     
     # Define party patterns
@@ -81,6 +87,9 @@ def extract_case_name(text: str, citation: str) -> str:
         
         # Case with multiple v.: State v. Defendant v. Another, 123 Wn.2d 456
         rf'({party}(?:\sv\.\s{party})+)\s*,\s*{escaped_citation}',
+        
+        # More permissive pattern for difficult cases
+        rf'([A-Z][A-Za-z0-9&\-\s\.]+?)\s*,\s*{escaped_citation}'
     ]
     
     for pattern in patterns:

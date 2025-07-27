@@ -1,0 +1,972 @@
+
+--- Page 1 ---
+ 
+ 
+No. 99956-2 
+__________________________________________________________________ 
+ 
+ 
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON 
+ 
+__________________________________________________________________ 
+ 
+ 
+CERTIFICATION FROM THE UNITED STATES DISTRICT COURT  
+FOR THE WESTERN DISTRICT OF WASHINGTON 
+ 
+IN: 
+ 
+DAVID J. DEARINGER and GANNA P. DEARINGER, 
+Petitioners-Plaintiffs, 
+ 
+v. 
+ 
+ELI LILLY AND COMPANY, 
+Respondent-Defendant. 
+ 
+__________________________________________________________________ 
+ 
+ 
+REPLY BRIEF OF PETITIONERS-PLAINTIFFS  
+ON CERTIFIED QUESTION 
+ 
+__________________________________________________________________ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+David J. Dearinger, pro se 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+10218 38th Pl SE 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Lake Stevens, WA  98258-5738 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+(425) 220-3690 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+daviddearinger@comcast.net 
+
+--- Page 2 ---
+i 
+ 
+TABLE OF CONTENTS 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+            Page 
+TABLE OF AUTHORITIES   ……………...…………………….…….……....     ii  
+I. INTRODUCTION   …………………………………………………..…….....    1 
+II.  ARGUMENT   …………………………………………………………….       4 
+A.   No one in 1966 expected that Defendant and others of the 
+Pharmaceutical Industry would someday interfere with the  
+Doctor/Patient relationship        …………………………………….         4 
+ 
+B.   The LID incentivizes drug manufacturers to increase  
+sales at the risk of harm the consumer    …………………………..          6 
+ 
+C.  Companies like the Defendant are using their special 
+ common law status to abuse the system    …………………………         9 
+ 
+D.  Defendant misleads the Court about the certified record      …..     11 
+ 
+E. The Defendant refuses to address its concealment  
+of the dangerous side effect of intracerebral hemorrhage 
+from its product   ………………………………………………………   12 
+ 
+F. The Defendant wants this Court to blame physicians  
+for their own malfeasance            ……………………………………..    12 
+ 
+G. The Defendant wants to berate New Jersey  
+as inept bumpkins for resisting the LID    …………………………..     19 
+ 
+H.  Pro Se Litigation Must Be Held to a Less  
+Stringent Standard     …………………………………………………    19 
+ 
+ 
+VI.  CONCLUSION     ………………………………………………………....   21 
+CERTIFICATE OF COMPLIANCE  …………………………………………..   23 
+
+--- Page 3 ---
+ii 
+ 
+CERTIFICATE OF SERVICE   …...…………………………………………..    24  
+ 
+ 
+TABLE OF AUTHORITIES 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+            Page 
+Cases 
+Batten v. Abrams,  
+28 Wn. App. 737, 739 n.1, 626 P.2d 984 (1981)    ………………….        10 
+ 
+Bretz v. Kelman,  
+773 F.2d 1026, 1027 n.1 (9th Cir. 1989)     …………………………         15 
+ 
+Carver v. State,  
+147 Wash.App. 567, 575, 197 P.3d 678 (2008)     …………………..        10 
+ 
+Edwards v. Le Duc,  
+157 Wash.App. 455, 238 P.3d 1187, 1190 (2010)   …………………        10 
+ 
+Haines v. Kerner,  
+404 U.S. 519, 520, 92 S. Ct. 594, 30 L. Ed. 2d 652 (1972)      ……..          15 
+ 
+In re Phenylpropanolamine (PPA) Prods. Liab. Litig.,  
+289 F.Supp.2d 1230, 1238 (W.D.Wash.  2003)   ……………………         10 
+ 
+Marriage of Olson,  
+69 Wn. App. 621, 626, 850 P.2d 527 (1993)       …………………….        10 
+ 
+Perez v. Wyeth Lab. Inc.,  
+161 N.J. 1, 24, 734 A.2d 1245, 1255 (1999)     ………………………    1,2,6 
+ 
+State ex rel. Johnson & Johnson v. Karl,  
+220 W.Va. 463, 647 S.E.2d 899, 910 (2007)     ……………………           19 
+ 
+ 
+
+--- Page 4 ---
+iii 
+ 
+Sterling Drug, Inc. v. Cornish,  
+370 F.2d 82, 85 (8th Cir.1966)    ………………………………….              3 
+ 
+ 
+Tatum v. Christensen,  
+786 F.2d 959, 963 n.4 (9th Cir. 1986)      …………………………..           15 
+ 
+Terhune v. A.H.Robins Co.,  
+90 Wn.2d 9, 577 P.2d 925 (1978)   ………………………………….        2,8 
+ 
+Statutes 
+RCW 7.72 et. seq     ………………………………………………………              2 
+W. Va. Code § 55-7-30(a)     ……………………………………………..            18 
+ 
+ 
+ 
+Rules and Regulations 
+ 
+ 
+RAP 10.4(e)        ……………………………………………………………         12 
+ 
+ 
+ 
+Other Authorities 
+ 
+ 
+The Pro Se Handbook: A Guide to Representing Yourself in  
+King County Superior Court. 
+  
+King County Bar Association  (2006)          …………………………        15 
+ 
+ 
+ 
+ 
+
+--- Page 5 ---
+iv 
+ 
+Medibid (“Reducing Healthcare Costs Through  
+Competitive Bidding”),  
+https://www.medibid.com (last visited November 12, 2021)    …….          15 
+ 
+ 
+ 
+ 
+Wouters, Lobbying Expenditures and Campaign Contributions 
+ by the Pharmaceutical and Health Product Industry in the  
+United States, (1999-2018),  
+180 JAMA Intern Med (2020) May 1;180(5):688-697  ………………..        4,17 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 6 ---
+1 
+ 
+I.  INTRODUCTION 
+The Petitioners/Plaintiffs (hereafter “the Plaintiffs”) 
+could not say it any better than the late Justice Daniel Joseph 
+O’Hern of the New Jersey Supreme Court, when he wrote for 
+the majority in the Perez case: 
+Our medical-legal jurisprudence is based on 
+images of health care that no longer exist. At an 
+earlier time, medical advice was received in the 
+doctor's office from a physician who most likely 
+made house calls if needed. The patient usually 
+paid a small sum of money to the doctor. 
+Neighborhood 
+pharmacists 
+compounded 
+prescribed medicines. Without being pejorative, it 
+is safe to say that the prevailing attitude of law and 
+medicine was that the "doctor knows best." 
+ 
+Perez v. Weyth Labs Inc., 161 N.J. 1, 734 A.2d. 1245, 1255 
+(1999)(citations and some quotation marks omitted).  
+ 
+The good Justice continued to describe the World which 
+gave rise to the advent of the learned intermediary doctrine 
+(“LID”): 
+Pharmaceutical manufacturers never advertised 
+their products to patients, but rather directed all 
+sales efforts at physicians. In this comforting 
+setting, the law created an exception to the 
+
+--- Page 7 ---
+2 
+ 
+traditional 
+duty 
+of 
+manufacturers 
+to 
+warn 
+consumers directly of risks associated with the 
+product as long as they warned health-care 
+providers of those risks. 
+ 
+Perez, supra. 
+ 
+ 
+Justice O’Hern wrote those enlightened words twenty-
+one years after their sister Court, this Washington Supreme 
+Court, had the occasion to adopt the LID for our State in the 
+case of Terhune v. A.H.Robins Co., 90 Wn.2d 9, 577 P.2d 925 
+(1978). 
+ 
+The LID created an exception to the general rule of tort 
+law that a product manufacturer must provide the ultimate 
+consumer adequate warning of the inherent dangers of the 
+manufacturer’s product. 1/ If that product manufacturer happens 
+to be a “prescription drug or device” manufacturer, it is 
+permitted under the LID for such manufacturer to provide the 
+warning only to the doctor of the ultimate consumer.  
+                                          
+1/ See e.g. Washington's Product Liability Act RCW 7.72.010 et seq. 
+
+--- Page 8 ---
+3 
+ 
+The reason why the Eighth Circuit created this special 
+exemption for prescription drug or device manufacturers is 
+because: 
+If the doctor is properly warned of the possibility 
+of a side effect in some patients, and is advised of 
+the symptoms normally accompanying the side 
+effect, there is an excellent chance that injury to 
+the patient can be avoided. This is particularly true 
+if the injury takes place slowly, as is the case with 
+the injury in question here. 
+ 
+Sterling Drug, Inc. v. Cornish, 370 F.2d 82, 85 (8th Cir.1966).  
+Thus we can clearly see that the LID was born because “there is 
+an excellent chance that injury to the patient can be avoided” if 
+only the doctor is warned. 
+Just as a spark floating onto a dry field of tall sun-
+bleached grass in July, the LID swept the country like a 
+wildfire.  Courts and some legislatures fell under the spell of 
+this new legal concept of the LID.   
+
+--- Page 9 ---
+4 
+ 
+How could the LID become so popular in such a short 
+time?  Perhaps billions of dollars spent on high power lawyers, 
+lobbying and political campaigns had something to do with it. 2/ 
+The LID certainly has given Big Pharma a financial leg 
+up to protect their interests in the halls of Congress and the 
+various state legislatures.  
+II. ARGUMENT 
+A.   No one in 1966 expected that Defendant and others of 
+the Pharmaceutical Industry would someday interfere with 
+the Doctor/Patient relationship.  
+   
+Gone are those great pioneers of industry that cared as 
+much for the public good as they did for the accumulation of 
+wealth.  As a child Eli Lilly (1838-1898) developed a love for 
+chemistry by watching the apothecary father of a friend 
+compound the chemicals to produce medicines at the Good 
+Samaritan Drug Store.  Eli Lilly grew up to become an 
+abolitionist and fought bravely for the North in the “Lightening 
+                                          
+2/ Wouters, Lobbying Expenditures and Campaign Contributions by the 
+Pharmaceutical and Health Product Industry in the United States, (1999-
+2018), 180 JAMA Intern Med (2020) May 1;180(5):688-697. 
+ 
+
+--- Page 10 ---
+5 
+ 
+Brigade” during the American Civil War where he advanced to 
+the rank of Lieutenant Colonel.   Lilly, with his son and 
+grandsons, founded many charitable organizations while 
+simultaneously expanding their wholesale drug manufacturing 
+company.   
+The early Lilly Family would have been appalled to find 
+that the pharmaceutical giant they founded would someday 
+become a company that inserts itself between a patient and his 
+doctor to deceitfully mass market a dangerous recreational drug 
+as a treatment for a fictitious disease that their industry invented 
+in order to create a demand for the PDE5 inhibitor they 
+discovered by accident. 3/         
+In the World as it existed in 1966 drug manufacturers did 
+not stand between the patient and doctor like Defendant does 
+                                          
+3/ Plaintiffs posit that erectile dysfunction (ED) is a natural part of aging 
+rather than a disease.  ED was invented by the pharmaceutical industry to 
+create demand for the product (PDE5) they discovered by accident.  The 
+science of Urology began to use the term “erectile dysfunction” rather 
+than simply “impotence” only after PDE5 became popular from television 
+commercials.  
+
+--- Page 11 ---
+6 
+ 
+now.  This fact was recognized by the Supreme Court of New 
+Jersey, who the Defendant self-servingly abhors:      
+. . . with rare and wonderful exceptions, the 
+"Norman Rockwell” image of the family doctor no 
+longer exists  .  .  . Informed consent requires a 
+patient-based decision rather than the paternalistic 
+approach of the 1970s  .  .  . The decision to take a 
+drug is not exclusively a matter for medical 
+judgment .  .  .  because managed care has reduced 
+the time allotted per patient, physicians have 
+considerably less time to inform patients of the 
+risks and benefits of a drug  .  .  .  In a 1997 survey 
+of 1,000 patients, the F.D.A. found that only one-
+third had received information from their doctors 
+about the dangerous side effects of drugs they were 
+taking  .  .  .  having spent $1.3 billion on 
+advertising in 1998, drug manufacturers can hardly 
+be said to lack effective means to communicate 
+directly with patients, when their advertising 
+campaigns can pay off in close to billions in 
+dividends. 
+ 
+Perez, supra , at 1255-56 (citations and some quotation marks 
+omitted).  
+B.   The LID incentivizes drug manufacturers to increase 
+sales at the risk of harm the consumer. 
+   
+The phosphodiesterase-5 enzyme (PDE5) inhibitor was 
+discovered by accident.  Researchers were not actively 
+
+--- Page 12 ---
+7 
+ 
+searching for a treatment for Erectile Dysfunction (ED) as they 
+were searching for a vaccine to prevent polio back in the 1930s. 
+The Defendant has chosen to plant its flag on the hill that  
+claims the LID should continue undisturbed because 
+ 
+DTC advertising does not change the requirement 
+that a patient must obtain a medication through a 
+state-licensed prescriber. 
+ 
+Response of Defendant (“ROD” at page 2).  In this age of 
+“doctor shopping” “healthcare rationing” and “competitive 
+practice advertising” where physicians and health insurance 
+plans actively compete for patients, Defendant is well aware of 
+the adversarial climate existing within the medical profession 
+today.  If a patient’s doctor won’t prescribe for him a PDE5 
+inhibitor, he will simply search for a doctor that will.  The 
+doctor/patient relationship is no longer static; it is dynamic.  
+Patients now have more healthcare mobility now than they ever 
+had back in 1966 or even 1978. 
+
+--- Page 13 ---
+8 
+ 
+When the State of Washington adopted the LID, it did so 
+with a case involving injuries caused by the contraceptive 
+device, the “Dalkon Shield.”  The injured parties: 
+sought advice from their family physician . . . 
+regarding available methods of contraception.  He 
+informed 
+them 
+of 
+the 
+advantages 
+and 
+disadvantages of various methods, and they chose 
+the Dalkon Shield. 
+ 
+Terhune v. A. H. Robbins, 90 Wn.2d 9, 10, 577 P.2d 975 
+(1978)(emphasis added).  The plaintiffs in Terhune didn’t find 
+the Dalkon Shield on a television commercial in the same way 
+consumers of PDE5 found Cialis.  In Terhune the plaintiffs 
+“sought advice from their family physician” and that physician 
+told them about the various contraception methods available 
+after which “they chose the Dalkon Shield.” 
+ 
+The LID was never intended to shield companies that 
+mass market their products.   
+ 
+ 
+
+--- Page 14 ---
+9 
+ 
+C.  Companies like the Defendant are using their special 
+common law status to abuse the system. 
+ 
+The Defendant’s legal strategy is to ignore the scientific 
+evidence that PDE5 inhibiters cause intracerebral hemorrhage 
+(ICH) and then blame physicians under the LID for prescribing 
+Cialis to vulnerable patients.  
+Defendants contend that: 
+Serious 
+cardiovascular 
+events, 
+including 
+myocardial infarction, sudden cardiac death, 
+stroke, chest pain, palpitations, and tachycardia, 
+have been reported postmarketing in temporal 
+association with the use of tadalafil [Cialis].  
+ 
+ROD, at pages 6-7.  The Defendant also recommends 
+“physicians to consider the cardiovascular status of their 
+patients because of the cardiac risk associated with sexual 
+activity.”  Id.   
+Defendants expect that because it used the word “stroke” 
+within the context of “serious cardiovascular event” it provided 
+“adequate” warning for intracerebral hemorrhage (ICH). 
+
+--- Page 15 ---
+10 
+ 
+As aptly recognized by the distinguished U. S. District 
+Judge Barbara Rothstein (a fellow Washingtonian):  
+Hemorrhagic stroke results from the rupturing of a 
+blood vessel in the brain. The hemorrhage may be 
+either intracerebral (within the brain itself) or 
+subarachnoid 
+(within 
+the 
+fluid-filled 
+space 
+surrounding the brain) (hereinafter "ICH" and 
+"SAH" respectively). Approximately fifteen to 
+twenty percent of strokes fall into the hemorrhagic 
+category.  
+ 
+* * * 
+ 
+Ischemic stroke results from the blocking of blood 
+flow in a cerebral vessel, depriving brain tissue 
+beyond the blockage of oxygen. The vast majority 
+of strokes are ischemic. 
+ 
+In re Phenylpropanolamine (PPA) Prods. Liab. Litig., 
+289 F.Supp.2d 1230, 1238 (W.D.Wash.  2003). 
+Not all “strokes” are the same.  Some are “blockages” 
+(ischemic) and others are “bleeds” (hemorrhagic).  Plaintiff 
+David J. Dearinger had a bleed, like the one warned of by the 
+scientific community, but concealed by Defendant.  
+ 
+ 
+
+--- Page 16 ---
+11 
+ 
+D.  Defendant misleads the Court about the certified record 
+  
+Defendant states that the Complaint fails to mention DTC 
+advertising: 
+there are no allegations in the complaint relating to 
+DTC advertising. 
+ 
+ROD at page 11.   
+ 
+Yet Plaintiffs’ Complaint states the following:  
+Since Cialis’s FDA approval in 2003, Defendant 
+has engaged in a continuous and expensive 
+multimedia advertising campaign to market Cialis 
+to men worldwide as a symbol of regaining and 
+enhancing one’s virility. 
+ 
+First Amended Complaint (Dkt. 10) at page 5, paragraph 4.9. 
+ 
+Defendant may have unintentionally overlooked this 
+paragraph but it is more likely to be an indication of 
+Defendant’s larger legal strategy of deception and concealment. 
+ 
+The Defendant completely ignores the Appendix section 
+of the Plaintiffs’ opening brief where Plaintiffs provide the 
+scientific evidence to prove Defendant’s intentional 
+
+--- Page 17 ---
+12 
+ 
+concealment alleged in the Complaint 4/ that addresses the 
+scientific studies that prove that the PDE5 inhibitor causes 
+intracerebral hemorrhages (ICH).  
+E. The Defendant refuses to address its concealment of the 
+dangerous side effect of intracerebral hemorrhage from its 
+product 
+ 
+ 
+The LID gave the pharmaceutical industry the incentive 
+to conceal the dangerous side effect of intracerebral hemorrhage 
+(ICH).  Product liability lawyers are fearful of suing drug 
+manufacturers because of the LID.  Defendant knows this and 
+used this fact to conceal the side effect of ICH.  Evidence of 
+this fact is the refusal of the Defendant to address this allegation 
+in its response to this Court. 
+  
+The LID emboldens the industry to exploit this special 
+status the Courts have given them beginning with Sterling 
+Drug, Inc. v. Cornish, supra.  Lawyers can’t afford to fight drug 
+manufacturers because of the LID.  
+                                          
+4/ Paragraphs 4.5 to 4.8 of Plaintiffs’ First Amended Complaint (Dkt. 10, 
+Certified Record) pages 4-5.  
+ 
+
+--- Page 18 ---
+13 
+ 
+F. The Defendant wants this Court to blame physicians for 
+their own malfeasance. 
+ 
+Defendant 5/ tells the Court that licensed physicians are 
+responsible for prescribing its product yet the Defendant sends 
+a message in its television commercials that patients must throw 
+caution to the wind and demand that their doctors prescribe the 
+Cialis Fountain of Youth and them blame the doctors when 
+something goes wrong. 
+The Defendant’s message to the consumer is that there is 
+a world of young women out there just waiting for you and all 
+you have to do is take this pill.  The subsequent media sensation 
+was predictably fruitful.  Legions of middle-aged males began 
+to line up outside their urologists’ offices to receive 
+prescriptions for the beige, blue, or yellow pill.  In fact many 
+consumers obtained the pill from Canadian telemarketers 
+WITHOUT a prescription.  
+                                          
+5/ RAP 10.4(e) provides in pertinent part: “. . . It promotes clarity to use  
+the designations used in the lower court, [or] the actual names of the  
+parties . . ..” 
+
+--- Page 19 ---
+14 
+ 
+Doctors are not the problem in America: untempered 
+corporate greed is the problem.  Eli Lilly and Company is 
+asking the Court to allow it to continue blaming licensed 
+physicians for prescribing the drug for which it alone created 
+the demand. 
+The Point of Sale 
+People that work in retail sales use a term called P-O-S 
+that means “Point of Sale” (hereinafter “POS”) which is 
+distinguished from “Point of Purchase.”  POS is where a 
+consumer makes the decision to purchase something; 
+alternatively “Point of Purchase” is where the purchase is made 
+(usually at a cash register) and the exchange of money 
+transpires.   
+When we drive our cars into a convenience store or fast-
+food parking lot we see POS everywhere; Pictures to make us 
+hungry, thirsty, or whatever condition that could compel us to 
+decide to purchase more than what we originally intended.  At 
+the precise moment our eyes view a large photograph of our 
+
+--- Page 20 ---
+15 
+ 
+favorite food or beverage item, quite often we make a decision 
+to purchase that item even though our original purpose for 
+leaving the house was to purchase AA batteries for our 
+television’s remote control unit.  Those photographs are the 
+“Point of Sale” because the image caused the decision of the 
+consumer to decide to buy the product.  
+The thirty-second television commercials that advertise 
+Cialis is the Defendant’s POS.  By the time patients ultimately 
+arrive at their scheduled appointments with their urologists they 
+have already made to decision to purchase Cialis because the 
+patient has already made a dinner date with a young woman 
+that looks like the one wearing a bikini in the Cialis 
+commercial.  
+We are now in the age of doctor shopping.  Patients, 
+depending on where they live, can chose their health plan based 
+upon what medications doctors are willing to prescribe and 
+
+--- Page 21 ---
+16 
+ 
+chose their insurance accordingly.  Doctors now compete for 
+patients. 6/   
+Maybe in a perfect world, like the world envisioned in 
+1966 when the Learned Intermediary Doctrine (“LID”) entered 
+America’s legal lexicon, 7/ in which the Pharmaceutical Industry 
+acts responsibly, however that world no longer exists. 
+The LID began under the assumption that the 
+Pharmaceutical Industry would not conceal the dangerous side 
+effects of their products.  In this instance the Defendant Eli 
+Lilly and Co. (Respondent) knew since 2001 that their product 
+causes Intracerebral Hemorrhage (ICH), yet Defendant 
+calculated correctly that the LID would cause most tort lawyers 
+would be too scared to sue drug companies out of fear from 
+                                          
+6/ See e.g. Medibid (“Reducing Healthcare Costs Through Competitive 
+Bidding”), https://www.medibid.com (last visited November 12, 2021). 
+ 
+7/ Sterling Drug, Inc. v. Cornish, 370 F.2d 82, 85 (8th Cir.1966). 
+ 
+
+--- Page 22 ---
+17 
+ 
+going bankrupt if they take on the protected drug companies. 8/ 
+Defendant and others in the Pharmaceutical Industry took the 
+example of from the Tobacco Industry      
+The Defendant was being uncommonly truthful when it 
+stated that:  “It is no accident that every state’s tort law mirrors” 
+the LID.  (ROD at 1) 
+Plaintiffs, in their opening brief (at page 33), list the 
+annual gross revenue earned by Defendant just from sales of 
+Cialis alone, which provides Defendant with a substantial war 
+chest for lobbying Congress and the various state legislatures to 
+maintain their cash cow. 9/ Of course it is no accident.   
+The dedicated, hard-working janitors that work nights in 
+fifty state capitols spend many hours buffing out the scuff-
+                                          
+8/ Plaintiffs document the difficulty they faced in finding an attorney to 
+represent them in their Motion and Declaration to Appoint Counsel in the 
+court below. (Dkt. 19).    
+     
+9/ See Wouters, Lobbying Expenditures and Campaign Contributions by 
+the Pharmaceutical and Health Product Industry in the United States, 
+(1999-2018), 180 JAMA Inter. Med. 688 (2020).  
+
+--- Page 23 ---
+18 
+ 
+marks made from the shoes of the Defendant’s army of 
+lobbyists to insure that the LID stays on the books. 
+The legal profession considers every case against drug 
+companies to be a lost cause which is exactly the way 
+Defendant wants it.  Every lawyer Petitioners spoke with 
+considers drug companies to have an unfair advantage over the 
+ones that were injured by Big Pharma. 
+The first phosphodiesterase type 5 enzyme (“PDE5”) 
+inhibitor was approved by the FDA in 1998.  Defendant’s 
+product Cialis secured FDA approval in 2003.   During the two 
+decades between the years 1999 and 2018 the Defendant’s 
+industry expended $4.7 billion on lobbying to influence election 
+and legislative outcomes at just the federal level, more than any 
+other industry. 10/      
+This honorable Court can balance the scale by holding 
+the Defendant accountable for its tortuous conduct.        
+ 
+                                          
+10/ Wouters, supra. 
+
+--- Page 24 ---
+19 
+ 
+G. The Defendant wants to berate New Jersey as inept 
+bumpkins for resisting the LID 
+ 
+While Defendant boasts that 52 jurisdictions recognize 
+the LID the protect the pharmaceutical industry it is important 
+to keep in mind that Big Pharma spends billions of dollars on 
+lobbyists and political campaigns.   
+The Supreme Court of West Virginia followed the lead of 
+New Jersey in State ex rel. Johnson & Johnson v. Karl, 220 
+W.Va. 463, 647 S.E.2d 899 (2007), but then Big Pharma 
+parachuted scores of their lobbyists onto the capitol city 
+Charleston causing their Assembly to adopt W. Va. Code § 55-
+7-30(a).  
+ 
+H.  Pro Se Litigation Must Be Held to a Less Stringent 
+Standard  
+ 
+ 
+Courts in Washington are seeing a trend of increased pro 
+se representation and are responding in accordance with that 
+trend.  See e.g. “The Pro Se Handbook: A Guide to 
+
+--- Page 25 ---
+20 
+ 
+Representing Yourself in King County Superior Court.” (2006), 
+King County Bar Association. 11/  
+The federal courts have a policy to hold pro se litigation 
+“however inartfully pleaded,” “to less stringent standards than 
+formal pleadings drafted by lawyers.” Haines v. Kerner, 404 
+U.S. 519, 520, 92 S. Ct. 594, 30 L. Ed. 2d 652 (1972)(per 
+curiam), reh'g denied, 405 U.S. 948 (1972). See also Tatum v. 
+Christensen, 786 F.2d 959, 963 n.4 (9th Cir. 1986)(per 
+curiam)(court can “reach merits without determining whether 
+the form was correct”); Bretz v. Kelman, 773 F.2d 1026, 1027 
+n.1 (9th Cir. 1989)(en banc)(court has obligation to construe 
+pro se pleadings “liberally and to afford the petitioner the 
+benefit of any doubt”). 
+ 
+The appellate courts in Washington State have rejected 
+the said policy.  See Marriage of Olson, 69 Wn. App. 621, 626, 
+850 P.2d 527 (1993)(Division One);  Edwards v. Le Duc, 157 
+Wash.App. 455, 238 P.3d 1187, 1190 (2010)(Division Two);  
+                                          
+11/ http://www.kcba.org/kcba/publications/pdf/pro-se2006.pdf (last visited 
+November 9, 2021). 
+
+--- Page 26 ---
+21 
+ 
+Batten v. Abrams, 28 Wn. App. 737, 739 n.1, 626 P.2d 984 
+(Division Three), review denied, 95 Wash.2d 1033 (1981);  cf. 
+Carver v. State, 147 Wash.App. 567, 575, 197 P.3d 678 
+(2008)(Division Three provides an exception "when a pro se 
+plaintiff .  .  . suffers from a significant mental disability").   
+ 
+Plaintiffs are on record that they tried to obtained counsel 
+to represent them in this case, but because of the LID no 
+attorney they spoke to could overcome their fear of prescription 
+drug manufacturers. (Dkt. 19).   
+Plaintiffs suggest that the example of the federal courts to 
+relax the standards for pro se litigants would make the courts 
+more accessible for indigents who cannot afford counsel.     
+ 
+VI.  CONCLUSION 
+Drug manufactures use the LID to their advantage.  They 
+don’t play fairly because they don’t have to.  The LID keeps 
+their potential adversaries at bay . 
+
+--- Page 27 ---
+22 
+ 
+Now is the time to revisit the LID to determine whether it 
+is appropriate for the Twenty-First Century. 
+If both the doctors and the drug companies would have 
+the duty to warn the ultimate consumer of side effects, everyone 
+wins.  Fewer consumers would be paralyzed.  There is no 
+downside.  
+DATED:  This 22nd day of November, 2021. 
+ 
+Respectfully Submitted, 
+ 
+ 
+ 
+/s/ David J. Dearinger                         
+ 
+ 
+ 
+ 
+David J. Dearinger, Plaintiff, pro se 
+ 
+ 
+ 
+ 
+10218 38th Pl SE 
+ 
+ 
+ 
+ 
+Lake Stevens, WA   98258-5738 
+ 
+ 
+ 
+ 
+(425) 220-3690 cell 
+ 
+ 
+ 
+ 
+daviddearinger@comcast.net 
+ 
+/s/ Ganna P. Dearinger  
+Ganna P. Dearinger, Plaintiff, pro se  
+10218 38th Pl SE  
+Lake Stevens, WA 98258-5738 
+(425) 220-3691 cell 
+ 
+ 
+
+--- Page 28 ---
+23 
+ 
+ CERTIFICATE OF COMPLIANCE 
+Pursuant to RAP 18.17(b) Plaintiffs hereby certify that 
+this document contains 3,291 words, exclusive of the title page, 
+table of contents, table of authorities, signature blocks, 
+certificate of compliance, certificate of service, and appendix. 
+ 
+DATED:  This 22th day of November, 2021. 
+ 
+ 
+ 
+Respectfully Submitted, 
+ 
+ 
+ 
+ 
+/s/ David J. Dearinger                         
+ 
+ 
+ 
+ 
+David J. Dearinger, Plaintiff, pro se 
+ 
+ 
+ 
+ 
+10218 38th Pl SE 
+ 
+ 
+ 
+ 
+Lake Stevens, WA   98258-5738 
+(425) 220-3690  cell 
+ 
+ 
+ 
+ 
+daviddearinger@comcast.net 
+ 
+ 
+ 
+
+--- Page 29 ---
+24 
+ 
+CERTIFICATE OF SERVICE 
+I certify that, on this day, I sent a copy of this document 
+via e-mail (by agreement under RAP 18.5(a) and CR 5(b)(7)) to 
+the attorneys for the Respondent: 
+Anne M. Talcott, WSBA #26886 
+Email: atalcott@schwabe.com 
+1211 SW 5th Avenue, Suite 1900 
+Portland, OR 97204 
+ 
+and 
+ 
+Kainui M. Smith, WSBA #53877 
+Email: ksmith@schwabe.com 
+1420 5th Avenue, Suite 3400 
+Seattle, WA 98101 
+I declare under penalty of perjury under the laws of the 
+State of Washington that the foregoing is true and correct. 
+ 
+DATED:  This 22nd day of November, 2021at Lake  
+ 
+Stevens, Washington. 
+ 
+/s/ David J. Dearinger                         
+ 
+ 
+ 
+ 
+David J. Dearinger, Plaintiff, pro se 
+ 
+ 
+ 
+ 
+10218 38th Pl SE 
+ 
+ 
+ 
+ 
+Lake Stevens, WA   98258-5738 
+ 
+ 
+ 
+ 
+(425) 220-3690  cell 
+ 
+ 
+ 
+ 
+daviddearinger@comcast.net 
+
+--- Page 30 ---
+From:
+OFFICE RECEPTIONIST, CLERK
+To:
+"David J. Dearinger"
+Subject:
+RE: Dearinger Reply Brief
+Date:
+Monday, November 22, 2021 4:42:47 PM
+Received 11-22-21
+ 
+From: David J. Dearinger [mailto:daviddearinger@comcast.net] 
+Sent: Monday, November 22, 2021 4:37 PM
+To: OFFICE RECEPTIONIST, CLERK <SUPREME@COURTS.WA.GOV>
+Subject: Dearinger Reply Brief
+ 
+External Email Warning! This email has originated from outside of the Washington State
+Courts Network.  Do not click links or open attachments unless you recognize the sender, are
+expecting the email, and know the content is safe.   If a link sends you to a website where you
+are asked to validate using your Account and Password, DO NOT DO SO! Instead, report the
+incident.
+ 
+ 
+ 
+ 
+Virus-free. www.avg.com
+ 

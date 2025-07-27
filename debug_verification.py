@@ -1,95 +1,110 @@
 #!/usr/bin/env python3
 """
-Debug script to test verification logic and case name extraction.
+Debug script to test why Kimmelman v. Morrison citation isn't being verified
 """
 
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+import sys
+import os
+import requests
+import json
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-def debug_verification():
-    """Debug the verification logic and case name extraction."""
-    
-    # Test text with Washington citations
-    test_text = """A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)."""
-    
-    print("Testing with verification disabled and low confidence threshold...")
-    print("=" * 60)
-    
-    # Test with verification disabled and low confidence threshold
-    config = ProcessingConfig(enable_verification=False, debug_mode=True, min_confidence=0.0)
-    processor = UnifiedCitationProcessorV2(config)
-    result = processor.process_text(test_text)
-    
-    print(f"Citations found (verification disabled, min_confidence=0.0): {len(result)}")
-    for i, citation in enumerate(result, 1):
-        print(f"Citation {i}:")
-        print(f"  Text: {citation.citation}")
-        print(f"  Confidence: {citation.confidence}")
-        print(f"  Extracted Case Name: {citation.extracted_case_name}")
-        print(f"  Extracted Date: {citation.extracted_date}")
-        print(f"  Method: {citation.method}")
-        print(f"  Is Parallel: {citation.is_parallel}")
-        print(f"  Parallel Citations: {citation.parallel_citations}")
-        print()
-    
-    print("Testing with verification enabled and low confidence threshold...")
-    print("=" * 60)
-    
-    # Test with verification enabled and low confidence threshold
-    config = ProcessingConfig(enable_verification=True, debug_mode=True, min_confidence=0.0)
-    processor = UnifiedCitationProcessorV2(config)
-    result = processor.process_text(test_text)
-    
-    print(f"Citations found (verification enabled, min_confidence=0.0): {len(result)}")
-    for i, citation in enumerate(result, 1):
-        print(f"Citation {i}:")
-        print(f"  Text: {citation.citation}")
-        print(f"  Confidence: {citation.confidence}")
-        print(f"  Verified: {citation.verified}")
-        print(f"  Canonical Name: {citation.canonical_name}")
-        print(f"  Canonical Date: {citation.canonical_date}")
-        print(f"  URL: {citation.url}")
-        print(f"  Extracted Case Name: {citation.extracted_case_name}")
-        print(f"  Extracted Date: {citation.extracted_date}")
-        print(f"  Method: {citation.method}")
-        print(f"  Is Parallel: {citation.is_parallel}")
-        print(f"  Parallel Citations: {citation.parallel_citations}")
-        print()
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+from src.config import get_config_value
 
-# Test semicolon boundary detection
-print("\n" + "="*60)
-print("Testing semicolon boundary detection...")
-print("="*60)
-
-test_text_with_semicolons = """
-The court held that the statute was constitutional. Smith v. State, 123 Wash. 2d 456, 789 P.2d 123 (1990); 
-Jones v. County, 456 Wash. 2d 789, 123 P.2d 456 (1991); and Brown v. City, 789 Wash. 2d 123, 456 P.2d 789 (1992). 
-The legislature later amended the statute.
-"""
-
-config = ProcessingConfig(
-    use_eyecite=False,
-    use_regex=True,
-    extract_case_names=True,
-    extract_dates=True,
-    enable_clustering=True,
-    enable_deduplication=True,
-    enable_verification=False,
-    context_window=300,
-    min_confidence=0.0,
-    debug_mode=True
-)
-
-processor = UnifiedCitationProcessorV2(config)
-citations = processor.process_text(test_text_with_semicolons)
-
-print(f"\nCitations found with semicolon boundaries: {len(citations)}")
-for i, citation in enumerate(citations, 1):
-    print(f"Citation {i}:")
-    print(f"  Text: {citation.citation}")
-    print(f"  Extracted Case Name: {citation.extracted_case_name}")
-    print(f"  Extracted Date: {citation.extracted_date}")
-    print(f"  Context: '{citation.context[:100]}...'")
+def test_kimmelman_citation():
+    """Test the specific Kimmelman citation that's not being verified"""
+    
+    # Test text with the problematic citation
+    test_text = "The right to counsel protects not only the rights of individual defendants but also the legitimacy of the adversary process. Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574, 91 L. Ed. 2d 305 (1986)"
+    
+    print("=== Testing Kimmelman Citation Verification ===")
+    print(f"Text: {test_text}")
     print()
+    
+    # Process with our system
+    processor = UnifiedCitationProcessorV2()
+    result = processor.process_text(test_text)
+    
+    print(f"Found {len(result['citations'])} citations:")
+    for i, citation in enumerate(result['citations'], 1):
+        print(f"\n{i}. Citation: {citation.citation}")
+        print(f"   Extracted Case Name: {getattr(citation, 'extracted_case_name', 'N/A')}")
+        print(f"   Extracted Date: {getattr(citation, 'extracted_date', 'N/A')}")
+        print(f"   Canonical Name: {getattr(citation, 'canonical_name', 'N/A')}")
+        print(f"   Canonical Date: {getattr(citation, 'canonical_date', 'N/A')}")
+        print(f"   Verified: {getattr(citation, 'verified', False)}")
+        print(f"   Source: {getattr(citation, 'source', 'N/A')}")
+        print(f"   Error: {getattr(citation, 'error', 'None')}")
+
+def test_courtlistener_direct():
+    """Test CourtListener API directly with the citation"""
+    
+    print("\n=== Testing CourtListener API Directly ===")
+    
+    api_key = get_config_value("COURTLISTENER_API_KEY")
+    print(f"API Key available: {bool(api_key)}")
+    
+    # Test the batch citation lookup
+    test_citations = ["477 U.S.365", "477 U.S. 365", "106 S. Ct. 2574", "91 L. Ed. 2d 305"]
+    
+    for citation in test_citations:
+        print(f"\nTesting citation: {citation}")
+        
+        # Test batch lookup
+        try:
+            url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+            headers = {}
+            if api_key:
+                headers['Authorization'] = f'Token {api_key}'
+            
+            data = {"text": citation}
+            
+            response = requests.post(url, json=data, headers=headers, timeout=10)
+            print(f"Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                print(f"Results: {len(result)} items found")
+                for item in result:
+                    print(f"  - Citation: {item.get('citation', 'N/A')}")
+                    clusters = item.get('clusters', [])
+                    if clusters:
+                        cluster = clusters[0]
+                        print(f"  - Case: {cluster.get('case_name', 'N/A')}")
+                        print(f"  - Date: {cluster.get('date_filed', 'N/A')}")
+            else:
+                print(f"Error: {response.text}")
+                
+        except Exception as e:
+            print(f"Exception: {e}")
+
+def test_eyecite_direct():
+    """Test eyecite directly if available"""
+    
+    print("\n=== Testing Eyecite Directly ===")
+    
+    try:
+        import eyecite
+        from eyecite import get_citations
+        print("Eyecite available")
+        
+        test_text = "Kimmelman v. Morrison, 477 U.S. 365, 374, 106 S. Ct. 2574, 91 L. Ed. 2d 305 (1986)"
+        citations = get_citations(test_text)
+        
+        print(f"Eyecite found {len(citations)} citations:")
+        for i, cite in enumerate(citations, 1):
+            print(f"  {i}. {cite}")
+            print(f"     Type: {type(cite)}")
+            if hasattr(cite, 'groups'):
+                print(f"     Groups: {cite.groups}")
+                
+    except ImportError:
+        print("Eyecite not available")
+    except Exception as e:
+        print(f"Eyecite error: {e}")
 
 if __name__ == "__main__":
-    debug_verification() 
+    test_kimmelman_citation()
+    test_courtlistener_direct()
+    test_eyecite_direct() 

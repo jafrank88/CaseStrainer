@@ -1,0 +1,1954 @@
+
+--- Page 1 ---
+No. 37019-4-III 
+IN THE SUPREME COURT 
+OF THE STATE OF WASHINGTON 
+STATE OF WASHINGTON, Respondent 
+v. 
+JOSEPH ZAMORA, Petitioner 
+APPEAL FROM THE SUPERIOR COURT 
+OF GRANT COUNTY 
+THE HONORABLE JUDGE JOHN M. ANTOSZ 
+PETITION FOR REVIEW 
+_____________________________________________________ 
+Marie J. Trombley, WSBA 41410 
+Attorney for J. Zamora 
+PO Box 829 
+Graham, WA 
+253-445-7920
+FILED 
+Court of Appeals 
+Division Ill 
+State of Washington 
+71812021 12:13 PM 
+99959-7
+
+--- Page 2 ---
+i 
+ 
+TABLE OF CONTENTS 
+I. 
+IDENTITY OF PETITIONER .................................................. 1 
+II. 
+COURT OF APPEALS DECISION .......................................... 1 
+III. 
+ISSUES PRESENTED FOR REVIEW ...................................... 1 
+A. Did The State Violate Defendant's Right To An Impartial 
+Jury By Beginning Voir Dire and Repeatedly Asking The Panel 
+Their Views on Border Security And Fears of Becoming Crime 
+Victims By Undocumented Immigrants. .................................. 1 
+B. As a matter of first impression, was Mr. Zamora’s 
+constitutional right to present a full and complete defense violated 
+where the trial court denied him the opportunity to cross examine 
+police witnesses on the circumstances of their Garrity statements?1 
+C. As a matter of first impression, in the circumstance where a 
+defendant is seized by an unconstitutional act by law enforcement, 
+and brutally beaten by officers, entitling him to a defense of self-
+defense, must evidence of the defendant’s alleged assault of 
+officers be suppressed? ............................................................. 1 
+D. Was Mr. Zamora’s right to effective assistance of counsel 
+violated where counsel did not object to the State’s motion to 
+
+--- Page 3 ---
+ii 
+ 
+preclude all evidence of prior violent confrontations in which the 
+officer involved in his beating was involved? ............................. 2 
+IV. 
+STATEMENT OF THE CASE ................................................. 2 
+V. 
+ARGUMENT WHY REVIEW SHOULD BE ACCEPTED ....... 10 
+A. The State Violated Mr. Zamora’s Constitutional Right To An 
+Impartial Jury Requiring Reversal. .......................................... 10 
+B. As A Matter Of First Impression, Mr. Zamora’s Constitutional 
+Right To Present A Full And Complete Defense Was Violated 
+Where The Trial Court Denied Him The Opportunity To Cross 
+Examine Police Witnesses On The Circumstances Of Their Garrity 
+Statements. ........................................................................... 13 
+C. As A Matter Of First Impression, Where A Defendant Is 
+Seized By An Unconstitutional Act By Law Enforcement, And 
+Brutally Beaten By Officers, Entitling Him To A Defense Of Self-
+Defense, Evidence Of The Defendant’s Alleged Assault Of 
+Officers Must Be Suppressed As Fruit Of The Poisonous Tree. .. 15 
+D. Mr. Zamora Received Ineffective Assistance of Counsel 
+Where Counsel Did Not Object To The State’s Motion To 
+Preclude All Evidence Of Prior Violent Confrontations In Which 
+The Officers Involved In His Beating Were Involved. ............... 17 
+
+--- Page 4 ---
+iii 
+ 
+VI. 
+CONCLUSION ..................................................................... 20 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 5 ---
+iv 
+ 
+TABLE OF AUTHORITIES 
+Washington Cases 
+Cowles Pub. Co. v. State Patrol, 109 Wn.2d 712, 748 P.2d 597 (1988) .. 14 
+In re Gentry, 170 Wn.2d 614, 316 P3d 1020 (2014) ................................ 12 
+In re Pers.Restraint of Glasmann,175 Wn.2d  696, 286 P.3d 673 (2012) 11 
+Seattle Police Officer’s Guild v. City of Seattle, 80 Wn.2d 307, 494 P.2d 
+485 (490-91 (1972) ............................................................................... 14 
+State v. Aydelotte, 35 Wn.App. 125, 665 P.2d 443 (1983) ....................... 16 
+State v. Barber, 118 Wn.2d 335, 823 P.2d 1068 (1992) ........................... 10 
+State v. Clark, 143 Wn.2d 731,24 P.3d 1006 (2001) ................................ 19 
+State v. Cormier, 100 Wn.App. 457, 997 P.2d 950 (2000) ....................... 15 
+State v. Darden,145 Wn.2d 612, 41 P.3d 1189 (2002) ............................. 14 
+State v. Jones, 168 Wn.2d 713, 230 P.3d 576 (2010) ............................... 13 
+State v. Lile, 188 Wn.2d 766,309 P.3d 1052 (2017) ................................. 13 
+State v. Loughbom, 196 Wn.2d 64, 470 P.3d 499 (2020) ......................... 11 
+State v. McKinley, 87 Wn.App. 394, 942 P.2d 999 (1997) ....................... 16 
+State v. Mierz, 127 Wn.2d 460, 901 P.2d 286 (1995) ............................... 16 
+State v. Monday, 171 Wn.2d 667,257 P.3d 551 (2011) ............................ 10 
+
+--- Page 6 ---
+v 
+ 
+State v. Orn, 197 Wn.2d 343, 482 P.3d 913 (2021) .................................. 13 
+State v. York, 28 Wn.App. 33, 621 P.2d 784 (1980) ................................. 18 
+Federal Authorities 
+Davis v. Alaska, 415 U.S. 308, 94 S.Ct. 1105, 39 L.Ed.2d 347 (1974) .... 14 
+Garrity v. New Jersey, 385 U.S. 493, 87 S.Ct. 616, 17 L.Ed.2d 562 (1967).
+............................................................................................................... 14 
+Wong Sun v. United States, 371 U.S. 471, 83 S.Ct. 407, 9 L.Ed.2d 441 
+(1963) .................................................................................................... 17 
+Constitutional Provisions 
+Article 1, §22 ............................................................................................ 10 
+U.S. Const. Amend. VI ............................................................................. 13 
+Court Rules 
+ER 608(b) .................................................................................................. 19 
+RAP 2.5(a) ................................................................................................ 20 
+
+--- Page 7 ---
+ 
+1 
+I. 
+IDENTITY OF PETITIONER 
+Petitioner Joseph Zamora, the appellant below, asks the Court to review 
+the decision of Division III of the Court of Appeals referred to in Section 
+II below. 
+II. 
+COURT OF APPEALS DECISION 
+Joseph Zamora seeks review of the Court of Appeals unpublished opinion 
+entered on June 8, 2021. A copy of the opinion is attached. 
+III. 
+ISSUES PRESENTED FOR REVIEW 
+A. Where the prosecutor begins voir dire and repeatedly asks the 
+prospective panel about border security and their fears of becoming crime 
+victims by undocumented immigrants in the trial of a defendant with a 
+Hispanic surname, has the state violated the defendant’s right to an 
+impartial jury?  
+B. As a matter of first impression, was Mr. Zamora’s constitutional 
+right to present a full and complete defense violated where the trial court 
+denied him the opportunity to cross examine police witnesses on the 
+circumstances of their Garrity statements?  
+C. As a matter of first impression, in the circumstance where a 
+defendant is seized by an unconstitutional act by law enforcement, and 
+brutally beaten by officers, entitling him to a defense of self-defense, must 
+evidence of the defendant’s alleged assault of officers be suppressed?  
+ 
+
+--- Page 8 ---
+ 
+2 
+D. Was Mr. Zamora’s right to effective assistance of counsel violated 
+where counsel did not object to the State’s motion to preclude all evidence 
+of prior violent confrontations in which the officer involved in his beating 
+was involved? 
+IV. 
+STATEMENT OF THE CASE 
+Grant County prosecutors charged Joseph Zamora with two counts 
+of assault in the third degree, based on events which occurred on Super 
+Bowl Sunday evening 2017. CP 1-2. He walked by way of a vacant lot on 
+the way to his niece’s home. RP 287, 736. A neighbor noticed him 
+trudging through a foot of snow. RP 326, 744. As he walked by parked 
+cars she shouted that the lot was private property and he needed to leave. 
+She never saw him look into, touch, or press up against cars. RP 289-90, 
+308. He continued shuffling down the street. RP 301-302. She called 911 
+anyway, to report “a suspicious person in our neighborhood…possibly car 
+prowling.” RP 302.  
+Kevin Hake1 responded to the call, arriving within 30 seconds. RP 
+313-14,317. He shined his flashlight at Mr. Zamora, who was about 20 
+feet away, in the yard of his niece’s home. He yelled, “Hey I need to talk 
+to you, come on over.” RP 320, 450. Mr. Zamora returned and stopped 
+ 
+1 At the time of the incident, Officer Hake worked for the Moses Lake Police 
+Department. He left their employment four months after the incident. At the time 
+of trial he no longer worked in law enforcement and was introduced as Mr. Hake 
+rather than Officer Hake. RP 311-12. 
+
+--- Page 9 ---
+ 
+3 
+about six or seven feet from him, his left hand in his pocket with the 
+thumb hooked outside of it. RP 320,455. Hake guessed Mr. Zamora may 
+have had drugs in the pocket. RP 322. 
+Hake started a social encounter, asking for id, where he was going, 
+and where he came from. RP 454, 503. Mr. Zamora remained silent and 
+did not move. RP 451. Aware that Mr. Zamora did not have to answer his 
+questions, Hake nevertheless made a call out over his radio, saying, “I’ve 
+got one resisting.” RP 499, 503. Hake testified Zamora was “aggressive” 
+by passively resisting interaction with him. RP 323-24, 504-05, 548-49. 
+Hake testified he was in fear for his life. RP 548.  
+Mr. Zamora turned to walk away. Hake stuck his arm out, told him 
+to stop, he was not free to leave. Hake said he was checking “for looking 
+in vehicles.” RP 455, 551. Mr. Zamora stopped and then turned away from 
+Hake. Even though Mr. Zamora was turned away, Hake thought Mr. 
+Zamora put his hand fully in his pocket. RP 455.  
+Hake told Mr. Zamora he was not under arrest, and then he 
+grabbed him from behind: “I hooked both of his arms…around his elbows 
+and pulled him…into my person, and that’s when the struggle started…” 
+RP 326. Hake knew the pressure on Mr. Zamora’s elbows would be 
+painful. RP 460. Mr. Zamora leaned with Hake’s pull and bowed his 
+shoulders. RP 458-59. As Mr. Zamora tried to turn away, Hake attempted 
+
+--- Page 10 ---
+ 
+4 
+to do a leg sweep to take him to the ground. RP 462. Over the mic another 
+officer heard Hake say, “Put your hands behind your back, I’ll fucking kill 
+you, put your hands behind your back.” RP 644.  
+Hake immediately shoved Mr. Zamora as hard as he could, sending 
+Mr. Zamora backward six or seven feet. RP 464-65. Mr. Zamora fell, and 
+hit his head on a truck bumper. RP 465, 467. Hake “jumped on top of him 
+and grabbed him by the left wrist with both hands.” RP 344-45. They both 
+slid under the truck. RP 344. 
+Hake initially testified Mr. Zamora tried to strangle him with his 
+lapel mic cord, and he punched Mr. Zamora twice in the face. RP 469, 
+472. He later admitted he felt no constriction and the loop was never 
+around his neck. RP 472. Mr. Zamora did not swing his fists or try to 
+punch. RP 472. Hake grabbed him from under the truck, wrestled his way 
+on top of him, and used a chokehold on Mr. Zamora. RP 472-73. He heard 
+him gasp and then no sound. He believed deadly force was authorized. RP 
+548.  
+ 
+As he straddled Mr. Zamora, Hake felt him grab at his utility belt 
+and holstered gun. He said he moved Mr. Zamora’s hands away from the 
+gun three times. RP 474. He admitted that were Mr. Zamora trying to get 
+out from underneath him he would have used the belt as leverage. RP 479-
+80.  
+
+--- Page 11 ---
+ 
+5 
+ 
+The beating continued, with Hake shooting pepper spray into Mr. 
+Zamora’s mouth and face, and punching Mr. Zamora between 75 and 120 
+times on the face, eyes, ears, nose and rib cage. RP 368, 506-07, 515. Mr. 
+Zamora bucked to get free and would not allow himself to be handcuffed. 
+RP 492-93. He reportedly hit Hake in the shoulder and torso area. RP 506.  
+ 
+Hake stuck his gun in Mr. Zamora’s ear and eye. RP 369. When 
+Mr. Zamora bit down on the barrel, Hake shoved the gun down his throat 
+as far as possible. He kept the gun on Mr. Zamora until another officer 
+arrived. RP 370, 514. He then punched Mr. Zamora as hard as he could 
+another 12-20 times. RP 375. Backup officers arrived within minutes. 
+They tased2 Mr. Zamora simultaneously and repeatedly. They pepper 
+sprayed him, punched him in the head, used knee strikes, and kicked him. 
+RP 526, 630-31, 653, 692-93, 828. It took between three and four minutes 
+to handcuff Mr. Zamora. RP 376. Officers used a rope to hog tie him. RP 
+637. While he was being hog-tied Mr. Zamora landed one kick to an 
+officer who said it did not hurt him. RP 650.  
+Another officer activated his body camera after Mr. Zamora was 
+hogtied, and officers could be heard calling him a “turd.” RP 680. A 
+search of Mr. Zamora’s jacket yielded a pockeknife. RP 711, 741. 
+ 
+2 Officers testifie they used the tasers in ’drive stun.’ Drive stun is the use of a 
+taser without probes: it emits an arc that causes more pain. Rp 377, 632, 691-92.  
+
+--- Page 12 ---
+ 
+6 
+Handcuffed, hog-tied and face down in the snow Mr. Zamora stopped 
+breathing. RP 676, 680-81.   
+ 
+A witness, who observed the events unfold in his front yard, 
+testified that Mr. Zamora did not resist or fight the officer. Rather, Hake 
+put his hands on Mr. Zamora and threw him to the ground. RP 826. When 
+the other officers arrived he saw them kick, punch, and elbow Mr. Zamora 
+as he lay face down in the snow. RP 826. He heard Mr. Zamora say, “I 
+can’t breathe” and “you’re choking me.” RP 836. He saw an officer using 
+a chokehold on Mr. Zamora after he had been hog-tied. RP 839.  
+ 
+Paramedics arrived to find Mr. Zamora still hog tied, with officers 
+holding him face down in the snow. RP 843-44. The EMT administered 
+defibrillations to restart his heart two times. RP 847. Comatose, Mr. 
+Zamora was transported to a hospital. He remained comatose and was 
+moved by Life Flight to a Spokane hospital. RP 847-50. Photos on the first 
+or second day of his hospital stay in ICU showed him with facial bruising, 
+a feeding tube and an intubated ventilator. Exh. 14; RP 782, 784. A second 
+photo taken a month later showed him in a hospital bed with bruising on 
+his body and a trach. Exh. 15. 
+ 
+Mr. Zamora tested positive for methamphetamines and THC. RP 
+585, 598. The physician testified the half-life for meth is 12 hours, which 
+
+--- Page 13 ---
+ 
+7 
+meant methamphetamine ingested within a three-day window would 
+qualitatively show positive but was not quantified3. RP 574, 612-14.  
+ 
+The Investigation: Washington State Patrol investigated the 
+charges of assault in the third degree brought against Mr. Zamora. RP 734-
+42. None of the officers prepared a police report, but, were instructed from 
+an unnamed higher ranked person to prepare a Garrity statement. 4 No 
+officer involved in the incident sat down for an interview with the WSP 
+investigator. RP 233.  
+ 
+Pre-Trial Motions: Before trial, the State moved to bar reference to 
+the internal investigation into the officers’ conduct. CP 164; RP 330. It 
+wanted the statements the officers made regarding the investigation to be 
+called “statements recorded about the incident.” CP 164. Defense counsel 
+objected as the officer information about the events was found only in the 
+Garrity statements. RP 233, 325.  
+ 
+The court denied the defense motion to question the officers (1) if 
+they made a Garrity statement; (2) whether they knew what a Garrity 
+ 
+3 Mr. Zamora remembered smoking meth two or three days earlier but did not 
+remember if he had smoked any on the day of the beating. RP  738.  
+4 A Garrity statement is a statement made by a public employee during an 
+internal investigation. The Fifth Amendment prohibits the government from using 
+the self-incriminating statements made by a public employee under threat of 
+termination in a subsequent criminal prosecution. Garrity v., New Jersey, 385 
+U.S. 493, 499-500, 87 S.Ct. 616, 17 L.Ed.2d 562 (1967).   
+
+--- Page 14 ---
+ 
+8 
+statement was; (3) what their understanding was of the reason for making 
+a Garrity statement; (4) who told them to make the statement; (5) whether 
+the officers made themselves available for interview by the WSP for 
+purposes of investigating the case against Mr. Zamora. RP 401-02, 419-
+20. The court found the statements inadmissible, the questions irrelevant, 
+and a waste of time. RP 340, 433-34.  
+ 
+Without defense objection, the court granted a state motion to 
+exclude evidence of any prior violent confrontations involving Hake and 
+other citizens. CP 90. Without defense objection, the court also granted a 
+state motion that no evidence of what led to Hake’s resignation from the 
+police force would be admitted. RP 12, 30.  
+Voir Dire: The prosecutor began voir dire:  
+…let’s just take a general topic that seems to be in the media every 
+day, and I’ll ask you a general question, and that is some people 
+say today in our society we have - - we don’t have enough border 
+security. Some people say we have too much or we don’t need that. 
+So, the question is which one do you feel like you’re closer to?  
+RP 71-72. 
+ 
+When a juror stated he believed immigration was an "opportunity 
+for a lot of great people to come to our country," the prosecutor answered:  
+Sorry for this, and I don’t mean to get off on a jag, could you make 
+room for the possibility that someone who – a loved one or family 
+member of somebody who was either killed or had problems with 
+somebody that’s been previously deported or criminally is wrong 
+in the country, that that happens to them, and that they feel like we 
+need more border security, can you make room for that?  
+
+--- Page 15 ---
+ 
+9 
+RP 75.  
+At another point, he said: 
+Can you make room for the idea that when they hear that 100,000 
+people come across illegally a month, and of those we’ve got 
+people from countries that - - countries on our list that aren’t even 
+allowed in the country are part of that group? 
+RP 77.  
+The prosecutor referenced and questioned potential jurors about illegal 
+immigration and undocumented immigrants no less than 10 times. RP 74-
+105,160. The following day the court expressed its concern that defense 
+counsel had not objected to the State’s questions. RP 221. The court raised 
+evidence rule 413, cited numerous cases and said it was concerned a jury 
+would:  
+…think that with a Latino last name that he’s here illegally?  Why 
+else would the questions be asked? Why else would there be 
+reference to drug busts in Nogales, a number of illegal immigrants 
+crossing over the border, 100,000 a month, unless he was, why else 
+would the questions be relevant? That’s what the jury might think. 
+RP 223. 
+ 
+ 
+The prosecutor said he asked the questions because border security 
+was a hot topic and he was curious about it. RP 225. He said he was 
+troubled by “this overarching complete political correctness about what 
+people have to say and concerns, and I understand that. But it is a major 
+concern that’s imposed on Grant County as well. It’s a significant 
+
+--- Page 16 ---
+ 
+10 
+problem. I’ll be careful about any of that.” RP 226. During opening 
+statements, defense counsel said Mr. Zamora was a U.S. citizen. RP 265.  
+ 
+Mr. Zamora raised a defense of self-defense. (2/20/19 RP 6). A 
+jury found him guilty, and he gave notice of appeal. CP 333-35. The Court 
+of Appeals affirmed the convictions while acknowledging the case was 
+one “in which a citizen’s mistaken report of vehicle prowling almost 
+resulted in the death of an individual who, until seized by a police officer 
+was guilty of nothing more than walking while high on drugs.” Op. at 
+33,36.   
+V. 
+ARGUMENT WHY REVIEW SHOULD BE ACCEPTED 
+A. The State Violated Mr. Zamora’s Constitutional Right To An 
+Impartial Jury Requiring Reversal.  
+ 
+A prosecutor violates a defendant’s Washington State Constitution 
+Article 1, §22 right to an impartial jury when he resorts to racist argument 
+and appeals to racial stereotypes or racial bias to achieve convictions. 
+State v. Monday, 171 Wn.2d 667, 676, 257 P.3d 551 (2011). Washington 
+Courts condemn the injection of racial or ethnic stereotypes into criminal 
+cases. State v. Barber, 118 Wn.2d 335, 346-47, 823 P.2d 1068 (1992).  
+Where a defendant fails to object to alleged prosecutorial 
+misconduct, the appellate court determines whether the comments are 
+flagrant and ill-intentioned to determine whether reversal is required. In re 
+
+--- Page 17 ---
+ 
+11 
+Pers. Restraint of Glasmann, 175 Wn.2d  696, 286 P.3d 673 (2012). This 
+Court analyzed prosecutorial misconduct in State v. Loughbom, 196 
+Wn.2d 64, 470 P.3d 499 (2020). There, the Court was less concerned 
+about the subjective aspect of flagrant and ill-intentioned comments, and 
+more focused on whether the jury would draw improper inferences from 
+the evidence based on the comments.  
+In Loughbom, the State asked whether potential jurors believed 
+there was a drug problem in the county, and then referenced the “war on 
+drugs” in opening and closing arguments. The Court held the appeal to a 
+war on drugs influenced the jury because it was designed to arouse passion 
+and prejudice and to inflame the juror’s emotions. The prosecution’s 
+framing of the prosecution as a drug problem and a war on drugs created a 
+thematic narrative prism through which the jury should view the evidence. 
+Id. at 76-77.  
+Here, the narrative introduced by the prosecutor was border 
+security: undocumented immigrants committing crimes and burglaries in 
+Grant County neighborhoods. It moved on to the prosecutor referencing a 
+Fentanyl operation in Nogales that “would have killed 65 million 
+Americans.” RP 145.  
+ 
+The Court of Appeals acknowledged “the border security and 
+illegal immigration …questioning was irrelevant and unnecessarily 
+
+--- Page 18 ---
+ 
+12 
+politicized it.” Op. at 33. However, it excused the conduct pointing out 
+defense counsel could have objected to the questioning and the trial court 
+would have been well within its authority to instruct the prosecutor the 
+topics were off-limits. Op. at 34. Instructing the prosecutor not to inject 
+racially biased questions does not change the influence it had already had 
+on the jury. Under Loughbom, the analysis used by the Court of Appeals 
+and its conclusion are incorrect. The issue is whether Mr. Zamora’s right 
+to an impartial jury was violated by the State.  
+Under In re Gentry, 170 Wn.2d 614, 316 P3d 1020 (2014), the 
+burden is on the State to show race-based misconduct was harmless 
+beyond a reasonable doubt. Here, the prosecutor intentionally returned to 
+the theme of illegal immigration and the fear of the possibility of crimes 
+by undocumented immigrants coming from the Southern border no less 
+than 10 times. “When a prosecutor flagrantly or apparently intentionally 
+appeals to racial bias in a way that undermines the defendant’s credibility 
+or the presumption of innocence” the Court will vacate the conviction 
+unless it appears beyond a reasonable doubt that the misconduct did not 
+affect the jury’s verdict.” State v. Monday, 17 Wn.2d at 680.  
+This Court should accept review because the ruling by the Court of 
+Appeals conflicts with a ruling by this Court. The repeated questioning 
+based on racial bias and stereotypes violated and undermined Mr. 
+
+--- Page 19 ---
+ 
+13 
+Zamora’s right to an impartial jury and the burden lies with the State to 
+prove otherwise.  
+B. As A Matter Of First Impression, Mr. Zamora’s Constitutional 
+Right To Present A Full And Complete Defense Was Violated 
+Where The Trial Court Denied Him The Opportunity To Cross 
+Examine Police Witnesses On The Circumstances Of Their Garrity 
+Statements.  
+The right to confront and cross-examine an adverse witness is 
+guaranteed by both state and federal constitutions. U.S. Const. Amend. VI, 
+art. 1, §22. Violation of the right is a constitutional error and requires 
+reversal unless the State can show beyond a reasonable doubt the violation 
+did not contribute to the verdict. State v. Jones, 168 Wn.2d 713, 724, 230 
+P.3d 576 (2010). “Any fact that goes to the trustworthiness of a witness 
+may be elicited if it is germane to the issue” State v. Lile, 188 Wn.2d 766, 
+792, 309 P.3d 1052 (2017). Where a defendant can show evidence is. 
+minimally relevant, it must be admitted unless the State can show a 
+compelling interest for excluding it: it must be a strong showing that it is 
+unfairly prejudicial. State v. Jones, 168 Wn.2d at 724. Where a trial 
+court’s decision to exclude evidence violates constitutional protections, 
+the State carries the burden of proving beyond a reasonable doubt the 
+constitutional error was harmless. State v. Orn, 197 Wn.2d 343, 482 P.3d 
+913 (2021).  
+
+--- Page 20 ---
+ 
+14 
+Only two cases in Washington mention the use of Garrity5 
+statements by law enforcement officers. Seattle Police Officer’s Guild v. 
+City of Seattle, 80 Wn.2d 307, 494 P.2d 485 (490-91 (1972); Cowles Pub. 
+Co. v. State Patrol, 109 Wn.2d 712, 748 P.2d 597 (1988)6. There is no 
+precedent that controls this particular issue. 
+The Court of Appeals agreed that evidence that impeaches or 
+discredits a witness is relevant. Op. at 26. However, the Court found the 
+evidence not even minimally relevant because the fact of their statements 
+would arguably enhance their credibility. Op. at 27.  
+The Court’s reasoning conflicts with long standing decisions on 
+cross examination rights, and this Court’s recent decision in Orn. (See 
+State v. Darden,145 Wn.2d 612, 41 P.3d 1189 (2002); Davis v. Alaska, 
+415 U.S. 308, 94 S.Ct. 1105, 39 L.Ed.2d 347 (1974)). In Orn, this Court 
+held the defendant’s right to confrontation and to present a complete 
+defense was violated when he was barred from cross-examining the 
+State’s key witness, a confidential information, in order to expose the 
+witness’s bias. Orn, 197 Wn.2d at 347-48.  
+ 
+5 Garrity v. New Jersey, 385 U.S. 493, 87 S.Ct. 616, 17 L.Ed.2d 562 (1967). 
+6 Neither case involved use of the statements in a criminal prosecution of a 
+citizen. 
+
+--- Page 21 ---
+ 
+15 
+This Court held the trial court violated Orn’s Sixth amendment 
+rights when it “effectively hides the fact that the prosecution’s key witness 
+worked as a confidential informant for the same police department that 
+investigated the case.” Id. at 351. Similarly, the “right to cross-examine 
+for bias is especially important where, as here, that bias stems from a 
+witness’s motive to cooperate with the State based on the possibility of 
+leniency or the desire to avoid prosecution.” Orn, 197 Wn.2d at 352.  
+Here, at stake for the officers were their careers. The jury was 
+precluded from knowing that consequential fact, and Mr. Zamora was 
+denied his right to test for credibility and bias. The State made no strong 
+showing that admission of that evidence was unfairly prejudicial to the 
+State, and under Orn, it could not make such a showing. This issue merits 
+review by this Court.  
+C.  As A Matter Of First Impression, Where A Defendant Is Seized 
+By An Unconstitutional Act By Law Enforcement, And Brutally 
+Beaten By Officers, Entitling Him To A Defense Of Self-Defense, 
+Evidence Of The Defendant’s Alleged Assault Of Officers Must 
+Be Suppressed As Fruit Of The Poisonous Tree. 
+ 
+Washington law has protected police officers by punishing a 
+defendant who physically fights back when he is unlawfully seized. The 
+defendant may protect himself only if his life is in imminent danger. In 
+State v. Cormier, 100 Wn.App. 457, 997 P.2d 950 (2000), the Court held, 
+
+--- Page 22 ---
+ 
+16 
+“unless a traditional self defense analysis is possible, an unconstitutional 
+act by law enforcement does not justify assaultive conduct by an accused 
+against a police officer.” Id. at 42-63. In State v. Mierz, 127 Wn.2d 460, 
+901 P.2d 286 (1995), the Court held that when an individual assaults an 
+officer whose intrusion allegedly violates Fourth amendment protections, 
+evidence of the assault is outside the scope of the exclusionary rule.  
+The facts here differ from those in State v. McKinley, 87 Wn.App. 
+394, 942 P.2d 999 (1997) (police conducted aerial surveillance of 
+defendant’s property and defendant raised his shotgun at the helicopter); 
+Mierz, (Defendant instructed his dogs to attack wildlife agents who came 
+on to his property without a warrant. He claimed self-defense, but not of 
+his person) and State v. Aydelotte, 35 Wn.App. 125, 665 P.2d 443 (1983) 
+(Defendant pointed a shotgun at officers who came on to his property, 
+after he had disobeyed their signal to stop his car, swerved, and possibly 
+hit one officer.) The officers entered property and were threatened by the 
+defendant in each case.  
+In Aydelotte, the Court found the officers did not discover the 
+assaults against them by exploiting the illegality of entry to the property, 
+and Aydelotte’s actions with the shotgun were sufficiently distinguishable 
+from any police illegality to be purged of the primary taint. Aydelotte, 35 
+Wn.App. at 132.  
+
+--- Page 23 ---
+ 
+17 
+The question here is whether evidence of an alleged assault should 
+be excluded when an officer does not have probable cause to arrest a 
+defendant, physically attacks the defendant without a precipitating event, 
+and then arrests him for assault. Evidence of the assault was not 
+sufficiently distinguishable from any primary police illegality. Evidence is 
+inadmissible as fruit of the poisonous tree where it has been gathered by 
+exploitation of the original illegality. Wong Sun v. United States, 371 U.S. 
+471, 83 S.Ct. 407, 9 L.Ed.2d 441 (1963).  
+In light of recent citizen/law enforcement violent incidents in both 
+Washington State and around the country, this issue should be reviewed to 
+provide guidance to citizens, police officers, and the courts. 
+D. Mr. Zamora Received Ineffective Assistance of Counsel Where 
+Counsel Did Not Object To The State’s Motion To Preclude All 
+Evidence Of Prior Violent Confrontations In Which The Officers 
+Involved In His Beating Were Involved. 
+The Court of Appeals did not rule on the specific issue raised on 
+appeal as to whether Mr. Zamora received ineffective assistance of 
+counsel where counsel did not object to preclusion of all evidence of prior 
+violent confrontations between citizens and Hake. Hake was dispatched to 
+investigate a possible gross misdemeanor. He was the first and only officer 
+on the scene, was not wearing a body cam, and repeatedly stated he had 
+never been in a situation in which he was so frightened. By his own 
+
+--- Page 24 ---
+ 
+18 
+testimony, he escalated the situation without waiting for backup. Without 
+provocation, he grabbed, shoved, punched, and pepper sprayed Mr. 
+Zamora. Mr. Zamora had a constitutional right to test the credibility and 
+veracity of Hake’s testimony that he had never before been in such a 
+situation. He had the right to question whether Hake had a history of use 
+of excessive force.  
+As argued on appeal, in York, an undercover investigator was the 
+only eyewitness to the alleged crime. State v. York, 28 Wn.App. 33, 34, 
+621 P.2d 784 (1980). To test motive and credibility, the defendant wanted 
+to elicit information about York’s previous employment as a sheriff from 
+which he had been fired. The State brought out favorable aspects of his 
+law enforcement background but moved to limit cross examination on the 
+unfavorable elements. The trial court granted it, considering it a collateral 
+matter. On review, the Court found “as a matter of fundamental fairness” 
+the defense should have been allowed to examine the negative elements of 
+the State’s most important witness. Id. at 37. The attempt to minimize the 
+relevance of the witness’s employment and firing was of sufficient 
+importance to obtain pretrial suppression. Id. Credibility of the witness 
+was at the center of the defense.  
+Here, the State elicited information about Hake’s 13-year 
+background with Grant County Youth Services, his completion of the 
+
+--- Page 25 ---
+ 
+19 
+juvenile services probation academy, and his training in mental health. Of 
+particular significance was testimony that Hake was a certified instructor 
+in aggression replacement training intervention. RP 312. The jury heard 
+the favorable aspects of Hake’s law enforcement which would lend 
+credibility to his observations, but like York, none of the unfavorable 
+aspects. Any previous incidents of violence were of sufficient importance 
+to obtain pretrial suppression. In closing argument, the State emphasized 
+Hake’s “amazing restraint”: “…the defendant is alive today here with us 
+in this courtroom because of the amazing restraint that officer hake 
+showed…It was a deadly force situation. He could have shot and killed the 
+defendant. …Officer Hake showed restraint.” RP 890.  
+Coupled with Hake’s training and experience in aggression 
+replacement, the prosecutor’s argument led the jury to believe Hake was 
+the model of restraint.  Under ER 608(b), Mr. Zamora could cross 
+examine Hake on specific prior violent conduct, to test his credibility 
+because it was probative of his character for truthfulness. State v. Clark, 
+143 Wn.2d 731, 766, 24 P.3d 1006 (2001).  
+Mr. Zamora’s conviction rested on Hake’s testimony that he had 
+used necessary force. The state and federal constitutions guarantee the 
+right to effective assistance of counsel. U.S. VI Amendment; Art. I §22 
+Washington Constitution. Ineffective assistance of counsel is a manifest 
+
+--- Page 26 ---
+ 
+20 
+error affecting a constitutional right and can be raised and reviewed for the 
+first time on appeal. RAP 2.5(a). Testimony related to Hake’s history of 
+using excessive force raises a reasonable probability that but for counsel’s 
+failure to object, the result of the proceeding would have been different. A 
+reasonable probability in an ineffective assistance of counsel analysis is 
+the probability sufficient to undermine confidence in the outcome.   
+This issue must be reviewed as it presents violation of a 
+fundamental constitutional right.  
+VI. 
+CONCLUSION 
+Based on the foregoing facts and authorities, Mr. Zamora 
+respectfully asks this Court to accept review of his petition.  
+Submitted this 8th day of July 2021. 
+ 
+Marie Trombley 
+WSBA 41410 
+PO Box 829 
+Graham, WA 98338 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 27 ---
+ 
+21 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+APPENDIX
+
+--- Page 28 ---
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IN THE COURT OF APPEALS OF THE STATE OF WASHINGTON 
+DIVISION THREE 
+ 
+STATE OF WASHINGTON, 
+ 
+ 
+ 
+ 
+Respondent, 
+ 
+ 
+v. 
+ 
+JOSEPH MARIO ZAMORA, 
+ 
+ 
+ 
+ 
+Appellant. 
+)
+)
+)
+)
+)
+)
+)
+)
+) 
+ 
+ 
+No.  37019-4-III 
+ 
+ 
+ 
+ 
+ 
+UNPUBLISHED OPINION 
+  
+ 
+SIDDOWAY, J. — After a 911 caller’s dog barked at a person walking down the 
+private road in front of her home, she reported that the person appeared to be looking into 
+cars.  Joseph Zamora turned out to be walking to the home of his niece.  He proved to be 
+high on drugs, however, and the State concedes that after police responded to the 911 
+call, a confrontation with Mr. Zamora “escalated far beyond what should have happened 
+when a lone officer confronted a suspicious trespasser on a cold, icy winter night.”  Br. of 
+Resp’t at 32.  Mr. Zamora’s near death while resisting arrest resulted in an internal police 
+investigation and prompts him to make some novel arguments on appeal.   
+We affirm the convictions but remand for resentencing. 
+FACTS AND PROCEDURAL BACKGROUND 
+On Super Bowl Sunday, February 5, 2017, Joseph Zamora, who was homeless at 
+the time, spent time at the home of his brother, James Murphy.  That evening, he decided 
+FILED 
+JUNE 8, 2021 
+In the Office of the Clerk of Court 
+WA State Court of Appeals, Division III 
+
+--- Page 29 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+2
+ 
+to walk to where his niece, Alyssa Murphy lived, a few blocks away.  Mr. Zamora later 
+admitted to smoking methamphetamine two or three days earlier, but he could not recall 
+if he smoked any meth that day.   
+At around 9:30 p.m. that evening, then-Moses Lake Police Officer Kevin Hake1 
+was on patrol when he received a report of a suspicious person carrying a suitcase and 
+looking into vehicles on Space Street.  The complaint had been phoned in by Brandi 
+Moncada, who lived on Space Street and reported that an individual wearing “darkish 
+clothes” and carrying some sort of bag was lurking around cars parked on the street.  
+Report of Proceedings (RP) at 288.  Because of the lack of street lighting, Ms. Moncada 
+could not tell if the individual was male or female.  
+It had been snowing and road conditions were bad, but Officer Hake was only a 
+quarter mile away, so he was able to respond quickly.  When he arrived at Space Street 
+he immediately saw what turned out to be Joseph Zamora, carrying some kind of case, 
+walking down the road.  Officer Hake and Mr. Zamora were traveling in the same 
+direction, so the officer drove beyond him, pulled over, and got out of his patrol car.  He 
+signaled with his hand at Mr. Zamora, who was then about 20 feet away, and told Mr. 
+Zamora he needed to speak with him.  Mr. Zamora continued to walk toward Officer 
+Hake and stopped when he reached him.  
+                                              
+1 Hake was no longer a police officer at the time of trial and was addressed at trial 
+as “Mr. Hake.”  We refer to him as Officer Hake in recounting the events of February 5, 
+2017, but as Mr. Hake in recounting events at trial and thereafter.   
+
+--- Page 30 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+3
+ 
+Officer Hake did not have a body camera and his patrol car dash camera did not 
+work.  He would later testify that he proceeded to ask Mr. Zamora where he was going, 
+where he was coming from, what his name was, and for identification, but Mr. Zamora 
+would not answer.  Instead, Mr. Zamora leaned in to read Officer Hake’s name tag, stood 
+back up straight, and stared at him.  Officer Hake became nervous, sensing that 
+something was not right.  He claims Mr. Zamora had no expression in his eyes, which he 
+described as “the size of silver dollars.”  RP at 321.  Mr. Zamora appeared to be “looking 
+through” Officer Hake.  Id.  Officer Hake noticed that Mr. Zamora’s left hand was 
+partially in his left pocket and that some of his fingers were holding a boot by pinching it 
+against his body.  He appeared to be “fiddling with something” with the fingers in his 
+pocket, and Officer Hake thought he might have drugs he was trying to discard.  RP at 
+322. 
+When Mr. Zamora stepped to his right as if to go around Officer Hake, the officer 
+stuck out his arm and told Mr. Zamora he was not free to leave.  He got on his radio and 
+said, “I’ve got one resisting.”  RP at 323.  Mr. Hake explained at trial that there had been 
+a storm, the roads were icy, and he “wanted to get people coming to my location, because 
+I knew it was going to take some time.”  RP at 324.  Even though Mr. Zamora had done 
+nothing threatening, Officer Hake was scared and felt “something was going to happen.”  
+RP at 324. 
+
+--- Page 31 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+4
+ 
+After Officer Hake told Mr. Zamora that deputies needed to speak to him because 
+they had a report of someone looking through vehicle windows, Mr. Zamora turned, the 
+boot fell from his grip, and the officer saw movement in Mr. Zamora’s left arm.  Officer 
+Hake responded by grabbing at Mr. Zamora, hooking Mr. Zamora’s arms at the elbows, 
+and trying, unsuccessfully, to use his own leg to sweep Mr. Zamora’s legs out from under 
+him.  Officer Hake describes that as being the moment “when the struggle started.”  RP at 
+326. 
+Blow by blow details of what turned out to be a lengthy struggle between Mr. 
+Zamora, Officer Hake, and other officers are immaterial to the issues that Mr. Zamora 
+raises on appeal.  Suffice it to say the struggle was intense and unrelenting.  Officer 
+Hake, although taller and heavier than Mr. Zamora, realized that Mr. Zamora was 
+stronger.  Before other officers arrived, Officer Hake and Mr. Zamora exchanged dozens 
+of blows and the officer eventually drew his handgun and placed it against Mr. Zamora’s 
+ear, temple, and in his mouth; over the radio, Officer Timothy Welsh heard Officer Hake 
+say, “Put your hands behind your back, I’ll fucking kill you.”  RP at 644.  Officer Hake 
+was prepared to shoot Mr. Zamora until he heard sirens, assuring him that help was 
+coming.    
+The arrival of Officer Welsh was not enough to cause Mr. Zamora to quit 
+resisting, and even two against one, the officers were unable to handcuff him.  Officer 
+Welsh tried to control Mr. Zamora’s left arm, having observed that Officer Hake was 
+
+--- Page 32 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+5
+ 
+controlling Mr. Zamora’s right side, but Mr. Zamora was able to “out-muscl[e]” him.  RP 
+at 628.  It was only after four more officers arrived that they were able to handcuff Mr. 
+Zamora.  He continued kicking and flailing, so they used rope to hobble him; in the 
+process of the officers trying hobble his legs, Mr. Zamora managed to kick Officer Welsh 
+squarely in the chest.  Officers then tied Mr. Zamora’s hobbled feet to his handcuffs.  
+In the course of restraining Mr. Zamora, the officers collectively struck him 
+repeatedly, pepper sprayed him in the face twice, and officers Welsh and Omar Ramirez 
+used their stun guns to drive stun2 him with five second bursts: Officer Ramirez drive 
+stunned Mr. Zamora’s upper body twice, while Officer Welsh drive stunned his lower 
+body once.  The officers contended the force was necessary, given Mr. Zamora’s 
+unremitting physical resistance and unnatural stamina and strength. 
+After Mr. Zamora was successfully restrained, he was moaning, and the officers 
+summoned medical aid. 
+Responding emergency medical technicians (EMTs) determined on arriving that 
+Mr. Zamora was not breathing and had no pulse.  They immediately started CPR,3 
+administered oxygen, gave him epinephrine, and administered two defibrillations.  Once 
+                                              
+2 Officer Ramirez testified at trial that to perform a drive stun, probes are removed 
+from the stun gun, it is placed in contact with the target’s body, and when fired, it 
+delivers a painful electrical arc.  Officers Ramirez and Welsh testified that ordinarily a 
+drive stun results in the target’s immediate compliance.  In Mr. Zamora’s case, it 
+appeared to have no effect.   
+3 Cardiopulmonary resuscitation. 
+
+--- Page 33 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+6
+ 
+his heart started again, they transported him to the emergency room of Samaritan 
+Hospital in Moses Lake, from which he was transferred to Sacred Heart Hospital in 
+Spokane. 
+Before the transfer, Mr. Zamora was treated at Samaritan Hospital by Dr. Joshua 
+Frank.  Dr. Frank was told that Mr. Zamora had been very aggressive, erratic and 
+exceedingly strong when resisting arrest.  The doctor later testified that the most common 
+cause of such behaviors would be that the individual was under the influence of a 
+substance, usually a stimulant.  A urine sample revealed that Mr. Zamora had 
+methamphetamine, amphetamine, and THC4 in his system.  Mr. Zamora’s sister visited 
+him at Sacred Heart Hospital shortly after he was admitted and four weeks later, while he 
+was still in the intensive care unit.  Photographs she took of him were later admitted at 
+trial. 
+When police searched Mr. Zamora’s left jacket pocket following his arrest, they 
+found a blue handled folding knife with the blade locked open.   
+It turned out that the house to which Mr. Zamora was walking was the home of the 
+parents of his niece Alyssa’s boyfriend, Crawford, who is the father of her child.  
+Crawford’s parents, the Torreses, live on Space Street.  Alyssa had lived in their home for 
+two years.  Mr. Zamora’s struggle with police took place in the Torreses’ front yard.  
+                                              
+4 Tetrahydrocannabinol. 
+
+--- Page 34 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+7
+ 
+Crawford’s father, Javier Torres, even watched the struggle from his living room 
+window, not knowing that Alyssa’s uncle was involved.   
+The investigation uncovered no evidence that anyone’s car was broken into that 
+night or that any property was stolen.  It turned out that the “suitcase” Mr. Zamora was 
+carrying was the case for a DJ Hero music video game.  RP at 744. 
+ 
+Internal investigation and pretrial motions in limine 
+ 
+The State did not immediately charge Mr. Zamora.  The lawyer appointed to 
+represent him learned from interviewing the six Moses Lake police officers who 
+responded to the incident that none had prepared a police report.  An internal 
+investigation had been commenced by the Moses Lake Police Department, apparently 
+almost immediately.  Responding officers were told by some unidentified person at a 
+“higher level” that rather than prepare a report, they would be submitting to an interview.  
+RP at 234.  The officers’ interviews were transcribed and produced to defense counsel, 
+who discovered that they all included language, consistent with Garrity v. New Jersey, 
+385 U.S. 493, 499-500, 87 S. Ct. 616, 17 L. Ed. 2d 562 (1967), that the officers’ 
+statements could not be used against them in a criminal prosecution.5  The internal 
+investigation apparently found no wrongdoing by the officers.   
+                                              
+5 The statements are not included in the record on appeal, nor was the language 
+that defense counsel contended made the statements “Garrity statements” read into the 
+record.  This is the implication of counsel’s argument, however. 
+
+--- Page 35 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+8
+ 
+The separate investigation into whether Mr. Zamora should be charged was 
+referred to Sergeant Matt Andersen of the Washington State Patrol, who spoke to Officer 
+Hake briefly on the night of the incident.  Defense counsel learned from officer 
+interviews that none of them agreed to be interviewed by Sergeant Andersen; the sergeant 
+relied instead on their Garrity statements.  Sergeant Andersen did speak with other 
+witnesses, including Mr. Zamora, and wrote a report in September 2017 that 
+recommended that charges of assault in the third degree and disarming a law enforcement 
+officer be filed against Mr. Zamora.  In May 2018, Mr. Zamora was charged with two 
+counts of third degree assault for his alleged assaults of Officer Hake and Officer Welsh.   
+Among pretrial motions in limine filed by the State was a motion to exclude 
+evidence of a prior confrontation involving Mr. Hake.  The State argued that while Mr. 
+Zamora claimed self-defense, he could offer evidence of Mr. Hake’s prior confrontation 
+to prove reasonable apprehension only if he was aware of it on February 5, 2017.    
+Defense counsel did not oppose the motion.  He told the court he was aware that 
+Mr. Hake had been charged with “an assault four and a disorderly conduct by way of 
+fighting words” that was subject to a stipulated order of continuance.  RP at 12.  He 
+agreed with the State that “[f]or purposes of self-defense, it might be relevant if the 
+defendant had known about that prior to this incident.  But that is not my understanding, 
+your Honor.”  RP at 12.  The court granted the motion.   
+
+--- Page 36 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+9
+ 
+The State also asked the trial court to exclude any reference to the fact that the 
+Moses Lake Police Department conducted an internal investigation.  Its motion stated it 
+had no objection to the use of statements made during the investigation in accordance 
+with the rules of evidence, but asked the court to order that the statements be referred to 
+as “statements recorded about the incident” or other similar language.  Clerk’s Papers 
+(CP) at 164.    
+Defense counsel vigorously objected to any requirement that the officers’ 
+statements be referred to in a manner suggesting they were typical officer statements.  He 
+argued that he should be able to ask the officers 
+ if they made a Garrity statement as part of an investigation, 
+ whether they knew what a Garrity statement was, 
+ what their understanding was of the reason for making a Garrity statement, 
+ who told them to make a Garrity statement, and 
+ whether the officers made themselves available to interview by Sergeant Andersen 
+for purposes of his investigation of the case against Mr. Zamora. 
+RP 401-02, 419-20.  Defense counsel explained that “the use of an immunized statement 
+that . . . can’t be used to prosecute them is something that I would like the jury to know 
+about.”  RP at 420. 
+The trial court heard extensive argument of the motion and ultimately granted it, 
+explaining that asking the officers about whether their statement was a Garrity statement 
+and the purpose of such a statement called for legal conclusions.  It found that other 
+
+--- Page 37 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+10
+ 
+questions were not relevant and would cause jurors to speculate as to their relevance.  Its 
+final concern was that the questions would introduce and waste time on a collateral issue.   
+Voir dire  
+The trial court allowed each side an hour for voir dire.  The first topic the 
+prosecutor offered for discussion was border security: 
+[PROSECUTOR:] So first of all, let’s just take a general topic that seems to 
+be in the media every day, and I’ll ask you a general question, and that is 
+some people say today in our society we have—we don’t have enough 
+border security.  Some people say we have too much or we don’t need that.  
+So the question is which one do you feel like you’re closer to?  So I’m 
+probably going to call on some people and just hear what you have to say 
+about that.   
+ 
+RP at 71-72. 
+When one juror said she believed there are a lot of great people who come and 
+look for a better opportunity, that she believes in an opportunity for a lot of great people 
+to come into our country, and that a rock wall is ridiculous, the prosecutor said to her: 
+Sorry for this, and I don’t mean to get off on a jag, could you make room 
+for the possibility that someone who—a loved one or family member of 
+somebody who was either killed or had problems with somebody that’s 
+been previously deported or criminally is wrongly in the country, that that 
+happens to them, and that they feel like we need more border security, can 
+you make room for that? 
+ 
+RP at 75.   
+ 
+ 
+When a juror responded she locked her door to protect herself, but did not believe 
+in a border wall, the prosecutor said to her: 
+
+--- Page 38 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+11
+ 
+Can you make room for the idea that when they hear that 100,000 people 
+come across illegally a month, and of those we’ve got people from 
+countries that—countries on our list that aren’t even allowed in the country 
+are part of that group? 
+ 
+. . . . 
+ 
+. . . That they feel that we’ve got a big problem and a porous border, 
+meaning people are just coming across and we don’t know who is here, that 
+a lot of people have some fear about that.  Can you make room for that? 
+ 
+RP at 76-77.  The prosecutor then moved on to whether jurors locked their doors at night, 
+whether they had been robbed before, and trespassing.  Its few mentions of immigration 
+or the border thereafter were in the context of asking jurors whether they had views on 
+any of the topics covered in its hour-long voir dire.   
+The next morning, outside the presence of the jury, the trial court asked defense 
+counsel if he had a strategic reason for not objecting to the State’s voir dire questioning 
+about border security and illegal immigrants.  The court explained that it reviewed ER 
+413 and case law after the prior day’s proceedings and had a concern that defense 
+counsel’s failure to object might be raised as an issue on appeal.  Defense counsel 
+answered that he contemplated objecting.  He also observed that Mr. Zamora is not an 
+immigrant.  He explained, however, “I’m not sure that that benefited the state.  That 
+might have been to their detriment.  Which is why I didn’t object.  I’m not sure that the 
+jury will take those comments as beneficial to the state.”  RP at 221.  Defense counsel  
+
+--- Page 39 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+12
+ 
+added that the State’s questioning was “discussed back at the office,”6 he planned to 
+address it in closing argument, and “I think that it might provide an advantage to me in 
+closing argument.”  RP at 221, 224. 
+After the trial court explained that it wanted to get defense counsel’s thought 
+process on the record in the event of appeal, it asked the prosecutor if there was anything 
+he wanted to say.  He responded: 
+Well, I’d just say very briefly, your Honor, I guess I’m somewhat surprised 
+by that.  I didn’t bring up the specific points that you talked about.  I think 
+the general question was I said some people—if the court recalls, some 
+people, because this is a hot topic right now, some people feel that we need 
+more border security, some people feel we don’t.  I wasn’t suggesting 
+anything about the defendant.  I’m just curious about that.  
+ 
+Because one of the situations we have is about security.  In other 
+words, the reason for the question is, from my end, was that, you know, 
+following up with did they lock their doors, that kind of thing, because we 
+have a situation, a vehicle prowl, that precipitated this whole event.  And so 
+I wanted to get their idea about how they—just generally how they felt 
+about that.  
+ 
+They brought up to me some points, I think, in response to things 
+that the jurors were saying back to me in response to my general question, 
+then I said a couple of things specifically.  But I in no way intimated or was 
+suggesting to the jury that the defendant is not a citizen of the country or is 
+here illegally.  That was not my intent at all.  I was just simply responding 
+to the questions I think they were asking me or our colloquy between us. 
+ 
+RP at 224-25.  The prosecutor assured the court that the State would not intimate or 
+suggest that Mr. Zamora was an illegal immigrant or not a citizen. 
+                                              
+6 There had been a lunch break between the State’s first and second rounds of voir 
+dire.   
+
+--- Page 40 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+13
+ 
+Shortly thereafter, defense counsel told the court that, with permission, it would 
+raise his client’s legal status in opening statement.  The court said he could raise it in a 
+nonargumentative way.  During his opening statement, defense counsel said to the jury: 
+ 
+[DEFENSE COUNSEL:] One of the things that I wanted to address 
+right off the bat was yesterday in voir dire you were asked some questions, 
+specifically about a border wall, cross border crime, immigrants coming in 
+and committing crime, and I had a concern that that might put in your 
+minds that there’s an issue of immigration in this case.  There is not.  I 
+don’t want you to waste any more time thinking about that or wondering 
+when you’re going to hear evidence of that.  My client is a U.S. citizen and 
+so that is not at issue in this trial. 
+ 
+RP at 265.   
+ 
+Trial 
+ 
+At trial, the State called as witnesses Ms. Moncada (the 911 caller), Mr. Hake, 
+Officer Welsh, three other responding officers, Dr. Frank, and Sergeant Andersen.  The 
+defense called as witnesses Mr. Zamora’s sister, the EMTs who responded to the officers’ 
+call for medical assistance, and Javier Torres.  Ms. Moncada, the law enforcement 
+witnesses, and the medical professionals testified consistent with the facts set forth above. 
+Mr. Torres testified that he watched the struggle associated with Mr. Zamora’s 
+arrest from a window, but did not know it was Mr. Zamora who was being restrained.  
+When asked what he saw, Mr. Torres testified he saw an officer “got the person, put their 
+hands on the back and then threw to the floor.”  RP at 825-26.  He did not see fighting 
+between Mr. Zamora and Officer Welsh.  When more officers showed up, Mr. Torres 
+
+--- Page 41 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+14
+ 
+testified officers were kicking, punching, and elbowing a man on the ground.  Mr. Torres 
+did not see the man on the ground fight back, but did see the officers tie Mr. Zamora up 
+with rope.  
+When cross-examined, Mr. Torres affirmed that he never went outside to see if he 
+could help.  The prosecutor then asked, “That’s not a common occurrence for you, is it, to 
+have an officer and an individual involved in some kind of fight or something on the 
+ground in front of your home?”  RP at 834.  Mr. Torres answered, “Oh, if it’s a cop, I 
+don’t have nothing to do and nothing to say.”  RP at 834.   
+ 
+During closing, the State argued:   
+ 
+ 
+There was a witness that came in for defense, Javier Torres, that said 
+that officers were kicking at him, that the defendant was just on the ground, 
+that he’d think he said his hands were behind his back, just being very 
+compliant, that officers were just, you know, they’re all just kicking at him.  
+That’s not what the evidence supports. 
+ 
+And if you think about—if you remember what Javier Torres said, 
+the exact quote, when talking about police, Javier stated, “If it’s a cop, I 
+don’t have nothing to do and nothing to say.”  This is a guy who doesn’t 
+like the police.  He—you know, when Officer Hake is out there struggling 
+with the guy, he just stays inside, closes his door, doesn’t offer any help.  
+Then obviously, you know, for someone to come into court and say that on 
+the stand, “I don’t want nothing to do with police, I got nothing to say to 
+them,” he doesn’t like law enforcement. 
+ 
+RP at 902-03.  Defense counsel did not object.    
+ 
+The jury deliberated for almost two full days before returning its verdict.  During 
+its deliberations, it asked for definitions for “excessive force” and “necessary force.”   
+
+--- Page 42 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+15
+ 
+CP at 243.  “Excessive force” was a term used in their instructions.7  “Necessary force” 
+was the term the State had used in closing to describe the force it argued was justifiably 
+used against Mr. Zamora.  The trial court expressed a concern that it was too late to 
+provide a definition, because the parties would have no opportunity to argue its 
+application.  Counsel for the parties agreed no definition should be given.  The trial court 
+responded by telling the jury it had received all of the court’s instructions.   
+On the afternoon of the third day of deliberations, Mr. Zamora was found guilty as 
+charged.  He was sentenced based on an agreed offender score of 7.  He appeals. 
+ANALYSIS 
+Mr. Zamora makes seven assignments of error in his opening brief.  We granted 
+permission for him to file a supplemental brief to address an issue raised by the 
+Washington Supreme Court’s recent decision in State v. Blake, 197 Wn.2d 170, 481 P.3d 
+                                              
+ 
+7 Jury instruction 11 said: 
+ 
+It is a defense to a charge of assault in the third degree that force 
+used was lawful as defined in this instruction.  
+ 
+A person may use force to resist an arrest or detention only if the 
+person being arrested or detained is in actual and imminent danger of 
+serious injury from an officer’s use of excessive force.  The person may 
+employ such force and means as a reasonably prudent person would use 
+under the same or similar circumstances.  
+ 
+The State has the burden of proving beyond a reasonable doubt that 
+the force used by the defendant was not lawful.  If you find that the State 
+has not proved the absence of this defense beyond a reasonable doubt, it 
+will be your duty to return a verdict of not guilty as to count one, count two, 
+or both. 
+CP at 217, 237 (emphasis added). 
+
+--- Page 43 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+16
+ 
+521 (2021).  He contends (1) he received ineffective assistance of counsel in light of three 
+prejudicial errors of his trial lawyer, (2) the trial court erred in ruling he could not cross-
+examine officers with his proposed Garrity questions, (3) the State’s evidence negating 
+self-defense was insufficient, (4) the prosecutor committed misconduct during voir dire 
+and closing argument, and (5) his offender score was miscalculated in two respects: by 
+failing to recognize that two of his prior convictions had washed out, and because he has 
+two convictions for unlawful possession of a controlled substance that must be vacated in 
+light of Blake.  We review the challenges in the order stated. 
+I. 
+INEFFECTIVE ASSISTANCE OF COUNSEL IS NOT SHOWN 
+Mr. Zamora contends he received ineffective assistance of counsel in light of three 
+prejudicial errors: his trial lawyer (1) failed to move to suppress evidence of his 
+assaultive behavior, (2) failed to object to the exclusion of Mr. Hake’s prior conduct 
+charged as fourth degree assault and disorderly conduct, and (3) failed to request a jury 
+instruction defining excessive force.8  
+To prevail on a claim of ineffective assistance of counsel, a defendant must 
+demonstrate that defense counsel’s representation was deficient, i.e., it fell below an 
+objective standard of reasonableness, and counsel’s deficient representation prejudiced 
+                                              
+8 Mr. Zamora also makes a passing reference to his trial lawyer being ineffective 
+for failing to object to the prosecutor’s statements during voir dire and closing argument.  
+He does not provide argument in support of this alleged ineffective assistance, however, 
+so the passing reference will not be addressed.  See RAP 10.3(a)(6).   
+
+--- Page 44 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+17
+ 
+the defendant, i.e., there is a reasonable probability that, except for counsel’s 
+unprofessional errors, the result of the proceeding would have been different.  State v. 
+McFarland, 127 Wn.2d 322, 334-35, 899 P.2d 1251 (1995).  If a defendant fails to 
+establish one prong, we need not consider the other.  State v. Hendrickson, 129 Wn.2d 
+61, 78, 917 P.2d 563 (1996). 
+In order for the court to find deficient performance, the defendant must establish 
+“‘that counsel made errors so serious that counsel was not functioning as the “counsel” 
+guaranteed the defendant by the Sixth Amendment [to the United States Constitution].’”  
+State v. Grier, 171 Wn.2d 17, 32-33, 246 P.3d 1260 (2011) (quoting State v. Thomas, 109 
+Wn.2d 222, 225, 743 P.2d 816 (1987)).  “The threshold for the deficient performance 
+prong is high” and there is “‘a strong presumption that counsel’s performance was 
+reasonable.’”  Id. at 33 (quoting State v. Kyllo, 166 Wn.2d 856, 862, 215 P.3d 177 
+(2009)).  “When counsel’s conduct can be characterized as legitimate trial strategy or 
+tactics, performance is not deficient.”  Kyllo, 166 Wn.2d at 863. 
+ 
+Failure to move to suppress evidence of assaultive behavior 
+ 
+Mr. Zamora first contends that his trial lawyer should have moved to suppress 
+evidence of his assaultive conduct on grounds that when Officer Hake held out his arm 
+and told Mr. Zamora he was not free to leave, it was a seizure unsupported by a 
+reasonable suspicion that Mr. Zamora was, or was about to be, engaged in a crime.  The 
+
+--- Page 45 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+18
+ 
+State argues in response that even if the seizure was unlawful, exclusion of evidence of 
+Mr. Zamora’s alleged assault was not an available remedy. 
+Mr. Zamora replies that exclusion of evidence was an available remedy, relying on 
+State v. Cormier, 100 Wn. App. 457, 462-63, 997 P.2d 950 (2000).  Br. of Appellant at 
+32.9  But Cormier does not hold that if an individual is unlawfully searched or seized then 
+evidence of his responsive assault is inadmissible.  It states the opposite.  It cites State v. 
+Mierz, 127 Wn.2d 460, 901 P.2d 286 (1995), for the proposition that evidence of a 
+defendant’s assaultive behavior is properly admitted regardless of any alleged Fourth 
+Amendment violation.  Id. at 473.  Other case law is in accord.  “When an individual 
+assaults a police officer whose intrusion allegedly violates Fourth Amendment 
+protections, evidence of the assault is outside the scope of the exclusionary rule.”  State v. 
+McKinlay, 87 Wn. App. 394, 398, 942 P.2d 999 (1997) (citing Mierz, 127 Wn.2d at 471-
+75).  “A contrary rule would allow one who was subject to an illegal search [or seizure] 
+to respond with unlimited force and be immunized from prosecution.”  Id. (citing State v. 
+Aydelotte, 35 Wn. App. 125, 132, 665 P.2d 443 (1983)).   
+                                              
+9 Mr. Zamora also cites State v. Valentine, 132 Wn.2d 1, 21, 935 P.2d 1294 
+(1997), State v. Westlund, 13 Wn. App. 460, 467, 536 P.2d 20 (1975), and State v. 
+Bradley, 141 Wn.2d 731, 10 P.3d 358 (2000), for support.  None of those decisions deals 
+with suppression motions or exclusion of evidence of assaultive behavior.  All are 
+prosecutions for assault of a police or corrections officer in which self-defense was 
+asserted as a defense, but they address other issues.  Clearly, since the jury in each of 
+those cases was hearing prosecution of the assault, defense counsel either never moved to 
+suppress evidence of the assault or, if it did, it lost the motion and did not challenge 
+denial of the motion on appeal. 
+
+--- Page 46 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+19
+ 
+A motion to suppress evidence of Mr. Zamora’s assaultive conduct was legally 
+insupportable even if the seizure was unlawful.  Deficient representation is not shown. 
+ 
+Mr. Hake’s prior assault and disorderly conduct charges 
+ 
+Mr. Zamora next contends his trial lawyer was ineffective because he failed to 
+oppose the State’s request that the court exclude evidence of the assault and disorderly 
+conduct charges against Mr. Hake that were the subject of a stipulated continuance for 
+dismissal.  He argues the State presented evidence of Mr. Hake’s work experience and 
+training that it later relied on in arguing that the officer was able to exercise “amazing 
+restraint” when his contact with Mr. Zamora resulted in a violent struggle.  RP at 890.  
+Likening this evidence and argument to that involved in State v. York, 28 Wn. App. 33, 
+621 P.2d 784 (1980), Mr. Zamora argues that his lawyer could and should have 
+impeached Mr. Hake with his prior violent conduct.  
+York involved ER 608(b), and the ability to cross-examine a witness about specific 
+instances of conduct that are probative of truthfulness or untruthfulness.  In York, the 
+State’s prosecution of two counts of delivery of a controlled substance relied on the 
+testimony of an undercover investigator—its only witness to the sales—who had been 
+paid $20 per successful drug buy.  Id. at 34-35.  On direct examination, the private 
+investigator testified to his long work history including his background as a military 
+policeman investigating drug usage and his previous work for the police department as an 
+undercover agent.  Id. at 34.  The defense sought to cross-examine him about being fired 
+
+--- Page 47 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+20
+ 
+from a trainee position with a Montana sheriff’s department.  Id. at 35.  It sought to 
+establish that he was unemployed and not above fabricating or otherwise adjusting his 
+testimony about drug buys in order to obtain money.  Id.  The State moved to exclude 
+evidence of the investigator’s adverse work history and the court granted the motion, 
+finding it was a collateral matter.  Id. at 34.  In closing argument, the prosecutor told 
+jurors there was “no reason at all to doubt” the investigator’s testimony.  Id. at 35. 
+York had called a number of alibi witnesses who testified that he was not present 
+at the location where the alleged drug buy occurred, so this court observed that the 
+undercover investigator’s credibility “was not, therefore, collateral; it was the very 
+essence of the defense.”  Id. at 36.  That being the case, “as a matter of fundamental 
+fairness, the defense should have been allowed to bring out the only negative 
+characteristics of the one most important witness against York. . . .  [W]e find this area of 
+impeachment to be of considerable importance to the defense and cannot in good 
+conscience condone the trial court’s action.”  Id. at 37. 
+Mr. Zamora fails to articulate how the fact that Mr. Hake engaged in conduct 
+charged as fourth degree assault and disorderly conduct would be “probative of . . . 
+untruthfulness” and thereby a permissible area of questioning under ER 608(b).  See 
+United States v. Page, 808 F.2d 723, 730 (10th Cir. 1987) (acts admissible under Federal 
+Rule of Evidence 608(b) generally include “forgery, uttering forged instruments, bribery, 
+suppression of evidence, false pretenses, cheating, [and] embezzlement”) (alteration in 
+
+--- Page 48 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+21
+ 
+original).10  Charges of fourth degree assault and disorderly conduct imply aggressive 
+conduct, not untruthful conduct.  Evidence of Mr. Hake’s stipulation to fourth degree 
+assault and disorderly conduct was more likely to suggest a propensity for aggression in 
+order to show action in conformity therewith—a purpose for which the evidence would 
+be inadmissible under ER 404(b).   
+This court observed in York that it would not have reversed the conviction if the 
+undercover investigator’s prior employment troubles “had no substantial bearing upon the 
+witness’ credibility.”  28 Wn. App. at 37.  Mr. Zamora does not demonstrate that his trial 
+lawyer could plausibly have argued that Mr. Hake’s acts of criminal aggression were a 
+permissible subject matter of questioning under ER 608(b) and York.  Deficient 
+representation is not shown. 
+ 
+Jury instruction defining “excessive force” 
+ 
+Mr. Zamora next contends that his trial lawyer’s failure to request a jury 
+instruction defining “excessive force” was prejudicial and deficient representation.  He 
+does not argue that his lawyer should have advocated for giving such an instruction 
+during jury deliberations.  He contends, instead, that his trial lawyer should have made an 
+earlier, timely request for such an instruction.   
+                                              
+10 “Where our evidence rules mirror their federal counterparts, we may look to 
+federal case law interpreting the federal rules as persuasive authority in interpreting our 
+own rules.”  In re Det. of Pouncy, 168 Wn.2d 382, 392 n.9, 229 P.3d 678 (2010). 
+
+--- Page 49 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+22
+ 
+For cases involving third degree assault of a police officer, there is no pattern 
+criminal instruction on excessive force that accompanies WPIC11 17.02.01, the self-
+defense instruction that refers to excessive force.  Mr. Zamora suggests that his trial 
+lawyer could have proposed the pattern instruction used in civil cases involving an 
+unreasonable force claim under the Fourth Amendment.12   
+                                              
+11 11 WASHINGTON PRACTICE: WASHINGTON PATTERN JURY INSTRUCTIONS: 
+CRIMINAL (4th ed. 2016) (WPIC). 
+12 The instruction, which appears at 6A WASHINGTON PRACTICE: WASHINGTON 
+PATTERN JURY INSTRUCTIONS: CIVIL § 342.03 (7th ed. 2019) (WPI), states: 
+ 
+A seizure of a person is unreasonable under the Fourth Amendment 
+if [a police officer] [(name of other person acting under color of state law)] 
+uses excessive force [in making a lawful arrest] [and] [or] in defending 
+[himself] [herself] [others]].  Thus, in order to prove an unreasonable 
+seizure in this case, the plaintiff must prove by a preponderance of the 
+evidence that the officer[s] used excessive force when (insert factual basis 
+of the claim). 
+ 
+Under the Fourth Amendment, a police officer may only use such 
+force as is objectively reasonable under all of the circumstances.  In other 
+words, you must judge the reasonableness of a particular use of force from 
+the perspective of a reasonable officer on the scene and not with the 20/20 
+vision of hindsight. 
+ 
+In determining whether (name of officer(s)) used excessive force in 
+this case consider all of the circumstances known to the officer[s] on the 
+scene [including but not limited to: 
+ 
+a) severity of the crime; 
+ 
+b) circumstances to which the officer was responding; 
+ 
+c) whether (name of plaintiff) reasonably appeared to pose an 
+ immediate threat to [name of defendant] or others; 
+ 
+d) whether (name of plaintiff) actively resisted [arrest] [detention]; 
+
+--- Page 50 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+23
+ 
+What is missing from this argument on appeal is why it was defective 
+representation not to request the civil instruction.  Mr. Zamora implies that a definition 
+was necessary for him to argue his theory of the case, but that is not so.  “‘Trial courts 
+must define technical words and expressions used in jury instructions, but need not define 
+words and expressions that are of ordinary understanding or self-explanatory.’”  In re 
+Det. of Pouncy, 168 Wn.2d 382, 390, 229 P.3d 678 (2010) (quoting State v. Brown, 132 
+Wn.2d 529, 611-12, 940 P.2d 546 (1997)).  Mr. Zamora does not identify any argument 
+that his trial lawyer was unable to make because the jury did not have a definition of 
+excessive force. 
+A tactical reason for not requesting an instruction on excessive force is that it 
+would deflect the jury’s attention from what trial counsel treated as the more defense-
+friendly focus of the court’s instructions: whether the State proved beyond a reasonable 
+doubt that the force used by Mr. Zamora was not lawful.  Defense counsel was able to 
+                                                                                                                                                  
+ 
+e) whether (name of plaintiff) attempted to evade [arrest] 
+[detention]; 
+ 
+f) the amount of time available to (name of defendant) at the time 
+[he][she] made the decision to use force, and what type and 
+degree of force was necessary; 
+ 
+g) whether there was a change of circumstances during which (name 
+ of defendant) had to make a decision about the type and amount 
+ of force that appeared to be necessary; 
+ 
+h) whether alternative methods of using force for [arrest] [detention] 
+ were available to (name of defendant) at that time; and 
+ 
+i) whether the officer issued a warning to the suspect if feasible]. 
+
+--- Page 51 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+24
+ 
+argue that the physical struggle was started by Officer Hake.  He was able to argue that 
+Mr. Zamora had no pepper spray, no stun gun, and no handgun to use against six officers.  
+He was able to argue that none of the officers’ hearts stopped and that none of them was 
+hospitalized, in intensive care, four weeks after the encounter.   
+Mr. Zamora’s argument on appeal boils down to the fact that the jury turned out to 
+want a definition of excessive force.  But “‘[a] fair assessment of attorney performance 
+requires that every effort be made to eliminate the distorting effects of hindsight, to 
+reconstruct the circumstances of counsel’s challenged conduct, and to evaluate the 
+conduct from counsel’s perspective at the time.’”  Grier, 171 Wn.2d at 34 (alteration in 
+original) (quoting Strickland v. Washington, 466 U.S. 668, 689, 104 S. Ct. 2052, 80 L. 
+Ed. 2d 674 (1984)).  Here again, deficient representation is not shown. 
+II. 
+THE TRIAL COURT DID NOT ABUSE ITS DISCRETION IN EXCLUDING EVIDENCE THAT 
+THE OFFICERS INVOLVED PROVIDED GARRITY STATEMENTS  
+Mr. Zamora contends the trial court abused its discretion and deprived him of his 
+right to present a defense when it excluded evidence that the responding officers who 
+testified had provided Garrity statements.   
+Both the federal and state constitutions protect the rights of criminal defendants to 
+present a complete defense and to confront adverse witnesses.  State v. Orn, 197 Wn.2d 
+343, 482 P.3d 913, 917 (2021); U.S. CONST. amend. VI; WASH. CONST. art. I, § 22.  
+“‘The primary and most important component’ of the confrontation right ‘is the right to 
+
+--- Page 52 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+25
+ 
+conduct a meaningful cross-examination of adverse witnesses.’”  Orn, 197 Wn.2d at 347 
+(quoting State v. Darden, 145 Wn.2d 612, 620, 41 P.3d 1189 (2002)).  
+Meaningful cross-examination does not mean unlimited cross-examination.  
+Delaware v. Van Arsdall, 475 U.S. 673, 679, 106 S. Ct. 1431, 89 L. Ed. 2d 674 (1986); 
+State v. Romero-Ochoa, 193 Wn.2d 341, 348, 440 P.3d 994 (2019), cert. denied, 141 S. 
+Ct. 398 (2020).  A trial court has wide latitude to place reasonable limits on cross-
+examination based on concerns about prejudice, confusion of the issues, undue delay or 
+waste of time, and marginal relevance.  Van Arsdall, 475 U.S. at 679; see also State v. 
+Lee, 188 Wn.2d 473, 487, 396 P.3d 316 (2017).   
+We review de novo whether the trial court’s evidentiary rulings abridged a 
+defendant’s Sixth Amendment rights.  Orn, 197 Wn.2d at 350.  We review the exclusion 
+of evidence under the evidentiary rules for abuse of discretion.  Id. at 351. 
+We apply a three-part test to determine whether a trial court violated a defendant’s 
+right to confront a witness by limiting the scope of cross-examination: 
+First, the evidence must be of at least minimal relevance.  Second, if 
+relevant, the burden is on the State to show the evidence is so prejudicial as 
+to disrupt the fairness of the fact-finding process at trial.  Finally, the 
+State’s interest to exclude prejudicial evidence must be balanced against the 
+defendant’s need for the information sought, and only if the State’s interest 
+outweighs the defendant’s need can otherwise relevant information be 
+withheld. 
+ 
+Lee, 188 Wn.2d at 488 (quoting Darden, 145 Wn.2d at 622).   
+
+--- Page 53 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+26
+ 
+In arguing that the trial court violated his rights by limiting cross-examination, Mr. 
+Zamora devotes most of his analysis to the second and third steps of the test rather than 
+the crucial threshold issue of minimal relevance.  Evidence is relevant if it has “any 
+tendency to make the existence of any fact that is of consequence to the determination  
+of the action more probable or less probable than it would be without the evidence.”   
+ER 401.   
+Evidence that impeaches or discredits a witness is relevant.  Lee, 188 Wn.2d at 
+488.  Mr. Zamora asserts that the fact that the officers provided Garrity statements 
+detracts from their credibility, but he never explains why that would be the case.  His 
+argument is all conclusory.  See Br. of Appellant at 43-44 (“factors surrounding making a 
+Garrity statement went directly to [the officers’] mental state, credibility, and colored the 
+entire investigation”; “[b]ecause each officer participated in the Garrity statements to 
+preserve their employment, and their credibility was at issue . . . [the evidence] should 
+have been allowed”; “Whether officers had been warned they had to make a statement or 
+lose their job, and the statements could not be used to prosecute them bore directly on 
+their credibility”). 
+In arguing for his right to cross-examine, Mr. Zamora’s trial lawyer explained his 
+understanding of the context and consequences of providing a Garrity statement: 
+[DEFENSE COUNSEL]:  A Garrity statement, your Honor, is a 
+statement that’s made with a warning that is similar to a Miranda warning, 
+with the exception that it has an added clause that nothing in the statement 
+
+--- Page 54 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+27
+ 
+can be used to prosecute the person making that statement unless they lie in 
+the statement. 
+. . . . 
+. . . [T]he Garrity warning includes that the statements being made 
+under immunity from prosecution, basically use immunity, that they are 
+required to make the statement for purposes of the investigation into their 
+conduct, but that unless they commit perjury or they lie in the statement, 
+that it can’t be used for any other conviction purposes, your Honor. 
+THE COURT: For any criminal purposes? 
+[DEFENSE COUNSEL]: Yes.  Except for I believe it’s specific to 
+perjury.  I think it does still allow for convictions for perjury. 
+RP at 402-04. 
+ 
+If Mr. Zamora established in cross-examination that the officers provided 
+statements about the incident knowing they would not face prosecution for any 
+wrongdoing reported, but only if they perjured themselves, it would not discredit or 
+impeach their testimony.  It would arguably enhance it.  Because Mr. Zamora was unable 
+to demonstrate that his proposed examination was minimally relevant, the trial court did 
+not err or abuse its discretion in imposing the limitation. 
+III. 
+EVIDENCE SUFFICIENCY 
+Mr. Zamora next contends that the State’s evidence was insufficient to disprove 
+self-defense.  Evidence is sufficient if, when viewed in the light most favorable to the 
+State, it permits a rational trier of fact to find the essential elements of the crime beyond a 
+reasonable doubt.  State v. Green, 94 Wn.2d 216, 221, 616 P.2d 628 (1980), overruled on 
+other grounds by Washington v. Recuenco, 548 U.S. 212, 126 S. Ct. 2546, 165 L. Ed. 2d 
+
+--- Page 55 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+28
+ 
+466 (2006).  Courts must draw all reasonable inferences from the evidence in favor of the 
+State and interpret the evidence most strongly against the defendant.  State v. Salinas, 119 
+Wn.2d 192, 201, 829 P.2d 1068 (1992).  Appellate courts defer to the fact finder on the 
+resolution of conflicting testimony, credibility determinations, and the persuasiveness of 
+the evidence.  State v. Thomas, 150 Wn.2d 821, 874-75, 83 P.3d 970 (2004). 
+Mr. Zamora asserts that once Officer Hake grabbed him by the elbows and said, 
+“Put your hands behind your back, I’ll fucking kill you,” any citizen in that situation 
+would fear being seriously harmed.  To begin with, the evidence was not that those 
+events happened simultaneously.  
+More importantly, the arrestee’s fear must be of actual, imminent danger if he 
+does not resist, not actual, imminent danger if he does resist.  Jurors could reasonably 
+find that Mr. Zamora did not face actual, imminent danger if he put his hands behind his 
+back, allowed himself to be handcuffed, and awaited the arrival of the deputies Officer 
+Hake told Mr. Zamora wanted to question him.  “[T]he established rule for use of force in 
+self-defense cases involving arrests requires the person face a situation of actual, 
+imminent danger.”  State v. Bradley, 141 Wn.2d 731, 738, 10 P.3d 358 (2000).  “Orderly 
+and safe law enforcement demands that an arrestee not resist a lawful arrest . . . unless the 
+arrestee is actually about to be seriously injured or killed.”  State v. Holeman, 103 Wn.2d 
+426, 430, 693 P.2d 89 (1985) (quoting State v. Westlund, 13 Wn. App. 460, 467, 536 P.2d 
+20 (1975)). 
+
+--- Page 56 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+29
+ 
+Viewing the evidence in the light most favorable to the State, reasonable jurors 
+could find that Officer Hake’s initial use of force was based on a reasonable fear that Mr. 
+Zamora was reaching for a weapon, was not excessive, and did not actually put Mr. 
+Zamora’s life in imminent danger.   
+The evidence is also sufficient to support the conviction for assaulting Officer 
+Welsh.  A jury could reasonably find that Officer Welsh was merely attempting to 
+restrain Mr. Zamora in order to effectuate what had become a valid arrest when Mr. 
+Zamora kicked him in the chest.  
+IV. 
+PROSECUTORIAL MISCONDUCT 
+Mr. Zamora contends for the first time on appeal that the prosecutor committed 
+misconduct in voir dire and in closing statement.  The misconduct alleged to have 
+occurred in voir dire was the prosecutor’s irrelevant and allegedly inflammatory 
+discussion of issues of illegal immigration, border security, and juror fear of 
+undocumented immigrants.  The misconduct alleged in closing argument is that the 
+prosecutor discounted the testimony of Javier Torres as someone who does not like law 
+enforcement, an argument Mr. Zamora contends was calculated to invite the jury to “slip 
+comfortably into an unconscious bias.”  Br. of Appellant at 55.  
+Prosecutorial misconduct is not attorney misconduct in the sense of violating rules 
+of professional conduct.  State v. Fisher, 165 Wn.2d 727, 740 n.1, 202 P.3d 937 (2009).  
+It is, instead, a term of art that refers to “prosecutorial mistakes or actions [that] are not 
+
+--- Page 57 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+30
+ 
+harmless and deny a defendant [a] fair trial.”  Id.  To succeed on a prosecutorial 
+misconduct claim, an appellant has the burden of establishing that the prosecutor’s 
+conduct was improper (as being at least mistaken) and was prejudicial.  State v. Stenson, 
+132 Wn.2d 668, 718-19, 940 P.2d 1239 (1997).  A defendant demonstrates prejudice by 
+proving there is a “‘substantial likelihood the . . . misconduct affected the jury’s 
+verdict.’”  In re Pers. Restraint of Pirtle, 136 Wn.2d 467, 481-82, 965 P.2d 593 (1998) 
+(quoting State v. Pirtle, 127 Wn.2d 628, 672, 904 P.2d 245 (1995)). 
+Where, as here, there was no timely objection, reversal is required only if the 
+conduct is “‘so flagrant and ill-intentioned that it causes an enduring and resulting 
+prejudice that could not have been neutralized by a curative instruction to the jury.’”  
+State v. Warren, 165 Wn.2d 17, 43, 195 P.3d 940 (2008) (quoting Brown, 132 Wn.2d at 
+561).  “This standard sets a much higher bar for reversal than the ‘improper and 
+prejudicial’ standard we employ when a defendant timely objects.”  State v. Loughbom, 
+196 Wn.2d 64, 74, 470 P.3d 499 (2020).  As such, our Supreme Court has only 
+sanctioned reversing convictions based on flagrant and ill intentioned misconduct “‘in a 
+narrow set of cases where we were concerned about the jury drawing improper inferences 
+from the evidence.’”  Id. (quoting In re Pers. Restraint of Phelps, 190 Wn.2d 155, 170, 
+410 P.3d 1142 (2018)). 
+Mr. Zamora characterizes the prosecutor’s conduct as attempting to appeal to 
+racial stereotypes and jurors’ potential racial bias, a Sixth Amendment violation that our 
+
+--- Page 58 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+31
+ 
+Supreme Court had held requires the State to demonstrate beyond a reasonable doubt 
+“‘did not affect the verdict.’”  In re Pers. Restraint of Sandoval, 189 Wn.2d 811, 833-34, 
+408 P.3d 675 (2018) (quoting State v. Monday, 171 Wn.2d 667, 680, 257 P.3d 551 
+(2011)); U.S. CONST. amend. VI.  But “this heightened standard does not apply every 
+time a prosecutor mentions race.”  Id. at 834.  Instead, the heightened standard applies 
+“only when a prosecutor mentions race in an effort to appeal to a juror’s potential racial 
+bias, i.e., to support assertions based on stereotypes rather than evidence.”  Id. 
+Closing argument 
+We first address the prosecutor’s statements about Javier Torres in closing 
+argument.  Mr. Zamora argues that when the prosecutor argued that jurors should 
+discount Mr. Torres’s testimony because he apparently does not like police, he committed 
+the “sin of Monday.”  Br. of Appellant at 55.  In Monday, the prosecutor argued a theme 
+that “black folk don’t testify against black folk.”  171 Wn.2d at 674.   
+The prosecutor in this case did not mention Mr. Torres’s race nor did he rely on 
+racial stereotyping to argue that Mr. Torres would be biased against police.  He relied on 
+Mr. Torres’s testimony.  Recall that when Mr. Torres was asked if it was not true that 
+officers and individuals did not commonly get involved in fights in front of his home, he 
+answered, “Oh, if it’s a cop, I don’t have nothing to do and nothing to say.”  RP at 834.  
+Mr. Torres was the only eyewitness to Mr. Zamora’s struggle with officers whose 
+testimony was favorable to Mr. Zamora.  Whatever Mr. Torres’s race, the prosecutor 
+
+--- Page 59 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+32
+ 
+would naturally point to any evidence suggesting Mr. Torres had a bias against police.  
+The argument was not about Latinos, it was specific to Mr. Torres.  When a prosecutor 
+makes a logical argument that jurors should discount unhelpful testimony from a witness, 
+the fact that the witness is a person of color does not, standing alone, make the argument 
+racist. 
+ 
+Voir dire  
+ 
+Mr. Zamora’s unpreserved complaint about voir dire implicates several legal 
+concerns.  It triggered the trial court’s concern because of ER 413, adopted in 2018, 
+which imposes strict limits on the admissibility of evidence of the immigration status of 
+parties and witnesses in light of “the prejudicial nature of evidence of immigration 
+status.”  ER 413(a)(4).  While the rule does not apply to the conduct of voir dire, it 
+reflects a recognition that jurors can have strongly held biases about persons who are in 
+the country illegally that should not play any part in a defendant’s criminal trial. 
+It raises the concern that a defendant’s criminal responsibility must be decided on 
+the basis of the evidence against him, not on the basis of fear about a class of persons to 
+which he belongs (or in this case, might be perceived to belong).  Cf. State v. Belgarde, 
+110 Wn.2d 504, 508, 755 P.2d 174 (1988) (prosecutor should not have argued in closing 
+the danger presented by the American Indian Movement “which the jurors ha[d] no right 
+to consider”), aff’d, 118 Wn.2d 1021, 826 P.2d 147 (1992).  In a case in which our 
+
+--- Page 60 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+33
+ 
+Supreme Court recently reversed a conviction that had been encouraged throughout trial 
+as a step in the “war on drugs,” the high court explained: 
+Justice can be secured only when a conviction is based on specific evidence 
+in an individual case and not on rhetoric.  We do not convict to make an 
+example of the accused, we do not convict by appeal to a popular cause, 
+and we do not convict by tying a prosecution to a global campaign against 
+illegal drugs. 
+Loughbom, 196 Wn.2d at 69-70. 
+ 
+The prosecutor’s references to border security and immigration were limited to 
+voir dire, the purpose of which is to “discover[ ] any basis for challenge for cause and for 
+the purpose of gaining knowledge to enable an intelligent exercise of peremptory 
+challenges.”  CrR 6.4(b).  The prosecutor’s exploration of the prospective jurors’ 
+attitudes about locked doors and neighborhood safety was understandable.  This was a 
+case in which a citizen’s mistaken report of vehicle prowling almost resulted in the death 
+of an individual who, until seized by a police officer, was guilty of nothing more than 
+walking while high on drugs.  Both sides would be interested in knowing whether venire 
+members were vigilant, hypervigilant, or relatively unconcerned about crime in their 
+neighborhoods. 
+Adding border security and illegal immigration as a layer to the questioning was 
+irrelevant and unnecessarily politicized it.  But defense counsel could have asked for a 
+sidebar and objected, and the trial court would have been well within its authority to 
+instruct the prosecutor that the topics were off-limits.  Our system vests a trial judge with 
+
+--- Page 61 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+34
+ 
+considerable latitude in shaping the limits and extent of voir dire.  Lopez-Stayer v. Pitts, 
+122 Wn. App. 45, 50, 93 P.3d 904 (2004).  Such a limitation would have been consistent 
+with the reasoning behind ER 413. 
+Mr. Zamora’s lawyer was in a superior position to assess whether the voir dire was 
+harming the defense.  It is evident from the report of proceedings that a number of jurors 
+had no anti-immigrant bias and spoke up; defense counsel had the opportunity to observe 
+other jurors and assess their reaction.  The questions, responses, facial expressions and 
+body language could inform his challenges and juror selection.  Having steered clear of 
+any controversy himself, he then used his opening statement to nullify any improper 
+relevance that jurors might have attached.  His firsthand conclusion, vetted with others at 
+his office, was that “I’m not sure that [the voir dire] benefitted the state.  That might have 
+been to their detriment.”  RP at 221. 
+Mr. Zamora is unable to demonstrate that the prosecutor’s conduct caused an 
+enduring and resulting prejudice that could not have been neutralized.    
+V. 
+OFFENDER SCORE 
+In his opening brief, Mr. Zamora challenged his offender score on the basis of 
+convictions he contended should have washed out.  The State contended that Mr. 
+Zamora’s allegation of error was not supported by the record.  But it also reported that in 
+a CrR 7.8 motion that had been withdrawn, Mr. Zamora had identified a different legal 
+error in his offender score.  It did not object to resentencing.   
+
+--- Page 62 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+35
+ 
+Following the recent decision in Blake, Mr. Zamora filed a motion with this court 
+for additional relief, arguing that he had two prior convictions for unlawful possession of 
+a controlled substance that must be vacated, resulting in a two-point reduction in his 
+offender score.  While the State does not agree that this panel can provide all of the relief 
+requested by Mr. Zamora’s motion, it continues to support resentencing.  
+We agree that resentencing is required.  
+STATEMENT OF ADDITIONAL GROUNDS 
+In a pro se statement of additional grounds (SAG) Mr. Zamora raises seven: (1) 
+Washington State Patrol Sergeant Matt Andersen sat next to the prosecutor for the entire 
+trial and twice reached for his gun; (2) public defender Tyson Lang is friends with Kevin 
+Hake, giving rise to a conflict of interest; (3) Sergeant Andersen led Mr. Zamora to 
+believe he was investigating the officers involved, which led to Mr. Zamora giving 
+Sergeant Andersen his medical report; (4) Mr. Zamora has only one juvenile felony that 
+the State counted as two, over Mr. Zamora’s objection; (5) if Officer Hake had asked or 
+said he was going to search Mr. Zamora for self-protection, Mr. Zamora would have let 
+him do it; (6) the mistake made in calculation of Mr. Zamora’s offender score in this case 
+is the same mistake made in Grant County Superior Court case no. 14-1-00428-4; and (7) 
+the State was allowed to lie to the jury about Mr. Hake. 
+The offender score issues identified as Mr. Zamora’s fourth and sixth grounds can 
+be argued at resentencing.  As for his first ground, Sergeant Andersen was the State’s ER 
+
+--- Page 63 ---
+No. 37019-4-III 
+State v. Zamora 
+ 
+ 
+36
+ 
+615 representative at trial and was entitled to sit at counsel table.  Mr. Zamora’s 
+opportunity to present the evidence advanced in his fifth ground was at trial; he identifies 
+no basis on which his failure to present that evidence provides a basis for appeal.  His 
+remaining grounds are not supported by evidence in the record.  If he has evidence to 
+support them and a legal basis on which he believes they entitle him to relief, his remedy 
+is to seek relief by personal restraint petition.  State v. Norman, 61 Wn. App. 16, 27-28, 
+808 P.2d 1159 (1991). 
+We affirm the convictions and remand for resentencing. 
+A majority of the panel has determined this opinion will not be printed in the 
+Washington Appellate Reports, but it will be filed for public record pursuant to RCW 
+2.06.040. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+_____________________________ 
+ 
+ 
+ 
+ 
+Siddoway, J. 
+ 
+WE CONCUR: 
+ 
+ 
+ 
+_____________________________ 
+_____________________________ 
+Lawrence-Berrey, J.  
+Pennell, C.J. 
+ 
+~ 
+• 
+JI_ C. "j"" 
+l 
+• 
+• 
+
+--- Page 64 ---
+ 
+CERTIFICATE OF SERVICE 
+ 
+I, Marie Trombley, do hereby certify under penalty of perjury under the 
+laws of the State of Washington, that July 8, 2021, I mailed to the 
+following US Postal Service first class mail, the postage prepaid, or 
+electronically served, by prior agreement between the parties, a true and 
+correct copy of the Petition for Review to the following: Grant County 
+Prosecuting Attorney at gdano@grantcountywa.gov and to Joseph Zamora 
+c/o Marie Trombley.  
+ 
+ 
+Marie Trombley 
+WSBA 41410 
+PO Box 829 
+Graham, WA  98338 
+ 
+ 
+ 
+
+--- Page 65 ---
+MARIE TROMBLEY
+July 08, 2021 - 12:13 PM
+Transmittal Information
+Filed with Court:
+Court of Appeals Division III
+Appellate Court Case Number:   37019-4
+Appellate Court Case Title:
+State of Washington v. Joseph Mario Zamora
+Superior Court Case Number:
+18-1-00263-2
+The following documents have been uploaded:
+370194_Petition_for_Review_20210708121122D3968960_4367.pdf 
+    This File Contains: 
+     Petition for Review 
+     The Original File Name was ZAMORA PETITION FOR REVIEW.pdf
+A copy of the uploaded files will be sent to:
+gdano@grantcountywa.gov
+kjmccrae@grantcountywa.gov
+Comments:
+Sender Name: Marie Trombley - Email: marietrombley@comcast.net 
+Address: 
+PO BOX 829 
+GRAHAM, WA, 98338-0829 
+Phone: 253-445-7920
+Note: The Filing Id is 20210708121122D3968960
+• 
+• 
+• 

@@ -1,0 +1,1335 @@
+
+--- Page 1 ---
+Supreme Court No. ____ 
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON 
+IN RE THE PERSONAL RESTRAINT PETITION OF 
+ROBERT AYERST 
+Petitioner. 
+PETITION FOR REVIEW FROM DIVISION THREE OF THE 
+COURT OF APPEALS #369650-III 
+Asotin Cause No. 16-1-00-150-7 
+Scott D. Gallina, (Former) Judge 
+BRIEF OF PETITIONER 
+LISE ELLNER 
+Attorney for Appellant 
+LAW OFFICES OF LISE ELLNER 
+Post Office Box 2711 
+Vashon, WA 98070 
+(206) 930-1090
+WSB #20955
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+613012021 2:46 PM 
+BY SUSAN L. CARLSON 
+CLERK 
+99941-4
+Re-designated a motion for 
+discretionary review; see 
+Clerk's letter dated 7-2-21 
+Supreme Court Clerk's Office
+
+--- Page 2 ---
+ 
+i 
+ 
+TABLE OF CONTENTS 
+ 
+TABLE OF CONTENTS .................................................................... i 
+TABLE OF AUTHORITIES .............................................................. ii 
+A. 
+IDENTITY OF PETITIONER ................................................. 1 
+B. 
+COURT OF APPEALS DECISION ........................................ 1 
+C. 
+ISSUES PRESENTED FOR REVIEW .................................. 1 
+D. 
+STATEMENT OF THE CASE ............................................... 2 
+E. ARGUMENT WHY REVIEW SHOULD BE ACCEPTED. ......... 3 
+1. UNDER SEATTLE V. RATLIFF, WHEN THE PERSON 
+ASSIGNED TO REPRESENT AN INDIGENT DEFENDANT IS 
+NOT AUTHORIZED TO PRACTICE LAW IN WASHINGTON 
+STATE, IT IS A PER SE VIOLATION OF THE 
+CONSTITUTIONAL RIGHT TO COUNSEL. ................................ 3 
+a. Procedural Posture ............................................................ 3 
+b. Constitutional Right to Counsel.......................................... 4 
+c. State Supreme Court Has Exclusive Authority to Regulate 
+Practice of Law: Ratliff Controlls............................................... 4 
+d. Federal Court’s Do Not Determine Who is “Counsel” in 
+Washington. ........................................................................... 10 
+e. Prosecutor On Notice ...................................................... 12 
+2. MR. AYERST WAS DENIED HIS DUE PROCESS RIGHT 
+TO A FAIR AND IMPARTIAL TRIBUNAL, FREE FROM THE 
+RISK OF UNCONSTITUTIONAL BIAS. ..................................... 14 
+a. Wrongful Standard Applied and Presumption of Judicial 
+Integrity Destroyed. ................................................................ 15 
+3. MR. AYERST WAS DENIED HIS RIGHT TO THE 
+APPEARANCE OF FAIRNESS. ................................................ 16 
+a. Relationship to Bias. ........................................................ 19 
+F. CONCLUSION ....................................................................... 20 
+ 
+ 
+
+--- Page 3 ---
+ 
+ii 
+ 
+TABLE OF AUTHORITIES 
+State Cases 
+Chism v. Tri-State Const., Inc., 
+ 193 Wn. App. 818, 374 P.3d 193 (2016) ..................................... 6 
+ 
+City of Seattle v. Ratliff, 
+ 100 Wn.2d 212, 687 P.2d 630 (1983) .................................. passim 
+ 
+Clark v. Washington, 
+ 366 F.2d 678, (9th Cir.1966) ..................................................... 5, 6 
+ 
+Tatham v. Rogers, 
+    170 Wn.App. 76, 102, 283 P.3d 583 (2012)………………….16, 19 
+Eugster v. Washington State Bar Ass'n, 
+198 Wn. App. 758, 397 P.3d 131 (2017)......................................... 6 
+ 
+Godefroy v. Reilly, 
+ 146 Wash. 257, 262 P. 639, 641 (1928) .................................... 11 
+ 
+Home Ins. Co. of New York v. N. Pac. Ry. Co., 
+ 18 Wn.2d 798, 140 P.2d 507 (1943) .......................................... 11 
+ 
+In re Bruen, 
+ 102 Wn.2d 472, 172 P. 1152 (1918) ........................................ 5, 6 
+ 
+In re Dependency of A.E.T.H., 
+ 9 Wn. App. 2d 502, 446 P.3d 667 (2019) ...................... 18, 20, 21 
+Short v. Demopolis, 
+ 103 Wn.2d 52, 62, 691 P.2d 163 (1984) ...................................... 6 
+ 
+ 
+State ex rel. McFerran v. Justice Court of Evangeline Starr, 
+ 32 Wn.2d 544, 202 P.2d 927 (1949) .......................................... 15 
+ 
+State v. Case, 
+ 49 Wn.2d 66, 298 P.2d 500 (1956) ........................................ 3, 14 
+
+--- Page 4 ---
+ 
+iii 
+ 
+TABLE OF AUTHORITIES CONT'D 
+ 
+State v. Chambers, 
+ 176 Wn.2d 573, 293 P.3d 1185 (2013) ...................................... 18 
+ 
+State v. Cook, 
+ 84 Wn.2d 342, 525 P.2d 761 (1974) ............................................ 7 
+ 
+State v. Dominguez, 
+ 81 Wn. App. 325, 914 P.2d 141 (1996) ..................................... 17 
+ 
+State v. Finch, 
+ 181 Wn. App. 387, 326 P.3d 148 (2014) ................................... 18 
+ 
+State v. Gore, 
+ 101 Wn.2d 481, 681 P.2d 227 (1984) .................................. 11, 13 
+ 
+State v. Johnson, 
+ 179 Wn.2d 534, 315 P.3d 1090 (2014), cert. denied, 135 S. Ct. 
+139, 190 L. Ed. 2d 105 (2014) ..................................................... 5 
+ 
+State v. Monday, 
+ 171 Wn.2d 667, 257 P.3d 551 (2011) ........................................ 14 
+ 
+State v. Yismael, 
+ 195 Wn.2d 155, 456 P.3d 1172 (2020) ........................................ 6 
+ 
+State of Washington v. Scott D. Gallina, 
+ Asotin County Superior Court Case 19-1-00066-02 .................... 3 
+ 
+Federal Cases 
+ 
+Aetna Life Ins. Co. v. Lavoie, 
+ 475 U.S. 813, 106 S. Ct. 1580, 89 L. Ed. 2d 823 (1986) ........... 16 
+ 
+Brotherhood of R.R. v. Virginia ex rel Va. State Bar, 
+ 377 U.S. 1, 84 S. Ct. 1113, 12 L. Ed. 2d 89 (1964) ..................... 5 
+
+--- Page 5 ---
+ 
+iv 
+ 
+TABLE OF AUTHORITIES CONT'D 
+Gideon v. Wainwright, 
+ 372 U.S. 335, 83 S.Ct. 792, 9 L.Ed.2d 799 (1963) ...................... 5 
+ 
+People v. Felder, 
+ 47 N.Y.2d 287, 391 N.E.2d 1274, 418 N.Y.S.2d 295 (1979) ..... 11 
+ 
+In re Murchison, 
+ 349 U.S. 133, 75 S. Ct. 623, 99 L. Ed. 942 (1955) .................... 15 
+ 
+Rippo v. Baker, 
+ ––– U.S. ––––, 137 S. Ct. 905, 907, 197 L. Ed. 2d 167 (2017) . 15 
+ 
+Schware v. Board of Bar Exam. Of State of N.M., 
+ 353 U.S. 232, 77 S.Ct. 752, 1 L.Ed.2d 796 (1957) ...................... 5 
+ 
+Solina v. United States, 
+ 709 F.2d 160, 167 (2nd Cir. 1983) .............................................. 11 
+ 
+U.S. v. Bryant, 
+ 136 S.Ct. 1954 (2016) ................................................................. 4 
+ 
+Turner v. American Bar Ass’n., 
+ 407 F. Supp 451, 474 (1975) ....................................................... 8 
+ 
+Wheat v. United States, 
+ 486 U.S. 153, 108 S. Ct. 1692, 100 L. Ed. 2d 140 (1988) ........... 5 
+ 
+Williams v. Pennsylvania, 
+ ––– U.S. ––––, 136 S. Ct. 1899, 1905, 195 L. Ed. 2d 132 (2016)
+ .................................................................................................. 15 
+ 
+Withrow v. Larkin, 
+ 421 U.S. 35, 95 S. Ct. 1456, 43 L. Ed. 2d 712 (1975) ............... 16 
+ 
+
+--- Page 6 ---
+ 
+v 
+ 
+TABLE OF AUTHORITIES CONT'D 
+Statutes 
+RCW 2.48 ....................................................................................... 7 
+Other Authorities 
+Friedman, A History of American Law (1973) ................................. 8 
+Rules 
+21 C.J.S. Courts § 210.................................................................. 11 
+APR 1 ......................................................................................... 7, 9 
+APR 3 ............................................................................................. 9 
+APR 8 .................................................................................... passim 
+APR 8(c) ..........................................................................7, 9, 10, 12 
+APR 9 ................................................................................. 8, 10, 12 
+APR 13(a)………………………………………………………………13 
+CJC 2.11(A) ............................................................................ 18, 21 
+RAP 13.4(b)(1) ................................................................................ 4 
+RAP 13.4(b)(3) ................................................................................ 4 
+RAP 13.4(b)(4) ................................................................................ 4 
+RAP 13.5A(a)(1) ............................................................................. 4 
+RAP 16.14(c) .................................................................................. 4 
+RPC 5.5 .......................................................................................... 7 
+ 
+ 
+
+--- Page 7 ---
+ 
+vi 
+ 
+TABLE OF AUTHORITIES CONT'D 
+Constitutional Provisions 
+Washington State Const. art. 4, § 1 .................................... 6, 10, 12 
+Washington State Const. art. I, § 22 ............................................... 4 
+U.S. Const. Amend. 14 ................................................................... 4 
+U.S. Const. Amend. 6 ..................................................................... 4 
+ 
+Appendices 
+ 
+Court of Appeals Opinion ........................................................ A. 
+ 
+Idaho Bar Association Search……………………………………B 
+ 
+
+--- Page 8 ---
+ 
+Appendix—Petition for Review—1 
+A. IDENTITY OF PETITIONER 
+Robert Ayerst asks this court to accept review of the decision 
+designated in Part B. 
+B. COURT OF APPEALS DECISION 
+Robert Ayerst seeks reversal of his Asotin County judgment 
+and sentence, 16-1-00150-7 and of the Court of Appeals decision 
+ruling against his personal restraint petition. A copy of the Court of 
+Appeals decision is attached. (PRP of Ayerst, No. 36965-0-III). 
+(Appendix B) (attached hereto and incorporated herein by 
+reference).  
+C. ISSUES PRESENTED FOR REVIEW 
+1. The decision from the Court of Appeals denying Mr. 
+Ayerst’s violation of the constitutional right to counsel based on 
+representation by Robert Van Idour who was never authorized to 
+practice law in Washington conflicts with this Court’s decision in City 
+of Seattle v. Ratliff, 100 Wn.2d 212, 217, 687 P.2d 630 (1983) and 
+raises an issue of substantial public importance, that violates 
+constitution protections. 
+2. When a trial judge is removed from the bench after arrest 
+on charges of sexual assault and rape against his staff, and when 
+the judge knowingly alters a document to facilitate the illegal practice 
+
+--- Page 9 ---
+ 
+Appendix—Petition for Review—2 
+of law by an attorney not licensed to practice in Washington, the 
+appearance of fairness is violated, and this creates an 
+unconstitutional risk of bias.   
+D. STATEMENT OF THE CASE 
+The substantive facts related to the underlying charges are 
+not relevant to the issues raised in this Motion Petition Review.  
+Mr. Ayerst’s trial counsel, Robert Van Idour was never 
+authorized to practice law in Washington State despite alleging he 
+was authorized under APR 8. Personal Restraint Petition of Robert 
+Ayerst. Mr. Van Idour is no longer licensed to practice in Idaho.  See 
+Appendix B (attached hereto and incorporated by reference herein).  
+The presiding judge at Mr. Ayerst’s trial was former Asotin 
+County Superior Court Judge Scott Galina. Judge Gallina was aware 
+of Mr. Van Idour’s lack of legal qualifications to practice in 
+Washington and issued an order that purported to permit Mr. Van 
+Idour to practice in Washington without a Washington State license.  
+Judge Gallina was arrested roughly a year after Mr. Ayerst’s 
+trial and charged with second degree rape, indecent liberties, and 
+assault in the third degree with sexual motivation based on 
+allegations of sexual misconduct made by multiple members of his 
+
+--- Page 10 ---
+ 
+Appendix—Petition for Review—3 
+judicial staff. See State of Washington v. Scott D. Gallina, Asotin 
+County Superior Court Case 19-1-00066-02. 
+Division Three of the Washington State Court of Appeals 
+affirmed Mr. Ayerst’s convictions and sentence following a direct 
+appeal. State v. Ayerst, 8 Wn. App. 2d 1028. Division Three of the 
+Washington State Court of Appeals rejected Mr. Ayerst’s arguments 
+filed in his PRP requesting relief based on former Judge Gallina’s 
+arrest and prosecution, as well as ineffective assistance of counsel 
+because Mr. Van Idour was never licensed to practice law in 
+Washington.  
+E. ARGUMENT WHY REVIEW SHOULD BE ACCEPTED. 
+1. UNDER SEATTLE V. RATLIFF, WHEN THE PERSON 
+ASSIGNED TO REPRESENT AN INDIGENT DEFENDANT 
+IS 
+NOT 
+AUTHORIZED 
+TO 
+PRACTICE 
+LAW 
+IN 
+WASHINGTON STATE, IT IS A PER SE VIOLATION OF THE 
+CONSTITUTIONAL RIGHT TO COUNSEL. 
+a. Procedural Posture 
+Mr. Ayerst seeks review under RAP 16.14(c) and RAP 
+13.5A(a)(1), considering the criteria set forth in RAP 13.4(b)(1), (3), 
+(4). The decision of the Court of Appeals:  is in conflict with this 
+Court’s decision in City of Seattle v. Ratliff, 100 Wn.2d 212, 217, 687 
+P.2d 630 (1983); it involves denial of the right to counsel under both  
+Washington State  Const. art. 1, § 22 and the Sixth Amendment; and 
+
+--- Page 11 ---
+ 
+Appendix—Petition for Review—4 
+it attempts to reduce the protections afforded all citizens of the state 
+of Washington and therefore is a matter of substantial public interest 
+that should be determined by this court. RAP 13.4(b)(1), (3), (4). 
+b. Constitutional Right to Counsel 
+The U.S. Const. Amends. 6 and 14, and Washington State 
+Const. art. I, § 22 (amend 10) provide the equivalent right to 
+appointed counsel. U.S. v. Bryant, 136 S. Ct. 1954 (2016); Gideon v. 
+Wainwright, 372 U.S. 335, 83 S. Ct. 792, 9 L. Ed. 2d 799 (1963); 
+State v. Johnson, 179 Wn.2d 534, 315 P.3d 1090 (2014), cert. 
+denied, 135 S. Ct. 139, 190 L. Ed. 2d 105 (2014).  
+The purpose of this right is to guarantee all defendants the 
+right to a fair trial. Wheat v. United States, 486 U.S. 153, 158-59, 108 
+S. Ct. 1692, 100 L. Ed. 2d 140 (1988). 
+c. State Supreme Court Has Exclusive Authority to 
+Regulate Practice of Law: Ratliff Controls. 
+Subject to the minimum protections afforded under the Due 
+Process clause, the Federal Constitution does not have the authority 
+to interfere with the state’s broad power to regulate the practice of 
+law. Brotherhood of R.R. v. Virginia ex rel Va. State Bar, 377 U.S. 1, 
+6, 84 S. Ct. 1113, 12 L. Ed. 2d 89 (1964); Schware v. Board of Bar 
+Exam. Of State of N.M., 353 U.S. 232, 238-39, 77 S. Ct. 752, 1 L. 
+
+--- Page 12 ---
+ 
+Appendix—Petition for Review—5 
+Ed. 2d 796 (1957)1; Clark v. Washington, 366 F.2d 678, 680-81 (9th 
+Cir.1966); In re Bruen, 102 Wn.2d 472, 476, 172 P. 1152 (1918).  
+Const. art. 4, § 1 vests judicial power of the state in the 
+Supreme Court to the “exclusive, inherent power to admit, enroll, 
+discipline, and disbar attorneys.” Short v. Demopolis, 103 Wn.2d 52, 
+62, 691 P.2d 163 (1984). Accordingly, only this Court determines 
+who may or may not appear in Washington State courts. State v. 
+Yismael, 195 Wn.2d 155, 160, 456 P.3d 1172 (2020); Ratliff, 100 
+Wn.2d at 215; Const. art. 4, § 1.  
+  The formulation of rules governing admission to practice is a 
+judicial function inherent in this constitutionally granted power.  
+Ratliff, 100 Wn.2d at 215;2 Chism v. Tri-State Const., Inc. 193 Wn. 
+App. 818, 203-04, 374 P.3d 193 (2016). Exercise of “this power is 
+necessary for the protection of the court, the proper administration of 
+justice, the dignity and purity of the profession, and for the public 
+good and the protection of clients.”  In re Bruen, 102 Wash. 472, 475, 
+172 P. 1152 (1918). 
+ 
+1 Article IV, § 2, of the Constitution treats the practice of law as a “privilege.  
+2 In re Levy, 23 Wn.2d 607, 161 P.2d 651, 162 A.L.R. 805 (1945). See 
+also Hagan & Van Camp, P.S. v. Kassler Escrow, Inc., 96 Wn.2d 443, 635 
+P.2d 730 (1981); In re Schatz, 80 Wash.2d 604, 497 P.2d 153 (1972); State 
+ex rel. Laughlin v. Washington State Bar Ass'n, 26 Wn.2d 914, 176 P.2d 301 
+(1947); Clark v. Washington, 366 F.2d 678 (9th Cir.1966).  
+
+--- Page 13 ---
+ 
+Appendix—Petition for Review—6 
+ The court's power to regulate the practice of law in this state 
+is inviolate. Ratliff, 100 Wn.2d at 215; Eugster v. Washington State 
+Bar Ass'n, 198 Wn. App. 758, 775, 397 P.3d 131 (2017). The 
+Legislature enacted RCW 2.48, establishing the State Bar 
+Association (WSBA) under the authority of the State Supreme Court 
+to exclusively regulate the admission to practice of law Washington. 
+State v. Cook, 84 Wn.2d 342, 345, 525 P.2d 761 (1974); RCW 
+2.48.060; Admission to Practice Rules (APR) 1. 3. 
+The Supreme, promulgated and adopted the Admission to 
+Practice Rules (APR). The APRs are designed to protect the public 
+by ensuring the competent practice of law.  Ratliff, 100 Wn.2d at 216; 
+APR 1(a). For attorney’s licensed in other states who wish to appear 
+in Washington to provide indigent representation, APR 8(c) provides 
+the exclusive criteria for practice.  
+First, the attorney must be in good standing in the state where 
+he is licensed; second, he must associate with an active member of 
+the Washington State Bar who “shall be the lawyer of record”; third, 
+he must be deemed of good moral character fit to practice in 
+Washington, and fourth, the “applicant shall either apply for and take 
+ 
+3 Since the inception of the legal system in our country adopted from England, A 
+person seeking to appear in court has always been required to seek the 
+permission of the state court.  
+
+--- Page 14 ---
+ 
+Appendix—Petition for Review—7 
+the first available lawyer bar examination after the date the applicant 
+was granted authorization to practice under this rule. APR 8(c); 
+Accord, Rules of Professional Conduct (RPC) 5.5.APR 8(c), further 
+provides that indigent defendants shall be represented by someone 
+who has proven themselves proficient in Washington law.  Id.  
+If the person representing an indigent defendant fails to 
+comply with these conditions, regardless of how long he or she has 
+been practicing in another state, that person is not considered 
+“counsel” for constitutional purposes. Ratliff, 100 Wn.2d at 218-19.  
+Mr. Van Idour did not comply with APR 8(c); he was never “counsel” 
+under state law; and when this occurs, such as here, it results in a 
+complete denial of counsel, and no showing of prejudice need be 
+made.  Id. 
+ “Counsel” as used in Const. art. 1, § 22 and Sixth 
+Amendment includes only those persons licensed to practice law as 
+authorized by the Washington Supreme to practice law in this State. 
+Ratliff, 100 Wn.2d at 217.4 The terms “lawyer,” “counsel,” and 
+ 
+4 Under the Sixth Amendment, counsel must be licensed. However, following the 
+revolution in this Country, each state determines the minimum qualifications for 
+practice which vary widely between the states. Ratliff, 100 Wn.2d at 217 (citing, 
+Turner v. American Bar Ass’n., 407 F. Supp 451, 474 (1975) (no right to lay 
+counsel) (citing, Friedman, A History of American Law (1973), pp. 276-277)). 
+
+--- Page 15 ---
+ 
+Appendix—Petition for Review—8 
+“attorney” have the same meaning. Black’s Law Dictionary 314, 799 
+(5th ed. 1979). 
+In 
+Ratliff, 
+this 
+court 
+considered 
+APR 
+9 
+governing 
+representation by a legal intern.  Ratliff, 100 Wn.2d at 213.  The trial 
+court denied the unsupervised law student's request to continue the 
+case, prevented him from consulting with a supervising attorney, and 
+proceeded with trial with the intern representing the defendant.  
+Ratliff, 100 Wn.2d at 213. 
+The Supreme Court of Washington determined that because 
+the law student was unsupervised during the trial in violation of APR 
+9, the defendant was deprived of the right to counsel.  Ratliff, 100 
+Wn.2d at 217-19. The Court explained that only persons authorized 
+by the courts to practice law in the state qualified as “counsel” for 
+constitutional purposes under both the state and federal 
+constitutions. Ratliff, 100 Wn.2d at 217.   
+“Although one who is authorized to practice only under certain 
+conditions, such as a legal intern, may be considered “counsel” for 
+constitutional purposes, this is so only when he or she complies with 
+those conditions.” Ratliff, 100 Wn.2d at 218 (emphasis in original); 
+APR 1, 3, 8. The Court held that when a person does not comply with 
+conditions required to practice law in this State, it is an “absolute 
+---
+
+--- Page 16 ---
+ 
+Appendix—Petition for Review—9 
+denial of the right to counsel.” Ratliff, 100 Wn.2d at 219.  As such, 
+prejudice need not be established before relief one can obtain relief 
+from judgment.  Id.  
+In Ratliff, the Supreme Court did not limit its holding to the 
+context of legal interns, but rather held more broadly that to be 
+considered “counsel” for constitutional purposes in Washington, one 
+must be authorized by this Court under the APR’s, and comply with 
+the mandatory provisions for limited practice. Ratliff, 100 Wn.2d at 
+218.   
+While this case involves the conditions to practice as set forth 
+in APR 8(c) instead of APR 9, Ratliff applies based on the Court in 
+Ratliff’s analysis that our State Supreme Court has the exclusive 
+authority to determine who is “authorized” to practice law in 
+Washington.  Const. art. 4, § 1; Ratliff, 100 Wn.2d at 217-18; APR 8 
+and APR 9.   
+This Court decided that it does not matter how much 
+experience an attorney may have in another State to be authorized 
+to practice law in Washington. Rather, he or she must comply with 
+conditions set forth in APR 8.  The Supreme Court’s holding in Ratliff, 
+by its very terms, applies to anyone who appears in a Washington 
+court to practice law in Washington, not just legal interns. Ratliff, 100 
+
+--- Page 17 ---
+ 
+Appendix—Petition for Review—10 
+Wn.2d at 218.  Ratliff, applies to this case and by its reasoning 
+requires a remand for a new trial with an attorney authorized to 
+practice in Washington. 
+d. Federal Court’s Do Not Determine Who is “Counsel” in 
+Washington. 
+Decisions of the federal circuit courts on federal questions are 
+not binding on the Washington Supreme Court. Home Ins. Co. of 
+New York v. N. Pac. Ry. Co., 18 Wn.2d 798, 808, 140 P.2d 507 
+(1943); 21 C.J.S. Courts § 210. Moreover, once the Washington 
+Supreme Court has interpreted a question of law, that interpretation 
+is binding on all lower courts until that case is overruled. State v. 
+Gore, 101 Wn.2d 481, 487, 681 P.2d 227 (1984); Godefroy v. Reilly, 
+146 Wash. 257, 259, 262 P. 639, 641 (1928).  
+Ratliff is binding on all Washington Courts, and it does not 
+require a showing of prejudice because “[d]enial of representation by 
+one actually authorized to practice in court constitutes a denial of 
+counsel, not merely ineffective assistance.” Ratliff, 100 Wn.2d at 220 
+(citing People v. Felder, 47 N.Y.2d 287, 294, 391 N.E.2d 1274, 418 
+N.Y.S.2d 295 (1979)).   
+It is indisputable, that Mr. Van Idour was never authorized to 
+practice law in Washington State Court. (Ayerst, Ayerst, supra, on 
+
+--- Page 18 ---
+ 
+Appendix—Petition for Review—11 
+reconsideration). Nonetheless, Division Three of the Court of 
+Appeals in Mr. Ayerst’s case chose to ignore this Court’s exclusive 
+authority in favor of impermissibly following the federal circuit court 
+decision in Solina v. United States, 709 F.2d 160, 167 (2nd Cir. 1983). 
+Ayerst, supra, slip op. at 5-6.  It did so despite the fact that this Court 
+decided Ratliff over two months after Solina, and reached a different 
+conclusion, without consideration of Const. art. 4, § 1; Ratliff, 100 
+Wn.2d at 215-18; APR 8 and APR 9.   
+In Ayerst, Division Three impermissibly limited Ratliff’s holding 
+to only those cases in which the appointed person is unlicensed in 
+any state. Ayerst, supra, slip op. at 7. This decision conflicts with 
+Ratliff which does not rest on whether an attorney is experienced or 
+licensed outside Washington.  Instead, it focuses on whether the 
+person meets the mandatory qualifications established by this Court 
+to be considered “counsel”. Ratliff, 100 Wn.2d at 218. 5  
+ 
+5 Although not necessary to address the merits of Mr. Ayerst’s case, as 
+further evidence of Mr. Van Idour’s ineffective assistance of counsel, he filed 
+an untimely notice of appeal after the 30 days-time line expired-on January 
+18, 2018, and Neil Cox, without ever being counsel of record filed the 
+amended notice of appeal on February 13, 2018, almost 2 months after the 
+date the judgment and sentence was entered on December 18, 2017.  
+Mr. Cox also filed a motion for order of indigency on January 18, 2018, evidently 
+because Mr. Van Idour failed to perform this task.  
+
+--- Page 19 ---
+ 
+Appendix—Petition for Review—12 
+Under APR 8, to be considered “counsel”, Mr. Van Idour was 
+required but failed to establish himself knowledgeable as to 
+Washington law by passing the Washington State Bar examination, 
+or by associating with a Washington State licensed attorney of 
+“record”. APR 8(c). Mr. Van Idour may have been licensed at some 
+point to practice in Idaho, but he is no longer licensed to practice in 
+Idaho, and he was never licensed or otherwise authorized to practice 
+in Washington.  Mr. Van Idour had no authority to represent Mr. 
+Ayerst without associating with an active member of the Bar, who 
+was the attorney of record, but no such attorney ever appeared on 
+the record. APR 8. Mr. Ayerst was denied his constitutional right to 
+counsel under Ratliff. Ratliff, 100 Wn.2d at 218.  
+The Court of Appeals was required but did not to adhere to 
+the binding precedence set forth in Ratliff and the conditions for 
+practice under APR 8, despite any federal circuit decision to the 
+contrary. Gore, 101 Wn.2d at, 487; Godefroy, 146 Wash. at 259.   
+e. Prosecutor On Notice 
+Mr. Van Idour proceeded from the time of his appointment 
+through to sentencing without ever using a bar number as required 
+under APR 13(a). Mr. Van Idour’s failure to use a bar number 
+
+--- Page 20 ---
+ 
+Appendix—Petition for Review—13 
+understandably would not have raised red flags for Mr. Ayerst: he is 
+not an attorney.   
+It is unclear why, through the course of this case, no red flags 
+were raised for the prosecutor. The State fails to acknowledge its 
+own duties as a representative of the people. Defendants are among 
+the people the prosecutor represents. State v. Monday, 171 Wn.2d 
+667, 676, 257 P.3d 551 (2011). “The prosecutor owes a duty to 
+defendants to see that their rights to a constitutionally fair trial are not 
+violated.” Monday, 171 Wn.2d at 676. (Citing State v. Case, 49 
+Wn.2d 66, 71, 298 P.2d 500 (1956)).   
+Given this responsibility, it would appear prosecutors have a 
+duty to call to the court’s attention facts that suggest appointed 
+counsel is not authorized to practice law in Washington.  Unlike 
+indigent defendants, such as Mr. Ayerst, prosecutors are presumed 
+to understand the requirements set forth in the APRs. The prosecutor 
+drafted and submitted to the court many documents in which the 
+signature block lists only Mr. Van Idour as counsel and does not 
+include a bar number for Mr. Van Idour. CP 1-134. In fact, every 
+single pleading with Mr. Van Idour’s signature block fails to contain a 
+bar number. CP ad Passim. 
+
+--- Page 21 ---
+ 
+Appendix—Petition for Review—14 
+It appears from this record that the prosecutor inexplicably 
+remained silent despite the red flags concerning Mr. Van Idour’s 
+unauthorized representation. 
+Mr. Ayerst was denied his constitution right to counsel as 
+guaranteed under both state and federal constitutions. Ratliff, 100 
+Wn.2d at 219.  For this reason, this Court should grant review and 
+remand for a new trial. 
+2. MR. AYERST WAS DENIED HIS DUE PROCESS RIGHT 
+TO A FAIR AND IMPARTIAL TRIBUNAL, FREE FROM THE 
+RISK OF UNCONSTITUTIONAL BIAS. 
+The Court of Appeals erred by concluding when considering 
+the risk of unconstitutional bias, that there was no nexus between 
+Mr. Gallina’s conduct and Mr. Ayerst’s case that could create an 
+unconstitutional risk of bias. (Slip Opinion at 9-10). And further erred 
+by applying the wrong standard - insisting Mr. Ayerst show Gallina’s 
+“actual bias”, rather than the risk of bias. (Slip Opinion at 10-11).  
+Mr. Ayerst’s case implicates the due process clause under the 
+state and federal constitution because “[a] fair trial in a fair tribunal is 
+a basic requirement of due process.” In re Murchison, 349 U.S. 133, 
+136, 75 S. Ct. 623, 99 L. Ed. 942 (1955); accord State ex rel. 
+McFerran v. Justice Court of Evangeline Starr, 32 Wn.2d 544, 549-
+50, 202 P.2d 927 (1949). Due process also requires the absence of 
+
+--- Page 22 ---
+ 
+Appendix—Petition for Review—15 
+an unconstitutional “risk of bias.” Rippo v. Baker, ––– U.S. ––––, 137 
+S. Ct. 905, 907, 197 L. Ed. 2d 167 (2017).  
+By objective standards this does not require proof of actual 
+bias, just the risk of such bias.  Williams v. Pennsylvania, ––– U.S. –
+–––, 136 S. Ct. 1899, 1905, 195 L. Ed. 2d 132 (2016); Aetna Life Ins. 
+Co. v. Lavoie, 475 U.S. 813, 825, 106 S. Ct. 1580, 89 L. Ed. 2d 823 
+(1986). The Court of Appeals citied this language and ignored it. (Slip 
+Opinion at 10-11). 
+The unconstitutional risk of bias analysis also starts with a 
+presumption of judicial integrity. Withrow v. Larkin, 421 U.S. 35, 47-
+48, 95 S. Ct. 1456, 43 L. Ed. 2d 712 (1975). This is overcome when 
+considering the “psychological tendencies and human weakness” 
+involved. Williams, 136 U.S. at 1906; Withrow, 421 U.S. at 47.  
+a. Wrongful Standard Applied and Presumption of Judicial 
+Integrity Destroyed. 
+In Rippo v. Baker, ___U.S.___, 137 S. Ct 905, 197 L. Ed. 2d 
+167 (2017), the United States Supreme Court reversed the Nevada 
+State Supreme Court for applying the wrong standard- requiring 
+actual bias rather than the risk of bias, in the same manner the Court 
+of Appeals applied the wrong standard in Mr. Ayerst’s case. Rippo, 
+137 S. Ct. at 907 (judge under investigation for fraud).  
+
+--- Page 23 ---
+ 
+Appendix—Petition for Review—16 
+Not only did the court required Mr. Ayerst prove actual bias, 
+rather than the risk of bias, Gallina, by virtue of the allegations 
+against him, which resulted in his arrest and removal from the bench, 
+and his facilitating Mr. Van Idour’s illegal practice of law, overcomes 
+the presumption of judicial integrity. For these reasons, under Rippo, 
+Mr. Ayerst was denied his right to a trial free from the risk of 
+unconstitutional bias. Rippo, 137 S. Ct. at 907. This Court should 
+grant review on this basis. 
+3. MR. AYERST WAS DENIED HIS RIGHT TO THE 
+APPEARANCE OF FAIRNESS. 
+The Court of Appeals erred by concluding when considering 
+the appearance of fairness, that there was no nexus between Mr. 
+Gallina’s conduct and Mr. Ayerst’s case that implicated the 
+appearance of fairness. (Slip Opinion at 9-10). And further erred by 
+apply the wrong standard - insisting Mr. Ayerst show Gallina’s “actual 
+bias”, rather than the appearance of bias. (Slip Opinion at 10-11).  
+The appearance of fairness doctrine provides greater 
+protection. It permits litigants to make fair trial claims based on 
+violations of the Code of Judicial Conduct (Code), regardless of 
+whether those claims implicate due process. Tatham v. Rogers, 170 
+Wn.App. 76, 102, 283 P.3d 583 (2012). 
+
+--- Page 24 ---
+ 
+Appendix—Petition for Review—17 
+In addition to abiding by the CJC, judges must also adhere to 
+the appearance of fairness doctrine. Swenson, 158 Wn. App. at 818 
+(citing State v. Dominguez, 81 Wn. App. 325, 328, 914 P.2d 141 
+(1996)). This doctrine requires in relevant part that a judge disqualify 
+himself from a proceeding if the judge’s impartiality could reasonably 
+be questioned. Swenson, 158 Wn. App. at 818 (citing CJC 2.11(A)).  
+Washington 
+courts 
+have 
+consistently 
+held 
+that 
+the 
+appearance of fairness in judicial proceedings is especially important 
+in the context of criminal proceedings. State v. Chambers, 176 
+Wn.2d 573, 293 P.3d 1185 (2013); State v. Finch, 181 Wn. App. 
+387, 326 P.3d 148 (2014).  
+Cases involving violation of the CJC’s and the appearance of 
+fairness in non-criminal cases have held behavior far less egregious 
+than in Ayerst’s case to violate the appearance of fairness. In the 
+Matter of the Disciplinary Proceedings Against Ralph G. Turco, 
+Tacoma Municipal Court Judge, 137 Wn.2d 227, 239, 970 P.2d 731 
+(1999); Dependency of A.E.T.H., 9 Wn. App.2d 502, 517-18, 446 
+P.3d 667 (2019).  
+Judges commit to higher standards of conduct at all hours of 
+every day - more so than the “ordinary” person. Turco, 
+137 Wn.2d at 239.  “Judges should respect and comply with the 
+
+--- Page 25 ---
+ 
+Appendix—Petition for Review—18 
+law and act at all times in a manner that promotes public confidence 
+in 
+the 
+integrity 
+and 
+impartiality 
+of 
+the 
+judiciary.” Turco, 137 Wn.2d at 239; (CJC). In Turco, the Supreme 
+Court discussed the “nexus between the judge’s extrajudicial 
+conduct 
+shoving 
+his 
+wife, 
+and 
+the 
+judge's 
+duties.” Turco, 137 Wn.2d at 244. This Court saw a clear nexus 
+between a judge's extrajudicial domestic violence and public 
+confidence in the judiciary, especially the judge's ability to act 
+impartially in domestic violence cases. Turco, 137 Wn.2d at 239. 
+Turco argued that his extrajudicial conduct in shoving his wife 
+had nothing to do with his official conduct as a judge and, therefore, 
+should not subject him to censure. This Court disagreed, noting that 
+it had previously held “Canons 1 and 2(A) also apply to actions by a 
+judge in a nonjudicial context.” Turco, 137 Wn.2d at 239. 
+Here too as in Turco, Gallina violated the law and the CJC’s 
+by being charged with acts of sexual violence, regardless of whether 
+he is convicted, in addition to participating in misleading this Court 
+by facilitating Mr. Van Idour’s illegal practice of law. Just as this Court 
+identified a clear nexus in Turco’s case, here, the nexus is deeper 
+and broader, involving far more egregious conduct in manner and 
+scope than the acts in Turco, involving a shove.  
+
+--- Page 26 ---
+ 
+Appendix—Petition for Review—19 
+Gallina’s alleged criminal conduct, establishes, even without 
+a conviction, a nexus between his extra judicial conduct and his role 
+as a judge in all indigent criminal cases by violating the CJC’s. 
+Turco, 137 Wn.2d at 239; Tatham, 170 Wn.App. at 102. 
+The allegations of dishonesty, sexual assault or assault, and 
+the conduct involving Mr. Van Idour’s illegal practice of law, more so 
+than the allegation that Turco’s shoved his wife, violates the 
+appearance of fairness because an objective observer would doubt 
+Gallina’s ability to preside impartially over any cases involving sexual 
+assault, assault, and dishonesty. This basic disregard for the CJC’s 
+violates the appearance of fairness. Tatham, 170 Wn.App. at 102.  
+a. Relationship to Bias. 
+Circumstances and relationships must also be considered in 
+determining whether the appearance of fairness is violated. In re 
+Dependency of A.E.T.H., 9 Wn. App.2d 502, 517-18, 446 P.3d 667 
+(2019).   
+A.E.T.H., is a recent case discussing the judge’s relationship 
+to the Superior by virtue of his role as a judge, who displayed no 
+personal bias and who conducted an unbiased proceeding, but the 
+evidence of potential bias came from judge’s employment within the 
+superior court and general association with other apparently biased 
+
+--- Page 27 ---
+ 
+Appendix—Petition for Review—20 
+superior court employees. The Court of Appeals held by virtue of his 
+relationship with the court, despite an exemplary record of presiding 
+over the case, the appearance of fairness was violated. A.E.T.H., 9 
+Wn. App. 2d at 517-21. 
+Far more significant than in A.E.T.H., where the judge did 
+nothing wrong other than to be associated with the court, here, 
+Gallina by virtue of his relationship with Mr. Van Idour, actively 
+assisted Mr. Van Idour to unlawfully practice law.  With these facts, 
+Gallina’s judicial integrity is destroyed, and impartiality could 
+reasonably be questioned. Swenson, 158 Wn. App. at 818 (citing 
+CJC 2.11(A)). For these reasons, this Court should grant the petition 
+and remand for a new trial before a different. 
+F. CONCLUSION 
+Mr. Ayerst respectfully requests this Court grant his motion for 
+discretionary review, and remand for reversal of his conviction and a 
+new trial. 
+ 
+DATED this 30th day of June 2021. 
+ 
+ 
+ 
+Respectfully submitted, 
+
+--- Page 28 ---
+ 
+Appendix—Petition for Review—21 
+ 
+ 
+ 
+______________________________ 
+LISE ELLNER, WSBA No. 20955 
+Attorney for Petitioner  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I, Lise Ellner, a person over the age of 18 years of age, 
+served 
+the 
+Asotin 
+County 
+Prosecutor’s 
+Office 
+bnichols@co.asotin.wa.us and Robert Ayerst/DOC#291791, 
+Airway Heights Corrections Center, PO Box 2049, Airway 
+Heights, WA 99001 a true copy of the document to which this 
+certificate is affixed on June 30, 2021. Service was made by 
+electronically to the prosecutor and to Mr. Ayerst by depositing 
+
+--- Page 29 ---
+ 
+Appendix—Petition for Review—22 
+in the mails of the United States of America, properly stamped 
+and addressed.  
+ 
+_____________________________________________Signature 
+
+--- Page 30 ---
+ 
+Renee S. Townsley 
+Clerk/Administrator 
+ 
+(509) 456-3082 
+TDD #1-800-833-6388 
+ 
+The Court of Appeals 
+of the 
+State of Washington 
+Division III 
+ 
+500 N Cedar ST 
+Spokane, WA 99201-1905 
+ 
+Fax (509) 456-4288 
+http://www.courts.wa.gov/courts 
+ 
+ 
+May 4, 2021 
+E-mail 
+Curtis Lane Liedkie 
+Benjamin Curler Nichols 
+Asotin County Prosecutors Office 
+PO Box 220 
+Asotin, WA 99402-0220 
+E-mail 
+Lise Ellner 
+Attorney at Law 
+PO Box 2711 
+Vashon, WA 98070-2711 
+Liseellnerlaw@comcast.net 
+                CASE # 369650 
+                Personal Restraint Petition of Robert Lloyd Ayerst 
+                ASOTIN COUNTY SUPERIOR COURT No. 161001507 
+ 
+Counsel: 
+ 
+Enclosed please find a copy of the opinion filed by the court today.  A party need not file a motion for 
+reconsideration as a prerequisite to discretionary review by the Supreme Court.  RAP 13.3(b); 13.4(a).   
+If a motion for reconsideration is filed, it should state with particularity the points of law or fact which the 
+moving party contends the court has overlooked or misapprehended, together with a brief argument on 
+the points raised.  RAP 12.4(c).  Motions for reconsideration that merely reargue the case should not be 
+filed. 
+Motions for reconsideration, if any, must be filed within 20 days after the filing of the opinion.  Please file 
+the motion electronically through the court’s e-filing portal or, if in paper format, only the original motion 
+need be filed.  In accordance with RAP 16.14(c) and RAP 13.5(a), (b) and (c) if no motion for 
+reconsideration is filed review of this opinion may be obtained only by filing a motion for discretionary 
+review to the Supreme Court within 30 days after the filing of this opinion and a copy with the Court of 
+Appeals (may be filed by electronic facsimile transmission).  The motion for reconsideration and motion 
+for discretionary review must be received (not mailed) on or before the dates they are due.  RAP 18.5(c).  
+The address of the Washington State Supreme Court is Temple of Justice, PO Box 40929, Olympia, WA 
+98504-0929. 
+ 
+ 
+ 
+ 
+ 
+ 
+Sincerely, 
+ 
+Renee S. Townsley 
+Clerk/Administrator 
+ 
+RST:pb 
+Enc. 
+c: 
+E-mail info copy Hon. Brooke Burns (Hon. Scott Gallina’s case) 
+c: 
+Robert Ayerst 
+ 
+% Lise Ellner 
+ 
+P.O. Box 2711 
+ 
+Vashon, WA  98070-2711 
+
+--- Page 31 ---
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IN THE COURT OF APPEALS OF THE STATE OF WASHINGTON 
+DIVISION THREE 
+ 
+In the Matter of the Personal Restraint of: 
+ 
+ROBERT L. AYERST, 
+ 
+Petitioner. 
+)
+)
+)
+)
+) 
+ 
+No. 36965-0-III 
+ 
+ 
+OPINION PUBLISHED IN PART 
+ 
+ 
+ 
+PENNELL, C.J. — The federal and state constitutions entitle the criminally accused 
+to representation by counsel before an impartial tribunal. These protections are 
+undermined when trial counsel or the judge is engaged in criminal activity. A defendant 
+seeking to overturn a conviction based on criminal activity by counsel or a judge bears the 
+burden of proving the activity occurred in a way that undermines confidence in the 
+fairness of the criminal proceedings. Generalized allegations of unproven misconduct do 
+not meet this standard.  
+Robert Ayerst challenges the constitutionality of his felony convictions based on 
+alleged illegal activities by his trial counsel and judge. However, he fails to support the 
+allegations with sufficient proof. Based on this lack of proof, we deny his petition for 
+relief from personal restraint. 
+FILED 
+MAY 4, 2021 
+In the Office of the Clerk of Court 
+WA State Court of Appeals, Division III 
+
+--- Page 32 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+2 
+FACTS 
+ 
+In 2016 and 2017, Robert Ayerst faced several felony charges in Asotin County, 
+Washington. He received appointed counsel by the name of Robert Van Idour. Mr. Van 
+Idour has been licensed to practice law in Idaho for approximately 30 years. He provided 
+public defense for Asotin County under contract and was working under the supervision 
+of a Washington attorney named Neil Cox. A jury issued guilty verdicts against Mr. 
+Ayerst after Mr. Van Idour represented him at trial. Mr. Ayerst’s judgment and sentence 
+was entered on December 18, 2017.  
+Over a year later, in April 2019, several events occurred that are relevant to the 
+current case.   
+ 
+On April 10, the State filed criminal charges against Mr. Ayerst’s trial 
+judge, Scott Gallina. Judge Gallina was alleged to have committed second 
+degree rape, indecent liberties (by forcible compulsion), and assault in the 
+third degree with sexual motivation.  
+ 
+On April 11, this court issued an unpublished opinion affirming Mr. 
+Ayerst’s judgment and sentence. 
+ 
+On April 19, the Washington State Bar Association (WSBA) filed a formal 
+complaint regarding Mr. Van Idour with the disciplinary board of the 
+
+--- Page 33 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+3 
+Washington Supreme Court, alleging he did not have authorization to 
+practice law in Washington as an out-of-state attorney.  
+The complaints against Judge Gallina and Mr. Van Idour have yet to be 
+adjudicated. At the time this case was submitted for argument, Mr. Van Idour remained 
+licensed to practice law in Idaho. 
+ 
+On August 8, 2019, Mr. Ayerst filed a personal restraint petition (PRP) with this 
+court. He alleges several defects at his trial, including deprivation of his rights to counsel 
+and an impartial trial judge, based on the pending allegations against Mr. Van Idour and 
+Judge Gallina.  
+Mr. Ayerst was appointed counsel to assist him with the PRP and the matter was 
+submitted to a panel of this court for disposition. 
+ANALYSIS 
+Deprivation of counsel 
+Mr. Ayerst contends that because Mr. Van Idour was not authorized to practice law 
+in Washington at the time of his trial, his judgment is void and he is automatically entitled 
+to relief from conviction based on a theory of structural error. The State disagrees that 
+structural error applies. According to the State, Mr. Ayerst must show he was prejudiced 
+
+--- Page 34 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+4 
+by Mr. Van Idour’s alleged wrongdoing and, because he has not done so, he is not entitled 
+to relief.  
+A litigant challenging a criminal conviction through a PRP typically must show 
+prejudice; i.e, that the error impacted the outcome of the case. In re Pers. Restraint of 
+Finstad, 177 Wn.2d 501, 506, 301 P.3d 450 (2013). An exception can apply in the context 
+of structural error. A structural error is one impacting the framework of the trial process. 
+Weaver v. Massachusetts, __ U.S. __, 137 S. Ct. 1899, 1907, 198 L. Ed. 2d 420 (2017). 
+Structural errors are generally considered per se prejudicial and will require reversal of a 
+conviction regardless of specific prejudice.1 
+Denial of the right to counsel is an error that can be considered structural. 
+When counsel is denied completely—such as when a defendant is forced into self-
+representation—the trial process is undermined and fundamental fairness requires 
+reversal of the conviction regardless of prejudice or the strength of the State’s case. See 
+id.; United States v. Cronic, 466 U.S. 648, 659, 104 S. Ct. 2039, 80 L. Ed. 2d 657 (1984). 
+But lesser right to counsel violations do not require such a strong remedy. The trial 
+                     
+1 In some contexts, structural error will apply differently on direct and collateral 
+review. See In re Pers. Restraint of Coggin, 182 Wn.2d 113, 120, 123, 340 P.3d P.3d 
+810 (2010) (C. Johnson, J., lead opinion with Madsen, C.J., concurring) (public trial 
+violation). But our cases have not made this distinction in the right to counsel context. 
+In re Pers. Restraint of Crace, 174 Wn.2d 835, 846-47, 280 P.3d 1102 (2012). 
+
+--- Page 35 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+5 
+process is not jeopardized when a defendant merely receives deficient legal 
+representation. To overturn a conviction when the right to counsel is impinged, but not 
+denied altogether, the defendant must show counsel’s deficiencies prejudiced the outcome 
+of the proceedings. Strickland v. Washington, 466 U.S. 668, 104 S. Ct. 2052, 80 L. Ed. 2d 
+674 (1984); In re Pers. Restraint of Crace, 174 Wn.2d 835, 280 P.3d 1102 (2012).   
+Mr. Ayerst’s case falls between the two well-established scenarios of how to treat 
+deprivation of counsel claims. Mr. Ayerst was not forced to represent himself at trial; he 
+had the benefit of an attorney with considerable legal experience. But at the same time, 
+because Mr. Ayerst’s attorney was not licensed in Washington, he did not have “counsel” 
+as that term is defined for constitutional purposes. See City of Seattle v. Ratliff, 100 
+Wn.2d 212, 217, 687 P.2d 630 (1983). 
+The seminal case addressing how to treat a claim for relief based on representation 
+by an unlicensed person is Judge Henry Friendly’s opinion in Solina v. United States, 709 
+F.2d 160, 167 (2d Cir. 1983). Mr. Solina was convicted of federal bank robbery charges. 
+After trial, he discovered the individual who had been representing him was not a 
+licensed attorney. The individual was posing as an attorney after he graduated law school, 
+but failed the bar exam. Mr. Solina filed a petition for collateral relief from conviction, 
+alleging he had been denied the right to counsel. 
+
+--- Page 36 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+6 
+The United States Court of Appeals for the Second Circuit granted Mr. Solina’s 
+request for relief even though he had not shown the lack of a licensed attorney prejudiced 
+the result in his case. The federal court reasoned the concept of prejudice was 
+inapplicable because Mr. Solina’s case involved an inherent conflict of interest. An 
+individual fraudulently posing as a lawyer is involved in criminal activity. As such, the 
+individual operates under “fear of what might happen if a vigorous defense should lead 
+the prosecutor or the trial judge” to make an inquiry into credentials. Id. A conviction 
+cannot be upheld in such circumstances; a defendant in a criminal trial “is entitled to be 
+represented by someone free from such constraints.” Id.  
+In the decades since Solina, courts have generally agreed structural error applies to 
+representation by an unlicensed attorney only if the attorney has never been licensed in 
+any jurisdiction. Bear v. United States, 777 F.3d 1008, 1011 (8th Cir. 2015); United 
+States v. Bergman, 599 F.3d 1142, 1147-48 (10th Cir. 2010); United States v. Mitchell, 
+216 F.3d 1126, 1132 (D.C. Cir. 2000); United States v. Maria-Martinez, 143 F.3d 914, 
+916 (5th Cir. 1998); Vance v. Lehman, 64 F.3d 119, 121-22 (3d Cir. 1995); Bond v. 
+United States, 1 F.3d 631, 636-37 (7th Cir. 1993); State v. Edison, 61 Wn. App. 530, 537, 
+811 P.2d 958 (1991); United States v. Mouzin, 785 F.2d 682, 696 (9th Cir. 1986).  
+
+--- Page 37 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+7 
+The limited allowance for structural error is based on two considerations. “First, 
+courts are concerned that a defendant have a counselor who has legal training and 
+demonstrated the specialized knowledge and ability of a lawyer.” Maria-Martinez, 
+143 F.3d at 916. This concern was emphasized in the Washington Supreme Court’s 
+decision in Ratliff, where the defendant was represented by a law student who operated 
+outside the parameters of the admission to practice rules applicable to law students.   
+100 Wn.2d at 217. Second, there is concern “an undisclosed lack of credentials may 
+create a conflict of interest.” Mariz-Martinez, 143 F.3d at 916. This consideration is based 
+on Judge Friendly’s analysis in Solina.  
+Mr. Ayerst argues that even though Mr. Van Idour has an out-of-state license, his 
+circumstances are akin to the conflict of interest scenario discussed in Solina. According 
+to Mr. Ayerst, Mr. Van Idour’s unlicensed representation amounted to criminal behavior, 
+thus prohibiting him from providing unrestrained, vigorous representation. Just as Mr. 
+Solina was entitled to relief from conviction without showing prejudice, Mr. Ayerst 
+claims he too should have his convictions overturned. 
+We disagree Mr. Ayerst’s circumstances are like those in Solina. Unlike the 
+charlatan in Solina, Mr. Van Idour was and is an attorney, subject to state licensing 
+regulations. Under at least some circumstances, Mr. Van Idour could have been qualified 
+
+--- Page 38 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+8 
+to provide indigent defense representation in Washington. See APR 8. The WSBA 
+allegations against Mr. Van Idour have not been proven. And even under the facts 
+alleged, it is not clear Mr. Van Idour was purposefully evading Washington’s licensing 
+requirements at the time he represented Mr. Ayerst. Mr. Van Idour could have been 
+confused. Had that been the case, he would not have been operating under the kind of 
+conflict of interest identified in Solina.  
+Individuals filing for PRP relief bear the burden of proving facts justifying their 
+claims. In re Pers. Restraint of Hews, 99 Wn.2d 80, 88, 660 P.2d 263 (1983). “Bald 
+assertions and conclusory allegations” are insufficient. In re Pers. Restraint of Rice, 
+118 Wn.2d 876, 886, 828 P.2d 1086 (1992). If the existing record is insufficient to justify 
+relief, a reference hearing may be ordered under RAP 16.11(a) and RAP 16.12. Hews, 
+99 Wn.2d at 88. But to obtain a reference hearing, the petitioner must demonstrate they 
+have “competent, admissible evidence to establish the facts that entitle [them] to relief.” 
+Rice, 118 Wn.2d at 886. This burden is similar to that required in the civil summary 
+judgment context. See id. 
+Mr. Ayerst has not alleged facts suggesting Mr. Van Idour’s licensing problems 
+were sufficiently severe to fall in line with Judge Friendly’s analysis in Solina. He has not 
+
+--- Page 39 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+9 
+requested a reference hearing and we do not deem one applicable. Mr. Ayerst therefore 
+has not established a basis for PRP relief.  
+Partiality of trial judge 
+ 
+Apart from his claims regarding Mr. Van Idour, Mr. Ayerst argues he was denied 
+his due process right to a fair trial based on the criminal allegations against Judge Gallina. 
+Although the State did not file charges against Judge Gallina until after Mr. Ayerst’s trial 
+and sentencing, Mr. Ayerst claims Judge Gallina’s participation in his case denied him the 
+right to an impartial tribunal under the appearance of fairness doctrine. 
+We recently addressed claims similar to those raised by Mr. Ayerst. State v. 
+Williams, No. 37075-5-III, slip op. at 2 (Wash. Ct. App. Nov. 17, 2020) (unpublished), 
+https://www.courts.wa.gov/opinions/pdf/370755_unp.pdf. Two members of the current 
+panel were on the panel in Williams. The attorney representing Mr. Williams in this court 
+is the same as the one currently representing Mr. Ayerst. The briefing submitted in 
+Williams largely mirrors Mr. Ayerst’s briefing. 
+In Williams, we held the mere existence of criminal charges against Judge Gallina 
+does not establish a basis for relief from conviction. Although the allegations against 
+Judge Gallina if proven would constitute violations of the Code of Judicial Conduct and 
+could raise issues under the appearance of fairness doctrine, the judge’s alleged 
+
+--- Page 40 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+10 
+misconduct would not provide grounds for relief from conviction unless tied to specific 
+circumstances of the defendant’s case.  
+After Williams was issued, Mr. Ayerst filed a statement of additional authorities 
+identifying the following cases as support for his arguments regarding due process and 
+the appearance of fairness doctrine: Rippo v. Baker, __U.S.__, 137 S. Ct. 905, 197 L. Ed. 
+2d 167 (2017); In re Dependency of A.N.G., 12 Wn. App. 2d 789, 459 P.3d 1099 (2020); 
+Williams v. Pennsylvania, __ U.S.__, 136 S. Ct. 1899, 1905, 195 L. Ed. 2d 132 (2016); 
+Aetna Life Ins. Co. v. Levoie, 475 U.S. 813, 825, 106 S. Ct. 1580, 89 L. Ed. 2d 823 
+(1986).  
+The supplemental cases submitted by Mr. Ayerst stand for the rule that due process 
+can require a trial judge’s recusal even when the judge has not manifested any “actual 
+bias.” Aetna Life Ins. Co., 475 U.S. at 825. The cases recognize actual bias can be 
+difficult to prove. The standard for recusal is therefore objective and asks whether, under 
+the circumstances of a particular case, there is “an unconstitutional potential for bias.” 
+Williams, 136 S. Ct. at 1905.  
+The test for an unconstitutional risk of bias by a judicial officer is similar to the 
+one identified in Solina regarding deprivation of the right to counsel; the issue boils down 
+to whether the judge is laboring under a conflict of interest. In Williams and A.N.G, the 
+
+--- Page 41 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+11 
+conflict was that the judge had previously been involved in bringing a case against the 
+accused. Williams, 136 S. Ct. at 1905-06 (prior criminal prosecution); A.N.G., 12 Wn. 
+App. 2d at 794 (prior dependency petition). In Aetna Life Insurance Co. v. Lavoie, the 
+conflict was that an Alabama Supreme Court justice who was the deciding vote in a 
+decision favorable to the Lavoies was himself in the process of suing an insurance 
+company under a novel theory analogous to the Lavoies’ case. And in Rippo, the conflict 
+was that the trial judge was being targeted for criminal investigation by the same 
+authorities who were prosecuting the defendant. 137 S. Ct. at 906.  
+As was true in Williams, Mr. Ayerst does not point to any particular rulings or 
+statements of Judge Gallina suggesting actual bias. Instead, Mr. Ayerst claims his case is 
+similar to Rippo, because Judge Gallina was being investigated by the same authorities 
+bringing charges against Mr. Ayerst. According to Mr. Ayerst, this created an 
+unconstitutional risk of bias regardless of whether Judge Gallina was actually biased. 
+Similar to his claims regarding Mr. Van Idour, Mr. Ayerst’s arguments regarding 
+Judge Gallina fail for want of factual support. Nothing in the record suggests Judge 
+Gallina was aware of the State’s investigation of him during the pendency of Mr. Ayerst’s 
+case. As a result, there is no reason to believe Judge Gallina was laboring under a conflict 
+between his duties as a jurist and a desire to avoid criminal prosecution. Mr. Ayerst 
+
+--- Page 42 ---
+No. 36965-0-III 
+In re Pers. Restraint of Ayerst 
+ 
+ 
+ 
+ 
+12 
+argues Judge Gallina must have been conflicted because he knew he was engaged in 
+unlawful criminal activity and therefore would have wanted to issue rulings deflecting 
+attention away from himself. This argument assumes both that Judge Gallina is guilty of 
+the pending criminal charges and that he was concerned about getting caught. The current 
+record does not support these assumptions.2 
+Mr. Ayerst has failed to meet his burden to establish facts warranting relief from 
+conviction based on the allegations against Judge Gallina.  
+Mr. Ayerst has not established unlawful restraint. His petition for relief is 
+dismissed. 
+The panel having determined that only the foregoing portion of this opinion 
+will be printed in the Washington Appellate Reports, and that the remainder having no 
+precedential value shall be filed for public record pursuant to RCW 2.06.040, it is so 
+ordered. 
+                     
+2 At oral argument, counsel for Mr. Ayerst claimed a nunc pro tunc order issued by 
+Judge Gallina indicated the court was colluding with Mr. Van Idour in his criminal effort 
+to practice law without a Washington license. This factual claim is nothing more than 
+speculation. Moreover, it has not been properly raised. The claims against Judge Gallina 
+contained in Mr. Ayerst’s petition and briefing are limited to the Asotin County criminal 
+charges. 
+
+--- Page 43 ---
+No. 36965-0-111 
+In re Pers. Restraint of Ayerst 
+Remaining claims 
+Mr. Ayerst makes four additional claims of error: (1) insufficiency of evidence, 
+(2) improper contact between the prosecutor and jurors, (3) failure to admit a recorded 
+video, and ( 4) violation of the speedy trial rule. The first claim fails because it was 
+addressed on direct review and Mr. Ayerst does not show why the interests of justice 
+require reassessment. See In re Pers. Restraint of Brown, 143 Wn.2d 431, 445, 21 P.3d 
+687 (2001 ). The second and third claims fail for lack of factual support. See Cook, 114 
+Wn.2d at 813-14. The last claim fails because it involves a nonconstitutional error and 
+Mr. Ayerst does not demonstrate "a fundamental defect which inherently results in a 
+complete miscarriage of justice." Id. at 812. 
+CONCLUSION 
+Mr. Ayerst has not established unlawful restraint. His petition for relief is 
+dismissed. 
+Q . ..,_ ' c.:::s: 
+Pennell, C.J. 
+WE CONCUR: 
+Siddoway, J. 
+Lawrence-Berrey, J.\ 
+j 
+13 
+
+--- Page 44 ---
+APPENDIX B 
+(Idaho Bar association Attorney Search June 30, 2021 
+ 
+ 
+https://isb.idaho.gov/licensing-mcle/attorney-roster-search/ 
+ATTORNEY ROSTER SEARCH RESULTS 
+AS OF 6/23/21 
+Attorney - click for more info 
+Status 
+Van Idour, Robert Jerry 
+Inactive
+ 
+ 
+Information on former members of the Idaho State Bar is limited to name, admission date and 
+status. The online records include former members going back to approximately 1994. Records on 
+former members from before 1994 are not available online. Please contact the Licensing 
+Department for more information on former members. 
+ 
+ 
+
+--- Page 45 ---
+LAW OFFICES OF LISE ELLNER
+June 30, 2021 - 2:46 PM
+Filing Petition for Review
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   Case Initiation
+Appellate Court Case Title:
+Personal Restraint Petition of Robert Lloyd Ayerst (369650)
+The following documents have been uploaded:
+PRV_Petition_for_Review_20210630144449SC389453_6867.pdf 
+    This File Contains: 
+     Petition for Review 
+     The Original File Name was Ayerst Petiton for Review SCOWA.pdf
+A copy of the uploaded files will be sent to:
+bnichols@co.asotin.wa.us
+boruchor@seattleu.edu
+cliedkie@co.asotin.wa.us
+Comments:
+Sender Name: Lise Ellner - Email: liseellnerlaw@comcast.net 
+Address: 
+PO BOX 2711 
+VASHON, WA, 98070-2711 
+Phone: 206-930-1090
+Note: The Filing Id is 20210630144449SC389453
+• 
+• 
+• 
+• 

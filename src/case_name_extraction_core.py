@@ -111,21 +111,136 @@ def preprocess_contractions(text: str) -> str:
 
 # In extract_case_name_precise, preprocess the context before regex matching
 
-def extract_case_name_precise(context_before: str, citation: str) -> str:
+# Common stopwords that might appear before a case name
+STOPWORDS = {
+    'a', 'an', 'the', 'and', 'or', 'but', 'if', 'then', 'else', 'when',
+    'at', 'from', 'by', 'on', 'off', 'for', 'in', 'out', 'over', 'to',
+    'into', 'with', 'without', 'after', 'before', 'of', 'as', 'is',
+    'that', 'this', 'these', 'those', 'it', 'its', 'it\'s', 'they',
+    'them', 'their', 'there', 'here', 'where', 'why', 'how', 'what',
+    'which', 'who', 'whom', 'whose', 'whence', 'wherever', 'whether',
+    'while', 'until', 'upon', 'within', 'without', 'yet', 'so', 'than',
+    'though', 'till', 'via', 'vice', 'vs', 'v', 'v.'
+}
+
+def is_stopword(word: str) -> bool:
+    """Check if a word is a stopword."""
+    # Remove any trailing punctuation
+    word = word.lower().rstrip('.,;:!?\'"()[]{}')
+    return word in STOPWORDS
+
+def find_case_name_start(text: str, start_pos: int, citation: str = '') -> int:
     """
-    Extract case name with robust patterns to avoid capturing too much text.
+    Find the start of a case name by working backward from a position.
+    Looks for patterns like "v." or "vs." and then finds the start of the case name.
+    
+    Args:
+        text: The full text to search in
+        start_pos: The position of the citation in the text
+        citation: The citation text (optional, used for fallback patterns)
+        
+    Returns:
+        int: The start position of the case name in the text
+    """
+    if start_pos <= 0:
+        return 0
+    
+    text_before = text[:start_pos].strip()
+    citation = citation.strip()
+    
+    # Pattern 1: Look for the pattern "Plaintiff v. Defendant, Citation"
+    v_pattern = r'\b(?:v|vs)\.?\b'
+    
+    # First, try to find the "v." or "vs." pattern
+    v_matches = list(re.finditer(v_pattern, text_before, re.IGNORECASE))
+    
+    if v_matches:
+        # Get the last "v." or "vs." before the citation
+        last_v = v_matches[-1]
+        v_pos = last_v.start()
+        
+        # Look for the start of the case name before the "v."
+        before_v = text_before[:v_pos].strip()
+        
+        # Find the last sequence of capitalized words before the "v."
+        # This handles multi-word party names like "Lakehaven Water & Sewer Dist."
+        words = before_v.split()
+        for i in range(len(words)-1, -1, -1):
+            word = words[i].strip().rstrip(',')
+            if word and word[0].isupper() and not is_stopword(word.lower()):
+                # Found a potential start of the case name
+                # Now find its position in the original text
+                search_str = ' '.join(words[i:])
+                pos = before_v.rfind(search_str)
+                if pos != -1:
+                    return pos
+                break
+    
+    # Pattern 2: Look for "Case Name, Citation" pattern
+    if citation:
+        citation_pattern = re.escape(citation)
+        
+        # Look for a pattern like "Some Case Name, 123 U.S. 456"
+        pattern = fr'([A-Z][A-Za-z0-9&\-\.\',]*(?:\s+[A-Za-z0-9&\-\.\',]+)*?)\s*,\s*{citation_pattern}'
+        match = re.search(pattern, text_before)
+        if match:
+            return match.start(1)
+    
+    # Pattern 3: Look for common legal phrases that might precede a case name
+    legal_phrases = [
+        'in', 'see', 'see also', 'cf.', 'e.g.,', 'accord', 'but see',
+        'the court in', 'in the case of', 'as stated in', 'as held in',
+        'as explained in', 'as recognized in', 'as noted in', 'as discussed in'
+    ]
+    
+    for phrase in legal_phrases:
+        phrase_pos = text_before.lower().rfind(phrase)
+        if phrase_pos != -1:
+            # Look for the next capitalized word after the phrase
+            remaining = text_before[phrase_pos + len(phrase):].strip()
+            if remaining and remaining[0].isupper():
+                start = phrase_pos + len(phrase) + remaining.find(remaining[0])
+                # Make sure we're not too far from the citation
+                if start_pos - start < 200:  # Within 200 characters
+                    return start
+    
+    # Final fallback: Find the last capitalized word before the citation
+    # that's not a stopword and not too far from the citation
+    words = text_before.split()
+    for i in range(len(words)-1, max(-1, len(words)-10), -1):
+        if i >= 0 and words[i] and words[i][0].isupper() and not is_stopword(words[i].lower()):
+            search_str = ' '.join(words[i:])
+            pos = text_before.rfind(search_str)
+            if pos != -1 and (start_pos - pos) < 200:  # Within 200 characters
+                return pos
+    
+    # If all else fails, return the position of the first capital letter
+    # before the citation that's not after a sentence-ending punctuation
+    for i in range(start_pos - 1, max(-1, start_pos - 100), -1):
+        if i >= 0 and text[i].isupper() and (i == 0 or text[i-1] in ' \t\n"\'('):
+            return i
+    
+    return 0  # Start from beginning if nothing found
+
+def extract_case_name_precise(context_before: str, citation: str, debug: bool = False) -> str:
+    """
+    Extract case name with robust patterns to handle multi-word party names and complex citation contexts.
     Handles 'v.', 'vs.', 'In re', 'Estate of', 'State v.', and allows for lowercase prefixes (e.g., 'ex rel.').
-    Enhanced to better handle Washington State Reports citations.
+    Enhanced to better handle Washington State Reports citations and multi-word party names.
+    
+    Args:
+        context_before: Text preceding the citation
+        citation: The citation text to find case name for
+        debug: Whether to print debug information
     """
-    import logging
-    logger = logging.getLogger("case_name_extraction")
+    if debug:
+        print("\n" + "="*80)
+        print(f"EXTRACT_CASE_NAME_PRECISE")
+        print(f"Citation: {citation}")
+        print("-"*40)
     
-    if not context_before:
-        return ""
-    
-    # For Washington State Reports, use a larger context window
-    is_washington_cite = any(pat in citation for pat in ['Wn.', 'Wn.2d', 'Wash.', 'Wash.2d'])
-    context_window = 500 if is_washington_cite else 200  # Larger window for Washington citations
+    # Set a dynamic context window based on document structure
+    context_window = min(500, max(200, len(context_before) // 2))  # Cap at 500 chars, min 200, or 50% of available
     
     # Get context window, ensuring we don't go beyond the start of the text
     context = context_before[-context_window:] if len(context_before) > context_window else context_before
@@ -134,40 +249,175 @@ def extract_case_name_precise(context_before: str, citation: str) -> str:
     context = preprocess_contractions(context)
     context = ' '.join(context.split())  # Normalize all whitespace to single spaces
     
-    # Debug logging
-    logger.debug(f"[extract_case_name_precise] Processing citation: {citation}")
-    logger.debug(f"[extract_case_name_precise] Context: {context}")
+    if debug:
+        print(f"Using context window of {len(context)} characters")
+        print(f"Context: '{context}'")
     
-    # Define patterns for different citation types
-    patterns = []
+    # Find the citation in the context
+    cite_pos = context.rfind(citation)
+    if cite_pos == -1:
+        if debug: 
+            print(f"Citation '{citation}' not found in context")
+        return ""
     
-    # 1. Standard v. pattern (most common)
-    prefix_pattern = r"(?:[A-Z][a-z]+|[a-z]+(?: [a-z]+)*\.?|In re|Estate of|State|People|United States|City|County|Town|Village|Board|Department|Commission|Committee|District|School District|The)"
-    party_pattern = r"[A-Z][A-Za-z0-9&.,'’\- ]*(?:’[a-zA-Z])?[A-Za-z0-9&.,'’\- ]*"
+    if debug:
+        print(f"Citation found at position {cite_pos}")
+        print(f"Text before citation: '{context[max(0, cite_pos-50):cite_pos]}'")
     
-    # Standard v. pattern with flexible spacing
-    patterns.append(
-        (rf"({prefix_pattern}\s+{party_pattern})\s+v\.?\s+({party_pattern})(?=[,\s\n]|{re.escape(citation)})", 1.0)
-    )
+    # Check if this is a Washington citation for special handling
+    is_washington_cite = bool(re.search(r'\b\d+\s+Wn\.?\s*\d+', citation))
     
-    # 2. Washington-specific patterns (more permissive with spacing and punctuation)
+    # Define legal name patterns that might appear in case names
+    legal_name_patterns = [
+        r'[A-Z][A-Za-z0-9&\-\'\,\.\s]+',  # Standard names with common legal punctuation
+        r'[A-Z]\.\s+[A-Z][A-Za-z0-9&\-\'\,\.\s]*',  # Initials like J. Smith
+        r'[A-Z][A-Za-z]+\s+(?:&|and|et\s+al\.?|Inc\.?|LLC|L\.L\.C\.?|L\.P\.?|P\.?C\.?|Ltd\.?|Corp\.?|Co\.?)',  # Business entities
+        r'[A-Z][A-Za-z]+\s+(?:of|for|in|on|at|by|with|the|and|or|but|as|if|then|else|when|where|why|how)\s+[A-Z][A-Za-z]*',  # Multi-word with common prepositions
+    ]
+    
+    # First, try to find a pattern like "Plaintiff v. Defendant, Citation"
+    v_pattern = r'\b(?:v\.?|vs\.?|versus)\b'
+    v_matches = list(re.finditer(v_pattern, context[:cite_pos], re.IGNORECASE))
+    
+    if v_matches:
+        # Get the last "v." or "vs." before the citation
+        last_v = v_matches[-1]
+        v_pos = last_v.start()
+        
+        if debug:
+            print(f"Found 'v.' at position {v_pos}")
+        
+        # Look for the start of the case name before the "v."
+        before_v = context[:v_pos].strip()
+        
+        # Try to find the start of the case name by looking for patterns that indicate case name boundaries
+        words = before_v.split()
+        
+        # Look for patterns that indicate the start of a case name
+        # Common patterns: "See, e.g.,", "held in", "in", "accord", etc.
+        case_start_patterns = [
+            r'\b(?:see|held in|in|accord|cf\.|e\.g\.|i\.e\.)\b',
+            r'\b(?:the court in|as stated in|as held in|as explained in)\b',
+            r'\b(?:individual|constitutional|guarantees|paramount)\b'
+        ]
+        
+        # Find the last pattern that indicates the start of a case name
+        last_pattern_pos = -1
+        for pattern in case_start_patterns:
+            matches = list(re.finditer(pattern, before_v, re.IGNORECASE))
+            if matches:
+                last_match = matches[-1]
+                if last_match.end() > last_pattern_pos:
+                    last_pattern_pos = last_match.end()
+        
+        # If we found a pattern, start looking for the case name after it
+        start_search_pos = last_pattern_pos if last_pattern_pos != -1 else 0
+        
+        # Look for the first capitalized word after the pattern
+        remaining_text = before_v[start_search_pos:].strip()
+        remaining_words = remaining_text.split()
+        
+        for i in range(len(remaining_words)):
+            word = remaining_words[i].strip().rstrip(',')
+            if word and word[0].isupper() and not is_stopword(word.lower()):
+                # Found a potential start of the case name
+                # Now find its position in the original text
+                search_str = ' '.join(remaining_words[i:])
+                pos = remaining_text.find(search_str)
+                if pos != -1:
+                    # Adjust position to account for the pattern offset
+                    actual_pos = start_search_pos + pos
+                    # Extract the case name from the found position to the citation
+                    case_name = context[actual_pos:cite_pos].strip()
+                    
+                    # Clean up any trailing punctuation
+                    case_name = re.sub(r'[\s,;.]+$', '', case_name)
+                    
+                    # Additional validation for multi-word names
+                    if is_valid_case_name(case_name):
+                        if debug:
+                            print(f"Found case name with pattern-based search: '{case_name}'")
+                        return case_name
+                break
+        
+        # Fallback to the original backward search logic
+        for i in range(len(words)-1, -1, -1):
+            word = words[i].strip().rstrip(',')
+            if word and word[0].isupper() and not is_stopword(word.lower()):
+                # Found a potential start of the case name
+                # Now find its position in the original text
+                search_str = ' '.join(words[i:])
+                pos = before_v.rfind(search_str)
+                if pos != -1:
+                    # Extract the case name from the found position to the citation
+                    case_name = context[pos:cite_pos].strip()
+                    
+                    # Clean up any trailing punctuation
+                    case_name = re.sub(r'[\s,;.]+$', '', case_name)
+                    
+                    # Additional validation for multi-word names
+                    if is_valid_case_name(case_name):
+                        if debug:
+                            print(f"Found case name with backward search: '{case_name}'")
+                        return case_name
+                    
+                    # If the case name is too short, try to extend it backwards
+                    # This handles cases like "Lakehaven Water & Sewer Dist." where
+                    # the algorithm might start at "Sewer" instead of "Lakehaven"
+                    if len(case_name.split()) < 5:  # Increased threshold for multi-word entities
+                        # Look for more words before the current start
+                        for j in range(i-1, max(-1, i-10), -1):  # Look back up to 10 words
+                            if j >= 0:
+                                extended_words = words[j:i+1]
+                                extended_search_str = ' '.join(extended_words)
+                                extended_pos = before_v.rfind(extended_search_str)
+                                if extended_pos != -1:
+                                    extended_case_name = context[extended_pos:cite_pos].strip()
+                                    extended_case_name = re.sub(r'[\s,;.]+$', '', extended_case_name)
+                                    if is_valid_case_name(extended_case_name) and len(extended_case_name.split()) > len(case_name.split()):
+                                        if debug:
+                                            print(f"Extended case name: '{case_name}' -> '{extended_case_name}'")
+                                        return extended_case_name
+                break
+    
+    # If we get here, try to find the last comma before the citation
+    last_comma = context.rfind(',', 0, cite_pos)
+    if last_comma != -1:
+        case_name = context[last_comma+1:cite_pos].strip()
+        # Clean up any trailing punctuation and validate
+        case_name = re.sub(r'[\s,;.]+$', '', case_name)
+        if case_name and len(case_name.split()) > 1 and is_valid_case_name(case_name):
+            if debug: 
+                print(f"Found case name after comma: '{case_name}'")
+            return case_name
+    
+    # Define patterns for case name extraction with confidence scores
+    patterns = [
+        # Standard case name pattern: Name v. Name, Citation
+        (r'([A-Z][^,;()\n]*?\s+v\.?\s+[^,;()\n]*?)\s*,\s*' + re.escape(citation), 1.0),
+        
+        # Case name with ampersand: Name & Name v. Name, Citation
+        (r'([A-Z][^,;()\n]*?\s*&\s*[^,;()\n]*?\s+v\.?\s+[^,;()\n]*?)\s*,\s*' + re.escape(citation), 1.0),
+        
+        # In re pattern: In re Name, Citation
+        (r'(In\s+re\s+[^,;()\n]+?)\s*,\s*' + re.escape(citation), 0.95),
+        
+        # Estate of pattern: Estate of Name, Citation
+        (r'(Estate\s+of\s+[^,;()\n]+?)\s*,\s*' + re.escape(citation), 0.95),
+        
+        # Any capitalized text that looks like a case name
+        (r'([A-Z][^,;()\n]{5,100}?)\s*,\s*' + re.escape(citation), 0.8),
+    ]
+    
+    # Add Washington-specific patterns if needed
     if is_washington_cite:
-        # Pattern for State v. Defendant, 999 Wn.2d 999
-        patterns.append(
-            (r"(State\s+v\.\s+[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.9)
-        )
-        # Pattern for In re Something, 999 Wn.2d 999
-        patterns.append(
-            (r"(In\s+re\s+[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.9)
-        )
-    
-    # 3. More general patterns
-    patterns.extend([
-        # Case name ending with comma before citation
-        (r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.8),
-        # Case name ending with comma and spaces before citation
-        (r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation), 0.7),
-    ])
+        patterns.extend([
+            # Washington State pattern: State v. Defendant, 999 Wn.2d 999
+            (r'(State\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*' + re.escape(citation), 0.95),
+            
+            # Washington State pattern with ampersand: State v. Name & Name, 999 Wn.2d 999
+            (r'(State\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\- ]+?\s*&\s*[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*' + re.escape(citation), 0.95),
+        ])
     
     # Try each pattern in order of specificity
     for pattern, confidence in patterns:
@@ -181,31 +431,55 @@ def extract_case_name_precise(context_before: str, citation: str) -> str:
                 # Clean up the case name
                 case_name = clean_case_name_enhanced(case_name, context_before)
                 
-                # Validate the case name
+                # Additional validation for the extracted case name
                 if (case_name and 
                     is_valid_case_name(case_name) and 
                     not starts_with_signal_word(case_name) and
                     not _is_header_or_clerical_text(case_name) and 
-                    len(case_name.split()) <= 15):
+                    len(case_name.split()) <= 25):  # Increased max word count for complex names
+                    
+                    if debug:
+                        print(f"Found case name with pattern (confidence {confidence}): '{case_name}'")
+                        print(f"Pattern used: {pattern}")
                     
                     logger.debug(f"[extract_case_name_precise] Found case name with pattern {pattern}: {case_name}")
                     return case_name
                     
         except Exception as e:
             logger.debug(f"[extract_case_name_precise] Error with pattern {pattern}: {e}")
+            if debug:
+                print(f"Error with pattern {pattern}: {e}")
     
-    # Fallback: Look for case name immediately before the citation
+    # Final fallback: Look for any text that looks like a case name before the citation
     if is_washington_cite:
-        # For Washington citations, look for patterns like "State v. Defendant, 999 Wn.2d 999"
-        fallback_pattern = r"([A-Z][A-Za-z0-9&.,'’\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,'’\- ]+?)\s*,\s*" + re.escape(citation)
-        fallback_matches = list(re.finditer(fallback_pattern, context, re.IGNORECASE | re.DOTALL))
-        
+        # For Washington citations, use a more specific pattern
+        fallback_patterns = [
+            r"([A-Z][A-Za-z0-9&.,\'\- ]+?\sv\.\s[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*" + re.escape(citation),
+            r"(State\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*" + re.escape(citation),
+            r"(In\s+re\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*" + re.escape(citation),
+        ]
+    else:
+        # More general patterns for other jurisdictions
+        fallback_patterns = [
+            r"([A-Z][A-Za-z0-9&.,\'\- ]+?\s+v\.?\s+[A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*" + re.escape(citation),
+            r"([A-Z][A-Za-z0-9&.,\'\- ]+?)\s*,\s*" + re.escape(citation),
+        ]
+    
+    for pattern in fallback_patterns:
+        fallback_matches = list(re.finditer(pattern, context, re.IGNORECASE | re.DOTALL))
         if fallback_matches:
             best_match = fallback_matches[-1]
             case_name = clean_case_name_enhanced(best_match.group(1), context_before)
             if is_valid_case_name(case_name):
+                if debug:
+                    print(f"Found fallback case name: '{case_name}'")
+                    print(f"Fallback pattern used: {pattern}")
                 logger.debug(f"[extract_case_name_precise] Found fallback case name: {case_name}")
                 return case_name
+    
+    if debug:
+        print("No valid case name found after all extraction attempts")
+        print(f"Final context examined: '{context[:cite_pos][-100:]}'")
     
     logger.debug(f"[extract_case_name_precise] No valid case name found for citation: {citation}")
     return ""
@@ -793,19 +1067,26 @@ class CaseNameExtractor:
         return text[start:end].strip()
 
     def _get_system_extraction_context(self, text: str, citation: str = None) -> str:
-        """Get citation-aware context for extraction: always 200 chars before citation, 100 after."""
+        """Get citation-aware context for extraction: always 150 chars before citation, 100 after."""
         if not citation:
             return text
         citation_pos = text.find(citation)
         if citation_pos == -1:
             return text
-        start = max(0, citation_pos - 200)
+        start = max(0, citation_pos - 150)
         end = min(len(text), citation_pos + len(citation) + 100)
         return text[start:end].strip()
     
     def _extract_case_name(self, context: str, citation: str = None) -> Optional[Dict]:
         import re
         STOPWORDS = {"of", "and", "the", "in", "for", "on", "at", "by", "with", "to", "from", "as", "but", "or", "nor", "so", "yet", "a", "an", "re"}
+        
+        def is_stopword(word: str) -> bool:
+            """Check if a word is a stopword."""
+            # Remove any trailing punctuation
+            word = word.lower().rstrip('.,;:!?\'"()[]{}')
+            return word in STOPWORDS
+            
         def debug_write(msg):
             log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
             os.makedirs(log_dir, exist_ok=True)
@@ -825,12 +1106,76 @@ class CaseNameExtractor:
             case_name = inre_match.group(0).rstrip(',;').rstrip()  # Only trim trailing comma/semicolon/whitespace
             debug_write(f"[DEBUG] In re/Ex parte match: {case_name}")
             return {'name': case_name, 'confidence': 0.9, 'method': 'inre_exparte', 'debug': {'case_name': case_name}}
-        # Try v. pattern
+        # Try v. pattern with improved logic
         v_match = list(re.finditer(r'\bv\.', context_before_citation))
         if v_match:
             last_v = v_match[-1].start()
             debug_write(f"[DEBUG] Found last 'v.': char_pos={last_v}")
-            # Scan backward from v. to find the start of the first party
+            
+            # Look for patterns that indicate the start of a case name
+            # Common patterns: "See, e.g.,", "held in", "in", "accord", etc.
+            case_start_patterns = [
+                r'\b(?:see|held in|in|accord|cf\.|e\.g\.|i\.e\.)\b',
+                r'\b(?:the court in|as stated in|as held in|as explained in)\b',
+                r'\b(?:individual|constitutional|guarantees|paramount)\b'
+            ]
+            
+            # Find the last pattern that indicates the start of a case name
+            last_pattern_pos = -1
+            for pattern in case_start_patterns:
+                matches = list(re.finditer(pattern, context_before_citation, re.IGNORECASE))
+                if matches:
+                    last_match = matches[-1]
+                    if last_match.end() > last_pattern_pos:
+                        last_pattern_pos = last_match.end()
+            
+            # If we found a pattern, start looking for the case name after it
+            start_search_pos = last_pattern_pos if last_pattern_pos != -1 else 0
+            
+            # Look for the first capitalized word after the pattern
+            remaining_text = context_before_citation[start_search_pos:].strip()
+            remaining_words = list(re.finditer(r"[\w'&.,-]+", remaining_text))
+            
+            if remaining_words:
+                # Find the first capitalized word
+                first_cap_idx = None
+                for i, word_match in enumerate(remaining_words):
+                    word = word_match.group(0)
+                    if word and word[0].isupper() and not is_stopword(word.lower()):
+                        first_cap_idx = i
+                        break
+                
+                if first_cap_idx is not None:
+                    # Collect all words from the first capitalized word through the party after v.
+                    # Find the next capitalized word after v. (start of second party)
+                    v_pos_in_remaining = last_v - start_search_pos
+                    v_word_idx = None
+                    for i, word_match in enumerate(remaining_words):
+                        if word_match.start() >= v_pos_in_remaining:
+                            v_word_idx = i
+                            break
+                    
+                    if v_word_idx is not None:
+                        after_v_idx = v_word_idx + 1
+                        while after_v_idx < len(remaining_words) and not remaining_words[after_v_idx].group(0)[0].isupper():
+                            after_v_idx += 1
+                        
+                        # Stop at the first citation-like pattern after the party names
+                        citation_pattern = re.compile(r"\d+\s+(Wn\.?\s*2d|Wash\.?\s*2d|P\.?\s*3d|P\.?\s*2d|F\.?\s*3d|F\.?\s*2d|U\.?S\.|S\.?Ct\.|L\.?Ed\.|A\.?2d|A\.?3d|So\.?2d|So\.?3d)", re.IGNORECASE)
+                        stop_idx = len(remaining_words)
+                        for i in range(after_v_idx, len(remaining_words)):
+                            if citation_pattern.match(' '.join(remaining_words[j].group(0) for j in range(i, min(i+3, len(remaining_words))))):
+                                stop_idx = i
+                                debug_write(f"[DEBUG] Stopping case name at citation-like pattern: index={stop_idx}")
+                                break
+                        
+                        # Collect all words from first_cap_idx up to stop_idx
+                        case_name_words = [remaining_words[i].group(0) for i in range(first_cap_idx, stop_idx)]
+                        case_name = ' '.join(case_name_words).rstrip(',;').rstrip()
+                        debug_write(f"[DEBUG] v. match case name (improved): {case_name}")
+                        return {'name': case_name, 'confidence': 0.9, 'method': 'v_pattern', 'debug': {'case_name': case_name}}
+            
+            # Fallback to original logic if improved logic fails
             words = list(re.finditer(r"[\w'&.,-]+", context_before_citation))
             v_word_idx = None
             for i, m in enumerate(words):
@@ -868,7 +1213,7 @@ class CaseNameExtractor:
             # Collect all words from start_idx up to stop_idx
             case_name_words = [words[i].group(0) for i in range(start_idx, stop_idx)]
             case_name = ' '.join(case_name_words).rstrip(',;').rstrip()  # Only trim trailing comma/semicolon/whitespace
-            debug_write(f"[DEBUG] v. match case name: {case_name}")
+            debug_write(f"[DEBUG] v. match case name (fallback): {case_name}")
             return {'name': case_name, 'confidence': 0.9, 'method': 'v_pattern', 'debug': {'case_name': case_name}}
         debug_write(f"[DEBUG] No case name extracted.")
         return None

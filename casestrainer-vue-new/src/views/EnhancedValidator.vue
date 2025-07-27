@@ -95,8 +95,20 @@
         <div v-if="results" class="results-container">
           <CitationResults 
             :results="results" 
+            :show-loading="showLoading"
             :processing-time="elapsedTime"
             :show-details="true"
+            :elapsed-time="elapsedTime"
+            :remaining-time="remainingTime"
+            :total-progress="totalProgress"
+            :current-step="currentStep"
+            :current-step-progress="currentStepProgress"
+            :processing-steps="processingSteps"
+            :citation-info="citationInfo"
+            :rate-limit-info="rateLimitInfo"
+            :processing-error="processingError"
+            :can-retry="canRetry"
+            :timeout="timeout"
             @apply-correction="applyCorrection"
             @copy-results="copyResults"
             @download-results="downloadResults"
@@ -329,8 +341,14 @@ export default {
       if (!taskId) return;
       
       try {
-        const response = await api.get(`/task_status/${taskId}`);
-        const data = response.data;
+        // Poll both task status AND processing progress for complete information
+        const [statusResponse, progressResponse] = await Promise.allSettled([
+          api.get(`/task_status/${taskId}`),
+          api.get(`/processing_progress?task_id=${taskId}`)
+        ]);
+        
+        const data = statusResponse.status === 'fulfilled' ? statusResponse.value.data : {};
+        const progressData = progressResponse.status === 'fulfilled' ? progressResponse.value.data : {};
         
         if (data.status === 'completed') {
           // Task completed successfully
@@ -398,32 +416,51 @@ export default {
           // Task is still processing - update progress
           hasActiveRequest.value = true;
           
-          // Update processing time with backend data
-          if (data.estimated_total_time && data.steps) {
+          // Prioritize progress data from /processing_progress endpoint
+          const activeData = progressData.status === 'success' ? progressData : data;
+          
+          // Update processing time with backend data (prefer progress endpoint)
+          if (activeData.estimated_total_time && activeData.steps) {
             if (lastPolledTaskId.value !== taskId) {
               startProcessing({
-                estimated_total_time: data.estimated_total_time,
-                steps: data.steps
+                estimated_total_time: activeData.estimated_total_time,
+                steps: activeData.steps
               });
               lastPolledTaskId.value = taskId;
             }
-          } else if (data.estimated_total_time) {
+          } else if (activeData.estimated_total_time) {
             if (lastPolledTaskId.value !== taskId) {
-              startProcessing(data.estimated_total_time);
+              startProcessing(activeData.estimated_total_time);
               lastPolledTaskId.value = taskId;
             }
           }
           
-          // Update current step and progress
-          if (data.current_step) {
+          // Update current step and progress (prefer progress endpoint)
+          if (activeData.current_step) {
             updateProgress({
-              step: data.current_step,
-              progress: data.progress || 0
+              step: activeData.current_step,
+              progress: activeData.progress || 0
             });
           }
           
-          // Update citation info if available
-          if (data.total_citations !== undefined) {
+          // Update citation info from progress data (more accurate than task status)
+          if (progressData.status === 'success' && progressData.total_citations !== undefined) {
+            citationInfo.value = {
+              total: progressData.total_citations,
+              processed: progressData.processed_citations || 0,
+              unique: progressData.unique_citations || 0
+            };
+            
+            // Update our local progress counters for the progress bar
+            progressCurrent.value = progressData.processed_citations || 0;
+            
+            console.log('Enhanced-validator: Updated progress from /processing_progress:', {
+              total: progressData.total_citations,
+              processed: progressData.processed_citations,
+              percent: progressPercent.value
+            });
+          } else if (data.total_citations !== undefined) {
+            // Fallback to task status data if progress endpoint unavailable
             citationInfo.value = {
               total: data.total_citations,
               processed: data.processed_citations || 0,

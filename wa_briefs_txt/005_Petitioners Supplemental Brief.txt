@@ -1,0 +1,910 @@
+
+--- Page 1 ---
+SUPREME COURT NO.  999597 
+     
+ 
+SUPREME COURT OF THE STATE OF WASHINGTON 
+ 
+STATE OF WASHINGTON, Respondent 
+v. 
+JOSEPH ZAMORA, Petitioner 
+ 
+ 
+SUPPLEMENTAL BRIEF OF PETITIONER 
+___________________________________________________ 
+ 
+ 
+ 
+Marie J. Trombley, WSBA 41410 
+Attorney for Petitioner 
+PO Box 829 
+Graham, WA 
+(253) 445-7920 
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+121312021 9:36 AM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+i 
+TABLE OF CONTENTS 
+I. ISSUES FOR WHICH REVIEW HAS BEEN GRANTED .. 2 
+A. 
+A criminal defendant is guaranteed a fair trial before an 
+impartial jury. Where the defendant has a Latino surname, did 
+the prosecutor's extensive discussion about the dangers of 
+undocumented immigrants entering the United States because 
+they commit deadly crimes and bring lethal drugs undermine 
+Zamora’s right to due process of law? ....................................... 2 
+B. 
+Exercise of a criminal defendant’s constitutional right of 
+confrontation and cross-examination of his accusers is crucial 
+for the jury to render a just verdict based on the facts. Was 
+Zamora’s constitutional right to confront his accusers violated 
+when the court denied the opportunity to cross-examine police 
+witnesses about the circumstances of their statements given as 
+part of an internal investigation into their conduct? ................... 3 
+II. STATEMENT OF THE CASE ........................................... 3 
+III. ARGUMENT .................................................................... 12 
+
+--- Page 3 ---
+ii 
+A. The Elected Prosecutor Violated Zamora’s Constitutional 
+Right To An Impartial Jury And Fair Proceedings By 
+Repeatedly Encouraging Racially Based Stereotypes And 
+Bias During Voir Dire. ........................................................ 13 
+B. Zamora’s Right To Confront His Accusers Was Violated 
+When He Was Denied A Full and Fair Cross-Examination of 
+Witnesses Against Him. ...................................................... 26 
+IV. CONCLUSION ................................................................. 31 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+--- Page 4 ---
+iii 
+TABLE OF AUTHORITIES 
+Washington Cases 
+City of Seattle v. Erickson, 188 Wn.2d 721, 398 P.3d 1124 
+(2017)) ...................................................................................... 15 
+In re Gentry, 170 Wn.2d 614,  316 P.3d 1020 (2014). ............ 22 
+Mancini v City of Tacoma, 196 Wn.2d 864,479 P.3d 656 (2021)
+ .................................................................................................. 30 
+State v. Avendano-Lopez, 79 Wn.App. 706, 904 P.2d 324 
+(1995) ....................................................................................... 25 
+State v. Belgarde, 110 Wn.2d 504, 755 P.2d 174 (1988) ......... 25 
+State v. Berhe, 193 Wn.2d 647, 444 P3d 1172 (2019) ............. 13 
+State v. Coryell, 197 Wn.2d 397,  483 P.3d 98 (2021) ............ 28 
+State v. Davis,141 Wn.2d 798, 824 10 P.3d 977 (2000) .......... 13 
+State v. Ellis, 2021 WL 3910557 (August 21, 2021) ............... 16 
+State v. Gregory, 192 Wn.2d 1, 427 P.3d 621 (2018) .............. 15 
+State v. Jasper, 174 Wn.2d 96, 271 P.3d 876 (2012) ............... 26 
+State v. Jefferson, 192 Wn.2d 225, 429 P.3d 467 (2018) ......... 16 
+State v. Loughbom, 196 Wn.2d 64, 470 P.3d 488 (2020) ........ 20 
+
+--- Page 5 ---
+iv 
+State v. Monday, 171 Wn.2d 667,  257 P.3d 551 (2011) ......... 13 
+State v. Orn, 197 Wn.2d 343, 482 P.3d 913 (2021) ................. 27 
+State v. Saintcalle, 178 Wn.2d 34, 309 P.3d 326 (2013) ......... 14 
+State v. Torres, 16 Wn.App. 254, 554 P.2d 1069 (1976) ......... 23 
+Federal Authority 
+Davis v. Alaska, 415 U.S. 308, 94 S.Ct. 1105, 399 L.Ed.2d 347 
+(1974) ....................................................................................... 26 
+Garrity v. New Jersey,385 U.S. 493, 87 S.Ct. 616, 17 L.Ed.2d 
+562 (1967). ............................................................................... 27 
+McClesky v. Kemp, 481 U.S. 279, 107 S.Ct. 1756, 95 L.Ed.2d 
+262 (1987) ................................................................................ 13 
+Pena-Rodriguez v. Colorado, 137 S.Ct. 855, 197 L.Ed.2d 107 
+(2017) ....................................................................................... 14 
+Rosales-Lopez v. United States, 451 U.S. 182,101 S.Ct. 1629, 
+68 L.Ed.2d 22 (1981) ............................................................... 18 
+Rose v. Mitchell, 443 U.S. 545, 99 S.Ct. 2993, 61 L.Ed.2d 739 
+(1979) ....................................................................................... 14 
+ 
+
+--- Page 6 ---
+v 
+Other Jurisdictions 
+Robinson v. State of Maryland, 354 Md.287, 730 A.2d 
+181(1999) ................................................................................. 29 
+Rules 
+CR 6.4(b) .................................................................................. 24 
+ER 413 ...................................................................................... 25 
+Rules of Professional Conduct 3.8 ........................................... 22 
+Constitutional Provisions 
+U.S. Const. Amend. 14 ............................................................. 13 
+U.S.Const. Amend. 6 ................................................................ 13 
+Wash. Const. Art.1 §§ 3, 22 ..................................................... 13 
+Reference Works 
+Cynthia Lee, A New Approach to Voir Dire on Racial Bias, 5 
+UC Irvine L. Rev. 843 (2015) .................................................. 18 
+Research Working Group & Task Force on Race, the Criminal 
+Justice System, Preliminary Report on Race and Washington’s 
+Criminal Justice System, 35 Seattle U.L.Rev. 623, (2012) ...... 16 
+
+--- Page 7 ---
+vi 
+Steven A. Ramirez & Neil G. Williams, On the Permanence of 
+Racial Injustice and the Possibility of Deracialization, 69 Case 
+W. Res. L. Rev. 299 (2018) ..................................................... 21 
+Task Force on Race & Criminal Justice Sys., Preliminary 
+Report on Race and Washington’s Criminal Justice System 1 
+(2011) ....................................................................................... 15 
+The Sentencing Project, Race and Punishment; Racial 
+Perceptions and Crime and Support for Punitive Penalties, 13-
+14 (2014) .................................................................................. 17 
+ 
+
+--- Page 8 ---
+1 
+ 
+INTRODUCTION 
+An officer stopped Joseph Zamora due to a "suspicious 
+person" report in the neighborhood and then claimed he resisted 
+arrest, even though he had committed no crime. More officers 
+arrived, and together they beat, pepper-sprayed, and tazed 
+Zamora due to his alleged lack of cooperation with arrest. At 
+the end of the encounter, hogtied, handcuffed, and held face 
+down in the snow, Zamora had no pulse. The prosecution 
+charged him with third-degree assault against two officers. 
+Zamora defended he acted in reasonable self-defense against 
+excessive, lethal force used against him. 
+          The elected prosecutor began jury selection by repeatedly 
+asked jurors to consider the danger posed by undocumented 
+immigrants to the community. Zamora is not an undocumented 
+immigrant, and immigration had no relevance to the case. The 
+Court of Appeals agreed that illegal immigration and border 
+security had no bearing but discounted the possibility it 
+prejudiced Zamora. The court also barred Zamora from 
+
+--- Page 9 ---
+2 
+ 
+questioning the officers about their statements during an 
+internal investigation of their conduct, even though these were 
+the only police reports in the case. 
+            Zamora was denied a fair trial by an impartial jury as 
+well as his right to meaningfully cross-examine the witnesses 
+against him. 
+I. 
+ISSUES FOR WHICH REVIEW HAS BEEN GRANTED  
+A.  A criminal defendant is guaranteed a fair trial before 
+an impartial jury. Where the defendant has a Latino surname, 
+did the prosecutor's extensive discussion about the dangers of 
+undocumented immigrants entering the United States because 
+they commit deadly crimes and bring lethal drugs undermine 
+Zamora’s right to due process of law?  
+ 
+
+--- Page 10 ---
+3 
+ 
+B. Exercise of a criminal defendant’s constitutional 
+right of confrontation and cross-examination of his accusers is 
+crucial for the jury to render a just verdict based on the facts. 
+Was Zamora’s constitutional right to confront his accusers 
+violated when the court denied the opportunity to cross-
+examine police witnesses about the circumstances of their 
+statements given as part of an internal investigation into their 
+conduct?  
+II. 
+STATEMENT OF THE CASE 
+The State accused Joseph Zamora (“Zamora”) of 
+assaulting two police officers. CP 1-2. The incident began when 
+a neighbor saw him walking through a vacant lot near parked 
+cars on his way to his niece’s home. RP 287, 736. She told him 
+to leave the area. Although she never saw him look into, touch, 
+or press up against any cars, as he shuffled down the street, she 
+called 911 to report “a suspicious person in our 
+neighborhood…possibly car prowling.”  RP 289-90,302.  
+
+--- Page 11 ---
+4 
+ 
+Kevin Hake1 responded to the call. RP 313-14, 317.  
+He shined his flashlight at Zamora, who by that point was in the 
+yard of his niece's home and called him over. RP 320, 450.  
+Zamora complied, stopping about six or seven feet from Hake. 
+His left hand was in his pocket. Hake speculated Zamora might 
+have had drugs in his pocket. RP 320, 322, 455. 
+Hake asked Zamora for identification and what he was 
+doing. RP 454, 503. Zamora did not move and remained silent. 
+Hake called out over his radio, “I’ve got one resisting.” RP 451, 
+499, 503. Hake believed Zamora was “aggressive” by passively 
+resisting interaction with him. RP 323-24, 504-05, 548-49.   
+As Zamora turned to leave, Hake stuck out his arm and 
+told him he was not free to go. RP 455, 551. Zamora stopped 
+and then turned away. Hake told him he was not under arrest 
+ 
+1At the time of the incident, Officer Hake worked for the Moses 
+Lake Police Department. He left their employment four months 
+later. He was introduced at trial as Hake rather than Officer 
+Hake. RP 311-12.    
+
+--- Page 12 ---
+5 
+ 
+but grabbed him from behind and intentionally put painful 
+pressure on Zamora’s elbows. RP 326, 460.  
+Zamora bowed his shoulders and tried to turn away. RP 
+458-59. Over the mic, another officer heard Hake say, "Put your 
+hands behind your back, I'll fucking kill you, put your hands 
+behind your back." RP 644. After an unsuccessful leg sweep, 
+Hake shoved Zamora, who flew back six or seven feet and hit 
+his head on a truck bumper. RP 462,464-65,467. 
+The altercation escalated. Hake used a chokehold until he 
+heard Zamora gasp and go silent. RP 472-73. Hake believed 
+deadly force was authorized. RP 548. Hake shot pepper spray in 
+Zamora’s mouth and face and punched him between 75 and 120 
+times in the face, eyes, ears, nose, and rib cage. RP 358, 506-
+07, 515. Zamora bucked to get free and not allow himself to be 
+handcuffed. He struck Hake in the shoulder and torso. RP 492-
+93, 506.  
+Hake felt Zamora grab his utility belt and his holstered 
+gun several times. RP 474. His gun had a three-point retention 
+
+--- Page 13 ---
+6 
+ 
+system, meaning it took three separate and distinct maneuvers 
+to remove the weapon. RP 483-84. Hake admitted that were 
+Zamora trying to get out from underneath him, he would have 
+used the utility belt items as leverage to pull himself up; and it 
+was possible someone would grab the holster without intending 
+to remove the gun. RP 479-80.  
+The firearm never left the holster until Hake drew his 
+weapon and put it in Zamora’s eye, ear and eventually shoved it 
+down his throat. RP 370, 485, 514.  
+Backup officers arrived within minutes, and they also 
+pepper-sprayed, punched, kicked, and tazed Zamora repeatedly. 
+RP 526, 630-3, 653, 692-93, 828. Hake punched Zamora as 
+hard as he could another 12-20 times. RP 375.  
+Officers handcuffed Zamora and used a rope to hogtie 
+him. RP 637. While he was handcuffed, hogtied, and held face 
+down in the snow, Zamora stopped breathing. RP 676, 680-81. 
+One officer activated his body camera after Zamora was 
+
+--- Page 14 ---
+7 
+ 
+hogtied. RP 676. Paramedics restarted Zamora’s heart twice 
+before transporting him to the hospital. RP 847-50.  
+The Investigation and Court Ruling 
+The Washington State Patrol investigated the charges of 
+assault against Zamora. RP 734-42. No officer prepared a 
+police report, and officers did not participate in any interviews 
+about their role in seizing Zamora. RP 233. Officers had been 
+directed to prepare a Garrity2 statement. RP 233-34. The WSP 
+investigator’s report of the incident was limited to a summary 
+of the Garrity statements. RP 232.   
+Defense counsel argued the Garrity statement 
+circumstances went directly to witness credibility, seeking to 
+ 
+2 A Garrity statement is a statement made by a public employee 
+during an internal investigation. The Fifth Amendment 
+prohibits the government from using self-incriminating 
+statements made by a public employee under threat of 
+termination in a subsequent criminal prosecution. Garrity v. 
+New Jersey,385 U.S. 493, 499-500, 87 S.Ct. 616, 17 L.Ed.2d 
+562 (1967). The officer’s statements were “compelled” and thus 
+inadmissible against them because officers would have been 
+terminated had they remained silent. Id. at 497-98. 
+
+--- Page 15 ---
+8 
+ 
+ask officers if (1) if they made a Garrity statement as part of the 
+investigation (2) whether they knew what a Garrity statement 
+was (3) if they knew the purpose of making a Garrity statement 
+(4) who told them to make a Garrity statement, and (5) if the 
+officers made themselves available for interview by Sergeant 
+Anderson investigating the case against Zamora. RP 332-33, 
+338, 401-02, 414-15 419-20. 
+Over defense objection, the court granted the State’s 
+motion barring reference to the investigation into officer 
+misconduct. CP 164; RP 330,338. The court ruled the questions 
+irrelevant, and a waste of time. RP 340, 433-34.    
+Voir Dire 
+The elected prosecutor began voir dire: 
+let's just take a general topic that seems to be in the 
+media every day, and I'll ask you a general question, and 
+that is some people say today in our society we have -- 
+we don't have enough border security. Some people say 
+we have too much or we don't need that. So, the question 
+is which one do you feel like you're closer to?  
+RP 71-72.  
+
+--- Page 16 ---
+9 
+ 
+One juror responded not just immigrants committed 
+crimes. RP 75. The prosecutor responded by asking whether 
+venire members could make room for the possibility that others 
+had loved ones killed or problems with someone "previously 
+deported or criminally is wrong in the country, that that 
+happens to them, and that they feel like we need more border 
+security…." RP 75.  
+Juror Talbot pointed out,  
+I feel like people are focusing more on the race aspect 
+instead of like white illegal immigrants coming in. 
+ RP 76.  
+The prosecutor responded: 
+If you don’t believe a wall would help, do you lock your 
+door? 
+ 
+ RP 76.  
+ 
+DANO: Can you make room for the idea that when they 
+hear that 100,000 people come across illegally a month, 
+and of those we've got people from countries that -- 
+countries on our list that aren't even allowed in the 
+country are part of that group? 
+ 
+
+--- Page 17 ---
+10 
+ 
+JUROR TALBOT: Yes. 
+DANO: That they feel that we've got a big problem and a 
+porous border, meaning people are just coming across 
+and we don't know who is here, that a lot of people have 
+some fear about that. Can you make room for that?  
+RP 77. 
+The prosecutor asked jurors about border security at least 
+four more times. RP 88,92,97,160. Later, the prosecutor 
+continued the line of questioning by asking if a juror was 
+concerned with the methamphetamine problem and followed up 
+with:  
+How many people on the jury… heard about the recent drug 
+bust down at Nogales, Arizona where they picked up enough 
+what’s called Fentanyl that would have killed 65 million 
+Americans. 
+ 
+RP 139.  
+ 
+Defense counsel questioned whether jurors believed 
+Zamora must be guilty because he had been charged with a 
+crime. One juror responded:  
+I'm married to a Mexican, have a Mexican daughter, 
+something about a wall, I really don't know. But police 
+and my family, and grandpa. I’m not really sure…. 
+
+--- Page 18 ---
+11 
+ 
+ RP 190.  
+ 
+The following day the trial court addressed defense 
+counsel: 
+[w]as there a strategic or tactical reason that you didn't 
+object about the plaintiff's questions and comments on 
+voir dire about crimes being committed by what was 
+described as illegal immigrants passing through the 
+United States/Mexico border? 
+ 
+RP 220-221. Counsel said he thought about objecting, adding “I 
+have heard similar comments in voir dire.” Counsel thought he 
+could use the comments to his advantage. RP 221,224. 
+Concerned about its responsibility to be proactive, the court 
+referenced case law and ER  413. RP 227. The court asked:  
+…does this jury think that with a Latino last name that 
+he’s here illegally? Why else would the questions be 
+asked? Why else would there be reference to drug busts 
+in Nogales, a number of illegal immigrants crossing over 
+the border 100,000 a month, unless he was, why else 
+would the questions be relevant? That’s what the jurors 
+might think.  
+RP 223. 
+ 
+
+--- Page 19 ---
+12 
+ 
+The elected prosecutor denied he had brought “up the 
+specific points” and then explained he was just curious about 
+how people felt about border security. RP 224-25. He denied 
+having raised the issues, saying he responded to the venire. RP 
+226. That was followed by stating he was “troubled” by “this 
+overarching complete political correctness about what people 
+have to say and concerns.” RP 226.  
+ 
+In response to the court’s concerns about being proactive, 
+the elected prosecutor cited to Justice Thomas asking a defense 
+attorney if she had struck all the white jurors in a case involving 
+a black defendant. The prosecutor opined that judges, who may 
+lack experience as trial attorneys, should let lawyers try the case 
+"unless we're doing something that's prejudicial to the other 
+side" or "engaging in something that's improper.” RP 229-30.  
+III. 
+ARGUMENT 
+ 
+
+--- Page 20 ---
+13 
+ 
+A. The Elected Prosecutor Violated Zamora’s 
+Constitutional Right To An Impartial Jury And Fair 
+Proceedings By Repeatedly Encouraging Racially 
+Based Stereotypes And Bias During Voir Dire. 
+Criminal defendants have a constitutional right to a fair 
+and impartial jury. U.S.Const. Amend. 6, U.S. Const. Amend. 
+14; Wash. Const. Art.1 §§ 3, 22; State v. Davis,141 Wn.2d 798, 
+824 10 P.3d 977 (2000). An impartial jury means "an unbiased 
+and unprejudiced jury," which is the defendant's "fundamental 
+protection of life and liberty against race or color prejudice." 
+McClesky v. Kemp, 481 U.S. 279, 310, 107 S.Ct. 1756, 95 
+L.Ed.2d 262 (1987); State v. Berhe, 193 Wn.2d 647, 658, 444 
+P3d 1172 (2019).  
+A prosecutor violates the fundamental right to a fair trial 
+and undermines faith in the justice system when he appeals to 
+racist stereotypes and bias. State v. Monday, 171 Wn.2d 667, 
+678, 257 P.3d 551 (2011). “Theories and arguments based upon 
+
+--- Page 21 ---
+14 
+ 
+racial, ethnic and most other stereotypes are antithetical to and 
+impermissible in a fair and impartial trial.” Id.  
+ “The Equal Protection clause was central to the 
+Fourteenth Amendment’s prohibition of discriminatory 
+action…discrimination on the basis of race, odious in all 
+aspects, is especially pernicious in the administration of 
+justice.” Rose v. Mitchell, 443 U.S. 545, 555-56, 99 S.Ct. 2993, 
+61 L.Ed.2d 739 (1979). Racial bias implicates historical, 
+constitutional, and institutional concerns, with the goal being to 
+ensure the legal system remains capable of realizing the 
+promise of equal treatment under the law. Pena-Rodriguez v. 
+Colorado, 137 S.Ct. 855, 868, 197 L.Ed.2d 107 (2017).  
+Washington Courts have condemned racism and 
+stereotypes injected into criminal proceedings. The persistence 
+of “racial and ethnic disproportionality in [Washington’s] 
+criminal justice system is indisputable.” State v. Saintcalle, 178 
+Wn.2d 34, 54, 309 P.3d 326 (2013), (abrogated on other 
+grounds by City of Seattle v. Erickson, 188 Wn.2d 721, 398 
+
+--- Page 22 ---
+15 
+ 
+P.3d 1124 (2017)) quoting Task Force on Race & Criminal 
+Justice Sys., Preliminary Report on Race and Washington’s 
+Criminal Justice System 1 (2011). 
+Finding it offends “society’s standards of decency” and 
+“fundamental fairness” to permit application of the death 
+penalty when racial bias plays a role in determining upon whom 
+it is imposed, this Court invalidated the death penalty. State v. 
+Gregory, 192 Wn.2d 1, 427 P.3d 621 (2018). Statistical 
+evidence showed jurors significantly more likely to impose the 
+death penalty on black defendants than similarly situated white 
+defendants.  
+In Jefferson, this Court understood the need and adopted a 
+new Batson framework to challenge racial discrimination in the 
+justice system. This Court identified the relevant question as 
+whether a reasonable person who is aware of the history of 
+explicit racial discrimination in America and how it impacts our 
+current decision making in nonexplicit or implicit, unstated 
+ways, could view race or ethnicity as a factor in the use of 
+
+--- Page 23 ---
+16 
+ 
+peremptory challenge. State v. Jefferson, 192 Wn.2d 225, 249-
+50, 429 P.3d 467 (2018). “The evil of racial discrimination is 
+still the evil this rule seeks to eradicate.” Id.  
+This same rigor must be applied to voir dire. “Voir dire is 
+where racial stereotypes and inflammatory history can be 
+planted like a mustard seed at the infancy of a case, tainting all 
+that follows.” State v. Ellis, 2021 WL 3910557 (August 21, 
+2021).3 “Prosecutorial misconduct of this ilk has a similar effect 
+on the court system as a whole. One occurrence hurts the 
+credibility of the entirety; for this reason, such conduct is taken 
+seriously.” Id.n.4.  
+Implicit biases are pervasive4. Studies have provided 
+insight into the substantial effect of racial bias jurors have about 
+ 
+3 GR 14.1: This unpublished opinion has no precedential value 
+and is not binding on the Court. It may be accorded such 
+persuasive value as the Court deems appropriate. 
+4 Research Working Group & Task Force on Race, the Criminal 
+Justice System, Preliminary Report on Race and Washington’s 
+Criminal Justice System, 35 Seattle U.L.Rev. 623, 664-65 
+(2012).  
+
+--- Page 24 ---
+17 
+ 
+the criminal propensity of Hispanic men. The Sentencing 
+Project, Race and Punishment; Racial Perceptions and Crime 
+and Support for Punitive Penalties, 13-14 (2014).5  Implicit 
+bias tests demonstrate the general public holds negative 
+associations of Latinos and suspects them of criminality. Id. at 
+13-14. Persistent implicit racial bias exists even among 
+individuals who explicitly disavow prejudice because it lies at 
+the unconscious level. Id.; State v. Berhe, 193 Wn.2d at 657.  
+Jury selection is to discover biases in prospective jurors 
+and excuse those who cannot follow instructions on the law. 
+State v. Davis, 141 Wn.2d at 825-25. “Generic questions about 
+juror impartiality may not expose specific attitudes or biases 
+that can poison jury deliberations. Yet more pointed questions 
+‘could well exacerbate whatever prejudice might exist without 
+substantially aiding in exposing it.” State v. Behre, 193 Wn.2d 
+ 
+5  https://www.sentencingproject.org/publications/race-and-
+punishment-racial-perceptions-of-crime-and-support-for-
+punitive-policies/. (last visited 11/30/21). 
+
+--- Page 25 ---
+18 
+ 
+at 659 (quoting Rosales-Lopez v. United States, 451 U.S. 182, 
+195, 101 S.Ct. 1629, 68 L.Ed.2d 22 (1981)(Rehnquist, J. 
+concurring in result).  
+“[R]esearch suggests that ... [c]alling attention to implicit 
+racial bias can encourage jurors to view the evidence without 
+the usual preconceptions and automatic associations involving 
+race that most of us make.” Cynthia Lee, A New Approach to 
+Voir Dire on Racial Bias, 5 UC Irvine L. Rev. 843, 846 (2015). 
+However, race must be made salient without at the same time 
+triggering detrimental associations or stereotype threats. Id. at 
+846-47.  
+A prosecutor's invocation of racial and ethnic stereotypes 
+is not always blatant. "Perhaps more effective but just as 
+insidious are subtle references. Like wolves in sheep's clothing, 
+a careful word here and there can trigger racial bias." State v. 
+Monday, 171 Wn.2d at 678. 
+Here, in the prosecution of a Latino man, the elected 
+prosecutor singled out Latinos in his first sentences to the jury 
+
+--- Page 26 ---
+19 
+ 
+venire without ever saying Latino. He used voir dire to inflame 
+stereotypes, conjuring images of Latinos coming over the 
+border at 100,000 per month, bringing crime and drugs. For 
+jurors who did not believe a border wall was necessary, the 
+prosecutor wanted to know if they locked their doors at night to 
+keep unwanted people from entering their home.  
+In other words, "they" are coming over the border with 
+crime and drugs to do you harm, and if you don't stop them at 
+the border, will you stop them at your front door? The line of 
+questioning was not only a profoundly inflammatory and 
+offensive racial stereotype, but it effectively and improperly 
+linked Zamora, a Latino, to crime and a border wall. When 
+asked if the defendant was guilty because he had been charged, 
+one juror answered:  
+I’m married to a Mexican, have a Mexican daughter, 
+something about a wall, I really don’t know. But police 
+and my family, and grandpa. I’m not really sure…. 
+RP 190.  
+She had gotten the message: Mexican. Wall. Police. Family.  
+
+--- Page 27 ---
+20 
+ 
+Understanding the scientifically documented implicit bias 
+linking Latinos and crime, the prosecutor’s questioning 
+exacerbated whatever prejudice might exist, encouraging 
+potential jurors to “make room” for the idea that undocumented 
+immigrants commit crimes against people’s loved ones.   
+In Loughbom, this Court found it deeply troubling where 
+the prosecutor created a thematic narrative prism to view the 
+defendant's prosecution: the war on drugs. State v. Loughbom, 
+196 Wn.2d 64, 77, 470 P.3d 488 (2020). During jury selection, 
+the prosecutor connected the “war on drugs” to the “drug 
+problem in Lincoln County” during jury selection. Id. The 
+prosecutor committed flagrant and ill-intentioned misconduct 
+because the questions were designed to arouse passion and 
+prejudice and inflame the jurors' emotions, resulting in an 
+unfair trial. Id. at 77-78.   
+ 
+Here, the misconduct is far more egregious. 100,000 
+immigrants illegally entering the United States, a border wall, 
+
+--- Page 28 ---
+21 
+ 
+illegal importation of Fentanyl, or loved ones killed by 
+undocumented immigrants had nothing to do with the facts.  
+Even had defense counsel objected to the improper 
+questioning, the bell rung by intentionally returning to the 
+irrelevant theme could not be unrung. Scientists have found 
+“the amygdala activity (a part of the brain previously identified 
+in emotional, fear and threat assessment) is triggered when 
+implicit biases take hold in response to racialized images. 
+Consequently, neuroscience confirms the validity of implicit 
+associations tests that demonstrate the attitudes underlying 
+America's racial hierarchy.”6  
+Anyone watching even one day of the national news 
+between 2016 and 2019 understood the imagery and the 
+emotion.  
+ 
+6 Steven A. Ramirez & Neil G. Williams, On the Permanence 
+of Racial Injustice and the Possibility of Deracialization, 69 
+Case W. Res. L. Rev. 299, 325–26 (2018) 
+ 
+
+--- Page 29 ---
+22 
+ 
+The verdict depended on the jury’s perception of Zamora 
+and whether it believed he fought back in self-defense. 
+Conjuring up images of Latinos as dangerous trespassers who 
+brought crime and drugs to the United States undermined his 
+credibility and the presumption of innocence.  
+As quasi-judicial officers, prosecutors are held to a 
+higher standard than other attorneys. State v. Monday, 171 
+Wn.2d at 676; Rules of Professional Conduct 3.8. Justice 
+inevitably falls prey to prejudice when the prosecutor invokes 
+racist stereotypes to the venire.   
+Where “a prosecutor flagrantly or apparently appeals to 
+racial bias so it undermines the defendant’s credibility or the 
+presumption of innocence, we will vacate the conviction unless 
+it appears beyond a reasonable doubt that the misconduct did 
+not affect the jury’s verdict.” Id. at 680. The Court assigns the 
+burden to the State to show the race-based misconduct was 
+harmless beyond a reasonable doubt. In re Gentry, 170 Wn.2d 
+614, 623, 316 P.3d 1020 (2014).  
+
+--- Page 30 ---
+23 
+ 
+Because it is almost impossible to quantify the effect of 
+racially or ethnically based bias, the Court has even condemned 
+language that was not overtly derogatory. In Torres, the 
+prosecutor referred to the defendants as Mexicans or Mexican 
+Americans. The Court held the proceedings unfair because the 
+effect may have been to impugn the standing of the defendants 
+and intimate they were more likely than those of other races to 
+commit the crimes charged. State v. Torres, 16 Wn.App. 254, 
+257, 554 P.2d 1069 (1976). Discrimination is not “any less 
+pernicious” if it is not documented by outright slurs. Saintcalle, 
+178 Wn.2d at 48-49.   
+In this case, the pernicious nature of the questioning and 
+theme had an expansive potential for triggering implicit bias. In 
+Monday, this Court found that even in the face of 
+overwhelming evidence of guilt, the State could not show the 
+jury's verdict was not affected by the misconduct beyond a 
+reasonable doubt. Monday, 171 Wn.2d at 681.  
+
+--- Page 31 ---
+24 
+ 
+Here, the evidence was not overwhelming. This Court 
+should come to the same conclusion in this matter. Because the 
+flagrant and repeated appeals to racial bias undermined 
+Zamora’s presumption of innocence and right to a fair trial, and 
+the State cannot show otherwise, this Court should vacate the 
+convictions.  
+ 
+ The Trial Court Abused Its Discretion  
+ 
+Voir dire is a critical stage of criminal proceedings, and 
+the trial court maintains inherent authority and discretion in 
+determining how to conduct it. State v. Davis, 141 Wn.2d at 
+826; CR 6.4(b). “A trial court’s exercise of discretion is limited 
+only when the record reveals the court abused its discretion and 
+thus prejudiced the defendant’s right to a fair trial by an 
+impartial jury.” Davis, 141 Wn.2d at 826. “The question 
+becomes one of determining at what point the risk of racial 
+prejudice becomes constitutionally unacceptable.” Id. at 828.   
+Here, the court knew the dangers of the prosecutor’s 
+questioning. The court cited State v. Avendano-Lopez, 79 
+
+--- Page 32 ---
+25 
+ 
+Wn.App. 706, 718, 904 P.2d 324 (1995), (prosecutor’s question 
+was grossly improper when he asked the defendant whether he 
+was legally in the United States) and State v. Belgarde, 110 
+Wn.2d 504, 508,755 P.2d 174 (1988)(“a prosecutor has no right 
+to call to the attention of the jury matters of considerations 
+which the jurors have no right to consider.”). It was keenly 
+aware that even if Zamora were an undocumented immigrant, 
+ER 413 provided specific guard rails for precluding 
+undocumented status from being made known to jurors.  
+ 
+The appeal to implicit or explicit racial bias can influence 
+decisions without our being aware of it “because we suppress it 
+and because we create it anew through cognitive processes that 
+have nothing to do with racial animus.” State v. Saintcalle, 178 
+Wn.2d at 46.  
+Defense counsel’s statement “I have heard similar 
+comments in voir dire” demonstrates the appeal to racial bias in 
+voir dire questioning is not unusual in Grant County. Where 
+justice may turn on the innuendo that the color of a man’s skin, 
+
+--- Page 33 ---
+26 
+ 
+or his country of origin, or his primary language, or the status 
+of his citizenship should determine his fate as a criminal 
+defendant, the court necessarily abuses its discretion when it 
+does not curtail the improper questioning.   
+B.  Zamora’s Right To Confront His Accusers Was 
+Violated When He Was Denied A Full and Fair Cross-
+Examination of Witnesses Against Him. 
+The State and Federal Constitutions guarantee the right to 
+confront and cross-examine an adverse witness. U.S. Const. 
+Amend.6, Wash. Const. art. I §22. Confrontation clause 
+violations are reviewed de novo. State v. Jasper, 174 Wn.2d 96, 
+108, 271 P.3d 876 (2012).  
+The right to confront grants criminal defendants extra-
+wide latitude in cross-examination to probe motive or 
+credibility. Davis v. Alaska, 415 U.S. 308. 316-17, 94 S.Ct. 
+1105, 399 L.Ed.2d 347 (1974). If exclusion of evidence violates 
+constitutional protections, the State bears the burden of proving 
+
+--- Page 34 ---
+27 
+ 
+beyond a reasonable doubt the constitutional error was 
+harmless. State v. Orn, 197 Wn.2d 343, 482 P.3d 913 (2021).   
+The heart of this case was whether the police used 
+excessive force. The circumstances of the investigation bore 
+directly on officer credibility. The officers had been directed to 
+prepare a Garrity statement, explaining their conduct as part of 
+an internal investigation. Public employees who choose not to 
+prepare a statement may be terminated from employment. 
+Garrity v. New Jersey,385 U.S. 493, 497-98, 87 S.Ct. 616, 17 
+L.Ed.2d 562 (1967). They were guaranteed the State would not 
+criminally prosecute officers based on their statement. Id. at 
+499-500 
+The prosecution of Zamora stemmed from the Garrity 
+statements. No officer filed a police report. No officer was 
+interviewed by the State Patrol officer, who used the written 
+Garrity statements to investigate Zamora. The jury did not learn 
+these facts because the court found the information irrelevant.  
+
+--- Page 35 ---
+28 
+ 
+In a jury trial, the jury determines whether to believe any 
+witnesses and which witnesses to believe. It is the sole and 
+exclusive judge of credibility. State v. Coryell, 197 Wn.2d 397, 
+414, 483 P.3d 98 (2021) 
+For purposes of witness credibility, the test of relevancy 
+is not whether the answer will expound any of the main issues 
+but whether it will aid the jury in appraising the witness's 
+credibility and assessing the probative value of his testimony. 
+Davis v. Alaska, 415 U.S. at 316.   
+Police officers are routinely questioned on their police 
+reports as part of credibility inquiry: whether they had training 
+in writing reports, whether they wrote a report on the day of the 
+incident, whether they worked with a partner who wrote a 
+report, and whether their report reflected verbatim 
+conversations with witnesses.  
+Here, the trial court improperly resolved the credibility 
+issue by not allowing the jury to learn that the officers had not 
+filed a police report in the regular custom but had been the 
+
+--- Page 36 ---
+29 
+ 
+subjects of an investigation for their conduct. By precluding 
+questions that would give the jury the benefit of a complete 
+picture of the alarming seriousness of the police conduct, the 
+court prevented the jury from having the issue fully presented 
+allowing a fair rendering of a verdict based on all the facts.  
+In Robinson v. State of Maryland, 354 Md.287, 730 A.2d 
+181(1999) the trial judge informed the jury an internal affairs 
+investigation had occurred after officers fired their weapons. 
+The defendant stated he never had a gun, was not involved in a 
+robbery, and when he got out of the car with his hands up, the 
+officers shot him anyway. Id. at 315. The judge told the jury an 
+investigation cleared the officers of wrongdoing, and there was 
+nothing exculpatory for the defendant in their statements, and 
+for that reason, neither the investigation nor the statements 
+would be admitted. Id.   
+In reversing the conviction, the Court found error in the 
+trial judge's refusal to allow the defendant to review the prior 
+statements of the officers, and even more significantly, in 
+
+--- Page 37 ---
+30 
+ 
+commenting on the credibility of the witnesses, i.e., that the 
+officers were cleared of wrongdoing. Id. at 318. 
+Here, the Court of Appeals relied on the State’s argument 
+that since all the officers were cleared of wrongdoing, it was 
+irrelevant there had been an investigation.  
+The trial court here did what the trial court in Robinson 
+did: it just determined credibility by omission rather than 
+commission.  
+In the context of officers owing a duty to exercise 
+reasonable care when serving a search warrant, this Court held 
+that “police, just like other people, must exercise ordinary 
+reasonable care ‘to refrain from causing foreseeable harm in 
+interactions with others’…This duty ‘applies in the context of 
+law enforcement and encompasses the duty to refrain from 
+directly causing harm to another through affirmative acts of 
+misfeasance.” Mancini v City of Tacoma, 196 Wn.2d 864, 886, 
+479 P.3d 656 (2021). The Court held: “But the jury is the sole 
+judge of the credibility of witnesses, and whether the overall 
+
+--- Page 38 ---
+31 
+ 
+conduct of the police was reasonable was an ultimate fact to be 
+decided by the jury.” Id.at 887. 
+Zamora was denied the right to conduct a full cross-
+examination on the central issue in this case: whether police 
+used such excessive force that Zamora was in fear for his life 
+and entitled to defend himself. A reasonable jury, hearing all 
+the facts, could have reasonably concluded that Zamora was 
+justified in protecting himself and acquitted him on all charges.  
+IV. 
+CONCLUSION 
+Based on the preceding facts and authorities, Zamora 
+respectfully asks this Court to reverse his convictions.  
+Per RAP 18.17 this document contains 4862 words. 
+Respectfully submitted this 3rd day of December 2021. 
+  
+Marie J. Trombley, WSBA 41410 
+Attorney for Petitioner 
+PO Box 829  
+Graham, WA 98338 
+ 253-445-7920 
+
+--- Page 39 ---
+32 
+ 
+CERTIFICATE OF SERVICE 
+ 
+I, Marie J. Trombley, attorney for Joseph Zamora, do hereby 
+certify under penalty of perjury under the laws of the United 
+States and the State of Washington that a true and correct copy 
+of the Supplemental Brief was sent by electronic service on 
+December 3, 2021, to: 
+Joseph Zamora 
+c/o Marie Trombley 
+marietrombley@comcast.net 
+ 
+ 
+EMAIL: gdano@grantcountywa.gov 
+Kjmccrae@grantcountywa.gov  
+ 
+ 
+s/Marie Trombley WSBA 41410  
+PO Box 829  
+Graham, WA 98338 
+ 253-445-7920 
+ marietrombley@comcast.net 
+
+--- Page 40 ---
+MARIE TROMBLEY
+December 03, 2021 - 9:36 AM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99959-7
+Appellate Court Case Title:
+State of Washington v. Joseph Mario Zamora
+Superior Court Case Number:
+18-1-00263-2
+The following documents have been uploaded:
+999597_Briefs_20211203093544SC550544_4849.pdf 
+    This File Contains: 
+     Briefs - Appellants Supplemental 
+     The Original File Name was ZAMORA SUPP FINAL.pdf
+A copy of the uploaded files will be sent to:
+gdano@grantcountywa.gov
+kjmccrae@grantcountywa.gov
+Comments:
+Sender Name: Marie Trombley - Email: marietrombley@comcast.net 
+Address: 
+PO BOX 829 
+GRAHAM, WA, 98338-0829 
+Phone: 253-445-7920
+Note: The Filing Id is 20211203093544SC550544
+• 
+• 
+• 

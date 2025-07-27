@@ -1,0 +1,496 @@
+
+--- Page 1 ---
+ 
+ 
+NO. 99941-4 
+ 
+ 
+SUPREME COURT OF THE STATE OF WASHINGTON 
+ 
+ 
+IN RE THE PERSONAL RESTRAINT PETITION OF  
+ROBERT L. AYERST, 
+ 
+ 
+Petitioner. 
+ 
+ 
+MEMORANDUM OF AMICUS CURIAE WASHINGTON STATE 
+OFFICE OF PUBLIC DEFENSE IN SUPPORT OF REVIEW 
+ 
+ 
+ROBERT W. FERGUSON 
+   Attorney General 
+ 
+ 
+JEFFREY T. EVEN, WSBA 20367 
+   Deputy Solicitor General 
+Office ID No. 91087 
+PO Box 40100 
+1125 Washington Street SE 
+Olympia, WA  98504-0100 
+(360) 586-0728 
+ 
+Counsel for Amicus Curiae 
+Washington State Office of  
+Public Defense 
+ 
+FILED 
+SUPREME COURT 
+STATE OF WASHINGTON 
+812712021 3:07 PM 
+BY ERIN L. LENNON 
+CLERK 
+
+--- Page 2 ---
+ 
+ 
+i
+TABLE OF CONTENTS 
+ 
+I. 
+IDENTITY AND INTEREST OF AMICUS CURIAE ....................1 
+II. 
+COURT OF APPEALS DECISION .................................................1 
+III. 
+STATEMENT OF THE CASE .........................................................1 
+IV. 
+ISSUE ADDRESSED BY AMICUS ................................................1 
+V. 
+REASONS WHY REVIEW SHOULD BE GRANTED ..................1 
+A.  Representation of a Criminal Defendant by an Unlicensed 
+Attorney Merits Review by this Court Under RAP 
+13.4(b)(3) and (4) .......................................................................2 
+B.  Even if the Court of Appeals was Correct That Mr. 
+Ayerst Failed to Allege Facts Showing Structural Error, 
+the Court Should Have Stayed the Petition Instead of 
+Dismissing It ..............................................................................6 
+VI. 
+CONCLUSION .................................................................................9 
+ 
+ 
+ 
+
+--- Page 3 ---
+ 
+ 
+ii 
+TABLE OF AUTHORITIES 
+ 
+Cases 
+City of Seattle v. Ratliff,  
+100 Wn.2d 212, 667 P.2d 630 (1983) ............................................. 2, 3, 6 
+In re Det. of Stout,  
+159 Wn.2d 357, 150 P.3d 86 (2007) ....................................................... 9 
+In re Personal Restraint Petition of Robert L. Ayerst,  
+17 Wn. App. 2d 356, 486 P.3d 943 (2021) .................................... passim 
+Solina v. United States,  
+709 F.2d 160 (2d Cir. 1983) ....................................................... 3, 4, 5, 6 
+State v. Yishmael,  
+195 Wn.2d 155, 456 P.3d 1172 (2020) ................................................... 5 
+Statutes 
+28 U.S.C. § 2244(d)(1) ............................................................................... 8 
+28 U.S.C. § 2244(d)(1)(A) .......................................................................... 8 
+28 U.S.C. § 2244(d)(2) ............................................................................... 8 
+RCW 2.48.180(3)(a) ................................................................................... 8 
+RCW 2.48.180(3)(b) ....................................................................................8 
+ 
+RCW 9A.04.080(i) ...................................................................................... 8 
+RCW 9A.04.080(j) .......................................................................................8 
+RCW 10.73.090 .......................................................................................... 8 
+RCW 10.73.150 .......................................................................................... 7 
+RCW 10.73.150(4) ...................................................................................... 2 
+
+--- Page 4 ---
+ 
+ 
+iii 
+Rules 
+APR 8 .................................................................................................. 3, 4, 5 
+APR 8(c) ................................................................................................. 4, 5 
+APR 8(c)(2) ................................................................................................. 5 
+APR 9 .......................................................................................................... 3 
+ELC 5.3 ....................................................................................................... 8 
+ELC 5.7 ....................................................................................................... 8 
+ELC 10.12(e) ............................................................................................... 8 
+ELC 10.16(a) ............................................................................................... 8 
+ELC 11.12(g) .............................................................................................. 8 
+RAP 13.4(b)(3) ........................................................................................... 2 
+RAP 13.4(b)(4) ........................................................................................... 2 
+RAP 16.11 ................................................................................................... 7 
+----
+
+--- Page 5 ---
+ 
+ 
+1 
+I. 
+IDENTITY AND INTEREST OF AMICUS CURIAE 
+This brief is filed on behalf of the Washington State Office of Public 
+Defense. The interest of Amicus is set forth in the Motion for Leave to File 
+Memorandum of Amicus Curiae in Support of Review. 
+II. 
+COURT OF APPEALS DECISION 
+This memorandum is filed in support of Petitioner Ayerst’s Motion 
+for Discretionary Review of the published Court of Appeals decision in 
+In re Personal Restraint Petition of Robert L. Ayerst, 17 Wn. App. 2d 356, 
+486 P.3d 943 (2021). 
+III. 
+STATEMENT OF THE CASE 
+Amicus adopts Petitioner’s Statement of the Case, as well as that set 
+forth in the opinion of the Court of Appeals. 
+IV. 
+ISSUE ADDRESSED BY AMICUS 
+ 
+Does the assignment as a public defender of an out-of-state attorney 
+who is not admitted to practice in Washington constitute structural error, 
+invalidating an indigent defendant’s felony conviction? 
+V. 
+REASONS WHY REVIEW SHOULD BE GRANTED 
+The Office of Public Defense writes separately to emphasize that the 
+decision of the Court of Appeals would substantially impair criminal 
+defendants’ right to appointment of counsel in postconviction cases. This 
+case, of course, arises from the appointment of Mr. Ayerst’s trial counsel. 
+
+--- Page 6 ---
+ 
+ 
+2 
+Mr. Ayerst ably addresses that point, but it bears notice that counsel is 
+appointed to a personal restraint petition only if the court finds that it raises 
+meritorious claims. RCW 10.73.150(4) (counsel is appointed if, inter alia, 
+the claims are not frivolous). The Court of Appeals holding in this case will 
+make appointment of counsel less likely to any client raising the claim that 
+the client was represented by an out-of-state lawyer unauthorized to practice 
+law in Washington. In contrast, Washington law recognizes that the 
+assignment of a person who has not fully complied with the applicable 
+Admission to Practice Rules (APR) “does constitute an absolute denial of 
+the right to counsel which requires reversal.” City of Seattle v. Ratliff, 100 
+Wn.2d 212, 219, 667 P.2d 630 (1983) (considering representation by a 
+Rule 9 intern). This question is appropriate for discretionary review as a 
+significant question of constitutional law, as well as an issue of substantial 
+public interest under RAP 13.4(b)(3) and (4). 
+A. 
+Representation of a Criminal Defendant by an Unlicensed 
+Attorney Merits Review by this Court Under RAP 13.4(b)(3) 
+and (4) 
+ 
+The Court of Appeals recognized that the uncontroverted facts 
+alleged by Mr. Ayerst amounted to a complete deprivation of the right to 
+counsel, but held that he had failed to show that such error required reversal. 
+The court relied on the wrong standard to reach this conclusion. This Court 
+
+--- Page 7 ---
+ 
+ 
+3 
+should grant review to reiterate that standard and make clear that courts 
+must comply with it. 
+ 
+The lower court should have followed the rule this Court established 
+in Ratliff: the appointment of a non-Washington lawyer constitutes a 
+complete denial of counsel unless that person fully complies with the APRs. 
+Ratliff, 100 Wn.2d at 219. In Ratliff, the denial of counsel arose because the 
+trial judge effectively precluded a Rule 9 intern from complying with the 
+requirements of APR 9. Id. at 220. Robert Van Idour, the Idaho lawyer 
+appointed as counsel here, similarly failed to qualify to practice in 
+Washington under APR 8. So while the specific rule under which Mr. Van 
+Idour might have been allowed to practice differed from Ratliff, the total 
+deprivation of counsel was the same. The Court of Appeals should have 
+applied Ratliff and granted the personal restraint petition. 
+ 
+The court below instead relied primarily on Solina v. United States, 
+709 F.2d 160, 164 (2d Cir. 1983), applying a federal standard that differs 
+from the applicable state law. Applying this Court’s analysis in Ratliff, the 
+facts alleged by Mr. Ayerst clearly support a finding of structural error. 
+ 
+The Court of Appeals acknowledged that Mr. Ayerst was denied the 
+right to counsel under Ratliff. In re Ayerst, 17 Wn. App. 2d at 360. But the 
+Court of Appeals incorrectly discounted two policy considerations it saw as 
+underlying the Ratliff rule, finding them inapplicable to this case. Id. at 362. 
+
+--- Page 8 ---
+ 
+ 
+4 
+The court noted Solina addressed concerns that (1) an authorized attorney 
+may lack the legal training and specialized knowledge necessary to 
+competently represent the client, and (2) unauthorized practice of law is a 
+crime, creating a conflict of interest between the attorney and client. In re 
+Ayerst, 17 Wn. App. 2d at 361-62. The latter concern is based on the notion 
+that someone practicing law without authorization “cannot be wholly free 
+from fear of what might happen if a vigorous defense should lead the 
+prosecutor or the trial judge to inquire into his background and discover his 
+lack of credentials.” Solina, 709 F.2d at 164. 
+ 
+Mr. Van Idour has not been criminally charged or tried, but the 
+underlying facts are not disputed for purposes of this case. As reflected in 
+the Court of Appeals decision, Mr. Van Idour was licensed to practice law 
+in Idaho. In re Ayerst, 17 Wn. App. 2d at 358. Mr. Van Idour could, 
+hypothetically, have qualified to represent Mr. Ayerst pursuant to APR 8, 
+but he never did. 
+ 
+APR 8(c) permits attorneys licensed out of state to represent 
+indigent clients “while rendering service in either a bar association or 
+governmentally sponsored legal services organization or in a public 
+defender’s office or similar program providing legal services to 
+indigents[.]” Such attorneys may, “upon application and approval,” practice 
+law in Washington. APR 8(c) (emphasis added). This authorization is 
+
+--- Page 9 ---
+ 
+ 
+5 
+conditioned on the attorney associating with an active member of the Bar in 
+Washington, who “shall be the lawyer of record and responsible for the 
+conduct of the matter.” APR 8(c)(2). There is no evidence in this case that 
+Mr. Van Idour was part of any sort of organization responsible for providing 
+public defense services; he appears to have been practicing as an 
+independent contractor. And it does not appear that any licensed 
+Washington attorney serving as counsel of record on Mr. Ayerst’s case as 
+APR 8(c) required. 
+ 
+Representing Mr. Ayerst without being properly admitted 
+constituted criminal conduct, even though Mr. Van Idour did not lack legal 
+training. The unauthorized practice of law is a strict liability crime. State v. 
+Yishmael, 195 Wn.2d 155, 172, 456 P.3d 1172 (2020). As the Court of 
+Appeals acknowledged, the existing record—while undisputed so far as it 
+goes—leaves open the question of whether Mr. Van Idour purposely evaded 
+compliance with APR 8. See In re Ayerst, 17 Wn. App. 2d at 362. And, 
+again, it is uncontested that Mr. Van Idour was not authorized to practice 
+law in Washington when he represented Mr. Ayerst. But the Court of 
+Appeals nevertheless held that by alleging these uncontested facts, Mr. 
+Ayerst failed to “allege[] facts suggesting Mr. Van Idour’s licensing 
+problems were sufficiently severe to fall in line with” the policy 
+considerations noted in Solina. In re Ayerst, 17 Wn. App. 2d at 363. 
+
+--- Page 10 ---
+ 
+ 
+6 
+ 
+It defies logic to suggest that Mr. Van Idour’s licensing problems 
+may not have been “sufficiently severe” to evoke the rationale applied in 
+Solina where they show criminal conduct that could have led to a 
+prosecution. In fact, Mr. Van Idour’s conduct was more egregious than that 
+of the intern in Ratliff, who represented Mr. Ratliff under protest. Ratliff, 
+100 Wn.2d at 214. In contrast, Mr. Van Idour accepted an appointment in 
+Asotin County Superior Court knowing that he was not admitted to practice 
+in Washington. Although he may have thought that an order by Judge 
+Gallina was sufficient to authorize his practice, such a mistaken belief is no 
+defense against a strict liability crime. The policy considerations noted in 
+Solina are more relevant here than in Ratliff. As such, the Court of Appeals 
+doubly erred, first by applying a federal standard in lieu of applicable 
+Washington precedent in Ratliff, and second by holding that Mr. Ayerst 
+failed to allege facts sufficient to merit reversal under Solina. Given the 
+undisputed facts, the Court of Appeals should have reversed Mr. Ayerst’s 
+conviction based on structural error. Ratliff, 100 Wn.2d at 219. 
+B. 
+Even if the Court of Appeals was Correct That Mr. Ayerst 
+Failed to Allege Facts Showing Structural Error, the Court 
+Should Have Stayed the Petition Instead of Dismissing It 
+ 
+This case presents a question of substantial public importance for 
+the additional reason that a criminal defendant may have no way of knowing 
+counsel’s qualifications until significant time has elapsed. The facts of this 
+
+--- Page 11 ---
+ 
+ 
+7 
+case illustrate the problem. Mr. Van Idour’s status did not come to light 
+until after trial. This means that often, as here, the only vehicle for seeking 
+relief when the lawyer is unauthorized to practice law in Washington could 
+be a PRP. But if the appointment of counsel who is not legally authorized 
+is not deemed a structural error then it is possible that an aggrieved 
+defendant might not even be appointed counsel to pursue a PRP. 
+RCW 10.73.150 (describing the circumstances under which counsel is 
+appointed); RAP 16.11 (describing the PRP process). This is because the 
+aggrieved defendant might have to show not just unauthorized counsel, but 
+prejudice in order to show a meritorious claim. 
+ 
+To mitigate that problem, the Court of Appeals should at a minimum 
+have stayed Mr. Ayerst’s petition, rather than dismissing it. Even if the court 
+was correct as to Mr. Ayerst’s burden, dismissing the petition at this stage 
+denied Mr. Ayerst a meaningful opportunity to fully explore the facts with 
+the assistance of counsel. 
+ 
+The Court of Appeals held Mr. Ayerst could not show that Mr. Van 
+Idour’s licensing problems were “sufficiently severe” to constitute the 
+criminal unauthorized practice of law. In re Ayerst, 17 Wn. App. 2d at 363. 
+The Office of Public Defense disagrees with the assessment, but accepting 
+the Court of Appeals’ view, such a showing of severity would require a 
+finding by the Bar Association or a criminal court that Mr. Van Idour 
+
+--- Page 12 ---
+ 
+ 
+8 
+committed unauthorized practice of law. But it may well be impossible for 
+Mr. Ayerst to show such “severity” within the time allotted for him to seek 
+postconviction relief. 
+ 
+Those convicted of a crime in Washington have just one year from 
+the date their conviction is final to file a personal restraint petition. 
+RCW 10.73.090. But there is no such time limit on investigations by the 
+Washington State Bar Association, or on the appeals process following a 
+Bar Association misconduct hearing. See ELC 5.3, 5.7, 10.12(e), 10.16(a), 
+11.12(g). And the statute of limitations for unauthorized practice of law is 
+two years for the first offense, and three years for each subsequent offense. 
+RCW 2.48.180(3)(a), (b); RCW 9A.04.080(i), (j). 
+ 
+Not only can it take longer than one year for a claim of the 
+unauthorized practice of law to be resolved before the Bar or in criminal 
+proceedings, every day a defendant delays filing a personal restraint petition 
+cuts into their time to request federal habeas corpus relief. Federal habeas 
+corpus petitions must be filed within one year of the judgment and sentence 
+becoming final, but this deadline is tolled while state postconviction 
+proceedings are underway. 28 U.S.C. § 2244(d)(1), (1)(A), (d)(2). 
+ 
+Thus, the Court of Appeals left Mr. Ayerst with an impossible 
+choice: wait for the conclusion of any investigation into Mr. Van Idour’s 
+malfeasance, or file his personal restraint petition within the one year 
+
+--- Page 13 ---
+ 
+ 
+9 
+allotted for him to do so. Even if there was some assurance that the Bar or 
+local prosecutors would conclude proceedings against Mr. Van Idour within 
+a year (and there is not, on the record before this Court), every day 
+Mr. Ayerst delayed filing his personal restraint petition would eat into his 
+time to seek federal habeas relief, should his personal restraint petition fail. 
+The Court of Appeals improperly allowed the timing of Mr. Ayerst’s 
+personal restraint petition, over which he had very little choice, to preclude 
+postconviction relief. 
+ 
+This impossible choice deprived Mr. Ayerst of a chance to be 
+meaningfully heard on his postconviction claims. See In re Det. of Stout, 
+159 Wn.2d 357, 370,150 P.3d 86 (2007). The Court of Appeals should have, 
+at least, stayed Mr. Ayerst’s petition pending some conclusive 
+determination of whether Mr. Van Idour committed the unauthorized 
+practice of law. By denying his petition, the Court of Appeals improperly 
+stripped Mr. Ayerst of his right to collateral review, in violation of his 
+constitutional right to procedural due process. 
+VI. 
+CONCLUSION 
+ 
+For the foregoing reasons, Amicus Curiae the Washington State 
+Office of Public Defense ask this Court to grant discretionary review of 
+Mr. Ayerst’s personal restraint petition. 
+ 
+
+--- Page 14 ---
+ 
+ 
+10 
+ 
+RESPECTFULLY SUBMITTED this 26th day of August 2021. 
+ROBERT W. FERGUSON 
+   Attorney General 
+ 
+ s/ Jeffrey T. Even 
+JEFFREY T. EVEN, WSBA 20367 
+   Deputy Solicitor General 
+1125 Washington Street SE 
+PO Box 40100 
+Olympia, WA  98504-0100 
+(360) 586-0728 
+jeffrey.even@atg.wa.gov 
+ 
+ 
+
+--- Page 15 ---
+ 
+ 
+11 
+CERTIFICATE OF SERVICE 
+ 
+I certify, under penalty of perjury under the laws of the State of 
+Washington, that the foregoing was electronically filed in the Washington 
+State Supreme Court and electronically served on the following parties, 
+according to the Court’s protocols for electronic filing and service: 
+Lise Ellner 
+Liseellnerlaw@comcast.net 
+Attorney for Petitioner 
+ 
+Jaime Kiona Young    
+JYoung@co.asotin.wa.us 
+Curtis Lane Liedkie    
+cliedkie@co.asotin.wa.us 
+Benjamin Curler Nichols    
+bnichols@co.asotin.wa.us   
+Attorneys for Respondent State of Washington 
+Robert Charles Boruchowitz 
+rcboru@aol.com;boruchor@seattleu.edu 
+Attorney for Amicus Curiae Defender Initiative 
+ 
+Nancy Lynn Talner 
+talner@aclu-wa.org   
+Jaime Michelle Hawk    
+jhawk@aclu-wa.org;jaimehawk@hotmail.com   
+John Ballif Midgley 
+jmidgley@aclu-wa.org;pleadings@aclu-wa.org   
+Attorneys for Amicus Curiae ACLU of Washington 
+ 
+ 
+DATED this 26th day of August, 2021, at Olympia, Washington. 
+ s/Leena Vanderwood 
+LEENA VANDERWOOD 
+   Legal Assistant 
+ 
+
+--- Page 16 ---
+SOLICITOR GENERAL OFFICE
+August 27, 2021 - 3:07 PM
+Transmittal Information
+Filed with Court:
+Supreme Court
+Appellate Court Case Number:   99941-4
+Appellate Court Case Title:
+Personal Restraint Petition of Robert L. Ayerst
+Superior Court Case Number:
+16-1-00150-7
+The following documents have been uploaded:
+999414_Briefs_20210827141503SC515776_2886.pdf 
+    This File Contains: 
+     Briefs - Amicus Curiae 
+     The Original File Name was AyerstMemo_Final.pdf
+999414_Motion_20210827141503SC515776_6404.pdf 
+    This File Contains: 
+     Motion 1 - Amicus Curiae Brief 
+     The Original File Name was AyerstAmicusMotion.pdf
+A copy of the uploaded files will be sent to:
+JYoung@co.asotin.wa.us
+Liseellnerlaw@comcast.net
+bnichols@co.asotin.wa.us
+boruchor@seattleu.edu
+cliedkie@co.asotin.wa.us
+jaimehawk@hotmail.com
+jhawk@aclu-wa.org
+jmidgley@aclu-wa.org
+pleadings@aclu-wa.org
+rcboru@aol.com
+talner@aclu-wa.org
+Comments:
+Sender Name: Kristin Jensen - Email: kristinj@atg.wa.gov 
+    Filing on Behalf of: Jeffrey Todd Even - Email: jeffrey.even@atg.wa.gov (Alternate Email: Jeff.Even@atg.wa.gov)
+Address: 
+PO Box 40100
+1125 Washington St SE 
+Olympia, WA, 98504-0100 
+Phone: (360) 753-4111
+Note: The Filing Id is 20210827141503SC515776
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
