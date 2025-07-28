@@ -37,6 +37,21 @@ const displayMode = ref('canonical-only') // Default to canonical-only display
 const attentionFilter = ref('all')
 const showAll = ref(false)
 
+// DEBUG: Watch for changes in results prop
+watch(() => props.results, (newResults) => {
+  console.log('🔍 CITATION RESULTS COMPONENT DEBUG:', {
+    hasResults: !!newResults,
+    resultsKeys: newResults ? Object.keys(newResults) : [],
+    hasCitations: !!(newResults?.citations),
+    hasClusters: !!(newResults?.clusters),
+    citationsLength: newResults?.citations?.length || 0,
+    clustersLength: newResults?.clusters?.length || 0,
+    clustersData: newResults?.clusters,
+    displayCondition: !!(newResults && newResults.clusters && newResults.clusters.length > 0),
+    sampleCluster: newResults?.clusters?.[0]
+  });
+}, { immediate: true, deep: true })
+
 // Helper functions for filtering
 function isUnverified(cluster) {
   return cluster.citations.every(c => getVerificationStatus(c) === 'unverified')
@@ -377,17 +392,64 @@ const areCaseNamesSimilar = (canonical, extracted) => {
       .trim()
   }
   
+  // Enhanced normalization for legal abbreviations
+  const normalizeWithAbbreviations = (name) => {
+    return name.toLowerCase()
+      // Handle common legal abbreviations
+      .replace(/\bcnty\.?\b/g, 'county')
+      .replace(/\bco\.?\b/g, 'company')
+      .replace(/\bcorp\.?\b/g, 'corporation')
+      .replace(/\binc\.?\b/g, 'incorporated')
+      .replace(/\bllc\.?\b/g, 'limited liability company')
+      .replace(/\bltd\.?\b/g, 'limited')
+      .replace(/\bdept?\.?\b/g, 'department')
+      .replace(/\bex\s+rel\.?\b/g, 'ex rel')
+      .replace(/\bv\.?\s+/g, 'v ')
+      .replace(/\bvs\.?\s+/g, 'v ')
+      // Remove punctuation and normalize spaces
+      .replace(/[^\w\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+  
   const norm1 = normalize(canonical)
   const norm2 = normalize(extracted)
   
+  // First try exact match after basic normalization
   if (norm1 === norm2) return true
   
-  // Check if one contains the other or they have significant overlap
-  const words1 = norm1.split(' ')
-  const words2 = norm2.split(' ')
-  const commonWords = words1.filter(word => words2.includes(word) && word.length > 2)
+  // Try enhanced normalization with abbreviation handling
+  const enhanced1 = normalizeWithAbbreviations(canonical)
+  const enhanced2 = normalizeWithAbbreviations(extracted)
   
-  return commonWords.length >= Math.min(words1.length, words2.length) * 0.6
+  if (enhanced1 === enhanced2) return true
+  
+  // Check word overlap with more lenient threshold for legal names
+  const words1 = enhanced1.split(' ').filter(w => w.length > 1)
+  const words2 = enhanced2.split(' ').filter(w => w.length > 1)
+  const commonWords = words1.filter(word => words2.includes(word) && word.length > 1)
+  
+  // More lenient threshold: 50% for legal names (was 60%)
+  const threshold = 0.5
+  const matchRatio = commonWords.length / Math.min(words1.length, words2.length)
+  
+  // DEBUG: Log similarity analysis for troubleshooting
+  if (import.meta.env.DEV) {
+    console.log('🔍 CASE NAME SIMILARITY DEBUG:', {
+      canonical,
+      extracted,
+      enhanced1,
+      enhanced2,
+      words1,
+      words2,
+      commonWords,
+      matchRatio,
+      threshold,
+      result: matchRatio >= threshold
+    });
+  }
+  
+  return matchRatio >= threshold
 }
 
 // Helper function to check if dates are substantially similar
@@ -716,8 +778,8 @@ function downloadAllCitations() {
       </div>
     </div>
 
-    <!-- CLUSTERED DISPLAY: Check for clusters first and prioritize this display -->
-    <div v-else-if="results && results.clusters && results.clusters.length > 0" class="results-content">
+    <!-- CLUSTERED DISPLAY: Always show results when clusters exist (even for perfect scores) -->
+    <div v-if="results && results.clusters && results.clusters.length > 0" class="results-content">
       
       <div class="results-header">
         <div class="header-content">
@@ -738,10 +800,10 @@ function downloadAllCitations() {
           </div>
         </div>
         <div class="action-buttons">
-          <button class="action-btn copy-btn" @click="$emit('copy-results')">
+          <button class="action-btn copy-btn" @click="copyAllCitations">
             Copy Results
           </button>
-          <button class="action-btn download-btn" @click="$emit('download-results')">
+          <button class="action-btn download-btn" @click="downloadAllCitations">
             Download
           </button>
         </div>
@@ -923,10 +985,10 @@ function downloadAllCitations() {
           </div>
         </div>
         <div class="action-buttons">
-          <button class="action-btn copy-btn" @click="$emit('copy-results')">
+          <button class="action-btn copy-btn" @click="copyAllCitations">
             Copy Results
           </button>
-          <button class="action-btn download-btn" @click="$emit('download-results')">
+          <button class="action-btn download-btn" @click="downloadAllCitations">
             Download
           </button>
         </div>

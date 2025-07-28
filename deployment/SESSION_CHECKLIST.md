@@ -49,9 +49,10 @@ This checklist ensures that all necessary steps are followed when starting a new
 
 2. **Start the CaseStrainer Application**:
    ```powershell
-   cd "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-   python src/app_final_vue.py --host 0.0.0.0 --port 5000
+   cd "d:\dev\casestrainer"
+   .\cslaunch.ps1
    ```
+   Select option 1 for quick production start.
 
 3. **Verify Docker Nginx is Running**:
    ```powershell

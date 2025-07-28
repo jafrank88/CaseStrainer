@@ -122,6 +122,13 @@
             @analyze="handleUnifiedAnalyze"
             :is-analyzing="showLoading"
           />
+          
+          <!-- Unified Progress Component -->
+          <UnifiedProgress 
+            @retry="handleProgressRetry"
+            @reset="handleProgressReset"
+            @complete="handleProgressComplete"
+          />
         </div>
         
         <!-- No Results State -->
@@ -150,12 +157,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { useApi } from '@/composables/useApi';
 import { useLoadingState } from '@/composables/useLoadingState';
 import api, { analyze } from '@/api/api';
-import { useProcessingTime } from '../composables/useProcessingTime';
 import { useCitationNormalization } from '@/composables/useCitationNormalization';
+import { useUnifiedProgress } from '@/stores/progressStore';
 
 // Components
 import CitationResults from '@/components/CitationResults.vue';
 import UnifiedInput from '@/components/UnifiedInput.vue';
+import UnifiedProgress from '@/components/UnifiedProgress.vue';
 import Toast from '@/components/Toast.vue';
 import SkeletonLoader from '@/components/SkeletonLoader.vue';
 // import RecentInputs from '@/components/RecentInputs.vue'; // Temporarily hidden
@@ -165,6 +173,7 @@ export default {
   components: {
     CitationResults,
     UnifiedInput,
+    UnifiedProgress,
     Toast,
     SkeletonLoader
     // RecentInputs // Temporarily hidden
@@ -195,28 +204,25 @@ export default {
     const { isLoading: isGlobalLoading } = useLoadingState();
     const showLoading = computed(() => isLoading.value || isGlobalLoading.value || hasActiveRequest.value);
 
-    // Composables
+    // Unified Progress System
     const {
+      progressState,
       elapsedTime,
       remainingTime,
-      totalProgress,
-      currentStep,
-      currentStepProgress,
-      processingSteps,
-      actualTimes,
-      citationInfo,
-      rateLimitInfo,
-      timeout,
-      processingError,
-      canRetry,
-      startProcessing,
-      stopProcessing,
-      updateProgress,
+      progressPercent,
+      progressBarClass,
+      shouldShowProgress,
+      formatTime: unifiedFormatTime,
+      startProgress,
+      setTaskId,
       setSteps,
-      resetProcessing,
-      setProcessingError,
-      estimatedTotalTime
-    } = useProcessingTime();
+      updateProgress,
+      setError,
+      completeProgress,
+      resetProgress
+    } = useUnifiedProgress();
+    
+    // Legacy progress system removed - using unified progress only
 
     // Add new reactive state for enhanced progress tracking
     const queuePosition = ref(0);
@@ -242,25 +248,52 @@ export default {
 
     // Error state for fallback
     const fallbackError = ref('');
+    
+    // Missing variables that were removed during modernization but still referenced
+    const citationInfo = ref(null);
+    const rateLimitInfo = ref(null);
+    const processingError = ref(null);
+    const canRetry = ref(false);
+    const timeout = ref(null);
+    const totalProgress = ref(0);
+    const currentStep = ref('');
+    const currentStepProgress = ref(0);
+    const processingSteps = ref([]);
+    
+    // Missing function that was removed during modernization
+    const resetProcessing = () => {
+      citationInfo.value = null;
+      rateLimitInfo.value = null;
+      processingError.value = null;
+      canRetry.value = false;
+      timeout.value = null;
+      totalProgress.value = 0;
+      currentStep.value = '';
+      currentStepProgress.value = 0;
+      processingSteps.value = [];
+      resetProgress(); // Use unified progress reset
+    };
+    
+    // Additional missing variables causing Vue warnings
+    const progressTimer = ref(null);
+    const progressTotal = ref(100);
+    const progressCurrent = ref(0);
+    const formatTime = (seconds) => {
+      if (!seconds || seconds < 0) return '00:00';
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
+    
+    // Use unified progress values but provide fallbacks for legacy template references
+    const legacyProgressPercent = computed(() => progressPercent?.value || 0);
+    const legacyElapsedTime = computed(() => elapsedTime?.value || 0);
 
     // Add showTimer computed property
     // Always show the progress bar for clarity
     const showTimer = computed(() => true);
 
-    // Progress bar state
-    const progressCurrent = ref(0);
-    const progressTotal = computed(() => (citationInfo.value && citationInfo.value.total) ? citationInfo.value.total : 0);
-    const progressPercent = computed(() => {
-      if (!progressTotal.value) return 0;
-      return Math.min(100, Math.round((progressCurrent.value / progressTotal.value) * 100));
-    });
-    const progressBarClass = computed(() => {
-      if (progressPercent.value >= 80) return 'bg-success';
-      if (progressPercent.value >= 50) return 'bg-info';
-      if (progressPercent.value >= 30) return 'bg-warning';
-      return 'bg-danger';
-    });
-    let progressTimer = null;
+    // Legacy progress state removed - using unified progress system
 
     // Add showFileUpload reactive state
     const showFileUpload = ref(true); // Show input form by default
@@ -276,19 +309,7 @@ export default {
     const { normalizeCitations, calculateCitationScore } = useCitationNormalization();
 
     // ===== HELPER FUNCTIONS =====
-    function formatTime(seconds) {
-      if (!seconds || seconds < 0) return '0s';
-      
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secs = Math.floor(seconds % 60);
-      
-      if (hours > 0) {
-        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-      } else {
-        return `${minutes}:${secs.toString().padStart(2, '0')}`;
-      }
-    }
+    // formatTime is now imported from useProcessingTime composable
     
     function getProgressBarClass(value) {
       if (value >= 0.8) return 'bg-success';
@@ -352,18 +373,58 @@ export default {
         
         if (data.status === 'completed') {
           // Task completed successfully
+          // DEBUG: Log the actual backend response structure
+          console.log('🔍 BACKEND RESPONSE DEBUG:', {
+            dataKeys: Object.keys(data),
+            hasResults: !!data.results,
+            hasCitations: !!data.citations,
+            hasClusters: !!data.clusters,
+            resultsType: Array.isArray(data.results) ? 'array' : typeof data.results,
+            citationsType: Array.isArray(data.citations) ? 'array' : typeof data.citations,
+            clustersType: Array.isArray(data.clusters) ? 'array' : typeof data.clusters,
+            resultsLength: data.results?.length || 0,
+            citationsLength: data.citations?.length || 0,
+            clustersLength: data.clusters?.length || 0,
+            sampleData: {
+              firstResult: data.results?.[0],
+              firstCitation: data.citations?.[0],
+              firstCluster: data.clusters?.[0]
+            }
+          });
+          
           // Use the 'results' field directly, fallback to 'citations' for legacy
           const citationResults = Array.isArray(data.results) ? data.results : (data.citations || []);
           
+          // DEBUG: Log citation processing
+          console.log('🔍 CITATION PROCESSING DEBUG:', {
+            citationResultsLength: citationResults.length,
+            firstCitationSample: citationResults[0],
+            normalizationAvailable: typeof normalizeCitations === 'function'
+          });
+          
           // Create the proper structure expected by CitationResults component
+          const normalizedCitations = normalizeCitations ? normalizeCitations(citationResults) : citationResults;
+          
           results.value = {
-            citations: normalizeCitations(citationResults),
+            citations: normalizedCitations,
             clusters: data.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
             metadata: data.metadata || {},
             total_citations: citationResults.length,
             verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
             unverified_count: citationResults.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
           };
+          
+          // DEBUG: Log final results structure
+          console.log('🔍 FINAL RESULTS DEBUG:', {
+            resultKeys: Object.keys(results.value),
+            citationsCount: results.value.citations?.length || 0,
+            clustersCount: results.value.clusters?.length || 0,
+            totalCitations: results.value.total_citations,
+            verifiedCount: results.value.verified_count,
+            unverifiedCount: results.value.unverified_count,
+            sampleCitation: results.value.citations?.[0],
+            sampleCluster: results.value.clusters?.[0]
+          });
           
           hasActiveRequest.value = false;
           stopProcessing();
@@ -630,10 +691,8 @@ export default {
         console.log('- hasActiveRequest.value:', hasActiveRequest.value);
         console.log('- showLoading.value:', showLoading.value);
         
-        // Complete processing
-        if (typeof isGlobalLoading !== 'undefined' && isGlobalLoading.value !== undefined) {
-          isGlobalLoading.value = false;
-        }
+        // Complete unified progress tracking
+        completeProgress(results.value);
         
         // Scroll to results
         nextTick(() => {
@@ -652,13 +711,18 @@ export default {
 
     const handleError = (err) => {
       console.error('Analysis error:', err);
-      error.value = err.message || 'An error occurred during analysis';
+      const errorMessage = err.message || 'An error occurred during analysis';
+      
+      // Update unified progress with error
+      setError(errorMessage);
+      
+      // Update core state
+      error.value = errorMessage;
       isLoading.value = false;
       hasActiveRequest.value = false;
       activeRequestId.value = null;
-      processingError.value = err.message || 'Analysis failed';
       canRetry.value = true;
-      showToast(error.value, 'error');
+      showToast(errorMessage, 'error');
     };
 
     // ===== API HANDLER FUNCTIONS =====
@@ -750,7 +814,7 @@ export default {
       }
     };
 
-    // Unified handler for all input types
+    // Unified handler for all input types with unified progress system
     function handleUnifiedAnalyze(payload) {
       console.log('handleUnifiedAnalyze payload:', payload);
       
@@ -761,18 +825,37 @@ export default {
         return;
       }
       
-      // Reset and start progress tracking for all input types
-      resetProcessing();
+      // Determine upload type and data for unified progress
+      let uploadType, uploadData;
+      if (payload.file) {
+        uploadType = 'file';
+        uploadData = payload;
+      } else if (payload.url) {
+        uploadType = 'url';
+        uploadData = payload;
+      } else if (payload.text) {
+        uploadType = 'text';
+        uploadData = payload;
+      }
+      
+      // Start unified progress tracking
+      startProgress(uploadType, uploadData, 95); // 95 seconds estimated
       setSteps([
         { step: 'Preparing analysis', estimated_time: 5 },
         { step: 'Processing content', estimated_time: 30 },
         { step: 'Verifying citations', estimated_time: 60 }
       ]);
+      
+      // Legacy progress system for backward compatibility
+      resetProcessing();
       startProcessing();
+      
+      // Set request state
       hasActiveRequest.value = true;
       error.value = null;
       results.value = null;
       
+      // Route to appropriate handler
       if (payload.file) {
         handleFileAnalyze(payload);
       } else if (payload.url) {
@@ -979,6 +1062,25 @@ export default {
       });
     };
 
+    // ===== UNIFIED PROGRESS EVENT HANDLERS =====
+    const handleProgressRetry = (retryData) => {
+      console.log('Progress retry requested:', retryData);
+      if (retryData && retryData.uploadType && retryData.uploadData) {
+        handleUnifiedAnalyze(retryData.uploadData);
+      }
+    };
+
+    const handleProgressReset = () => {
+      console.log('Progress reset requested');
+      resetProgress();
+      clearResults();
+    };
+
+    const handleProgressComplete = () => {
+      console.log('Progress completion acknowledged');
+      // Optional: Add any completion logic here
+    };
+
     // ===== RETURN STATEMENT =====
     return {
       // State
@@ -996,15 +1098,10 @@ export default {
       copyResults,
       downloadResults,
       
-      // Processing time tracking
-      elapsedTime,
-      remainingTime,
-      totalProgress,
-      currentStep,
-      currentStepProgress,
-      processingSteps,
-      actualTimes,
-      formatTime,
+      // Unified Progress Event Handlers
+      handleProgressRetry,
+      handleProgressReset,
+      handleProgressComplete,
       
       // Enhanced progress tracking
       citationInfo,
@@ -1012,8 +1109,20 @@ export default {
       estimatedQueueTime,
       rateLimitInfo,
       timeout,
-      processingError,
       canRetry,
+      processingError,
+      totalProgress,
+      currentStep,
+      currentStepProgress,
+      processingSteps,
+      resetProcessing,
+      progressTimer,
+      progressTotal,
+      progressCurrent,
+      formatTime,
+      progressBarClass,
+      progressPercent: legacyProgressPercent,
+      elapsedTime: legacyElapsedTime,
       
       // Helper functions
       getProgressBarClass,
@@ -1031,12 +1140,6 @@ export default {
       
       // Show timer computed property
       showTimer,
-      
-      // Progress bar state
-      progressCurrent,
-      progressTotal,
-      progressPercent,
-      progressBarClass,
       
       // Recent inputs
       loadRecentInput,

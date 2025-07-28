@@ -495,12 +495,32 @@ class ApplicationFactory:
     def _register_blueprints(self, app: Any) -> None:
         """Register application blueprints with proper error handling"""
         # Register blueprints
+        self.logger.info("Starting blueprint registration...")
+        
         try:
+            # Register main production API endpoints
+            self.logger.info("Attempting to import vue_api_endpoints...")
             from src.vue_api_endpoints import vue_api
+            self.logger.info("vue_api_endpoints imported successfully")
+            
             app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
-            self.logger.info("Vue API endpoints blueprint registered successfully")
+            self.logger.info("Vue API blueprint registered successfully - PRODUCTION API ACTIVE")
+            return  # Exit early if successful
+            
         except Exception as e:
-            self.logger.error(f"Could not register vue_api_endpoints: {e}")
+            self.logger.error(f"CRITICAL: Could not register Vue API: {e}")
+            import traceback
+            self.logger.error(f"Vue API import traceback: {traceback.format_exc()}")
+            
+            # Fallback to debug API (remove development mode restriction for troubleshooting)
+            self.logger.warning("Falling back to debug API due to Vue API failure")
+            try:
+                from src.debug_test_api import debug_api
+                app.register_blueprint(debug_api, url_prefix='/casestrainer/api')
+                self.logger.warning("Debug API registered as fallback - THIS SHOULD NOT HAPPEN IN PRODUCTION")
+            except Exception as e2:
+                self.logger.critical(f"FATAL: Could not register any API endpoints: {e2}")
+                raise RuntimeError(f"No API endpoints could be registered: Vue API failed with {e}, Debug API failed with {e2}")
 
     def _configure_cors(self, app: Any) -> None:
         """Configure CORS with security considerations"""

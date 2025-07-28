@@ -1,0 +1,544 @@
+"""
+Enhanced error handling and logging for citation processing.
+
+This module provides comprehensive error handling, logging, and monitoring capabilities.
+"""
+
+import logging
+import traceback
+import functools
+import asyncio
+import time
+from typing import Any, Callable, Optional, Dict, List, Type, Union
+from dataclasses import dataclass, field
+from enum import Enum
+from contextlib import contextmanager
+import sys
+import json
+
+# Custom exception hierarchy
+class CaseStrainerError(Exception):
+    """Base exception for all CaseStrainer errors."""
+    
+    def __init__(self, message: str, error_code: str = None, details: Dict[str, Any] = None):
+        super().__init__(message)
+        self.message = message
+        self.error_code = error_code or self.__class__.__name__
+        self.details = details or {}
+        self.timestamp = time.time()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert exception to dictionary for serialization."""
+        return {
+            'error_type': self.__class__.__name__,
+            'error_code': self.error_code,
+            'message': self.message,
+            'details': self.details,
+            'timestamp': self.timestamp
+        }
+
+
+class CitationExtractionError(CaseStrainerError):
+    """Errors related to citation extraction."""
+    pass
+
+
+class CitationVerificationError(CaseStrainerError):
+    """Errors related to citation verification."""
+    pass
+
+
+class CitationClusteringError(CaseStrainerError):
+    """Errors related to citation clustering."""
+    pass
+
+
+class APIError(CaseStrainerError):
+    """Errors related to external API calls."""
+    
+    def __init__(self, message: str, api_name: str, status_code: int = None, response_data: Any = None):
+        super().__init__(message, f"API_{api_name.upper()}_ERROR")
+        self.api_name = api_name
+        self.status_code = status_code
+        self.response_data = response_data
+        self.details.update({
+            'api_name': api_name,
+            'status_code': status_code,
+            'response_data': response_data
+        })
+
+
+class ValidationError(CaseStrainerError):
+    """Errors related to input validation."""
+    pass
+
+
+class ConfigurationError(CaseStrainerError):
+    """Errors related to configuration."""
+    pass
+
+
+class CacheError(CaseStrainerError):
+    """Errors related to caching operations."""
+    pass
+
+
+class RateLimitError(CaseStrainerError):
+    """Errors related to rate limiting."""
+    
+    def __init__(self, message: str, retry_after: float = None):
+        super().__init__(message, "RATE_LIMIT_ERROR")
+        self.retry_after = retry_after
+        self.details['retry_after'] = retry_after
+
+
+class ErrorSeverity(Enum):
+    """Error severity levels."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+@dataclass
+class ErrorContext:
+    """Context information for error tracking."""
+    operation: str
+    input_data: Any = None
+    user_id: Optional[str] = None
+    session_id: Optional[str] = None
+    request_id: Optional[str] = None
+    additional_context: Dict[str, Any] = field(default_factory=dict)
+
+
+class ErrorTracker:
+    """Track and analyze errors for monitoring and debugging."""
+    
+    def __init__(self):
+        self.errors: List[Dict[str, Any]] = []
+        self.error_counts: Dict[str, int] = {}
+        self.logger = logging.getLogger(__name__)
+    
+    def record_error(self, error: Exception, context: ErrorContext = None, severity: ErrorSeverity = ErrorSeverity.MEDIUM):
+        """Record an error with context."""
+        error_data = {
+            'timestamp': time.time(),
+            'error_type': type(error).__name__,
+            'message': str(error),
+            'severity': severity.value,
+            'traceback': traceback.format_exc(),
+            'context': context.additional_context if context else {}
+        }
+        
+        # Add CaseStrainer-specific error data
+        if isinstance(error, CaseStrainerError):
+            error_data.update(error.to_dict())
+        
+        # Add context data
+        if context:
+            error_data['operation'] = context.operation
+            error_data['user_id'] = context.user_id
+            error_data['session_id'] = context.session_id
+            error_data['request_id'] = context.request_id
+            if context.input_data:
+                error_data['input_summary'] = self._summarize_input(context.input_data)
+        
+        self.errors.append(error_data)
+        
+        # Update error counts
+        error_key = f"{error_data['error_type']}:{error_data.get('operation', 'unknown')}"
+        self.error_counts[error_key] = self.error_counts.get(error_key, 0) + 1
+        
+        # Log the error
+        log_level = self._get_log_level(severity)
+        self.logger.log(log_level, f"Error recorded: {error_data['message']}", extra=error_data)
+    
+    def _summarize_input(self, input_data: Any) -> Dict[str, Any]:
+        """Create a summary of input data for logging."""
+        if isinstance(input_data, str):
+            return {
+                'type': 'text',
+                'length': len(input_data),
+                'preview': input_data[:100] + '...' if len(input_data) > 100 else input_data
+            }
+        elif isinstance(input_data, list):
+            return {
+                'type': 'list',
+                'length': len(input_data),
+                'item_types': [type(item).__name__ for item in input_data[:5]]
+            }
+        elif isinstance(input_data, dict):
+            return {
+                'type': 'dict',
+                'keys': list(input_data.keys())[:10]
+            }
+        else:
+            return {
+                'type': type(input_data).__name__,
+                'value': str(input_data)[:100]
+            }
+    
+    def _get_log_level(self, severity: ErrorSeverity) -> int:
+        """Get logging level for severity."""
+        mapping = {
+            ErrorSeverity.LOW: logging.INFO,
+            ErrorSeverity.MEDIUM: logging.WARNING,
+            ErrorSeverity.HIGH: logging.ERROR,
+            ErrorSeverity.CRITICAL: logging.CRITICAL
+        }
+        return mapping.get(severity, logging.WARNING)
+    
+    def get_error_summary(self) -> Dict[str, Any]:
+        """Get summary of recorded errors."""
+        if not self.errors:
+            return {'total_errors': 0, 'error_types': {}, 'recent_errors': []}
+        
+        # Count by type
+        error_types = {}
+        for error in self.errors:
+            error_type = error['error_type']
+            error_types[error_type] = error_types.get(error_type, 0) + 1
+        
+        # Get recent errors (last 10)
+        recent_errors = sorted(self.errors, key=lambda x: x['timestamp'], reverse=True)[:10]
+        
+        return {
+            'total_errors': len(self.errors),
+            'error_types': error_types,
+            'most_common': self.error_counts,
+            'recent_errors': recent_errors
+        }
+    
+    def clear_errors(self):
+        """Clear all recorded errors."""
+        self.errors.clear()
+        self.error_counts.clear()
+
+
+# Global error tracker
+error_tracker = ErrorTracker()
+
+
+def handle_errors(
+    operation: str,
+    reraise: bool = True,
+    default_return: Any = None,
+    severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+    context_data: Dict[str, Any] = None
+):
+    """
+    Decorator for comprehensive error handling.
+    
+    Args:
+        operation: Name of the operation being performed
+        reraise: Whether to reraise the exception after handling
+        default_return: Default return value if error occurs and reraise=False
+        severity: Error severity level
+        context_data: Additional context data
+    """
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            context = ErrorContext(
+                operation=operation,
+                input_data=args[1] if len(args) > 1 else None,  # Assume second arg is input
+                additional_context=context_data or {}
+            )
+            
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                error_tracker.record_error(e, context, severity)
+                
+                if reraise:
+                    raise
+                else:
+                    return default_return
+        
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            context = ErrorContext(
+                operation=operation,
+                input_data=args[1] if len(args) > 1 else None,
+                additional_context=context_data or {}
+            )
+            
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                error_tracker.record_error(e, context, severity)
+                
+                if reraise:
+                    raise
+                else:
+                    return default_return
+        
+        # Return appropriate wrapper based on function type
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return sync_wrapper
+    
+    return decorator
+
+
+def retry_on_error(
+    max_retries: int = 3,
+    delay: float = 1.0,
+    backoff_factor: float = 2.0,
+    exceptions: tuple = (Exception,),
+    operation: str = "unknown"
+):
+    """
+    Decorator for retrying operations on specific exceptions.
+    
+    Args:
+        max_retries: Maximum number of retry attempts
+        delay: Initial delay between retries in seconds
+        backoff_factor: Factor to multiply delay by after each retry
+        exceptions: Tuple of exception types to retry on
+        operation: Name of the operation for logging
+    """
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            last_exception = None
+            current_delay = delay
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+                    
+                    if attempt == max_retries:
+                        # Final attempt failed
+                        context = ErrorContext(
+                            operation=f"{operation}_retry_exhausted",
+                            additional_context={'attempts': attempt + 1, 'max_retries': max_retries}
+                        )
+                        error_tracker.record_error(e, context, ErrorSeverity.HIGH)
+                        raise
+                    
+                    # Log retry attempt
+                    logging.warning(f"Attempt {attempt + 1} failed for {operation}: {e}. Retrying in {current_delay}s...")
+                    time.sleep(current_delay)
+                    current_delay *= backoff_factor
+                except Exception as e:
+                    # Non-retryable exception
+                    context = ErrorContext(
+                        operation=f"{operation}_non_retryable",
+                        additional_context={'attempt': attempt + 1}
+                    )
+                    error_tracker.record_error(e, context, ErrorSeverity.HIGH)
+                    raise
+            
+            # Should never reach here
+            raise last_exception
+        
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            last_exception = None
+            current_delay = delay
+            
+            for attempt in range(max_retries + 1):
+                try:
+                    return await func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+                    
+                    if attempt == max_retries:
+                        # Final attempt failed
+                        context = ErrorContext(
+                            operation=f"{operation}_retry_exhausted",
+                            additional_context={'attempts': attempt + 1, 'max_retries': max_retries}
+                        )
+                        error_tracker.record_error(e, context, ErrorSeverity.HIGH)
+                        raise
+                    
+                    # Log retry attempt
+                    logging.warning(f"Attempt {attempt + 1} failed for {operation}: {e}. Retrying in {current_delay}s...")
+                    await asyncio.sleep(current_delay)
+                    current_delay *= backoff_factor
+                except Exception as e:
+                    # Non-retryable exception
+                    context = ErrorContext(
+                        operation=f"{operation}_non_retryable",
+                        additional_context={'attempt': attempt + 1}
+                    )
+                    error_tracker.record_error(e, context, ErrorSeverity.HIGH)
+                    raise
+            
+            # Should never reach here
+            raise last_exception
+        
+        # Return appropriate wrapper based on function type
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return sync_wrapper
+    
+    return decorator
+
+
+@contextmanager
+def error_context(operation: str, **context_data):
+    """Context manager for error tracking."""
+    context = ErrorContext(operation=operation, additional_context=context_data)
+    
+    try:
+        yield context
+    except Exception as e:
+        error_tracker.record_error(e, context)
+        raise
+
+
+class LoggingConfig:
+    """Configuration for enhanced logging."""
+    
+    @staticmethod
+    def setup_logging(
+        level: str = "INFO",
+        format_string: str = None,
+        enable_file_logging: bool = True,
+        log_file: str = "casestrainer.log",
+        enable_json_logging: bool = False
+    ):
+        """Set up comprehensive logging configuration."""
+        
+        # Default format
+        if format_string is None:
+            if enable_json_logging:
+                format_string = '%(message)s'
+            else:
+                format_string = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        
+        # Configure root logger
+        logging.basicConfig(
+            level=getattr(logging, level.upper()),
+            format=format_string,
+            handlers=[]
+        )
+        
+        logger = logging.getLogger()
+        logger.handlers.clear()
+        
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        if enable_json_logging:
+            console_handler.setFormatter(JsonFormatter())
+        else:
+            console_handler.setFormatter(logging.Formatter(format_string))
+        logger.addHandler(console_handler)
+        
+        # File handler
+        if enable_file_logging:
+            file_handler = logging.FileHandler(log_file)
+            if enable_json_logging:
+                file_handler.setFormatter(JsonFormatter())
+            else:
+                file_handler.setFormatter(logging.Formatter(format_string))
+            logger.addHandler(file_handler)
+        
+        # Set specific logger levels
+        logging.getLogger('urllib3').setLevel(logging.WARNING)
+        logging.getLogger('requests').setLevel(logging.WARNING)
+
+
+class JsonFormatter(logging.Formatter):
+    """JSON formatter for structured logging."""
+    
+    def format(self, record):
+        log_entry = {
+            'timestamp': self.formatTime(record),
+            'level': record.levelname,
+            'logger': record.name,
+            'message': record.getMessage(),
+            'module': record.module,
+            'function': record.funcName,
+            'line': record.lineno
+        }
+        
+        # Add exception info if present
+        if record.exc_info:
+            log_entry['exception'] = self.formatException(record.exc_info)
+        
+        # Add extra fields
+        for key, value in record.__dict__.items():
+            if key not in ['name', 'msg', 'args', 'levelname', 'levelno', 'pathname', 
+                          'filename', 'module', 'lineno', 'funcName', 'created', 
+                          'msecs', 'relativeCreated', 'thread', 'threadName', 
+                          'processName', 'process', 'getMessage', 'exc_info', 'exc_text', 'stack_info']:
+                log_entry[key] = value
+        
+        return json.dumps(log_entry)
+
+
+class HealthChecker:
+    """Health checking and monitoring for citation processing services."""
+    
+    def __init__(self):
+        self.checks = {}
+        self.last_check_time = {}
+    
+    def register_check(self, name: str, check_func: Callable[[], bool], interval: float = 60.0):
+        """Register a health check function."""
+        self.checks[name] = {
+            'func': check_func,
+            'interval': interval,
+            'last_result': None,
+            'last_error': None
+        }
+    
+    def run_checks(self) -> Dict[str, Any]:
+        """Run all health checks."""
+        results = {}
+        current_time = time.time()
+        
+        for name, check_info in self.checks.items():
+            # Check if we need to run this check
+            last_check = self.last_check_time.get(name, 0)
+            if current_time - last_check < check_info['interval']:
+                # Use cached result
+                results[name] = {
+                    'status': 'cached',
+                    'result': check_info['last_result'],
+                    'last_check': last_check
+                }
+                continue
+            
+            # Run the check
+            try:
+                result = check_info['func']()
+                check_info['last_result'] = result
+                check_info['last_error'] = None
+                self.last_check_time[name] = current_time
+                
+                results[name] = {
+                    'status': 'healthy' if result else 'unhealthy',
+                    'result': result,
+                    'last_check': current_time
+                }
+            except Exception as e:
+                check_info['last_error'] = str(e)
+                results[name] = {
+                    'status': 'error',
+                    'error': str(e),
+                    'last_check': current_time
+                }
+        
+        return results
+
+
+# Global health checker
+health_checker = HealthChecker()
+
+
+# Export main components
+__all__ = [
+    'CaseStrainerError', 'CitationExtractionError', 'CitationVerificationError',
+    'CitationClusteringError', 'APIError', 'ValidationError', 'ConfigurationError',
+    'CacheError', 'RateLimitError', 'ErrorSeverity', 'ErrorContext', 'ErrorTracker',
+    'error_tracker', 'handle_errors', 'retry_on_error', 'error_context',
+    'LoggingConfig', 'JsonFormatter', 'HealthChecker', 'health_checker'
+]

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CaseStrainer Integration Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>CaseStrainer Integration Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testRatliffCitation() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing Ratliff citation...</p>';
+            
+            try {
+                console.log('Testing debug API with Ratliff citation...');
+                
+                const response = await axios.post('http://localhost:5000/casestrainer/api/analyze', {
+                    text: 'City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)',
+                    type: 'text'
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('API Response:', response.data);
+                
+                resultsDiv.innerHTML = `
+                    <h2>✅ SUCCESS! API Response:</h2>
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                    <h3>Citations Found:</h3>
+                    <ul>
+                        ${response.data.citations.map(citation => 
+                            `<li><strong>${citation.citation}</strong> - ${citation.status} (${citation.case_name})</li>`
+                        ).join('')}
+                    </ul>
+                    <h3>Validation Results:</h3>
+                    <ul>
+                        ${response.data.validation_results.map(result => 
+                            `<li><strong>${result.citation}</strong> - Verified: ${result.verified} (Confidence: ${result.confidence})</li>`
+                        ).join('')}
+                    </ul>
+                `;
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                resultsDiv.innerHTML = `
+                    <h2>❌ FAILED! Error:</h2>
+                    <pre>${error.message}</pre>
+                    <p>Status: ${error.response?.status}</p>
+                    <p>Response: ${JSON.stringify(error.response?.data, null, 2)}</p>
+                `;
+            }
+        }
+        
+        // Run test immediately
+        testRatliffCitation();
+    </script>
+</body>
+</html>

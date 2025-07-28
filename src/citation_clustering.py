@@ -41,59 +41,175 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                 for c in group_members:
                     if c not in clusters_by_id[cluster_id]:
                         clusters_by_id[cluster_id].append(c)
-    # --- NEW LOGIC: Group by canonical name/date if not already clustered ---
+    # --- IMPROVED LOGIC: Group by canonical name/date with better validation ---
     # Build a mapping from (canonical_name, canonical_date) to citations
     canonical_clusters = {}
     for citation in citations:
         canonical_name = getattr(citation, 'canonical_name', None)
         canonical_date = getattr(citation, 'canonical_date', None)
         verified = getattr(citation, 'verified', False)
-        # Only cluster if canonical_name and canonical_date are present
-        if canonical_name and canonical_date:
+        
+        # Only cluster if canonical_name and canonical_date are present and verified
+        # This prevents cross-contamination from incorrect canonical data
+        if canonical_name and canonical_date and verified:
             key = (canonical_name, canonical_date)
             if key not in canonical_clusters:
                 canonical_clusters[key] = []
             canonical_clusters[key].append(citation)
-    # Add canonical clusters to clusters_by_id if not already present
+    
+    # Add canonical clusters to clusters_by_id, merging with existing clusters if needed
     for key, members in canonical_clusters.items():
-        # Only add if more than one member and not already clustered
         if len(members) > 1:
-            # Generate a synthetic cluster_id
-            cluster_id = f"canonical_{key[0]}_{key[1]}"
+            canonical_name, canonical_date = key
+            cluster_id = f"canonical_{canonical_name.replace(' ', '_')}_{canonical_date}"
+            
+            # Check if any of these citations are already in a cluster
+            existing_cluster_ids = set()
+            for citation in members:
+                if hasattr(citation, 'metadata') and citation.metadata:
+                    existing_id = citation.metadata.get('cluster_id')
+                    if existing_id:
+                        existing_cluster_ids.add(existing_id)
+                elif isinstance(citation, dict):
+                    existing_id = citation.get('metadata', {}).get('cluster_id')
+                    if existing_id:
+                        existing_cluster_ids.add(existing_id)
+            
+            # If citations are already in clusters, merge them into the canonical cluster
+            if existing_cluster_ids:
+                # Use the first existing cluster_id as the canonical one
+                cluster_id = list(existing_cluster_ids)[0]
+                
+                # Merge all existing clusters into this one
+                for existing_id in existing_cluster_ids:
+                    if existing_id in clusters_by_id and existing_id != cluster_id:
+                        # Move citations from other clusters to the canonical cluster
+                        if cluster_id not in clusters_by_id:
+                            clusters_by_id[cluster_id] = []
+                        for c in clusters_by_id[existing_id]:
+                            if c not in clusters_by_id[cluster_id]:
+                                clusters_by_id[cluster_id].append(c)
+                            # Update cluster_id metadata
+                            if hasattr(c, 'metadata') and c.metadata:
+                                c.metadata['cluster_id'] = cluster_id
+                            elif isinstance(c, dict):
+                                c.setdefault('metadata', {})['cluster_id'] = cluster_id
+                        # Remove the old cluster
+                        del clusters_by_id[existing_id]
+            
+            # Ensure the canonical cluster exists
             if cluster_id not in clusters_by_id:
                 clusters_by_id[cluster_id] = []
-            # Only add citations not already in any cluster
+            
+            # Add all members with the same canonical name/date to this cluster
             for citation in members:
-                already_clustered = False
-                if hasattr(citation, 'metadata') and citation.metadata:
-                    already_clustered = citation.metadata.get('is_in_cluster', False)
-                elif isinstance(citation, dict):
-                    already_clustered = citation.get('metadata', {}).get('is_in_cluster', False)
-                if not already_clustered:
+                if citation not in clusters_by_id[cluster_id]:
                     clusters_by_id[cluster_id].append(citation)
+                
+                # Mark as in cluster with consistent metadata
+                if hasattr(citation, 'metadata'):
+                    citation.metadata = citation.metadata or {}
+                    citation.metadata['is_in_cluster'] = True
+                    citation.metadata['cluster_id'] = cluster_id
+                elif isinstance(citation, dict):
+                    citation.setdefault('metadata', {})
+                    citation['metadata']['is_in_cluster'] = True
+                    citation['metadata']['cluster_id'] = cluster_id
+    
+    # --- IMPROVED LOGIC: Merge unverified citations with existing canonical clusters ---
+    # This handles cases where unverified citations belong to the same case as verified ones
+    for citation in citations:
+        # Skip if already clustered
+        already_clustered = False
+        if hasattr(citation, 'metadata') and citation.metadata:
+            already_clustered = citation.metadata.get('is_in_cluster', False)
+        elif isinstance(citation, dict):
+            already_clustered = citation.get('metadata', {}).get('is_in_cluster', False)
+        
+        if not already_clustered:
+            extracted_name = getattr(citation, 'extracted_case_name', None)
+            extracted_date = getattr(citation, 'extracted_date', None)
+            
+            if extracted_name and extracted_date:
+                # Normalize the case name for matching
+                normalized_extracted = extracted_name.strip().lower()
+                
+                # Look for existing canonical clusters that match this citation
+                matching_cluster_id = None
+                for cluster_id, cluster_members in clusters_by_id.items():
+                    for cluster_member in cluster_members:
+                        canonical_name = getattr(cluster_member, 'canonical_name', None)
+                        canonical_date = getattr(cluster_member, 'canonical_date', None)
+                        
+                        if canonical_name and canonical_date:
+                            normalized_canonical = canonical_name.strip().lower()
+                            # Check if the extracted name matches the canonical name and dates match
+                            if (normalized_extracted == normalized_canonical and 
+                                extracted_date == canonical_date):
+                                matching_cluster_id = cluster_id
+                                break
+                    
+                    if matching_cluster_id:
+                        break
+                
+                # If we found a matching cluster, add this citation to it
+                if matching_cluster_id:
+                    if citation not in clusters_by_id[matching_cluster_id]:
+                        clusters_by_id[matching_cluster_id].append(citation)
+                    
                     # Mark as in cluster
                     if hasattr(citation, 'metadata'):
                         citation.metadata = citation.metadata or {}
                         citation.metadata['is_in_cluster'] = True
-                        citation.metadata['cluster_id'] = cluster_id
+                        citation.metadata['cluster_id'] = matching_cluster_id
                     elif isinstance(citation, dict):
                         citation.setdefault('metadata', {})
                         citation['metadata']['is_in_cluster'] = True
-                        citation['metadata']['cluster_id'] = cluster_id
-            # DISABLE DANGEROUS PROPAGATION: This was contaminating unverified citations
-            # with case names from other citations. Only verified citations should 
-            # propagate their canonical names, not extracted names to unverified citations.
-            # 
-            # Conservative propagation: only fill missing extracted_case_name
-            # best_extracted = None
-            # for c in members:
-            #     if getattr(c, 'extracted_case_name', None):
-            #         best_extracted = c.extracted_case_name
-            #         break
-            # if best_extracted:
-            #     for c in members:
-            #         if not getattr(c, 'extracted_case_name', None):
-            #             c.extracted_case_name = best_extracted
+                        citation['metadata']['cluster_id'] = matching_cluster_id
+    
+    # --- FALLBACK: Create new clusters for remaining unverified citations ---
+    extracted_clusters = {}
+    for citation in citations:
+        # Skip if already clustered
+        already_clustered = False
+        if hasattr(citation, 'metadata') and citation.metadata:
+            already_clustered = citation.metadata.get('is_in_cluster', False)
+        elif isinstance(citation, dict):
+            already_clustered = citation.get('metadata', {}).get('is_in_cluster', False)
+        
+        if not already_clustered:
+            extracted_name = getattr(citation, 'extracted_case_name', None)
+            extracted_date = getattr(citation, 'extracted_date', None)
+            
+            if extracted_name and extracted_date:
+                normalized_name = extracted_name.strip().lower()
+                key = (normalized_name, extracted_date)
+                if key not in extracted_clusters:
+                    extracted_clusters[key] = []
+                extracted_clusters[key].append(citation)
+    
+    # Add extracted clusters to clusters_by_id (only if multiple members)
+    for key, members in extracted_clusters.items():
+        if len(members) > 1:
+            normalized_name, extracted_date = key
+            original_name = getattr(members[0], 'extracted_case_name', normalized_name)
+            cluster_id = f"extracted_{original_name.replace(' ', '_')}_{extracted_date}"
+            
+            if cluster_id not in clusters_by_id:
+                clusters_by_id[cluster_id] = []
+            
+            for citation in members:
+                if citation not in clusters_by_id[cluster_id]:
+                    clusters_by_id[cluster_id].append(citation)
+                
+                if hasattr(citation, 'metadata'):
+                    citation.metadata = citation.metadata or {}
+                    citation.metadata['is_in_cluster'] = True
+                    citation.metadata['cluster_id'] = cluster_id
+                elif isinstance(citation, dict):
+                    citation.setdefault('metadata', {})
+                    citation['metadata']['is_in_cluster'] = True
+                    citation['metadata']['cluster_id'] = cluster_id
     # --- NEW: Propagate canonical date from last citation to all citations in parallel clusters ---
     def propagate_canonical_date_within_clusters():
         """Propagate canonical date from the last citation in a cluster to all citations that lack canonical_date."""

@@ -422,12 +422,22 @@ class DockerOptimizedProcessor:
                 'error': text,
                 'processing_time': time.time() - start_time
             }
-        # Process citations using existing citation service
+        # Process citations using existing citation service with verification enabled
         print(f"[DEBUG PRINT] About to import and call CitationService for file_path={file_path}")
         logging.info(f"[DEBUG] About to import and call CitationService for file_path={file_path}")
         from src.api.services.citation_service import CitationService
-        citation_service = CitationService()
-        citation_result = citation_service.process_citations_from_text(text)
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+        from src.models import ProcessingConfig
+        
+        # Explicitly enable verification for async processing (same as sync path)
+        print(f"[DEBUG PRINT] Creating citation processor with verification enabled for async processing")
+        logging.info(f"[DEBUG] Creating citation processor with verification enabled for async processing")
+        config = ProcessingConfig(
+            enable_verification=True,
+            debug_mode=True  # Enable debug logging to see verification steps
+        )
+        processor = UnifiedCitationProcessorV2(config)
+        citation_result = processor.process_text(text)
         print(f"[DEBUG PRINT] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
         logging.info(f"[DEBUG] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
         return {

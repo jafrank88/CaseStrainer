@@ -1,0 +1,803 @@
+{
+  "test_timestamp": "2025-07-28 16:44:28 UTC",
+  "server_url": "https://wolf.law.uw.edu/casestrainer",
+  "tests": {
+    "health_check": {
+      "status_code": 200,
+      "response_time": 0.053186,
+      "content": {
+        "components": {
+          "citation_processor": "healthy",
+          "database": "healthy",
+          "upload_directory": "healthy"
+        },
+        "database_stats": {
+          "size_mb": 0.11,
+          "tables": 4
+        },
+        "status": "healthy",
+        "timestamp": "2025-07-28T16:44:28.242640",
+        "version": "unknown"
+      },
+      "headers": {
+        "Server": "nginx/1.29.0",
+        "Date": "Mon, 28 Jul 2025 16:44:28 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "223",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "https://wolf.law.uw.edu",
+        "Access-Control-Expose-Headers": "Content-Disposition, Content-Type"
+      },
+      "api_type": "UNKNOWN"
+    },
+    "sync_text_short": {
+      "test_name": "sync_text_short",
+      "status_code": 200,
+      "response_time": 1.1434917449951172,
+      "content": {
+        "citations": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "100 Wn. 2d 212",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 1.0,
+            "context": "City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 41,
+            "error": null,
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "parallel_citation_cluster",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 28,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "667 P.2d 630",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 1.0,
+            "context": "City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 60,
+            "error": null,
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "flexible_p2d",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 48,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          }
+        ],
+        "clusters": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "citations": [
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "100 Wn. 2d 212",
+                "confidence": 1.0,
+                "context": "City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              },
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "667 P.2d 630",
+                "confidence": 1.0,
+                "context": "City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              }
+            ],
+            "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "has_parallel_citations": true,
+            "size": 2,
+            "source": "citation_clustering",
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/"
+          }
+        ],
+        "metadata": {},
+        "statistics": {
+          "text_length": 67,
+          "total_citations": 2
+        },
+        "success": true
+      },
+      "data_type": "REAL_CITATIONS",
+      "citation_count": 2
+    },
+    "sync_text_medium": {
+      "test_name": "sync_text_medium",
+      "status_code": 200,
+      "response_time": 2.6344428062438965,
+      "content": {
+        "citations": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "100 Wn. 2d 212",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 1.0,
+            "context": "The court in City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 67,
+            "error": null,
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "parallel_citation_cluster",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 54,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "667 P.2d 630",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 1.0,
+            "context": "The court in City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 86,
+            "error": null,
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "flexible_p2d",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 74,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1954-05-17",
+            "canonical_name": "Brown v. Board of Education",
+            "case_history": [],
+            "case_name": "Brown v. Board of Education",
+            "citation": "347 U.S. 483",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": "ty of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983) \n            established important precedent. See also Brown v. Board of Education, 347 U.S. 483 (1954)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 190,
+            "error": null,
+            "extracted_case_name": "Brown v. Board of Education",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 178,
+            "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1966-06-13",
+            "canonical_name": "Miranda v. Arizona",
+            "case_history": [],
+            "case_name": "Miranda v. Arizona",
+            "citation": "384 U.S. 436",
+            "cluster_members": [
+              "384 U.S. 436",
+              "410 U.S. 113"
+            ],
+            "confidence": 1.0,
+            "context": ".\n            Additional cases include Miranda v. Arizona, 384 U.S. 436 (1966)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 268,
+            "error": null,
+            "extracted_case_name": "Brown v. Board of Education,",
+            "extracted_date": "1954",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "fallback_extracted_brown v. board of education,_1954",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 256,
+            "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1973-01-22",
+            "canonical_name": "Roe v. Wade",
+            "case_history": [],
+            "case_name": "Roe v. Wade",
+            "citation": "410 U.S. 113",
+            "cluster_members": [
+              "384 U.S. 436",
+              "410 U.S. 113"
+            ],
+            "confidence": 0.9999999999999999,
+            "context": "and \n            Roe v. Wade, 410 U.S. 113 (1973)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 318,
+            "error": null,
+            "extracted_case_name": "Brown v. Board of Education,",
+            "extracted_date": "1954",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "fallback_extracted_brown v. board of education,_1954",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 306,
+            "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+            "verified": true
+          }
+        ],
+        "clusters": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "citations": [
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "100 Wn. 2d 212",
+                "confidence": 1.0,
+                "context": "The court in City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              },
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "667 P.2d 630",
+                "confidence": 1.0,
+                "context": "The court in City of Seattle v. Ratliff, 100 Wn.2d 212, 218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              }
+            ],
+            "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+            "extracted_case_name": "City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "has_parallel_citations": true,
+            "size": 2,
+            "source": "citation_clustering",
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/"
+          },
+          {
+            "canonical_date": "1966-06-13",
+            "canonical_name": "Miranda v. Arizona",
+            "citations": [
+              {
+                "canonical_date": "1966-06-13",
+                "canonical_name": "Miranda v. Arizona",
+                "citation": "384 U.S. 436",
+                "confidence": 1.0,
+                "context": ".\n            Additional cases include Miranda v. Arizona, 384 U.S. 436 (1966)",
+                "court": null,
+                "extracted_case_name": "Brown v. Board of Education,",
+                "extracted_date": "1954",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+                "verified": true
+              },
+              {
+                "canonical_date": "1973-01-22",
+                "canonical_name": "Roe v. Wade",
+                "citation": "410 U.S. 113",
+                "confidence": 0.9999999999999999,
+                "context": "and \n            Roe v. Wade, 410 U.S. 113 (1973)",
+                "court": null,
+                "extracted_case_name": "Brown v. Board of Education,",
+                "extracted_date": "1954",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+                "verified": true
+              }
+            ],
+            "cluster_id": "fallback_extracted_brown v. board of education,_1954",
+            "extracted_case_name": "Brown v. Board of Education,",
+            "extracted_date": "1954",
+            "has_parallel_citations": true,
+            "size": 2,
+            "source": "citation_clustering",
+            "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/"
+          }
+        ],
+        "metadata": {},
+        "statistics": {
+          "text_length": 339,
+          "total_citations": 5
+        },
+        "success": true
+      },
+      "data_type": "REAL_CITATIONS",
+      "citation_count": 5
+    },
+    "async_text_long": {
+      "test_name": "async_text_long",
+      "error": "Expected 202 for async processing, got 200",
+      "content": {
+        "citations": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "100 Wn. 2d 212",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 0.9,
+            "context": "analysis examines multiple landmark cases that have shaped \n            American jurisprudence. The foundational case of City of Seattle v. Ratliff, 100 Wn.2d 212, \n            218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 200,
+            "error": null,
+            "extracted_case_name": "American jurisprudence. The foundational case of City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "parallel_citation_cluster",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 187,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "case_history": [],
+            "case_name": "City of Seattle v. Ratliff",
+            "citation": "667 P.2d 630",
+            "cluster_members": [
+              "100 Wn. 2d 212",
+              "667 P.2d 630"
+            ],
+            "confidence": 1.0,
+            "context": "ark cases that have shaped \n            American jurisprudence. The foundational case of City of Seattle v. Ratliff, 100 Wn.2d 212, \n            218, 667 P.2d 630 (1983)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 232,
+            "error": null,
+            "extracted_case_name": "American jurisprudence. The foundational case of City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": true,
+            "metadata": {
+              "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+              "courtlistener_source": "CourtListener-lookup",
+              "is_in_cluster": true
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "flexible_p2d",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 220,
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1954-05-17",
+            "canonical_name": "Brown v. Board of Education",
+            "case_history": [],
+            "case_name": "Brown v. Board of Education",
+            "citation": "347 U.S. 483",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": "218, 667 P.2d 630 (1983) established crucial precedent in municipal law. The Supreme Court's \n            decision in Brown v. Board of Education, 347 U.S. 483 (1954)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 374,
+            "error": null,
+            "extracted_case_name": "Brown v. Board of Education",
+            "extracted_date": "1983",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 362,
+            "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1966-06-13",
+            "canonical_name": "Miranda v. Arizona",
+            "case_history": [],
+            "case_name": "Miranda v. Arizona",
+            "citation": "384 U.S. 436",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": "eclaring racial segregation in public schools unconstitutional.\n            \n            Criminal procedure was revolutionized by Miranda v. Arizona, 384 U.S. 436 (1966)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 604,
+            "error": null,
+            "extracted_case_name": "Criminal procedure was revolutionized by Miranda v. Arizona",
+            "extracted_date": "1966",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 592,
+            "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1973-01-22",
+            "canonical_name": "Roe v. Wade",
+            "case_history": [],
+            "case_name": "Roe v. Wade",
+            "citation": "410 U.S. 113",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": "the requirement for police to inform suspects of their constitutional rights. \n            Privacy rights were significantly expanded in Roe v. Wade, 410 U.S. 113 (1973)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 806,
+            "error": null,
+            "extracted_case_name": "Roe v. Wade",
+            "extracted_date": "1973",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 794,
+            "url": "https://www.courtlistener.com/opinion/108713/roe-v-wade/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1803-02-24",
+            "canonical_name": "Marbury v. Madison",
+            "case_history": [],
+            "case_name": "Marbury v. Madison",
+            "citation": "5 U.S. 137",
+            "cluster_members": [],
+            "confidence": 0.9999999999999999,
+            "context": "gnized a constitutional right to privacy in reproductive decisions.\n            \n            Additional significant cases include Marbury v. Madison, 5 U.S. 137 (1803)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 998,
+            "error": null,
+            "extracted_case_name": "N/A",
+            "extracted_date": null,
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 988,
+            "url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1963-03-18",
+            "canonical_name": "Gideon v. Wainwright",
+            "case_history": [],
+            "case_name": "Gideon v. Wainwright",
+            "citation": "372 U.S. 335",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": ", which \n            established judicial review; Gideon v. Wainwright, 372 U.S. 335 (1963)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 1089,
+            "error": null,
+            "extracted_case_name": "Gideon v. Wainwright",
+            "extracted_date": "1963",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 1077,
+            "url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+            "verified": true
+          },
+          {
+            "canonical_date": "1964-03-09",
+            "canonical_name": "New York Times Co. v. Sullivan",
+            "case_history": [],
+            "case_name": "New York Times Co. v. Sullivan",
+            "citation": "376 U.S. 254",
+            "cluster_members": [],
+            "confidence": 1.0,
+            "context": ", ensuring \n            right to counsel; and New York Times Co. v. Sullivan, 376 U.S. 254 (1964)",
+            "court": null,
+            "docket_numbers": [],
+            "end_index": 1186,
+            "error": null,
+            "extracted_case_name": "New York Times Co. v. Sullivan",
+            "extracted_date": "1964",
+            "is_cluster": false,
+            "is_parallel": false,
+            "metadata": {
+              "courtlistener_source": "CourtListener-lookup"
+            },
+            "method": "regex",
+            "parallel_citations": [],
+            "pattern": "us",
+            "pinpoint_pages": [],
+            "publication_status": null,
+            "source": "CourtListener-lookup",
+            "start_index": 1174,
+            "url": "https://www.courtlistener.com/opinion/106761/new-york-times-co-v-sullivan/",
+            "verified": true
+          }
+        ],
+        "clusters": [
+          {
+            "canonical_date": "1983-08-11",
+            "canonical_name": "City of Seattle v. Ratliff",
+            "citations": [
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "100 Wn. 2d 212",
+                "confidence": 0.9,
+                "context": "analysis examines multiple landmark cases that have shaped \n            American jurisprudence. The foundational case of City of Seattle v. Ratliff, 100 Wn.2d 212, \n            218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "American jurisprudence. The foundational case of City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              },
+              {
+                "canonical_date": "1983-08-11",
+                "canonical_name": "City of Seattle v. Ratliff",
+                "citation": "667 P.2d 630",
+                "confidence": 1.0,
+                "context": "ark cases that have shaped \n            American jurisprudence. The foundational case of City of Seattle v. Ratliff, 100 Wn.2d 212, \n            218, 667 P.2d 630 (1983)",
+                "court": null,
+                "extracted_case_name": "American jurisprudence. The foundational case of City of Seattle v. Ratliff",
+                "extracted_date": "1983",
+                "parallel_citations": [],
+                "source": "CourtListener-lookup",
+                "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/",
+                "verified": true
+              }
+            ],
+            "cluster_id": "canonical_City of Seattle v. Ratliff_1983-08-11",
+            "extracted_case_name": "American jurisprudence. The foundational case of City of Seattle v. Ratliff",
+            "extracted_date": "1983",
+            "has_parallel_citations": true,
+            "size": 2,
+            "source": "citation_clustering",
+            "url": "https://www.courtlistener.com/opinion/1145317/city-of-seattle-v-ratliff/"
+          }
+        ],
+        "metadata": {},
+        "statistics": {
+          "text_length": 1400,
+          "total_citations": 8
+        },
+        "success": true
+      }
+    },
+    "file_upload": {
+      "test_name": "file_upload",
+      "task_id": "c9c98c91-65a1-4b64-842b-e8e25439a472",
+      "status": "completed",
+      "polls_required": 2,
+      "total_time": 20,
+      "content": {
+        "citations": [],
+        "clusters": [],
+        "metadata": {
+          "filename": "test_citations.txt",
+          "text_length": 0
+        },
+        "statistics": {
+          "cache_hit": false,
+          "processor_used": "PdfMinerProcessor",
+          "total_citations": 0
+        },
+        "status": "completed",
+        "success": true,
+        "task_id": "c9c98c91-65a1-4b64-842b-e8e25439a472"
+      },
+      "data_type": "NO_CITATIONS"
+    },
+    "url_analysis": {
+      "test_name": "url_analysis",
+      "url": "https://www.supremecourt.gov/opinions/20pdf/19-1392_6j37.pdf",
+      "task_id": "99e06eb1-aeab-449c-a6ee-9a802fd2764b",
+      "status": "completed",
+      "polls_required": 2,
+      "total_time": 20,
+      "content": {
+        "citations": [],
+        "clusters": [],
+        "metadata": {
+          "text_length": 0,
+          "url": "https://www.supremecourt.gov/opinions/20pdf/19-1392_6j37.pdf"
+        },
+        "statistics": {
+          "cache_hit": false,
+          "processor_used": "PdfMinerProcessor",
+          "total_citations": 0
+        },
+        "status": "completed",
+        "success": true,
+        "task_id": "99e06eb1-aeab-449c-a6ee-9a802fd2764b"
+      },
+      "data_type": "NO_CITATIONS"
+    }
+  },
+  "summary": {
+    "total_tests": 6,
+    "passed": 5,
+    "failed": 1,
+    "api_type": "UNKNOWN",
+    "real_citations_detected": true,
+    "mock_data_detected": false,
+    "critical_issues": [],
+    "overall_status": "PARTIAL_SUCCESS",
+    "message": "Real citations detected but some tests failed"
+  }
+}

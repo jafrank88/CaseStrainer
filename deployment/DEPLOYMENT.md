@@ -173,11 +173,13 @@ docker-compose -f docker-compose.prod.yml up -d --build \
    taskkill /f /im python.exe
    ```
 
-3. **Start the CaseStrainer application on port 5000**:
+3. **Start the CaseStrainer application using cslaunch.ps1**:
    ```powershell
-   cd "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-   python src/app_final_vue.py --host 0.0.0.0 --port 5000
+   cd "d:\dev\casestrainer"
+   .\cslaunch.ps1
    ```
+   
+   Select option 1 for quick production start, or option 2 for full production start.
    
    > **CRITICAL**: The application must listen on all interfaces (0.0.0.0), not just localhost (127.0.0.1), so the Docker container can reach it at 10.158.120.151:5000. This is the most common cause of deployment issues - binding to 127.0.0.1 instead of 0.0.0.0 will prevent the Docker container from connecting to the application.
 

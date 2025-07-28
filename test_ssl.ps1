@@ -4,8 +4,8 @@ Write-Host ""
 
 # Check certificate files
 Write-Host "Certificate Files:" -ForegroundColor Yellow
-$certFile = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\WolfCertBundle.crt"
-$keyFile = "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl\wolf.law.uw.edu.key"
+$certFile = "d:\dev\casestrainer\ssl\WolfCertBundle.crt"
+$keyFile = "d:\dev\casestrainer\ssl\wolf.law.uw.edu.key"
 
 Write-Host "  Certificate: $(if (Test-Path $certFile) { 'EXISTS' } else { 'MISSING' })" -ForegroundColor $(if (Test-Path $certFile) { 'Green' } else { 'Red' })
 Write-Host "  Key: $(if (Test-Path $keyFile) { 'EXISTS' } else { 'MISSING' })" -ForegroundColor $(if (Test-Path $keyFile) { 'Green' } else { 'Red' })

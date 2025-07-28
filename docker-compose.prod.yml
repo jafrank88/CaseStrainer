@@ -41,6 +41,7 @@ services:
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
       - LOG_LEVEL_CASE_NAME_EXTRACTION=${LOG_LEVEL_CASE_NAME_EXTRACTION:-WARNING}
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs

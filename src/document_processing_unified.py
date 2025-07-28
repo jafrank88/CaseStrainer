@@ -46,22 +46,22 @@ except ImportError:
     except ImportError:
         try:
             # Try alternative import path
-            from enhanced_citation_processor import EnhancedCitationProcessor as UnifiedCitationProcessor
+            from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
             _enhanced_processor_available = True
         except ImportError:
             logger.warning("Enhanced citation processor not available")
 
-# Try to import the enhanced v2 processor
+# Try to import the unified citation processor v2 (replaces enhanced_v2_processor)
 try:
-    from .enhanced_v2_processor import EnhancedV2Processor
+    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
     _enhanced_v2_processor_available = True
 except ImportError:
     try:
-        from enhanced_v2_processor import EnhancedV2Processor
+        from unified_citation_processor_v2 import UnifiedCitationProcessorV2
         _enhanced_v2_processor_available = True
     except ImportError:
         _enhanced_v2_processor_available = False
-        logger.warning("Enhanced v2 processor not available")
+        logger.warning("UnifiedCitationProcessorV2 not available")
 
 # Public constants (read-only) - use different names to avoid conflicts
 UNIFIED_PROCESSOR_AVAILABLE_UNIFIED = _unified_processor_available
@@ -616,9 +616,21 @@ class OptimizedPDFProcessor:
             'feclera1': 'federal',
             'rnay': 'may',
             'ansv.v.er': 'answer',
+            '1av.v.': 'law',
+            'reso1v.e': 'resolve',
             'Conv.oy': 'Convoy',
             'v.v.hen': 'when',
             'v.v.': 'v.',
+            '1': 'l',
+            '0': 'o',
+            '5': 's',
+            '3': 'e',
+            '7': 't',
+            '8': 'b',
+            '9': 'g',
+            '6': 'g',
+            '2': 'z',
+            '4': 'a',
         }
         
         corrected = text
@@ -754,18 +766,22 @@ class UnifiedDocumentProcessor:
         super().__init__()
         self.ocr_corrections = self._init_ocr_corrections()
         
-        # Initialize citation processor
+        # Initialize citation processor with verification enabled
         if UNIFIED_PROCESSOR_AVAILABLE:
             # Use enhanced v2 processor for better accuracy
             try:
-                from .enhanced_v2_processor import EnhancedV2Processor
-                self.citation_processor = EnhancedV2Processor()
-                logger.info("Using EnhancedV2Processor for improved accuracy")
+                from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                self.citation_processor = UnifiedCitationProcessorV2()  # Already has verification enabled
+                logger.info("Using UnifiedCitationProcessorV2 for improved accuracy")
             except ImportError:
-                self.citation_processor = UnifiedCitationProcessorV2()
-                logger.info("Using standard UnifiedCitationProcessorV2")
+                from .models import ProcessingConfig
+                config = ProcessingConfig(enable_verification=True, debug_mode=True)
+                self.citation_processor = UnifiedCitationProcessorV2(config)
+                logger.info("Using standard UnifiedCitationProcessorV2 with verification enabled")
         elif ENHANCED_PROCESSOR_AVAILABLE:
-            self.citation_processor = UnifiedCitationProcessor()
+            from .models import ProcessingConfig
+            config = ProcessingConfig(enable_verification=True, debug_mode=True)
+            self.citation_processor = UnifiedCitationProcessor(config)
         else:
             self.citation_processor = None
             logger.warning("No citation processor available")

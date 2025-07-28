@@ -1,96 +1,197 @@
 #!/usr/bin/env python3
+"""
+Test script to verify the clustering fix for Gideon v. Wainwright citations.
+This tests that all citations to the same case are properly clustered together.
+"""
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-from src.models import ProcessingConfig
+from src.models import CitationResult
+from src.citation_clustering import group_citations_into_clusters
 
-def test_clustering_fix():
-    """Test that the clustering fix prevents incorrect case name propagation."""
-    
-    # Test text with both citations that have the same year (2020) but different case names
-    test_text = """
-    Municipal corporations are not typically within the zone of interest of individual constitutional guarantees. 
-    See, e.g., Lakehaven Water & Sewer Dist. v. City of Fed. Way, 195 Wn.2d 742, 773, 466 P.3d 213 (2020) 
-    (sewer and water district lacked standing to challenge constitutional issues).
-    
-    The State has a duty to actively provide criminal defense services to those who cannot afford it. 
-    See Davison v. State, 196 Wn.2d 285, 293, 466 P.3d 231 (2020) 
-    ("The State plainly has a duty to provide indigent defense").
-    """
-    
-    # Configure processor
-    config = ProcessingConfig(
-        extract_case_names=True,
-        enable_verification=False  # Disable verification to focus on extraction
+def create_test_citation(citation_text, canonical_name=None, canonical_date=None, 
+                        extracted_case_name=None, extracted_date=None, verified=False):
+    """Create a test citation with the specified attributes."""
+    citation = CitationResult(
+        citation=citation_text,
+        canonical_name=canonical_name,
+        canonical_date=canonical_date,
+        extracted_case_name=extracted_case_name,
+        extracted_date=extracted_date,
+        verified=verified,
+        start_index=0
     )
-    processor = UnifiedCitationProcessorV2(config)
+    return citation
+
+def test_gideon_clustering():
+    """Test that all Gideon v. Wainwright citations are properly clustered."""
+    print("Testing Gideon v. Wainwright clustering...")
     
-    # Process the text
-    results = processor.process_text(test_text)
+    # Create test citations representing the scenario from the user's screenshot
+    citations = [
+        # Verified citations with canonical data
+        create_test_citation(
+            "372 U.S. 335",
+            canonical_name="Gideon v. Wainwright",
+            canonical_date="1963",
+            extracted_case_name="Gideon v. Wainwright",
+            extracted_date="1963",
+            verified=True
+        ),
+        create_test_citation(
+            "83 S. Ct. 792",
+            canonical_name="Gideon v. Wainwright",
+            canonical_date="1963",
+            extracted_case_name="Gideon v. Wainwright",
+            extracted_date="1963",
+            verified=True
+        ),
+        # Unverified citations with only extracted data
+        create_test_citation(
+            "9 L. Ed. 2d 799",
+            extracted_case_name="Gideon v. Wainwright",
+            extracted_date="1963",
+            verified=False
+        ),
+        create_test_citation(
+            "Gideon v. Wainwright",
+            extracted_case_name="Gideon v. Wainwright",
+            extracted_date="1963",
+            verified=False
+        ),
+        # Different case to ensure no cross-contamination
+        create_test_citation(
+            "578 U.S. 5",
+            canonical_name="Luis v. United States",
+            canonical_date="2016",
+            extracted_case_name="Luis v. United States",
+            extracted_date="2016",
+            verified=True
+        )
+    ]
     
-    print("=== TESTING CLUSTERING FIX ===")
-    print(f"Found {len(results['citations'])} citations")
-    print()
+    # Run clustering
+    clustered_citations = group_citations_into_clusters(citations)
     
-    # Print all citations to see their exact format
-    print("All citations found:")
-    for i, citation in enumerate(results['citations']):
-        print(f"  {i+1}. '{citation.citation}'")
-    print()
+    # Analyze results
+    clusters = {}
+    unclustered = []
     
-    # Check the specific citations
-    lakehaven_citation = None
-    davison_citation = None
-    
-    for citation in results['citations']:
-        if '195 Wn. 2d 742' in citation.citation:
-            lakehaven_citation = citation
-        elif '196 Wn. 2d 285' in citation.citation:
-            davison_citation = citation
-    
-    print("=== RESULTS ===")
-    if lakehaven_citation:
-        print(f"195 Wn. 2d 742:")
-        print(f"  Citation: {lakehaven_citation.citation}")
-        print(f"  Extracted case name: {lakehaven_citation.extracted_case_name}")
-        print(f"  Extracted date: {lakehaven_citation.extracted_date}")
-        print(f"  Expected: Lakehaven Water & Sewer Dist. v. City of Fed. Way")
-        print()
-    else:
-        print("❌ 195 Wn. 2d 742 not found")
-        print()
-    
-    if davison_citation:
-        print(f"196 Wn. 2d 285:")
-        print(f"  Citation: {davison_citation.citation}")
-        print(f"  Extracted case name: {davison_citation.extracted_case_name}")
-        print(f"  Extracted date: {davison_citation.extracted_date}")
-        print(f"  Expected: Davison v. State")
-        print()
-    else:
-        print("❌ 196 Wn. 2d 285 not found")
-        print()
-    
-    # Check if the fix worked
-    if lakehaven_citation and davison_citation:
-        lakehaven_correct = "Lakehaven" in (lakehaven_citation.extracted_case_name or "")
-        davison_correct = "Davison" in (davison_citation.extracted_case_name or "")
-        
-        print("=== FIX VERIFICATION ===")
-        if lakehaven_correct and davison_correct:
-            print("✅ FIX WORKED: Each citation has its correct case name")
-            print("✅ No incorrect propagation between citations with same year")
-        elif lakehaven_correct and not davison_correct:
-            print("⚠️  PARTIAL: Lakehaven correct, but Davison incorrect")
-        elif not lakehaven_correct and davison_correct:
-            print("⚠️  PARTIAL: Davison correct, but Lakehaven incorrect")
+    for citation in clustered_citations:
+        if hasattr(citation, 'metadata') and citation.metadata.get('is_in_cluster'):
+            cluster_id = citation.metadata.get('cluster_id')
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append(citation)
         else:
-            print("❌ FIX FAILED: Both citations have incorrect case names")
+            unclustered.append(citation)
+    
+    print(f"\nClustering Results:")
+    print(f"Total citations: {len(citations)}")
+    print(f"Number of clusters: {len(clusters)}")
+    print(f"Unclustered citations: {len(unclustered)}")
+    
+    # Check Gideon clustering
+    gideon_clusters = [cluster for cluster_id, cluster in clusters.items() 
+                      if 'gideon' in cluster_id.lower()]
+    
+    if len(gideon_clusters) == 1:
+        gideon_cluster = gideon_clusters[0]
+        print(f"\n✅ SUCCESS: All Gideon citations clustered together!")
+        print(f"Gideon cluster size: {len(gideon_cluster)}")
+        print("Gideon cluster members:")
+        for citation in gideon_cluster:
+            print(f"  - {citation.citation} (verified: {citation.verified})")
+    elif len(gideon_clusters) > 1:
+        print(f"\n❌ ERROR: Gideon citations split into {len(gideon_clusters)} clusters!")
+        for i, cluster in enumerate(gideon_clusters):
+            print(f"Cluster {i+1}: {[c.citation for c in cluster]}")
     else:
-        print("❌ Cannot verify fix - missing citations")
+        print(f"\n❌ ERROR: No Gideon clusters found!")
+    
+    # Check Luis clustering
+    luis_clusters = [cluster for cluster_id, cluster in clusters.items() 
+                    if 'luis' in cluster_id.lower()]
+    
+    if len(luis_clusters) == 1:
+        luis_cluster = luis_clusters[0]
+        print(f"\n✅ SUCCESS: Luis citation properly isolated!")
+        print(f"Luis cluster: {[c.citation for c in luis_cluster]}")
+    else:
+        print(f"\n❌ ERROR: Luis clustering issue!")
+    
+    # Check for cross-contamination
+    cross_contamination = False
+    for cluster_id, cluster in clusters.items():
+        case_names = set()
+        for citation in cluster:
+            if citation.canonical_name:
+                case_names.add(citation.canonical_name)
+            elif citation.extracted_case_name:
+                case_names.add(citation.extracted_case_name)
+        
+        if len(case_names) > 1:
+            print(f"\n❌ ERROR: Cross-contamination in cluster {cluster_id}!")
+            print(f"Multiple case names: {case_names}")
+            cross_contamination = True
+    
+    if not cross_contamination:
+        print(f"\n✅ SUCCESS: No cross-contamination detected!")
+    
+    return len(gideon_clusters) == 1 and len(luis_clusters) == 1 and not cross_contamination
+
+def test_edge_cases():
+    """Test edge cases for clustering."""
+    print("\n" + "="*50)
+    print("Testing edge cases...")
+    
+    # Test citations with same date but different cases
+    citations = [
+        create_test_citation(
+            "Case A Citation",
+            canonical_name="Case A",
+            canonical_date="1963",
+            verified=True
+        ),
+        create_test_citation(
+            "Case B Citation",
+            canonical_name="Case B", 
+            canonical_date="1963",
+            verified=True
+        )
+    ]
+    
+    clustered = group_citations_into_clusters(citations)
+    
+    clusters = {}
+    for citation in clustered:
+        if hasattr(citation, 'metadata') and citation.metadata.get('is_in_cluster'):
+            cluster_id = citation.metadata.get('cluster_id')
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append(citation)
+    
+    if len(clusters) == 2:
+        print("✅ SUCCESS: Different cases with same date kept separate!")
+    else:
+        print(f"❌ ERROR: Expected 2 clusters, got {len(clusters)}")
+        return False
+    
+    return True
 
 if __name__ == "__main__":
-    test_clustering_fix() 
+    print("Citation Clustering Fix Test")
+    print("="*50)
+    
+    success1 = test_gideon_clustering()
+    success2 = test_edge_cases()
+    
+    print("\n" + "="*50)
+    if success1 and success2:
+        print("🎉 ALL TESTS PASSED! Clustering fix is working correctly.")
+    else:
+        print("❌ SOME TESTS FAILED. Please review the clustering logic.")
+    
+    print("="*50)

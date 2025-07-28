@@ -1,5 +1,0 @@
-=== TESTING WASHINGTON CITATION NORMALIZATION ===
-Original citation: '115 Wn.2d 294'
-Normalized citation: '115 Wash. 2d 294'
-Clean citation: '115 Wash. 2d 294'
-SUCCESS: Washington citation normalization is working!

@@ -59,7 +59,7 @@ def health_check():
             'status': 'unhealthy',
             'error': str(e),
             'timestamp': datetime.utcnow().isoformat()
-        }), 503
+        }), 500
 
 # Add this alias route for /casestrainer/api/health
 @vue_api.route('/casestrainer/api/health', methods=['GET'])
@@ -163,7 +163,8 @@ def task_status(task_id):
         from redis import Redis
         
         # Get Redis connection
-        redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+        # Use correct Redis URL for local development (Docker port mapping)
+        redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6380/0')
         redis_conn = Redis.from_url(redis_url)
         queue = Queue('casestrainer', connection=redis_conn)
         
@@ -284,7 +285,8 @@ def _handle_file_upload():
             task_id = str(uuid.uuid4())
             
             # Get Redis connection
-            redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+            # Use correct Redis URL for local development (Docker port mapping)
+            redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6380/0')
             redis_conn = Redis.from_url(redis_url)
             queue = Queue('casestrainer', connection=redis_conn)
             
@@ -373,8 +375,11 @@ def _handle_form_input():
         return jsonify({'error': 'Invalid input type. Use "text" or "url"', 'citations': [], 'clusters': []}), 400
 
 def _process_text_input(text, source_name="pasted_text"):
-    logger.info(f"_process_text_input called with text length: {len(text)}")
+    """Process text input with citation extraction and verification"""
     try:
+        logger.info(f"Processing text input: {text[:100]}... (length: {len(text)})")
+        
+        # Use real citation service for processing
         if citation_service.should_process_immediately({'type': 'text', 'text': text}):
             logger.info("Processing short text immediately")
             result = citation_service.process_immediately({'type': 'text', 'text': text})
@@ -401,7 +406,8 @@ def _process_text_input(text, source_name="pasted_text"):
             from redis import Redis
             
             # Get Redis connection
-            redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+            # Use correct Redis URL for local development (Docker port mapping)
+            redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6380/0')
             redis_conn = Redis.from_url(redis_url)
             queue = Queue('casestrainer', connection=redis_conn)
             
@@ -429,7 +435,13 @@ def _process_text_input(text, source_name="pasted_text"):
             
     except Exception as e:
         logger.error(f"Error processing text input: {e}", exc_info=True)
-        return jsonify({'error': 'Text processing failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
+        return jsonify({
+            'error': 'Text processing failed', 
+            'details': str(e), 
+            'citations': [], 
+            'validation_results': [],
+            'success': False
+        }), 500
 
 def _process_url_input(url):
     """Process URL input with proper async RQ worker processing"""
@@ -442,7 +454,8 @@ def _process_url_input(url):
         from redis import Redis
         
         # Get Redis connection
-        redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+        # Use correct Redis URL for local development (Docker port mapping)
+        redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6380/0')
         redis_conn = Redis.from_url(redis_url)
         queue = Queue('casestrainer', connection=redis_conn)
         
@@ -470,7 +483,6 @@ def _process_url_input(url):
         
     except Exception as e:
         logger.error(f"Error queuing URL input: {e}", exc_info=True)
-        return jsonify({'error': 'URL processing failed', 'details': str(e), 'citations': [], 'clusters': []}), 500
 
 
 @vue_api.route('/processing_progress', methods=['GET'])
@@ -491,7 +503,8 @@ def processing_progress():
                 from rq import Queue
                 from redis import Redis
                 
-                redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+                # Use correct Redis URL for local development (Docker port mapping)
+                redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6380/0')
                 redis_conn = Redis.from_url(redis_url)
                 queue = Queue('casestrainer', connection=redis_conn)
                 
@@ -551,3 +564,123 @@ def processing_progress():
             'is_complete': False,
             'error': str(e)
         }), 500
+
+
+# Citation Export Endpoints
+
+@vue_api.route('/export', methods=['POST'])
+def export_citations():
+    """
+    Export citations in various formats (text, bibtex, endnote, csv, json).
+    
+    Expected JSON payload:
+    {
+        "citations": [...],  // Array of citation objects
+        "format": "bibtex",  // Export format
+        "filename": "optional_filename"  // Optional custom filename
+    }
+    """
+    try:
+        from .citation_export import CitationExporter
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
+        citations = data.get('citations', [])
+        format_type = data.get('format', 'json').lower()
+        filename = data.get('filename')
+        
+        if not citations:
+            return jsonify({'error': 'No citations provided'}), 400
+        
+        # Validate format
+        valid_formats = ['text', 'txt', 'bibtex', 'bib', 'endnote', 'ris', 'csv', 'json']
+        if format_type not in valid_formats:
+            return jsonify({
+                'error': f'Unsupported format: {format_type}',
+                'supported_formats': valid_formats
+            }), 400
+        
+        # Create exporter and export citations
+        exporter = CitationExporter()
+        filepath = exporter.export_citations(citations, format_type, filename)
+        
+        # Read the exported file content for download
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Determine MIME type
+        mime_types = {
+            'text': 'text/plain',
+            'txt': 'text/plain',
+            'bibtex': 'application/x-bibtex',
+            'bib': 'application/x-bibtex',
+            'endnote': 'application/x-research-info-systems',
+            'ris': 'application/x-research-info-systems',
+            'csv': 'text/csv',
+            'json': 'application/json'
+        }
+        
+        response_data = {
+            'success': True,
+            'format': format_type,
+            'filename': os.path.basename(filepath),
+            'content': content,
+            'mime_type': mime_types.get(format_type, 'text/plain'),
+            'citation_count': len(citations)
+        }
+        
+        logger.info(f"Successfully exported {len(citations)} citations to {format_type} format")
+        return jsonify(response_data)
+        
+    except Exception as e:
+        logger.error(f"Error exporting citations: {e}")
+        return jsonify({
+            'error': 'Export failed',
+            'details': str(e)
+        }), 500
+
+
+@vue_api.route('/export/formats', methods=['GET'])
+def get_export_formats():
+    """
+    Get available export formats and their descriptions.
+    """
+    formats = {
+        'text': {
+            'name': 'Plain Text',
+            'extension': 'txt',
+            'description': 'Human-readable text format with citation details',
+            'mime_type': 'text/plain'
+        },
+        'bibtex': {
+            'name': 'BibTeX',
+            'extension': 'bib',
+            'description': 'LaTeX bibliography format for academic papers',
+            'mime_type': 'application/x-bibtex'
+        },
+        'endnote': {
+            'name': 'EndNote/RIS',
+            'extension': 'ris',
+            'description': 'Reference manager format (EndNote, Zotero, Mendeley)',
+            'mime_type': 'application/x-research-info-systems'
+        },
+        'csv': {
+            'name': 'CSV',
+            'extension': 'csv',
+            'description': 'Comma-separated values for spreadsheet analysis',
+            'mime_type': 'text/csv'
+        },
+        'json': {
+            'name': 'JSON',
+            'extension': 'json',
+            'description': 'Structured data format for programmatic use',
+            'mime_type': 'application/json'
+        }
+    }
+    
+    return jsonify({
+        'success': True,
+        'formats': formats
+    })

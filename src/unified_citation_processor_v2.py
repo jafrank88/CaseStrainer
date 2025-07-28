@@ -75,8 +75,9 @@ from src.case_name_extraction_core import extract_case_name_triple_comprehensive
 
 from src.canonical_case_name_service import get_canonical_case_name_with_date
 
+# Import the working verify_with_courtlistener function
+from src.courtlistener_verification import verify_with_courtlistener
 from src.citation_verification import (
-    verify_with_courtlistener,
     verify_citations_with_canonical_service,
     verify_citations_with_legal_websearch
 )
@@ -377,7 +378,13 @@ class UnifiedCitationProcessorV2:
     
     def _apply_verification_result(self, citation: 'CitationResult', verify_result: dict, source: str = "CourtListener"):
         """Centralized method to apply verification results to a citation."""
+        print(f"[DEBUG APPLY] ENTERED _apply_verification_result for citation: {citation.citation}")
+        print(f"[DEBUG APPLY] verify_result: {verify_result}")
+        print(f"[DEBUG APPLY] citation object type: {type(citation)}")
+        print(f"[DEBUG APPLY] citation object id: {id(citation)}")
+        
         if verify_result.get("verified"):
+            print(f"[DEBUG APPLY] Verification successful, applying results...")
             citation.canonical_name = verify_result.get("canonical_name")
             citation.canonical_date = verify_result.get("canonical_date")
             citation.url = verify_result.get("url")
@@ -385,9 +392,17 @@ class UnifiedCitationProcessorV2:
             citation.source = verify_result.get("source", source)
             citation.metadata = citation.metadata or {}
             citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
-            print(f"[DEBUG] Verified {citation.citation}: canonical_name={citation.canonical_name}")
+            
+            print(f"[DEBUG APPLY] AFTER applying results:")
+            print(f"[DEBUG APPLY]   citation.canonical_name = {citation.canonical_name}")
+            print(f"[DEBUG APPLY]   citation.canonical_date = {citation.canonical_date}")
+            print(f"[DEBUG APPLY]   citation.verified = {citation.verified}")
+            print(f"[DEBUG APPLY]   citation.source = {citation.source}")
+            print(f"[DEBUG APPLY]   citation.url = {citation.url}")
             return True
-        return False
+        else:
+            print(f"[DEBUG APPLY] Verification failed or not verified")
+            return False
     
     def _verify_citation_with_courtlistener(self, citation: 'CitationResult') -> bool:
         """Unified CourtListener verification with name similarity matching."""
@@ -395,7 +410,12 @@ class UnifiedCitationProcessorV2:
         print(f"[DEBUG] Verifying {citation.citation}, extracted_case_name: {extracted_case_name}")
         
         verify_result = verify_with_courtlistener(self.courtlistener_api_key, citation.citation, extracted_case_name)
-        return self._apply_verification_result(citation, verify_result, "CourtListener")
+        print(f"[DEBUG COURTLISTENER] verify_with_courtlistener returned: {verify_result}")
+        print(f"[DEBUG COURTLISTENER] verify_result type: {type(verify_result)}")
+        
+        result = self._apply_verification_result(citation, verify_result, "CourtListener")
+        print(f"[DEBUG COURTLISTENER] _apply_verification_result returned: {result}")
+        return result
     
     def _verify_with_courtlistener(self, citation, extracted_case_name=None):
         """DEPRECATED: Use _verify_citation_with_courtlistener instead.
@@ -2069,6 +2089,7 @@ class UnifiedCitationProcessorV2:
         citations = self._detect_parallel_citations(citations, text)
         logger.info(f"[DEBUG PRINT] After parallel detection: {len(citations)} citations")
         
+        # Re-enable clustering now that verification is working
         clusters = group_citations_into_clusters(citations, original_text=text)
         logger.info(f"[DEBUG PRINT] Created {len(clusters)} clusters")
         

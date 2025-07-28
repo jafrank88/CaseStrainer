@@ -129,30 +129,38 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
         return None
 
 def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_name=None):
-    print(f"[DEBUG PRINT] ENTERED verify_with_courtlistener for citation: {citation}")
-    result = {
+    """
+    DEPRECATED: This function is broken and should not be used.
+    
+    Issues with this function:
+    1. Uses wrong request format (data= instead of json=)
+    2. Incomplete response parsing logic
+    3. Always returns verified=False
+    
+    Use the correct function from src.courtlistener_verification instead:
+    from src.courtlistener_verification import verify_with_courtlistener
+    """
+    import warnings
+    warnings.warn(
+        "This verify_with_courtlistener function in citation_verification.py is DEPRECATED and BROKEN. "
+        "Use the correct function from src.courtlistener_verification instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    
+    print(f"[DEPRECATED WARNING] Using broken verify_with_courtlistener from citation_verification.py for: {citation}")
+    print(f"[DEPRECATED WARNING] This function always returns verified=False. Use src.courtlistener_verification.verify_with_courtlistener instead.")
+    
+    # Return a clear failure result to avoid silent bugs
+    return {
         "canonical_name": None,
         "canonical_date": None,
         "url": None,
         "verified": False,
         "raw": None,
-        "source": None
+        "source": "DEPRECATED_FUNCTION",
+        "error": "This function is deprecated. Use src.courtlistener_verification.verify_with_courtlistener instead."
     }
-    if courtlistener_api_key:
-        headers = {"Authorization": f"Token {courtlistener_api_key}"}
-        try:
-            lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
-            lookup_data = {"text": citation}
-            print(f"[DEBUG PRINT] About to POST to {lookup_url} with data: {lookup_data}")
-            response = requests.post(lookup_url, headers=headers, data=lookup_data, timeout=30)
-            print(f"[DEBUG PRINT] CourtListener response status: {response.status_code}")
-            print(f"[DEBUG PRINT] CourtListener response body: {response.text[:1000]}")
-            result['raw'] = response.text
-            # ... existing code to parse response ...
-        except Exception as e:
-            print(f"[DEBUG PRINT] Exception during CourtListener single call: {e}")
-            logger.error(f"[CL citation-lookup] {citation} exception: {e}")
-    return result
 
 def verify_citations_with_canonical_service(citations):
     print(f"[DEBUG PRINT] ENTERED verify_citations_with_canonical_service with {len(citations)} citations")

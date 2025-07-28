@@ -226,6 +226,7 @@ class CitationService:
             from src.citation_clustering import group_citations_into_clusters
             print(f"[DEBUG PRINT] Imported UnifiedCitationProcessorV2, about to instantiate")
             logger.info(f"[DEBUG] Imported UnifiedCitationProcessorV2, about to instantiate")
+            # Use production-ready unified processor with verification enabled by default
             processor = UnifiedCitationProcessorV2()
             print(f"[DEBUG PRINT] Instantiated UnifiedCitationProcessorV2, about to call process_text")
             logger.info(f"[DEBUG] Instantiated UnifiedCitationProcessorV2, about to call process_text")

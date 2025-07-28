@@ -28,7 +28,10 @@ QUEUE_NAME = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
 
 def reprocess_parallel_citations(batch_size=BATCH_SIZE, sleep_time=SLEEP_BETWEEN, max_batches=None):
     """Reprocess citations missing parallel citations."""
-    verifier = UnifiedCitationProcessor()
+    # Enable verification for background reprocessing
+    from models import ProcessingConfig
+    config = ProcessingConfig(enable_verification=True, debug_mode=True)
+    verifier = UnifiedCitationProcessor(config)
     db_manager = get_database_manager()
     processed = 0
     batch_num = 0
