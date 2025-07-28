@@ -94,6 +94,71 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
             #     for c in members:
             #         if not getattr(c, 'extracted_case_name', None):
             #             c.extracted_case_name = best_extracted
+    # --- NEW: Propagate canonical date from last citation to all citations in parallel clusters ---
+    def propagate_canonical_date_within_clusters():
+        """Propagate canonical date from the last citation in a cluster to all citations that lack canonical_date."""
+        for cluster_id, cluster_citations in clusters_by_id.items():
+            if len(cluster_citations) <= 1:
+                continue
+                
+            # Sort citations by position in text to identify first and last
+            sorted_citations = sorted(cluster_citations, key=lambda c: getattr(c, 'start_index', 0))
+            
+            # Find the citation with canonical_date (prefer last citation)
+            canonical_date_source = None
+            canonical_name_source = None
+            
+            # Check last citation first (as per user specification)
+            for citation in reversed(sorted_citations):
+                if getattr(citation, 'canonical_date', None):
+                    canonical_date_source = citation
+                    break
+            
+            # If no canonical_date in last citation, check all citations in cluster
+            if not canonical_date_source:
+                for citation in sorted_citations:
+                    if getattr(citation, 'canonical_date', None):
+                        canonical_date_source = citation
+                        break
+            
+            # Find canonical_name source (prefer last citation, as per user specification)
+            # Check last citation first (consistent with canonical_date logic)
+            for citation in reversed(sorted_citations):
+                if getattr(citation, 'canonical_name', None):
+                    canonical_name_source = citation
+                    break
+            
+            # If no canonical_name in last citation, check all citations in cluster
+            if not canonical_name_source:
+                for citation in sorted_citations:
+                    if getattr(citation, 'canonical_name', None):
+                        canonical_name_source = citation
+                        break
+            
+            # Propagate canonical_date to all citations in cluster that lack it
+            if canonical_date_source:
+                canonical_date = canonical_date_source.canonical_date
+                for citation in cluster_citations:
+                    if not getattr(citation, 'canonical_date', None):
+                        citation.canonical_date = canonical_date
+                        # Also update metadata for tracking
+                        if hasattr(citation, 'metadata'):
+                            citation.metadata = citation.metadata or {}
+                            citation.metadata['canonical_date_propagated_from'] = canonical_date_source.citation
+            
+            # Propagate canonical_name to all citations in cluster that lack it
+            if canonical_name_source:
+                canonical_name = canonical_name_source.canonical_name
+                for citation in cluster_citations:
+                    if not getattr(citation, 'canonical_name', None):
+                        citation.canonical_name = canonical_name
+                        # Also update metadata for tracking
+                        if hasattr(citation, 'metadata'):
+                            citation.metadata = citation.metadata or {}
+                            citation.metadata['canonical_name_propagated_from'] = canonical_name_source.citation
+    
+    # NOTE: Canonical date propagation will be called AFTER fallback clusters are processed
+    
     # --- IMPROVED PROPAGATION: Propagate normalized extracted case name and year to all citations in a group ---
     def normalize_case_name(name):
         if not name:
@@ -372,6 +437,10 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                     citation['metadata']['cluster_id'] = cluster_id
                 if citation not in clusters_by_id[cluster_id]:
                     clusters_by_id[cluster_id].append(citation)
+    
+    # Call the canonical date propagation function AFTER all clusters (including fallback) are processed
+    propagate_canonical_date_within_clusters()
+    
     # Ensure all clusters in clusters_by_id are included in result_clusters
     result_clusters = []
     clustered_citations = set(getattr(c, 'citation', None) for c in citations)
@@ -718,4 +787,56 @@ def _propagate_best_extracted_to_clusters(citations: list):
     pass
 
     # Return the properly formatted clusters
-    return result_clusters 
+
+def propagate_canonical_date_within_clusters(citations: List['CitationResult']):
+    """Propagate canonical date and name within clusters from the last citation.
+    
+    This function prioritizes the last citation in each cluster for canonical data extraction
+    and propagates canonical_date and canonical_name to all citations in the cluster that lack them.
+    Only operates within verified parallel citation clusters to prevent cross-contamination.
+    """
+    if not citations:
+        return
+    
+    # Group citations by cluster_id
+    clusters_by_id = {}
+    for citation in citations:
+        cluster_id = getattr(citation, 'cluster_id', None)
+        if not cluster_id and hasattr(citation, 'metadata') and citation.metadata:
+            cluster_id = citation.metadata.get('cluster_id')
+        
+        if cluster_id:
+            if cluster_id not in clusters_by_id:
+                clusters_by_id[cluster_id] = []
+            clusters_by_id[cluster_id].append(citation)
+    
+    # Process each cluster
+    for cluster_id, cluster_citations in clusters_by_id.items():
+        if len(cluster_citations) <= 1:
+            continue
+        
+        # Find the last citation in the cluster (prioritized for canonical data)
+        last_citation = cluster_citations[-1]
+        
+        # Check if the last citation has canonical data
+        last_canonical_name = getattr(last_citation, 'canonical_name', None)
+        last_canonical_date = getattr(last_citation, 'canonical_date', None)
+        
+        if not last_canonical_name and not last_canonical_date:
+            # If last citation doesn't have canonical data, find any citation that does
+            for citation in reversed(cluster_citations):
+                if getattr(citation, 'canonical_name', None) or getattr(citation, 'canonical_date', None):
+                    last_canonical_name = getattr(citation, 'canonical_name', None)
+                    last_canonical_date = getattr(citation, 'canonical_date', None)
+                    break
+        
+        # Propagate canonical data to all citations in the cluster that lack it
+        if last_canonical_name or last_canonical_date:
+            for citation in cluster_citations:
+                if not getattr(citation, 'canonical_name', None) and last_canonical_name:
+                    citation.canonical_name = last_canonical_name
+                    print(f"[DEBUG] Propagated canonical_name '{last_canonical_name}' to {citation.citation}")
+                
+                if not getattr(citation, 'canonical_date', None) and last_canonical_date:
+                    citation.canonical_date = last_canonical_date
+                    print(f"[DEBUG] Propagated canonical_date '{last_canonical_date}' to {citation.citation}") 

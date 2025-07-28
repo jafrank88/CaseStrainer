@@ -336,7 +336,16 @@ class EnhancedUnifiedCitationProcessor:
         from src.config import get_config_value
         self.courtlistener_api_key = get_config_value("COURTLISTENER_API_KEY")
         
-        logger.info(f"Enhanced processor initialized with verification: {bool(self.courtlistener_api_key)}")
+        # Initialize comprehensive web search engine for fallback verification
+        try:
+            from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+            self.web_search_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+            logger.info("Comprehensive web search engine initialized for fallback verification")
+        except ImportError as e:
+            logger.warning(f"Could not initialize web search engine: {e}")
+            self.web_search_engine = None
+        
+        logger.info(f"Enhanced processor initialized with verification: {bool(self.courtlistener_api_key)}, web search: {bool(self.web_search_engine)}")
     
     def _init_patterns(self):
         """Initialize citation patterns"""
@@ -520,41 +529,48 @@ class EnhancedUnifiedCitationProcessor:
                     citation.source = "CourtListener"
                     continue
                 
-                # Try canonical service as fallback
+                # Try comprehensive web search engines as fallback
+                if self.web_search_engine:
+                    logger.info(f"CourtListener failed for {citation.citation}, trying web search fallback")
+                    try:
+                        web_result = self.web_search_engine.search_multiple_sources(
+                            citation.citation, 
+                            citation.extracted_case_name
+                        )
+                        
+                        if web_result and web_result.get('verified'):
+                            citation.canonical_name = web_result.get('canonical_name')
+                            citation.canonical_date = web_result.get('canonical_date')
+                            citation.url = web_result.get('url')
+                            citation.verified = True
+                            citation.source = f"web_search: {web_result.get('source', 'multiple_sources')}"
+                            logger.info(f"Web search verified {citation.citation}: {citation.canonical_name}")
+                            continue
+                        else:
+                            logger.info(f"Web search could not verify {citation.citation}")
+                    except Exception as e:
+                        logger.error(f"Error in web search fallback for {citation.citation}: {e}")
+                
+                # Final fallback to basic canonical service if web search unavailable
                 canonical_result = self._verify_with_canonical_service(citation.citation)
                 if canonical_result and canonical_result.get('case_name'):
                     citation.canonical_name = canonical_result.get('case_name')
                     citation.canonical_date = canonical_result.get('date')
                     citation.url = canonical_result.get('url')
                     citation.verified = True
-                    citation.source = f"fallback: {canonical_result.get('source', 'canonical')}"
+                    citation.source = f"canonical_service: {canonical_result.get('source', 'basic')}"
                 
             except Exception as e:
                 logger.error(f"Error verifying {citation.citation}: {e}")
     
     def _verify_with_courtlistener(self, citation: str) -> Dict[str, Any]:
-        """Verify with CourtListener API"""
+        """Verify with CourtListener API using the improved two-step workflow"""
         try:
-            url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
-            headers = {"Authorization": f"Token {self.courtlistener_api_key}"}
-            data = {"text": citation}
-            
-            response = requests.post(url, headers=headers, data=data, timeout=30)
-            if response.status_code == 200:
-                result = response.json()
-                # Process CourtListener response
-                # (Implementation details from UnifiedProcessorV2)
-                return {"verified": False}  # Simplified for example
-            
-            # Prevent use of v3 CourtListener API endpoints
-            if 'v3' in url:
-                print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
-                sys.exit(1)
-            
+            from src.courtlistener_verification import verify_with_courtlistener
+            return verify_with_courtlistener(self.courtlistener_api_key, citation)
         except Exception as e:
             logger.error(f"CourtListener verification failed: {e}")
-        
-        return {"verified": False}
+            return {"verified": False}
     
     def _verify_with_canonical_service(self, citation: str) -> Optional[Dict[str, Any]]:
         """Verify with canonical service"""

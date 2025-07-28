@@ -12,6 +12,12 @@ except ImportError:
 
 # Load environment variables from .env if present
 load_dotenv()
+# Also load from config.env if present
+config_env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.env')
+load_dotenv(config_env_path)
+# Also load from .env.production if present
+env_production_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env.production')
+load_dotenv(env_production_path)
 
 # Load config.json once
 CONFIG_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")

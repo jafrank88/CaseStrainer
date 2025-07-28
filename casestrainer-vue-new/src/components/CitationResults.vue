@@ -1605,6 +1605,37 @@ function downloadAllCitations() {
   font-style: italic;
 }
 
+/* Verifying source display styles */
+.source-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.source-name {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.canonical-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.canonical-info .canonical-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.canonical-info .canonical-date {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
 .citation-row-canonical,
 .citation-row-extracted {
   font-size: 1.25rem;

@@ -128,7 +128,7 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
             citation.error = f'Exception: {e}'
         return None
 
-def verify_with_courtlistener(courtlistener_api_key, citation):
+def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_name=None):
     print(f"[DEBUG PRINT] ENTERED verify_with_courtlistener for citation: {citation}")
     result = {
         "canonical_name": None,

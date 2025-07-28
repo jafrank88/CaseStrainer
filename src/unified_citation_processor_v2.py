@@ -76,7 +76,6 @@ from src.case_name_extraction_core import extract_case_name_triple_comprehensive
 from src.canonical_case_name_service import get_canonical_case_name_with_date
 
 from src.citation_verification import (
-    verify_citations_with_courtlistener_batch,
     verify_with_courtlistener,
     verify_citations_with_canonical_service,
     verify_citations_with_legal_websearch
@@ -366,15 +365,51 @@ class UnifiedCitationProcessorV2:
         
         return ', '.join(cleaned_parts)
 
-    def _verify_citations_with_courtlistener_batch(self, citations, text):
-        logger.info(f"[DEBUG PRINT] ENTERED _verify_citations_with_courtlistener_batch with {len(citations)} citations")
-        logger.info(f"[DEBUG PRINT] API key available: {bool(self.courtlistener_api_key)}")
-        result = verify_citations_with_courtlistener_batch(self.courtlistener_api_key, citations, text)
-        logger.info(f"[DEBUG PRINT] CourtListener batch verification completed")
-        return result
 
-    def _verify_with_courtlistener(self, citation):
-        return verify_with_courtlistener(self.courtlistener_api_key, citation)
+
+    def _get_extracted_case_name(self, citation: 'CitationResult') -> str:
+        """Utility to safely get extracted case name from a citation."""
+        return citation.extracted_case_name if hasattr(citation, 'extracted_case_name') else None
+    
+    def _get_unverified_citations(self, citations: List['CitationResult']) -> List['CitationResult']:
+        """Utility to filter unverified citations."""
+        return [c for c in citations if not getattr(c, 'verified', False)]
+    
+    def _apply_verification_result(self, citation: 'CitationResult', verify_result: dict, source: str = "CourtListener"):
+        """Centralized method to apply verification results to a citation."""
+        if verify_result.get("verified"):
+            citation.canonical_name = verify_result.get("canonical_name")
+            citation.canonical_date = verify_result.get("canonical_date")
+            citation.url = verify_result.get("url")
+            citation.verified = True
+            citation.source = verify_result.get("source", source)
+            citation.metadata = citation.metadata or {}
+            citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
+            print(f"[DEBUG] Verified {citation.citation}: canonical_name={citation.canonical_name}")
+            return True
+        return False
+    
+    def _verify_citation_with_courtlistener(self, citation: 'CitationResult') -> bool:
+        """Unified CourtListener verification with name similarity matching."""
+        extracted_case_name = self._get_extracted_case_name(citation)
+        print(f"[DEBUG] Verifying {citation.citation}, extracted_case_name: {extracted_case_name}")
+        
+        verify_result = verify_with_courtlistener(self.courtlistener_api_key, citation.citation, extracted_case_name)
+        return self._apply_verification_result(citation, verify_result, "CourtListener")
+    
+    def _verify_with_courtlistener(self, citation, extracted_case_name=None):
+        """DEPRECATED: Use _verify_citation_with_courtlistener instead.
+        
+        This method is kept for backward compatibility but should not be used in new code.
+        It will be removed in a future version.
+        """
+        import warnings
+        warnings.warn(
+            "_verify_with_courtlistener is deprecated. Use _verify_citation_with_courtlistener instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return verify_with_courtlistener(self.courtlistener_api_key, citation, extracted_case_name)
 
     def _verify_citations_with_canonical_service(self, citations):
         return verify_citations_with_canonical_service(citations)
@@ -389,18 +424,19 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[VERIFY_CITATIONS] ENTERED with {len(citations)} citations")
         logger.info(f"[DEBUG PRINT] enable_verification config: {self.config.enable_verification}")
         
-        # Step 1: Try CourtListener batch verification
-        logger.info("[DEBUG PRINT] Step 1: Calling CourtListener batch verification")
-        self._verify_citations_with_courtlistener_batch(citations, text or "")
+        # Step 1: Try CourtListener individual verification with name similarity matching
+        logger.info("[DEBUG PRINT] Step 1: Calling CourtListener individual verification with name similarity")
+        for citation in self._get_unverified_citations(citations):
+            self._verify_citation_with_courtlistener(citation)
         
         # Step 2: Try canonical service for unverified citations
-        unverified = [c for c in citations if not getattr(c, 'verified', False)]
+        unverified = self._get_unverified_citations(citations)
         logger.info(f"[DEBUG PRINT] Step 2: {len(unverified)} unverified citations after CourtListener")
         if unverified:
             self._verify_citations_with_canonical_service(unverified)
         
         # Step 3: Try legal websearch for still unverified citations
-        still_unverified = [c for c in citations if not getattr(c, 'verified', False)]
+        still_unverified = self._get_unverified_citations(citations)
         logger.info(f"[DEBUG PRINT] Step 3: {len(still_unverified)} still unverified citations after canonical service")
         if still_unverified:
             self._verify_citations_with_legal_websearch(still_unverified)
@@ -493,35 +529,29 @@ class UnifiedCitationProcessorV2:
         representative = citations[0]
         state = self._infer_state_from_citation(representative.citation)
         
-        # Verify the representative citation
-        verify_result = self._verify_with_courtlistener(representative.citation)
-        
-        # Propagate results to all citations in the group
-        if verify_result.get("verified"):
-            for citation in citations:
-                citation.canonical_name = verify_result.get("canonical_name")
-                citation.canonical_date = verify_result.get("canonical_date")
-                citation.url = verify_result.get("url")
+        # Verify the representative citation using unified method
+        print(f"[DEBUG] Representative citation for state group: {representative.citation}")
+        if self._verify_citation_with_courtlistener(representative):
+            # Propagate results to all other unverified citations in the group
+            for citation in self._get_unverified_citations(citations[1:]):
+                citation.canonical_name = representative.canonical_name
+                citation.canonical_date = representative.canonical_date
+                citation.url = representative.url
                 citation.verified = True
+                citation.source = representative.source
                 citation.metadata = citation.metadata or {}
-                citation.metadata["courtlistener_source"] = verify_result.get("source")
+                citation.metadata["courtlistener_source"] = representative.metadata.get("courtlistener_source")
+                print(f"[DEBUG] Propagated to {citation.citation}: canonical_name={citation.canonical_name}")
 
     def _verify_regional_group(self, citations: List[CitationResult]):
         """Verify regional reporter citations separately (no state filtering)."""
-        for citation in citations:
-            self._verify_single_citation(citation)
+        for citation in self._get_unverified_citations(citations):
+            self._verify_citation_with_courtlistener(citation)
 
     def _verify_single_citation(self, citation: CitationResult, apply_state_filter: bool = True):
-        """Verify a single citation."""
-        verify_result = self._verify_with_courtlistener(citation.citation)
-        
-        if verify_result.get("verified"):
-            citation.canonical_name = verify_result.get("canonical_name")
-            citation.canonical_date = verify_result.get("canonical_date")
-            citation.url = verify_result.get("url")
-            citation.verified = True
-            citation.metadata = citation.metadata or {}
-            citation.metadata["courtlistener_source"] = verify_result.get("source")
+        """Verify a single citation using unified method."""
+        if not getattr(citation, 'verified', False):
+            self._verify_citation_with_courtlistener(citation)
 
     def _get_base_citation(self, citation: str) -> str:
         """Extract base citation without page numbers for clustering purposes."""

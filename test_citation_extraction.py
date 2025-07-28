@@ -1,4 +1,4 @@
-y#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Test script to check citation extraction for '534 F.3d 1290'
 """
