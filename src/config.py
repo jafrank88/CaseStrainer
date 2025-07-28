@@ -167,13 +167,27 @@ def get_external_api_config() -> dict:
     }
 
 def get_file_config() -> dict:
-    """
-    Get file processing configuration for CitationService.
-    """
+    """Get file processing configuration for CitationService."""
     return {
-        'upload_folder': UPLOAD_FOLDER,
-        'allowed_extensions': ALLOWED_EXTENSIONS,
-        'max_content_length': MAX_CONTENT_LENGTH
+        'max_file_size': int(get_config_value('MAX_FILE_SIZE', 50 * 1024 * 1024)),  # 50MB
+        'allowed_extensions': get_config_value('ALLOWED_EXTENSIONS', '.pdf,.txt,.docx').split(','),
+        'upload_folder': get_config_value('UPLOAD_FOLDER', os.path.join(BASE_DIR, 'uploads')),
+        'temp_folder': get_config_value('TEMP_FOLDER', os.path.join(BASE_DIR, 'temp'))
+    }
+
+def get_adaptive_learning_config():
+    """Get adaptive learning configuration for CitationService."""
+    return {
+        'enabled': get_config_value('ADAPTIVE_LEARNING_ENABLED', 'true').lower() == 'true',
+        'learning_data_dir': get_config_value('ADAPTIVE_LEARNING_DATA_DIR', os.path.join(BASE_DIR, 'data', 'adaptive_learning')),
+        'min_confidence_threshold': float(get_config_value('ADAPTIVE_MIN_CONFIDENCE', 0.6)),
+        'max_patterns_to_learn': int(get_config_value('ADAPTIVE_MAX_PATTERNS', 100)),
+        'pattern_success_threshold': float(get_config_value('ADAPTIVE_PATTERN_SUCCESS_THRESHOLD', 0.6)),
+        'learning_batch_size': int(get_config_value('ADAPTIVE_LEARNING_BATCH_SIZE', 10)),
+        'enable_pattern_learning': get_config_value('ADAPTIVE_PATTERN_LEARNING', 'true').lower() == 'true',
+        'enable_confidence_adjustment': get_config_value('ADAPTIVE_CONFIDENCE_ADJUSTMENT', 'true').lower() == 'true',
+        'enable_case_name_database': get_config_value('ADAPTIVE_CASE_NAME_DB', 'true').lower() == 'true',
+        'save_learning_data': get_config_value('ADAPTIVE_SAVE_DATA', 'true').lower() == 'true'
     }
 
 # ============================================================================

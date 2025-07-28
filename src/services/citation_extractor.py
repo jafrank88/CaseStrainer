@@ -11,14 +11,12 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 import unicodedata
 
-from .interfaces import ICitationExtractor
-from src.models import CitationResult, ProcessingConfig
+from .interfaces import ICitationExtractor, CitationResult, ProcessingConfig
 
 logger = logging.getLogger(__name__)
 
-# Optional: Eyecite for enhanced extraction
+# Optional eyecite import
 try:
-    import eyecite
     from eyecite import get_citations
     from eyecite.tokenizers import AhocorasickTokenizer
     EYECITE_AVAILABLE = True
@@ -26,6 +24,34 @@ try:
 except ImportError as e:
     EYECITE_AVAILABLE = False
     logger.warning(f"Eyecite not available - install with: pip install eyecite. Error: {e}")
+
+# Optional adaptive learning import
+try:
+    from .adaptive_learning_service import AdaptiveLearningService, create_adaptive_learning_service
+    ADAPTIVE_LEARNING_AVAILABLE = True
+    logger.info("Adaptive learning service available for CitationExtractor")
+except ImportError as e:
+    ADAPTIVE_LEARNING_AVAILABLE = False
+    logger.info("Adaptive learning service not available - using basic extraction only")
+    # Create dummy classes for when adaptive learning is not available
+    class AdaptiveLearningService:
+        def __init__(self, *args, **kwargs):
+            pass
+        def is_enabled(self):
+            return False
+        def enhance_citation_extraction(self, *args, **kwargs):
+            from dataclasses import dataclass
+            @dataclass
+            class DummyResult:
+                improved_citations: List = None
+                learned_patterns: List = None
+                confidence_adjustments: Dict = None
+                case_name_mappings: Dict = None
+                performance_metrics: Dict = None
+            return DummyResult([], [], {}, {}, {})
+    
+    def create_adaptive_learning_service(*args, **kwargs):
+        return AdaptiveLearningService()
 
 
 class CitationExtractor(ICitationExtractor):
@@ -46,8 +72,19 @@ class CitationExtractor(ICitationExtractor):
         self._init_case_name_patterns()
         self._init_date_patterns()
         
+        # Initialize adaptive learning service if available
+        self.adaptive_learning = None
+        if ADAPTIVE_LEARNING_AVAILABLE and getattr(self.config, 'enable_adaptive_learning', True):
+            try:
+                self.adaptive_learning = create_adaptive_learning_service()
+                if self.config.debug_mode:
+                    logger.info(f"Adaptive learning enabled: {self.adaptive_learning.is_enabled()}")
+            except Exception as e:
+                logger.warning(f"Failed to initialize adaptive learning: {e}")
+                self.adaptive_learning = None
+        
         if self.config.debug_mode:
-            logger.info(f"CitationExtractor initialized with eyecite: {EYECITE_AVAILABLE}")
+            logger.info(f"CitationExtractor initialized with eyecite: {EYECITE_AVAILABLE}, adaptive learning: {self.adaptive_learning is not None}")
     
     def _init_patterns(self) -> None:
         """Initialize comprehensive citation patterns with proper Bluebook spacing."""
@@ -164,15 +201,16 @@ class CitationExtractor(ICitationExtractor):
             re.compile(r'\b(\d{4}-\d{2}-\d{2})\b')
         ]
     
-    def extract_citations(self, text: str) -> List[CitationResult]:
+    def extract_citations(self, text: str, document_name: str = "") -> List[CitationResult]:
         """
-        Extract citations from text using both regex and eyecite methods.
+        Extract citations from text using regex, eyecite, and adaptive learning methods.
         
         Args:
             text: The text to extract citations from
+            document_name: Optional document identifier for adaptive learning
             
         Returns:
-            List of CitationResult objects with basic extraction data
+            List of CitationResult objects with enhanced extraction data
         """
         citations = []
         
@@ -192,8 +230,26 @@ class CitationExtractor(ICitationExtractor):
         for citation in citations:
             citation = self.extract_metadata(citation, text)
         
+        # Method 3: Adaptive learning enhancement (if available)
+        if self.adaptive_learning and self.adaptive_learning.is_enabled():
+            try:
+                adaptive_result = self.adaptive_learning.enhance_citation_extraction(
+                    text, document_name, citations
+                )
+                
+                # Use improved citations from adaptive learning
+                citations = adaptive_result.improved_citations
+                
+                # Log learning information if in debug mode
+                if self.config.debug_mode:
+                    logger.info(f"Adaptive learning found {len(adaptive_result.learned_patterns)} new patterns")
+                    logger.info(f"Confidence adjustments: {len(adaptive_result.confidence_adjustments)}")
+                    
+            except Exception as e:
+                logger.warning(f"Error in adaptive learning enhancement: {e}")
+        
         if self.config.debug_mode:
-            logger.info(f"CitationExtractor found {len(citations)} citations")
+            logger.info(f"CitationExtractor found {len(citations)} citations (with adaptive learning: {self.adaptive_learning is not None})")
         
         return citations
     

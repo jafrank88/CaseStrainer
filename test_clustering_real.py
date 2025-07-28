@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.models import CitationResult
-from src.citation_clustering import group_citations_into_clusters
+from src.services.citation_clusterer import CitationClusterer CitationClusterer
 
 # Create test citations for Gideon v. Wainwright
 citations = [
@@ -43,7 +43,7 @@ print("Testing Gideon v. Wainwright clustering...")
 print(f"Input: {len(citations)} citations")
 
 # Run clustering - this returns a list of cluster dictionaries
-cluster_results = group_citations_into_clusters(citations)
+cluster_results = CitationClusterer(citations)
 
 print(f"Result: {len(cluster_results)} clusters")
 

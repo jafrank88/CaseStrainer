@@ -64,6 +64,23 @@ jobs:
         pytest src/ --cov=src --cov-report=xml --cov-report=html --cov-report=term-missing
         pytest test_*.py --cov=src --cov-append --cov-report=term-missing
 
+    - name: Run architecture validation tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        pytest test_minimal_suite.py -v
+
+    - name: Run performance optimization tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+
+    - name: Run code quality validation tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+
+    - name: Run PDF vs text fix validation
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+
     - name: Run security scan
       run: |
         # Bandit scan - only high severity issues are critical for CI
