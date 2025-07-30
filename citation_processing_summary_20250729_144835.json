@@ -1,0 +1,205 @@
+{
+  "processing_date": "2025-07-29T15:04:41.668970",
+  "total_files_processed": 50,
+  "total_files_with_errors": 0,
+  "total_citations_found": 2227,
+  "total_courtlistener_verified": 2194,
+  "total_non_courtlistener": 33,
+  "files_summary": [
+    {
+      "file": "001_Answer to Petition for Review.txt",
+      "total_citations": 47,
+      "courtlistener_verified": 46,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "003_COA  Appellant Brief.txt",
+      "total_citations": 224,
+      "courtlistener_verified": 222,
+      "non_courtlistener_count": 2,
+      "verification_breakdown": {
+        "unverified": 2,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "005_Petitioners Supplemental Brief.txt",
+      "total_citations": 67,
+      "courtlistener_verified": 66,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "010_Respondent Answer to Amicus.txt",
+      "total_citations": 63,
+      "courtlistener_verified": 62,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "015_Amicus - Pharmaceutical Research and Manufacturers of America.txt",
+      "total_citations": 67,
+      "courtlistener_verified": 63,
+      "non_courtlistener_count": 4,
+      "verification_breakdown": {
+        "unverified": 4,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "019_Defendant Brief.txt",
+      "total_citations": 84,
+      "courtlistener_verified": 78,
+      "non_courtlistener_count": 6,
+      "verification_breakdown": {
+        "unverified": 6,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "021_Respondents Brief.txt",
+      "total_citations": 105,
+      "courtlistener_verified": 103,
+      "non_courtlistener_count": 2,
+      "verification_breakdown": {
+        "unverified": 2,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "024_Statement of Additional Authorities.txt",
+      "total_citations": 88,
+      "courtlistener_verified": 87,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "028_Answer to Motion for Discretionary Review.txt",
+      "total_citations": 44,
+      "courtlistener_verified": 43,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "031_COA  Answer to Personal Restraint Petition.txt",
+      "total_citations": 51,
+      "courtlistener_verified": 50,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "034_COA  Response to Petitioner Supplemental Brief.txt",
+      "total_citations": 55,
+      "courtlistener_verified": 54,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "035_Amicus - ACLU of Washington.txt",
+      "total_citations": 7,
+      "courtlistener_verified": 5,
+      "non_courtlistener_count": 2,
+      "verification_breakdown": {
+        "unverified": 2,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "036_Answer to Motion for Discretionary Review.txt",
+      "total_citations": 56,
+      "courtlistener_verified": 53,
+      "non_courtlistener_count": 3,
+      "verification_breakdown": {
+        "unverified": 3,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "037_Motion for Discretionary Review of Personal Restraint Petition.txt",
+      "total_citations": 65,
+      "courtlistener_verified": 64,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "038_COA  Answer to Personal Restraint Petition.txt",
+      "total_citations": 66,
+      "courtlistener_verified": 65,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "041_Respondents Supplemental Brief.txt",
+      "total_citations": 47,
+      "courtlistener_verified": 46,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "045_Amicus - Washington State Office of Public Defense.txt",
+      "total_citations": 32,
+      "courtlistener_verified": 31,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "046_Respondent Answer to Amici Curiae.txt",
+      "total_citations": 14,
+      "courtlistener_verified": 13,
+      "non_courtlistener_count": 1,
+      "verification_breakdown": {
+        "unverified": 1,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "048_Answer of Represented Officers to Amicus National Lawyers Guild.txt",
+      "total_citations": 45,
+      "courtlistener_verified": 43,
+      "non_courtlistener_count": 2,
+      "verification_breakdown": {
+        "unverified": 2,
+        "found_via_fallback": 0
+      }
+    }
+  ],
+  "verification_status_counts": {
+    "unverified": 33,
+    "found_via_fallback": 0
+  },
+  "fallback_source_counts": {}
+}

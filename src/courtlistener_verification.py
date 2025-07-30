@@ -109,8 +109,32 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
         return None
 
 def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_name=None):
-    """Two-step CourtListener verification: citation-lookup first, then search API fallback"""
+    """
+    Verify a citation with CourtListener using enhanced cross-validation system.
+    This replaces the previous two-step verification with a more robust approach.
+    """
+    
     print(f"[DEBUG PRINT] ENTERED verify_with_courtlistener for citation: {citation}")
+    
+    # Import the enhanced verification system
+    try:
+        from src.enhanced_courtlistener_verification import verify_with_courtlistener_enhanced
+        
+        print(f"[DEBUG PRINT] Using enhanced cross-validation verification")
+        result = verify_with_courtlistener_enhanced(courtlistener_api_key, citation, extracted_case_name)
+        
+        print(f"[DEBUG PRINT] Enhanced verification result: verified={result.get('verified')}, source={result.get('source')}")
+        return result
+        
+    except ImportError as e:
+        print(f"[DEBUG PRINT] Enhanced verification not available, falling back to basic verification: {e}")
+        
+        # Fallback to basic verification if enhanced system is not available
+        return _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name)
+
+def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name=None):
+    """Two-step CourtListener verification: citation-lookup first, then search API fallback"""
+    print(f"[DEBUG PRINT] ENTERED _verify_with_courtlistener_basic for citation: {citation}")
     result = {
         "canonical_name": None,
         "canonical_date": None,
@@ -183,16 +207,29 @@ def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_na
                         print(f"[DEBUG PRINT] Using first result (no similarity matching needed)")
                     
                     if cluster:
-                        result['canonical_name'] = cluster.get('case_name')
-                        result['canonical_date'] = cluster.get('date_filed')
-                        result['url'] = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
-                        result['verified'] = True
-                        result['source'] = 'CourtListener-lookup'
+                        # CRITICAL FIX: Validate that cluster contains actual case data
+                        case_name = cluster.get('case_name')
+                        date_filed = cluster.get('date_filed')
+                        absolute_url = cluster.get('absolute_url')
                         
-                        print(f"[DEBUG PRINT] SUCCESS: Citation-lookup found canonical data:")
-                        print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
-                        print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
-                        return result
+                        # Only mark as verified if we have essential case data
+                        if case_name and case_name.strip() and absolute_url and absolute_url.strip():
+                            result['canonical_name'] = case_name
+                            result['canonical_date'] = date_filed
+                            result['url'] = f"https://www.courtlistener.com{absolute_url}"
+                            result['verified'] = True
+                            result['source'] = 'CourtListener-lookup'
+                            
+                            print(f"[DEBUG PRINT] SUCCESS: Citation-lookup found valid canonical data:")
+                            print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
+                            print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
+                            print(f"[DEBUG PRINT]   URL: {result['url']}")
+                            return result
+                        else:
+                            print(f"[DEBUG PRINT] REJECTED: Cluster exists but missing essential data:")
+                            print(f"[DEBUG PRINT]   case_name: '{case_name}'")
+                            print(f"[DEBUG PRINT]   absolute_url: '{absolute_url}'")
+                            print(f"[DEBUG PRINT]   This prevents false positive verification")
                 
                 print(f"[DEBUG PRINT] Citation-lookup returned no valid results (all 404s)")
                 
@@ -232,16 +269,29 @@ def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_na
                     # Use the first search result
                     first_result = search_results['results'][0]
                     
-                    result['canonical_name'] = first_result.get('caseName')
-                    result['canonical_date'] = first_result.get('dateFiled')
-                    result['url'] = f"https://www.courtlistener.com{first_result.get('absolute_url', '')}"
-                    result['verified'] = True
-                    result['source'] = 'CourtListener-search'
+                    # CRITICAL FIX: Validate that search result contains actual case data
+                    case_name = first_result.get('caseName')
+                    date_filed = first_result.get('dateFiled')
+                    absolute_url = first_result.get('absolute_url')
                     
-                    print(f"[DEBUG PRINT] SUCCESS: Search API found canonical data:")
-                    print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
-                    print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
-                    return result
+                    # Only mark as verified if we have essential case data
+                    if case_name and case_name.strip() and absolute_url and absolute_url.strip():
+                        result['canonical_name'] = case_name
+                        result['canonical_date'] = date_filed
+                        result['url'] = f"https://www.courtlistener.com{absolute_url}"
+                        result['verified'] = True
+                        result['source'] = 'CourtListener-search'
+                        
+                        print(f"[DEBUG PRINT] SUCCESS: Search API found valid canonical data:")
+                        print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
+                        print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
+                        print(f"[DEBUG PRINT]   URL: {result['url']}")
+                        return result
+                    else:
+                        print(f"[DEBUG PRINT] REJECTED: Search result exists but missing essential data:")
+                        print(f"[DEBUG PRINT]   caseName: '{case_name}'")
+                        print(f"[DEBUG PRINT]   absolute_url: '{absolute_url}'")
+                        print(f"[DEBUG PRINT]   This prevents false positive verification")
                 else:
                     print(f"[DEBUG PRINT] Search API returned no results")
                     

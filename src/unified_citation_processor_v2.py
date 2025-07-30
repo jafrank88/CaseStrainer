@@ -2072,6 +2072,264 @@ class UnifiedCitationProcessorV2:
                 return state
         return None
 
+    def _validate_verification_result(self, citation: 'CitationResult', source: str) -> Dict[str, Any]:
+        """Validate that a verification result makes sense and is high quality."""
+        validation_result = {'valid': True, 'reason': '', 'confidence_adjustment': 0.0}
+        
+        # Check 1: Must have canonical name
+        if not citation.canonical_name or citation.canonical_name.strip() == '':
+            validation_result['valid'] = False
+            validation_result['reason'] = 'Missing canonical name'
+            return validation_result
+        
+        # Check 2: Canonical name should contain 'v.' for most cases (except 'In re' cases)
+        canonical_lower = citation.canonical_name.lower()
+        if 'v.' not in canonical_lower and 'in re' not in canonical_lower and 'ex parte' not in canonical_lower:
+            validation_result['valid'] = False
+            validation_result['reason'] = f'Canonical name lacks proper case format: {citation.canonical_name}'
+            return validation_result
+        
+        # Check 3: Canonical name shouldn't be suspiciously long or short
+        if len(citation.canonical_name) < 5:
+            validation_result['valid'] = False
+            validation_result['reason'] = f'Canonical name too short: {citation.canonical_name}'
+            return validation_result
+        
+        if len(citation.canonical_name) > 200:
+            validation_result['valid'] = False
+            validation_result['reason'] = f'Canonical name too long: {citation.canonical_name[:50]}...'
+            return validation_result
+        
+        # Check 4: If we have extracted case name, check similarity
+        if hasattr(citation, 'extracted_case_name') and citation.extracted_case_name and citation.extracted_case_name != 'N/A':
+            similarity = self._calculate_case_name_similarity(citation.extracted_case_name, citation.canonical_name)
+            if similarity < 0.1:  # Very low similarity threshold
+                logger.warning(f"[VALIDATION] Low similarity between extracted '{citation.extracted_case_name}' and canonical '{citation.canonical_name}' (similarity: {similarity:.2f})")
+                validation_result['confidence_adjustment'] = -0.2
+        
+        # Check 5: Canonical date validation
+        if citation.canonical_date:
+            try:
+                # Try to parse the date
+                if len(citation.canonical_date) == 4:  # Year only
+                    year = int(citation.canonical_date)
+                    if year < 1600 or year > 2030:
+                        validation_result['valid'] = False
+                        validation_result['reason'] = f'Invalid canonical year: {citation.canonical_date}'
+                        return validation_result
+                elif '-' in citation.canonical_date:  # Full date
+                    from datetime import datetime
+                    datetime.strptime(citation.canonical_date, '%Y-%m-%d')
+            except (ValueError, TypeError):
+                validation_result['valid'] = False
+                validation_result['reason'] = f'Invalid canonical date format: {citation.canonical_date}'
+                return validation_result
+        
+        # Check 6: Source-specific validations
+        if source == 'CourtListener':
+            # CourtListener should provide URLs
+            if not citation.url or not citation.url.startswith('https://www.courtlistener.com'):
+                validation_result['confidence_adjustment'] = -0.1
+                logger.debug(f"[VALIDATION] CourtListener result missing proper URL: {citation.url}")
+        
+        # Adjust confidence based on validation results
+        if hasattr(citation, 'confidence') and citation.confidence is not None:
+            citation.confidence = max(0.0, min(1.0, citation.confidence + validation_result['confidence_adjustment']))
+        
+        logger.debug(f"[VALIDATION] {source} result for {citation.citation}: {validation_result['valid']} - {citation.canonical_name}")
+        return validation_result
+
+    def _verify_citations(self, citations: List['CitationResult'], text: str = None) -> List['CitationResult']:
+        """Verify citations using CourtListener and fallback sources with enhanced validation."""
+        logger.info(f"[VERIFICATION] Starting verification for {len(citations)} citations")
+        
+        if not citations:
+            return citations
+        
+        # Step 1: Try CourtListener verification first
+        courtlistener_verified_count = 0
+        courtlistener_errors = []
+        
+        for citation in citations:
+            try:
+                # Use the existing CourtListener verification method
+                if hasattr(self, '_verify_citation_with_courtlistener'):
+                    self._verify_citation_with_courtlistener(citation)
+                    if citation.verified:
+                        # Enhanced validation: Check if verification result makes sense
+                        validation_result = self._validate_verification_result(citation, 'CourtListener')
+                        if validation_result['valid']:
+                            courtlistener_verified_count += 1
+                            logger.info(f"[VERIFICATION] SUCCESS: CourtListener verified: {citation.citation} -> {citation.canonical_name}")
+                        else:
+                            # Mark as unverified if validation fails
+                            citation.verified = False
+                            citation.canonical_name = None
+                            citation.canonical_date = None
+                            logger.warning(f"[VERIFICATION] FAILED: CourtListener verification failed validation: {citation.citation} - {validation_result['reason']}")
+            except Exception as e:
+                error_context = {
+                    'citation': citation.citation,
+                    'extracted_name': getattr(citation, 'extracted_case_name', 'N/A'),
+                    'error': str(e),
+                    'step': 'CourtListener API'
+                }
+                courtlistener_errors.append(error_context)
+                logger.warning(f"[VERIFICATION] CourtListener verification failed for {citation.citation}: {str(e)}")
+        
+        # Enhanced progress reporting
+        if courtlistener_errors:
+            logger.info(f"[VERIFICATION] CourtListener errors: {len(courtlistener_errors)} citations failed")
+            if self.config.debug_mode:
+                for error in courtlistener_errors[:3]:  # Show first 3 errors in debug mode
+                    logger.debug(f"[VERIFICATION] Error detail: {error}")
+        
+        logger.info(f"[VERIFICATION] CourtListener results: {courtlistener_verified_count}/{len(citations)} verified")
+        
+        # Step 2: Use fallback verification for unverified citations
+        unverified_citations = [c for c in citations if not c.verified]
+        logger.info(f"[VERIFICATION] {len(unverified_citations)} citations need fallback verification")
+        
+        fallback_verified_count = 0
+        fallback_errors = []
+        fallback_validation_failures = []
+        
+        if unverified_citations:
+            try:
+                # Import and use the fallback verifier
+                import sys
+                import os
+                sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+                from src.fallback_verifier import FallbackVerifier
+                
+                verifier = FallbackVerifier()
+                
+                for citation in unverified_citations:
+                    try:
+                        citation_text = citation.citation
+                        extracted_case_name = citation.extracted_case_name
+                        extracted_date = citation.extracted_date
+                        
+                        logger.info(f"[VERIFICATION] Attempting fallback verification: {citation_text}")
+                        if self.config.debug_mode:
+                            logger.debug(f"[VERIFICATION] Fallback context - Extracted name: {extracted_case_name}, Date: {extracted_date}")
+                        
+                        result = verifier.verify_citation(
+                            citation_text, 
+                            extracted_case_name, 
+                            extracted_date
+                        )
+                        
+                        if result['verified']:
+                            # Apply verification results
+                            citation.verified = True
+                            citation.canonical_name = result['canonical_name']
+                            citation.canonical_date = result['canonical_date']
+                            citation.url = result['url']
+                            citation.source = result['source']  # Use actual website source (e.g., 'Cornell Law', 'Justia')
+                            citation.confidence = result['confidence']
+                            
+                            # Enhanced validation: Check if fallback result makes sense
+                            validation_result = self._validate_verification_result(citation, f"Fallback-{result['source']}")
+                            
+                            if validation_result['valid']:
+                                # Add metadata about fallback verification
+                                if not hasattr(citation, 'metadata') or citation.metadata is None:
+                                    citation.metadata = {}
+                                citation.metadata.update({
+                                    'verification_method': 'fallback',
+                                    'fallback_source': result['source'],
+                                    'verification_details': result.get('verification_details', {}),
+                                    'validation_passed': True
+                                })
+                                
+                                fallback_verified_count += 1
+                                logger.info(f"[VERIFICATION] SUCCESS: Fallback verified: {citation_text} -> {citation.canonical_name} (via {result['source']})")
+                            else:
+                                # Validation failed - mark as unverified
+                                citation.verified = False
+                                citation.canonical_name = None
+                                citation.canonical_date = None
+                                citation.url = None
+                                
+                                validation_failure = {
+                                    'citation': citation_text,
+                                    'source': result['source'],
+                                    'reason': validation_result['reason'],
+                                    'attempted_canonical': result['canonical_name']
+                                }
+                                fallback_validation_failures.append(validation_failure)
+                                logger.warning(f"[VERIFICATION] FAILED: Fallback validation failed: {citation_text} - {validation_result['reason']}")
+                        else:
+                            # Enhanced error reporting for failed fallback verification
+                            failure_reason = result.get('error', 'Unknown error')
+                            logger.debug(f"[VERIFICATION] Fallback verification failed: {citation_text} - {failure_reason}")
+                            
+                    except Exception as e:
+                        error_context = {
+                            'citation': citation.citation,
+                            'extracted_name': getattr(citation, 'extracted_case_name', 'N/A'),
+                            'error': str(e),
+                            'step': 'Fallback verification'
+                        }
+                        fallback_errors.append(error_context)
+                        logger.warning(f"[VERIFICATION] Fallback verification error for {citation.citation}: {str(e)}")
+                
+                # Enhanced progress reporting for fallback verification
+                logger.info(f"[VERIFICATION] Fallback results: {fallback_verified_count}/{len(unverified_citations)} verified")
+                
+                if fallback_validation_failures:
+                    logger.info(f"[VERIFICATION] Fallback validation failures: {len(fallback_validation_failures)} citations failed validation")
+                    if self.config.debug_mode:
+                        for failure in fallback_validation_failures[:3]:  # Show first 3 failures in debug mode
+                            logger.debug(f"[VERIFICATION] Validation failure: {failure}")
+                
+                if fallback_errors:
+                    logger.info(f"[VERIFICATION] Fallback errors: {len(fallback_errors)} citations had errors")
+                    if self.config.debug_mode:
+                        for error in fallback_errors[:3]:  # Show first 3 errors in debug mode
+                            logger.debug(f"[VERIFICATION] Error detail: {error}")
+                
+            except Exception as e:
+                logger.error(f"[VERIFICATION] Critical error in fallback verification system: {str(e)}")
+                if self.config.debug_mode:
+                    import traceback
+                    logger.debug(f"[VERIFICATION] Fallback system traceback: {traceback.format_exc()}")
+        
+        # Step 3: Enhanced final verification statistics and quality reporting
+        total_verified = sum(1 for c in citations if c.verified)
+        verification_rate = (total_verified / len(citations)) * 100 if citations else 0
+        
+        logger.info(f"[VERIFICATION] === FINAL VERIFICATION SUMMARY ===")
+        logger.info(f"[VERIFICATION] Total citations processed: {len(citations)}")
+        logger.info(f"[VERIFICATION] Successfully verified: {total_verified} ({verification_rate:.1f}%)")
+        logger.info(f"[VERIFICATION] CourtListener verified: {courtlistener_verified_count}")
+        logger.info(f"[VERIFICATION] Fallback verified: {fallback_verified_count}")
+        logger.info(f"[VERIFICATION] Still unverified: {len(citations) - total_verified}")
+        
+        # Quality metrics reporting
+        if total_verified > 0:
+            high_confidence_count = sum(1 for c in citations if c.verified and hasattr(c, 'confidence') and c.confidence and c.confidence > 0.8)
+            medium_confidence_count = sum(1 for c in citations if c.verified and hasattr(c, 'confidence') and c.confidence and 0.5 <= c.confidence <= 0.8)
+            low_confidence_count = sum(1 for c in citations if c.verified and hasattr(c, 'confidence') and c.confidence and c.confidence < 0.5)
+            
+            logger.info(f"[VERIFICATION] Quality breakdown:")
+            logger.info(f"[VERIFICATION]   High confidence (>0.8): {high_confidence_count}")
+            logger.info(f"[VERIFICATION]   Medium confidence (0.5-0.8): {medium_confidence_count}")
+            logger.info(f"[VERIFICATION]   Low confidence (<0.5): {low_confidence_count}")
+        
+        # Report any problematic citations in debug mode
+        if self.config.debug_mode:
+            unverified_citations = [c for c in citations if not c.verified]
+            if unverified_citations:
+                logger.debug(f"[VERIFICATION] Unverified citations sample:")
+                for citation in unverified_citations[:5]:  # Show first 5 unverified
+                    logger.debug(f"[VERIFICATION]   - {citation.citation} (extracted: {getattr(citation, 'extracted_case_name', 'N/A')})")
+        
+        logger.info(f"[VERIFICATION] === END VERIFICATION SUMMARY ===")
+        
+        return citations
+
     def process_text(self, text: str):
         logger.info("[DEBUG PRINT] ENTERED process_text method")
         citations = self._extract_with_regex(text)

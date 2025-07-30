@@ -1,0 +1,30 @@
+[
+  {
+    "found": false,
+    "legitimate": false,
+    "error": "'str' object has no attribute 'get'",
+    "citation": "654 F. Supp. 2d 321",
+    "expected_case": "Benckini v. Hawk"
+  },
+  {
+    "found": false,
+    "legitimate": false,
+    "error": "'str' object has no attribute 'get'",
+    "citation": "147 Wn. App. 891",
+    "expected_case": "State v. Alphonse"
+  },
+  {
+    "found": false,
+    "legitimate": false,
+    "error": "'str' object has no attribute 'get'",
+    "citation": "456 F.3d 789",
+    "expected_case": "David L. Hartjes v. Jeffrey P. Endicott"
+  },
+  {
+    "found": false,
+    "legitimate": false,
+    "error": "'str' object has no attribute 'get'",
+    "citation": "123 Wn.2d 456",
+    "expected_case": "State v. Board of Yakima County Commissioners"
+  }
+]

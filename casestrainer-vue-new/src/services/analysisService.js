@@ -226,22 +226,44 @@ export const useAnalysisService = () => {
       }
       
       let response;
+      
+      // Smart endpoint selection: use enhanced endpoint for text input, standard for files
       if (content instanceof File || content instanceof Blob) {
+         // File uploads: use standard endpoint (enhanced doesn't support files)
          const fd = new FormData();
          fd.append("file", content);
          fd.append("type", "file");
          if (options && Object.keys(options).length > 0) {
            fd.append("options", JSON.stringify(options));
          }
+         console.log('[ANALYSIS] Using standard /analyze endpoint for file upload');
          response = await currentApi.post('/analyze', fd, { timeout: CONSTANTS.PROCESSING_TIMEOUT, headers: {} });
       } else if (content instanceof FormData) {
+         // Form data: use standard endpoint
          if (!content.has('type')) content.append('type', type);
          if (options && Object.keys(options).length > 0 && !content.has('options')) {
            content.append('options', JSON.stringify(options));
          }
+         console.log('[ANALYSIS] Using standard /analyze endpoint for form data');
          response = await currentApi.post('/analyze', content, { timeout: CONSTANTS.PROCESSING_TIMEOUT, headers: {} });
       } else {
-                                       response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
+         // Text input: try enhanced endpoint first, fallback to standard if needed
+         const isTextInput = type === 'text' || (content && content.text);
+         
+         if (isTextInput) {
+           try {
+             console.log('[ANALYSIS] Using enhanced /analyze_enhanced endpoint for text input');
+             response = await currentApi.post('/analyze_enhanced', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
+           } catch (enhancedError) {
+             console.warn('[ANALYSIS] Enhanced endpoint failed, falling back to standard:', enhancedError.message);
+             console.log('[ANALYSIS] Using fallback standard /analyze endpoint');
+             response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
+           }
+         } else {
+           // Non-text input (URLs, etc.): use standard endpoint
+           console.log('[ANALYSIS] Using standard /analyze endpoint for non-text input');
+           response = await currentApi.post('/analyze', { ...content, type, options: enhancedOptions }, { timeout: CONSTANTS.PROCESSING_TIMEOUT });
+         }
       }
       
       // Clear timeout on success

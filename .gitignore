@@ -167,6 +167,11 @@ Thumbs.db
 !BATCH_FILES.md
 !API_SETUP.md
 
+# Allow CSV output files
+!*courtlistener_citations*.csv
+!*processing_summary*.json
+!*.csv
+
 # Configuration files
 !requirements.txt
 !requirements-test.txt

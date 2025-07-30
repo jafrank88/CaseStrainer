@@ -1,0 +1,445 @@
+{
+  "processing_date": "2025-07-28T22:04:53.180274",
+  "total_files_processed": 50,
+  "total_files_with_errors": 0,
+  "total_citations_found": 2227,
+  "total_courtlistener_verified": 182,
+  "total_non_courtlistener": 2045,
+  "files_summary": [
+    {
+      "file": "002_Petition for Review.txt",
+      "total_citations": 137,
+      "courtlistener_verified": 135,
+      "non_courtlistener_count": 2,
+      "verification_breakdown": {
+        "unverified": 2,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "003_COA  Appellant Brief.txt",
+      "total_citations": 224,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 224,
+      "verification_breakdown": {
+        "unverified": 224,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "004_COA Respondent Brief.txt",
+      "total_citations": 117,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 117,
+      "verification_breakdown": {
+        "unverified": 117,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "005_Petitioners Supplemental Brief.txt",
+      "total_citations": 67,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 67,
+      "verification_breakdown": {
+        "unverified": 67,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "010_Respondent Answer to Amicus.txt",
+      "total_citations": 63,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 63,
+      "verification_breakdown": {
+        "unverified": 63,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "012_Petitioner Reply Answer to Amicus.txt",
+      "total_citations": 13,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 13,
+      "verification_breakdown": {
+        "unverified": 13,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "013_Eli Lilly County Answer to Amicus.txt",
+      "total_citations": 42,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 42,
+      "verification_breakdown": {
+        "unverified": 42,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "014_Plaintiffs Reply Brief.txt",
+      "total_citations": 24,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 24,
+      "verification_breakdown": {
+        "unverified": 24,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "015_Amicus - Pharmaceutical Research and Manufacturers of America.txt",
+      "total_citations": 67,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 67,
+      "verification_breakdown": {
+        "unverified": 67,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "016_Amicus - Washington Defense Trial Lawyers.txt",
+      "total_citations": 19,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 19,
+      "verification_breakdown": {
+        "unverified": 19,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "017_Amicus - Wasjington State Association Justice Foundation.txt",
+      "total_citations": 81,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 81,
+      "verification_breakdown": {
+        "unverified": 81,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "018_Plaintiff Opening Brief.txt",
+      "total_citations": 27,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 27,
+      "verification_breakdown": {
+        "unverified": 27,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "019_Defendant Brief.txt",
+      "total_citations": 84,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 84,
+      "verification_breakdown": {
+        "unverified": 84,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "020_Appellants Brief.txt",
+      "total_citations": 39,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 39,
+      "verification_breakdown": {
+        "unverified": 39,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "021_Respondents Brief.txt",
+      "total_citations": 105,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 105,
+      "verification_breakdown": {
+        "unverified": 105,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "022_Appellants Reply Brief.txt",
+      "total_citations": 10,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 10,
+      "verification_breakdown": {
+        "unverified": 10,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "023_Appellants Statement Additional Authorities.txt",
+      "total_citations": 9,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 9,
+      "verification_breakdown": {
+        "unverified": 9,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "024_Statement of Additional Authorities.txt",
+      "total_citations": 88,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 88,
+      "verification_breakdown": {
+        "unverified": 88,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "025_Amicus - ACLU of Washington.txt",
+      "total_citations": 8,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 8,
+      "verification_breakdown": {
+        "unverified": 8,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "026_Amicus - The Defender Initative.txt",
+      "total_citations": 17,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 17,
+      "verification_breakdown": {
+        "unverified": 17,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "027_Amicus - Washington State Office of Public Defense.txt",
+      "total_citations": 11,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 11,
+      "verification_breakdown": {
+        "unverified": 11,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "028_Answer to Motion for Discretionary Review.txt",
+      "total_citations": 44,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 44,
+      "verification_breakdown": {
+        "unverified": 44,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "029_Motion for Discretionary Review of Personal Restraint Petition.txt",
+      "total_citations": 131,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 131,
+      "verification_breakdown": {
+        "unverified": 131,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "031_COA  Answer to Personal Restraint Petition.txt",
+      "total_citations": 51,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 51,
+      "verification_breakdown": {
+        "unverified": 51,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "033_COA  Petitioner Supplemental Brief.txt",
+      "total_citations": 71,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 71,
+      "verification_breakdown": {
+        "unverified": 71,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "034_COA  Response to Petitioner Supplemental Brief.txt",
+      "total_citations": 55,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 55,
+      "verification_breakdown": {
+        "unverified": 55,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "035_Amicus - ACLU of Washington.txt",
+      "total_citations": 7,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 7,
+      "verification_breakdown": {
+        "unverified": 7,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "036_Answer to Motion for Discretionary Review.txt",
+      "total_citations": 56,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 56,
+      "verification_breakdown": {
+        "unverified": 56,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "037_Motion for Discretionary Review of Personal Restraint Petition.txt",
+      "total_citations": 65,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 65,
+      "verification_breakdown": {
+        "unverified": 65,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "038_COA  Answer to Personal Restraint Petition.txt",
+      "total_citations": 66,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 66,
+      "verification_breakdown": {
+        "unverified": 66,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "039_COA  Petitioner Brief.txt",
+      "total_citations": 37,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 37,
+      "verification_breakdown": {
+        "unverified": 37,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "040_COA  Reply Brief.txt",
+      "total_citations": 8,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 8,
+      "verification_breakdown": {
+        "unverified": 8,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "041_Respondents Supplemental Brief.txt",
+      "total_citations": 47,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 47,
+      "verification_breakdown": {
+        "unverified": 47,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "042_Petitioners Supplemental Brief.txt",
+      "total_citations": 47,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 47,
+      "verification_breakdown": {
+        "unverified": 47,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "043_Amicus - American Civil Liberties Union of Washington.txt",
+      "total_citations": 26,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 26,
+      "verification_breakdown": {
+        "unverified": 26,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "044_Amicus - The Defender Initiative and Washington Defender Association.txt",
+      "total_citations": 33,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 33,
+      "verification_breakdown": {
+        "unverified": 33,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "045_Amicus - Washington State Office of Public Defense.txt",
+      "total_citations": 32,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 32,
+      "verification_breakdown": {
+        "unverified": 32,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "046_Respondent Answer to Amici Curiae.txt",
+      "total_citations": 14,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 14,
+      "verification_breakdown": {
+        "unverified": 14,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "047_Statement of Additional Authorities.txt",
+      "total_citations": 12,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 12,
+      "verification_breakdown": {
+        "unverified": 12,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "048_Answer of Represented Officers to Amicus National Lawyers Guild.txt",
+      "total_citations": 45,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 45,
+      "verification_breakdown": {
+        "unverified": 45,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "049_Represented Officers Answer to Amicus Reporters Committee.txt",
+      "total_citations": 21,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 21,
+      "verification_breakdown": {
+        "unverified": 21,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "050_Represented Officers Answer to Amicus Police Accountability Project.txt",
+      "total_citations": 8,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 8,
+      "verification_breakdown": {
+        "unverified": 8,
+        "found_via_fallback": 0
+      }
+    },
+    {
+      "file": "60179-6.25.txt",
+      "total_citations": 52,
+      "courtlistener_verified": 0,
+      "non_courtlistener_count": 52,
+      "verification_breakdown": {
+        "unverified": 52,
+        "found_via_fallback": 0
+      }
+    }
+  ],
+  "verification_status_counts": {
+    "unverified": 2045,
+    "found_via_fallback": 0
+  },
+  "fallback_source_counts": {}
+}

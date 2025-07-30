@@ -285,6 +285,12 @@ class CitationService:
 
             processed_citations = []
             for citation in citation_results['citations']:
+                # Enhanced verification metadata extraction
+                metadata = citation.metadata or {}
+                verification_method = metadata.get('verification_method', 'N/A')
+                validation_passed = metadata.get('validation_passed', 'N/A')
+                fallback_source = metadata.get('fallback_source', 'N/A')
+                
                 citation_dict = {
                     'citation': citation.citation,
                     'case_name': citation.canonical_name or citation.extracted_case_name or 'Unknown',
@@ -311,7 +317,11 @@ class CitationService:
                     'url': citation.url,
                     'source': citation.source,
                     'error': citation.error,
-                    'metadata': citation.metadata or {}
+                    'metadata': metadata,
+                    # Enhanced verification fields for easier access
+                    'verification_method': verification_method,
+                    'validation_passed': validation_passed,
+                    'fallback_source': fallback_source
                 }
                 processed_citations.append(citation_dict)
             print(f"[DEBUG PRINT] Finished processing citations, processed_citations_count={len(processed_citations)}")
