@@ -1,0 +1,121 @@
+{
+  "test_info": {
+    "timestamp": "20250729_214539",
+    "total_tested": 10,
+    "verified_count": 10,
+    "context_validated": 9,
+    "potential_false_positives": 1
+  },
+  "results": [
+    {
+      "citation": "17 L. Ed. 2d 562",
+      "expected_case": "",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "State v. Flynn",
+      "found_date": "2024-03-13",
+      "source": "CourtListener-search-validated",
+      "confidence": 0.8,
+      "context_match": false
+    },
+    {
+      "citation": "17 L. Ed. 2d 562",
+      "expected_case": "Garrity v. New Jersey",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "State v. Flynn",
+      "found_date": "2024-03-13",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    },
+    {
+      "citation": "386 U.S. 18",
+      "expected_case": "TABLE OF AUTHORITIES Federal Cases Chapman v. California",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "Oversight v. U.S. Envtl. Prot. Agency",
+      "found_date": "2019-04-29",
+      "source": "CourtListener-search-validated",
+      "confidence": 0.9999999999999999,
+      "context_match": true
+    },
+    {
+      "citation": "87 S. Ct. 824",
+      "expected_case": "TABLE OF AUTHORITIES Federal Cases Chapman v. California",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "Stewart v. Virgin Islands Board of Land Use Appeals",
+      "found_date": "2017-04-26",
+      "source": "CourtListener-search-validated",
+      "confidence": 0.9,
+      "context_match": true
+    },
+    {
+      "citation": "17 L. Ed. 2d 705",
+      "expected_case": "TABLE OF AUTHORITIES Federal Cases Chapman v. California",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "West Virginia Board of Education and Steven L. Paine, Ed.D v. Board of Education of the County of Nicholas",
+      "found_date": "2017-10-10",
+      "source": "CourtListener-search-validated",
+      "confidence": 0.9,
+      "context_match": true
+    },
+    {
+      "citation": "415 U.S. 308",
+      "expected_case": "Davis v. Alaska",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "U.S. Sec. & Exch. Comm'n v. Ahmed",
+      "found_date": "2018-09-06",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    },
+    {
+      "citation": "94 S. Ct. 1105",
+      "expected_case": "Davis v. Alaska",
+      "expected_date": "1974",
+      "verified": true,
+      "found_case": "Embark, LLC v. 1105 Media, Inc.",
+      "found_date": "2014-01-07",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    },
+    {
+      "citation": "39 L. Ed. 2d 347",
+      "expected_case": "Davis v. Alaska",
+      "expected_date": "1974",
+      "verified": true,
+      "found_case": "Vought v. Wisconsin Teamsters Joint Council No. 39",
+      "found_date": "2009-03-10",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    },
+    {
+      "citation": "385 U.S. 493",
+      "expected_case": "Davis v. Alaska,",
+      "expected_date": "1974",
+      "verified": true,
+      "found_case": "State v. Flynn",
+      "found_date": "2024-03-13",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    },
+    {
+      "citation": "87 S. Ct. 616",
+      "expected_case": "Davis v. Alaska",
+      "expected_date": "1967",
+      "verified": true,
+      "found_case": "Stewart v. Virgin Islands Board of Land Use Appeals",
+      "found_date": "2017-04-26",
+      "source": "CourtListener-search-validated",
+      "confidence": 1.0,
+      "context_match": true
+    }
+  ]
+}

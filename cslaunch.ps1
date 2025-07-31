@@ -47,6 +47,16 @@ $script:MaxRestartAttempts = 3
 $script:CrashLogFile = Join-Path $PSScriptRoot "logs\crash.log"
 $script:MonitoringJob = $null
 
+# Nginx configuration
+$script:NginxConfig = @{
+    ExecutablePath = "D:\\dev\\casestrainer\\nginx\\nginx.exe"
+    ConfigPath = Join-Path $PSScriptRoot "nginx.production.conf"
+    LogDir = "D:\\dev\\casestrainer\\nginx\\logs"
+    ProcessName = "nginx"
+    HealthCheckUrl = "http://localhost/health"
+    StartTimeout = 10  # seconds
+}
+
 # Performance optimization: Cache expensive checks
 $script:CachedChecks = @{
     DockerAvailable = $null
@@ -975,6 +985,11 @@ function Start-ServiceMonitoring {
 function Stop-ServiceMonitoring {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
+    
+    # Stop Nginx when monitoring stops
+    if ($PSCmdlet.ShouldProcess("Nginx", "Stop")) {
+        Stop-NginxServer | Out-Null
+    }
 
     if ($script:MonitoringJob) {
         try {
@@ -1004,8 +1019,17 @@ function Start-DockerProduction {
     [OutputType([bool])]
     param(
         [switch]$ForceRebuild,
-        [switch]$NoValidation
+        [switch]$NoValidation,
+        [switch]$QuickStart,
+        [switch]$SkipVueBuild
     )
+
+    Write-Host "`n=== Starting Nginx ===" -ForegroundColor Cyan
+    $nginxStarted = Start-NginxServer
+    if (-not $nginxStarted) {
+        Write-Host "❌ Failed to start Nginx. Aborting startup." -ForegroundColor Red
+        return $false
+    }
 
     Write-Host "`n=== Starting Docker Production Mode ===`n" -ForegroundColor Green
 
@@ -1391,6 +1415,246 @@ function Start-DockerProduction {
     catch {
         Write-CrashLog "Error in Start-DockerProduction" -Level "ERROR" -Exception $_
         Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Test-NginxStatus {
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    param()
+    
+    $result = @{
+        IsRunning = $false
+        Process = $null
+        ConfigValid = $false
+        HealthCheck = $false
+        Error = $null
+    }
+    
+    try {
+        # Check if Nginx process is running
+        $process = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
+        $result.Process = $process
+        $result.IsRunning = $null -ne $process
+        
+        # Test Nginx configuration
+        if (Test-Path $script:NginxConfig.ExecutablePath) {
+            $testResult = & $script:NginxConfig.ExecutablePath -t -c $script:NginxConfig.ConfigPath 2>&1
+            $result.ConfigValid = $LASTEXITCODE -eq 0
+            if (-not $result.ConfigValid) {
+                $result.Error = "Nginx configuration test failed: $testResult"
+            }
+        }
+        
+        # Test health check if process is running
+        if ($result.IsRunning) {
+            try {
+                $response = Invoke-WebRequest -Uri $script:NginxConfig.HealthCheckUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+                $result.HealthCheck = $response.StatusCode -eq 200
+            } catch {
+                $result.HealthCheck = $false
+                $result.Error = "Health check failed: $($_.Exception.Message)"
+            }
+        }
+    } catch {
+        $result.Error = $_.Exception.Message
+    }
+    
+    return [PSCustomObject]$result
+}
+
+function Start-NginxServer {
+    [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([bool])]
+    param()
+    
+    try {
+        Write-Host "`n=== Nginx Startup Debug ===" -ForegroundColor Cyan
+        Write-Host "Checking Nginx status..." -NoNewline
+        $status = Test-NginxStatus
+        
+        if ($status.IsRunning) {
+            Write-Host " [ALREADY RUNNING] (PID: $($status.Process.Id))" -ForegroundColor Green
+            return $true
+        }
+        Write-Host " [NOT RUNNING]" -ForegroundColor Yellow
+        
+        # Verify Nginx executable exists
+        Write-Host "Verifying Nginx executable..." -NoNewline
+        if (-not (Test-Path $script:NginxConfig.ExecutablePath)) {
+            Write-Host " [MISSING] $($script:NginxConfig.ExecutablePath)" -ForegroundColor Red
+            return $false
+        }
+        Write-Host " [FOUND] $($script:NginxConfig.ExecutablePath)" -ForegroundColor Green
+        
+        # Verify config file exists
+        Write-Host "Verifying config file..." -NoNewline
+        if (-not (Test-Path $script:NginxConfig.ConfigPath)) {
+            Write-Host " [MISSING] $($script:NginxConfig.ConfigPath)" -ForegroundColor Red
+            return $false
+        }
+        Write-Host " [FOUND] $($script:NginxConfig.ConfigPath)" -ForegroundColor Green
+        
+        # Test Nginx configuration
+        Write-Host "Testing Nginx configuration..." -NoNewline
+        $configTest = & $script:NginxConfig.ExecutablePath -t -c $script:NginxConfig.ConfigPath 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host " [FAILED]" -ForegroundColor Red
+            Write-Host "Configuration test error: $configTest" -ForegroundColor Red
+            return $false
+        }
+        Write-Host " [PASSED]" -ForegroundColor Green
+        
+        # Ensure log directory exists
+        Write-Host "Ensuring log directory exists..." -NoNewline
+        if (-not (Test-Path $script:NginxConfig.LogDir)) {
+            try {
+                New-Item -ItemType Directory -Path $script:NginxConfig.LogDir -Force | Out-Null
+                Write-Host " [CREATED] $($script:NginxConfig.LogDir)" -ForegroundColor Green
+            } catch {
+                Write-Host " [FAILED] Could not create log directory: $_" -ForegroundColor Red
+                return $false
+            }
+        } else {
+            Write-Host " [EXISTS] $($script:NginxConfig.LogDir)" -ForegroundColor Green
+        }
+        
+        # Start Nginx
+        if ($PSCmdlet.ShouldProcess("Nginx", "Start")) {
+            Write-Host "`nStarting Nginx process..."
+            
+            # First, ensure no other Nginx processes are running
+            $existingProcesses = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
+            if ($existingProcesses) {
+                Write-Host "Found existing Nginx processes. Stopping them first..." -ForegroundColor Yellow
+                $existingProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+            }
+            
+            # Start Nginx with full path and proper working directory
+            $process = Start-Process -FilePath $script:NginxConfig.ExecutablePath `
+                                    -ArgumentList "-c", "`"$($script:NginxConfig.ConfigPath)`"" `
+                                    -WorkingDirectory (Split-Path $script:NginxConfig.ExecutablePath) `
+                                    -NoNewWindow -PassThru -RedirectStandardOutput "$($script:NginxConfig.LogDir)\nginx_stdout.log" `
+                                    -RedirectStandardError "$($script:NginxConfig.LogDir)\nginx_stderr.log"
+            
+            if (-not $process) {
+                Write-Host "❌ Failed to start Nginx process" -ForegroundColor Red
+                return $false
+            }
+            
+            Write-Host "Nginx process started (PID: $($process.Id)). Waiting for it to be ready..." -ForegroundColor Cyan
+            
+            # Wait for Nginx to start
+            $startTime = Get-Date
+            $timeout = $script:NginxConfig.StartTimeout
+            $started = $false
+            
+            while (((Get-Date) - $startTime).TotalSeconds -lt $timeout) {
+                Start-Sleep -Milliseconds 500
+                $status = Test-NginxStatus
+                
+                if ($status.IsRunning) {
+                    $started = $true
+                    break
+                }
+                
+                # Check if process has exited with error
+                if (-not $process.HasExited) {
+                    $process.Refresh()
+                    if ($process.HasExited -and $process.ExitCode -ne 0) {
+                        $errorContent = Get-Content "$($script:NginxConfig.LogDir)\nginx_stderr.log" -Raw -ErrorAction SilentlyContinue
+                        Write-Host "❌ Nginx process exited with code $($process.ExitCode)" -ForegroundColor Red
+                        if ($errorContent) {
+                            Write-Host "Error output: $errorContent" -ForegroundColor Red
+                        }
+                        return $false
+                    }
+                }
+                
+                Write-Host "." -NoNewline -ForegroundColor Gray
+            }
+            
+            if ($started) {
+                Write-Host "`n✅ Nginx started successfully (PID: $(Get-Process -Name $script:NginxConfig.ProcessName).Id)" -ForegroundColor Green
+                
+                # Additional verification by testing the health endpoint
+                Write-Host "Testing health endpoint at $($script:NginxConfig.HealthCheckUrl)..." -NoNewline
+                try {
+                    $response = Invoke-WebRequest -Uri $script:NginxConfig.HealthCheckUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+                    if ($response.StatusCode -eq 200) {
+                        Write-Host " [OK]" -ForegroundColor Green
+                    } else {
+                        Write-Host " [UNEXPECTED STATUS: $($response.StatusCode)]" -ForegroundColor Yellow
+                    }
+                } catch {
+                    Write-Host " [ERROR: $($_.Exception.Message)]" -ForegroundColor Red
+                }
+                
+                return $true
+            } else {
+                # If we get here, Nginx didn't start properly
+                $errorContent = Get-Content "$($script:NginxConfig.LogDir)\nginx_stderr.log" -Raw -ErrorAction SilentlyContinue
+                Write-Host "`n❌ Failed to start Nginx: Timeout waiting for process to start" -ForegroundColor Red
+                if ($errorContent) {
+                    Write-Host "Error output: $errorContent" -ForegroundColor Red
+                }
+                
+                # Check if the process exists but isn't responding
+                $process.Refresh()
+                if ($process.HasExited) {
+                    Write-Host "Nginx process exited with code: $($process.ExitCode)" -ForegroundColor Red
+                } else {
+                    Write-Host "Nginx process is still running but not responding to health checks" -ForegroundColor Yellow
+                    # Try to get more info about the process
+                    try {
+                        $processInfo = Get-Process -Id $process.Id -ErrorAction Stop
+                        Write-Host "Process info: CPU: $($processInfo.CPU), Memory: $($processInfo.WorkingSet64 / 1MB) MB" -ForegroundColor Yellow
+                    } catch {
+                        Write-Host "Could not get process info: $_" -ForegroundColor Yellow
+                    }
+                }
+                
+                return $false
+            }
+        }
+    } catch {
+        Write-Host "`n❌ Failed to start Nginx: $_" -ForegroundColor Red
+        Write-Host "Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Red
+        return $false
+    }
+}
+
+function Stop-NginxServer {
+    [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([bool])]
+    param()
+    
+    try {
+        $process = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
+        if (-not $process) {
+            Write-Host "Nginx is not running" -ForegroundColor Yellow
+            return $true
+        }
+        
+        if ($PSCmdlet.ShouldProcess("Nginx (PID: $($process.Id))", "Stop")) {
+            # Graceful shutdown
+            & $script:NginxConfig.ExecutablePath -s stop -c $script:NginxConfig.ConfigPath -p $PSScriptRoot
+            
+            # Wait for process to exit
+            $process | Wait-Process -Timeout 5 -ErrorAction SilentlyContinue
+            
+            # Force kill if still running
+            if (-not $process.HasExited) {
+                $process | Stop-Process -Force -ErrorAction SilentlyContinue
+            }
+            
+            Write-Host "✅ Nginx stopped successfully" -ForegroundColor Green
+            return $true
+        }
+    } catch {
+        Write-Host "❌ Failed to stop Nginx: $_" -ForegroundColor Red
         return $false
     }
 }

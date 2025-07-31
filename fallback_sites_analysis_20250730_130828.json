@@ -1,0 +1,421 @@
+{
+  "analysis_info": {
+    "timestamp": "20250730_130828",
+    "test_cases_count": 18,
+    "analysis_type": "comprehensive_fallback_sites_analysis"
+  },
+  "overall_statistics": {
+    "cornell_law": {
+      "total": 18,
+      "verified": 9,
+      "types": {
+        "Supreme Court": {
+          "total": 2,
+          "verified": 2
+        },
+        "Federal Circuit": {
+          "total": 2,
+          "verified": 2
+        },
+        "Federal District": {
+          "total": 2,
+          "verified": 0
+        },
+        "Washington Supreme Court": {
+          "total": 1,
+          "verified": 1
+        },
+        "Washington Court of Appeals": {
+          "total": 1,
+          "verified": 0
+        },
+        "Pacific Reporter": {
+          "total": 1,
+          "verified": 1
+        },
+        "Pacific Reporter 2d": {
+          "total": 1,
+          "verified": 1
+        },
+        "California Supreme Court": {
+          "total": 1,
+          "verified": 1
+        },
+        "California Court of Appeal": {
+          "total": 1,
+          "verified": 0
+        },
+        "New York Court of Appeals": {
+          "total": 1,
+          "verified": 0
+        },
+        "New York Appellate Division": {
+          "total": 1,
+          "verified": 0
+        },
+        "Texas (Southwestern Reporter)": {
+          "total": 1,
+          "verified": 0
+        },
+        "Florida (Southern Reporter)": {
+          "total": 1,
+          "verified": 1
+        },
+        "Bankruptcy Court": {
+          "total": 1,
+          "verified": 0
+        },
+        "Law Review": {
+          "total": 1,
+          "verified": 0
+        }
+      }
+    },
+    "justia": {
+      "total": 18,
+      "verified": 2,
+      "types": {
+        "Supreme Court": {
+          "total": 2,
+          "verified": 2
+        },
+        "Federal Circuit": {
+          "total": 2,
+          "verified": 0
+        },
+        "Federal District": {
+          "total": 2,
+          "verified": 0
+        },
+        "Washington Supreme Court": {
+          "total": 1,
+          "verified": 0
+        },
+        "Washington Court of Appeals": {
+          "total": 1,
+          "verified": 0
+        },
+        "Pacific Reporter": {
+          "total": 1,
+          "verified": 0
+        },
+        "Pacific Reporter 2d": {
+          "total": 1,
+          "verified": 0
+        },
+        "California Supreme Court": {
+          "total": 1,
+          "verified": 0
+        },
+        "California Court of Appeal": {
+          "total": 1,
+          "verified": 0
+        },
+        "New York Court of Appeals": {
+          "total": 1,
+          "verified": 0
+        },
+        "New York Appellate Division": {
+          "total": 1,
+          "verified": 0
+        },
+        "Texas (Southwestern Reporter)": {
+          "total": 1,
+          "verified": 0
+        },
+        "Florida (Southern Reporter)": {
+          "total": 1,
+          "verified": 0
+        },
+        "Bankruptcy Court": {
+          "total": 1,
+          "verified": 0
+        },
+        "Law Review": {
+          "total": 1,
+          "verified": 0
+        }
+      }
+    },
+    "google_scholar": {
+      "total": 18,
+      "verified": 0,
+      "types": {}
+    },
+    "caselaw_access": {
+      "total": 18,
+      "verified": 0,
+      "types": {}
+    }
+  },
+  "detailed_results": [
+    {
+      "citation": "385 U.S. 493",
+      "case_name": "Davis v. Alaska",
+      "date": "1967",
+      "type": "Supreme Court",
+      "description": "Classic Supreme Court citation",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "410 U.S. 113",
+      "case_name": "Roe v. Wade",
+      "date": "1973",
+      "type": "Supreme Court",
+      "description": "Famous Supreme Court case",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "654 F.3d 1109",
+      "case_name": "United States v. Jones",
+      "date": "2011",
+      "type": "Federal Circuit",
+      "description": "Federal Circuit Court of Appeals",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "892 F.2d 1419",
+      "case_name": "Kyllo v. United States",
+      "date": "1989",
+      "type": "Federal Circuit",
+      "description": "Ninth Circuit Court of Appeals",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "654 F. Supp. 2d 321",
+      "case_name": "Benckini v. Hawk",
+      "date": "2009",
+      "type": "Federal District",
+      "description": "Federal District Court",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 F. Supp. 3d 456",
+      "case_name": "Sample v. District",
+      "date": "2015",
+      "type": "Federal District",
+      "description": "Recent Federal District Court",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "194 Wn. 2d 784",
+      "case_name": "State v. Arndt",
+      "date": "2019",
+      "type": "Washington Supreme Court",
+      "description": "Washington Supreme Court",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "188 Wn. App. 123",
+      "case_name": "State v. Example",
+      "date": "2015",
+      "type": "Washington Court of Appeals",
+      "description": "Washington Court of Appeals",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "453 P.3d 696",
+      "case_name": "State v. Armenta",
+      "date": "1997",
+      "type": "Pacific Reporter",
+      "description": "Pacific Reporter (covers western states)",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "829 P.2d 1069",
+      "case_name": "State v. Russell",
+      "date": "1994",
+      "type": "Pacific Reporter 2d",
+      "description": "Older Pacific Reporter case",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 Cal. 4th 456",
+      "case_name": "People v. California",
+      "date": "2020",
+      "type": "California Supreme Court",
+      "description": "California Supreme Court",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "456 Cal. App. 4th 789",
+      "case_name": "Smith v. Jones",
+      "date": "2018",
+      "type": "California Court of Appeal",
+      "description": "California Court of Appeal",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 N.Y.2d 456",
+      "case_name": "People v. New York",
+      "date": "2019",
+      "type": "New York Court of Appeals",
+      "description": "New York Court of Appeals (highest state court)",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "456 A.D.3d 789",
+      "case_name": "Matter of Example",
+      "date": "2017",
+      "type": "New York Appellate Division",
+      "description": "New York Appellate Division",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 S.W.3d 456",
+      "case_name": "State v. Texas",
+      "date": "2016",
+      "type": "Texas (Southwestern Reporter)",
+      "description": "Texas state court via Southwestern Reporter",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 So. 3d 456",
+      "case_name": "State v. Florida",
+      "date": "2018",
+      "type": "Florida (Southern Reporter)",
+      "description": "Florida state court via Southern Reporter",
+      "source_results": {
+        "cornell_law": "verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 B.R. 456",
+      "case_name": "In re Bankruptcy",
+      "date": "2019",
+      "type": "Bankruptcy Court",
+      "description": "Bankruptcy Reporter",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    },
+    {
+      "citation": "123 Harv. L. Rev. 456",
+      "case_name": "Legal Article Title",
+      "date": "2020",
+      "type": "Law Review",
+      "description": "Harvard Law Review article",
+      "source_results": {
+        "cornell_law": "not_verified",
+        "justia": "not_verified",
+        "google_scholar": "not_implemented",
+        "caselaw_access": "not_implemented"
+      }
+    }
+  ],
+  "recommendations": [
+    "⚠️  Cornell Law: GOOD (50.0% success) - Suitable with monitoring",
+    "❌ Justia: POOR (11.1% success) - Not recommended",
+    "❌ Google Scholar: NOT IMPLEMENTED - Requires development",
+    "❌ Caselaw Access: NOT IMPLEMENTED - Requires development"
+  ],
+  "enhancement_suggestions": [
+    "1. CORNELL LAW ENHANCEMENTS:",
+    "   - Add support for more federal circuit patterns (F.2d, F.3d)",
+    "   - Implement state-specific URL patterns for major states",
+    "   - Enhance search result parsing for better case name extraction",
+    "",
+    "2. JUSTIA ENHANCEMENTS:",
+    "   - Add federal court URL patterns beyond Supreme Court",
+    "   - Implement state-specific search for all 50 states",
+    "   - Add support for specialty courts (bankruptcy, tax, etc.)",
+    "",
+    "3. GOOGLE SCHOLAR IMPLEMENTATION:",
+    "   - Implement full Google Scholar search with CAPTCHA handling",
+    "   - Add academic citation verification for law reviews",
+    "   - Implement rate limiting and session management",
+    "",
+    "4. CASELAW ACCESS PROJECT INTEGRATION:",
+    "   - Implement Harvard CAP API integration",
+    "   - Add historical case verification (pre-1900)",
+    "   - Implement bulk verification for large datasets",
+    "",
+    "5. NEW SOURCES TO CONSIDER:",
+    "   - Westlaw Edge (if API access available)",
+    "   - Lexis+ (if API access available)",
+    "   - HeinOnline for law reviews and historical cases",
+    "   - State court websites with public APIs",
+    "   - Free Case Law Project databases"
+  ]
+}

@@ -209,14 +209,16 @@ This guide provides solutions for common issues that may arise when using or dep
 1. Check file permissions:
 
    ```powershell
-   icacls "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\ssl"
-   ```text
+   # Check SSL directory permissions
+   icacls "d:\dev\casestrainer\ssl"
+   ```
 
 2. Verify directory structure:
 
    ```powershell
-   dir "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-   ```text
+   # Verify project directory structure
+   dir "d:\dev\casestrainer"
+   ```
 
 3. Ensure proper ownership:
 

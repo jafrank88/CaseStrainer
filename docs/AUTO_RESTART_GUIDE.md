@@ -38,14 +38,15 @@ Before using CaseStrainer with auto-restart, ensure you have:
 ### 1. Navigate to CaseStrainer Directory
 
 ```powershell
-cd "C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer"
-
-```text
+# Navigate to your CaseStrainer directory
+cd "d:\dev\casestrainer"
+```
 
 ### 2. Start CaseStrainer
 
 ```powershell
 .\launcher.ps1
+```
 
 ```text
 

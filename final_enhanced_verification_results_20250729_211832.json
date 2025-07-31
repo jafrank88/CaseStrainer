@@ -1,0 +1,107 @@
+{
+  "test_info": {
+    "timestamp": "20250729_211832",
+    "endpoint_used": "http://localhost:5001/casestrainer/api/analyze",
+    "total_tested": 6,
+    "successful_calls": 6,
+    "verified_count": true,
+    "overall_status": "EXCELLENT"
+  },
+  "results": [
+    {
+      "citation": "654 F. Supp. 2d 321",
+      "verified": true,
+      "canonical_name": "Benckini v. Hawk",
+      "canonical_date": "2009-09-14",
+      "url": "https://www.courtlistener.com/opinion/1689955/benckini-v-hawk/",
+      "source": "CourtListener-lookup",
+      "confidence": 0.8,
+      "validation_method": "",
+      "has_complete_data": true,
+      "status": "success"
+    },
+    {
+      "citation": "578 U.S. 5",
+      "verified": true,
+      "canonical_name": "Morales v. Weatherford U.S.",
+      "canonical_date": "2024-08-01",
+      "url": "https://www.courtlistener.com/opinion/10027586/morales-v-weatherford-us/",
+      "source": "CourtListener-search",
+      "confidence": 0.8999999999999999,
+      "validation_method": "",
+      "has_complete_data": true,
+      "status": "success"
+    },
+    {
+      "citation": "147 Wn. App. 891",
+      "verified": true,
+      "canonical_name": "State v. Alphonse",
+      "canonical_date": "2008-12-29",
+      "url": "https://www.courtlistener.com/opinion/4945618/state-v-alphonse/",
+      "source": "CourtListener-lookup",
+      "confidence": 0.8,
+      "validation_method": "",
+      "has_complete_data": true,
+      "status": "success"
+    },
+    {
+      "citation": "2023 WL 1234567",
+      "verified": false,
+      "canonical_name": null,
+      "canonical_date": null,
+      "url": null,
+      "source": "regex",
+      "confidence": 0.8999999999999999,
+      "validation_method": "",
+      "has_complete_data": false,
+      "status": "success"
+    },
+    {
+      "citation": "456 F.3d 789",
+      "verified": true,
+      "canonical_name": "David L. Hartjes v. Jeffrey P. Endicott",
+      "canonical_date": "2006-08-08",
+      "url": "https://www.courtlistener.com/opinion/795205/david-l-hartjes-v-jeffrey-p-endicott/",
+      "source": "CourtListener-lookup",
+      "confidence": 0.8,
+      "validation_method": "",
+      "has_complete_data": true,
+      "status": "success"
+    },
+    {
+      "citation": "999 F.3d 999",
+      "verified": true,
+      "canonical_name": "United States v. $6, 999, 925.00 of Funds Associated With Velmur Mgmt. Pte LTD",
+      "canonical_date": "2019-03-22",
+      "url": "https://www.courtlistener.com/opinion/7334903/united-states-v-6-999-92500-of-funds-associated-with-velmur-mgmt-pte/",
+      "source": "CourtListener-search",
+      "confidence": 0.8,
+      "validation_method": "",
+      "has_complete_data": true,
+      "status": "success"
+    }
+  ],
+  "analysis": {
+    "total": 6,
+    "successful": 6,
+    "verified": true,
+    "complete_data": 5,
+    "sources": {
+      "CourtListener-lookup": 3,
+      "CourtListener-search": 2
+    },
+    "validation_methods": {},
+    "confidence_scores": [
+      0.8,
+      0.8999999999999999,
+      0.8,
+      0.8,
+      0.8
+    ],
+    "api_status": "excellent",
+    "data_status": "excellent",
+    "fp_status": "enhanced_working",
+    "coverage_improvements": 1,
+    "overall_status": "EXCELLENT"
+  }
+}

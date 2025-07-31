@@ -1,0 +1,35 @@
+{
+  "test_info": {
+    "timestamp": "20250729_211438",
+    "total_tested": 5,
+    "successful_calls": 0,
+    "verified_count": false
+  },
+  "results": [
+    {
+      "citation": "654 F. Supp. 2d 321",
+      "verified": false,
+      "status": "api_error_404"
+    },
+    {
+      "citation": "578 U.S. 5",
+      "verified": false,
+      "status": "api_error_404"
+    },
+    {
+      "citation": "147 Wn. App. 891",
+      "verified": false,
+      "status": "api_error_404"
+    },
+    {
+      "citation": "2023 WL 1234567",
+      "verified": false,
+      "status": "api_error_404"
+    },
+    {
+      "citation": "456 F.3d 789",
+      "verified": false,
+      "status": "api_error_404"
+    }
+  ]
+}

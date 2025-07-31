@@ -249,8 +249,9 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
         search_url = "https://www.courtlistener.com/api/rest/v4/search/"
         search_params = {
             "type": "o",  # opinions
-            "q": citation,
-            "format": "json"
+            "q": f'citation:"{citation}"',  # Search specifically in citation field
+            "format": "json",
+            "order_by": "score desc"
         }
         print(f"[DEBUG PRINT] GET to {search_url} with params: {search_params}")
         

@@ -4,8 +4,10 @@ Main API routes for the CaseStrainer application
 """
 
 import os
+import sys
 import uuid
 import logging
+import traceback
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
@@ -22,44 +24,89 @@ citation_service = CitationService()
 
 @vue_api.route('/health', methods=['GET'])
 def health_check():
-    """Enhanced health check endpoint"""
+    """Enhanced health check endpoint with detailed diagnostics"""
+    health_data = {
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat(),
+        'version': 'unknown',
+        'components': {},
+        'database_stats': {},
+        'environment': {
+            'python_version': sys.version.split()[0],
+            'platform': sys.platform
+        },
+        'endpoints': {
+            'current': '/casestrainer/api/health',
+            'alias': '/health',
+            'base_url': request.base_url
+        }
+    }
+    
     try:
-        # Basic health checks
-        db_manager = get_database_manager()
-        db_stats = db_manager.get_database_stats()
-
-        # Read version from VERSION file
-        version = 'unknown'
+        # Try to get version from VERSION file
         try:
-            with open(os.path.join(os.path.dirname(__file__), '../../VERSION'), 'r', encoding='utf-8') as vf:
-                version = vf.read().strip()
+            version_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'VERSION')
+            if os.path.exists(version_path):
+                with open(version_path, 'r', encoding='utf-8') as vf:
+                    health_data['version'] = vf.read().strip()
+            else:
+                health_data['version'] = 'development'
+                logger.warning("VERSION file not found, using 'development'")
         except Exception as e:
+            health_data['version'] = 'error'
+            health_data['components']['version_check'] = f'error: {str(e)}'
             logger.warning(f"Could not read VERSION file: {e}")
 
-        health_data = {
-            'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
-            'version': version,
-            'components': {
-                'database': 'healthy',
-                'citation_processor': 'healthy',
-                'upload_directory': 'healthy'
-            },
-            'database_stats': {
+        # Check database connection
+        try:
+            db_manager = get_database_manager()
+            db_stats = db_manager.get_database_stats()
+            health_data['components']['database'] = 'healthy'
+            health_data['database_stats'] = {
                 'tables': len(db_stats.get('tables', {})),
-                'size_mb': round(db_stats.get('database_size_mb', 0), 2)
+                'size_mb': round(db_stats.get('database_size_mb', 0), 2),
+                'path': os.path.abspath(db_manager.db_path) if hasattr(db_manager, 'db_path') else 'unknown'
             }
-        }
+        except Exception as e:
+            health_data['status'] = 'degraded'
+            health_data['components']['database'] = f'error: {str(e)}'
+            logger.error(f"Database check failed: {e}")
 
-        return jsonify(health_data), 200
+        # Check upload directory
+        try:
+            upload_dir = os.path.join(current_app.root_path, 'uploads')
+            if os.path.isdir(upload_dir) and os.access(upload_dir, os.W_OK):
+                health_data['components']['upload_directory'] = 'healthy'
+            else:
+                health_data['status'] = 'degraded'
+                health_data['components']['upload_directory'] = 'unwritable'
+        except Exception as e:
+            health_data['status'] = 'degraded'
+            health_data['components']['upload_directory'] = f'error: {str(e)}'
+
+        # Check citation processor
+        try:
+            # Simple check if citation service is importable
+            from .api.services.citation_service import CitationService
+            health_data['components']['citation_processor'] = 'healthy'
+        except Exception as e:
+            health_data['status'] = 'degraded'
+            health_data['components']['citation_processor'] = f'error: {str(e)}'
+            logger.error(f"Citation processor check failed: {e}")
+
+        # Set appropriate status code
+        status_code = 200 if health_data['status'] == 'healthy' else 207  # 207 for partial content
+        
+        return jsonify(health_data), status_code
 
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return jsonify({
+        logger.error(f"Health check failed completely: {e}", exc_info=True)
+        health_data.update({
             'status': 'unhealthy',
             'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
-        }), 500
+            'traceback': str(traceback.format_exc()) if 'traceback' in locals() else 'Not available'
+        })
+        return jsonify(health_data), 500
 
 # Add this alias route for /casestrainer/api/health
 @vue_api.route('/casestrainer/api/health', methods=['GET'])

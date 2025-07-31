@@ -247,7 +247,8 @@ class CanonicalCaseNameService:
                 return None
             
             # Build search query - use exact citation format
-            query = f'"{components["volume"]} {components["reporter"]} {components["page"]}"'
+            citation_text = f'{components["volume"]} {components["reporter"]} {components["page"]}'
+            query = f'citation:"{citation_text}"'  # Search specifically in citation field
             
             url = "https://www.courtlistener.com/api/rest/v4/search/"
             headers = {"Authorization": f"Token {self.courtlistener_api_key}"}
@@ -255,7 +256,8 @@ class CanonicalCaseNameService:
                 "q": query,
                 "type": "o",  # Opinions
                 "format": "json",
-                "page_size": 10
+                "page_size": 10,
+                "order_by": "score desc"
             }
             
             response = self.session.get(url, headers=headers, params=params, timeout=5)

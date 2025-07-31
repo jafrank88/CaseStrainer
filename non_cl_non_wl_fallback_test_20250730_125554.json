@@ -1,0 +1,245 @@
+{
+  "test_info": {
+    "timestamp": "20250730_125554",
+    "endpoint": "http://localhost:5001/casestrainer/api/analyze",
+    "test_type": "non_cl_non_wl_fallback_verification",
+    "sample_size": 20
+  },
+  "statistics": {
+    "total_tested": 20,
+    "now_verified": 13,
+    "still_unverified": 7,
+    "fallback_verified": 0,
+    "courtlistener_verified": 0,
+    "api_errors": 0
+  },
+  "percentages": {
+    "now_verified": 65.0,
+    "fallback_verified": 0.0,
+    "still_unverified": 35.0
+  },
+  "fallback_sources": {},
+  "newly_verified_examples": [],
+  "detailed_results": [
+    {
+      "citation": "69 P.3d 594",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State ex rel. Carroll v. Junker 1971 , the court cited 69 P.3d 594",
+      "canonical_date": "1971",
+      "confidence": 0.6,
+      "expected_case": "State ex rel. Carroll v. Junker",
+      "expected_date": "1971",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "453 P.3d 696",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Armenta 1997 , the court cited 453 P.3d 696",
+      "canonical_date": "1997",
+      "confidence": 0.6,
+      "expected_case": "State v. Armenta",
+      "expected_date": "1997",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "194 Wn. 2d 784, 453 P.3d 696",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Arndt 2019 , the court cited 194 Wn. 2d 784",
+      "canonical_date": "2019",
+      "confidence": 0.6,
+      "expected_case": "State v. Arndt",
+      "expected_date": "2019",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "458 P.3d 750",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Grier, 1980 , the court cited 458 P.3d 750",
+      "canonical_date": "1980",
+      "confidence": 0.6,
+      "expected_case": "State v. Grier,",
+      "expected_date": "1980",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "188 Wn. 2d 766, 309 P.3d 1052",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Lile 2017 , the court cited 188 Wn. 2d 766",
+      "canonical_date": "2017",
+      "confidence": 0.6,
+      "expected_case": "State v. Lile",
+      "expected_date": "2017",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "309 P.3d 1052",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Lesnick 1975 , the court cited 309 P.3d 1052",
+      "canonical_date": "1975",
+      "confidence": 0.6,
+      "expected_case": "State v. Lesnick",
+      "expected_date": "1975",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "829 P.2d 1069",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Russell, 1994 , the court cited 829 P.2d 1069",
+      "canonical_date": "1994",
+      "confidence": 0.6,
+      "expected_case": "State v. Russell,",
+      "expected_date": "1994",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "172 Wn. App. 1845",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.8,
+      "expected_case": "N/A",
+      "expected_date": "",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "194 Wn. 2d 784",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.9,
+      "expected_case": "I, 22. State v. Hudlow, --- --- 34",
+      "expected_date": "2019",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "188 Wn. 2d 766",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.8,
+      "expected_case": "N/A",
+      "expected_date": "2017",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "458 P.3d 750",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.8,
+      "expected_case": "N/A",
+      "expected_date": "2020",
+      "file_name": "003_COA  Appellant Brief.txt"
+    },
+    {
+      "citation": "354 P.3d 900",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Emery, 2012 , the court cited 354 P.3d 900",
+      "canonical_date": "2012",
+      "confidence": 0.6,
+      "expected_case": "State v. Emery,",
+      "expected_date": "2012",
+      "file_name": "004_COA Respondent Brief.txt"
+    },
+    {
+      "citation": "197 Wn. App. 539",
+      "verified": false,
+      "source": "CourtListener-lookup-validated",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.9,
+      "expected_case": "Crosswhite v. Wash. Dep't of Social and Health Services",
+      "expected_date": "2017",
+      "file_name": "004_COA Respondent Brief.txt"
+    },
+    {
+      "citation": "188 Wn. 2d 721, 398 P.3d 1124",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "TABLE OF AUTHORITIES Washington Cases City of Seattle v. Erickson",
+      "canonical_date": "2017",
+      "confidence": 0.6,
+      "expected_case": "TABLE OF AUTHORITIES Washington Cases City of Seattle v. Erickson",
+      "expected_date": "2017",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "398 P.3d 1124",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "TABLE OF AUTHORITIES Washington Cases City of Seattle v. Erickson",
+      "canonical_date": "2017",
+      "confidence": 0.6,
+      "expected_case": "TABLE OF AUTHORITIES Washington Cases City of Seattle v. Erickson",
+      "expected_date": "2017",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "479 P.3d 656",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.8,
+      "expected_case": "N/A",
+      "expected_date": "2021",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "196 Wn. 2d 864,479 P.3d 656",
+      "verified": false,
+      "source": "regex",
+      "canonical_name": null,
+      "canonical_date": null,
+      "confidence": 0.9,
+      "expected_case": "N/A",
+      "expected_date": "2021",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "197 Wn. 2d 397, 483 P.3d 98",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Coryell 2021 , the court cited 197 Wn. 2d 397",
+      "canonical_date": "2021",
+      "confidence": 0.6,
+      "expected_case": "State v. Coryell",
+      "expected_date": "2021",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "483 P.3d 98",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Belgarde, 1988 , the court cited 483 P.3d 98",
+      "canonical_date": "1988",
+      "confidence": 0.6,
+      "expected_case": "State v. Belgarde,",
+      "expected_date": "1988",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    },
+    {
+      "citation": "470 P.3d 488",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Jasper, 2012 , the court cited 470 P.3d 488",
+      "canonical_date": "2012",
+      "confidence": 0.6,
+      "expected_case": "State v. Jasper,",
+      "expected_date": "2012",
+      "file_name": "005_Petitioners Supplemental Brief.txt"
+    }
+  ]
+}

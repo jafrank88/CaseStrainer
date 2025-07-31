@@ -1,0 +1,117 @@
+{
+  "test_info": {
+    "timestamp": "20250730_125959",
+    "endpoint": "http://localhost:5001/casestrainer/api/analyze",
+    "test_type": "enhanced_fallback_multiple_sources",
+    "sources_tested": [
+      "Cornell Law",
+      "Justia",
+      "CourtListener"
+    ]
+  },
+  "statistics": {
+    "total_tested": 5,
+    "verified": 5,
+    "unverified": 0,
+    "cornell_law_verified": 5,
+    "justia_verified": 0,
+    "courtlistener_verified": 0,
+    "other_verified": 0,
+    "api_errors": 0
+  },
+  "percentages": {
+    "verified": 100.0,
+    "cornell_law": 100.0,
+    "justia": 0.0,
+    "unverified": 0.0
+  },
+  "fallback_examples": [
+    {
+      "citation": "194 Wn. 2d 784",
+      "source": "Cornell Law",
+      "canonical_name": "State v. Arndt 2019 , the court cited 194 Wn. 2d 784",
+      "confidence": 0.6
+    },
+    {
+      "citation": "453 P.3d 696",
+      "source": "Cornell Law",
+      "canonical_name": "State v. Armenta 2019 , the court cited 453 P.3d 696",
+      "confidence": 0.6
+    },
+    {
+      "citation": "188 Wn. 2d 766",
+      "source": "Cornell Law",
+      "canonical_name": "State v. Lile 2014 , the court cited 188 Wn. 2d 766",
+      "confidence": 0.6
+    },
+    {
+      "citation": "69 P.3d 594",
+      "source": "Cornell Law",
+      "canonical_name": "State ex rel. Carroll v. Junker 2003 , the court cited 69 P.3d 594",
+      "confidence": 0.6
+    },
+    {
+      "citation": "829 P.2d 1069",
+      "source": "Cornell Law",
+      "canonical_name": "State v. Russell 1994 , the court cited 829 P.2d 1069",
+      "confidence": 0.6
+    }
+  ],
+  "detailed_results": [
+    {
+      "citation": "194 Wn. 2d 784",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Arndt 2019 , the court cited 194 Wn. 2d 784",
+      "canonical_date": "2019",
+      "confidence": 0.6,
+      "expected_case": "State v. Arndt",
+      "expected_date": "2019",
+      "description": "Washington state citation (should try Cornell Law, then Justia)"
+    },
+    {
+      "citation": "453 P.3d 696",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Armenta 2019 , the court cited 453 P.3d 696",
+      "canonical_date": "2019",
+      "confidence": 0.6,
+      "expected_case": "State v. Armenta",
+      "expected_date": "2019",
+      "description": "Pacific Reporter citation (should try Cornell Law, then Justia)"
+    },
+    {
+      "citation": "188 Wn. 2d 766",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Lile 2014 , the court cited 188 Wn. 2d 766",
+      "canonical_date": "2014",
+      "confidence": 0.6,
+      "expected_case": "State v. Lile",
+      "expected_date": "2014",
+      "description": "Washington state citation (older case)"
+    },
+    {
+      "citation": "69 P.3d 594",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State ex rel. Carroll v. Junker 2003 , the court cited 69 P.3d 594",
+      "canonical_date": "2003",
+      "confidence": 0.6,
+      "expected_case": "State ex rel. Carroll v. Junker",
+      "expected_date": "2003",
+      "description": "Pacific Reporter citation (older case)"
+    },
+    {
+      "citation": "829 P.2d 1069",
+      "verified": true,
+      "source": "cornell_law",
+      "canonical_name": "State v. Russell 1994 , the court cited 829 P.2d 1069",
+      "canonical_date": "1994",
+      "confidence": 0.6,
+      "expected_case": "State v. Russell",
+      "expected_date": "1994",
+      "description": "Pacific Reporter 2d citation (very old case)"
+    }
+  ]
+}

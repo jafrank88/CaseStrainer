@@ -6,10 +6,13 @@ It consolidates regex-based and eyecite-based extraction methods.
 """
 
 import re
+import json
+import os
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 import unicodedata
+from pathlib import Path
 
 from .interfaces import ICitationExtractor, CitationResult, ProcessingConfig
 
@@ -65,9 +68,11 @@ class CitationExtractor(ICitationExtractor):
     - Context extraction for case names and dates
     """
     
-    def __init__(self, config: Optional[ProcessingConfig] = None):
-        """Initialize the citation extractor with configuration."""
-        self.config = config or ProcessingConfig()
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize the citation extractor with optional configuration."""
+        self.config = config or {}
+        self.logger = logging.getLogger(__name__)
+        self.reporters = self._load_reporters()
         self._init_patterns()
         self._init_case_name_patterns()
         self._init_date_patterns()
@@ -87,10 +92,61 @@ class CitationExtractor(ICitationExtractor):
             logger.info(f"CitationExtractor initialized with eyecite: {EYECITE_AVAILABLE}, adaptive learning: {self.adaptive_learning is not None}")
     
     def _init_patterns(self) -> None:
-        """Initialize comprehensive citation patterns with proper Bluebook spacing."""
+        """Initialize citation patterns from loaded reporter data."""
+        if not self.reporters:
+            self.logger.warning("No reporter patterns loaded, using fallback patterns")
+            self._init_fallback_patterns()
+            return
+            
+        # Group patterns by jurisdiction
+        jurisdiction_patterns = {}
+        
+        for reporter in self.reporters:
+            jurisdiction = reporter.get('jurisdiction', 'other')
+            if jurisdiction not in jurisdiction_patterns:
+                jurisdiction_patterns[jurisdiction] = []
+                
+            jurisdiction_patterns[jurisdiction].extend(reporter.get('patterns', []))
+        
+        # Create compiled patterns for each jurisdiction
+        self.patterns = {}
+        
+        for jurisdiction, patterns in jurisdiction_patterns.items():
+            if patterns:
+                try:
+                    self.patterns[jurisdiction] = re.compile(
+                        '|'.join(patterns),
+                        re.IGNORECASE
+                    )
+                    self.logger.debug(f"Compiled {len(patterns)} patterns for {jurisdiction}")
+                except re.error as e:
+                    self.logger.error(f"Error compiling {jurisdiction} patterns: {str(e)}")
+        
+        # Combine all patterns for general matching
+        all_patterns = []
+        for patterns in jurisdiction_patterns.values():
+            all_patterns.extend(patterns)
+            
+        if all_patterns:
+            try:
+                self.patterns['all'] = re.compile(
+                    '|'.join(all_patterns),
+                    re.IGNORECASE
+                )
+                self.logger.info(f"Compiled {len(all_patterns)} total patterns")
+            except re.error as e:
+                self.logger.error(f"Error compiling combined patterns: {str(e)}")
+                self._init_fallback_patterns()
+        else:
+            self._init_fallback_patterns()
+    
+    def _init_fallback_patterns(self) -> None:
+        """Initialize fallback patterns when reporter data is not available."""
+        self.logger.warning("Initializing fallback citation patterns")
+        
         # Federal patterns
         federal_patterns = [
-            r'\b\d+\s+U\.S\.\s+\d+',           # U.S. Reports
+            r'\b\d+\s+U\.\s+S\.\s+\d+',           # U.S. Reports
             r'\b\d+\s+S\.\s*Ct\.\s+\d+',       # Supreme Court Reporter
             r'\b\d+\s+L\.\s*Ed\.\s*2d\s+\d+',  # Lawyers' Edition
             r'\b\d+\s+F\.\s*3d\s+\d+',         # Federal Reporter 3d
@@ -101,75 +157,46 @@ class CitationExtractor(ICitationExtractor):
             r'\b\d+\s+F\.\s*Supp\.\s+\d+'      # Federal Supplement
         ]
         
-        # State patterns (comprehensive)
+        # State patterns (focused on Washington for now)
         state_patterns = [
-            # Washington
-            r'\b\d+\s+Wash\.\s*2d\s+\d+',
-            r'\b\d+\s+Wn\.\s*2d\s+\d+',
-            r'\b\d+\s+Wash\.\s+\d+',
-            r'\b\d+\s+Wn\.\s+\d+',
-            r'\b\d+\s+Wash\.\s*App\.\s+\d+',
-            r'\b\d+\s+Wn\.\s*App\.\s+\d+',
-            
-            # California
-            r'\b\d+\s+Cal\.\s*4th\s+\d+',
-            r'\b\d+\s+Cal\.\s*3d\s+\d+',
-            r'\b\d+\s+Cal\.\s*2d\s+\d+',
-            r'\b\d+\s+Cal\.\s+\d+',
-            r'\b\d+\s+Cal\.\s*App\.\s*4th\s+\d+',
-            r'\b\d+\s+Cal\.\s*App\.\s*3d\s+\d+',
-            r'\b\d+\s+Cal\.\s*App\.\s*2d\s+\d+',
-            
-            # New York
-            r'\b\d+\s+N\.Y\.\s*3d\s+\d+',
-            r'\b\d+\s+N\.Y\.\s*2d\s+\d+',
-            r'\b\d+\s+N\.Y\.\s+\d+',
-            r'\b\d+\s+A\.D\.\s*3d\s+\d+',
-            r'\b\d+\s+A\.D\.\s*2d\s+\d+',
-            
-            # Texas
-            r'\b\d+\s+S\.W\.\s*3d\s+\d+',
-            r'\b\d+\s+S\.W\.\s*2d\s+\d+',
-            r'\b\d+\s+S\.W\.\s+\d+',
-            r'\b\d+\s+Tex\.\s+\d+',
-            
-            # Florida
-            r'\b\d+\s+So\.\s*3d\s+\d+',
-            r'\b\d+\s+So\.\s*2d\s+\d+',
-            r'\b\d+\s+So\.\s+\d+',
-            r'\b\d+\s+Fla\.\s+\d+',
+            # Washington patterns
+            r'\b(\d+)\s+Wn\.3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+2d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+App\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+2d\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+App\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+(\d+)\b',
             
             # Regional reporters
-            r'\b\d+\s+A\.\s*3d\s+\d+',         # Atlantic 3d
-            r'\b\d+\s+A\.\s*2d\s+\d+',         # Atlantic 2d
-            r'\b\d+\s+A\.\s+\d+',              # Atlantic
-            r'\b\d+\s+P\.\s*3d\s+\d+',         # Pacific 3d
-            r'\b\d+\s+P\.\s*2d\s+\d+',         # Pacific 2d
-            r'\b\d+\s+P\.\s+\d+',              # Pacific
-            r'\b\d+\s+N\.E\.\s*3d\s+\d+',      # North Eastern 3d
-            r'\b\d+\s+N\.E\.\s*2d\s+\d+',      # North Eastern 2d
-            r'\b\d+\s+N\.E\.\s+\d+',           # North Eastern
-            r'\b\d+\s+N\.W\.\s*2d\s+\d+',      # North Western 2d
-            r'\b\d+\s+N\.W\.\s+\d+',           # North Western
-            r'\b\d+\s+S\.E\.\s*2d\s+\d+',      # South Eastern 2d
-            r'\b\d+\s+S\.E\.\s+\d+',           # South Eastern
-            r'\b\d+\s+S\.W\.\s*3d\s+\d+',      # South Western 3d
-            r'\b\d+\s+S\.W\.\s*2d\s+\d+',      # South Western 2d
-            r'\b\d+\s+S\.W\.\s+\d+'            # South Western
+            r'\b\d+\s+A\.\s*3d\s+\d+',
+            r'\b\d+\s+A\.\s*2d\s+\d+',
+            r'\b\d+\s+P\.\s*3d\s+\d+',
+            r'\b\d+\s+P\.\s*2d\s+\d+',
+            r'\b\d+\s+N\.E\.\s*3d\s+\d+',
+            r'\b\d+\s+N\.E\.\s*2d\s+\d+',
+            r'\b\d+\s+N\.W\.\s*2d\s+\d+',
+            r'\b\d+\s+S\.E\.\s*2d\s+\d+',
+            r'\b\d+\s+S\.W\.\s*3d\s+\d+',
+            r'\b\d+\s+S\.W\.\s*2d\s+\d+'
         ]
         
         # Combine all patterns
         all_patterns = federal_patterns + state_patterns
         
-        # Create compiled regex pattern
-        self.citation_pattern = re.compile('|'.join(all_patterns), re.IGNORECASE)
-        
-        # Individual patterns for specific matching
-        self.patterns = {
-            'federal': re.compile('|'.join(federal_patterns), re.IGNORECASE),
-            'state': re.compile('|'.join(state_patterns), re.IGNORECASE),
-            'all': self.citation_pattern
-        }
+        # Create compiled patterns
+        try:
+            self.patterns = {
+                'federal': re.compile('|'.join(federal_patterns), re.IGNORECASE),
+                'state': re.compile('|'.join(state_patterns), re.IGNORECASE),
+                'all': re.compile('|'.join(all_patterns), re.IGNORECASE)
+            }
+            self.logger.info("Initialized fallback patterns")
+        except re.error as e:
+            self.logger.error(f"Failed to initialize fallback patterns: {str(e)}")
+            raise
     
     def _init_case_name_patterns(self) -> None:
         """Initialize case name extraction patterns."""
@@ -292,10 +319,17 @@ class CitationExtractor(ICitationExtractor):
         """Extract citations using regex patterns."""
         citations = []
         
+        if self.config.debug_mode:
+            logger.info(f"Extracting citations from text with length: {len(text)}")
+        
         for match in self.citation_pattern.finditer(text):
-            citation_text = match.group().strip()
-            start_index = match.start()
-            end_index = match.end()
+            # Get the full match (group 0 is the entire match)
+            citation_text = match.group(0).strip()
+            start_index = match.start(0)
+            end_index = match.end(0)
+            
+            if self.config.debug_mode:
+                logger.info(f"Found citation: {citation_text} at position {start_index}-{end_index}")
             
             # Create CitationResult
             citation = CitationResult(
@@ -308,6 +342,9 @@ class CitationExtractor(ICitationExtractor):
             )
             
             citations.append(citation)
+        
+        if self.config.debug_mode:
+            logger.info(f"Extracted {len(citations)} citations using regex")
         
         return citations
     
