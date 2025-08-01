@@ -1934,7 +1934,7 @@ function Test-PostStartupValidation {
 
         for ($i = 1; $i -le $maxRetries; $i++) {
             try {
-                $healthResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -Method GET -TimeoutSec 10 -ErrorAction Stop
+                $healthResponse = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/health" -Method GET -TimeoutSec 10 -ErrorAction Stop
                 if ($healthResponse.StatusCode -eq 200) {
                     $healthOK = $true
                     break
