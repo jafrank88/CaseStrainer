@@ -1244,17 +1244,45 @@ def group_parallel_citations(citations: List[Dict[str, Any]]) -> List[Dict[str, 
 def _are_parallel_citations(citation1: Dict[str, Any], citation2: Dict[str, Any]) -> bool:
     """
     Check if two citations are parallel (same case, different reporters).
-    Extracted from unified_citation_processor.py.
+    Enhanced to handle "In re" cases and be more flexible with name matching.
     """
     try:
         # Check if they have similar case names
-        name1 = citation1.get('case_name', '').lower()
-        name2 = citation2.get('case_name', '').lower()
+        name1 = citation1.get('case_name', '').lower().strip()
+        name2 = citation2.get('case_name', '').lower().strip()
         
+        # If either name is empty, can't determine if parallel
         if not name1 or not name2:
             return False
         
-        # Simple similarity check
+        # Check for exact match first (fast path)
+        if name1 == name2:
+            return True
+            
+        # Special handling for "In re" cases
+        in_re1 = name1.startswith('in re ')
+        in_re2 = name2.startswith('in re ')
+        
+        # If both are "In re" cases, check if the main name parts match
+        if in_re1 and in_re2:
+            main_name1 = name1[6:].strip()  # Remove "in re "
+            main_name2 = name2[6:].strip()  # Remove "in re "
+            
+            # Check if one is a substring of the other (e.g., "marriage of littlefield" vs "in re marriage of littlefield")
+            if main_name1 in main_name2 or main_name2 in main_name1:
+                return True
+                
+            # Check for significant word overlap in the main part
+            words1 = set(main_name1.split())
+            words2 = set(main_name2.split())
+            
+            if len(words1) >= 2 and len(words2) >= 2:
+                intersection = words1.intersection(words2)
+                # Require at least 70% word overlap in the main name part
+                if len(intersection) >= min(len(words1), len(words2)) * 0.7:
+                    return True
+        
+        # For non-"In re" cases or if "In re" check didn't find a match
         words1 = set(name1.split())
         words2 = set(name2.split())
         
@@ -1265,8 +1293,10 @@ def _are_parallel_citations(citation1: Dict[str, Any], citation2: Dict[str, Any]
         intersection = words1.intersection(words2)
         if len(intersection) >= min(len(words1), len(words2)) * 0.7:
             return True
-        
+            
         return False
-    
-    except Exception:
-        return False 
+        
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error in _are_parallel_citations: {e}")
+        return False
