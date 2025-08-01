@@ -73,6 +73,26 @@ jobs:
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         pytest test_clustering_fix.py -v || true
 
+    - name: Run core API endpoint tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
+        # Set the test API URL for the test environment
+        export TEST_API_URL="http://localhost:5000/casestrainer/api"
+        # Run the consolidated test suite
+        pytest tests/test_core_endpoints_consolidated.py -v --cov=src --cov-append --cov-report=xml --cov-report=term-missing || true
+
+    - name: Run health check
+      run: |
+        # Install requests if not already installed
+        pip install requests
+        # Run the health check script with the test API URL
+        HEALTH_CHECK_BASE_URL="http://localhost:5000" python check_health.py
+        # Verify the exit code (0 means success)
+        if [ $? -ne 0 ]; then
+          echo "Health check failed!"
+          exit 1
+        fi
+
     - name: Run security scan
       run: |
         # Bandit scan - only high severity issues are critical for CI
