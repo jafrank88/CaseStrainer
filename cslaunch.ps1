@@ -21,6 +21,297 @@ param(
     [int]$MenuOption = $null
 )
 
+# Function to check for required tools
+function Test-RequiredTools {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    
+    $requiredTools = @(
+        @{Name = 'Docker'; Command = 'docker --version'},
+        @{Name = 'Docker Compose'; Command = 'docker-compose --version'},
+        @{Name = 'Node.js'; Command = 'node --version'},
+        @{Name = 'npm'; Command = 'npm --version'},
+        @{Name = 'Python'; Command = 'python --version'}
+    )
+    
+    $allToolsAvailable = $true
+    
+    Write-Host "`n=== Checking Required Tools ===" -ForegroundColor Cyan
+    
+    foreach ($tool in $requiredTools) {
+        $toolName = $tool.Name
+        $command = $tool.Command
+        
+        try {
+            $output = Invoke-Expression $command 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                $version = ($output | Select-Object -First 1).Trim()
+                Write-Host ("[OK] {0}: {1}" -f $toolName, $version) -ForegroundColor Green
+            } else {
+                throw "Command failed"
+            }
+        } catch {
+            Write-Host ("[ERROR] {0}: Not found or not in PATH" -f $toolName) -ForegroundColor Red
+            $allToolsAvailable = $false
+        }
+    }
+    
+    if (-not $allToolsAvailable) {
+        Write-Host "`n[ERROR] One or more required tools are missing. Please install them and ensure they are in your PATH." -ForegroundColor Red
+        Write-Host "   Required tools: $($requiredTools.Name -join ', ')" -ForegroundColor Yellow
+        return $false
+    }
+    
+    Write-Host "`n[OK] All required tools are available" -ForegroundColor Green
+    return $true
+}
+
+# Function to check if Docker is running and accessible
+function Test-DockerAvailability {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    
+    Write-Host "`n=== Checking Docker Availability ===" -ForegroundColor Cyan
+    
+    # Check if Docker CLI is available
+    try {
+        $dockerVersion = docker --version 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Docker command failed"
+        }
+        Write-Host ("[OK] Docker CLI is available: {0}" -f $dockerVersion.Trim()) -ForegroundColor Green
+    } catch {
+        Write-Host "[ERROR] Docker CLI is not available or not in PATH" -ForegroundColor Red
+        Write-Host "   Please install Docker Desktop and ensure it's added to your system PATH" -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Check if Docker daemon is running, start Docker Desktop if needed
+    try {
+        # First check if Docker daemon is already running
+        $dockerInfo = docker info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            # Docker daemon is not running, try to start Docker Desktop
+            Write-Host "[INFO] Docker daemon is not running. Attempting to start Docker Desktop..." -ForegroundColor Yellow
+            
+            if (-not (Start-DockerDesktop)) {
+                Write-Host "[ERROR] Failed to start Docker Desktop automatically" -ForegroundColor Red
+                Write-Host "`nTroubleshooting steps:" -ForegroundColor Yellow
+                Write-Host "1. Make sure Docker Desktop is installed" -ForegroundColor Yellow
+                Write-Host "2. Start Docker Desktop manually and wait for it to fully initialize" -ForegroundColor Yellow
+                Write-Host "3. Check if your user account has permission to run Docker" -ForegroundColor Yellow
+                Write-Host "4. Try restarting your computer if the issue persists" -ForegroundColor Yellow
+                Write-Host "5. Check Docker Desktop logs for any errors" -ForegroundColor Yellow
+                return $false
+            }
+            
+            # Give it a moment to fully initialize
+            Start-Sleep -Seconds 5
+            
+            # Check again if Docker daemon is running
+            $dockerInfo = docker info 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                # Check for specific error conditions
+                $errorOutput = $dockerInfo -join " "
+                
+                if ($errorOutput -match "500 Internal Server Error") {
+                    Write-Host "[ERROR] Docker daemon is not responding correctly (500 Internal Server Error)" -ForegroundColor Red
+                    Write-Host "   This often indicates a problem with the Docker Desktop service" -ForegroundColor Yellow
+                    Write-Host "`nRecommended actions:" -ForegroundColor Yellow
+                    Write-Host "1. Open Docker Desktop and check for any error messages" -ForegroundColor Yellow
+                    Write-Host "2. Try resetting Docker Desktop to factory defaults" -ForegroundColor Yellow
+                    Write-Host "3. Reinstall Docker Desktop if the issue persists" -ForegroundColor Yellow
+                    Write-Host "4. Check if your Windows version is compatible with this Docker version" -ForegroundColor Yellow
+                    Write-Host "5. Make sure virtualization is enabled in your BIOS settings" -ForegroundColor Yellow
+                } else {
+                    Write-Host "[ERROR] Docker daemon is still not available after starting Docker Desktop" -ForegroundColor Red
+                    Write-Host "   Error details: $errorOutput" -ForegroundColor Yellow
+                }
+                return $false
+            }
+        }
+        
+        # Check if Docker is running in Windows containers mode (if on Windows)
+        if ($IsWindows -or $env:OS -eq "Windows_NT") {
+            $dockerInfo = docker info --format '{{.OperatingSystem}}' 2>&1
+            if ($dockerInfo -match "Windows") {
+                Write-Host "[OK] Docker is running in Windows containers mode" -ForegroundColor Green
+            } else {
+                Write-Host "[INFO] Docker is running in Linux containers mode" -ForegroundColor Yellow
+            }
+        }
+        
+        # Check Docker Compose version
+        try {
+            $composeVersion = docker-compose --version 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "[OK] Docker Compose is available: $($composeVersion.Trim())" -ForegroundColor Green
+            } else {
+                Write-Host "[WARNING] Docker Compose is not available or not in PATH" -ForegroundColor Yellow
+                Write-Host "   Some features may not work without Docker Compose" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "[WARNING] Docker Compose check failed: $_" -ForegroundColor Yellow
+        }
+        
+        return $true
+    } catch {
+        Write-Host "[ERROR] Error checking Docker status: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Function to validate required environment variables
+function Test-RequiredEnvironmentVariables {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    
+    # List of required environment variables
+    $requiredVars = @(
+        'COURTLISTENER_API_KEY',
+        'FLASK_ENV',
+        'FLASK_APP',
+        'SECRET_KEY'
+    )
+    
+    $allVarsPresent = $true
+    
+    Write-Host "`n=== Validating Environment Variables ===" -ForegroundColor Cyan
+    
+    # Check if .env file exists and load it if it does
+    $envFilePath = Join-Path $PSScriptRoot ".env"
+    if (Test-Path $envFilePath) {
+        try {
+            # Load .env file
+            Get-Content $envFilePath | ForEach-Object {
+                $name, $value = $_.Split('=', 2)
+                if ($name -and $value) {
+                    [System.Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim())
+                }
+            }
+            Write-Host "[OK] Loaded environment variables from .env file" -ForegroundColor Green
+        } catch {
+            Write-Host "[WARNING] Warning: Failed to load .env file: $_" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "[INFO] No .env file found at $envFilePath" -ForegroundColor Yellow
+    }
+    
+    # Check each required variable
+    foreach ($var in $requiredVars) {
+        $value = [System.Environment]::GetEnvironmentVariable($var)
+        
+        if ([string]::IsNullOrEmpty($value)) {
+            Write-Host ("[ERROR] {0}: Not set" -f $var) -ForegroundColor Red
+            $allVarsPresent = $false
+        } else {
+            # Don't show sensitive values in logs
+            $displayValue = if ($var -match 'KEY|SECRET|PASSWORD') { '********' } else { $value }
+            Write-Host ("[OK] {0}: {1}" -f $var, $displayValue) -ForegroundColor Green
+        }
+    }
+    
+    if (-not $allVarsPresent) {
+        Write-Host "`n[ERROR] One or more required environment variables are missing." -ForegroundColor Red
+        Write-Host "   Please set the following environment variables:" -ForegroundColor Yellow
+        $requiredVars | ForEach-Object { Write-Host "   - $_" -ForegroundColor Yellow }
+        Write-Host "`n   You can set them in the .env file or in your system environment." -ForegroundColor Yellow
+        return $false
+    }
+    
+    Write-Host "`n[OK] All required environment variables are set" -ForegroundColor Green
+    return $true
+}
+
+# Function to check if Docker is running and accessible
+function Test-DockerAvailability {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+    
+    Write-Host "`n=== Checking Docker Availability ===" -ForegroundColor Cyan
+    
+    # Check if docker command is available
+    try {
+        $dockerVersion = docker --version 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Docker command failed"
+        }
+        Write-Host "[OK] Docker CLI is available: $($dockerVersion.Trim())" -ForegroundColor Green
+    } catch {
+        Write-Host "[ERROR] Docker CLI is not available or not in PATH" -ForegroundColor Red
+        Write-Host "   Please install Docker Desktop and ensure it's added to your system PATH" -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Check if Docker daemon is running
+    try {
+        $dockerInfo = docker info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            if ($dockerInfo -match "Cannot connect to the Docker daemon") {
+                Write-Host "[ERROR] Docker daemon is not running" -ForegroundColor Red
+                Write-Host "   Please start Docker Desktop and wait for it to be ready" -ForegroundColor Yellow
+            } elseif ($dockerInfo -match "error during connect") {
+                Write-Host "[ERROR] Could not connect to Docker daemon" -ForegroundColor Red
+                Write-Host "   Please ensure Docker Desktop is running and try again" -ForegroundColor Yellow
+            } else {
+                Write-Host "[ERROR] Docker daemon is not available: $($dockerInfo)" -ForegroundColor Red
+            }
+            return $false
+        }
+        
+        # Check if Docker is running in Windows containers mode (if on Windows)
+        if ($IsWindows -or $env:OS -eq "Windows_NT") {
+            $dockerInfo = docker info --format '{{.OperatingSystem}}' 2>&1
+            if ($dockerInfo -match "Windows") {
+                Write-Host "[OK] Docker is running in Windows containers mode" -ForegroundColor Green
+            } else {
+                Write-Host "[INFO] Docker is running in Linux containers mode" -ForegroundColor Yellow
+            }
+        }
+        
+        # Check Docker Compose version
+        try {
+            $composeVersion = docker-compose --version 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "[OK] Docker Compose is available: $($composeVersion.Trim())" -ForegroundColor Green
+            } else {
+                Write-Host "[WARNING] Docker Compose is not available or not in PATH" -ForegroundColor Yellow
+                Write-Host "   Some features may not work without Docker Compose" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "[WARNING] Docker Compose check failed: $_" -ForegroundColor Yellow
+        }
+        
+        return $true
+    } catch {
+        Write-Host "[ERROR] Error checking Docker status: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Setup transcript logging
+$script:transcriptPath = Join-Path $PSScriptRoot "logs\script_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+$logDir = Split-Path -Parent $script:transcriptPath
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+}
+try {
+    Start-Transcript -Path $script:transcriptPath -Append -Force
+} catch {
+    Write-Warning "Failed to start transcript: $_"
+}
+
+# Check Docker availability at script startup
+if (-not (Test-DockerAvailability)) {
+    Write-Host "❌ Docker is not available. Please ensure Docker Desktop is installed and running." -ForegroundColor Red
+    Write-Host "   Visit https://www.docker.com/products/docker-desktop to download and install Docker Desktop" -ForegroundColor Yellow
+    exit 1
+}
+
 # Input validation and early error detection
 if (-not $PSScriptRoot) {
     throw "Script must be run from a file, not from command line"
@@ -47,14 +338,12 @@ $script:MaxRestartAttempts = 3
 $script:CrashLogFile = Join-Path $PSScriptRoot "logs\crash.log"
 $script:MonitoringJob = $null
 
-# Nginx configuration
+# Nginx configuration for Docker
 $script:NginxConfig = @{
-    ExecutablePath = "D:\\dev\\casestrainer\\nginx\\nginx.exe"
-    ConfigPath = Join-Path $PSScriptRoot "nginx.production.conf"
-    LogDir = "D:\\dev\\casestrainer\\nginx\\logs"
-    ProcessName = "nginx"
+    ContainerName = "casestrainer-nginx-prod"
+    ConfigPath = "/etc/nginx/conf.d/casestrainer.conf"
     HealthCheckUrl = "http://localhost/health"
-    StartTimeout = 10  # seconds
+    StartTimeout = 30  # seconds
 }
 
 # Performance optimization: Cache expensive checks
@@ -558,7 +847,30 @@ function Invoke-VueFrontendBuild {
         }
     }
     finally {
-        Pop-Location
+        try {
+            # Ensure we return to the original directory
+            Pop-Location -ErrorAction SilentlyContinue
+            
+            # Clean up any temporary files created during the build
+            if (Test-Path "$vueDir\node_modules\.cache" -ErrorAction SilentlyContinue) {
+                # Clean up large cache directories that might have been created
+                Remove-Item "$vueDir\node_modules\.cache" -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            
+            # Clean up any temporary environment variables
+            if ($env:NODE_ENV) {
+                Remove-Item Env:\NODE_ENV -ErrorAction SilentlyContinue
+            }
+            
+            # Reset npm configuration if it was modified
+            if ($env:NPM_CONFIG_REGISTRY) {
+                Remove-Item Env:\NPM_CONFIG_REGISTRY -ErrorAction SilentlyContinue
+            }
+        }
+        catch {
+            Write-CrashLog "Error during cleanup in Invoke-VueFrontendBuild" -Level "WARNING" -Exception $_
+            Write-Host "Warning: Error during Vue build cleanup: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
     }
 
     # After Vue frontend build, copy assets to static/assets
@@ -647,51 +959,66 @@ function Wait-ForServices {
             $allHealthy = $true
             $healthResults = @()
 
-            # Backend API health check
+            # Backend API health check using direct HTTP request
             try {
-                $backendHost = "127.0.0.1"
-                $backendPort = 5001
-                $backendHealthy = Test-NetConnection -ComputerName $backendHost -Port $backendPort -InformationLevel Quiet -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-                if (-not $backendHealthy) {
-                    $healthResults += "Backend ($($backendHost):$($backendPort)): DOWN"
-                    $allHealthy = $false
+                $backendUrl = "http://localhost:5000/casestrainer/api/health"
+                $response = Invoke-WebRequest -Uri $backendUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+                
+                if ($response.StatusCode -eq 200) {
+                    $healthData = $response.Content | ConvertFrom-Json -ErrorAction SilentlyContinue
+                    if ($healthData.status -eq 'healthy') {
+                        $healthResults += "Backend: HEALTHY"
+                    } else {
+                        $healthResults += "Backend: $($healthData.status)"
+                        $allHealthy = $false
+                    }
                 } else {
-                    $healthResults += "Backend ($($backendHost):$($backendPort)): UP"
+                    $healthResults += "Backend: HTTP $($response.StatusCode)"
+                    $allHealthy = $false
                 }
+            } catch [System.Net.WebException] {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+                $healthResults += "Backend: HTTP $statusCode"
+                $allHealthy = $false
+                Write-Host "Backend health check error: $($_.Exception.Message)" -ForegroundColor Gray
             } catch {
-                $healthResults += "Backend ($($backendHost):$($backendPort)): ERROR"
+                $healthResults += "Backend: ERROR"
                 $allHealthy = $false
                 Write-Host "Backend health check error: $($_.Exception.Message)" -ForegroundColor Gray
             }
 
-            # Redis health check
+            # Redis health check using container health status
             try {
-                $redisHost = "127.0.0.1"
-                $redisPort = 6380
-                $redisHealthy = Test-NetConnection -ComputerName $redisHost -Port $redisPort -InformationLevel Quiet -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-                if (-not $redisHealthy) {
-                    $healthResults += "Redis ($($redisHost):$($redisPort)): DOWN"
+                $redisStatus = docker inspect -f '{{.State.Health.Status}}' casestrainer-redis-prod 2>$null
+                if ($LASTEXITCODE -ne 0 -or -not $redisStatus) {
+                    $healthResults += "Redis: UNKNOWN"
+                    $allHealthy = $false
+                } elseif ($redisStatus -ne 'healthy') {
+                    $healthResults += "Redis: $redisStatus"
                     $allHealthy = $false
                 } else {
-                    $healthResults += "Redis ($($redisHost):$($redisPort)): UP"
+                    $healthResults += "Redis: HEALTHY"
                 }
             } catch {
-                $healthResults += "Redis ($($redisHost):$($redisPort)): ERROR"
+                $healthResults += "Redis: ERROR"
                 $allHealthy = $false
                 Write-Host "Redis health check error: $($_.Exception.Message)" -ForegroundColor Gray
             }
 
-            # RQ Worker health check via Docker
+            # RQ Worker health check using container health status
             try {
-                $workerStatus = docker ps --filter "name=casestrainer-rqworker" --format "{{.Status}}" 2>$null
-                if (-not $workerStatus -or $workerStatus -like "*unhealthy*" -or $workerStatus -like "*Exited*") {
-                    $healthResults += "RQ Worker: $($workerStatus -join ', ')"
+                $workerStatus = docker inspect -f '{{.State.Health.Status}}' casestrainer-rqworker-prod 2>$null
+                if ($LASTEXITCODE -ne 0 -or -not $workerStatus) {
+                    $healthResults += "Worker: UNKNOWN"
+                    $allHealthy = $false
+                } elseif ($workerStatus -ne 'healthy') {
+                    $healthResults += "Worker: $workerStatus"
                     $allHealthy = $false
                 } else {
-                    $healthResults += "RQ Worker: HEALTHY"
+                    $healthResults += "Worker: HEALTHY"
                 }
             } catch {
-                $healthResults += "RQ Worker: ERROR"
+                $healthResults += "Worker: ERROR"
                 $allHealthy = $false
                 Write-Host "Worker health check error: $($_.Exception.Message)" -ForegroundColor Gray
             }
@@ -744,22 +1071,37 @@ function Test-APIFunctionality {
     # Wait a moment for services to fully initialize
     Start-Sleep -Seconds 2
 
+    # Initialize variables to track resources that need cleanup
+    $healthResponse = $null
+    $testResponse = $null
+    $result = $null
+    $testPayload = $null
+    
     try {
         # Test basic API health with retry logic
         Write-Host "Testing API health endpoint..." -ForegroundColor Yellow
         $maxRetries = 3
         $retryDelay = 5
         $healthOK = $false
+        $healthError = $null
 
         for ($i = 1; $i -le $maxRetries; $i++) {
             try {
+                # Clear any previous response
+                if ($healthResponse -ne $null) {
+                    $healthResponse.Dispose()
+                    $healthResponse = $null
+                }
+                
                 $healthResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -Method GET -TimeoutSec 15 -ErrorAction Stop
                 if ($healthResponse.StatusCode -eq 200) {
                     $healthOK = $true
+                    $healthError = $null
                     break
                 }
             } catch {
-                Write-Host "Health check attempt $i failed: $($_.Exception.Message)" -ForegroundColor Gray
+                $healthError = $_.Exception
+                Write-Host "Health check attempt $i failed: $($healthError.Message)" -ForegroundColor Gray
                 if ($i -lt $maxRetries) {
                     Write-Host "Retrying in $retryDelay seconds..." -ForegroundColor Gray
                     Start-Sleep -Seconds $retryDelay
@@ -816,6 +1158,33 @@ function Test-APIFunctionality {
         Write-Host "❌ API test failed: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
+    finally {
+        # Clean up resources
+        try {
+            # Dispose of web responses if they exist
+            if ($healthResponse -ne $null) {
+                $healthResponse.Dispose()
+                $healthResponse = $null
+            }
+            
+            if ($testResponse -ne $null) {
+                $testResponse.Dispose()
+                $testResponse = $null
+            }
+            
+            # Clear large objects
+            $result = $null
+            $testPayload = $null
+            
+            # Force garbage collection to free up memory
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+        }
+        catch {
+            Write-CrashLog "Error during cleanup in Test-APIFunctionality" -Level "WARNING" -Exception $_
+            Write-Host "Warning: Error during API test cleanup: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
 }
 
 function Test-FrontendFunctionality {
@@ -825,16 +1194,28 @@ function Test-FrontendFunctionality {
 
     Write-Host "`n=== Testing Frontend Functionality ===`n" -ForegroundColor Cyan
 
+    # Initialize variables to track resources that need cleanup
+    $frontendResponse = $null
+    $content = $null
     $maxRetries = 3
     $retryDelay = 5
+    $result = $false
 
     try {
         # Test frontend availability with retry logic
         Write-Host "Testing frontend availability..." -ForegroundColor Yellow
+        $lastError = $null
 
         for ($i = 1; $i -le $maxRetries; $i++) {
             try {
+                # Clean up any previous response
+                if ($frontendResponse -ne $null) {
+                    $frontendResponse.Dispose()
+                    $frontendResponse = $null
+                }
+                
                 $frontendResponse = Invoke-WebRequest -Uri "http://localhost:8080/" -Method GET -TimeoutSec 15 -ErrorAction Stop
+                
                 if ($frontendResponse.StatusCode -eq 200) {
                     Write-Host "✅ Frontend accessibility test passed" -ForegroundColor Green
 
@@ -843,17 +1224,20 @@ function Test-FrontendFunctionality {
                     if ($content -match "CaseStrainer|app-root|vue|<!DOCTYPE html>") {
                         Write-Host "✅ Frontend content validation passed" -ForegroundColor Green
                         Write-Host "   Content size: $([math]::Round($content.Length / 1KB, 2)) KB" -ForegroundColor Gray
-                        return $true
+                        $result = $true
+                        break
                     } else {
-                        Write-Host "❌ Frontend content validation failed - unexpected content" -ForegroundColor Red
+                        $lastError = "Frontend content validation failed - unexpected content"
+                        Write-Host "❌ $lastError" -ForegroundColor Red
                         Write-Host "   Content preview: $($content.Substring(0, [Math]::Min(200, $content.Length)))" -ForegroundColor Gray
-                        return $false
                     }
                 } else {
-                    Write-Host "❌ Frontend accessibility test failed - HTTP $($frontendResponse.StatusCode)" -ForegroundColor Red
+                    $lastError = "Frontend accessibility test failed - HTTP $($frontendResponse.StatusCode)"
+                    Write-Host "❌ $lastError" -ForegroundColor Red
                 }
             } catch {
-                Write-Host "Frontend test attempt $i failed: $($_.Exception.Message)" -ForegroundColor Gray
+                $lastError = $_.Exception.Message
+                Write-Host "Frontend test attempt $i failed: $lastError" -ForegroundColor Gray
                 if ($i -lt $maxRetries) {
                     Write-Host "Retrying in $retryDelay seconds..." -ForegroundColor Gray
                     Start-Sleep -Seconds $retryDelay
@@ -861,12 +1245,41 @@ function Test-FrontendFunctionality {
             }
         }
 
-        Write-Host "❌ Frontend test failed after $maxRetries attempts" -ForegroundColor Red
-        return $false
+        if (-not $result) {
+            Write-Host "❌ Frontend test failed after $maxRetries attempts" -ForegroundColor Red
+            if ($lastError) {
+                Write-Host "   Last error: $lastError" -ForegroundColor Gray
+            }
+        }
+        
+        return $result
     }
     catch {
-        Write-Host "❌ Frontend test failed: $($_.Exception.Message)" -ForegroundColor Red
+        $errorMsg = $_.Exception.Message
+        Write-Host "❌ Frontend test failed: $errorMsg" -ForegroundColor Red
+        Write-CrashLog "Frontend test failed" -Level "ERROR" -Exception $_.Exception
         return $false
+    }
+    finally {
+        # Clean up resources
+        try {
+            # Dispose of web response if it exists
+            if ($frontendResponse -ne $null) {
+                $frontendResponse.Dispose()
+                $frontendResponse = $null
+            }
+            
+            # Clear large objects
+            $content = $null
+            
+            # Force garbage collection to free up memory
+            [System.GC]::Collect()
+            [System.GC]::WaitForPendingFinalizers()
+        }
+        catch {
+            Write-CrashLog "Error during cleanup in Test-FrontendFunctionality" -Level "WARNING" -Exception $_
+            Write-Host "Warning: Error during frontend test cleanup: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
     }
 }
 
@@ -982,14 +1395,67 @@ function Start-ServiceMonitoring {
     }
 }
 
+function Remove-AllCaseStrainerContainers {
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param()
+    
+    Write-Host "Removing all CaseStrainer containers..." -ForegroundColor Yellow
+    
+    try {
+        # Get all container IDs with the casestrainer name prefix but exclude dify containers
+        $containers = docker ps -a --filter "name=casestrainer" --format "{{.Names}}" 2>$null | 
+            Where-Object { $_ -match '^casestrainer-' -and $_ -notmatch 'dify' }
+        
+        if ($containers) {
+            Write-Host "Found $($containers.Count) CaseStrainer containers to remove" -ForegroundColor Yellow
+            $containers | ForEach-Object { 
+                Write-Host "  - $_" -ForegroundColor Yellow
+            }
+            
+            # Stop all containers first (by name to avoid any ambiguity)
+            $containers | ForEach-Object {
+                Write-Host "Stopping $_..." -ForegroundColor DarkGray
+                docker stop $_ 2>$null | Out-Null
+            }
+            
+            # Remove all containers (by name to avoid any ambiguity)
+            $containers | ForEach-Object {
+                Write-Host "Removing $_..." -ForegroundColor DarkGray
+                docker rm -f $_ 2>$null | Out-Null
+            }
+            
+            Write-Host "Successfully removed $($containers.Count) CaseStrainer containers" -ForegroundColor Green
+        } else {
+            Write-Host "No CaseStrainer containers found to remove" -ForegroundColor Green
+        }
+        
+        # Also remove any dangling containers that might be left (casestrainer only)
+        $dangling = docker container ls -a --filter "status=exited" --filter "name=casestrainer" --format "{{.Names}}" 2>$null | 
+            Where-Object { $_ -match '^casestrainer-' -and $_ -notmatch 'dify' }
+            
+        if ($dangling) {
+            Write-Host "Cleaning up $($dangling.Count) dangling CaseStrainer containers..." -ForegroundColor Yellow
+            $dangling | ForEach-Object {
+                docker rm $_ 2>$null | Out-Null
+            }
+        }
+        
+        return $true
+    } catch {
+        Write-Host "Error removing containers: $_" -ForegroundColor Red
+        Write-Host "Stack trace: $($_.ScriptStackTrace)" -ForegroundColor DarkGray
+        return $false
+    }
+}
+
 function Stop-ServiceMonitoring {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param()
     
-    # Stop Nginx when monitoring stops
-    if ($PSCmdlet.ShouldProcess("Nginx", "Stop")) {
-        Stop-NginxServer | Out-Null
-    }
+    # Nginx is now managed by Docker Compose, so we don't need to stop it manually
+    # if ($PSCmdlet.ShouldProcess("Nginx", "Stop")) {
+    #     Stop-NginxServer | Out-Null
+    # }
 
     if ($script:MonitoringJob) {
         try {
@@ -1024,12 +1490,13 @@ function Start-DockerProduction {
         [switch]$SkipVueBuild
     )
 
-    Write-Host "`n=== Starting Nginx ===" -ForegroundColor Cyan
-    $nginxStarted = Start-NginxServer
-    if (-not $nginxStarted) {
-        Write-Host "❌ Failed to start Nginx. Aborting startup." -ForegroundColor Red
-        return $false
-    }
+    # Nginx is now managed by Docker Compose, so we don't need to start it manually
+    # Write-Host "`n=== Starting Nginx ===" -ForegroundColor Cyan
+    # $nginxStarted = Start-NginxServer
+    # if (-not $nginxStarted) {
+    #     Write-Host "❌ Failed to start Nginx. Aborting startup." -ForegroundColor Red
+    #     return $false
+    # }
 
     Write-Host "`n=== Starting Docker Production Mode ===`n" -ForegroundColor Green
 
@@ -1186,8 +1653,17 @@ function Start-DockerProduction {
         # Fast container management - Stop existing containers
         if ($PSCmdlet.ShouldProcess("Docker containers", "Stop existing")) {
             Write-Host "Stopping existing Docker containers..." -ForegroundColor Yellow
+            
+            # First, remove all CaseStrainer containers to ensure clean state
+            if ($ForceRebuild) {
+                Write-Host "Force rebuild: Removing all CaseStrainer containers..." -ForegroundColor Yellow
+                $cleanupResult = Remove-AllCaseStrainerContainers
+                if (-not $cleanupResult) {
+                    Write-Host "Warning: Failed to clean up all containers, continuing with normal shutdown..." -ForegroundColor Yellow
+                }
+            }
 
-            # Stop containers from this specific compose file first
+            # Then stop containers from this specific compose file
             $stopArgs = @("-f", $dockerComposeFile, "down")
             if ($QuickStart) {
                 $stopArgs += @("--timeout", "5")
@@ -1417,248 +1893,32 @@ function Start-DockerProduction {
         Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
-}
-
-function Test-NginxStatus {
-    [CmdletBinding()]
-    [OutputType([PSCustomObject])]
-    param()
-    
-    $result = @{
-        IsRunning = $false
-        Process = $null
-        ConfigValid = $false
-        HealthCheck = $false
-        Error = $null
-    }
-    
-    try {
-        # Check if Nginx process is running
-        $process = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
-        $result.Process = $process
-        $result.IsRunning = $null -ne $process
-        
-        # Test Nginx configuration
-        if (Test-Path $script:NginxConfig.ExecutablePath) {
-            $testResult = & $script:NginxConfig.ExecutablePath -t -c $script:NginxConfig.ConfigPath 2>&1
-            $result.ConfigValid = $LASTEXITCODE -eq 0
-            if (-not $result.ConfigValid) {
-                $result.Error = "Nginx configuration test failed: $testResult"
-            }
-        }
-        
-        # Test health check if process is running
-        if ($result.IsRunning) {
-            try {
-                $response = Invoke-WebRequest -Uri $script:NginxConfig.HealthCheckUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
-                $result.HealthCheck = $response.StatusCode -eq 200
-            } catch {
-                $result.HealthCheck = $false
-                $result.Error = "Health check failed: $($_.Exception.Message)"
-            }
-        }
-    } catch {
-        $result.Error = $_.Exception.Message
-    }
-    
-    return [PSCustomObject]$result
-}
-
-function Start-NginxServer {
-    [CmdletBinding(SupportsShouldProcess)]
-    [OutputType([bool])]
-    param()
-    
-    try {
-        Write-Host "`n=== Nginx Startup Debug ===" -ForegroundColor Cyan
-        Write-Host "Checking Nginx status..." -NoNewline
-        $status = Test-NginxStatus
-        
-        if ($status.IsRunning) {
-            Write-Host " [ALREADY RUNNING] (PID: $($status.Process.Id))" -ForegroundColor Green
-            return $true
-        }
-        Write-Host " [NOT RUNNING]" -ForegroundColor Yellow
-        
-        # Verify Nginx executable exists
-        Write-Host "Verifying Nginx executable..." -NoNewline
-        if (-not (Test-Path $script:NginxConfig.ExecutablePath)) {
-            Write-Host " [MISSING] $($script:NginxConfig.ExecutablePath)" -ForegroundColor Red
-            return $false
-        }
-        Write-Host " [FOUND] $($script:NginxConfig.ExecutablePath)" -ForegroundColor Green
-        
-        # Verify config file exists
-        Write-Host "Verifying config file..." -NoNewline
-        if (-not (Test-Path $script:NginxConfig.ConfigPath)) {
-            Write-Host " [MISSING] $($script:NginxConfig.ConfigPath)" -ForegroundColor Red
-            return $false
-        }
-        Write-Host " [FOUND] $($script:NginxConfig.ConfigPath)" -ForegroundColor Green
-        
-        # Test Nginx configuration
-        Write-Host "Testing Nginx configuration..." -NoNewline
-        $configTest = & $script:NginxConfig.ExecutablePath -t -c $script:NginxConfig.ConfigPath 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host " [FAILED]" -ForegroundColor Red
-            Write-Host "Configuration test error: $configTest" -ForegroundColor Red
-            return $false
-        }
-        Write-Host " [PASSED]" -ForegroundColor Green
-        
-        # Ensure log directory exists
-        Write-Host "Ensuring log directory exists..." -NoNewline
-        if (-not (Test-Path $script:NginxConfig.LogDir)) {
-            try {
-                New-Item -ItemType Directory -Path $script:NginxConfig.LogDir -Force | Out-Null
-                Write-Host " [CREATED] $($script:NginxConfig.LogDir)" -ForegroundColor Green
-            } catch {
-                Write-Host " [FAILED] Could not create log directory: $_" -ForegroundColor Red
-                return $false
-            }
-        } else {
-            Write-Host " [EXISTS] $($script:NginxConfig.LogDir)" -ForegroundColor Green
-        }
-        
-        # Start Nginx
-        if ($PSCmdlet.ShouldProcess("Nginx", "Start")) {
-            Write-Host "`nStarting Nginx process..."
-            
-            # First, ensure no other Nginx processes are running
-            $existingProcesses = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
-            if ($existingProcesses) {
-                Write-Host "Found existing Nginx processes. Stopping them first..." -ForegroundColor Yellow
-                $existingProcesses | Stop-Process -Force -ErrorAction SilentlyContinue
-                Start-Sleep -Seconds 2
+    finally {
+        # Clean up any temporary files or resources
+        try {
+            # Clean up any temporary compose files
+            if (Test-Path "docker-compose.tmp.yml" -ErrorAction SilentlyContinue) {
+                Remove-Item "docker-compose.tmp.yml" -Force -ErrorAction SilentlyContinue
             }
             
-            # Start Nginx with full path and proper working directory
-            $process = Start-Process -FilePath $script:NginxConfig.ExecutablePath `
-                                    -ArgumentList "-c", "`"$($script:NginxConfig.ConfigPath)`"" `
-                                    -WorkingDirectory (Split-Path $script:NginxConfig.ExecutablePath) `
-                                    -NoNewWindow -PassThru -RedirectStandardOutput "$($script:NginxConfig.LogDir)\nginx_stdout.log" `
-                                    -RedirectStandardError "$($script:NginxConfig.LogDir)\nginx_stderr.log"
-            
-            if (-not $process) {
-                Write-Host "❌ Failed to start Nginx process" -ForegroundColor Red
-                return $false
+            # Clean up any temporary environment files
+            if (Test-Path ".env.tmp" -ErrorAction SilentlyContinue) {
+                Remove-Item ".env.tmp" -Force -ErrorAction SilentlyContinue
             }
             
-            Write-Host "Nginx process started (PID: $($process.Id)). Waiting for it to be ready..." -ForegroundColor Cyan
-            
-            # Wait for Nginx to start
-            $startTime = Get-Date
-            $timeout = $script:NginxConfig.StartTimeout
-            $started = $false
-            
-            while (((Get-Date) - $startTime).TotalSeconds -lt $timeout) {
-                Start-Sleep -Milliseconds 500
-                $status = Test-NginxStatus
-                
-                if ($status.IsRunning) {
-                    $started = $true
-                    break
-                }
-                
-                # Check if process has exited with error
-                if (-not $process.HasExited) {
-                    $process.Refresh()
-                    if ($process.HasExited -and $process.ExitCode -ne 0) {
-                        $errorContent = Get-Content "$($script:NginxConfig.LogDir)\nginx_stderr.log" -Raw -ErrorAction SilentlyContinue
-                        Write-Host "❌ Nginx process exited with code $($process.ExitCode)" -ForegroundColor Red
-                        if ($errorContent) {
-                            Write-Host "Error output: $errorContent" -ForegroundColor Red
-                        }
-                        return $false
-                    }
-                }
-                
-                Write-Host "." -NoNewline -ForegroundColor Gray
-            }
-            
-            if ($started) {
-                Write-Host "`n✅ Nginx started successfully (PID: $(Get-Process -Name $script:NginxConfig.ProcessName).Id)" -ForegroundColor Green
-                
-                # Additional verification by testing the health endpoint
-                Write-Host "Testing health endpoint at $($script:NginxConfig.HealthCheckUrl)..." -NoNewline
-                try {
-                    $response = Invoke-WebRequest -Uri $script:NginxConfig.HealthCheckUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
-                    if ($response.StatusCode -eq 200) {
-                        Write-Host " [OK]" -ForegroundColor Green
-                    } else {
-                        Write-Host " [UNEXPECTED STATUS: $($response.StatusCode)]" -ForegroundColor Yellow
-                    }
-                } catch {
-                    Write-Host " [ERROR: $($_.Exception.Message)]" -ForegroundColor Red
-                }
-                
-                return $true
-            } else {
-                # If we get here, Nginx didn't start properly
-                $errorContent = Get-Content "$($script:NginxConfig.LogDir)\nginx_stderr.log" -Raw -ErrorAction SilentlyContinue
-                Write-Host "`n❌ Failed to start Nginx: Timeout waiting for process to start" -ForegroundColor Red
-                if ($errorContent) {
-                    Write-Host "Error output: $errorContent" -ForegroundColor Red
-                }
-                
-                # Check if the process exists but isn't responding
-                $process.Refresh()
-                if ($process.HasExited) {
-                    Write-Host "Nginx process exited with code: $($process.ExitCode)" -ForegroundColor Red
-                } else {
-                    Write-Host "Nginx process is still running but not responding to health checks" -ForegroundColor Yellow
-                    # Try to get more info about the process
-                    try {
-                        $processInfo = Get-Process -Id $process.Id -ErrorAction Stop
-                        Write-Host "Process info: CPU: $($processInfo.CPU), Memory: $($processInfo.WorkingSet64 / 1MB) MB" -ForegroundColor Yellow
-                    } catch {
-                        Write-Host "Could not get process info: $_" -ForegroundColor Yellow
-                    }
-                }
-                
-                return $false
+            # Reset any modified environment variables
+            if ($env:COMPOSE_PROFILES) {
+                Remove-Item Env:\COMPOSE_PROFILES -ErrorAction SilentlyContinue
             }
         }
-    } catch {
-        Write-Host "`n❌ Failed to start Nginx: $_" -ForegroundColor Red
-        Write-Host "Stack trace: $($_.ScriptStackTrace)" -ForegroundColor Red
-        return $false
+        catch {
+            Write-CrashLog "Error during cleanup in Start-DockerProduction" -Level "WARNING" -Exception $_
+            Write-Host "Warning: Error during cleanup: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
     }
 }
 
-function Stop-NginxServer {
-    [CmdletBinding(SupportsShouldProcess)]
-    [OutputType([bool])]
-    param()
-    
-    try {
-        $process = Get-Process -Name $script:NginxConfig.ProcessName -ErrorAction SilentlyContinue
-        if (-not $process) {
-            Write-Host "Nginx is not running" -ForegroundColor Yellow
-            return $true
-        }
-        
-        if ($PSCmdlet.ShouldProcess("Nginx (PID: $($process.Id))", "Stop")) {
-            # Graceful shutdown
-            & $script:NginxConfig.ExecutablePath -s stop -c $script:NginxConfig.ConfigPath -p $PSScriptRoot
-            
-            # Wait for process to exit
-            $process | Wait-Process -Timeout 5 -ErrorAction SilentlyContinue
-            
-            # Force kill if still running
-            if (-not $process.HasExited) {
-                $process | Stop-Process -Force -ErrorAction SilentlyContinue
-            }
-            
-            Write-Host "✅ Nginx stopped successfully" -ForegroundColor Green
-            return $true
-        }
-    } catch {
-        Write-Host "❌ Failed to stop Nginx: $_" -ForegroundColor Red
-        return $false
-    }
-}
-
+# Nginx is now managed by Docker Compose, so no need for manual Nginx management
 function Test-PostStartupValidation {
     [CmdletBinding()]
     [OutputType([bool])]
@@ -2698,27 +2958,121 @@ $backendServiceName = "casestrainer-backend-prod"
 # Check for envsubst (required for templating)
 $envsubst = "envsubst"
 $envsubstExists = $false
+
+# Default to using PowerShell's built-in string replacement
+$usePowerShellFallback = $true
+
 try {
+    # First try to use native envsubst if available
     $null = & $envsubst --version 2>$null
     $envsubstExists = $true
+    $usePowerShellFallback = $false
+    Write-Host "Using native envsubst for Nginx config templating" -ForegroundColor Cyan
 } catch {
-    Write-Host "WARNING: envsubst not found. Nginx config will not be templated. Install GNU gettext or ensure envsubst is in PATH." -ForegroundColor Yellow
+    Write-Host "Native envsubst not found, using PowerShell fallback for Nginx config templating" -ForegroundColor Yellow
 }
 
-if ($envsubstExists) {
-    Write-Host "Templating Nginx config with BACKEND_SERVICE_NAME=$backendServiceName ..." -ForegroundColor Cyan
-    $templateContent = Get-Content $nginxConfTemplate -Raw
-    $tmpIn = [System.IO.Path]::GetTempFileName()
-    $tmpOut = [System.IO.Path]::GetTempFileName()
-    Set-Content -Path $tmpIn -Value $templateContent
-    Start-Process -FilePath $envsubst -ArgumentList @() -RedirectStandardInput $tmpIn -RedirectStandardOutput $tmpOut -NoNewWindow -Wait -PassThru
-    $templatedContent = Get-Content $tmpOut -Raw
-    Set-Content -Path $nginxConfTarget -Value $templatedContent
-    Remove-Item $tmpIn, $tmpOut -ErrorAction SilentlyContinue
-    Write-Host "Nginx config templated successfully." -ForegroundColor Green
-} else {
-    Write-Host "Skipping Nginx config templating (envsubst not found)." -ForegroundColor Yellow
+# Function to perform environment variable substitution using PowerShell
+function Invoke-EnvSubst {
+    param(
+        [string]$InputString,
+        [hashtable]$AdditionalVars = @{}
+    )
+    
+    # Get all environment variables
+    $envVars = Get-ChildItem env: | ForEach-Object { @{$_.Name = $_.Value} } | Merge-Hashtables
+    
+    # Add/override with any additional variables
+    if ($AdditionalVars.Count -gt 0) {
+        $envVars = $envVars + $AdditionalVars
+    }
+    
+    # Replace all ${VAR} and $VAR occurrences
+    $result = $InputString
+    $envVars.GetEnumerator() | ForEach-Object {
+        $varName = $_.Key
+        $varValue = $_.Value -replace '\$', '$$$$'  # Escape $ in replacement string
+        
+        # Replace ${VAR} syntax
+        $result = $result -replace "\`${$varName}", $varValue
+        
+        # Replace $VAR syntax (only if it's a whole word and followed by non-word character or end of string)
+        $result = $result -replace "\`$$varName(?!\w)", $varValue
+    }
+    
+    return $result
 }
+
+# Helper function to merge hashtables
+function Merge-Hashtables {
+    $output = @{}
+    foreach ($hashtable in $input) {
+        if ($hashtable -is [Collections.IDictionary]) {
+            $hashtable.GetEnumerator() | ForEach-Object { $output[$_.Key] = $_.Value }
+        }
+    }
+    return $output
+}
+
+# Process the Nginx config template
+Write-Host "Templating Nginx config with BACKEND_SERVICE_NAME=$backendServiceName ..." -ForegroundColor Cyan
+
+# Read the template content
+$templateContent = Get-Content $nginxConfTemplate -Raw
+
+# Process the template
+$templatedContent = if ($usePowerShellFallback) {
+    # Use PowerShell-based substitution
+    try {
+        $additionalVars = @{
+            BACKEND_SERVICE_NAME = $backendServiceName
+        }
+        
+        # Add any other environment variables that might be needed
+        $env:FRONTEND_PORT = "80"
+        $env:BACKEND_PORT = "5000"
+        
+        Invoke-EnvSubst -InputString $templateContent -AdditionalVars $additionalVars
+    } catch {
+        Write-Host "WARNING: Error during PowerShell-based template processing: $_" -ForegroundColor Red
+        $templateContent  # Return original content on error
+    }
+} else {
+    # Use native envsubst
+    try {
+        $tmpIn = [System.IO.Path]::GetTempFileName()
+        $tmpOut = [System.IO.Path]::GetTempFileName()
+        Set-Content -Path $tmpIn -Value $templateContent -NoNewline
+        
+        # Set the environment variable for envsubst
+        $env:BACKEND_SERVICE_NAME = $backendServiceName
+        
+        # Execute envsubst
+        $process = Start-Process -FilePath $envsubst -ArgumentList @() -RedirectStandardInput $tmpIn -RedirectStandardOutput $tmpOut -NoNewWindow -PassThru -Wait
+        
+        if ($process.ExitCode -eq 0) {
+            Get-Content $tmpOut -Raw
+        } else {
+            throw "envsubst exited with code $($process.ExitCode)"
+        }
+    } catch {
+        Write-Host "WARNING: Error during envsubst processing: $_" -ForegroundColor Red
+        $templateContent  # Return original content on error
+    } finally {
+        # Clean up temp files if they exist
+        if (Test-Path $tmpIn) { Remove-Item $tmpIn -ErrorAction SilentlyContinue }
+        if (Test-Path $tmpOut) { Remove-Item $tmpOut -ErrorAction SilentlyContinue }
+    }
+}
+
+# Write the processed content to the target file
+Set-Content -Path $nginxConfTarget -Value $templatedContent -NoNewline
+if ($usePowerShellFallback) {
+    $method = 'PowerShell fallback'
+} else {
+    $method = 'native envsubst'
+}
+Write-Host "Nginx config templated successfully using $method" -ForegroundColor Green
 # --- End Nginx Config Templating ---
 
 # Ensure logs directory exists and start transcript for full console logging
