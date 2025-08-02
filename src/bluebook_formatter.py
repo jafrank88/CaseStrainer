@@ -331,7 +331,7 @@ class BluebookFormatter:
         Returns:
             Dictionary with volume, reporter, page, and pinpoint
         """
-        components = {
+        components: Dict[str, Optional[str]] = {
             'volume': None,
             'reporter': None,
             'page': None,

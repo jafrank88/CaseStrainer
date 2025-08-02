@@ -20,15 +20,15 @@ class CitationResult:
     end_index: Optional[int] = None
     is_parallel: bool = False
     is_cluster: bool = False
-    parallel_citations: List[str] = None
-    cluster_members: List[str] = None
-    pinpoint_pages: List[str] = None
-    docket_numbers: List[str] = None
-    case_history: List[str] = None
+    parallel_citations: Optional[List[str]] = None
+    cluster_members: Optional[List[str]] = None
+    pinpoint_pages: Optional[List[str]] = None
+    docket_numbers: Optional[List[str]] = None
+    case_history: Optional[List[str]] = None
     publication_status: Optional[str] = None
     source: str = "Unknown"
     error: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
     cluster_id: Optional[str] = None
 
     def __post_init__(self):

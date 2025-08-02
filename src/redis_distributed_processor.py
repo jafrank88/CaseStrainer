@@ -36,7 +36,7 @@ logging.warning(f"[DEBUG] sys.path: {sys.path}")
 try:
     import redis
     import rq
-    from rq import Queue, Worker, Connection
+    from rq import Queue, Worker
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -70,7 +70,7 @@ class RedisDistributedPDFSystem:
     """
     
     def __init__(self, 
-                 redis_url: str = "redis://casestrainer-redis-prod:6379/0",
+                 redis_url: str = "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0",
                  cache_ttl: int = 3600,  # 1 hour cache
                  max_workers: int = 4,
                  chunk_size: int = 50000):
@@ -132,7 +132,11 @@ class RedisDistributedPDFSystem:
         try:
             cached = self.redis_client.get(key)
             if cached:
-                return pickle.loads(cached)
+                # Redis returns bytes, need to decode if it's a string or use directly for pickle
+                if isinstance(cached, bytes):
+                    return pickle.loads(cached)  # type: ignore
+                else:
+                    return pickle.loads(cached.encode('utf-8') if isinstance(cached, str) else cached)  # type: ignore
         except Exception as e:
             logger.warning(f"Cache get failed: {e}")
         
@@ -227,22 +231,24 @@ class RedisDistributedPDFSystem:
                 )
                 chunk_jobs.append(job)
             
-            # Collect results
-            text_chunks = []
+            # Wait for all chunks to complete
+            chunk_results = []
             for job in chunk_jobs:
                 try:
-                    result = job.result(timeout=300)
-                    if result:
-                        text_chunks.append(result)
+                    result = job.result(timeout=600)  # 10 minute total timeout
+                    chunk_results.append(result)
                 except Exception as e:
-                    logger.warning(f"Worker job failed: {e}")
+                    logger.error(f"Chunk job failed: {e}")
+                    # Fallback to local processing for failed chunks
+                    chunk_results.append("")
             
-            combined_text = "\n".join(text_chunks)
+            # Combine results
+            combined_text = "\n".join(chunk_results)
             
             return ProcessingResult(
                 text=combined_text,
-                processor_used="DistributedPDFProcessor",
-                processing_time=0,  # Will be set by caller
+                processor_used="DistributedWorkerProcessor",
+                processing_time=0.0,  # Will be set by caller
                 file_hash=file_hash
             )
             
@@ -253,11 +259,12 @@ class RedisDistributedPDFSystem:
     
     async def _extract_medium_file_worker(self, file_path: str, file_hash: str) -> ProcessingResult:
         """
-        Process medium files using worker queue for non-blocking operation.
+        Process medium files using worker queue.
         """
-        logger.info(f"Processing medium file with worker: {file_path}")
+        logger.info(f"Processing medium file with worker queue: {file_path}")
         
         if not self.redis_available:
+            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
         
         try:
@@ -265,54 +272,52 @@ class RedisDistributedPDFSystem:
             job = self.queue.enqueue(
                 'extract_pdf_optimized',
                 file_path, file_hash,
-                timeout=180  # 3 minute timeout
+                timeout=300  # 5 minute timeout
             )
             
-            # Wait for result (non-blocking in real async context)
-            result = job.result(timeout=180)
+            # Wait for result
+            result = job.result(timeout=600)  # 10 minute total timeout
             
             return ProcessingResult(
-                text=result['text'],
-                processor_used=result['processor'],
-                processing_time=0,
+                text=result.get('text', ''),
+                processor_used=result.get('processor', 'WorkerQueueProcessor'),
+                processing_time=0.0,  # Will be set by caller
                 file_hash=file_hash
             )
             
         except Exception as e:
-            logger.error(f"Worker processing failed: {e}")
+            logger.error(f"Worker queue processing failed: {e}")
+            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
     
     async def _extract_small_file_local(self, file_path: str, file_hash: str) -> ProcessingResult:
         """
-        Process small files locally for minimum latency.
+        Process small files locally for maximum speed.
         """
-        # Use the ultra-fast extraction from previous implementation
+        logger.info(f"Processing small file locally: {file_path}")
+        
         text, processor = self._smart_pdf_extraction_strategy(file_path)
         
         return ProcessingResult(
-            text=text,
+            text=text or "",
             processor_used=processor,
-            processing_time=0,
+            processing_time=0.0,  # Will be set by caller
             file_hash=file_hash
         )
     
     def _smart_pdf_extraction_strategy(self, file_path: str) -> Tuple[str, str]:
         """
-        Optimized extraction strategy that prioritizes PyPDF2 for speed and text extraction.
+        Smart PDF extraction strategy.
+        Tries multiple methods in order of speed and reliability.
         """
-        # Try PyPDF2 first (fastest and extracts most text)
-        text = self._extract_with_pypdf2_fast(file_path)
-        if text:
-            return self._minimal_cleaning(text), "PyPDF2Processor"
-        
-        # Fall back to pdfplumber (best for OCR'ed PDFs and complex layouts)
+        # Try pdfplumber first (fast and reliable)
         text = self._extract_with_pdfplumber(file_path)
         if text:
             return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
         
         # Final fallback to pdfminer.six (reliable general extraction)
         text = self._extract_with_pdfminer_fast(file_path)
-        return self._minimal_cleaning(text), "PdfMinerProcessor"
+        return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
     
     # Note: _quick_ocr_detection method removed - pdfplumber is now used for all PDFs
     
@@ -384,8 +389,10 @@ class DockerOptimizedProcessor:
     Optimized for Docker + Redis deployment.
     """
     
-    def __init__(self, redis_url: str = None):
-        redis_url = redis_url or os.getenv('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+    def __init__(self, redis_url: Optional[str] = None):
+        # Default to using the production Redis with authentication if not specified
+        default_redis_url = 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0'
+        redis_url = redis_url or os.getenv('REDIS_URL', default_redis_url)
         self.system = RedisDistributedPDFSystem(redis_url=redis_url)
     
     async def extract_text_from_file(self, file_path: str) -> str:
@@ -434,23 +441,42 @@ class DockerOptimizedProcessor:
         logging.info(f"[DEBUG] Creating citation processor with verification enabled for async processing")
         config = ProcessingConfig(
             enable_verification=True,
-            debug_mode=True  # Enable debug logging to see verification steps
+            debug_mode=False  # Disable debug mode to get real citation data
         )
-        processor = UnifiedCitationProcessorV2(config)
-        citation_result = processor.process_text(text)
-        print(f"[DEBUG PRINT] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
-        logging.info(f"[DEBUG] Returned from process_citations_from_text for file_path={file_path}, citations_count={len(citation_result.get('citations', []))}")
-        return {
-            'success': True,
-            'text_length': len(text),
-            'citations': citation_result.get('citations', []),
-            'statistics': {
-                'total_citations': len(citation_result.get('citations', [])),
-                'processor_used': extraction_result.processor_used,
-                'cache_hit': extraction_result.cache_hit
-            },
-            'processing_time': time.time() - start_time
-        }
+        
+        try:
+            # Create processor and process citations asynchronously
+            processor = UnifiedCitationProcessorV2(config)
+            
+            # Use the async process_document_citations method
+            citation_result = await processor.process_document_citations(text)
+            
+            print(f"[DEBUG PRINT] Successfully processed citations for file_path={file_path}, "
+                  f"citations_count={len(citation_result.get('citations', []))}")
+            logging.info(f"[DEBUG] Successfully processed citations for file_path={file_path}, "
+                       f"citations_count={len(citation_result.get('citations', []))}")
+            
+            return {
+                'success': True,
+                'text_length': len(text),
+                'citations': citation_result.get('citations', []),
+                'statistics': {
+                    'total_citations': len(citation_result.get('citations', [])),
+                    'processor_used': extraction_result.processor_used,
+                    'cache_hit': extraction_result.cache_hit
+                },
+                'processing_time': time.time() - start_time
+            }
+            
+        except Exception as e:
+            error_msg = f"Error processing citations: {str(e)}"
+            print(f"[DEBUG PRINT] {error_msg}")
+            logging.error(error_msg, exc_info=True)
+            return {
+                'success': False,
+                'error': error_msg,
+                'processing_time': time.time() - start_time
+            }
 
 
 # Worker functions (these run in Redis workers)

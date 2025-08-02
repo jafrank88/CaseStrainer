@@ -29,7 +29,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Now import the modules
-from config import configure_logging
+from .config import configure_logging
 
 # Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
@@ -65,7 +65,7 @@ def make_error_response(error_type: str, message: str, details: Optional[str] = 
                        status_code: int = 400, source_type: Optional[str] = None,
                        source_name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> flask.Response:
     """Create a standardized error response."""
-    response_data = {
+    response_data: Dict[str, Any] = {
         'status': 'error',
         'error_type': error_type,
         'message': message,
@@ -78,8 +78,8 @@ def make_error_response(error_type: str, message: str, details: Optional[str] = 
         response_data['source_type'] = source_type
     if source_name:
         response_data['source_name'] = source_name
-    if metadata:
-        response_data['metadata'] = metadata
+    if metadata is not None:
+        response_data['metadata'] = metadata  # type: ignore
         
     response = jsonify(response_data)
     response.status_code = status_code

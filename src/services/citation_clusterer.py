@@ -38,26 +38,37 @@ class CitationClusterer(ICitationClusterer):
         """
         Detect and group parallel citations that refer to the same case.
         
+        This method identifies parallel citations (different reporters citing the same case)
+        and ensures consistent metadata (case names, dates) across them.
+        
         Args:
             citations: List of citations to analyze
             text: Original text for context
             
         Returns:
-            Updated citations with parallel citation relationships
+            Updated citations with parallel citation relationships and consistent metadata
         """
         if len(citations) < 2:
             return citations
         
+        # Sort citations by position in text
+        citations = sorted(citations, key=lambda c: c.start_index if c.start_index is not None else 0)
+        
         # Group citations by proximity and case similarity
         citation_groups = self._group_citations_by_proximity(citations, text)
         
-        # For each group, detect parallel relationships
+        # For each group, detect parallel relationships and propagate metadata
         for group in citation_groups:
             if len(group) > 1:
+                # Sort group by position
+                group = sorted(group, key=lambda c: c.start_index if c.start_index is not None else 0)
                 self._detect_parallels_in_group(group)
         
+        # Handle case where parallel citations span multiple groups
+        self._propagate_metadata_across_groups(citations)
+        
         if self.config.debug_mode:
-            parallel_count = sum(1 for c in citations if c.parallel_citations)
+            parallel_count = sum(1 for c in citations if hasattr(c, 'parallel_citations') and c.parallel_citations)
             logger.info(f"CitationClusterer detected {parallel_count} citations with parallels")
         
         return citations
@@ -99,12 +110,20 @@ class CitationClusterer(ICitationClusterer):
         return formatted_clusters
     
     def _group_citations_by_proximity(self, citations: List[CitationResult], text: str) -> List[List[CitationResult]]:
-        """Group citations that are close together in the text."""
+        """
+        Group citations that are close together in the text.
+        
+        This method groups citations that appear within a certain distance of each other,
+        which helps in identifying parallel citations that might refer to the same case.
+        """
+        if not citations:
+            return []
+            
         # Sort citations by position
         sorted_citations = sorted(citations, key=lambda c: c.start_index or 0)
         
         groups = []
-        current_group = [sorted_citations[0]] if sorted_citations else []
+        current_group = [sorted_citations[0]]
         
         for i in range(1, len(sorted_citations)):
             current_citation = sorted_citations[i]
@@ -113,8 +132,15 @@ class CitationClusterer(ICitationClusterer):
             # Calculate distance between citations
             distance = (current_citation.start_index or 0) - (previous_citation.end_index or 0)
             
-            # Group if citations are close (within 100 characters)
-            if distance <= 100:
+            # Get the text between citations
+            between_text = text[previous_citation.end_index:current_citation.start_index].strip()
+            
+            # Group if citations are close (within 150 characters) and the text between doesn't contain
+            # words that typically separate different citations (like 'but', 'however', etc.)
+            separator_words = ['but', 'however', 'but see', 'cf.', 'e.g.', 'i.e.', ';', 'also', 'furthermore', 'moreover']
+            is_separator_present = any(sep in between_text.lower() for sep in separator_words)
+            
+            if distance <= 150 and not is_separator_present:
                 current_group.append(current_citation)
             else:
                 if current_group:
@@ -127,20 +153,25 @@ class CitationClusterer(ICitationClusterer):
         return groups
     
     def _detect_parallels_in_group(self, group: List[CitationResult]) -> None:
-        """Detect parallel citations within a group."""
+        """Detect parallel citations within a group and propagate metadata."""
+        # First pass: find all parallel relationships
         for i, citation1 in enumerate(group):
             for j, citation2 in enumerate(group):
                 if i != j and self._are_citations_parallel(citation1, citation2):
-                    # Add to parallel citations list
-                    if not citation1.parallel_citations:
+                    # Initialize parallel_citations if needed
+                    if not hasattr(citation1, 'parallel_citations') or citation1.parallel_citations is None:
                         citation1.parallel_citations = []
-                    if not citation2.parallel_citations:
+                    if not hasattr(citation2, 'parallel_citations') or citation2.parallel_citations is None:
                         citation2.parallel_citations = []
                     
+                    # Add each to the other's parallel citations if not already present
                     if citation2.citation not in citation1.parallel_citations:
                         citation1.parallel_citations.append(citation2.citation)
                     if citation1.citation not in citation2.parallel_citations:
                         citation2.parallel_citations.append(citation1.citation)
+        
+        # Second pass: propagate metadata within parallel groups
+        self._propagate_metadata_within_parallels(group)
     
     def _are_citations_parallel(self, citation1: CitationResult, citation2: CitationResult) -> bool:
         """Check if two citations are parallel (refer to the same case)."""
@@ -394,6 +425,139 @@ class CitationClusterer(ICitationClusterer):
         
         return None
     
+    def _propagate_metadata_within_parallels(self, group: List[CitationResult]) -> None:
+        """
+        Propagate metadata (case names, dates) within parallel citation groups.
+        
+        This ensures that all parallel citations share the same case name and date metadata
+        when one member of the group has this information.
+        """
+        # Find all parallel groups
+        parallel_groups = []
+        processed = set()
+        
+        for citation in group:
+            if citation.citation in processed:
+                continue
+                
+            # Find all connected citations (transitive parallel relationships)
+            parallel_group = set()
+            queue = [citation]
+            
+            while queue:
+                current = queue.pop(0)
+                if current.citation in processed:
+                    continue
+                    
+                processed.add(current.citation)
+                parallel_group.add(current)
+                
+                # Add all parallel citations to the queue
+                if hasattr(current, 'parallel_citations') and current.parallel_citations:
+                    for parallel_cite in current.parallel_citations:
+                        # Find the actual citation object
+                        for c in group:
+                            if c.citation == parallel_cite and c not in parallel_group:
+                                queue.append(c)
+                                break
+            
+            if len(parallel_group) > 1:
+                parallel_groups.append(list(parallel_group))
+        
+        # Propagate metadata within each parallel group
+        for parallel_group in parallel_groups:
+            self._propagate_metadata_in_group(parallel_group)
+    
+    def _propagate_metadata_in_group(self, group: List[CitationResult]) -> None:
+        """Propagate metadata within a group of parallel citations."""
+        if not group:
+            return
+        
+        # Find the best source of metadata (prioritize verified citations)
+        best_source = None
+        
+        # First, look for a verified citation with canonical data
+        for citation in group:
+            if citation.verified and citation.canonical_name and citation.canonical_date:
+                best_source = citation
+                break
+        
+        # If no verified citation, use the first one with extracted data
+        if not best_source:
+            for citation in group:
+                if citation.extracted_case_name and citation.extracted_date:
+                    best_source = citation
+                    break
+        
+        if not best_source:
+            return
+        
+        # Propagate metadata to all group members
+        for citation in group:
+            if citation == best_source:
+                continue
+                
+            # Propagate canonical data if available
+            if best_source.canonical_name and best_source.canonical_date:
+                citation.canonical_name = best_source.canonical_name
+                citation.canonical_date = best_source.canonical_date
+                
+                # If this citation is verified but was missing canonical data, update it
+                if citation.verified:
+                    # Track that this citation was updated with canonical data
+                    if citation.metadata is None:
+                        citation.metadata = {}
+                    citation.metadata['canonical_data_updated'] = True
+            
+            # Propagate extracted data if available
+            if best_source.extracted_case_name and best_source.extracted_date:
+                if not citation.extracted_case_name:
+                    citation.extracted_case_name = best_source.extracted_case_name
+                if not citation.extracted_date:
+                    citation.extracted_date = best_source.extracted_date
+    
+    def _propagate_metadata_across_groups(self, citations: List[CitationResult]) -> None:
+        """
+        Propagate metadata across citation groups to handle cases where parallel citations
+        might be in different proximity groups.
+        """
+        # Build a mapping of citations to their parallel citations
+        parallel_map = {}
+        
+        for citation in citations:
+            if hasattr(citation, 'parallel_citations') and citation.parallel_citations:
+                parallel_map[citation.citation] = citation.parallel_citations
+        
+        # For each citation, find all connected citations (transitive closure)
+        processed = set()
+        
+        for citation in citations:
+            if citation.citation in processed:
+                continue
+                
+            # Find all connected citations
+            connected = set()
+            queue = [citation.citation]
+            
+            while queue:
+                current = queue.pop(0)
+                if current in processed:
+                    continue
+                    
+                processed.add(current)
+                connected.add(current)
+                
+                # Add all parallel citations to the queue
+                for parallel in parallel_map.get(current, []):
+                    if parallel not in connected:
+                        queue.append(parallel)
+            
+            # If we found a connected group, propagate metadata
+            if len(connected) > 1:
+                # Find all citation objects in this connected group
+                group = [c for c in citations if c.citation in connected]
+                self._propagate_metadata_in_group(group)
+    
     def _reporters_compatible(self, reporter1: str, reporter2: str) -> bool:
         """Check if two reporters are compatible."""
         # Normalize reporters
@@ -411,7 +575,9 @@ class CitationClusterer(ICitationClusterer):
             {'sct', 'supremecourt'},
             {'led', 'led2d', 'lawyersedition'},
             {'f', 'f2d', 'f3d', 'federal'},
-            {'fsupp', 'fsupp2d', 'fsupp3d'}
+            {'fsupp', 'fsupp2d', 'fsupp3d'},
+            {'p', 'p2d', 'p3d', 'pacific'},  # Add Pacific Reporter variations
+            {'was', 'washapp'}  # Washington Appellate Reports
         ]
         
         for compatible_set in compatible_sets:

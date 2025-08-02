@@ -254,7 +254,7 @@ class CitationParser:
         
         return text
     
-    def _extract_year_from_context(self, context_before: str, citation: str, context_after: str = None) -> Optional[str]:
+    def _extract_year_from_context(self, context_before: str, citation: str, context_after: Optional[str] = None) -> Optional[str]:
         """Extract year from context before citation, after citation, or citation itself (DEPRECATED: use isolation-aware logic instead)."""
         warnings.warn(
             "_extract_year_from_context is deprecated. Use isolation-aware extraction instead.",
@@ -267,7 +267,7 @@ class CitationParser:
                 matches = re.findall(pattern, citation)
                 if matches:
                     year = matches[0]
-                    if self._is_valid_year(year):
+                    if year and self._is_valid_year(year):
                         return year
             
             # PRIORITY 2: Look for year in parentheses in context after citation
@@ -277,7 +277,7 @@ class CitationParser:
                     if matches:
                         # Take the first match (closest to citation)
                         year = matches[0]
-                        if self._is_valid_year(year):
+                        if year and self._is_valid_year(year):
                             return year
             
             # PRIORITY 3: Look for year in context before citation
@@ -286,7 +286,7 @@ class CitationParser:
                 if matches:
                     # Take the last match (closest to citation)
                     year = matches[-1]
-                    if self._is_valid_year(year):
+                    if year and self._is_valid_year(year):
                         return year
             
             return None
@@ -377,14 +377,14 @@ class CitationParser:
         except (ValueError, TypeError):
             return False 
 
-    def parse_json_citation(self, json_citation: str) -> dict:
+    def parse_json_citation(self, json_citation: str) -> Dict[str, Optional[str]]:
         """
         Parse citation string into volume, reporter, page, and parallel citation components.
         """
         parts = json_citation.split()
-        result = {
+        result: Dict[str, Optional[str]] = {
             'primary_volume': None,
-            'primary_reporter': None, 
+            'primary_reporter': None,
             'primary_page': None,
             'parallel_volume': None,
             'parallel_reporter': None,
@@ -453,7 +453,7 @@ class CitationParser:
                 unique_variations.append(var)
         return unique_variations
 
-    def find_full_citation_in_text(self, text: str, json_citation: str) -> str:
+    def find_full_citation_in_text(self, text: str, json_citation: str) -> Optional[str]:
         """
         Try to find the full citation in the text using flexible reporter patterns.
         """
@@ -480,7 +480,7 @@ class CitationParser:
                     return match.group(0)
         return None
 
-    def find_case_name_before_citation(self, text: str, full_citation: str) -> str:
+    def find_case_name_before_citation(self, text: str, full_citation: str) -> Optional[str]:
         """
         Find the case name immediately before the citation in the text.
         """
@@ -624,7 +624,7 @@ class DateExtractor:
             'december': '12', 'dec': '12'
         }
     
-    def extract_date(self, text: str, citation: str = None) -> Optional[str]:
+    def extract_date(self, text: str, citation: Optional[str] = None) -> Optional[str]:
         """
         Extract date from text, optionally using citation as context.
         Prioritizes a year in parentheses immediately after the citation if present.
@@ -658,7 +658,7 @@ class DateExtractor:
             logger.warning(f"Error extracting date: {e}")
             return None
     
-    def extract_year(self, text: str, citation: str = None) -> Optional[str]:
+    def extract_year(self, text: str, citation: Optional[str] = None) -> Optional[str]:
         """
         Extract just the year from text.
         
@@ -1171,13 +1171,13 @@ def validate_citation_dates(citation):
 
 
 # Compatibility functions for existing code
-def extract_date_enhanced(text: str, citation: str = None) -> Optional[str]:
+def extract_date_enhanced(text: str, citation: Optional[str] = None) -> Optional[str]:
     """Enhanced date extraction function - compatibility wrapper."""
     extractor = DateExtractor()
     return extractor.extract_date(text, citation)
 
 
-def extract_year_enhanced(text: str, citation: str = None) -> Optional[str]:
+def extract_year_enhanced(text: str, citation: Optional[str] = None) -> Optional[str]:
     """Enhanced year extraction function - compatibility wrapper."""
     extractor = DateExtractor()
     return extractor.extract_year(text, citation) 

@@ -31,7 +31,9 @@ class OptimizedCitationExtractor(ICitationExtractor):
     
     def __init__(self, config: ProcessingConfig):
         self.config = config
-        self.base_extractor = CitationExtractor(config)
+        # Convert ProcessingConfig to dict for base extractor
+        config_dict = config.__dict__ if hasattr(config, '__dict__') else {}
+        self.base_extractor = CitationExtractor(config_dict)
         
         # Performance optimizations
         self._compiled_patterns = {}
@@ -126,7 +128,7 @@ class OptimizedCitationExtractor(ICitationExtractor):
         
         # Deduplicate and sort
         citations = self._deduplicate_fast(citations)
-        return sorted(citations, key=lambda x: x.start_index)
+        return sorted(citations, key=lambda x: x.start_index or 0)
     
     def _extract_parallel(self, text: str) -> List[CitationResult]:
         """Extract citations using parallel processing for large texts."""
@@ -157,7 +159,7 @@ class OptimizedCitationExtractor(ICitationExtractor):
         
         # Deduplicate across chunks
         all_citations = self._deduplicate_fast(all_citations)
-        return sorted(all_citations, key=lambda x: x.start_index)
+        return sorted(all_citations, key=lambda x: x.start_index or 0)
     
     def _extract_chunk(self, chunk: str, offset: int) -> List[CitationResult]:
         """Extract citations from a text chunk."""
@@ -165,8 +167,10 @@ class OptimizedCitationExtractor(ICitationExtractor):
         
         # Adjust positions for offset
         for citation in citations:
-            citation.start_index += offset
-            citation.end_index += offset
+            if citation.start_index is not None:
+                citation.start_index += offset
+            if citation.end_index is not None:
+                citation.end_index += offset
         
         return citations
     
@@ -207,7 +211,8 @@ class OptimizedCitationExtractor(ICitationExtractor):
     def extract_metadata(self, citation: CitationResult, text: str) -> CitationResult:
         """Extract metadata for a citation using optimized methods."""
         # Use the fast metadata extraction method
-        metadata = self._extract_metadata_fast(citation.citation, text, citation.start_index)
+        start_pos = citation.start_index or 0
+        metadata = self._extract_metadata_fast(citation.citation, text, start_pos)
         
         # Update citation with metadata
         if 'extracted_case_name' in metadata:
@@ -414,15 +419,17 @@ class OptimizedCitationClusterer(ICitationClusterer):
     
     def _detect_parallel_optimized(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
         """Optimized parallel citation detection."""
-        # Group citations by proximity (citations within 200 characters)
-        proximity_groups = self._group_by_proximity(citations, max_distance=200)
+        # Sort citations by position
+        sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         
-        # Process each proximity group
-        for group in proximity_groups:
-            if len(group) > 1:
-                self._detect_parallels_in_group(group, text)
+        # Group by proximity
+        groups = self._group_by_proximity(sorted_citations, max_distance=100)
         
-        return citations
+        # Detect parallels in each group
+        for group in groups:
+            self._detect_parallels_in_group(group, text)
+        
+        return sorted_citations
     
     def _group_by_proximity(self, citations: List[CitationResult], max_distance: int) -> List[List[CitationResult]]:
         """Group citations by proximity in text."""
@@ -430,7 +437,7 @@ class OptimizedCitationClusterer(ICitationClusterer):
             return []
         
         # Sort by position
-        sorted_citations = sorted(citations, key=lambda x: x.start_index)
+        sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         
         groups = []
         current_group = [sorted_citations[0]]
@@ -440,7 +447,9 @@ class OptimizedCitationClusterer(ICitationClusterer):
             last_citation = current_group[-1]
             
             # Check if citations are within proximity
-            distance = current_citation.start_index - last_citation.end_index
+            current_start = current_citation.start_index or 0
+            last_end = last_citation.end_index or 0
+            distance = current_start - last_end
             
             if distance <= max_distance:
                 current_group.append(current_citation)
@@ -453,9 +462,15 @@ class OptimizedCitationClusterer(ICitationClusterer):
     
     def _detect_parallels_in_group(self, group: List[CitationResult], text: str) -> None:
         """Detect parallel citations within a proximity group."""
-        # Extract the text span covering the group
-        start_pos = min(c.start_index for c in group) - 50
-        end_pos = max(c.end_index for c in group) + 50
+        # Get text range for this group
+        start_positions = [c.start_index for c in group if c.start_index is not None]
+        end_positions = [c.end_index for c in group if c.end_index is not None]
+        
+        if not start_positions or not end_positions:
+            return
+            
+        start_pos = min(start_positions) - 50
+        end_pos = max(end_positions) + 50
         group_text = text[max(0, start_pos):min(len(text), end_pos)]
         
         # Look for patterns indicating parallel citations

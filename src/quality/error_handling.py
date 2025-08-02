@@ -20,9 +20,9 @@ import json
 class CaseStrainerError(Exception):
     """Base exception for all CaseStrainer errors."""
     
-    def __init__(self, message: str, error_code: str = None, details: Dict[str, Any] = None):
+    def __init__(self, message: str, error_code: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
         super().__init__(message)
-        self.message = message
+        self.message = message or ""
         self.error_code = error_code or self.__class__.__name__
         self.details = details or {}
         self.timestamp = time.time()
@@ -56,15 +56,15 @@ class CitationClusteringError(CaseStrainerError):
 class APIError(CaseStrainerError):
     """Errors related to external API calls."""
     
-    def __init__(self, message: str, api_name: str, status_code: int = None, response_data: Any = None):
+    def __init__(self, message: str, api_name: str, status_code: Optional[int] = None, response_data: Optional[Any] = None):
         super().__init__(message, f"API_{api_name.upper()}_ERROR")
-        self.api_name = api_name
-        self.status_code = status_code
+        self.api_name = api_name or ""
+        self.status_code = status_code if status_code is not None else 0
         self.response_data = response_data
         self.details.update({
-            'api_name': api_name,
-            'status_code': status_code,
-            'response_data': response_data
+            'api_name': self.api_name,
+            'status_code': self.status_code,
+            'response_data': self.response_data
         })
 
 
@@ -86,10 +86,10 @@ class CacheError(CaseStrainerError):
 class RateLimitError(CaseStrainerError):
     """Errors related to rate limiting."""
     
-    def __init__(self, message: str, retry_after: float = None):
+    def __init__(self, message: str, retry_after: Optional[float] = None):
         super().__init__(message, "RATE_LIMIT_ERROR")
-        self.retry_after = retry_after
-        self.details['retry_after'] = retry_after
+        self.retry_after = retry_after if retry_after is not None else 0.0
+        self.details['retry_after'] = self.retry_after
 
 
 class ErrorSeverity(Enum):
@@ -104,7 +104,7 @@ class ErrorSeverity(Enum):
 class ErrorContext:
     """Context information for error tracking."""
     operation: str
-    input_data: Any = None
+    input_data: Optional[Any] = None
     user_id: Optional[str] = None
     session_id: Optional[str] = None
     request_id: Optional[str] = None
@@ -119,12 +119,12 @@ class ErrorTracker:
         self.error_counts: Dict[str, int] = {}
         self.logger = logging.getLogger(__name__)
     
-    def record_error(self, error: Exception, context: ErrorContext = None, severity: ErrorSeverity = ErrorSeverity.MEDIUM):
+    def record_error(self, error: Exception, context: Optional[ErrorContext] = None, severity: ErrorSeverity = ErrorSeverity.MEDIUM):
         """Record an error with context."""
         error_data = {
             'timestamp': time.time(),
             'error_type': type(error).__name__,
-            'message': str(error),
+            'message': str(error) if error is not None else "",
             'severity': severity.value,
             'traceback': traceback.format_exc(),
             'context': context.additional_context if context else {}
@@ -222,9 +222,9 @@ error_tracker = ErrorTracker()
 def handle_errors(
     operation: str,
     reraise: bool = True,
-    default_return: Any = None,
+    default_return: Optional[Any] = None,
     severity: ErrorSeverity = ErrorSeverity.MEDIUM,
-    context_data: Dict[str, Any] = None
+    context_data: Optional[Dict[str, Any]] = None
 ):
     """
     Decorator for comprehensive error handling.
@@ -240,7 +240,7 @@ def handle_errors(
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             context = ErrorContext(
-                operation=operation,
+                operation=operation or "",
                 input_data=args[1] if len(args) > 1 else None,  # Assume second arg is input
                 additional_context=context_data or {}
             )
@@ -258,7 +258,7 @@ def handle_errors(
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             context = ErrorContext(
-                operation=operation,
+                operation=operation or "",
                 input_data=args[1] if len(args) > 1 else None,
                 additional_context=context_data or {}
             )
@@ -302,7 +302,7 @@ def retry_on_error(
     def decorator(func: Callable):
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
-            last_exception = None
+            last_exception: Optional[Exception] = None
             current_delay = delay
             
             for attempt in range(max_retries + 1):
@@ -318,7 +318,10 @@ def retry_on_error(
                             additional_context={'attempts': attempt + 1, 'max_retries': max_retries}
                         )
                         error_tracker.record_error(e, context, ErrorSeverity.HIGH)
-                        raise
+                        if last_exception is not None:
+                            raise last_exception
+                        else:
+                            raise Exception("Unknown error in retry_on_error")
                     
                     # Log retry attempt
                     logging.warning(f"Attempt {attempt + 1} failed for {operation}: {e}. Retrying in {current_delay}s...")
@@ -332,13 +335,14 @@ def retry_on_error(
                     )
                     error_tracker.record_error(e, context, ErrorSeverity.HIGH)
                     raise
-            
-            # Should never reach here
-            raise last_exception
+            if last_exception is not None:
+                raise last_exception
+            else:
+                raise Exception("Unknown error in retry_on_error")
         
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
-            last_exception = None
+            last_exception: Optional[Exception] = None
             current_delay = delay
             
             for attempt in range(max_retries + 1):
@@ -354,7 +358,10 @@ def retry_on_error(
                             additional_context={'attempts': attempt + 1, 'max_retries': max_retries}
                         )
                         error_tracker.record_error(e, context, ErrorSeverity.HIGH)
-                        raise
+                        if last_exception is not None:
+                            raise last_exception
+                        else:
+                            raise Exception("Unknown error in retry_on_error")
                     
                     # Log retry attempt
                     logging.warning(f"Attempt {attempt + 1} failed for {operation}: {e}. Retrying in {current_delay}s...")
@@ -368,9 +375,10 @@ def retry_on_error(
                     )
                     error_tracker.record_error(e, context, ErrorSeverity.HIGH)
                     raise
-            
-            # Should never reach here
-            raise last_exception
+            if last_exception is not None:
+                raise last_exception
+            else:
+                raise Exception("Unknown error in retry_on_error")
         
         # Return appropriate wrapper based on function type
         if asyncio.iscoroutinefunction(func):
@@ -399,7 +407,7 @@ class LoggingConfig:
     @staticmethod
     def setup_logging(
         level: str = "INFO",
-        format_string: str = None,
+        format_string: Optional[str] = None,
         enable_file_logging: bool = True,
         log_file: str = "casestrainer.log",
         enable_json_logging: bool = False

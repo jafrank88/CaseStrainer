@@ -4,9 +4,13 @@ Combines the enhanced case extraction patterns with the new streamlined core
 """
 
 import re
-from typing import List, Dict, Optional, NamedTuple
+import logging
+from typing import List, Dict, Optional, NamedTuple, Any
 from dataclasses import dataclass
 from datetime import datetime
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Import the streamlined extractor
 from case_name_extraction_core import (
@@ -333,7 +337,9 @@ class LegalCaseExtractorIntegrated:
             # Check if this extraction overlaps with any existing one
             overlaps = False
             for existing in deduplicated:
-                if (extraction.start_pos < existing.end_pos and 
+                if (extraction.start_pos is not None and existing.end_pos is not None and
+                    extraction.end_pos is not None and existing.start_pos is not None and
+                    extraction.start_pos < existing.end_pos and 
                     extraction.end_pos > existing.start_pos):
                     overlaps = True
                     break
@@ -343,7 +349,7 @@ class LegalCaseExtractorIntegrated:
         
         return deduplicated
     
-    def get_extraction_stats(self, extractions: List[CaseExtraction]) -> Dict[str, any]:
+    def get_extraction_stats(self, extractions: List[CaseExtraction]) -> Dict[str, Any]:
         """Get comprehensive statistics about extractions"""
         if not extractions:
             return {

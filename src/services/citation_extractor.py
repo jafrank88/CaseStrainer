@@ -29,31 +29,48 @@ except ImportError as e:
     logger.warning(f"Eyecite not available - install with: pip install eyecite. Error: {e}")
 
 # Optional adaptive learning import
+ADAPTIVE_LEARNING_AVAILABLE = False
+AdaptiveLearningService = None  # type: ignore
+create_adaptive_learning_service = None  # type: ignore
+
 try:
-    from .adaptive_learning_service import AdaptiveLearningService, create_adaptive_learning_service
+    from .adaptive_learning_service import AdaptiveLearningService as ImportedAdaptiveLearningService, create_adaptive_learning_service as imported_create_service
     ADAPTIVE_LEARNING_AVAILABLE = True
+    AdaptiveLearningService = ImportedAdaptiveLearningService  # type: ignore
+    create_adaptive_learning_service = imported_create_service  # type: ignore
     logger.info("Adaptive learning service available for CitationExtractor")
 except ImportError as e:
-    ADAPTIVE_LEARNING_AVAILABLE = False
     logger.info("Adaptive learning service not available - using basic extraction only")
     # Create dummy classes for when adaptive learning is not available
-    class AdaptiveLearningService:
+    class AdaptiveLearningService:  # type: ignore
         def __init__(self, *args, **kwargs):
             pass
         def is_enabled(self):
             return False
-        def enhance_citation_extraction(self, *args, **kwargs):
+        def enhance_citation_extraction(self, *args, **kwargs):  # type: ignore
             from dataclasses import dataclass
             @dataclass
             class DummyResult:
-                improved_citations: List = None
-                learned_patterns: List = None
-                confidence_adjustments: Dict = None
-                case_name_mappings: Dict = None
-                performance_metrics: Dict = None
-            return DummyResult([], [], {}, {}, {})
+                improved_citations: Optional[List[Any]] = None
+                learned_patterns: Optional[List[Any]] = None
+                confidence_adjustments: Optional[Dict[str, Any]] = None
+                case_name_mappings: Optional[Dict[str, Any]] = None
+                performance_metrics: Optional[Dict[str, Any]] = None
+                
+                def __post_init__(self):
+                    if self.improved_citations is None:
+                        self.improved_citations = []
+                    if self.learned_patterns is None:
+                        self.learned_patterns = []
+                    if self.confidence_adjustments is None:
+                        self.confidence_adjustments = {}
+                    if self.case_name_mappings is None:
+                        self.case_name_mappings = {}
+                    if self.performance_metrics is None:
+                        self.performance_metrics = {}
+            return DummyResult(improved_citations=[], learned_patterns=[], confidence_adjustments={}, case_name_mappings={}, performance_metrics={})
     
-    def create_adaptive_learning_service(*args, **kwargs):
+    def create_adaptive_learning_service(*args, **kwargs):  # type: ignore
         return AdaptiveLearningService()
 
 
@@ -73,23 +90,41 @@ class CitationExtractor(ICitationExtractor):
         self.config = config or {}
         self.logger = logging.getLogger(__name__)
         self.reporters = self._load_reporters()
+        self.citation_pattern = None  # Will be initialized in _init_patterns
         self._init_patterns()
         self._init_case_name_patterns()
         self._init_date_patterns()
         
         # Initialize adaptive learning service if available
         self.adaptive_learning = None
-        if ADAPTIVE_LEARNING_AVAILABLE and getattr(self.config, 'enable_adaptive_learning', True):
+        if ADAPTIVE_LEARNING_AVAILABLE and self.config.get('enable_adaptive_learning', True):
             try:
                 self.adaptive_learning = create_adaptive_learning_service()
-                if self.config.debug_mode:
+                if self.config.get('debug_mode', False):
                     logger.info(f"Adaptive learning enabled: {self.adaptive_learning.is_enabled()}")
             except Exception as e:
                 logger.warning(f"Failed to initialize adaptive learning: {e}")
                 self.adaptive_learning = None
         
-        if self.config.debug_mode:
+        if self.config.get('debug_mode', False):
             logger.info(f"CitationExtractor initialized with eyecite: {EYECITE_AVAILABLE}, adaptive learning: {self.adaptive_learning is not None}")
+    
+    def _load_reporters(self) -> List[Dict[str, Any]]:
+        """Load reporter patterns from the data file."""
+        try:
+            reporters_file = Path(__file__).parent / "data" / "reporters.json"
+            if reporters_file.exists():
+                with open(reporters_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    reporters = data.get('reporters', [])
+                self.logger.info(f"Loaded {len(reporters)} reporter patterns")
+                return reporters
+            else:
+                self.logger.warning(f"Reporters file not found: {reporters_file}")
+                return []
+        except Exception as e:
+            self.logger.error(f"Error loading reporters: {e}")
+            return []
     
     def _init_patterns(self) -> None:
         """Initialize citation patterns from loaded reporter data."""
@@ -246,7 +281,7 @@ class CitationExtractor(ICitationExtractor):
         citations.extend(regex_citations)
         
         # Method 2: Eyecite extraction (if available)
-        if EYECITE_AVAILABLE and self.config.use_eyecite:
+        if EYECITE_AVAILABLE and self.config.get('use_eyecite', True):
             eyecite_citations = self._extract_with_eyecite(text)
             citations.extend(eyecite_citations)
         
@@ -265,17 +300,21 @@ class CitationExtractor(ICitationExtractor):
                 )
                 
                 # Use improved citations from adaptive learning
-                citations = adaptive_result.improved_citations
+                improved_citations = adaptive_result.improved_citations
+                if improved_citations is not None:
+                    citations = improved_citations
                 
                 # Log learning information if in debug mode
-                if self.config.debug_mode:
-                    logger.info(f"Adaptive learning found {len(adaptive_result.learned_patterns)} new patterns")
-                    logger.info(f"Confidence adjustments: {len(adaptive_result.confidence_adjustments)}")
+                if self.config.get('debug_mode', False):
+                    learned_patterns = adaptive_result.learned_patterns or []
+                    confidence_adjustments = adaptive_result.confidence_adjustments or {}
+                    logger.info(f"Adaptive learning found {len(learned_patterns)} new patterns")
+                    logger.info(f"Confidence adjustments: {len(confidence_adjustments)}")
                     
             except Exception as e:
                 logger.warning(f"Error in adaptive learning enhancement: {e}")
         
-        if self.config.debug_mode:
+        if self.config.get('debug_mode', False):
             logger.info(f"CitationExtractor found {len(citations)} citations (with adaptive learning: {self.adaptive_learning is not None})")
         
         return citations
@@ -319,16 +358,16 @@ class CitationExtractor(ICitationExtractor):
         """Extract citations using regex patterns."""
         citations = []
         
-        if self.config.debug_mode:
+        if self.config.get('debug_mode', False):
             logger.info(f"Extracting citations from text with length: {len(text)}")
         
-        for match in self.citation_pattern.finditer(text):
+        for match in self.patterns['all'].finditer(text):
             # Get the full match (group 0 is the entire match)
             citation_text = match.group(0).strip()
             start_index = match.start(0)
             end_index = match.end(0)
             
-            if self.config.debug_mode:
+            if self.config.get('debug_mode', False):
                 logger.info(f"Found citation: {citation_text} at position {start_index}-{end_index}")
             
             # Create CitationResult
@@ -343,7 +382,7 @@ class CitationExtractor(ICitationExtractor):
             
             citations.append(citation)
         
-        if self.config.debug_mode:
+        if self.config.get('debug_mode', False):
             logger.info(f"Extracted {len(citations)} citations using regex")
         
         return citations

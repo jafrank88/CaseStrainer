@@ -47,28 +47,28 @@ class EnhancedCaseNameExtractor:
     def __init__(self):
         # Comprehensive case name patterns
         self.patterns = [
-            # Standard: Name v. Name
-            r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
-            r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
+            # Standard: Name v. Name with optional year in parentheses
+            r'([A-Z][A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Z][A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
+            r'([A-Z][A-Za-z\s,\.\'-]+?\s+vs\.\s+[A-Z][A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
             
             # Department cases
             r'(Dep\'t\s+of\s+[A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
             r'(Department\s+of\s+[A-Za-z\s,\.\'-]+?\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
             
-            # Government cases
-            r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
-            r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
-            r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
+            # Government cases with optional year in parentheses
+            r'(State\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
+            r'(People\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
+            r'(United\s+States\s+v\.\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
             
-            # In re cases
-            r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
-            r'(Matter\s+of\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
+            # In re cases with optional year in parentheses
+            r'(In\s+re\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
+            r'(Matter\s+of\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
             
-            # Estate cases
-            r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
+            # Estate cases with optional year in parentheses
+            r'(Estate\s+of\s+[A-Za-z\s,\.\'-]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
             
-            # Corporate cases
-            r'([A-Z][A-Za-z\s,&\.]*(?:Inc\.|LLC|Corp\.|Co\.|Ltd\.)\s+v\.\s+[A-Za-z\s,&\.]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(|\s*$)',
+            # Corporate cases with optional year in parentheses
+            r'([A-Z][A-Za-z\s,&\.]*(?:Inc\.|LLC|Corp\.|Co\.|Ltd\.)\s+v\.\s+[A-Za-z\s,&\.]+?)(?=\s*[,;]|\s*\d+\s+[A-Z]|\s*\(\d{4}\)|\s*$)',
         ]
         
         # Signal words to avoid

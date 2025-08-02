@@ -553,6 +553,9 @@ class UnifiedCacheManager:
     
     def _set_in_redis(self, cache_type: str, key: str, data: Any, ttl: int) -> bool:
         """Set data in Redis with TTL."""
+        if not self.redis_client:
+            logger.warning("Redis client not available for cache set")
+            return False
         try:
             redis_key = self._get_redis_key(cache_type, key)
             compressed_data = self._compress_data(data)

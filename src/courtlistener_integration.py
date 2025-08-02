@@ -247,8 +247,7 @@ def search_citation(
                         lookup_url,
                         data={"text": citation},
                         headers=headers,
-                        timeout=10
-                    , timeout=30)
+                        timeout=30)
 
                     if response.status_code == 200:
                         data = response.json()

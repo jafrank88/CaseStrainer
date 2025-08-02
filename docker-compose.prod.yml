@@ -8,20 +8,17 @@ services:
     volumes:
       - redis_data_prod:/data
     restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=***REDACTED_REDIS_PASSWORD***
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 3
+      start_period: 30s
     networks:
       - app-network
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
+    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379", "--requirepass", "***REDACTED_REDIS_PASSWORD***", "--appendonly", "yes"]
 
   # Application Layer
   backend:
@@ -29,18 +26,16 @@ services:
     container_name: casestrainer-backend-prod
     command: waitress-serve --host=0.0.0.0 --port=5000 src.app_final_vue:app
     ports:
-      - "5001:5000"
+      - "5000:5000"
     depends_on:
       redis:
         condition: service_healthy
-    env_file:
-      - .env.production
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
       - FLASK_ENV=production
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
-      - LOG_LEVEL_CASE_NAME_EXTRACTION=${LOG_LEVEL_CASE_NAME_EXTRACTION:-WARNING}
+      - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
     volumes:
       - ./data:/app/data
@@ -76,7 +71,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
@@ -116,7 +111,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
@@ -156,7 +151,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
@@ -230,7 +225,7 @@ services:
       - backend
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80/casestrainer/api/health || exit 1"]
       interval: 60s
       timeout: 30s
       retries: 8

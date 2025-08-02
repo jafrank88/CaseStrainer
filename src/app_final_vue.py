@@ -8,17 +8,28 @@ import os
 import sys
 import signal
 import threading
+import traceback
 from pathlib import Path
 from typing import Callable, Any, Union, Optional
 
-from flask import Flask
+from flask import Flask, request, json, Response, send_file, send_from_directory, abort, redirect, url_for, make_response, jsonify
 import argparse
 from datetime import datetime
 
-# Add the project root to the Python path
+# Add the project root and src directory to the Python path
 project_root = Path(__file__).parent.parent.resolve()
+src_dir = project_root / 'src'
+
+# Add project root to Python path if not already present
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
+
+# Add src directory to Python path if not already present
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
+# Print debug information
+print(f"Python path: {sys.path}", file=sys.stderr)
 
 from src.case_name_extraction_core import extract_case_name_and_date
 # Import rate limiter
@@ -230,7 +241,7 @@ class ConfigManager:
             self.logger.error(f"Failed to import config module: {e}")
             raise ApplicationError(f"Configuration loading failed: {e}")
     
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Optional[Any] = None) -> Any:
         """Get configuration value with dot notation support"""
         keys = key.split('.')
         value = self._config
@@ -494,33 +505,55 @@ class ApplicationFactory:
     
     def _register_blueprints(self, app: Any) -> None:
         """Register application blueprints with proper error handling"""
-        # Register blueprints
-        self.logger.info("Starting blueprint registration...")
+        self.logger.info("=== STARTING BLUEPRINT REGISTRATION ===")
+        
+        # Log current working directory and Python path
+        self.logger.info(f"Current working directory: {os.getcwd()}")
+        self.logger.info(f"Python path: {sys.path}")
         
         try:
-            # Register main production API endpoints
-            self.logger.info("Attempting to import vue_api_endpoints...")
-            from src.vue_api_endpoints import vue_api
-            self.logger.info("vue_api_endpoints imported successfully")
+            # Register blueprints using the centralized registration
+            from src.api.blueprints import register_blueprints
+            app = register_blueprints(app)
+            self.logger.info("✅ Successfully registered all blueprints")
             
-            app.register_blueprint(vue_api, url_prefix='/casestrainer/api')
-            self.logger.info("Vue API blueprint registered successfully - PRODUCTION API ACTIVE")
-            return  # Exit early if successful
+            # Verify Vue API registration
+            if 'vue_api' in app.blueprints:
+                self.logger.info("✅ Vue API blueprint registered successfully")
+            else:
+                self.logger.warning("❌ Vue API blueprint not found in registered blueprints")
+            
+            # Log all registered blueprints
+            self.logger.info("=== REGISTERED BLUEPRINTS ===")
+            for name, blueprint in app.blueprints.items():
+                self.logger.info(f"- {name}: {blueprint}")
+                self.logger.info(f"  - URL Prefix: {getattr(blueprint, 'url_prefix', 'N/A')}")
+                self.logger.info(f"  - Import Name: {getattr(blueprint, 'import_name', 'N/A')}")
+            
+            # Log all registered routes
+            self.logger.info("\n=== REGISTERED ROUTES ===")
+            for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
+                self.logger.info(f"- {rule.endpoint}: {rule.rule} ({', '.join(rule.methods)})")
             
         except Exception as e:
-            self.logger.error(f"CRITICAL: Could not register Vue API: {e}")
-            import traceback
-            self.logger.error(f"Vue API import traceback: {traceback.format_exc()}")
+            self.logger.error(f"❌ Error registering blueprints: {e}", exc_info=True)
             
-            # Fallback to debug API (remove development mode restriction for troubleshooting)
-            self.logger.warning("Falling back to debug API due to Vue API failure")
+            # Fall back to debug API if registration fails
             try:
+                self.logger.warning("Falling back to debug API...")
                 from src.debug_test_api import debug_api
                 app.register_blueprint(debug_api, url_prefix='/casestrainer/api')
-                self.logger.warning("Debug API registered as fallback - THIS SHOULD NOT HAPPEN IN PRODUCTION")
+                self.logger.warning("⚠️  Debug API registered as fallback - THIS SHOULD NOT HAPPEN IN PRODUCTION")
+                
+                # Log debug API registration
+                self.logger.info("=== DEBUG API REGISTERED ===")
+                for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
+                    if 'debug_api' in rule.endpoint:
+                        self.logger.info(f"- {rule.endpoint}: {rule.rule} ({', '.join(rule.methods)})")
+                        
             except Exception as e2:
-                self.logger.critical(f"FATAL: Could not register any API endpoints: {e2}")
-                raise RuntimeError(f"No API endpoints could be registered: Vue API failed with {e}, Debug API failed with {e2}")
+                self.logger.critical(f"❌ FATAL: Could not register any API endpoints: {e2}")
+                raise RuntimeError(f"No API endpoints could be registered: {e}, Debug API failed with {e2}")
 
     def _configure_cors(self, app: Any) -> None:
         """Configure CORS with security considerations"""
@@ -558,12 +591,42 @@ class ApplicationFactory:
         @app.route('/test')
         def test() -> str:
             return 'Test route is working!'
+            
+        # Temporary route to list all registered routes for debugging
+        @app.route('/casestrainer/api/routes')
+        def list_routes():
+            """List all registered routes in the application"""
+            try:
+                output = []
+                for rule in app.url_map.iter_rules():
+                    if 'static' in rule.endpoint:
+                        continue
+                    output.append({
+                        'endpoint': rule.endpoint,
+                        'methods': sorted(rule.methods - {'OPTIONS', 'HEAD'}),
+                        'path': str(rule),
+                        'arguments': [str(arg) for arg in rule.arguments]
+                    })
+                return jsonify({
+                    'status': 'success',
+                    'routes': output
+                })
+            except Exception as e:
+                return jsonify({
+                    'status': 'error',
+                    'error': str(e),
+                    'traceback': traceback.format_exc()
+                }), 500
         
         self.logger.info("Application routes registered")
         # Log all registered routes for debugging
         self.logger.info("=== REGISTERED ROUTES ===")
         for rule in app.url_map.iter_rules():
             self.logger.info(f"Route: {rule} -> Endpoint: {rule.endpoint}")
+            
+            # Log debug route registration
+            if 'debug' in rule.endpoint or 'api' in str(rule):
+                self.logger.info(f"DEBUG ROUTE: {rule} -> {rule.endpoint} (methods: {rule.methods})")
     
     def _serve_static_file(self, path: str) -> Any:
         """Serve static files with enhanced security and caching"""

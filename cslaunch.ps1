@@ -943,101 +943,160 @@ function Wait-ForServices {
     [CmdletBinding()]
     [OutputType([bool])]
     param(
-        [int]$TimeoutMinutes = 5
+        [int]$TimeoutMinutes = 10  # Increased default timeout to 10 minutes
     )
-
-    Write-Host "`nWaiting for services to initialize..." -ForegroundColor Yellow
-    $timeout = (Get-Date).AddMinutes($TimeoutMinutes)
+    
+    $startTime = Get-Date
+    $timeout = New-TimeSpan -Minutes $TimeoutMinutes
     $attempt = 0
-
-    while ((Get-Date) -lt $timeout) {
-        $attempt++
-        Start-Sleep -Seconds 10
-
+    $consecutiveHealthyChecks = 0
+    $requiredConsecutiveChecks = 2  # Require 2 consecutive healthy checks
+    
+    # Initialize status tracking
+    if (-not $script:lastStatus) {
+        $script:lastStatus = @{}
+    }
+    
+    Write-Host "`nWaiting for services to become healthy (timeout: $TimeoutMinutes minutes, requires $requiredConsecutiveChecks consecutive healthy checks)..." -ForegroundColor Cyan
+    
+    function Get-Container-Status {
+        param([string]$containerName)
         try {
-            # Enhanced health checks with individual service status
-            $allHealthy = $true
-            $healthResults = @()
-
-            # Backend API health check using direct HTTP request
-            try {
-                $backendUrl = "http://localhost:5000/casestrainer/api/health"
-                $response = Invoke-WebRequest -Uri $backendUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
-                
-                if ($response.StatusCode -eq 200) {
-                    $healthData = $response.Content | ConvertFrom-Json -ErrorAction SilentlyContinue
-                    if ($healthData.status -eq 'healthy') {
-                        $healthResults += "Backend: HEALTHY"
-                    } else {
-                        $healthResults += "Backend: $($healthData.status)"
-                        $allHealthy = $false
-                    }
+            $status = docker inspect -f '{{.State.Health.Status}}' $containerName 2>$null
+            if ($LASTEXITCODE -ne 0 -or -not $status) {
+                return @{ Status = 'UNKNOWN'; IsHealthy = $false }
+            }
+            return @{ Status = $status; IsHealthy = ($status -eq 'healthy') }
+        } catch {
+            Write-Verbose "Error checking $containerName status: $_"
+            return @{ Status = 'ERROR'; IsHealthy = $false }
+        }
+    }
+    
+    function Get-Container-Logs {
+        param([string]$containerName, [int]$lines = 20)
+        try {
+            return docker logs --tail $lines $containerName 2>&1 | Out-String
+        } catch {
+            return "Failed to retrieve logs: $_"
+        }
+    }
+    
+    while ((Get-Date) - $startTime -lt $timeout) {
+        $attempt++
+        $healthResults = @()
+        $allHealthy = $true
+        $currentStatus = @{}
+        
+        try {
+            # Backend health check
+            $backend = Get-Container-Status 'casestrainer-backend-prod'
+            $currentStatus.Backend = $backend
+            if (-not $backend.IsHealthy) {
+                $healthResults += "Backend: $($backend.Status)"
+                $allHealthy = $false
+                Write-Verbose "Backend logs: $(Get-Container-Logs 'casestrainer-backend-prod' 10)"
+            } else {
+                $healthResults += "Backend: HEALTHY"
+            }
+            
+            # Redis health check
+            $redis = Get-Container-Status 'casestrainer-redis-prod'
+            $currentStatus.Redis = $redis
+            if (-not $redis.IsHealthy) {
+                $healthResults += "Redis: $($redis.Status)"
+                $allHealthy = $false
+                if ($redis.Status -eq 'starting') {
+                    Write-Verbose "Redis is still starting up..."
                 } else {
-                    $healthResults += "Backend: HTTP $($response.StatusCode)"
-                    $allHealthy = $false
+                    Write-Verbose "Redis logs: $(Get-Container-Logs 'casestrainer-redis-prod' 10)"
                 }
-            } catch [System.Net.WebException] {
-                $statusCode = [int]$_.Exception.Response.StatusCode
-                $healthResults += "Backend: HTTP $statusCode"
-                $allHealthy = $false
-                Write-Host "Backend health check error: $($_.Exception.Message)" -ForegroundColor Gray
-            } catch {
-                $healthResults += "Backend: ERROR"
-                $allHealthy = $false
-                Write-Host "Backend health check error: $($_.Exception.Message)" -ForegroundColor Gray
+            } else {
+                $healthResults += "Redis: HEALTHY"
             }
 
-            # Redis health check using container health status
-            try {
-                $redisStatus = docker inspect -f '{{.State.Health.Status}}' casestrainer-redis-prod 2>$null
-                if ($LASTEXITCODE -ne 0 -or -not $redisStatus) {
-                    $healthResults += "Redis: UNKNOWN"
-                    $allHealthy = $false
-                } elseif ($redisStatus -ne 'healthy') {
-                    $healthResults += "Redis: $redisStatus"
-                    $allHealthy = $false
-                } else {
-                    $healthResults += "Redis: HEALTHY"
-                }
-            } catch {
-                $healthResults += "Redis: ERROR"
+            # RQ Worker health check
+            $worker = Get-Container-Status 'casestrainer-rqworker-prod'
+            $currentStatus.Worker = $worker
+            if (-not $worker.IsHealthy) {
+                $healthResults += "Worker: $($worker.Status)"
                 $allHealthy = $false
-                Write-Host "Redis health check error: $($_.Exception.Message)" -ForegroundColor Gray
+                if ($worker.Status -eq 'starting') {
+                    Write-Verbose "Worker is still starting up..."
+                } else {
+                    Write-Verbose "Worker logs: $(Get-Container-Logs 'casestrainer-rqworker-prod' 20)"
+                }
+            } else {
+                $healthResults += "Worker: HEALTHY"
             }
 
-            # RQ Worker health check using container health status
-            try {
-                $workerStatus = docker inspect -f '{{.State.Health.Status}}' casestrainer-rqworker-prod 2>$null
-                if ($LASTEXITCODE -ne 0 -or -not $workerStatus) {
-                    $healthResults += "Worker: UNKNOWN"
-                    $allHealthy = $false
-                } elseif ($workerStatus -ne 'healthy') {
-                    $healthResults += "Worker: $workerStatus"
-                    $allHealthy = $false
-                } else {
-                    $healthResults += "Worker: HEALTHY"
+            # Check for no change in status (potential hang)
+            $statusChanged = $false
+            foreach ($key in $currentStatus.Keys) {
+                if (-not $script:lastStatus.ContainsKey($key) -or $script:lastStatus[$key].Status -ne $currentStatus[$key].Status) {
+                    $statusChanged = $true
+                    break
                 }
-            } catch {
-                $healthResults += "Worker: ERROR"
-                $allHealthy = $false
-                Write-Host "Worker health check error: $($_.Exception.Message)" -ForegroundColor Gray
             }
+            
+            if (-not $statusChanged -and $attempt -gt 1) {
+                Write-Host "No status change detected, waiting..." -ForegroundColor Gray
+            }
+            
+            $script:lastStatus = $currentStatus
 
             if ($allHealthy) {
-                Write-Host "OK All services are ready" -ForegroundColor Green
-                Write-Host "  $($healthResults -join ', ')" -ForegroundColor Gray
-                return $true
+                $consecutiveHealthyChecks++
+                if ($consecutiveHealthyChecks -ge $requiredConsecutiveChecks) {
+                    Write-Host "✅ All services are ready and stable" -ForegroundColor Green
+                    Write-Host "  $($healthResults -join ', ')" -ForegroundColor Gray
+                    
+                    # Final verification of API endpoint
+                    try {
+                        $apiUrl = "http://localhost:5000/casestrainer/api/health"
+                        $response = Invoke-WebRequest -Uri $apiUrl -UseBasicParsing -TimeoutSec 10
+                        if ($response.StatusCode -eq 200) {
+                            Write-Host "✅ API endpoint is responding: $($response.Content.Trim())" -ForegroundColor Green
+                            return $true
+                        } else {
+                            Write-Host "⚠️  API returned status code: $($response.StatusCode)" -ForegroundColor Yellow
+                        }
+                    } catch {
+                        Write-Host "⚠️  API endpoint verification failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                    }
+                    
+                    # If we got here, the API check failed but services report healthy
+                    # We'll continue waiting in case the API needs more time
+                    $allHealthy = $false
+                    Start-Sleep -Seconds 5
+                    continue
+                } else {
+                    Write-Host "✅ All services report healthy ($consecutiveHealthyChecks/$requiredConsecutiveChecks)..." -ForegroundColor Green
+                }
             } else {
-                Write-Host "Services not ready (attempt $attempt): $($healthResults -join ', ')" -ForegroundColor Yellow
+                $consecutiveHealthyChecks = 0  # Reset counter if any service is unhealthy
+                Write-Host "Services not ready (attempt $($attempt), elapsed: $([math]::Round(((Get-Date) - $startTime).TotalSeconds))s): $($healthResults -join ', ')" -ForegroundColor Yellow
+            }
+            
+            # Only sleep if we need to check again
+            if ((Get-Date) - $startTime -lt $timeout -and $consecutiveHealthyChecks -lt $requiredConsecutiveChecks) {
+                Start-Sleep -Seconds 5
             }
         }
         catch {
             Write-Host "Health check attempt $attempt failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            Start-Sleep -Seconds 5
         }
     }
 
+    # If we get here, we timed out
     Write-Host "WARNING: Timeout waiting for services after $TimeoutMinutes minutes" -ForegroundColor Yellow
     Write-Host "Final status: $($healthResults -join ', ')" -ForegroundColor Yellow
+    
+    # Show container statuses one last time
+    Write-Host "`nContainer statuses:" -ForegroundColor Yellow
+    docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | Out-Host
+    
     return $false
 }
 
@@ -1127,7 +1186,7 @@ function Test-APIFunctionality {
                     text = "The court in Smith v. Jones, $TestCitation held that..."
                 } | ConvertTo-Json -Depth 10
 
-                $testResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
+                $testResponse = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
 
                 if ($testResponse.StatusCode -eq 200) {
                     $result = $testResponse.Content | ConvertFrom-Json
@@ -1963,7 +2022,7 @@ function Test-PostStartupValidation {
                     text = "The court in Smith v. Jones, 123 U.S. 456 (2020) held that..."
                 } | ConvertTo-Json
 
-                $testResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
+                $testResponse = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
 
                 if ($testResponse.StatusCode -eq 200) {
                     $result = $testResponse.Content | ConvertFrom-Json
@@ -2923,28 +2982,8 @@ finally {
     Stop-AllMonitoring
 }
 
-# === Run backend and verify with test suite (with enhanced logging) ===
-Write-Host "\n[CaseStrainer] Running production server test suite..." -ForegroundColor Cyan
-
-# Log file for test output
-$testLogFile = Join-Path $PSScriptRoot "logs\production_test.log"
-$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-Add-Content -Path $testLogFile -Value "`n[$timestamp] === Test Run Start ==="
-
-# Run pytest and capture output
-$testResult = & python -m pytest test_production_server.py 2>&1 | Tee-Object -FilePath $testLogFile -Append
-Write-Host $testResult
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n❌ [CaseStrainer] Test suite failed! Please check the output above and logs/production_test.log for details." -ForegroundColor Red
-    # Optionally, print the last 20 lines of the log for quick review
-    Write-Host "`n--- Last 20 lines of test log ---" -ForegroundColor Yellow
-    Get-Content $testLogFile -Tail 20
-    exit 1
-} else {
-    Write-Host "`n✅ [CaseStrainer] All production server tests passed!" -ForegroundColor Green
-    Add-Content -Path $testLogFile -Value "[$timestamp] === Test Run Success ==="
-}
+# Test execution is now handled within the menu options and mode handlers
+# No duplicate test execution needed at the end of the script
 
 # --- Nginx Config Templating for Docker Compose Production ---
 # Ensure BACKEND_SERVICE_NAME is set and template the Nginx config before starting containers

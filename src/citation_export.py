@@ -14,7 +14,7 @@ import json
 import csv
 import datetime
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, Union, Sequence
 from pathlib import Path
 
 # Import the CitationResult model and Bluebook formatter
@@ -94,7 +94,7 @@ class CitationExporter:
         citation_data = self._citation_to_dict(citation)
         return self.bluebook_formatter.format_citation_for_export(citation_data)
     
-    def export_to_text(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_to_text(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                       filename: Optional[str] = None) -> str:
         """Export citations to a plain text file."""
         if not filename:
@@ -140,7 +140,7 @@ class CitationExporter:
         logger.info(f"Citations exported to text file: {filepath}")
         return str(filepath)
     
-    def export_to_bibtex(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_to_bibtex(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                         filename: Optional[str] = None) -> str:
         """Export citations to BibTeX format."""
         if not filename:
@@ -187,7 +187,7 @@ class CitationExporter:
         logger.info(f"Citations exported to BibTeX file: {filepath}")
         return str(filepath)
     
-    def export_to_endnote(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_to_endnote(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                          filename: Optional[str] = None) -> str:
         """Export citations to EndNote/RIS format."""
         if not filename:
@@ -226,7 +226,7 @@ class CitationExporter:
         logger.info(f"Citations exported to EndNote file: {filepath}")
         return str(filepath)
     
-    def export_to_csv(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_to_csv(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                      filename: Optional[str] = None) -> str:
         """Export citations to CSV format."""
         if not filename:
@@ -262,7 +262,7 @@ class CitationExporter:
         logger.info(f"Citations exported to CSV file: {filepath}")
         return str(filepath)
     
-    def export_to_json(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_to_json(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                       filename: Optional[str] = None) -> str:
         """Export citations to JSON format."""
         if not filename:
@@ -286,7 +286,7 @@ class CitationExporter:
         logger.info(f"Citations exported to JSON file: {filepath}")
         return str(filepath)
     
-    def export_citations(self, citations: List[Union[CitationResult, Dict[str, Any]]], 
+    def export_citations(self, citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                         format_type: str, filename: Optional[str] = None) -> str:
         """Export citations in the specified format."""
         format_type = format_type.lower()
@@ -306,7 +306,7 @@ class CitationExporter:
 
 
 # Convenience functions for backward compatibility
-def export_citations_to_format(citations: List[Union[CitationResult, Dict[str, Any]]], 
+def export_citations_to_format(citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                               format_type: str, 
                               filename: Optional[str] = None,
                               export_dir: Optional[str] = None) -> str:
@@ -326,7 +326,7 @@ def export_citations_to_format(citations: List[Union[CitationResult, Dict[str, A
     return exporter.export_citations(citations, format_type, filename)
 
 
-def create_citation_report(citations: List[Union[CitationResult, Dict[str, Any]]], 
+def create_citation_report(citations: Sequence[Union[CitationResult, Dict[str, Any]]], 
                           export_dir: Optional[str] = None) -> Dict[str, str]:
     """
     Create a comprehensive citation report in multiple formats.

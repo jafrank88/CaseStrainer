@@ -8,11 +8,16 @@ into CaseStrainer's database for display in the Unconfirmed Citations tab.
 import os
 import sqlite3
 import csv
+import logging
 from datetime import datetime
+from .config import get_database_path
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Constants
 UNCONFIRMED_CITATIONS_FILE = "Unconfirmed_Citations_Tab.txt"
-DATABASE_FILE = "citations.db"
+DATABASE_FILE = get_database_path()
 
 
 def create_database_if_not_exists():

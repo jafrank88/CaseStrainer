@@ -31,7 +31,7 @@ class FallbackVerifier:
         self.last_request_time = {}
         self.min_delay = 1.0  # Minimum delay between requests to same domain
         
-    def verify_citation(self, citation_text: str, extracted_case_name: str = None, extracted_date: str = None) -> Dict:
+    def verify_citation(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:
         """
         Verify a citation using fallback sources.
         
@@ -138,7 +138,7 @@ class FallbackVerifier:
         self.last_request_time[domain] = time.time()
     
     def _verify_with_cornell_law(self, citation_text: str, citation_info: Dict, 
-                            extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                            extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Verify citation with Cornell Law School's Legal Information Institute."""
         
         url = None
@@ -254,14 +254,14 @@ class FallbackVerifier:
         return case_name
     
     def _extract_from_cornell_search_results(self, content: str, citation_text: str, 
-                                           extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                                           extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Extract verification info from Cornell Law search results."""
         
         # Look for search results that contain our citation
         # This is a simplified approach - in practice, Cornell's search results are complex
         
         # Look for links that might contain our citation
-        link_pattern = r'<a[^>]*href="([^"]+)"[^>]*>([^<]*' + re.escape(citation_text.replace(' ', '\s*')) + r'[^<]*)</a>'
+        link_pattern = r'<a[^>]*href="([^"]+)"[^>]*>([^<]*' + re.escape(citation_text.replace(' ', r'\s*')) + r'[^<]*)</a>'
         matches = re.findall(link_pattern, content, re.IGNORECASE)
         
         if matches:
@@ -301,8 +301,8 @@ class FallbackVerifier:
         
         return None
     
-    def _verify_with_generic_search(self, citation_text: str, extracted_case_name: str = None, 
-                                  extracted_date: str = None) -> Optional[Dict]:
+    def _verify_with_generic_search(self, citation_text: str, extracted_case_name: Optional[str] = None, 
+                                  extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Generic verification using legal search engines (simplified approach)."""
         
         # For now, if we have extracted case name and date that seem reasonable,
@@ -331,7 +331,7 @@ class FallbackVerifier:
         return None
     
     def _verify_with_justia(self, citation_text: str, citation_info: Dict,
-                           extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                           extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Verify citation with Justia legal database."""
         
         url = None
@@ -438,14 +438,14 @@ class FallbackVerifier:
         return None
     
     def _extract_from_justia_search_results(self, content: str, citation_text: str, 
-                                          extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                                          extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Extract verification info from Justia search results."""
         
         # Look for search results that contain our citation
         # Justia search results typically have specific patterns
         
         # Look for case links that might contain our citation
-        case_link_pattern = r'<a[^>]*href="([^"]*cases[^"]+)"[^>]*>([^<]*(?:' + re.escape(citation_text.replace(' ', '\s*')) + r')[^<]*)</a>'
+        case_link_pattern = r'<a[^>]*href="([^"]*cases[^"]+)"[^>]*>([^<]*(?:' + re.escape(citation_text.replace(' ', r'\s*')) + r')[^<]*)</a>'
         matches = re.findall(case_link_pattern, content, re.IGNORECASE)
         
         if matches:
@@ -512,7 +512,7 @@ class FallbackVerifier:
         return None
     
     def _verify_with_google_scholar(self, citation_text: str, citation_info: Dict,
-                                   extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                                   extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Verify citation with Google Scholar (simplified approach)."""
         
         # Google Scholar search is more complex and may require handling CAPTCHAs
@@ -526,7 +526,7 @@ class FallbackVerifier:
         return None
     
     def _verify_with_caselaw_access(self, citation_text: str, citation_info: Dict,
-                                   extracted_case_name: str = None, extracted_date: str = None) -> Optional[Dict]:
+                                   extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
         """Verify citation with Caselaw Access Project or similar free databases."""
         
         # This would integrate with Harvard's Caselaw Access Project API

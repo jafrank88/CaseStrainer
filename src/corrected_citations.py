@@ -6,6 +6,10 @@ in the unconfirmed citations database, ensuring they follow standard legal citat
 """
 
 import json
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Create a mapping of corrected citations
 CORRECTED_CITATIONS = {

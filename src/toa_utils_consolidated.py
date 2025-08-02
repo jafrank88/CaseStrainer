@@ -6,14 +6,15 @@ Combines ToA extraction, normalization, and comparison functions from multiple f
 import os
 import logging
 from typing import List, Dict, Any, Optional
-from toa_parser import ToAParser
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+from .toa_parser import ImprovedToAParser
+from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
+import asyncio
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # Initialize global instances
-toa_parser = ToAParser()
+toa_parser = ImprovedToAParser()
 citation_processor = UnifiedCitationProcessorV2()
 
 
@@ -42,9 +43,12 @@ def extract_toa_section(text: str) -> str:
     Returns:
         Extracted ToA section text
     """
-    # Use ToAParser's section extraction logic if available, else simple heuristic
-    if hasattr(toa_parser, 'extract_toa_section'):
-        return toa_parser.extract_toa_section(text)
+    # Use ImprovedToAParser's section detection logic if available, else simple heuristic
+    if hasattr(toa_parser, 'detect_toa_section'):
+        result = toa_parser.detect_toa_section(text)
+        if result:
+            start, end = result
+            return text[start:end]
     
     # Fallback: look for 'table of authorities' and next blank line
     lines = text.splitlines()
@@ -181,23 +185,28 @@ def compare_toa_vs_analyze(briefs_dir: str = '../wa_briefs_text/', max_briefs: i
         toa_lines = [l for l in toa_section.split('\n') if l.strip() and not l.strip().lower().startswith('table of authorities')]
         
         for i, line in enumerate(toa_lines, 1):
-            toa_entry = toa_parser._parse_toa_line_flexible(line)
-            toa_name = getattr(toa_entry, 'case_name', None)
+            toa_entry = toa_parser._parse_chunk_flexible(line)
+            toa_name = getattr(toa_entry, 'case_name', None) if toa_entry else None
             toa_year = None
-            if getattr(toa_entry, 'years', None):
+            if toa_entry and getattr(toa_entry, 'years', None):
                 toa_year = toa_entry.years[0]
             
             # Clean line for processor
             clean_line = line.split('.....................')[0].strip()
-            results = citation_processor.process_text(clean_line)
+            # Use async process_text method
+            try:
+                results = asyncio.run(citation_processor.process_text(clean_line))
+            except Exception as e:
+                logger.error(f"Error processing line: {e}")
+                results = None
             
             # Compare each extracted citation
-            if results and hasattr(results, 'citations'):
-                for citation in results.citations:
+            if results and isinstance(results, dict) and 'citations' in results:
+                for citation in results['citations']:
                     proc_name = getattr(citation, 'canonical_name', None) or getattr(citation, 'extracted_case_name', None)
                     proc_date = getattr(citation, 'canonical_date', None) or getattr(citation, 'extracted_date', None)
                     
-                    if normalize(toa_name) != normalize(proc_name) or str(toa_year) != str(proc_date):
+                    if normalize(toa_name or '') != normalize(proc_name or '') or str(toa_year or '') != str(proc_date or ''):
                         logger.info(f"{brief_file} | ToA line: {line}")
                         logger.info(f"   ToA parser:   name='{toa_name}'  year='{toa_year}'")
                         logger.info(f"   Processor:    name='{proc_name}'  date='{proc_date}'\n")
@@ -231,7 +240,7 @@ def quick_toa_vs_body_comparison(text: str) -> Dict[str, Any]:
     toa_lines = [l for l in toa_section.split('\n') if l.strip() and not l.strip().lower().startswith('table of authorities')]
     
     for line in toa_lines:
-        toa_entry = toa_parser._parse_toa_line_flexible(line)
+        toa_entry = toa_parser._parse_chunk_flexible(line)
         if toa_entry and hasattr(toa_entry, 'citations'):
             for citation in toa_entry.citations:
                 toa_citations.append({
@@ -243,14 +252,18 @@ def quick_toa_vs_body_comparison(text: str) -> Dict[str, Any]:
     
     # Extract body citations
     body_citations = []
-    results = citation_processor.process_text(text)
+    try:
+        results = asyncio.run(citation_processor.process_text(text))
+    except Exception as e:
+        logger.error(f"Error processing text: {e}")
+        results = None
     
-    if results and hasattr(results, 'citations'):
-        for citation in results.citations:
+    if results and isinstance(results, dict) and 'citations' in results:
+        for citation in results['citations']:
             body_citations.append({
-                'citation': citation.citation,
-                'case_name': getattr(citation, 'canonical_name', '') or getattr(citation, 'extracted_case_name', ''),
-                'years': [getattr(citation, 'canonical_date', '') or getattr(citation, 'extracted_date', '')] if getattr(citation, 'canonical_date', '') or getattr(citation, 'extracted_date', '') else [],
+                'citation': citation.get('citation', ''),
+                'case_name': citation.get('canonical_name', '') or citation.get('extracted_case_name', ''),
+                'years': [citation.get('canonical_date', '') or citation.get('extracted_date', '')] if citation.get('canonical_date') or citation.get('extracted_date') else [],
                 'source': 'body'
             })
     
@@ -508,7 +521,7 @@ def export_to_csv_format(extractions: List[Dict[str, Any]]) -> List[Dict[str, An
             'month': extraction.get('month'),
             'day': extraction.get('day'),
             'court': extraction.get('court'),
-            'court_normalized': _normalize_court_name(extraction.get('court')) if extraction.get('court') else None,
+            'court_normalized': _normalize_court_name(extraction.get('court') or '') if extraction.get('court') else None,
             'date_format': extraction.get('date_format'),
             'full_date_string': extraction.get('full_date_string'),
             'case_type': extraction.get('case_type'),

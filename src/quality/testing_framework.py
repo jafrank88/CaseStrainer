@@ -45,23 +45,29 @@ class CitationTestCase(unittest.TestCase):
         """Clean up after test."""
         self.execution_time = time.time() - self.start_time
     
-    def assertCitationValid(self, citation: CitationResult, msg: str = None):
+    def assertCitationValid(self, citation: CitationResult, msg: Optional[str] = None):
         """Assert that a citation result is valid."""
         self.assertIsInstance(citation, CitationResult, msg)
         self.assertIsNotNone(citation.citation, msg)
         self.assertGreaterEqual(citation.confidence, 0.0, msg)
         self.assertLessEqual(citation.confidence, 1.0, msg)
-        self.assertGreaterEqual(citation.start_index, 0, msg)
-        self.assertGreaterEqual(citation.end_index, citation.start_index, msg)
+        
+        # Check that start_index and end_index are not None and are valid
+        self.assertIsNotNone(citation.start_index, msg)
+        self.assertIsNotNone(citation.end_index, msg)
+        start_index: int = citation.start_index  # type: ignore
+        end_index: int = citation.end_index  # type: ignore
+        self.assertGreaterEqual(start_index, 0, msg)
+        self.assertGreaterEqual(end_index, start_index, msg)
     
-    def assertCitationListValid(self, citations: List[CitationResult], msg: str = None):
+    def assertCitationListValid(self, citations: List[CitationResult], msg: Optional[str] = None):
         """Assert that a list of citations is valid."""
         self.assertIsInstance(citations, list, msg)
         for i, citation in enumerate(citations):
             with self.subTest(citation_index=i):
                 self.assertCitationValid(citation, f"Citation {i} invalid: {msg}")
     
-    def assertClusterValid(self, cluster: Dict[str, Any], msg: str = None):
+    def assertClusterValid(self, cluster: Dict[str, Any], msg: Optional[str] = None):
         """Assert that a citation cluster is valid."""
         self.assertIsInstance(cluster, dict, msg)
         self.assertIn('citations', cluster, msg)
@@ -69,7 +75,7 @@ class CitationTestCase(unittest.TestCase):
         self.assertGreater(cluster['size'], 0, msg)
         self.assertEqual(len(cluster['citations']), cluster['size'], msg)
     
-    def assertProcessingResultValid(self, result: Dict[str, Any], msg: str = None):
+    def assertProcessingResultValid(self, result: Dict[str, Any], msg: Optional[str] = None):
         """Assert that a processing result is valid."""
         self.assertIsInstance(result, dict, msg)
         self.assertIn('success', result, msg)
@@ -135,7 +141,7 @@ class TestDataGenerator:
                 method="test_generated",
                 confidence=random.uniform(0.7, 1.0),
                 extracted_case_name=case_name,
-                extracted_date=str(year) if 'year' in locals() else year,
+                extracted_date=str(year) if isinstance(year, (int, str)) else None,
                 verified=random.choice([True, False])
             )
             citations.append(citation)
@@ -193,7 +199,7 @@ class TestDataGenerator:
 class MockAPIResponse:
     """Mock API response for testing."""
     
-    def __init__(self, status_code: int = 200, data: Dict[str, Any] = None, delay: float = 0.0):
+    def __init__(self, status_code: int = 200, data: Optional[Dict[str, Any]] = None, delay: float = 0.0):
         self.status_code = status_code
         self.data = data or {}
         self.delay = delay

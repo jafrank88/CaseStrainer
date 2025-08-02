@@ -11,7 +11,7 @@ Usage:
 Configuration:
     Create a config.json file with your settings:
     {
-        "health_endpoint": "https://your-production-domain.com/health",
+        "health_endpoint": "https://wolf.law.uw.edu/casestrainer/api/health",
         "check_interval": 300,
         "alert_threshold": 3,
         "notifications": {

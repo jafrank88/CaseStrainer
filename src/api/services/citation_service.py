@@ -6,10 +6,12 @@ This separates concerns and makes the code more testable and maintainable.
 import os
 import logging
 import time
+import uuid
 from typing import Dict, List, Any, Optional
 from src.redis_distributed_processor import DockerOptimizedProcessor
 
 logger = logging.getLogger(__name__)
+
 
 class CitationService:
     """Service for processing citations with Redis-distributed processing."""
@@ -27,12 +29,12 @@ class CitationService:
         
         return False
     
-    def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
+    async def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
         """Process input immediately (for short texts)."""
         try:
             if input_data.get('type') == 'text':
                 text = input_data.get('text', '')
-                return self.process_citations_from_text(text)
+                return await self.process_citations_from_text(text)
             
             return {'status': 'error', 'message': 'Invalid input type for immediate processing'}
             
@@ -41,34 +43,31 @@ class CitationService:
             return {'status': 'error', 'message': str(e)}
     
     async def process_citation_task(self, task_id: str, input_type: str, input_data: Dict) -> Dict[str, Any]:
-        print(f"[DEBUG PRINT] ENTERED process_citation_task for task_id={task_id}, input_type={input_type}, input_data_keys={list(input_data.keys())}")
+        """Process a citation task with the given input type and data."""
         logger.info(f"[DEBUG] ENTERED process_citation_task for task_id={task_id}, input_type={input_type}, input_data_keys={list(input_data.keys())}")
         start_time = time.time()
         logger.info(f"Processing citation task {task_id} of type {input_type}")
-        print(f"[DEBUG PRINT] About to dispatch to specific task type: {input_type}")
+        
         try:
             if input_type == 'file':
-                print(f"[DEBUG PRINT] Calling _process_file_task for task_id={task_id}")
                 logger.info(f"[DEBUG] Calling _process_file_task for task_id={task_id}")
                 result = await self._process_file_task(task_id, input_data)
-                print(f"[DEBUG PRINT] Returned from _process_file_task for task_id={task_id}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
                 logger.info(f"[DEBUG] Returned from _process_file_task for task_id={task_id}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
                 return result
             elif input_type == 'url':
-                print(f"[DEBUG PRINT] Calling _process_url_task for task_id={task_id}")
+                logger.info(f"[DEBUG] Calling _process_url_task for task_id={task_id}")
                 return await self._process_url_task(task_id, input_data)
             elif input_type == 'text':
-                print(f"[DEBUG PRINT] Calling _process_text_task for task_id={task_id}")
+                logger.info(f"[DEBUG] Calling _process_text_task for task_id={task_id}")
                 return await self._process_text_task(task_id, input_data)
             else:
-                print(f"[DEBUG PRINT] Unknown input type: {input_type} for task_id={task_id}")
+                logger.info(f"[DEBUG] Unknown input type: {input_type} for task_id={task_id}")
                 return {
                     'status': 'failed',
                     'error': f'Unknown input type: {input_type}',
                     'task_id': task_id
                 }
         except Exception as e:
-            print(f"[DEBUG PRINT] Exception in process_citation_task for task_id={task_id}: {e}")
             logger.error(f"Task {task_id} failed: {e}", exc_info=True)
             return {
                 'status': 'failed',
@@ -78,57 +77,50 @@ class CitationService:
             }
     
     async def _process_file_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:
-        print(f"[DEBUG PRINT] ENTERED _process_file_task for task_id={task_id}, input_data_keys={list(input_data.keys())}")
+        """Process a file-based citation task."""
+        start_time = time.time()
         logger.info(f"[DEBUG] ENTERED _process_file_task for task_id={task_id}, input_data_keys={list(input_data.keys())}")
         file_path = input_data.get('file_path')
         filename = input_data.get('filename', 'unknown')
-        print(f"[DEBUG PRINT] file_path={file_path}, filename={filename}")
         logger.info(f"[DEBUG] file_path={file_path}, filename={filename}")
+        
         if not file_path or not os.path.exists(file_path):
-            print(f"[DEBUG PRINT] File not found: {file_path} for task_id={task_id}")
             logger.error(f"[DEBUG] File not found: {file_path} for task_id={task_id}")
             return {
                 'status': 'failed',
                 'error': f'File not found: {file_path}',
                 'task_id': task_id
             }
+        
         try:
-            print(f"[DEBUG PRINT] Before calling process_document for file_path={file_path}")
             logger.info(f"[DEBUG] Before calling process_document for file_path={file_path}")
             result = await self.processor.process_document(file_path)
-            print(f"[DEBUG PRINT] After process_document for file_path={file_path}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
             logger.info(f"[DEBUG] After process_document for file_path={file_path}, result keys: {list(result.keys()) if isinstance(result, dict) else type(result)}")
-            # Clean up temporary file
-            try:
-                os.remove(file_path)
-                print(f"[DEBUG PRINT] Successfully removed file: {file_path}")
-                logger.info(f"[DEBUG] Successfully removed file: {file_path}")
-            except Exception as cleanup_exc:
-                print(f"[DEBUG PRINT] Failed to remove file: {file_path} - {cleanup_exc}")
-                logger.warning(f"[DEBUG] Failed to remove file: {file_path} - {cleanup_exc}")
-            return {
-                'status': 'completed',
-                'task_id': task_id,
-                'citations': result.get('citations', []),
-                'statistics': result.get('statistics', {}),
-                'metadata': {
-                    'filename': filename,
-                    'text_length': result.get('text_length', 0)
-                },
-                'processing_time': result.get('processing_time', 0)
-            }
+            
+            if isinstance(result, dict) and result.get('status') == 'error':
+                logger.error(f"[DEBUG] process_document returned error for task_id={task_id}: {result.get('error')}")
+                return {
+                    'status': 'failed',
+                    'error': result.get('error', 'Unknown processing error'),
+                    'task_id': task_id
+                }
+            
+            # Add task metadata
+            result['task_id'] = task_id
+            result['filename'] = filename
+            result['processing_time'] = time.time() - start_time
+            
+            logger.info(f"[DEBUG] Successfully processed file task {task_id}")
+            return result
+            
         except Exception as e:
-            print(f"[DEBUG PRINT] Exception in _process_file_task for task_id={task_id}: {e}")
             logger.error(f"[DEBUG] Exception in _process_file_task for task_id={task_id}: {e}", exc_info=True)
-            # Clean up on error
-            try:
-                os.remove(file_path)
-                print(f"[DEBUG PRINT] Successfully removed file after exception: {file_path}")
-                logger.info(f"[DEBUG] Successfully removed file after exception: {file_path}")
-            except Exception as cleanup_exc:
-                print(f"[DEBUG PRINT] Failed to remove file after exception: {file_path} - {cleanup_exc}")
-                logger.warning(f"[DEBUG] Failed to remove file after exception: {file_path} - {cleanup_exc}")
-            raise
+            return {
+                'status': 'failed',
+                'error': f'File processing failed: {str(e)}',
+                'task_id': task_id,
+                'processing_time': time.time() - start_time
+            }
     
     async def _process_url_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:
         """Process URL input task."""
@@ -197,14 +189,21 @@ class CitationService:
             }
 
         try:
-            # Process citations from text
-            result = self.process_citations_from_text(text)
+            # Process citations from text using async/await
+            logger.info(f"[TEXT_PROCESSING] Starting text processing for task {task_id}")
+            result = await self.process_citations_from_text(text)
+            
+            if not result or 'citations' not in result:
+                logger.error(f"[TEXT_PROCESSING] No citations found in result for task {task_id}")
+                raise ValueError("No citations found in processing result")
+                
+            logger.info(f"[TEXT_PROCESSING] Processed {len(result.get('citations', []))} citations for task {task_id}")
 
             return {
                 'status': 'completed',
                 'task_id': task_id,
                 'citations': result.get('citations', []),
-                'clusters': result.get('clusters', []),  # ✅ FIX: Include clusters in async response
+                'clusters': result.get('clusters', []),
                 'statistics': result.get('statistics', {}),
                 'metadata': {
                     'source_name': source_name,
@@ -214,189 +213,136 @@ class CitationService:
             }
 
         except Exception as e:
+            logger.error(f"[TEXT_PROCESSING] Error processing text for task {task_id}: {str(e)}", exc_info=True)
             raise
     
-    def process_citations_from_text(self, text: str) -> Dict[str, Any]:
-        print(f"[DEBUG PRINT] ENTERED process_citations_from_text, text_length={len(text)}")
-        logger.info(f"[DEBUG] ENTERED process_citations_from_text, text_length={len(text)}")
+    async def process_citations_from_text(self, text: str) -> Dict[str, Any]:
+        """
+        Process text to extract and analyze citations.
+        
+        Args:
+            text: The input text to process for citations
+            
+        Returns:
+            Dict containing citation results and metadata
+            
+        Raises:
+            Exception: If any error occurs during processing
+        """
+        request_id = str(uuid.uuid4())
+        start_time = time.time()
+        
         try:
-            print(f"[DEBUG PRINT] About to import UnifiedCitationProcessorV2")
-            logger.info(f"[DEBUG] About to import UnifiedCitationProcessorV2")
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-            from src.citation_clustering import group_citations_into_clusters
-            print(f"[DEBUG PRINT] Imported UnifiedCitationProcessorV2, about to instantiate")
-            logger.info(f"[DEBUG] Imported UnifiedCitationProcessorV2, about to instantiate")
-            # Use production-ready unified processor with verification enabled by default
-            processor = UnifiedCitationProcessorV2()
-            print(f"[DEBUG PRINT] Instantiated UnifiedCitationProcessorV2, about to call process_text")
-            logger.info(f"[DEBUG] Instantiated UnifiedCitationProcessorV2, about to call process_text")
-            citation_results = processor.process_text(text)
-            print(f"[DEBUG PRINT] Returned from process_text, results_count={len(citation_results['citations'])}")
-            logger.info(f"[DEBUG] Returned from process_text, results_count={len(citation_results['citations'])}")
-
-            # Ensure clusters are present
-            if 'clusters' not in citation_results or not citation_results['clusters']:
-                # Build clusters if not present
-                clusters = group_citations_into_clusters(citation_results['citations'], original_text=text)
-                citation_results['clusters'] = clusters
-            else:
-                clusters = citation_results['clusters']
-
-            # Build a mapping from citation string to cluster members
-            citation_to_members = {}
+            # Input validation
+            if text is None:
+                error_msg = f"[Request {request_id}] Invalid input text. Text is None"
+                logger.error(error_msg)
+                return {
+                    'status': 'error',
+                    'error': 'Invalid input: text cannot be None',
+                    'request_id': request_id
+                }
+            
+            if not isinstance(text, str):
+                error_msg = f"[Request {request_id}] Invalid input text. Expected string, got {type(text)}"
+                logger.error(error_msg)
+                return {
+                    'status': 'error',
+                    'error': 'Invalid input: text must be a string',
+                    'request_id': request_id
+                }
+            
+            if not text.strip():
+                error_msg = f"[Request {request_id}] Invalid input text. Text is empty or whitespace only"
+                logger.error(error_msg)
+                return {
+                    'status': 'error',
+                    'error': 'Invalid input: text must not be empty',
+                    'request_id': request_id
+                }
+            
+            logger.info(f"[Request {request_id}] Starting citation processing for text (length: {len(text)})")
+                
+            logger.debug(f"[Request {request_id}] Importing required modules")
             try:
-                for cluster in clusters:
-                    if not isinstance(cluster, dict) or 'citations' not in cluster:
-                        logger.warning(f"Invalid cluster structure: {type(cluster)}")
-                        continue
-                        
-                    # Extract citation strings more robustly
-                    member_citations = []
-                    for c in cluster['citations']:
-                        try:
-                            if isinstance(c, dict):
-                                cite_str = c.get('citation')
-                            else:
-                                cite_str = getattr(c, 'citation', None)
-                            
-                            if cite_str:
-                                member_citations.append(cite_str)
-                        except Exception as e:
-                            logger.warning(f"Error processing citation in cluster: {e}")
-                            continue
-                    
-                    # Map each citation to its cluster members
-                    for c in cluster['citations']:
-                        try:
-                            if isinstance(c, dict):
-                                cite_str = c.get('citation')
-                            else:
-                                cite_str = getattr(c, 'citation', None)
-                                
-                            if cite_str:
-                                citation_to_members[cite_str] = member_citations
-                        except Exception as e:
-                            logger.warning(f"Error mapping citation to cluster members: {e}")
-                            continue
-                            
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                from src.citation_clustering import group_citations_into_clusters
+                logger.debug(f"[Request {request_id}] Successfully imported required modules")
+            except ImportError as ie:
+                error_msg = f"[Request {request_id}] Failed to import required modules: {str(ie)}"
+                logger.error(error_msg, exc_info=True)
+                return {
+                    'status': 'error',
+                    'error': 'Service configuration error',
+                    'details': str(ie) if os.getenv('FLASK_ENV') == 'development' else None,
+                    'request_id': request_id
+                }
+            
+            # Initialize processor
+            try:
+                logger.debug(f"[Request {request_id}] Initializing UnifiedCitationProcessorV2")
+                processor = UnifiedCitationProcessorV2()
+                logger.debug(f"[Request {request_id}] Successfully initialized processor")
             except Exception as e:
-                logger.error(f"Error processing clusters: {e}")
-                citation_to_members = {}  # Fall back to empty mapping
-
-            processed_citations = []
-            for citation in citation_results['citations']:
-                # Enhanced verification metadata extraction
-                metadata = citation.metadata or {}
-                verification_method = metadata.get('verification_method', 'N/A')
-                validation_passed = metadata.get('validation_passed', 'N/A')
-                fallback_source = metadata.get('fallback_source', 'N/A')
-                
-                citation_dict = {
-                    'citation': citation.citation,
-                    'case_name': citation.canonical_name or citation.extracted_case_name or 'Unknown',
-                    'extracted_case_name': citation.extracted_case_name,
-                    'canonical_name': citation.canonical_name,
-                    'extracted_date': citation.extracted_date,
-                    'canonical_date': citation.canonical_date,
-                    'verified': citation.verified,
-                    'court': citation.court,
-                    'confidence': citation.confidence,
-                    'method': citation.method,
-                    'pattern': citation.pattern,
-                    'context': citation.context,
-                    'start_index': citation.start_index,
-                    'end_index': citation.end_index,
-                    'is_parallel': citation.is_parallel,
-                    'is_cluster': citation.is_cluster,
-                    'parallel_citations': citation.parallel_citations,
-                    'cluster_members': citation_to_members.get(citation.citation, []),
-                    'pinpoint_pages': citation.pinpoint_pages,
-                    'docket_numbers': citation.docket_numbers,
-                    'case_history': citation.case_history,
-                    'publication_status': citation.publication_status,
-                    'url': citation.url,
-                    'source': citation.source,
-                    'error': citation.error,
-                    'metadata': metadata,
-                    # Enhanced verification fields for easier access
-                    'verification_method': verification_method,
-                    'validation_passed': validation_passed,
-                    'fallback_source': fallback_source
+                error_msg = f"[Request {request_id}] Failed to initialize citation processor: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                return {
+                    'status': 'error',
+                    'error': 'Failed to initialize citation processor',
+                    'details': str(e) if os.getenv('FLASK_ENV') == 'development' else None,
+                    'request_id': request_id
                 }
-                processed_citations.append(citation_dict)
-            print(f"[DEBUG PRINT] Finished processing citations, processed_citations_count={len(processed_citations)}")
-            logger.info(f"[DEBUG] Finished processing citations, processed_citations_count={len(processed_citations)}")
             
-            # Debug cluster information
-            print(f"[DEBUG PRINT] Final clusters count: {len(clusters)}")
-            logger.info(f"[DEBUG] Final clusters count: {len(clusters)}")
-            
-            if not clusters:
-                print(f"[DEBUG PRINT] No clusters found, checking if we can rebuild from citation metadata")
-                logger.warning(f"No clusters found, checking if we can rebuild from citation metadata")
+            # Process text
+            try:
+                logger.debug(f"[Request {request_id}] Starting text processing")
+                # Use the async process_document_citations method which performs real citation extraction
+                citation_results = await processor.process_document_citations(text)
+                logger.info(f"[Request {request_id}] Processed text, found {len(citation_results.get('citations', []))} citations")
                 
-                # Try to rebuild clusters from citation metadata if clusters are empty
-                cluster_map = {}
-                for citation in citation_results['citations']:
-                    cluster_id = getattr(citation, 'metadata', {}).get('cluster_id')
-                    if cluster_id:
-                        if cluster_id not in cluster_map:
-                            cluster_map[cluster_id] = []
-                        cluster_map[cluster_id].append(citation)
+                # Ensure we have a valid citations list
+                if 'citations' not in citation_results:
+                    citation_results['citations'] = []
+                    
+                # Process clusters
+                try:
+                    if 'clusters' not in citation_results or not citation_results['clusters']:
+                        logger.debug(f"[Request {request_id}] No clusters found, running clustering")
+                        citation_results['clusters'] = group_citations_into_clusters(
+                            citation_results['citations'], 
+                            original_text=text
+                        )
+                    logger.debug(f"[Request {request_id}] Found {len(citation_results['clusters'])} clusters")
+                except Exception as cluster_error:
+                    logger.error(
+                        f"[Request {request_id}] Error in clustering: {str(cluster_error)}", 
+                        exc_info=True
+                    )
+                    citation_results['clusters'] = []
                 
-                if cluster_map:
-                    print(f"[DEBUG PRINT] Rebuilt {len(cluster_map)} clusters from metadata")
-                    logger.info(f"Rebuilt {len(cluster_map)} clusters from metadata")
-                    # Convert to expected cluster format
-                    rebuilt_clusters = []
-                    for cluster_id, cluster_citations in cluster_map.items():
-                        cluster_data = {
-                            'cluster_id': cluster_id,
-                            'citations': [
-                                {
-                                    'citation': c.citation,
-                                    'extracted_case_name': c.extracted_case_name,
-                                    'extracted_date': c.extracted_date,
-                                    'canonical_name': c.canonical_name,
-                                    'canonical_date': c.canonical_date,
-                                    'confidence': c.confidence,
-                                    'source': c.source,
-                                    'url': c.url,
-                                    'court': c.court or '',
-                                    'context': c.context,
-                                    'verified': c.verified,
-                                    'parallel_citations': c.parallel_citations or []
-                                } for c in cluster_citations
-                            ],
-                            'size': len(cluster_citations),
-                            'has_parallel_citations': len(cluster_citations) > 1,
-                            'canonical_name': cluster_citations[0].canonical_name if cluster_citations else None,
-                            'canonical_date': cluster_citations[0].canonical_date if cluster_citations else None,
-                            'extracted_case_name': cluster_citations[0].extracted_case_name if cluster_citations else None,
-                            'extracted_date': cluster_citations[0].extracted_date if cluster_citations else None,
-                            'url': cluster_citations[0].url if cluster_citations else None,
-                            'source': cluster_citations[0].source if cluster_citations else 'fallback'
-                        }
-                        rebuilt_clusters.append(cluster_data)
-                    clusters = rebuilt_clusters
-                    print(f"[DEBUG PRINT] Using rebuilt clusters: {len(clusters)}")
-                    logger.info(f"Using rebuilt clusters: {len(clusters)}")
-            
-            return {
-                'status': 'completed',
-                'citations': processed_citations,
-                'clusters': clusters,
-                'statistics': {
-                    'total_citations': len(processed_citations),
-                    'text_length': len(text)
+                # Add processing metadata
+                citation_results['status'] = 'success'
+                citation_results['request_id'] = request_id
+                citation_results['processing_time'] = time.time() - start_time
+                
+                return citation_results
+                
+            except Exception as process_error:
+                error_msg = f"[Request {request_id}] Error processing text: {str(process_error)}"
+                logger.error(error_msg, exc_info=True)
+                return {
+                    'status': 'error',
+                    'error': 'Failed to process text',
+                    'details': str(process_error) if os.getenv('FLASK_ENV') == 'development' else None,
+                    'request_id': request_id
                 }
-            }
-        except Exception as e:
-            print(f"[DEBUG PRINT] Exception in process_citations_from_text: {e}")
-            logger.error(f"Citation processing failed: {e}")
+                
+        except Exception as unexpected_error:
+            error_msg = f"[Request {request_id}] Unexpected error in process_citations_from_text: {str(unexpected_error)}"
+            logger.error(error_msg, exc_info=True)
             return {
                 'status': 'error',
-                'error': str(e),
-                'citations': [],
-                'statistics': {}
+                'error': 'Unexpected error during processing',
+                'details': str(unexpected_error) if os.getenv('FLASK_ENV') == 'development' else None,
+                'request_id': request_id
             } 

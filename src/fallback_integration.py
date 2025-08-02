@@ -7,7 +7,7 @@ to verify citations that are not found in CourtListener.
 """
 
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def enhance_citations_with_fallback_verification(citations_data: List[Dict[str, 
         # Return original data if fallback verification fails
         return citations_data
 
-def verify_single_citation_with_fallback(citation_text: str, extracted_case_name: str = None, extracted_date: str = None) -> Dict[str, Any]:
+def verify_single_citation_with_fallback(citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict[str, Any]:
     """
     Verify a single citation using fallback sources.
     

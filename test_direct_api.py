@@ -47,13 +47,13 @@ def test_direct_api():
     
     # Test health endpoint first
     logger.info("Testing health endpoint...")
-    health_url = f"{base_url}/health"
+    health_url = f"{base_url}/casestrainer/api/health"
     health_response = make_api_request(health_url, 'get')
     logger.info(f"Health check: {health_response}")
     
     # Test API endpoint
     logger.info("Testing API endpoint...")
-    api_url = f"{base_url}/casestrainer/api/analyze/start"
+    api_url = f"{base_url}/casestrainer/api/analyze"
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json"

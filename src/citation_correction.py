@@ -12,8 +12,12 @@ import re
 import json
 import os
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
 try:
-    from fuzzywuzzy import fuzz
+    from fuzzywuzzy import fuzz  # type: ignore
 except ImportError:
     # Fallback implementation if fuzzywuzzy is not available
     def fuzz_ratio(s1, s2):
@@ -167,7 +171,7 @@ def find_similar_citations(citation_text, api_key=None):
                 logger.info(f"Searching CourtListener API for: {query}")
                 response = requests.get(
                     COURTLISTENER_API_URL, headers=headers, params=params, timeout=30
-                , timeout=30)
+                )
 
                 if response.status_code == 200:
                     data = response.json()

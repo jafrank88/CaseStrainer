@@ -9,8 +9,9 @@ import os
 import json
 import sqlite3
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+from .config import get_database_path
 
 # Configure logging
 logging.basicConfig(
@@ -20,8 +21,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sample_citation_generator")
 
-# Database path
-DATABASE_FILE = os.path.join(os.path.dirname(__file__), "citations.db")
+# Database path - using the canonical path from config
+DATABASE_FILE = get_database_path()
 
 # Sample Washington State court cases
 WA_CASES = [

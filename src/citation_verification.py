@@ -167,7 +167,101 @@ def verify_citations_with_canonical_service(citations):
     # ... move logic from unified_citation_processor_v2.py ...
     pass
 
-def verify_citations_with_legal_websearch(citations):
-    print(f"[DEBUG PRINT] ENTERED verify_citations_with_legal_websearch with {len(citations)} citations")
-    # ... move logic from unified_citation_processor_v2.py ...
-    pass 
+async def verify_citations_with_legal_websearch(citations):
+    """
+    Verify citations using trusted legal databases with web search as a fallback.
+    Only one verifying source is needed per citation.
+    
+    Args:
+        citations: List of CitationResult objects to verify
+        
+    Returns:
+        List of verified CitationResult objects
+    """
+    from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
+    import logging
+    import asyncio
+    
+    logger = logging.getLogger(__name__)
+    logger.info(f"[VERIFY] Starting legal web search verification for {len(citations)} citations")
+    
+    if not citations:
+        return []
+        
+    try:
+        # Initialize the web search engine with experimental engines enabled
+        search_engine = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
+        verified_citations = []
+        
+        # Define search methods in order of preference/reliability
+        search_methods = [
+            ('courtlistener', search_engine.search_courtlistener_web),
+            ('justia', search_engine.search_justia),
+            ('findlaw', search_engine.search_findlaw),
+            ('leagle', search_engine.search_leagle),
+            ('casetext', search_engine.search_casetext),
+            ('vlex', search_engine.search_vlex),
+            ('casemine', search_engine.search_casemine),
+            ('openjurist', search_engine.search_openjurist),
+            ('google_scholar', search_engine.search_google_scholar),
+            ('bing', search_engine.search_bing),
+            ('duckduckgo', search_engine.search_duckduckgo)
+        ]
+        
+        for citation in citations:
+            if hasattr(citation, 'verified') and citation.verified:
+                logger.debug(f"[VERIFY] Citation {citation.citation} already verified, skipping")
+                verified_citations.append(citation)
+                continue
+                
+            try:
+                logger.info(f"[VERIFY] Processing citation: {citation.citation}")
+                case_name = getattr(citation, 'extracted_case_name', None)
+                verified = False
+                
+                # Try each search method in order until we find a match
+                for source_name, search_method in search_methods:
+                    if not hasattr(search_engine, search_method.__name__):
+                        logger.debug(f"[VERIFY] Search method {search_method.__name__} not available, skipping")
+                        continue
+                        
+                    try:
+                        logger.debug(f"[VERIFY] Trying {source_name} search for {citation.citation}")
+                        # Await the async search method
+                        result = await search_method(citation.citation, case_name)
+                        
+                        if result and result.get('verified', False):
+                            logger.info(f"[VERIFY] Verified {citation.citation} via {source_name}")
+                            
+                            # Update citation with verification data
+                            citation.verified = True
+                            citation.source = source_name
+                            citation.url = result.get('url', '')
+                            
+                            # Only set canonical data if it comes from a trusted source
+                            if source_name in ['courtlistener', 'justia', 'findlaw', 'leagle', 'casetext']:
+                                if 'canonical_name' in result:
+                                    citation.canonical_name = result['canonical_name']
+                                if 'canonical_date' in result:
+                                    citation.canonical_date = str(result['canonical_date'])
+                            
+                            verified = True
+                            verified_citations.append(citation)
+                            break  # Stop after first successful verification
+                            
+                    except Exception as e:
+                        logger.warning(f"[VERIFY] Error searching {source_name} for {citation.citation}: {str(e)}")
+                        continue
+                
+                if not verified:
+                    logger.debug(f"[VERIFY] No verification found for {citation.citation}")
+                    
+            except Exception as e:
+                logger.error(f"[VERIFY] Error processing citation {citation.citation}: {str(e)}", exc_info=True)
+                continue
+                
+        return verified_citations
+        
+    except Exception as e:
+        logger.error(f"[VERIFY] Fatal error in legal web search verification: {str(e)}", exc_info=True)
+        return []

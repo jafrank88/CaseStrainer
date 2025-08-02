@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 # Try to import PDF processing libraries
 try:
-    from src.document_processing_unified import extract_text_from_file
+    from src.document_processing_unified import extract_text_from_file  # type: ignore
 except ImportError:
-    extract_text_from_file = None
+    extract_text_from_file = None  # type: ignore
 
 # Check if pdf2md is available (commented out due to Pylance warning)
 # try:
@@ -217,7 +217,10 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
                             print("Could not decode PDF version number")
                 # Extract text using PyPDF2 first
                 print("Attempting extraction with PyPDF2...")
-                text = extract_text_from_file(file_path)
+                if extract_text_from_file is not None:
+                    text = extract_text_from_file(file_path)
+                else:
+                    text = None
                 extraction_end = time.time()
                 elapsed = extraction_end - extraction_start
                 print(f"PDF extraction took {elapsed:.2f} seconds")
@@ -261,7 +264,7 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         elif file_ext == '.doc':
             print("\nProcessing DOC file...")
             try:
-                import textract
+                import textract  # type: ignore
                 text = textract.process(file_path).decode('utf-8')
                 print(f"Successfully extracted {len(text)} characters from DOC")
                 return text

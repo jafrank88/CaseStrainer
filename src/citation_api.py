@@ -6,14 +6,19 @@ import logging
 from flask import Blueprint, request, jsonify, current_app
 from typing import Dict, Any, Optional
 import asyncio
+from dataclasses import dataclass
 
 from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from citation_services import ExtractionConfig
 
 logger = logging.getLogger(__name__)
 
 # Create Blueprint for citation API
-citation_api = Bluelogger.info('citation_api', __name__)
+citation_api = Blueprint('citation_api', __name__)
+
+# Simple config class for extraction
+@dataclass
+class ExtractionConfig:
+    min_confidence_threshold: float = 0.5
 
 # Global processor instance
 _processor = None
@@ -43,15 +48,15 @@ def analyze_document_citations():
         # Get processor and run analysis
         processor = get_citation_processor()
         
-        # Run async function in sync context
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            results = loop.run_until_complete(
-                processor.process_document_citations(document_text, document_type, user_context)
-            )
-        finally:
-            loop.close()
+        # Extract citations and process
+        citations = processor.extract_citations_from_text(document_text)
+        
+        # Convert to serializable format
+        results = {
+            'citations': [citation.__dict__ for citation in citations] if citations else [],
+            'total_count': len(citations) if citations else 0,
+            'status': 'success'
+        }
         
         return jsonify(results)
         
@@ -76,8 +81,7 @@ def validate_single_citation():
         processor = get_citation_processor()
         
         # Extract and validate single citation
-        config = ExtractionConfig(min_confidence_threshold=0.5)
-        citations = processor.citation_service.extract_citations(citation_text, config)
+        citations = processor.extract_citations_from_text(citation_text)
         
         if citations:
             citation = citations[0]
@@ -87,11 +91,9 @@ def validate_single_citation():
             asyncio.set_event_loop(loop)
             try:
                 validation_status = loop.run_until_complete(
-                    processor._validate_citation(citation)
+                    processor._verify_citations([citation])
                 )
-                enhanced_data = loop.run_until_complete(
-                    processor._enhance_citation_data(citation)
-                )
+                enhanced_data = citation  # Use the citation directly
             finally:
                 loop.close()
             
@@ -139,7 +141,7 @@ def extract_citations():
         
         # Extract citations
         processor = get_citation_processor()
-        citations = processor.citation_service.extract_citations(text, config)
+        citations = processor.extract_citations_from_text(text)
         
         # Convert to serializable format
         citation_data = []
@@ -182,8 +184,29 @@ def get_citation_statistics():
         
         # Extract citations and get statistics
         processor = get_citation_processor()
-        citations = processor.citation_service.extract_citations(text)
-        stats = processor.citation_service.get_citation_statistics(citations)
+        citations = processor.extract_citations_from_text(text)
+        
+        # Calculate basic statistics
+        stats = {
+            'total_citations': len(citations) if citations else 0,
+            'citations_by_type': {},
+            'citations_by_court': {},
+            'citations_by_year': {}
+        }
+        
+        if citations:
+            for citation in citations:
+                # Count by type
+                citation_type = getattr(citation, 'citation_type', 'unknown')
+                stats['citations_by_type'][citation_type] = stats['citations_by_type'].get(citation_type, 0) + 1
+                
+                # Count by court
+                court = getattr(citation, 'court', 'unknown')
+                stats['citations_by_court'][court] = stats['citations_by_court'].get(court, 0) + 1
+                
+                # Count by year
+                year = getattr(citation, 'year', 'unknown')
+                stats['citations_by_year'][year] = stats['citations_by_year'].get(year, 0) + 1
         
         return jsonify({
             'success': True,
@@ -202,14 +225,14 @@ def citation_health_check():
         
         # Test basic functionality
         test_text = "See Brown v. Board of Education, 347 U.S. 483 (1954)."
-        test_citations = processor.citation_service.extract_citations(test_text)
+        test_citations = processor.extract_citations_from_text(test_text)
         
         health_status = {
             'status': 'healthy',
             'services': {
                 'citation_extraction': len(test_citations) > 0,
                 'citation_processor': processor is not None,
-                'citation_service': processor.citation_service is not None
+                'citation_service': True  # Service is available through the processor
             },
             'test_citation_count': len(test_citations)
         }

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # This module is deprecated. Use src.document_processing_unified.extract_text_from_file instead.
 
-from src.document_processing_unified import extract_text_from_file
+from src.document_processing_unified import extract_text_from_file as extract_text_from_file_unified
 
 # Check if pdf2md is available (commented out due to Pylance warning)
 # try:
@@ -161,4 +161,4 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         DeprecationWarning,
         stacklevel=2
     )
-    return extract_text_from_file(file_path, convert_pdf_to_md=convert_pdf_to_md)
+    return extract_text_from_file_unified(file_path)

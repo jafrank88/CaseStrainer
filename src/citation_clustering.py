@@ -1,13 +1,16 @@
 import warnings
 import re
+import logging
 from collections import defaultdict, deque, Counter
 from typing import List, Dict, Any
 from src.models import CitationResult
 import os
 
+logger = logging.getLogger(__name__)
+
 # --- Clustering and propagation logic moved from unified_citation_processor_v2.py ---
 
-def group_citations_into_clusters(citations: list, original_text: str = None) -> list:
+def group_citations_into_clusters(citations: list, original_text: str | None = None) -> list:
     clusters_by_id = {}
     # --- NEW: If any member of a parallel group is verified, cluster all members together ---
     # Build a mapping from citation to its parallel group
@@ -158,14 +161,15 @@ def group_citations_into_clusters(citations: list, original_text: str = None) ->
                         clusters_by_id[matching_cluster_id].append(citation)
                     
                     # Mark as in cluster
-                    if hasattr(citation, 'metadata'):
-                        citation.metadata = citation.metadata or {}
-                        citation.metadata['is_in_cluster'] = True
-                        citation.metadata['cluster_id'] = matching_cluster_id
-                    elif isinstance(citation, dict):
-                        citation.setdefault('metadata', {})
+                    if isinstance(citation, dict):
+                        if 'metadata' not in citation:
+                            citation['metadata'] = {}
                         citation['metadata']['is_in_cluster'] = True
                         citation['metadata']['cluster_id'] = matching_cluster_id
+                    elif hasattr(citation, 'metadata'):
+                        citation.metadata = getattr(citation, 'metadata', {}) or {}
+                        citation.metadata['is_in_cluster'] = True
+                        citation.metadata['cluster_id'] = matching_cluster_id
     
     # --- FALLBACK: Create new clusters for remaining unverified citations ---
     extracted_clusters = {}

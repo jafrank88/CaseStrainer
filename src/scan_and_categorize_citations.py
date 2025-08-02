@@ -17,11 +17,26 @@ logger = logging.getLogger(__name__)
 
 # Import functions from app_final_vue.py
 try:
-    from src.app_final_vue import is_landmark_case
+    # Note: is_landmark_case function doesn't exist in app_final_vue.py
+    # Creating a fallback function for landmark case checking
+    def is_landmark_case(citation_text: str) -> bool:
+        """Fallback function to check if a citation is a landmark case."""
+        landmark_cases = [
+            "Brown v. Board of Education",
+            "Gideon v. Wainwright",
+            "Miranda v. Arizona",
+            "Roe v. Wade",
+            "Marbury v. Madison"
+        ]
+        return any(landmark in citation_text for landmark in landmark_cases)
 
-    logger.info("Successfully imported landmark case checker from app_final_vue.py")
+    logger.info("Created fallback landmark case checker function")
 except ImportError:
-    logger.warning("Warning: Could not import landmark case checker from app_final_vue.py")
+    logger.warning("Warning: Could not create landmark case checker function")
+
+    def is_landmark_case(citation_text: str) -> bool:
+        """Fallback function to check if a citation is a landmark case."""
+        return False
 
 # Citation format patterns
 CITATION_PATTERNS = {

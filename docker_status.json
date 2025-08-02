@@ -1,0 +1,46 @@
+﻿{
+    "DockerComposeAvailable":  false,
+    "DockerServiceStatus":  {
+                                "Status":  1,
+                                "Name":  "com.docker.service",
+                                "StartType":  3
+                            },
+    "DockerProcesses":  [
+                            {
+                                "Id":  10332,
+                                "StartTime":  "\/Date(1753984298335)\/",
+                                "CPU":  22.71875,
+                                "PM":  113381376
+                            },
+                            {
+                                "Id":  19188,
+                                "StartTime":  "\/Date(1753984297119)\/",
+                                "CPU":  0.109375,
+                                "PM":  12673024
+                            },
+                            {
+                                "Id":  19216,
+                                "StartTime":  "\/Date(1753984296096)\/",
+                                "CPU":  4.6875,
+                                "PM":  148611072
+                            },
+                            {
+                                "Id":  20740,
+                                "StartTime":  "\/Date(1753984297067)\/",
+                                "CPU":  5.546875,
+                                "PM":  16494592
+                            }
+                        ],
+    "DockerSystemInfo":  null,
+    "DockerContainers":  null,
+    "DockerDaemonError":  "Docker service is not running (Status: Stopped)",
+    "DockerImages":  null,
+    "DockerInstalled":  true,
+    "DockerNetworks":  null,
+    "DockerVolumes":  null,
+    "DockerRunning":  true,
+    "DockerDaemonAccessible":  false,
+    "WSLStatus":  null,
+    "DockerVersion":  "Docker version 28.3.2, build 578ccf6",
+    "DockerInfo":  null
+}

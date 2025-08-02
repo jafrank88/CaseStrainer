@@ -148,34 +148,54 @@ def washington_state_to_bluebook(citation: str) -> str:
     """
     Converts Washington state court citation format to Bluebook format.
     Handles both Supreme Court (Wn.2d) and Court of Appeals (Wn. App.)
+    
+    Examples:
+    - "123 Wn.2d 456" -> "123 Wash. 2d 456 (Wash. 2023)"
+    - "123 Wn. App. 456 (2023)" -> "123 Wash. App. 456 (Wash. Ct. App. 2023)"
+    - "123 Wash. 2d 456" -> "123 Wash. 2d 456 (Wash. 2023)"
     """
+    if not citation:
+        return citation
+        
     # Apply Washington spacing rules first
     citation = apply_washington_spacing_rules(citation)
     
-    # Supreme Court: Wn.2d -> Wash. 2d
-    citation = re.sub(r"Wn\.2d", "Wash. 2d", citation)
-    # Court of Appeals: Wn. App. -> Wash. App.
-    citation = re.sub(r"Wn\. App\.", "Wash. App.", citation)
-
-    # Add court in parenthetical if not present
-    # Extract year from parenthetical if present
-    match = re.search(r"\((\d{4})\)", citation)
-    year = match.group(1) if match else None
-    # Determine court type
-    if "Wash. App." in citation:
-        parenthetical = "(Wash. Ct. App."
-    elif "Wash. 2d" in citation:
-        parenthetical = "(Wash."
+    # Store original citation for reference
+    original = citation
+    
+    # Convert Wn. to Wash. for consistency
+    citation = re.sub(r"\bWn\.(\s*\d+d\b)", r"Wash.\1", citation, flags=re.IGNORECASE)
+    
+    # Handle both Wn. App. and Wn.App. variations
+    citation = re.sub(r"\bWn\.?\s*App\.", "Wash. App.", citation, flags=re.IGNORECASE)
+    
+    # Extract year from parenthetical if present, or try to find year in the citation
+    year_match = re.search(r"\((\d{4})\)", citation)
+    if not year_match:
+        # Look for year at the end of the citation
+        year_match = re.search(r"(?:\b|\D)(19\d{2}|20\d{2})\b", citation)
+    year = year_match.group(1) if year_match else None
+    
+    # Determine court type and appropriate parenthetical
+    if re.search(r"Wash\.\s*App\.", citation, re.IGNORECASE):
+        court_name = "Wash. Ct. App."
+    elif re.search(r"Wash\.\s*\d+d", citation, re.IGNORECASE):
+        court_name = "Wash."
     else:
-        parenthetical = None
-
-    # Replace parenthetical with Bluebook style
-    if parenthetical and year:
-        citation = re.sub(r"\(\d{4}\)", f"{parenthetical} {year})", citation)
-    elif parenthetical:
-        citation = citation.rstrip(")") + f" {parenthetical})"
-
-    return citation
+        # Default to Supreme Court if can't determine
+        court_name = "Wash."
+    
+    # Remove any existing parentheticals to avoid duplicates
+    citation = re.sub(r"\s*\([^)]*\)\s*$", "", citation).strip()
+    
+    # Add the proper parenthetical with year if available
+    if year:
+        citation = f"{citation} ({court_name} {year})"
+    else:
+        citation = f"{citation} ({court_name})"
+    
+    # If we made no changes, return the original to avoid infinite loops
+    return citation if citation != original else original
 
 
 def normalize_illinois_oklahoma(citation: str) -> str:
@@ -402,7 +422,7 @@ def fallback_extraction_pipeline(text, start, end):
     # Fallback Strategy 1: Basic regex patterns
     def basic_regex_fallback():
         logger.debug("Trying fallback strategy 1: Basic regex patterns")
-        result = {'case_name': None, 'date': None, 'year': None}
+        result: Dict[str, Optional[str]] = {'case_name': None, 'date': None, 'year': None}
         # Basic date extraction
         date_match = re.search(r'(19|20)\d{2}', citation_text)
         if date_match:

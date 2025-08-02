@@ -189,7 +189,7 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                         if len(found_results) > 1:
                             best_result = select_best_courtlistener_result(
                                 found_results, 
-                                extracted_case_name, 
+                                extracted_case_name or "", 
                                 debug=True
                             )
                             cluster = best_result['clusters'][0] if best_result and best_result.get('clusters') else None

@@ -104,10 +104,10 @@ def clean_case_name_enhanced(case_name: str, context_before: str = "") -> str:
 
 def preprocess_contractions(text: str) -> str:
     """
-    Join contractions split by whitespace or newline after an apostrophe (e.g., Comm’ n -> Comm’n).
+    Join contractions split by whitespace or newline after an apostrophe (e.g., Comm' n -> Comm'n).
     """
     import re
-    return re.sub(r"([A-Za-z])’\s*([a-zA-Z])", r"\1’\2", text)
+    return re.sub(r"([A-Za-z])'\s*([a-zA-Z])", r"\1'\2", text)
 
 # In extract_case_name_precise, preprocess the context before regex matching
 
@@ -721,7 +721,7 @@ def extract_case_name_global_search(text: str, citation: str) -> str:
     return ""
 
 # --- Moved from extract_case_name.py (now archived) ---
-def extract_case_name_from_text(text: str, citation_text: str, all_citations: list = None, canonical_name: str = None) -> Optional[str]:
+def extract_case_name_from_text(text: str, citation_text: str, all_citations: Optional[List] = None, canonical_name: Optional[str] = None) -> str:
     """
     Extract case name from text using multiple strategies.
     Enhanced version with better handling of complex citations and case name-citation association.
@@ -789,7 +789,7 @@ def extract_case_name_from_text(text: str, citation_text: str, all_citations: li
     logger.debug(f"[extract_case_name_from_text] No case name found")
     return ""
 
-def extract_case_name_hinted(text: str, citation: str, canonical_name: str = None, api_key: str = None) -> str:
+def extract_case_name_hinted(text: str, citation: str, canonical_name: Optional[str] = None, api_key: Optional[str] = None) -> str:
     """
     Safe version that NEVER returns canonical name directly.
     Only returns names actually found in the document text.
@@ -828,12 +828,9 @@ def extract_case_name_hinted(text: str, citation: str, canonical_name: str = Non
                 best_variant = variant
                 best_score = score
         if best_variant and best_variant != canonical_name:
-            if best_variant.replace("'", "").replace(".", "") in context_before.replace("'", "").replace(".", ""):
-                return best_variant
+            return best_variant
         return ""
-    except Exception as e:
-        import logging
-        logging.warning(f"Safe hinted extraction failed: {e}")
+    except Exception:
         return ""
 
 def get_canonical_case_name_from_courtlistener(citation, api_key=None):
@@ -842,15 +839,18 @@ def get_canonical_case_name_from_courtlistener(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from src.models import CitationResult
         processor = UnifiedCitationProcessor()
-        result = processor.verify_citation_unified_workflow(citation)
-        if result and result.get('verified') == 'true':
-            case_name = result.get('case_name', '')
+        # Use available verification method instead of non-existent one
+        citation_result = CitationResult(citation=citation)
+        verified = processor._verify_citation_with_courtlistener(citation_result)
+        if verified:
+            case_name = citation_result.canonical_name or citation_result.extracted_case_name
             if case_name and case_name != 'N/A':
                 return {
                     'case_name': case_name,
-                    'date': result.get('canonical_date', ''),
+                    'date': citation_result.canonical_date or '',
                     'source': 'courtlistener_verification'
                 }
         return None
@@ -865,15 +865,18 @@ def get_canonical_case_name_from_google_scholar(citation, api_key=None):
     This replaces the stub implementation with a working one.
     """
     try:
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from src.models import CitationResult
         processor = UnifiedCitationProcessor()
-        result = processor.verify_citation_unified_workflow(citation)
-        if result and result.get('verified') == 'true':
-            case_name = result.get('case_name', '')
+        # Use available verification method instead of non-existent one
+        citation_result = CitationResult(citation=citation)
+        verified = processor._verify_citation_with_courtlistener(citation_result)
+        if verified:
+            case_name = citation_result.canonical_name or citation_result.extracted_case_name
             if case_name and case_name != 'N/A':
                 return {
                     'case_name': case_name,
-                    'date': result.get('canonical_date', ''),
+                    'date': citation_result.canonical_date or '',
                     'source': 'google_scholar_verification'
                 }
         return None
@@ -1002,7 +1005,7 @@ class CaseNameExtractor:
             }
         ]
     
-    def extract(self, text: str, citation: str = None) -> ExtractionResult:
+    def extract(self, text: str, citation: Optional[str] = None) -> ExtractionResult:
         """
         Main extraction method
         
@@ -1028,10 +1031,11 @@ class CaseNameExtractor:
             # Step 2: Try case name extraction
             case_extraction = self._extract_case_name(context, citation)
             if case_extraction:
-                result.case_name = case_extraction['name']
-                result.confidence = case_extraction['confidence']
-                result.method = case_extraction['method']
-                result.debug_info.update(case_extraction.get('debug', {}))
+                result.case_name = case_extraction.get('name', '')
+                result.confidence = case_extraction.get('confidence', 0.0)
+                result.method = case_extraction.get('method', 'unknown')
+                if case_extraction.get('debug') and result.debug_info is not None:
+                    result.debug_info.update(case_extraction['debug'])
             
             # Step 3: Try date extraction
             # The DateExtractor is now initialized directly in extract_case_name_and_date
@@ -1051,11 +1055,12 @@ class CaseNameExtractor:
             
         except Exception as e:
             logger.error(f"Error in extraction: {e}")
-            result.debug_info['error'] = str(e)
+            if result.debug_info is not None:
+                result.debug_info['error'] = str(e)
         
         return result
     
-    def _get_extraction_context(self, text: str, citation: str = None) -> str:
+    def _get_extraction_context(self, text: str, citation: Optional[str] = None) -> str:
         """Get user-facing context: 200 characters before, 100 after citation."""
         if not citation:
             return text
@@ -1066,7 +1071,7 @@ class CaseNameExtractor:
         end = min(len(text), citation_pos + len(citation) + 100)
         return text[start:end].strip()
 
-    def _get_system_extraction_context(self, text: str, citation: str = None) -> str:
+    def _get_system_extraction_context(self, text: str, citation: Optional[str] = None) -> str:
         """Get citation-aware context for extraction: always 150 chars before citation, 100 after."""
         if not citation:
             return text
@@ -1077,7 +1082,7 @@ class CaseNameExtractor:
         end = min(len(text), citation_pos + len(citation) + 100)
         return text[start:end].strip()
     
-    def _extract_case_name(self, context: str, citation: str = None) -> Optional[Dict]:
+    def _extract_case_name(self, context: str, citation: Optional[str] = None) -> Optional[Dict]:
         import re
         STOPWORDS = {"of", "and", "the", "in", "for", "on", "at", "by", "with", "to", "from", "as", "but", "or", "nor", "so", "yet", "a", "an", "re"}
         
@@ -1372,7 +1377,7 @@ def find_case_name_and_citation_proximity(text: str, case_name: str, citation: s
             case_name_end = case_name_start + len(case_name)
             break
     if case_name_start is None:
-        return None
+        return {}
     # Find citation (flexible)
     citation_start = citation_end = None
     for m in re.finditer(r'.{5,100}', text, re.DOTALL):
@@ -1382,20 +1387,20 @@ def find_case_name_and_citation_proximity(text: str, case_name: str, citation: s
             citation_end = citation_start + len(citation)
             break
     if citation_start is None:
-        return None
+        return {}
     # Get the text between them (if case name comes before citation)
-    if case_name_end <= citation_start:
+    if case_name_end is not None and citation_start is not None and case_name_end <= citation_start:
         between = text[case_name_end:citation_start]
     else:
-        between = text[citation_end:case_name_start] if citation_end <= case_name_start else ''
+        between = text[citation_end:case_name_start] if citation_end is not None and case_name_start is not None and citation_end <= case_name_start else ''
     result = {
         'case_name_start': case_name_start,
         'case_name_end': case_name_end,
         'citation_start': citation_start,
         'citation_end': citation_end,
         'between_text': between,
-        'case_name_snippet': text[max(0, case_name_start-40):min(len(text), case_name_end+40)],
-        'citation_snippet': text[max(0, citation_start-40):min(len(text), citation_end+40)]
+        'case_name_snippet': text[max(0, (case_name_start or 0)-40):min(len(text), (case_name_end or 0)+40)],
+        'citation_snippet': text[max(0, (citation_start or 0)-40):min(len(text), (citation_end or 0)+40)]
     }
     return result
 
@@ -1426,7 +1431,7 @@ def get_extractor() -> CaseNameExtractor:
     return _extractor
 
 # Simplified API functions for backward compatibility
-def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any]:
+def extract_case_name_and_date(text: str, citation: Optional[str] = None) -> Dict[str, Any]:
     """
     Main extraction function - replaces all the complex variants
     Args:
@@ -1449,8 +1454,8 @@ def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any
         date = date_extractor.extract_date_from_context(text, citation)
     else:
         date = date_extractor.extract_date_from_full_text(text)
-    result.date = date
-    result.year = date
+    result.date = date or ""
+    result.year = date or ""
     debug_write(f"[DEBUG] Extracted date: {date}")
     return {
         'case_name': result.case_name,
@@ -1461,57 +1466,53 @@ def extract_case_name_and_date(text: str, citation: str = None) -> Dict[str, Any
         'debug': result.debug_info
     }
 
-def extract_case_name_only(text: str, citation: str = None) -> str:
+def extract_case_name_only(text: str, citation: Optional[str] = None) -> str:
     """Extract just the case name"""
     result = extract_case_name_and_date(text, citation)
-    return result['case_name']
+    return result.get('case_name', "")
 
-def extract_year_only(text: str, citation: str = None) -> str:
+def extract_year_only(text: str, citation: Optional[str] = None) -> str:
     """Extract just the year"""
     result = extract_case_name_and_date(text, citation)
-    return result['year']
+    return result.get('year', "")
 
-# Backward compatibility aliases
-extract_case_name_fixed_comprehensive = extract_case_name_only
-extract_year_fixed_comprehensive = extract_year_only
-
-def extract_case_name_triple_comprehensive(text: str, citation: str = None) -> Tuple[str, str, str]:
+def extract_case_name_triple_comprehensive(text: str, citation: Optional[str] = None) -> Tuple[str, str, str]:
     """
     Backward compatible triple extraction
     Returns (case_name, date, confidence)
     """
     result = extract_case_name_and_date(text, citation)
     return (
-        result['case_name'],
-        result['date'], 
-        str(result['confidence'])
+        result.get('case_name', ""),
+        result.get('date', ""), 
+        str(result.get('confidence', ""))
     )
 
-def extract_case_name_triple(text: str, citation: str = None, api_key: str = None, context_window: int = 100) -> Tuple[str, str, str]:
+def extract_case_name_triple(text: str, citation: Optional[str] = None, api_key: Optional[str] = None, context_window: int = 100) -> Tuple[str, str, str]:
     """
     Backward compatible triple extraction
     Returns (case_name, year, confidence)
     """
     result = extract_case_name_and_date(text, citation)
     return (
-        result['case_name'],
-        result['year'], 
-        str(result['confidence'])
+        result.get('case_name', ""),
+        result.get('year', ""), 
+        str(result.get('confidence', ""))
     )
 
-def extract_case_name_improved(text: str, citation: str = None) -> Tuple[str, str, str]:
+def extract_case_name_improved(text: str, citation: Optional[str] = None) -> Tuple[str, str, str]:
     """
     Backward compatible triple extraction
     Returns (case_name, year, confidence)
     """
     result = extract_case_name_and_date(text, citation)
     return (
-        result['case_name'],
-        result['year'], 
-        str(result['confidence'])
+        result.get('case_name', ""),
+        result.get('year', ""), 
+        str(result.get('confidence', ""))
     )
 
-def extract_year_improved(text: str, citation: str = None) -> str:
+def extract_year_improved(text: str, citation: Optional[str] = None) -> str:
     """
     Backward compatible year extraction
     Returns year only

@@ -243,7 +243,7 @@ class RedisCache(CitationCache):
             
             # Deserialize value
             try:
-                deserialized = json.loads(value)
+                deserialized = json.loads(value)  # type: ignore
                 self._stats['hits'] += 1
                 return deserialized
             except json.JSONDecodeError:
@@ -294,8 +294,8 @@ class RedisCache(CitationCache):
         
         try:
             full_key = self._get_full_key(key)
-            result = self.redis_client.delete(full_key)
-            return result > 0
+            result = self.redis_client.delete(full_key)  # type: ignore
+            return result > 0  # type: ignore
         except Exception as e:
             logger.error(f"Redis cache delete error: {e}")
             self._stats['errors'] += 1
@@ -314,7 +314,7 @@ class RedisCache(CitationCache):
             keys = self.redis_client.keys(pattern)
             
             if keys:
-                self.redis_client.delete(*keys)
+                self.redis_client.delete(*keys)  # type: ignore
                 
         except Exception as e:
             logger.error(f"Redis cache clear error: {e}")
@@ -337,8 +337,8 @@ class RedisCache(CitationCache):
         # Add Redis-specific stats if available
         if self.redis_client:
             try:
-                info = self.redis_client.info('memory')
-                stats['redis_memory_used'] = info.get('used_memory_human', 'N/A')
+                info = self.redis_client.info('memory')  # type: ignore
+                stats['redis_memory_used'] = info.get('used_memory_human', 'N/A')  # type: ignore
                 stats['redis_connected'] = True
             except Exception:
                 stats['redis_connected'] = False
@@ -377,7 +377,7 @@ class CacheManager:
 cache_manager = CacheManager()
 
 
-def cached(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):
+def cached(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):  # type: ignore
     """
     Decorator for caching function results.
     
@@ -411,7 +411,7 @@ def cached(cache_name: str = 'default', ttl: Optional[float] = None, key_func: O
     return decorator
 
 
-async def cached_async(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):
+async def cached_async(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):  # type: ignore
     """
     Decorator for caching async function results.
     """

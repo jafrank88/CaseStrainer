@@ -1,4 +1,10 @@
 import sqlite3
+import logging
+from .config import get_database_path
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Sample citation data for 33 citations
 sample_citations = [
@@ -173,8 +179,8 @@ sample_citations = [
 def populate_multitool_data():
     """Populate the multitool_confirmed_citations table with 33 sample citations."""
     try:
-        # Connect to the database
-        conn = sqlite3.connect("citations.db")
+        # Connect to the database using the canonical path
+        conn = sqlite3.connect(get_database_path())
         cursor = conn.cursor()
 
         # Check if the table exists

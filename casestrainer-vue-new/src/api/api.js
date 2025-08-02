@@ -22,8 +22,18 @@ if (import.meta.env.DEV) {
   });
 }
 
-// Add request interceptor to set specific timeouts for different endpoints
+// Add request interceptor to set specific timeouts and headers for different endpoints
 api.interceptors.request.use(config => {
+  // Set default headers if not already set
+  if (!config.headers) {
+    config.headers = {};
+  }
+  
+  // Set Content-Type header for JSON requests
+  if (!(config.data instanceof FormData) && !config.headers['Content-Type']) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+  
   // Set longer timeout for URL analysis
   if (config.url === '/analyze' && config.data && config.data.type === 'url') {
     config.timeout = 300000; // 5 minutes for URL analysis
@@ -34,6 +44,8 @@ api.interceptors.request.use(config => {
     config.timeout = 600000; // 10 minutes for file uploads
     config.retryCount = 0;
     config.maxRetries = 1;
+    // Remove Content-Type header for FormData to let the browser set it with the correct boundary
+    delete config.headers['Content-Type'];
   } else {
     config.timeout = 120000; // 2 minutes for other endpoints
     config.retryCount = 0;

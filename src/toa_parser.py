@@ -14,7 +14,7 @@ import re
 import logging
 import time
 import threading
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from dataclasses import dataclass
 from functools import wraps
 
@@ -31,8 +31,8 @@ def timeout(seconds):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            result = [None]
-            exception = [None]
+            result: List[Any] = [None]
+            exception: List[Optional[Exception]] = [None]
             
             def target():
                 try:

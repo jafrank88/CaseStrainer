@@ -1,14 +1,22 @@
+# type: ignore
 import platform
 import sys
 import os
+import logging
 
-def patch_rq_for_windows():
+# Set up logging
+logger = logging.getLogger(__name__)
+
+def patch_rq_for_windows() -> bool:
     """Comprehensive patch for RQ Windows compatibility"""
     if platform.system() == 'Windows':
         try:
             # Only patch os.fork if it doesn't exist (don't override if it does)
-            if not hasattr(os, 'fork'):
-                os.fork = lambda: None
+            if not hasattr(os, 'fork'):  # type: ignore
+                # Create a dummy fork function for Windows
+                def dummy_fork():
+                    return None
+                os.fork = dummy_fork
             
             # Import and patch signal module before any RQ imports
             import signal
@@ -18,13 +26,14 @@ def patch_rq_for_windows():
                 pass
             
             # Patch signal.SIGALRM to a valid signal number and set up handler
-            if not hasattr(signal, 'SIGALRM'):
-                signal.SIGALRM = 15  # Use SIGTERM (15)
+            if not hasattr(signal, 'SIGALRM'):  # type: ignore
+                # Use a dummy signal number for Windows
+                signal.SIGALRM = 15  # Use SIGTERM (15) as fallback
                 # Set up a no-op handler for SIGALRM
                 try:
-                    signal.signal(signal.SIGALRM, noop_signal_handler)
+                    signal.signal(signal.SIGALRM, noop_signal_handler)  # type: ignore
                 except (OSError, ValueError):
-                    # Ignore errors setting up signal handler
+                    # Ignore errors setting up signal handler on Windows
                     pass
             
             # Patch RQ timeouts to use a no-op death penalty
@@ -43,7 +52,7 @@ def patch_rq_for_windows():
                 rq.timeouts.BaseDeathPenalty = WindowsDeathPenalty
                 
                 # Also patch the DeathPenalty class if it exists
-                if hasattr(rq.timeouts, 'DeathPenalty'):
+                if hasattr(rq.timeouts, 'DeathPenalty'):  # type: ignore
                     rq.timeouts.DeathPenalty = WindowsDeathPenalty
                     
             except ImportError:

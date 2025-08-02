@@ -1,8 +1,12 @@
 import os
 import time
 import re
+import logging
 from datetime import datetime
 from colorama import init, Fore, Style
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Initialize colorama for colored terminal output
 init()

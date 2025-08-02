@@ -23,7 +23,8 @@ import hashlib
 import tempfile
 import gzip
 from pathlib import Path
-from .config import DATABASE_FILE
+# Use absolute import for DATABASE_FILE
+from src.config import DATABASE_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -303,12 +304,12 @@ class DatabaseManager:
                     else:
                         conn.close()
     
-    def execute_query(self, query: str, params: tuple = None) -> List[Dict[str, Any]]:
+    def execute_query(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
         """Execute a query and return results as list of dictionaries."""
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                if params:
+                if params is not None:
                     cursor.execute(query, params)
                 else:
                     cursor.execute(query)
@@ -341,9 +342,9 @@ class DatabaseManager:
             logger.error(f"Batch query execution error: {e}")
             raise
     
-    def backup_database(self, backup_path: str = None) -> str:
+    def backup_database(self, backup_path: Optional[str] = None) -> str:
         """Create a compressed backup of the database."""
-        if not backup_path:
+        if backup_path is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_dir = os.path.join(os.path.dirname(self.db_path), "backups")
             os.makedirs(backup_dir, exist_ok=True)

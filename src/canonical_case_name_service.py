@@ -43,7 +43,7 @@ except Exception as e:
     logger.warning(f"Could not create fallback log file: {e}")
     logger.error(f"FALLBACK LOGGING ERROR: Could not create fallback log file: {e}")
 
-def log_fallback_usage(citation: str, fallback_type: str, reason: str, context: Dict = None):
+def log_fallback_usage(citation: str, fallback_type: str, reason: str, context: Optional[Dict] = None):
     """Log fallback usage to dedicated log file"""
     try:
         log_entry = {
@@ -68,7 +68,7 @@ class CanonicalResult:
     source: str = "unknown"
     confidence: float = 0.0
     verified: bool = False
-    parallel_citations: List[str] = None
+    parallel_citations: Optional[List[str]] = None
     
     def __post_init__(self):
         if self.parallel_citations is None:
@@ -203,10 +203,10 @@ class CanonicalCaseNameService:
                 from src.canonical_case_name_service import is_valid_case_name
                 if result and result.case_name:
                     if not is_valid_case_name(result.case_name):
-                        logger.warning(f"[HARDFILTER] Rejected result from {service_name} for '{citation}': '{result.case_name}' is not a valid case name (hard filter)")
+                        logger.warning(f"[HARDFILTER] Rejected result from {service_name} for '{citation or ''}': '{result.case_name}' is not a valid case name (hard filter)")
                         continue
                     else:
-                        logger.info(f"[HARDFILTER] Accepted result from {service_name} for '{citation}': '{result.case_name}' is a valid case name (hard filter)")
+                        logger.info(f"[HARDFILTER] Accepted result from {service_name} for '{citation or ''}': '{result.case_name}' is a valid case name (hard filter)")
                 if result and result.case_name:
                     logger.info(f"Found canonical result via {service_name}: {result.case_name}")
                     # Log if fallback was used (web_sources only)
@@ -373,16 +373,21 @@ class CanonicalCaseNameService:
                 
             if PROCESSOR_AVAILABLE:
                 processor = UnifiedCitationProcessorV2()
-                result = processor.verify_citation_unified_workflow(citation)
-                
-                if result.get("verified"):
-                    return CanonicalResult(
-                        case_name=result.get("case_name") or result.get("canonical_name"),
-                        date=result.get("canonical_date"),
-                        url=result.get("url"),
-                        source="Westlaw (via UnifiedProcessor)",
-                        confidence=result.get("confidence", 0.8)
-                    )
+                # Use available verification method instead of non-existent one
+                try:
+                    from src.models import CitationResult
+                    citation_result = CitationResult(citation=citation)
+                    verified = processor._verify_citation_with_courtlistener(citation_result)
+                    if verified:
+                        return CanonicalResult(
+                            case_name=citation_result.canonical_name or citation_result.extracted_case_name,
+                            date=citation_result.canonical_date,
+                            url=citation_result.url,
+                            source="Westlaw (via UnifiedProcessor)",
+                            confidence=0.8
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to verify citation {citation or ''}: {e}")
             
             # If no Westlaw API key, return None
             if not self.westlaw_api_key:
@@ -520,7 +525,7 @@ class CanonicalCaseNameService:
                                 if legal_results:
                                     best = legal_results[0]
                                     candidate_name = best.get('title')
-                                    is_valid = is_valid_case_name(candidate_name)
+                                    is_valid = candidate_name and is_valid_case_name(candidate_name)
                                     if is_valid:
                                         print(f"[DEBUG] [WEBSEARCH] Found valid canonical result (site-specific): {candidate_name} | URL: {best.get('url')}")
                                         found_valid_result = best
@@ -598,7 +603,7 @@ class CanonicalCaseNameService:
                                 if legal_results:
                                     best = legal_results[0]
                                     candidate_name = best.get('title')
-                                    is_valid = is_valid_case_name(candidate_name)
+                                    is_valid = candidate_name and is_valid_case_name(candidate_name)
                                     if is_valid:
                                         print(f"[DEBUG] [WEBSEARCH] Found valid canonical result: {candidate_name} | URL: {best.get('url')}")
                                         found_valid_result = best
@@ -647,7 +652,7 @@ class CanonicalCaseNameService:
             if legal_results:
                 best = legal_results[0]
                 candidate_name = best.get('title')
-                is_valid = is_valid_case_name(candidate_name)
+                is_valid = candidate_name and is_valid_case_name(candidate_name)
                 print(f"[DEBUG] [WEBSEARCH] Candidate name: {candidate_name}, is_valid: {is_valid}")
                 if not is_valid:
                     print(f"[DEBUG] [WEBSEARCH] Rejected candidate name: {candidate_name}")
@@ -679,7 +684,7 @@ class CanonicalCaseNameService:
             print(f"[DEBUG] [WEBSEARCH] Exception occurred: {e}")
         return None
 
-def is_valid_case_name(name: str) -> bool:
+def is_valid_case_name(name: Optional[str]) -> bool:
     """Return True if the name looks like a real legal case name (e.g., contains ' v. ' or ' vs. ')."""
     if not name or not isinstance(name, str):
         return False
@@ -698,7 +703,7 @@ def is_valid_case_name(name: str) -> bool:
 # Global service instance
 _canonical_service = None
 
-def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Optional[Dict[str, Any]]:
+def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Main function to get canonical case name and date information.
     
@@ -711,13 +716,19 @@ def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Opt
     """
     global _canonical_service
     
+    # Handle None case before passing to _normalize_citation
+    if citation is None:
+        citation = ""
+    
     if _canonical_service is None:
         _canonical_service = CanonicalCaseNameService()
     
     try:
         # Normalize citation for lookup
-        normalized_citation = _canonical_service._normalize_citation(citation)
-        logger.info(f"get_canonical_case_name_with_date called for: {citation} (normalized: {normalized_citation})")
+        # At this point, citation is guaranteed to be a string
+        citation_str: str = citation
+        normalized_citation = _canonical_service._normalize_citation(str(citation_str))
+        logger.info(f"get_canonical_case_name_with_date called for: {citation_str} (normalized: {normalized_citation})")
         
         # Perform cached lookup
         result = _canonical_service._cached_lookup(normalized_citation)
@@ -725,12 +736,12 @@ def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Opt
         
         # TOP-LEVEL HARDFILTER: Only return if case_name is valid (applies to all results, even from cache)
         from src.canonical_case_name_service import is_valid_case_name
-        if result and result.case_name:
+        if result and result.case_name is not None:
             if not is_valid_case_name(result.case_name):
-                logger.warning(f"[TOP-HARDFILTER] Rejected result for '{citation}': '{result.case_name}' is not a valid case name (top-level hard filter)")
+                logger.warning(f"[TOP-HARDFILTER] Rejected result for '{citation_str}': '{result.case_name}' is not a valid case name (top-level hard filter)")
                 return None
             else:
-                logger.info(f"[TOP-HARDFILTER] Accepted result for '{citation}': '{result.case_name}' is a valid case name (top-level hard filter)")
+                logger.info(f"[TOP-HARDFILTER] Accepted result for '{citation_str}': '{result.case_name}' is a valid case name (top-level hard filter)")
         
         if result:
             # Convert to dictionary for backward compatibility
@@ -746,14 +757,14 @@ def get_canonical_case_name_with_date(citation: str, api_key: str = None) -> Opt
                 'parallel_citations': result.parallel_citations
             }
         
-        logger.info(f"No canonical result found for: {citation}")
+        logger.info(f"No canonical result found for: {citation_str}")
         return None
         
     except Exception as e:
         logger.error(f"Error in get_canonical_case_name_with_date: {e}")
         return None
 
-def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]:
+def get_canonical_case_name(citation: Optional[str], api_key: Optional[str] = None) -> Optional[str]:
     """
     Simplified function to get just the case name.
     
@@ -764,7 +775,12 @@ def get_canonical_case_name(citation: str, api_key: str = None) -> Optional[str]
     Returns:
         Case name string or None if not found
     """
-    result = get_canonical_case_name_with_date(citation, api_key)
+    # Handle None case before passing to get_canonical_case_name_with_date
+    if citation is None:
+        citation = ""
+    # At this point, citation is guaranteed to be a string
+    citation_str: str = citation
+    result = get_canonical_case_name_with_date(citation_str, api_key)
     return result.get('case_name') if result else None
 
 def test_canonical_lookup():

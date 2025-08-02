@@ -4,7 +4,11 @@ Simple ToA vs main body extraction - just basic counts and examples.
 """
 
 import re
+import logging
 from src.toa_parser import ToAParser
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 def extract_toa_section(text):
     """Simple ToA extraction."""

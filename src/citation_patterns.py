@@ -22,7 +22,8 @@ CITATION_PATTERNS = {
     "case_citation": r"\b[A-Z][A-Za-z]+\s+v\.\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s*,\s*\d+\s+[A-Za-z\.\s]+\d+\b",
     # Washington State Reports (e.g., 104 Wn.2d 142, 27 Wn. App. 451)
     # Updated to support up to 5 digits for volume and up to 12 digits for page
-    "washington_reports": r"\b(\d{1,5})\s+Wn\.(?:\s*(\d*(?:d|nd|rd|th)))?(?:\s+App\.)?\s+(\d{1,12})\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
+    # Handles line breaks between reporter and page number
+    "washington_reports": r"\b(\d{1,5})\s+Wn\.(?:\s*(\d*(?:d|nd|rd|th)))?(?:\s+App\.)?[\s\r\n]+(\d{1,12})\b(?:\s*,\s*\d+\s*[a-zA-Z\.\s,]*\d{4}\)?)?",
 }
 
 # Common legal citation formats that might appear in text

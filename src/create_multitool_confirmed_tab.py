@@ -8,10 +8,21 @@ with the multi-source tool but not with CourtListener, along with all context.
 import os
 import json
 import sqlite3
+import logging
 from datetime import datetime
 
+# Set up logging
+logger = logging.getLogger(__name__)
+
+# Try to import get_database_path, fallback to default if not available
+try:
+    from src.config import get_database_path
+except ImportError:
+    def get_database_path() -> str:
+        return "citations.db"
+
 # Constants
-DATABASE_FILE = "citations.db"
+DATABASE_FILE = get_database_path()
 VERIFICATION_RESULTS_FILE = "verification_results.json"
 
 

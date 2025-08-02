@@ -1,0 +1,235 @@
+"""
+ML Predictor Module
+Advanced ML-based prediction for search optimization and error recovery.
+"""
+
+import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
+from .cache import CacheManager
+
+
+class AdvancedMLPredictor:
+    """Advanced ML-based prediction for search optimization and error recovery."""
+    
+    def __init__(self, cache_manager: CacheManager):
+        self.cache = cache_manager
+        self.feature_weights = {
+            'citation_pattern': 0.25,
+            'case_name_complexity': 0.20,
+            'year_recency': 0.15,
+            'court_type': 0.20,
+            'historical_success': 0.20
+        }
+        
+        # Historical success rates by source and citation type
+        self.success_rates = {
+            'washington_state': {
+                'justia': 0.85,
+                'findlaw': 0.80,
+                'courtlistener_web': 0.90,
+                'leagle': 0.75,
+                'casetext': 0.70
+            },
+            'federal_supreme': {
+                'justia': 0.90,
+                'findlaw': 0.85,
+                'google_scholar': 0.80,
+                'courtlistener_web': 0.95
+            },
+            'federal_circuit': {
+                'justia': 0.80,
+                'findlaw': 0.75,
+                'leagle': 0.85,
+                'casetext': 0.80
+            }
+        }
+    
+    def extract_features(self, citation: str, case_name: Optional[str] = None) -> Dict[str, Any]:
+        """Extract comprehensive features for ML prediction."""
+        features = {}
+        
+        # Citation pattern features
+        features['citation_pattern'] = self._extract_citation_pattern(citation)
+        features['volume_number'] = self._extract_volume_number(citation)
+        features['reporter_type'] = self._extract_reporter_type(citation)
+        features['year'] = self._extract_year(citation)
+        
+        # Case name features
+        if case_name:
+            features['case_name_complexity'] = self._calculate_name_complexity(case_name)
+            features['party_count'] = self._count_parties(case_name)
+            features['has_abbreviations'] = self._has_abbreviations(case_name)
+        
+        # Court type features
+        features['court_type'] = self._determine_court_type(citation, case_name)
+        
+        # Year recency features
+        year = features.get('year')
+        if year is not None:
+            features['year_recency'] = self._calculate_year_recency(year)
+        
+        return features
+    
+    def _extract_citation_pattern(self, citation: str) -> str:
+        """Extract the citation pattern type."""
+        patterns = {
+            'washington_state': [r'Wn\.?\s*\d+', r'Wash\.?\s*\d+'],
+            'federal_supreme': [r'U\.S\.?\s+\d+'],
+            'federal_circuit': [r'F\.?\s*\d+', r'Fed\.?\s*\d+'],
+            'pacific_reporter': [r'P\.?\s*\d+', r'Pac\.?\s*\d+']
+        }
+        
+        for pattern_type, pattern_list in patterns.items():
+            for pattern in pattern_list:
+                if re.search(pattern, citation, re.IGNORECASE):
+                    return pattern_type
+        
+        return 'unknown'
+    
+    def _extract_volume_number(self, citation: str) -> Optional[int]:
+        """Extract volume number from citation."""
+        match = re.search(r'(\d+)\s+[A-Za-z]', citation)
+        return int(match.group(1)) if match else None
+    
+    def _extract_reporter_type(self, citation: str) -> str:
+        """Extract reporter type from citation."""
+        reporters = {
+            'Wn.': 'washington',
+            'Wash.': 'washington',
+            'U.S.': 'supreme',
+            'F.': 'federal',
+            'P.': 'pacific'
+        }
+        
+        for abbrev, reporter_type in reporters.items():
+            if abbrev in citation:
+                return reporter_type
+        
+        return 'unknown'
+    
+    def _extract_year(self, citation: str) -> Optional[int]:
+        """Extract year from citation."""
+        match = re.search(r'\b(19|20)\d{2}\b', citation)
+        return int(match.group(0)) if match else None
+    
+    def _calculate_name_complexity(self, case_name: str) -> float:
+        """Calculate case name complexity score."""
+        if not case_name:
+            return 0.0
+        
+        # Factors: length, special characters, abbreviations
+        length_factor = min(len(case_name) / 100, 1.0)
+        special_char_factor = len(re.findall(r'[&,\.]', case_name)) / 10
+        abbrev_factor = len(re.findall(r'\b[A-Z]{2,}\b', case_name)) / 5
+        
+        return min(length_factor + special_char_factor + abbrev_factor, 1.0)
+    
+    def _count_parties(self, case_name: str) -> int:
+        """Count number of parties in case name."""
+        if not case_name:
+            return 0
+        
+        # Count "v." occurrences
+        return len(re.findall(r'\bv\.?\b', case_name, re.IGNORECASE))
+    
+    def _has_abbreviations(self, case_name: str) -> bool:
+        """Check if case name has abbreviations."""
+        if not case_name:
+            return False
+        
+        return bool(re.search(r'\b(LLC|Inc|Corp|Co|Ltd|Dep\'t|Dept)\b', case_name, re.IGNORECASE))
+    
+    def _determine_court_type(self, citation: str, case_name: Optional[str] = None) -> str:
+        """Determine court type from citation and case name."""
+        # Check citation patterns first
+        if re.search(r'Wn\.?\s*\d+', citation, re.IGNORECASE):
+            return 'washington_state'
+        elif re.search(r'U\.S\.?\s+\d+', citation, re.IGNORECASE):
+            return 'federal_supreme'
+        elif re.search(r'F\.?\s*\d+', citation, re.IGNORECASE):
+            return 'federal_circuit'
+        
+        # Check case name patterns
+        if case_name:
+            if re.search(r'\bState\b.*\bv\.?\b', case_name, re.IGNORECASE):
+                return 'state_court'
+            elif re.search(r'\bUnited States\b', case_name, re.IGNORECASE):
+                return 'federal_court'
+        
+        return 'unknown'
+    
+    def _calculate_year_recency(self, year: int) -> float:
+        """Calculate year recency score (0-1, newer = higher)."""
+        current_year = datetime.now().year
+        age = current_year - year
+        
+        if age <= 5:
+            return 1.0
+        elif age <= 10:
+            return 0.8
+        elif age <= 20:
+            return 0.6
+        elif age <= 50:
+            return 0.4
+        else:
+            return 0.2
+    
+    def predict_optimal_sources(self, citation: str, case_name: Optional[str] = None) -> List[Tuple[str, float]]:
+        """Predict optimal sources with confidence scores."""
+        features = self.extract_features(citation, case_name)
+        court_type = features.get('court_type', 'unknown')
+        
+        # Get base success rates for this court type
+        base_rates = self.success_rates.get(court_type, {})
+        
+        # Calculate adjusted scores based on features
+        source_scores = []
+        for source, base_rate in base_rates.items():
+            score = base_rate
+            
+            # Adjust based on year recency
+            if features.get('year_recency'):
+                if features['year_recency'] > 0.8:  # Recent case
+                    if source in ['casetext', 'vlex']:
+                        score *= 1.2
+                else:  # Older case
+                    if source in ['justia', 'findlaw']:
+                        score *= 1.1
+            
+            # Adjust based on case name complexity
+            if features.get('case_name_complexity', 0) > 0.7:
+                if source in ['justia', 'findlaw']:
+                    score *= 1.1
+            
+            # Adjust based on citation pattern
+            if features.get('citation_pattern') == 'washington_state':
+                if source in ['justia', 'findlaw', 'courtlistener_web']:
+                    score *= 1.15
+            
+            source_scores.append((source, min(score, 1.0)))
+        
+        # Sort by score (highest first)
+        source_scores.sort(key=lambda x: x[1], reverse=True)
+        
+        return source_scores
+    
+    def update_success_rate(self, source: str, court_type: str, success: bool):
+        """Update historical success rates based on actual results."""
+        cache_key = f"success_rate_{source}_{court_type}"
+        
+        # Get current rates
+        current_data = self.cache.get(cache_key) or {'successes': 0, 'total': 0}
+        
+        current_data['total'] += 1
+        if success:
+            current_data['successes'] += 1
+        
+        # Update cache
+        self.cache.set(cache_key, value=current_data, ttl_hours=168)  # 1 week
+        
+        # Update in-memory rates
+        if court_type in self.success_rates and source in self.success_rates[court_type]:
+            new_rate = current_data['successes'] / current_data['total']
+            self.success_rates[court_type][source] = new_rate 

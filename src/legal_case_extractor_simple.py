@@ -4,8 +4,12 @@ A simpler approach that focuses on working with the streamlined case name extrac
 """
 
 import re
+import logging
 from typing import List, Dict, Optional
 from dataclasses import dataclass
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Import the streamlined extractor
 from case_name_extraction_core import extract_case_name_and_date

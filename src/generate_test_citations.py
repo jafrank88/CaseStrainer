@@ -6,6 +6,8 @@ This creates a dataset of 100+ unconfirmed citations that can be used to test th
 import os
 import json
 import random
+import logging
+logger = logging.getLogger(__name__)
 
 # Directory to save generated citations
 DOWNLOAD_DIR = os.path.join(

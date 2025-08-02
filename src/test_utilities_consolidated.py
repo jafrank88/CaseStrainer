@@ -12,6 +12,7 @@ import asyncio
 import aiohttp
 from typing import Dict, Any, Optional
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from .config import get_database_path
 
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -48,7 +49,7 @@ class SimpleTestServer(SimpleHTTPRequestHandler):
     """Simple HTTP server for testing purposes."""
     
     def do_GET(self):
-        if self.path == "/health":
+        if self.path == "/casestrainer/api/health":
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
@@ -93,8 +94,8 @@ def add_sample_citation() -> None:
     engine = CitationCorrectionEngine()
     
     try:
-        # Connect to the database
-        conn = sqlite3.connect(engine.db_path)
+        # Connect to the database using the canonical path
+        conn = sqlite3.connect(get_database_path())
         cursor = conn.cursor()
         
         # Add a sample citation
@@ -182,7 +183,7 @@ async def verify_vue_api_logging() -> Dict[str, Any]:
     try:
         # Test Vue API endpoint
         async with aiohttp.ClientSession() as session:
-            async with session.get('http://localhost:5000/api/health') as response:
+            async with session.get('http://localhost:5000/casestrainer/api/health') as response:
                 if response.status == 200:
                     return {
                         'status': 'success',

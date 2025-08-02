@@ -7,9 +7,13 @@ and adds them to the Unconfirmed Citations Database tab for verification.
 
 import sqlite3
 from datetime import datetime
+import logging
+from .config import get_database_path
 
 # Constants
-DATABASE_FILE = "citations.db"
+DATABASE_FILE = get_database_path()
+
+logger = logging.getLogger(__name__)
 
 
 def setup_database_tables():

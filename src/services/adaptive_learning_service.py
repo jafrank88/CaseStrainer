@@ -25,22 +25,26 @@ from src.services.interfaces import CitationResult
 try:
     from src.enhanced_adaptive_processor import EnhancedAdaptiveProcessor
     ADAPTIVE_LEARNING_AVAILABLE = True
+    ImportedEnhancedAdaptiveProcessor = EnhancedAdaptiveProcessor  # type: ignore
 except ImportError:
     try:
         # Try alternative import path
         sys.path.append(str(project_root / "scripts"))
         from enhanced_adaptive_processor import EnhancedAdaptiveProcessor
         ADAPTIVE_LEARNING_AVAILABLE = True
+        ImportedEnhancedAdaptiveProcessor = EnhancedAdaptiveProcessor  # type: ignore
     except ImportError:
         ADAPTIVE_LEARNING_AVAILABLE = False
         # Create a dummy class for when adaptive learning is not available
-        class EnhancedAdaptiveProcessor:
+        class ImportedEnhancedAdaptiveProcessor:  # type: ignore
             def __init__(self, *args, **kwargs):
                 pass
             def extract_case_names(self, text, document_name=""):
                 return []
             def process_text_optimized(self, text, document_name=""):
                 return {"citations": [], "clusters": [], "learning_info": {}}
+            def get_performance_summary(self):
+                return {"enabled": False, "error": "Adaptive learning not available"}
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +84,7 @@ class AdaptiveLearningService:
             os.makedirs(learning_data_dir, exist_ok=True)
             
             try:
-                self.adaptive_processor = EnhancedAdaptiveProcessor(learning_data_dir)
+                self.adaptive_processor = ImportedEnhancedAdaptiveProcessor(learning_data_dir)
                 logger.info(f"Adaptive learning service initialized with data directory: {learning_data_dir}")
             except Exception as e:
                 logger.warning(f"Failed to initialize adaptive processor: {e}")
@@ -124,7 +128,10 @@ class AdaptiveLearningService:
         
         try:
             # Use the adaptive processor to enhance extraction
-            result = self.adaptive_processor.process_text_optimized(text, document_name)
+            if self.adaptive_processor is not None:
+                result = self.adaptive_processor.process_text_optimized(text, document_name)
+            else:
+                result = {"citations": [], "clusters": [], "learning_info": {}}
             
             # Convert adaptive processor results to our format
             improved_citations = self._convert_adaptive_citations(
@@ -221,9 +228,12 @@ class AdaptiveLearningService:
             return {"enabled": False}
         
         try:
-            summary = self.adaptive_processor.get_performance_summary()
-            summary["enabled"] = True
-            return summary
+            if self.adaptive_processor is not None:
+                summary = self.adaptive_processor.get_performance_summary()
+                summary["enabled"] = True
+                return summary
+            else:
+                return {"enabled": False, "error": "Adaptive processor not initialized"}
         except Exception as e:
             logger.error(f"Error getting performance summary: {e}")
             return {"enabled": True, "error": str(e)}

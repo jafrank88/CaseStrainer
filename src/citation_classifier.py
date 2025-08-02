@@ -13,12 +13,15 @@ import os
 import re
 import json
 import pickle
+import logging
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
+
+logger = logging.getLogger(__name__)
 
 # Path to the citation database and model files
 DOWNLOAD_DIR = "downloaded_briefs"
@@ -420,4 +423,4 @@ if __name__ == "__main__":
         logger.info(f"Citation: {citation}")
         logger.info(f"Confidence: {confidence:.2f}")
         logger.info(f"Classification: {'Reliable' if confidence >= 0.7 else 'Unreliable'}")
-        logger.info()
+        logger.info("")  # Empty line for readability

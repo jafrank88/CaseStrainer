@@ -19,6 +19,7 @@ import re
 import time
 import threading
 import logging
+import warnings
 from collections import defaultdict
 from typing import List, Dict, Any, Optional
 from functools import wraps
@@ -46,8 +47,8 @@ def timeout(seconds):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            result = [None]
-            exception = [None]
+            result: List[Any] = [None]
+            exception: List[Optional[Exception]] = [None]
             
             def target():
                 try:
@@ -64,14 +65,14 @@ def timeout(seconds):
                 logger.info(f"[TIMEOUT] Function {func.__name__} timed out after {seconds} seconds")
                 raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
             
-            if exception[0]:
+            if exception[0] is not None:
                 raise exception[0]
             
             return result[0]
         return wrapper
     return decorator
 
-def safe_import(module_name: str, class_name: str = None):
+def safe_import(module_name: str, class_name: Optional[str] = None):
     """Safely import modules with error handling."""
     try:
         if class_name:
@@ -98,7 +99,7 @@ if not UnifiedCitationProcessorV2:
 logger.info('Imported modules successfully')
 logger.info('--- SAFE IMPORT TEST END ---')
 
-def safe_text_read(file_path: str, max_size: int = None) -> Optional[str]:
+def safe_text_read(file_path: str, max_size: Optional[int] = None) -> Optional[str]:
     """Safely read text file with size limits."""
     max_size = max_size or config.MAX_TEXT_SIZE
     try:
@@ -121,7 +122,7 @@ def safe_text_read(file_path: str, max_size: int = None) -> Optional[str]:
         logger.error(f"[SAFE READ ERROR] Failed to read {file_path}: {e}")
         return None
 
-def extract_first_section_header(text: str) -> str:
+def extract_first_section_header(text: str) -> Optional[str]:
     """Parse the Table of Contents to find the first main section header (e.g., 'I. ASSIGNMENT OF ERRORS')."""
     lines = text.splitlines()
     for i, line in enumerate(lines):
@@ -235,7 +236,10 @@ class SafeUnifiedProcessor:
             )
             
             # Initialize processor
-            self.processor = UnifiedCitationProcessorV2(self.config)
+            if UnifiedCitationProcessorV2 is not None:
+                self.processor = UnifiedCitationProcessorV2(self.config)
+            else:
+                self.processor = None
             logger.info("[SAFE PROCESSOR] Processor initialized successfully")
             
         except Exception as e:
@@ -429,8 +433,11 @@ def main():
             logger.info("\n[MAIN] Step 3: Parsing ToA section...")
             step_start = time.time()
             
-            toa_parser = ToAParser()
-            toa_entries = safe_parse_toa(toa_parser, toa_section)
+            toa_parser = ToAParser() if ToAParser is not None else None
+            if toa_parser is not None:
+                toa_entries = safe_parse_toa(toa_parser, toa_section)
+            else:
+                toa_entries = []
             
             # Convert ToA entries to citation format
             toa_citations = []
@@ -522,7 +529,7 @@ def main():
             body_name = diff.get('body_name') or ''
             logger.info(f"   ToA: {toa_name[:60]}")
             logger.info(f"   Body: {body_name[:60]}")
-            logger.info()
+            logger.info("")  # Empty line for readability
         
         logger.info("CITATIONS WITH DIFFERENT YEARS:")
         logger.info("-"*60)
@@ -532,7 +539,7 @@ def main():
             body_year = diff.get('body_year') or ''
             logger.info(f"   ToA: {toa_year}")
             logger.info(f"   Body: {body_year}")
-            logger.info()
+            logger.info("")  # Empty line for readability
         
         logger.info(f"[MAIN] SCRIPT COMPLETED SUCCESSFULLY in {total_elapsed:.2f}s")
         

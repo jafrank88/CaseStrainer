@@ -9,6 +9,7 @@ import asyncio
 import logging
 from typing import List, Dict, Any, Optional
 import time
+from dataclasses import asdict
 
 from .interfaces import ICitationProcessor, ICitationExtractor, ICitationVerifier, ICitationClusterer
 from .citation_extractor import CitationExtractor
@@ -47,7 +48,9 @@ class CitationProcessor(ICitationProcessor):
         self.config = config or ProcessingConfig()
         
         # Initialize services (dependency injection pattern)
-        self.extractor = extractor or CitationExtractor(self.config)
+        # CitationExtractor expects Dict[str, Any], others expect ProcessingConfig
+        config_dict = asdict(self.config) if self.config else {}
+        self.extractor = extractor or CitationExtractor(config_dict)
         self.verifier = verifier or CitationVerifier(self.config)
         self.clusterer = clusterer or CitationClusterer(self.config)
         
@@ -275,7 +278,9 @@ class ServiceContainer:
     def get_extractor(self) -> ICitationExtractor:
         """Get citation extractor service."""
         if 'extractor' not in self._services:
-            self._services['extractor'] = CitationExtractor(self.config)
+            # CitationExtractor expects Dict[str, Any], convert ProcessingConfig
+            config_dict = asdict(self.config) if self.config else {}
+            self._services['extractor'] = CitationExtractor(config_dict)
         return self._services['extractor']
     
     def get_verifier(self) -> ICitationVerifier:

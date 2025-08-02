@@ -258,7 +258,7 @@ class PerformanceBenchmark:
         self.test_cases = []
         self.results = {}
     
-    def add_test_case(self, name: str, text: str, expected_citations: int = None):
+    def add_test_case(self, name: str, text: str, expected_citations: Optional[int] = None):
         """Add a test case for benchmarking."""
         self.test_cases.append({
             "name": name,

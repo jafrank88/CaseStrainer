@@ -41,31 +41,55 @@ def get_config_value(key, default=None):
     return default
 
 
+def get_bool_config_value(key: str, default: bool = False) -> bool:
+    """Get a boolean configuration value, converting string values appropriately."""
+    value = get_config_value(key, default)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in ('true', '1', 'yes', 'on')
+    return bool(value)
+
+
 # General app config (use get_config_value for all relevant keys)
 SECRET_KEY: str = get_config_value("SECRET_KEY", "devkey")
 # Get the base directory (one level up from src)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def get_database_path() -> str:
+    """
+    Get the canonical database path, ensuring the directory exists.
+    
+    Returns:
+        str: Absolute path to the citations database file
+    """
+    # Get the database directory from config or use default
+    db_dir = os.path.join(BASE_DIR, "data")
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(db_dir, exist_ok=True)
+    
+    # Return the full path to the database file
+    return get_config_value("DATABASE_FILE", os.path.join(db_dir, "citations.db"))
+
 # Set the database file path to be in the data directory
-DATABASE_FILE: str = get_config_value(
-    "DATABASE_FILE", os.path.join(BASE_DIR, "data", "citations.db")
-)
-# Database file path is logged during application startup instead of print
+DATABASE_FILE: str = get_database_path()
+
 
 # Feature flags
-USE_ENHANCED_VALIDATOR: bool = get_config_value("USE_ENHANCED_VALIDATOR", True)
-ENHANCED_VALIDATOR_AVAILABLE: bool = get_config_value(
+USE_ENHANCED_VALIDATOR: bool = get_bool_config_value("USE_ENHANCED_VALIDATOR", True)
+ENHANCED_VALIDATOR_AVAILABLE: bool = get_bool_config_value(
     "ENHANCED_VALIDATOR_AVAILABLE", True
 )
 ENHANCED_VALIDATOR_MODEL_PATH: str = get_config_value(
     "ENHANCED_VALIDATOR_MODEL_PATH",
     os.path.join(os.path.dirname(__file__), "..", "models", "enhanced_validator"),
 )
-ML_CLASSIFIER_AVAILABLE: bool = get_config_value("ML_CLASSIFIER_AVAILABLE", True)
+ML_CLASSIFIER_AVAILABLE: bool = get_bool_config_value("ML_CLASSIFIER_AVAILABLE", True)
 ML_CLASSIFIER_MODEL_PATH: str = get_config_value(
     "ML_CLASSIFIER_MODEL_PATH",
     os.path.join(os.path.dirname(__file__), "..", "models", "ml_classifier"),
 )
-CORRECTION_ENGINE_AVAILABLE: bool = get_config_value(
+CORRECTION_ENGINE_AVAILABLE: bool = get_bool_config_value(
     "CORRECTION_ENGINE_AVAILABLE", True
 )
 CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
@@ -132,12 +156,12 @@ WESTLAW_API_KEY: str = get_config_value("WESTLAW_API_KEY", "")
 REDIS_URL: str = get_config_value("REDIS_URL", "redis://localhost:6379/0")
 
 # Enhanced Extraction Settings
-USE_ENHANCED_EXTRACTION: bool = get_config_value("USE_ENHANCED_EXTRACTION", True)
+USE_ENHANCED_EXTRACTION: bool = get_bool_config_value("USE_ENHANCED_EXTRACTION", True)
 EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))
 
 # Debug Settings
-DEBUG_EXTRACTION: bool = get_config_value("DEBUG_EXTRACTION", False)
-LOG_EXTRACTION_DETAILS: bool = get_config_value("LOG_EXTRACTION_DETAILS", False)
+DEBUG_EXTRACTION: bool = get_bool_config_value("DEBUG_EXTRACTION", False)
+LOG_EXTRACTION_DETAILS: bool = get_bool_config_value("LOG_EXTRACTION_DETAILS", False)
 
 def get_citation_config() -> dict:
     """

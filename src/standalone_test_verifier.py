@@ -22,15 +22,9 @@ try:
     from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as MultiSourceVerifier
     logger.info("Successfully imported UnifiedCitationProcessorV2")
 except ImportError:
-    logger.warning("Warning: unified_citation_processor_v2 module not found. Trying fallback...")
-    # Try to import from the original unified_citation_processor instead
-    try:
-        from src.unified_citation_processor import UnifiedCitationProcessor as MultiSourceVerifier
-        logger.info("Using UnifiedCitationProcessor as a fallback")
-    except ImportError:
-        logger.error("Error: Could not import any citation verifier module")
-        traceback.print_exc()
-        sys.exit(1)
+    logger.error("Error: Could not import UnifiedCitationProcessorV2 module")
+    traceback.print_exc()
+    sys.exit(1)
 
 
 def test_verifier():

@@ -3,36 +3,51 @@ Progress Bar Solutions for CaseStrainer Citation Processing
 Multiple approaches to provide real-time progress feedback to users
 """
 
-import asyncio
-import json
 import os
+import sys
 import time
+import json
 import uuid
-from datetime import datetime
+import logging
+import threading
+import traceback
+import requests
+from urllib.parse import urlparse
+from typing import Dict, List, Any, Optional, Union, Tuple
+from datetime import datetime, timedelta
+from flask import Flask, jsonify, request, Response, stream_with_context
+
+# Configure requests to be less verbose
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
+
+# User agent to use for web requests
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+import asyncio
 from typing import Dict, List, Any, Optional, Generator, Callable, TYPE_CHECKING
 from dataclasses import dataclass, asdict
-from flask import Flask, request, jsonify, Response
+from concurrent.futures import ThreadPoolExecutor
 
+# Flask-SocketIO import with proper fallback
 if TYPE_CHECKING:
     from flask_socketio import SocketIO, emit
 
 try:
-    from flask_socketio import SocketIO, emit
+    from flask_socketio import SocketIO, emit  # type: ignore
     FLASK_SOCKETIO_AVAILABLE = True
 except ImportError:
     FLASK_SOCKETIO_AVAILABLE = False
-    SocketIO = None
-    emit = None
+    SocketIO = None  # type: ignore
+    emit = None  # type: ignore
 
+# Redis import with proper fallback
 try:
     import redis
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
-    redis = None
-
-from concurrent.futures import ThreadPoolExecutor
-import logging
+    redis = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +70,7 @@ class ProgressTracker:
         self.estimated_completion = None
         
     def update(self, step: int, status: str, message: str, 
-               partial_results: List = None, error: str = None):
+               partial_results: Optional[List] = None, error: Optional[str] = None):
         """Update progress and optionally add partial results"""
         self.current_step = step
         self.status = status
@@ -101,7 +116,7 @@ class SSEProgressManager:
     def __init__(self):
         self.active_tasks: Dict[str, ProgressTracker] = {}
         self.redis_client = None
-        if REDIS_AVAILABLE:
+        if REDIS_AVAILABLE and redis is not None:
             try:
                 # Optional Redis for multi-instance deployment
                 self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
@@ -123,7 +138,7 @@ class SSEProgressManager:
         return task_id
     
     def update_progress(self, task_id: str, step: int, status: str, 
-                       message: str, partial_results: List = None, error: str = None):
+                       message: str, partial_results: Optional[List] = None, error: Optional[str] = None):
         """Update task progress"""
         if task_id in self.active_tasks:
             self.active_tasks[task_id].update(step, status, message, partial_results, error)
@@ -165,23 +180,25 @@ class SSEProgressManager:
     def _store_progress_in_redis(self, task_id: str, tracker: ProgressTracker):
         """Store progress in Redis for multi-instance support"""
         try:
-            data = tracker.get_progress_data()
-            data['results'] = tracker.results
-            data['errors'] = tracker.errors
-            self.redis_client.setex(
-                f"progress:{task_id}", 
-                3600,  # 1 hour expiration
-                json.dumps(data, default=str)
-            )
+            if self.redis_client is not None:
+                data = tracker.get_progress_data()
+                data['results'] = tracker.results
+                data['errors'] = tracker.errors
+                self.redis_client.setex(  # type: ignore
+                    f"progress:{task_id}", 
+                    3600,  # 1 hour expiration
+                    json.dumps(data, default=str)
+                )
         except Exception as e:
             logger.error(f"Failed to store progress in Redis: {e}")
     
     def _get_progress_from_redis(self, task_id: str) -> Dict:
         """Get progress from Redis"""
         try:
-            data = self.redis_client.get(f"progress:{task_id}")
-            if data:
-                return json.loads(data)
+            if self.redis_client is not None:
+                data = self.redis_client.get(f"progress:{task_id}")  # type: ignore
+                if data:
+                    return json.loads(data.decode('utf-8') if isinstance(data, bytes) else data)  # type: ignore
         except Exception as e:
             logger.error(f"Failed to get progress from Redis: {e}")
         return {'error': 'Task not found'}
@@ -215,10 +232,10 @@ class WebSocketProgressManager:
         return task_id
     
     def update_progress(self, task_id: str, step: int, status: str, 
-                       message: str, partial_results: List = None, error: str = None):
+                       message: str, partial_results: Optional[List] = None, error: Optional[str] = None):
         """Update progress and emit to all clients watching this task"""
         if task_id in self.active_tasks:
-            self.active_tasks[task_id].update(step, status, message, partial_results, error)
+            self.active_tasks[task_id].update(step, status, message, partial_results or [], error)
             
             # Emit progress update to all clients in task room
             progress_data = self.active_tasks[task_id].get_progress_data()
@@ -247,58 +264,42 @@ class ChunkedCitationProcessor:
                                            document_text: str, 
                                            document_type: str = "legal_brief") -> str:
         """Process document in chunks with progress updates"""
-        
-        # Calculate processing steps
-        chunks = self._split_into_chunks(document_text)
-        total_steps = len(chunks) + 3  # +3 for preprocessing, analysis, and final processing
-        
-        # Start progress tracking
-        task_id = self.progress_manager.start_task(total_steps)
+        logger.info("\n" + "="*80)
+        logger.info("Starting process_document_with_progress")
+        logger.info(f"Document type: {document_type}")
+        logger.info(f"Document text length: {len(document_text)} characters")
         
         try:
-            # Step 1: Preprocessing
-            self.progress_manager.update_progress(
-                task_id, 1, "processing", "Preprocessing document..."
-            )
-            
-            processed_chunks = await self._preprocess_chunks(chunks)
-            await asyncio.sleep(0.1)  # Allow UI update
-            
-            # Step 2: Process each chunk
-            all_citations = []
-            for i, chunk in enumerate(processed_chunks):
-                step = i + 2
-                self.progress_manager.update_progress(
-                    task_id, step, "processing", 
-                    f"Processing chunk {i+1} of {len(chunks)}..."
-                )
+            # Validate input
+            if not document_text or not isinstance(document_text, str):
+                error_msg = f"Invalid document text. Type: {type(document_text)}, Length: {len(str(document_text)) if document_text is not None else 'None'}"
+                logger.error(error_msg)
+                raise ValueError(error_msg)
                 
-                chunk_citations = await self._process_chunk(chunk, document_type)
-                all_citations.extend(chunk_citations)
-                
-                # Update progress with partial results
-                self.progress_manager.update_progress(
-                    task_id, step, "processing",
-                    f"Found {len(chunk_citations)} citations in chunk {i+1}",
-                    partial_results=chunk_citations
-                )
-                
-                # Small delay to allow UI updates
-                await asyncio.sleep(0.05)
+            # Create a new task for this document
+            task_id = str(uuid.uuid4())
+            logger.info(f"Created task ID: {task_id}")
             
-            # Step 3: Final analysis
-            final_step = len(chunks) + 2
+            # Initialize progress tracker with 100 total steps
+            tracker = ProgressTracker(task_id, total_steps=100)
+            logger.info("Initialized progress tracker")
+            
+            # Store the task
+            self.progress_manager.active_tasks[task_id] = tracker
+            logger.info(f"Stored task in active_tasks. Total active tasks: {len(self.progress_manager.active_tasks)}")
+            
+            # Log Redis availability
+            logger.info(f"Redis available: {hasattr(self.progress_manager, 'redis_client') and self.progress_manager.redis_client is not None}")
+            
+            # Start processing in a background task
+            logger.info("Creating background task for document processing...")
+            asyncio.create_task(self._process_document_async(task_id, document_text, document_type, tracker))
+            logger.info("Background task created successfully")
+            
+            # Initial progress update - the rest will be handled by the background task
             self.progress_manager.update_progress(
-                task_id, final_step, "analyzing", 
-                "Performing final analysis..."
-            )
-            
-            analysis_results = await self._perform_final_analysis(all_citations)
-            
-            # Step 4: Complete
-            self.progress_manager.update_progress(
-                task_id, total_steps, "completed", 
-                f"Processing complete! Found {len(all_citations)} citations.",
+                task_id, 0, "started", 
+                "Document processing started...",
                 partial_results=[]
             )
             
@@ -361,7 +362,7 @@ class ChunkedCitationProcessor:
             
             # Convert CitationResult objects to dictionaries
             citations = []
-            for result in results:
+            for result in results:  # type: ignore
                 citations.append({
                     'id': len(citations) + 1,
                     'raw_text': result.citation,
@@ -381,8 +382,124 @@ class ChunkedCitationProcessor:
             return citations
             
         except Exception as e:
-            self.logger.error(f"Error processing chunk: {e}")
+            logger.error(f"Error processing chunk: {e}")
             return []
+    
+    async def _process_document_async(self, task_id: str, document_text: str, document_type: str, tracker: 'ProgressTracker'):
+        """Background task to process document asynchronously"""
+        logger.info("\n" + "="*80)
+        logger.info(f"Starting _process_document_async for task {task_id}")
+        logger.info(f"Document type: {document_type}")
+        logger.info(f"Document text length: {len(document_text)} characters")
+        logger.info(f"Tracker status: {tracker.status if tracker else 'No tracker'}")
+        
+        try:
+            # Validate input
+            if not document_text or not isinstance(document_text, str):
+                error_msg = f"Invalid document text in _process_document_async. Type: {type(document_text)}"
+                logger.error(error_msg)
+                self.progress_manager.update_progress(
+                    task_id, 0, "failed", error_msg, error=error_msg
+                )
+                return
+                
+            # Log first 200 chars of document
+            logger.info(f"Document sample: {document_text[:200]}...")
+            
+            # Split document into chunks
+            logger.info("Splitting document into chunks...")
+            chunks = self._split_into_chunks(document_text)
+            logger.info(f"Document split into {len(chunks)} chunks")
+            
+            # Update progress (10% for splitting)
+            logger.info("Updating progress to 10% (chunking complete)")
+            self.progress_manager.update_progress(
+                task_id, 10, "processing", "Processing document chunks..."
+            )
+            
+            # Process each chunk
+            results = []
+            total_chunks = len(chunks)
+            logger.info(f"Starting to process {total_chunks} chunks...")
+            
+            for i, chunk in enumerate(chunks, 1):
+                try:
+                    logger.info(f"\nProcessing chunk {i}/{total_chunks}")
+                    logger.debug(f"Chunk size: {len(chunk)} characters")
+                    
+                    # Process chunk (this would call your citation processor)
+                    logger.info("Calling _process_chunk...")
+                    chunk_results = await self._process_chunk(chunk, document_type)
+                    logger.info(f"Processed chunk {i}, found {len(chunk_results)} citations")
+                    
+                    results.extend(chunk_results)
+                    
+                    # Update progress (10% + 70% for processing chunks)
+                    progress = 10 + int(70 * i / total_chunks)
+                    progress_msg = f"Processed chunk {i}/{total_chunks} with {len(chunk_results)} citations"
+                    logger.info(f"Updating progress to {progress}%: {progress_msg}")
+                    
+                    self.progress_manager.update_progress(
+                        task_id, progress, "processing", progress_msg,
+                        partial_results=chunk_results
+                    )
+                    
+                except Exception as chunk_error:
+                    error_msg = f"Error processing chunk {i}/{total_chunks}: {str(chunk_error)}"
+                    logger.error(error_msg)
+                    logger.error(traceback.format_exc())
+                    
+                    self.progress_manager.update_progress(
+                        task_id, 0, "failed", error_msg, error=error_msg
+                    )
+                    return
+            
+            # Perform final analysis (20% for final processing)
+            logger.info("\nPerforming final analysis...")
+            self.progress_manager.update_progress(
+                task_id, 90, "processing", "Performing final analysis..."
+            )
+            
+            try:
+                final_results = await self._perform_final_analysis(results)
+                
+                # Mark as complete
+                logger.info("Marking task as complete")
+                self.progress_manager.update_progress(
+                    task_id, 100, "completed", 
+                    f"Processing complete! Found {len(results)} citations.",
+                    partial_results=results
+                )
+                logger.info("Task completed successfully")
+                
+            except Exception as analysis_error:
+                error_msg = f"Error in final analysis: {str(analysis_error)}"
+                logger.error(error_msg)
+                logger.error(traceback.format_exc())
+                
+                self.progress_manager.update_progress(
+                    task_id, 0, "failed", error_msg, error=error_msg
+                )
+            
+        except Exception as e:
+            error_msg = f"Unexpected error in _process_document_async: {str(e)}"
+            logger.error("\n" + "!"*80)
+            logger.error("UNEXPECTED ERROR IN _process_document_async")
+            logger.error("!"*80)
+            logger.error(error_msg)
+            logger.error(traceback.format_exc())
+            logger.error("!"*80 + "\n")
+            
+            # Try to update tracker if available
+            try:
+                self.progress_manager.update_progress(
+                    task_id, 0, "failed", error_msg, error=error_msg
+                )
+            except Exception as update_error:
+                logger.error(f"Failed to update progress with error: {str(update_error)}")
+            
+            # Re-raise to ensure the error is logged by the caller
+            raise
     
     async def _perform_final_analysis(self, citations: List[Dict]) -> Dict:
         """Perform final analysis on all collected citations"""
@@ -399,35 +516,371 @@ class ChunkedCitationProcessor:
 # SOLUTION 4: Flask Route Implementations
 # ============================================================================
 
+def fetch_url_content(url: str) -> str:
+    """Fetch content from a URL with proper error handling and user agent."""
+    try:
+        logger.info(f"Fetching URL: {url}")
+        headers = {
+            'User-Agent': USER_AGENT,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        }
+        
+        # Special handling for PDFs
+        if url.lower().endswith('.pdf'):
+            headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
+        
+        logger.debug(f"Request headers: {headers}")
+        
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=30,  # 30 second timeout
+            allow_redirects=True,
+            stream=True  # Stream the response for large files
+        )
+        
+        logger.info(f"Response status: {response.status_code}")
+        logger.debug(f"Response headers: {dict(response.headers)}")
+        
+        response.raise_for_status()
+        
+        # Check content type
+        content_type = response.headers.get('content-type', '').lower()
+        logger.info(f"Content type: {content_type}")
+        
+        # If it's a PDF, use PyPDF2 to extract text
+        if 'pdf' in content_type or url.lower().endswith('.pdf'):
+            try:
+                import PyPDF2
+                import io
+                
+                # Read the PDF content
+                pdf_content = io.BytesIO(response.content)
+                pdf_reader = PyPDF2.PdfReader(pdf_content)
+                text_parts = []
+                
+                # Extract text from each page
+                for i, page in enumerate(pdf_reader.pages, 1):
+                    try:
+                        text = page.extract_text()
+                        if text:
+                            text_parts.append(text)
+                        logger.debug(f"Extracted {len(text)} characters from page {i}")
+                    except Exception as e:
+                        logger.warning(f"Error extracting text from page {i}: {str(e)}")
+                
+                result = '\n\n'.join(text_parts) if text_parts else ''
+                logger.info(f"Extracted {len(result)} characters total from PDF")
+                return result
+                
+            except Exception as e:
+                logger.error(f"Error processing PDF: {str(e)}\n{traceback.format_exc()}")
+                raise Exception(f"Error processing PDF: {str(e)}")
+        
+        # For HTML content, just return the text
+        elif 'html' in content_type:
+            logger.info(f"Returning HTML content, length: {len(response.text)}")
+            return response.text
+        
+        # For plain text
+        elif 'text/plain' in content_type:
+            logger.info(f"Returning plain text content, length: {len(response.text)}")
+            return response.text
+        
+        # For other content types, try to decode as text
+        else:
+            try:
+                logger.info(f"Attempting to decode unknown content type: {content_type}")
+                return response.text
+            except UnicodeDecodeError:
+                logger.warning(f"Could not decode content as text: {content_type}")
+                return f"[Binary content from {url} - cannot be processed as text]"
+                
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
+        raise Exception(f"Failed to fetch URL: {str(e)}")
+
 def create_progress_routes(app: Flask, progress_manager: SSEProgressManager, 
                           citation_processor: ChunkedCitationProcessor):
     """Create Flask routes for progress-enabled citation processing"""
     
-    @app.route('/casestrainer/api/analyze/start', methods=['POST'])
+    # Configure logging
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
+    
+    @app.route('/casestrainer/api/analyze', methods=['POST'])
     async def start_citation_analysis():
-        """Start citation analysis and return task ID"""
+        """Start citation analysis and return task ID
+        
+        Supports multiple input types:
+        1. File upload (multipart/form-data)
+        2. Direct text input (application/json)
+        3. URL to fetch content from (via 'url' parameter in JSON)
+        """
+        task_id = str(uuid.uuid4())
+        logger.info(f"=== Starting citation analysis for task {task_id} ===")
+        
         try:
-            data = request.get_json()
-            document_text = data.get('text', '')
-            document_type = data.get('document_type', 'legal_brief')
+            # Enhanced request logging
+            logger.info(f"[Task {task_id}] Request method: {request.method}")
+            logger.info(f"[Task {task_id}] Request URL: {request.url}")
+            logger.info(f"[Task {task_id}] Request headers: {dict(request.headers)}")
+            logger.info(f"[Task {task_id}] Content-Type: {request.content_type}")
+            logger.info(f"[Task {task_id}] Form data: {request.form}")
+            logger.info(f"[Task {task_id}] Files: {request.files}")
             
-            if not document_text:
-                return jsonify({'error': 'No document text provided'}), 400
+            # Log JSON data if present
+            json_data = request.get_json(silent=True, force=True)
+            if json_data:
+                logger.info(f"[Task {task_id}] JSON data received:")
+                # Log a sanitized version of JSON data (in case it contains sensitive info)
+                sanitized_data = {k: v if k not in ['text', 'content'] else f'[content of length {len(str(v))}]' 
+                                for k, v in json_data.items()}
+                logger.info(f"[Task {task_id}] {sanitized_data}")
+                
+                # Log JSON content details (truncated if too long)
+                for key, value in json_data.items():
+                    if key == 'text' and value and len(value) > 100:
+                        logger.info(f"[Task {task_id}] {key}: {value[:100]}... (truncated, total length: {len(value)})")
+                    elif key == 'url':
+                        logger.info(f"[Task {task_id}] URL provided: {value}")
+                    else:
+                        logger.info(f"[Task {task_id}] {key}: {value}")
+            else:
+                logger.info(f"[Task {task_id}] No JSON data in request")
+                
+            # Log environment info for debugging
+            logger.info(f"[Task {task_id}] Python version: {sys.version}")
+            logger.info(f"[Task {task_id}] Working directory: {os.getcwd()}")
+            logger.info(f"[Task {task_id}] Module search path: {sys.path}")
+            
+            # Log form data if present
+            if request.form:
+                logger.info(f"[Task {task_id}] Form data received:")
+                for key, value in request.form.items():
+                    if key == 'text' and value and len(value) > 100:
+                        logger.info(f"[Task {task_id}] {key}: {value[:100]}... (truncated, total length: {len(value)})")
+                    else:
+                        logger.info(f"[Task {task_id}] {key}: {value}")
+            
+            # Log file details if present
+            if request.files:
+                logger.info(f"[Task {task_id}] Files received:")
+                for key, file in request.files.items():
+                    file_data = file.read(1024)
+                    logger.info(f"[Task {task_id}] {key}: {file.filename} ({file.content_type}, {len(file_data)} bytes)")
+                    file.seek(0)  # Reset file pointer after reading
+                logger.info("\nFiles in request:")
+                for key in request.files:
+                    file = request.files[key]
+                    file_content = file.read()
+                    logger.info(f"  {key}: {file.filename} ({file.content_type}, {len(file_content)} bytes)")
+                    file.seek(0)  # Reset file pointer
+            
+            # Log form data
+            if request.form:
+                logger.info("\nForm data:")
+                for key, value in request.form.items():
+                    logger.info(f"  {key}: {value}")
+            
+            # Log JSON data if present
+            json_data = None
+            if request.is_json:
+                try:
+                    json_data = request.get_json()
+                    logger.info("\nJSON data in request:")
+                    logger.info(json.dumps(json_data, indent=2))
+                except Exception as e:
+                    logger.error(f"Error parsing JSON: {str(e)}")
+                    return jsonify({'error': 'Invalid JSON data'}), 400
+            
+            logger.info("\nRequest environment:")
+            for key in ['CONTENT_TYPE', 'REQUEST_METHOD', 'PATH_INFO', 'QUERY_STRING']:
+                if key in request.environ:
+                    logger.info(f"  {key}: {request.environ[key]}")
+            
+            logger.info("\nRequest data (first 1000 chars):")
+            try:
+                data = request.get_data(as_text=True)
+                logger.info(data[:1000] + ('...' if len(data) > 1000 else ''))
+            except Exception as e:
+                logger.error(f"Error reading request data: {str(e)}")
+            
+            document_text = ''
+            document_type = 'legal_brief'
+            
+            # Check if this is a file upload
+            if 'file' in request.files:
+                logger.info("Processing file upload")
+                file = request.files['file']
+                if file.filename == '':
+                    return jsonify({'error': 'No selected file'}), 400
+                    
+                # Read file content based on file type
+                filename = file.filename.lower() if file.filename else ''
+                if filename.endswith('.pdf'):
+                    try:
+                        # For PDF files, we need PyPDF2 to extract text
+                        import PyPDF2
+                        import io
+                        
+                        # Read the PDF file
+                        pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
+                        text_parts = []
+                        for page in pdf_reader.pages:
+                            text = page.extract_text()
+                            if text:
+                                text_parts.append(text)
+                        document_text = '\n\n'.join(text_parts)
+                        logger.info(f"Extracted {len(document_text)} characters from PDF")
+                    except Exception as e:
+                        logger.error(f"Error reading PDF: {str(e)}")
+                        return jsonify({'error': 'Error reading PDF file'}), 400
+                else:
+                    # For text files, just read the content
+                    try:
+                        document_text = file.read().decode('utf-8')
+                    except UnicodeDecodeError:
+                        return jsonify({'error': 'Invalid file encoding. Please use UTF-8 encoded text files.'}), 400
+            else:
+                # Handle JSON input
+                data = request.get_json()
+                if not data:
+                    logger.error("No data received in request")
+                    return jsonify({'error': 'No data received'}), 400
+                
+                # Check if this is a URL fetch request
+                if 'url' in data and data['url']:
+                    url = data['url'].strip()
+                    logger.info(f"Processing URL: {url}")
+                    
+                    try:
+                        # Validate URL
+                        parsed = urlparse(url)
+                        if not all([parsed.scheme, parsed.netloc]):
+                            return jsonify({'error': 'Invalid URL format'}), 400
+                        
+                        # Fetch content from URL
+                        document_text = fetch_url_content(url)
+                        if not document_text.strip():
+                            return jsonify({'error': 'No content could be extracted from the URL'}), 400
+                            
+                        logger.info(f"Fetched {len(document_text)} characters from URL")
+                        document_type = data.get('document_type', 'legal_brief')
+                    except Exception as e:
+                        error_id = str(uuid.uuid4())
+                        logger.error(f"\n{'*'*80}")
+                        logger.error(f"ERROR ID: {error_id}")
+                        logger.error(f"Error in start_citation_analysis: {str(e)}")
+                        logger.error(f"Error type: {type(e).__name__}")
+                        logger.error("Traceback:")
+                        logger.error(traceback.format_exc())
+                        
+                        # Log request details that might have caused the error
+                        logger.error("Request details at time of error:")
+                        logger.error(f"  Method: {request.method}")
+                        logger.error(f"  URL: {request.url}")
+                        logger.error(f"  Content-Type: {request.content_type}")
+                        logger.error(f"  Headers: {dict(request.headers)}")
+                        
+                        if request.is_json:
+                            try:
+                                json_data = request.get_json()
+                                logger.error("  JSON data:")
+                                for key, value in json_data.items():
+                                    if key == 'text' and value and len(value) > 100:
+                                        logger.error(f"    {key}: {value[:100]}... (truncated, total length: {len(value)})")
+                                    else:
+                                        logger.error(f"    {key}: {value}")
+                            except Exception as json_err:
+                                logger.error(f"  Could not parse JSON data: {str(json_err)}")
+                        
+                        if request.files:
+                            logger.error("  Files in request:")
+                            for key, file in request.files.items():
+                                logger.error(f"    {key}: {file.filename} ({file.content_type}, {len(file.read(1024))} bytes)")
+                                file.seek(0)
+                        
+                        logger.error(f"{'*'*80}\n")
+                        
+                        return jsonify({
+                            "error": "An unexpected error occurred while processing your request",
+                            "error_id": error_id,
+                            "details": str(e),
+                            "type": type(e).__name__
+                        }), 500
+                else:
+                    # Regular text input
+                    document_text = data.get('text', '')
+                    document_type = data.get('document_type', 'legal_brief')
+            
+            if not document_text.strip():
+                logger.error("No document text provided in request")
+                return jsonify({'error': 'No document text provided, file was empty, or URL returned no content'}), 400
+            
+            logger.info(f"Starting analysis for document type: {document_type}")
+            
+            # Log the document info before processing
+            logger.info("\nDocument info before processing:")
+            logger.info(f"Document type: {document_type}")
+            logger.info(f"Document text length: {len(document_text)} characters")
+            logger.info(f"First 200 chars: {document_text[:200]}...")
             
             # Start processing asynchronously
-            task_id = await citation_processor.process_document_with_progress(
-                document_text, document_type
-            )
-            
-            return jsonify({
-                'task_id': task_id,
-                'status': 'started',
-                'message': 'Citation analysis started'
-            })
+            try:
+                task_id = await citation_processor.process_document_with_progress(
+                    document_text, document_type
+                )
+                
+                if not task_id:
+                    raise ValueError("No task ID returned from process_document_with_progress")
+                
+                logger.info(f"Started analysis with task_id: {task_id}")
+                
+                response_data = {
+                    'task_id': task_id,
+                    'status': 'started',
+                    'message': 'Citation analysis started',
+                    'document_length': len(document_text)
+                }
+                
+                logger.info(f"Returning success response: {json.dumps(response_data)}")
+                return jsonify(response_data)
+                
+            except Exception as proc_error:
+                logger.error("Error in process_document_with_progress:")
+                logger.error(f"Error type: {type(proc_error).__name__}")
+                logger.error(f"Error message: {str(proc_error)}")
+                logger.error(f"Traceback:\n{traceback.format_exc()}")
+                raise proc_error
             
         except Exception as e:
-            logger.error(f"Error starting citation analysis: {e}")
-            return jsonify({'error': 'Failed to start analysis'}), 500
+            error_trace = traceback.format_exc()
+            error_msg = f"Error in start_citation_analysis: {str(e)}\n{error_trace}"
+            logger.error("\n" + "!"*80)
+            logger.error("ERROR PROCESSING REQUEST")
+            logger.error("!"*80)
+            logger.error(error_msg)
+            logger.error("!"*80 + "\n")
+            
+            # Return detailed error in development, generic in production
+            error_response = {
+                'error': 'Failed to start analysis',
+                'details': str(e),
+            }
+            
+            if app.debug:
+                error_response['traceback'] = error_trace.split('\n')  # type: ignore
+                error_response['request_info'] = {  # type: ignore
+                    'content_type': request.content_type,
+                    'method': request.method,
+                    'endpoint': request.endpoint,
+                }
+            
+            return jsonify(error_response), 500
     
     @app.route('/casestrainer/api/analyze/progress/<task_id>')
     def get_progress(task_id: str):
@@ -508,7 +961,7 @@ class CitationProgressTracker {
         this.completeCallback = completeCallback;
         
         // Start the analysis
-        fetch('/casestrainer/api/analyze/start', {
+        fetch('/casestrainer/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

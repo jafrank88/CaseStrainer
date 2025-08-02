@@ -21,8 +21,13 @@ try:
     from src.case_name_extraction_core import extract_case_name_from_text, is_valid_case_name, clean_case_name_enhanced
 except ImportError:
     # Fallback if the module is not available
-    def extract_case_name_from_text(text, citation_text):
-        return  
+    def extract_case_name_from_text(
+        text: str,
+        citation_text: str,
+        all_citations: Optional[list] = None,
+        canonical_name: Optional[str] = None
+    ) -> str:
+        return ""
     def is_valid_case_name(case_name):
         return bool(case_name and len(case_name) > 3)
     

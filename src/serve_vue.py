@@ -1,5 +1,9 @@
 from flask import send_from_directory
 import os
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 # Add this function to app_final.py to serve the Vue.js frontend

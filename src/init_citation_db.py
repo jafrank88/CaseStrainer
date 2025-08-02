@@ -4,6 +4,10 @@ Initialize the citation database for the citation correction engine.
 
 import os
 import sqlite3
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Database file path
 db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")

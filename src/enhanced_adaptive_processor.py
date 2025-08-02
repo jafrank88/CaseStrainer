@@ -14,7 +14,7 @@ from dataclasses import dataclass, asdict
 from collections import defaultdict, Counter
 import difflib
 try:
-    from fuzzywuzzy import fuzz
+    from fuzzywuzzy import fuzz  # type: ignore
 except ImportError:
     # Fallback implementation if fuzzywuzzy is not available
     def fuzz_ratio(s1, s2):

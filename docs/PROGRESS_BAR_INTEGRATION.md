@@ -41,7 +41,7 @@ The CaseStrainer application now includes comprehensive progress tracking for ci
 
 #### 3. API Endpoints
 
-- `/casestrainer/api/analyze/start` - Start citation analysis
+- `/casestrainer/api/analyze` - Start citation analysis
 - `/casestrainer/api/analyze/progress/<task_id>` - Get progress updates
 - `/casestrainer/api/analyze/results/<task_id>` - Get final results
 - `/casestrainer/api/analyze/progress-stream/<task_id>` - SSE stream

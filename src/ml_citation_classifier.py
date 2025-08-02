@@ -229,7 +229,7 @@ class CitationClassifier:
 
             # Combine text features with additional features
             X_additional = np.array(additional_features)
-            X_combined = np.hstack((X_text.toarray(), X_additional))
+            X_combined = np.hstack((X_text.toarray(), X_additional))  # type: ignore
 
             # Split into training and testing sets
             X_train, X_test, y_train, y_test = train_test_split(
@@ -250,7 +250,7 @@ class CitationClassifier:
 
             logger.info(f"Model trained with accuracy: {accuracy:.4f}")
             logger.info(
-                "\nClassification Report:\n" + classification_report(y_test, y_pred)
+                "\nClassification Report:\n" + str(classification_report(y_test, y_pred))
             )
 
             # Save the model
@@ -293,7 +293,7 @@ class CitationClassifier:
             ).reshape(1, -1)
 
             # Combine text features with additional features
-            X_combined = np.hstack((X_text.toarray(), X_additional))
+            X_combined = np.hstack((X_text.toarray(), X_additional))  # type: ignore
 
             # Make prediction
             prediction = self.model.predict_proba(X_combined)[0]
@@ -409,4 +409,4 @@ if __name__ == "__main__":
         logger.info(f"Valid: {result['is_valid']}")
         logger.info(f"Confidence: {result['confidence']:.4f}")
         logger.info(f"Explanation: {', '.join(result['explanation'])}")
-        logger.info()
+        logger.info("")  # Empty line for readability

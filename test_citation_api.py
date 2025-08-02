@@ -3,7 +3,7 @@ import requests
 import json
 
 BASE_URL = "http://localhost:5000"  # Update if needed
-ENDPOINT = f"{BASE_URL}/casestrainer/api/analyze/start"
+ENDPOINT = f"{BASE_URL}/casestrainer/api/analyze"
 
 test_cases = [
     {"text": "Brown v. Board of Education, 347 U.S. 483 (1954)", "expected": ["347 U.S. 483"]},

@@ -66,8 +66,8 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 "https://api.langsearch.com/v1/web-search",
                 headers=headers,
                 json=payload,
-                timeout=10,
-            , timeout=30)
+                timeout=30
+            )
 
             if response.status_code == 200:
                 logger.info("LangSearch API connection successful.")
@@ -144,8 +144,8 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 "https://api.langsearch.com/v1/web-search",
                 headers=headers,
                 json=payload,
-                timeout=30,
-            , timeout=30)
+                timeout=30
+            )
 
             # Check for successful response
             if response.status_code == 200:
@@ -380,15 +380,18 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
         )
 
         # Get more detailed information if we have a case ID
-        case_id = case_data.get("id")
-        if case_id:
-            from .courtlistener_integration import get_case_details
+        if case_data is not None:
+            case_id = case_data.get("id")
+            if case_id:
+                from .courtlistener_integration import get_case_details
 
-            details = get_case_details(case_id)
-            if details:
-                case_data = details
+                details = get_case_details(case_id)
+                if details:
+                    case_data = details
 
-        return generate_case_summary_from_data(case_data)
+            return generate_case_summary_from_data(case_data)
+        else:
+            return f"Error: No case data available for '{case_citation}'"
     else:
         # Case not found in CourtListener, use LangSearch API
         logger.info(

@@ -18,7 +18,7 @@ class EnhancedCourtListenerVerifier:
         self.api_key = api_key
         self.headers = {"Authorization": f"Token {api_key}"}
     
-    def verify_citation_enhanced(self, citation: str, extracted_case_name: str = None) -> Dict:
+    def verify_citation_enhanced(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """
         Enhanced verification with cross-validation to prevent false positives
         
@@ -89,7 +89,7 @@ class EnhancedCourtListenerVerifier:
         print(f"[ENHANCED] No valid verification found for: {citation}")
         return result
     
-    def _verify_with_search_api(self, citation: str, extracted_case_name: str = None) -> Dict:
+    def _verify_with_search_api(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """Verify using search API"""
         
         result = {
@@ -152,7 +152,7 @@ class EnhancedCourtListenerVerifier:
         
         return result
     
-    def _verify_with_citation_lookup(self, citation: str, extracted_case_name: str = None) -> Dict:
+    def _verify_with_citation_lookup(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """Verify using citation-lookup API"""
         
         result = {
@@ -202,7 +202,7 @@ class EnhancedCourtListenerVerifier:
         
         return result
     
-    def _validate_verification_result(self, result: Dict, citation: str, extracted_case_name: str = None) -> bool:
+    def _validate_verification_result(self, result: Dict, citation: str, extracted_case_name: Optional[str] = None) -> bool:
         """Strict validation of verification results to prevent false positives"""
         
         if not result.get('verified'):
@@ -295,7 +295,7 @@ class EnhancedCourtListenerVerifier:
         
         return result
     
-    def _select_best_search_result(self, results: List[Dict], extracted_case_name: str = None) -> Optional[Dict]:
+    def _select_best_search_result(self, results: List[Dict], extracted_case_name: Optional[str] = None) -> Optional[Dict]:
         """Select the best result from search API results"""
         
         if not results:
@@ -320,7 +320,7 @@ class EnhancedCourtListenerVerifier:
         # Otherwise, return the first result (highest relevance)
         return results[0]
     
-    def _select_best_cluster(self, found_results: List[Dict], extracted_case_name: str = None) -> Optional[Dict]:
+    def _select_best_cluster(self, found_results: List[Dict], extracted_case_name: Optional[str] = None) -> Optional[Dict]:
         """Select the best cluster from citation-lookup results"""
         
         all_clusters = []
@@ -372,7 +372,7 @@ class EnhancedCourtListenerVerifier:
         return len(intersection) / len(union) if union else 0.0
 
 # Backward compatibility function
-def verify_with_courtlistener_enhanced(courtlistener_api_key: str, citation: str, extracted_case_name: str = None) -> Dict:
+def verify_with_courtlistener_enhanced(courtlistener_api_key: str, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
     """Enhanced verification function with cross-validation"""
     
     verifier = EnhancedCourtListenerVerifier(courtlistener_api_key)

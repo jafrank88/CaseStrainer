@@ -15,6 +15,7 @@ import PyPDF2
 from datetime import datetime
 import shutil
 from tqdm import tqdm
+from .config import get_database_path
 
 # Configure logging
 logging.basicConfig(
@@ -31,7 +32,8 @@ logger = logging.getLogger("citation_enhancer")
 
 # Constants
 REPO_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(REPO_DIR, "citations.db")
+# Database configuration - using canonical path from config
+DB_PATH = get_database_path()
 USER_DOCS = os.path.join(os.path.expanduser("~"), "Documents")
 RESULTS_DIR = os.path.join(USER_DOCS, "WA_Briefs_Results")
 EXTRACTED_DIR = os.path.join(RESULTS_DIR, "extracted_text")

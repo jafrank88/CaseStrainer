@@ -73,6 +73,11 @@ class SCOTUSPDFCitationExtractor:
 
     def __init__(self):
         logger.debug(f"[DEBUG] Loaded SCOTUSPDFCitationExtractor from {__file__}")
+        
+        # Add missing class attributes
+        self.courtlistener_api_key = COURT_LISTENER_API_KEY
+        self.COURTLISTENER_API_BASE = COURT_LISTENER_API_URL
+        
         # Fallback regex patterns if eyecite is not available
         self.citation_patterns = [
             r"\b(\d+)\s+U\.?\s*S\.?\s+(\d+)\b",  # U.S. Reports
@@ -93,6 +98,39 @@ class SCOTUSPDFCitationExtractor:
             r"\b(\d+)\s*P\.?\s*(?:2d|3d)?\s*(\d+)\b",  # Pacific Reporter
             r"\b(\d+)\s*A\.?\s*(?:2d|3d)?\s*(\d+)\b",  # Atlantic Reporter
         ]
+
+    def preprocess_text(self, text: str) -> str:
+        """Preprocess text for citation extraction."""
+        if not text:
+            return ""
+        
+        # Basic text cleaning
+        text = text.strip()
+        # Remove excessive whitespace
+        text = re.sub(r'\s+', ' ', text)
+        # Remove page numbers and headers/footers
+        text = re.sub(r'^\d+\s*$', '', text, flags=re.MULTILINE)
+        
+        return text
+
+    def _extract_text_from_pdf_url(self, url: str) -> str:
+        """Extract text from a PDF URL."""
+        try:
+            # Download PDF
+            pdf_content = self.download_pdf(url)
+            if pdf_content is None:
+                return ""
+            
+            # Extract text
+            text = self.extract_text_from_pdf(pdf_content)
+            if text is None:
+                return ""
+            
+            # Clean text
+            return self.clean_extracted_text(text)
+        except Exception as e:
+            logger.error(f"Error extracting text from PDF URL {url}: {str(e)}")
+            return ""
 
     def download_pdf(self, url: str) -> Optional[bytes]:
         """Download a PDF from a URL."""
@@ -348,7 +386,7 @@ class SCOTUSPDFCitationExtractor:
         return found_citations
 
     def validate_citation_with_courtlistener(
-        self, citation_text: str, case_name: str = None
+        self, citation_text: str, case_name: Optional[str] = None
     ) -> Dict:
         """Validate a citation with CourtListener API.
 
@@ -477,6 +515,7 @@ class SCOTUSPDFCitationExtractor:
             logger.error(
                 f"Error validating citations with CourtListener citation-lookup: {str(e)}"
             )
+            return {"error": str(e)}
 
     def extract_citations_from_url(self, url: str, verify_citations: bool = True) -> dict:
         """
@@ -487,12 +526,24 @@ class SCOTUSPDFCitationExtractor:
         Returns:
             dict: Extraction results
         """
-        from .unified_citation_extractor import extract_all_citations
-        # ... (existing code to download/extract text from PDF) ...
-        # Assume 'text' contains the extracted text from the PDF
-        text = self._extract_text_from_pdf_url(url)
-        citations = extract_all_citations(text)
-        return {"citations": citations, "source_url": url}
+        try:
+            from .unified_citation_processor_v2 import extract_citations_unified
+            # Extract text from PDF
+            text = self._extract_text_from_pdf_url(url)
+            citations = extract_citations_unified(text)
+            return {"citations": citations, "source_url": url}
+        except ImportError:
+            logger.warning("unified_citation_extractor not available, using fallback")
+            # Fallback to local citation extraction
+            text = self._extract_text_from_pdf_url(url)
+            if EYECITE_AVAILABLE:
+                citations = self.find_citations_with_eyecite(text)
+            else:
+                citations = list(self.find_citations_with_regex(text))
+            return {"citations": citations, "source_url": url}
+        except Exception as e:
+            logger.error(f"Error extracting citations from URL {url}: {str(e)}")
+            return {"error": str(e), "source_url": url}
 
 
 def main():

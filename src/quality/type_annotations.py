@@ -7,13 +7,16 @@ This module provides enhanced type annotations and type checking utilities.
 from typing import (
     List, Dict, Any, Optional, Union, Tuple, Set, 
     Callable, Awaitable, TypeVar, Generic, Protocol,
-    runtime_checkable, get_type_hints
+    runtime_checkable, get_type_hints, TYPE_CHECKING
 )
 from typing_extensions import TypedDict, Literal
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import inspect
 import logging
+
+if TYPE_CHECKING:
+    from src.models import CitationResult
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +198,7 @@ class TypeValidator:
             raise TypeError(f"Expected list, got {type(citations)}")
         
         # Import here to avoid circular imports
-        from ..models import CitationResult
+        # from ..models import CitationResult # This line is removed
         
         validated = []
         for i, citation in enumerate(citations):

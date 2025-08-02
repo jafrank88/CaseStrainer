@@ -44,7 +44,7 @@ def check_port(host: str, port: int, timeout: int = 5) -> bool:
 
 def check_http_service(service: str, config: Dict[str, Any], host: str = 'localhost') -> Dict[str, Any]:
     """Check an HTTP service endpoint."""
-    url = f"http://{host}:config['port']{config.get('path', '')}"
+    url = f"http://{host}:{config['port']}{config.get('path', '')}"
     
     for attempt in range(MAX_RETRIES):
         try:

@@ -20,11 +20,25 @@ import os
 from googlesearch import search as google_search
 
 # Import the existing scraper for detail page extraction
-from .legal_database_scraper import LegalDatabaseScraper
-from .websearch_utils import (
-    create_legal_search_queries,
-    # search_duckduckgo_api  # Function does not exist
-)
+from scripts.legal_database_scraper import LegalDatabaseScraper
+
+# Note: websearch_utils module not found - implementing required functions inline
+def create_legal_search_queries(citation: str, case_name: Optional[str] = None) -> List[str]:
+    """Create search queries for legal databases."""
+    queries = []
+    
+    # Basic citation search
+    queries.append(citation)
+    
+    # Citation with quotes for exact match
+    queries.append(f'"{citation}"')
+    
+    # If case name is provided, add case name searches
+    if case_name:
+        queries.append(f'"{case_name}" {citation}')
+        queries.append(f'{case_name} {citation}')
+    
+    return queries
 
 class EnhancedLegalScraper:
     """Enhanced scraper that uses search engines to find case detail pages."""
@@ -115,7 +129,7 @@ class EnhancedLegalScraper:
         try:
             from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
-            cl_result = verifier.verify_citation_unified_workflow(citation)
+            cl_result = verifier.verify(citation)
             if cl_result.get("verified") and cl_result.get("url"):
                 # Return as a search result format for downstream compatibility
                 return [{
@@ -131,7 +145,7 @@ class EnhancedLegalScraper:
         database_info = self.legal_databases[database_name]
         results = []
         # Use canonical query generator
-        search_queries = create_legal_search_queries(citation, database_info)
+        search_queries = create_legal_search_queries(citation, None)
         # 1. Try DuckDuckGo first
         if self.use_duckduckgo:
             for query in search_queries:
@@ -180,7 +194,7 @@ class EnhancedLegalScraper:
             if 'law' in title or 'court' in title:
                 score += 3
             
-            result['score'] = score
+            result['score'] = str(score)
             result['is_detail_page'] = is_detail_page
             
             if score > 0:  # Only include relevant results
@@ -200,7 +214,7 @@ class EnhancedLegalScraper:
             # --- Two-step CourtListener process first ---
             from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier
             verifier = EnhancedMultiSourceVerifier()
-            cl_result = verifier.verify_citation_unified_workflow(citation)
+            cl_result = verifier.verify(citation)
             if cl_result.get("verified") and cl_result.get("url"):
                 return {
                     'canonical_name': cl_result.get('canonical_name', cl_result.get('case_name', '')),
@@ -229,8 +243,8 @@ class EnhancedLegalScraper:
         metadata = self.detail_scraper.extract_case_info(detail_url)
         # Add search result info
         metadata['search_source'] = best_result.get('source', 'unknown')
-        metadata['search_score'] = best_result.get('score', 0)
-        metadata['search_results_count'] = len(search_results)
+        metadata['search_score'] = str(best_result.get('score', 0))
+        metadata['search_results_count'] = str(len(search_results))
         return metadata
     
     def extract_from_all_databases(self, citation: str) -> Dict[str, Dict[str, Any]]:
@@ -281,6 +295,6 @@ class EnhancedLegalScraper:
         """Get list of supported legal databases."""
         return list(self.legal_databases.keys())
     
-    def get_database_info(self, database_name: str) -> List[str]:
+    def get_database_info(self, database_name: str) -> Dict[str, Any]:
         """Get information about a specific database."""
         return self.legal_databases.get(database_name, {}) 

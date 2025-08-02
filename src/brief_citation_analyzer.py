@@ -170,8 +170,10 @@ def process_brief(brief_url, processed_briefs):
             debug_mode=True
         )
         processor = UnifiedCitationProcessorV2(config)
-        citation_results = processor.process_text(brief_text)
-        citations = [result.citation for result in citation_results]
+        # Use asyncio to run the async process_text method
+        import asyncio
+        citation_results = asyncio.run(processor.process_text(brief_text))
+        citations = [result['citation'] for result in citation_results['citations']]
         if not citations:
             logger.info(f"No citations found in brief: {brief_url}")
             return []
@@ -185,14 +187,23 @@ def process_brief(brief_url, processed_briefs):
             return []
 
         # Query CourtListener API to verify citations using the processor
-        courtlistener_results = processor.verify_citation_unified_workflow(citations[0]) if citations else None
+        # Use the available verification method
+        courtlistener_results = None
+        if citations:
+            try:
+                # Create a CitationResult object for verification
+                from src.models import CitationResult
+                citation_result = CitationResult(citation=citations[0])
+                courtlistener_results = processor._verify_citation_with_courtlistener(citation_result)
+            except Exception as e:
+                logger.warning(f"Failed to verify citation {citations[0]}: {e}")
+                courtlistener_results = None
 
         # Extract verified citations from CourtListener results
         verified_citations = []
-        if courtlistener_results and "results" in courtlistener_results:
-            for result in courtlistener_results["results"]:
-                if "citation" in result:
-                    verified_citations.append(result["citation"])
+        if courtlistener_results:
+            # If verification was successful, add the citation to verified list
+            verified_citations.append(citations[0])
 
         logger.info(f"Found {len(verified_citations)} verified citations from CourtListener")
 

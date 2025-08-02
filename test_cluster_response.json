@@ -1,0 +1,60 @@
+{
+  "resource_uri": "https://www.courtlistener.com/api/rest/v4/clusters/1/",
+  "id": 1,
+  "absolute_url": "/opinion/1/united-states-v-davila-gonzalez/",
+  "panel": [],
+  "non_participating_judges": [],
+  "docket_id": 1970215,
+  "docket": "https://www.courtlistener.com/api/rest/v4/dockets/1970215/",
+  "sub_opinions": [
+    "https://www.courtlistener.com/api/rest/v4/opinions/1/"
+  ],
+  "citations": [
+    {
+      "volume": 595,
+      "reporter": "F.3d",
+      "page": "42",
+      "type": 1
+    },
+    {
+      "volume": 2010,
+      "reporter": "WL",
+      "page": "454784",
+      "type": 7
+    }
+  ],
+  "date_created": "2015-10-13T18:11:45.354732-07:00",
+  "date_modified": "2016-03-03T09:49:01.801844-08:00",
+  "judges": "",
+  "date_filed": "2010-02-10",
+  "date_filed_is_approximate": false,
+  "slug": "united-states-v-davila-gonzalez",
+  "case_name_short": "Davila-Gonzalez",
+  "case_name": "United States v. Davila-Gonzalez",
+  "case_name_full": "",
+  "scdb_id": "",
+  "scdb_decision_direction": null,
+  "scdb_votes_majority": null,
+  "scdb_votes_minority": null,
+  "source": "C",
+  "procedural_history": "",
+  "attorneys": "",
+  "nature_of_suit": "",
+  "posture": "",
+  "syllabus": "",
+  "headnotes": "",
+  "summary": "",
+  "disposition": "",
+  "history": "",
+  "other_dates": "",
+  "cross_reference": "",
+  "correction": "",
+  "citation_count": 5,
+  "precedential_status": "Published",
+  "date_blocked": null,
+  "blocked": false,
+  "filepath_json_harvard": null,
+  "filepath_pdf_harvard": null,
+  "arguments": "",
+  "headmatter": ""
+}

@@ -24,8 +24,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Get Redis connection
-redis_url = os.environ.get('REDIS_URL', 'redis://casestrainer-redis-prod:6379/0')
+# Get Redis connection with authentication
+redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
 redis_conn = Redis.from_url(redis_url)
 
 # Create queue
@@ -60,14 +60,14 @@ class RobustWorker(Worker):
             memory_usage = psutil.Process().memory_info().rss / 1024 / 1024  # MB
             if memory_usage > self.max_memory_mb:
                 logger.warning(f"Memory usage high ({memory_usage:.1f}MB), restarting worker")
-                self.shutdown()
+                sys.exit(0)  # Graceful shutdown
                 return
             
             # Increment job count
             self.job_count += 1
             if self.job_count >= self.max_jobs:
                 logger.info(f"Processed {self.job_count} jobs, restarting worker")
-                self.shutdown()
+                sys.exit(0)  # Graceful shutdown
                 return
             
             # Perform the job
@@ -112,8 +112,7 @@ def main():
         # Start the worker
         worker.work(
             with_scheduler=True,
-            max_jobs=100,  # Restart after 100 jobs
-            logging_level=logging.INFO
+            max_jobs=100  # Restart after 100 jobs
         )
     except KeyboardInterrupt:
         logger.info("Worker stopped by user")

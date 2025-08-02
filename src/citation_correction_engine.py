@@ -10,6 +10,7 @@ import logging
 import re
 import os
 import sys
+import traceback
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 import json
@@ -28,17 +29,6 @@ try:
 except ImportError:
     from citation_utils_consolidated import apply_washington_spacing_rules
 
-try:
-    import Levenshtein
-    LEVENSHTEIN_AVAILABLE = True
-except ImportError:
-    LEVENSHTEIN_AVAILABLE = False
-    logger.warning("Warning: Levenshtein module not available, using difflib fallback")
-import sys
-from typing import List, Dict, Any
-from difflib import SequenceMatcher
-from .database_manager import get_database_manager
-
 # Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
@@ -51,6 +41,18 @@ if not logging.getLogger().hasHandlers():
     configure_logging()
 
 logger = logging.getLogger(__name__)
+
+try:
+    import Levenshtein
+    LEVENSHTEIN_AVAILABLE = True
+except ImportError:
+    LEVENSHTEIN_AVAILABLE = False
+    logger.warning("Warning: Levenshtein module not available, using difflib fallback")
+
+import sys
+from typing import List, Dict, Any
+from difflib import SequenceMatcher
+from .database_manager import get_database_manager
 
 class CitationCorrectionEngine:
     """
@@ -141,8 +143,6 @@ class CitationCorrectionEngine:
 
             except Exception as e:
                 logger.warning(f"Error getting similar citations: {e}")
-                import traceback
-
                 logger.debug(traceback.format_exc())
                 # Continue to provide rule-based suggestions even if database lookup failed
 
@@ -191,8 +191,6 @@ class CitationCorrectionEngine:
             }
         except Exception as e:
             logger.error(f"Unexpected error processing citation '{citation}': {str(e)}")
-            import traceback
-
             logger.error(traceback.format_exc())
             return {
                 "citation": citation,
@@ -392,8 +390,6 @@ class CitationCorrectionEngine:
             logger.error(
                 f"Error extracting components from citation '{citation}': {str(e)}"
             )
-            import traceback
-
             logger.error(traceback.format_exc())
 
         return components
@@ -508,8 +504,6 @@ class CitationCorrectionEngine:
 
         except Exception as e:
             logger.error(f"Error seeding database: {e}")
-            import traceback
-
             logger.error(traceback.format_exc())
 
     def _get_verified_citations(self):
@@ -552,7 +546,6 @@ class CitationCorrectionEngine:
 
         except Exception as e:
             logger.error(f"Unexpected error in _get_verified_citations: {e}")
-            import traceback
             logger.error(traceback.format_exc())
             return []
 
@@ -668,8 +661,6 @@ class CitationCorrectionEngine:
 
         except Exception as e:
             logger.error(f"Error in _find_similar_citations: {e}")
-            import traceback
-
             logger.debug(traceback.format_exc())
             return []
 

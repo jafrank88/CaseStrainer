@@ -8,16 +8,16 @@ and multiple import path strategies for different deployment scenarios.
 
 import logging
 import sys
-from typing import Optional
+from typing import Optional, Any
 
 # Set up module-level logger
 logger = logging.getLogger(__name__)
 
 # Global to store the imported blueprint
-api_blueprint: Optional[object] = None
+api_blueprint: Optional[Any] = None
 
 
-def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[object]:
+def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[Any]:
     """
     Attempt to import the vue_api blueprint from a specific path.
     
@@ -57,7 +57,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[ob
         return None
 
 
-def _get_blueprint() -> Optional[object]:
+def _get_blueprint() -> Optional[Any]:
     """
     Attempt to import the vue_api blueprint using multiple strategies.
     
@@ -111,7 +111,7 @@ def _get_blueprint() -> Optional[object]:
     return None
 
 
-def _validate_blueprint(blueprint: object) -> bool:
+def _validate_blueprint(blueprint: Any) -> bool:
     """
     Validate that the imported object is actually a Flask Blueprint.
     
@@ -234,7 +234,8 @@ def get_blueprint_info() -> dict:
         
         # Try to get route information
         if hasattr(api_blueprint, 'deferred_functions'):
-            info['deferred_functions_count'] = len(api_blueprint.deferred_functions)
+            deferred_funcs = getattr(api_blueprint, 'deferred_functions', [])
+            info['deferred_functions_count'] = len(deferred_funcs) if deferred_funcs else 0
         
         return info
         

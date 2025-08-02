@@ -45,9 +45,9 @@ class HealthChecker:
             r.ping()
             
             # Check Redis info
-            info = r.info()
-            memory_usage = info.get('used_memory_human', 'N/A')
-            connected_clients = info.get('connected_clients', 0)
+            info = r.info()  # type: ignore
+            memory_usage = info.get('used_memory_human', 'N/A')  # type: ignore
+            connected_clients = info.get('connected_clients', 0)  # type: ignore
             
             return {
                 "status": "healthy",
@@ -157,12 +157,12 @@ class HealthChecker:
             r = redis.Redis(host=self.redis_host, port=self.redis_port, db=0, socket_timeout=5)
             
             # Check for active workers
-            workers = r.smembers('rq:workers')
+            workers = r.smembers('rq:workers')  # type: ignore
             if workers:
                 return {
                     "status": "healthy",
-                    "active_workers": len(workers),
-                    "worker_names": [w.decode('utf-8') for w in workers],
+                    "active_workers": len(workers),  # type: ignore
+                    "worker_names": [w.decode('utf-8') for w in workers],  # type: ignore
                     "error": None
                 }
             else:

@@ -30,7 +30,7 @@ def test_production_verification():
     try:
         # Test 1: Health check
         print("Step 1: Testing API health...")
-        health_response = requests.get(f"{base_url}/health", timeout=10, verify=False)
+        health_response = requests.get(f"{base_url}/api/health", timeout=10, verify=False)
         if health_response.status_code == 200:
             print("[SUCCESS] Production API health check: PASSED")
         else:

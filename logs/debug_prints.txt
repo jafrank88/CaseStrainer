@@ -150791,3 +150791,3026 @@ Wade,
 Wade, 
 ---
 [DEBUG] No case name match for citation: 410 U.S. 113
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 123 Wash. 2d 456
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456
+[DEBUG] Citation: 987 F.3d 654
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 987 F.3d 654
+[DEBUG] Citation: 565 P.3d 921
+[DEBUG] Context:
+e repeatedly failed to meet filing deadlines and failed to respond to our clerk’s requests for information. In re Recall of Ruelas, 4 Wn.3d 565, 567, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 921
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+In re Recall of Ruelas, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+ate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+ger provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 162 Wn. 2d 501
+[DEBUG] Context:
+or gathering signatures and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 173 P.3d 265 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 501
+[DEBUG] Citation: 173 P.3d 265
+[DEBUG] Context:
+and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 
+---
+[DEBUG] No case name match for citation: 173 P.3d 265
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+ion and recall statutes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 10 P.3d 1034
+[DEBUG] Context:
+tes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 
+---
+[DEBUG] No case name match for citation: 10 P.3d 1034
+[DEBUG] Citation: 91 Wn. 2d 767
+[DEBUG] Context:
+for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 592 P.2d 1096 (1979)
+---
+[DEBUG] No case name match for citation: 91 Wn. 2d 767
+[DEBUG] Citation: 592 P.2d 1096
+[DEBUG] Context:
+ng a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 
+---
+[DEBUG] No case name match for citation: 592 P.2d 1096
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 163 U.S. 537
+[DEBUG] Context:
+Ferguson, 
+---
+[DEBUG] No case name match for citation: 163 U.S. 537
+[DEBUG] Citation: 349 U.S. 294
+[DEBUG] Context:
+Board of Education II, 
+---
+[DEBUG] No case name match for citation: 349 U.S. 294
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 163 U.S. 537
+[DEBUG] Context:
+Ferguson, 
+---
+[DEBUG] No case name match for citation: 163 U.S. 537
+[DEBUG] Citation: 349 U.S. 294
+[DEBUG] Context:
+Board of Education II, 
+---
+[DEBUG] No case name match for citation: 349 U.S. 294
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 163 U.S. 537
+[DEBUG] Context:
+Ferguson, 
+---
+[DEBUG] No case name match for citation: 163 U.S. 537
+[DEBUG] Citation: 349 U.S. 294
+[DEBUG] Context:
+Board of Education II, 
+---
+[DEBUG] No case name match for citation: 349 U.S. 294
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 163 U.S. 537
+[DEBUG] Context:
+Ferguson, 
+---
+[DEBUG] No case name match for citation: 163 U.S. 537
+[DEBUG] Citation: 349 U.S. 294
+[DEBUG] Context:
+Board of Education II, 
+---
+[DEBUG] No case name match for citation: 349 U.S. 294
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 405 F. Supp. 3d 907
+[DEBUG] Context:
+Ms. Smith. 
+---
+[DEBUG] No case name match for citation: 405 F. Supp. 3d 907
+[DEBUG] Citation: 565 P.3d 921
+[DEBUG] Context:
+e repeatedly failed to meet filing deadlines and failed to respond to our clerk’s requests for information. In re Recall of Ruelas, 4 Wn.3d 565, 567, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 921
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+In re Recall of Ruelas, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+ate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+ger provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 162 Wn. 2d 501
+[DEBUG] Context:
+or gathering signatures and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 173 P.3d 265 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 501
+[DEBUG] Citation: 173 P.3d 265
+[DEBUG] Context:
+and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 
+---
+[DEBUG] No case name match for citation: 173 P.3d 265
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+ion and recall statutes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 10 P.3d 1034
+[DEBUG] Context:
+tes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 
+---
+[DEBUG] No case name match for citation: 10 P.3d 1034
+[DEBUG] Citation: 91 Wn. 2d 767
+[DEBUG] Context:
+for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 592 P.2d 1096 (1979)
+---
+[DEBUG] No case name match for citation: 91 Wn. 2d 767
+[DEBUG] Citation: 592 P.2d 1096
+[DEBUG] Context:
+ng a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 
+---
+[DEBUG] No case name match for citation: 592 P.2d 1096
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 347 U.S. 497
+[DEBUG] Context:
+Sharpe, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 497
+[DEBUG] Citation: 565 P.3d 921
+[DEBUG] Context:
+e repeatedly failed to meet filing deadlines and failed to respond to our clerk’s requests for information. In re Recall of Ruelas, 4 Wn.3d 565, 567, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 921
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+In re Recall of Ruelas, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+ate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+ger provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 162 Wn. 2d 501
+[DEBUG] Context:
+or gathering signatures and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 173 P.3d 265 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 501
+[DEBUG] Citation: 173 P.3d 265
+[DEBUG] Context:
+and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 
+---
+[DEBUG] No case name match for citation: 173 P.3d 265
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+ion and recall statutes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 10 P.3d 1034
+[DEBUG] Context:
+tes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 
+---
+[DEBUG] No case name match for citation: 10 P.3d 1034
+[DEBUG] Citation: 91 Wn. 2d 767
+[DEBUG] Context:
+for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 592 P.2d 1096 (1979)
+---
+[DEBUG] No case name match for citation: 91 Wn. 2d 767
+[DEBUG] Citation: 592 P.2d 1096
+[DEBUG] Context:
+ng a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 
+---
+[DEBUG] No case name match for citation: 592 P.2d 1096
+[DEBUG] Citation: 565 P.3d 921
+[DEBUG] Context:
+e repeatedly failed to meet filing deadlines and failed to respond to our clerk’s requests for information. In re Recall of Ruelas, 4 Wn.3d 565, 567, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 921
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+In re Recall of Ruelas, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+ate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+ger provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 162 Wn. 2d 501
+[DEBUG] Context:
+or gathering signatures and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 173 P.3d 265 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 501
+[DEBUG] Citation: 173 P.3d 265
+[DEBUG] Context:
+and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 
+---
+[DEBUG] No case name match for citation: 173 P.3d 265
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+ion and recall statutes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 10 P.3d 1034
+[DEBUG] Context:
+tes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 
+---
+[DEBUG] No case name match for citation: 10 P.3d 1034
+[DEBUG] Citation: 91 Wn. 2d 767
+[DEBUG] Context:
+for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 592 P.2d 1096 (1979)
+---
+[DEBUG] No case name match for citation: 91 Wn. 2d 767
+[DEBUG] Citation: 592 P.2d 1096
+[DEBUG] Context:
+ng a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 
+---
+[DEBUG] No case name match for citation: 592 P.2d 1096
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+95 (2017) (Doe I), modified on other grounds on remand, No. 48000-0-II (Wash. Ct. App. Oct. 2, 2018) (Doe II) (unpublished). Also see Smith v. Jones, 171 Wn.2d 486 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+ient Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 136 Wn. App. 104
+[DEBUG] Context:
+City of Vancouver, 
+---
+[DEBUG] No case name match for citation: 136 Wn. App. 104
+[DEBUG] Citation: 147 P.3d 641
+[DEBUG] Context:
+se litigants are bound by the same rules of procedure and substantive law as licensed attorneys. Holder v. City of Vancouver, 136 Wn. App. 104, 106, 
+---
+[DEBUG] No case name match for citation: 147 P.3d 641
+[DEBUG] Citation: 69 Wn. App. 621
+[DEBUG] Context:
+Marriage of Olson, 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 621
+[DEBUG] Citation: 850 P.2d 527
+[DEBUG] Context:
+P.3d 641 (2006); In re Marriage of Olson, 69 Wn. App. 621, 626, 
+---
+[DEBUG] No case name match for citation: 850 P.2d 527
+[DEBUG] Citation: 93 Wn. App. 442
+[DEBUG] Context:
+Marintorres, 
+---
+[DEBUG] No case name match for citation: 93 Wn. App. 442
+[DEBUG] Citation: 969 P.2d 501
+[DEBUG] Context:
+gal issues . . . cite any authority” or comply with procedural rules may still preclude appellate review. State v. Marintorres, 93 Wn. App. 442, 452, 
+---
+[DEBUG] No case name match for citation: 969 P.2d 501
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+ient Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 Wash. 2d 456, 789 P.2d 123
+[DEBUG] Context:
+Smithers, 
+---
+[DEBUG] No case name match for citation: 123 Wash. 2d 456, 789 P.2d 123
+[DEBUG] Citation: 789 P.2d 123
+[DEBUG] Context:
+d 456, 
+---
+[DEBUG] No case name match for citation: 789 P.2d 123
+[DEBUG] Citation: 199 Wn. App. 280
+[DEBUG] Context:
+Thurston County, 
+---
+[DEBUG] No case name match for citation: 199 Wn. App. 280
+[DEBUG] Citation: 399 P.3d 1195
+[DEBUG] Context:
+John Doe v. Thurston County, 199 Wn. App. 280, 283, 
+---
+[DEBUG] No case name match for citation: 399 P.3d 1195
+[DEBUG] Citation: 85 Wn. 2d 102
+[DEBUG] Context:
+....................................................................................... l 11 TABLE OF AUTHORITIES Cases Page(s) Cathcart v. Andersen, 85 Wn.2d 102 (1975)
+---
+[DEBUG] No case name match for citation: 85 Wn. 2d 102
+[DEBUG] Citation: 184 Wn. 2d 428
+[DEBUG] Context:
+tto, 103 Wn.2d268 (1984) ...................................................... 5, 10-11 Citizens All.for Prop. Rights Legal Fund v. San Juan County, 184 Wn.2d 428, 443, 359 P.3d 753 (2015)
+---
+[DEBUG] No case name match for citation: 184 Wn. 2d 428
+[DEBUG] Citation: 359 P.3d 753
+[DEBUG] Context:
+984) ...................................................... 5, 10-11 Citizens All.for Prop. Rights Legal Fund v. San Juan County, 184 Wn.2d 428, 443, 
+---
+[DEBUG] No case name match for citation: 359 P.3d 753
+[DEBUG] Citation: 97 Wn. 2d 466
+[DEBUG] Context:
+. San Juan County, 184 Wn.2d 428, 443, 359 P.3d 753 (2015) ............................................ 33-34 Cougar Business Owners Ass 'n v. State, 97 Wn.2d 466 (1982)
+---
+[DEBUG] No case name match for citation: 97 Wn. 2d 466
+[DEBUG] Citation: 647 P.2d 481
+[DEBUG] Context:
+84 Wn.2d 428, 443, 359 P.3d 753 (2015) ............................................ 33-34 Cougar Business Owners Ass 'n v. State, 97 Wn.2d 466 (1982) 
+---
+[DEBUG] No case name match for citation: 647 P.2d 481
+[DEBUG] Citation: 18 P.2d 51
+[DEBUG] Context:
+82) 647 P.2d 481 ................... : ................................................................. 50-51 Dore v. Superior Court, 171 Wash. 423, 
+---
+[DEBUG] No case name match for citation: 18 P.2d 51
+[DEBUG] Citation: 46 Wn. 2d 197
+[DEBUG] Context:
+P.2d 51 (1933) ................................. 3, 5 Garrattv. Dailey, 46 Wn.2d 197 (1955)
+---
+[DEBUG] No case name match for citation: 46 Wn. 2d 197
+[DEBUG] Citation: 279 P.2d 1091
+[DEBUG] Context:
+P.2d 51 (1933) ................................. 3, 5 Garrattv. Dailey, 46 Wn.2d 197 (1955) 
+---
+[DEBUG] No case name match for citation: 279 P.2d 1091
+[DEBUG] Citation: 144 Wn. 2d 807
+[DEBUG] Context:
+In re Recall of Kast, 144 Wn.2d 807,813 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 807
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+In re Recall of Kast, 144 Wn.2d 807,813 (2001) ............................................... 5, 11 In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 770 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 189 Wn. 2d 546
+[DEBUG] Context:
+....................... 5, 11 In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 770 (2000) ............................... 6, 9 In re Recall of Pepper, 189 Wn.2d 546, 555 (2017)
+---
+[DEBUG] No case name match for citation: 189 Wn. 2d 546
+[DEBUG] Citation: 155 Wn. 2d 659
+[DEBUG] Context:
+....................... 6, 9 In re Recall of Pepper, 189 Wn.2d 546, 555 (2017) .......................................... 10-11 In re Recall of West, 155 Wn.2d 659,665 (2005)
+---
+[DEBUG] No case name match for citation: 155 Wn. 2d 659
+[DEBUG] Citation: 166 Wn. 2d 974
+[DEBUG] Context:
+...... 10-11 In re Recall of West, 155 Wn.2d 659,665 (2005) ....................................... 11 Putman v. Wenatchee Valley Medical Center, PS, 166 Wn.2d 974,
+---
+[DEBUG] No case name match for citation: 166 Wn. 2d 974
+[DEBUG] Citation: 166 Wash. 2d 974,216 P.3d 374
+[DEBUG] Context:
+re Recall of West, 155 Wn.2d 659,665 (2005) ....................................... 11 Putman v. Wenatchee Valley Medical Center, PS, 166 Wn.2d 974, 
+---
+[DEBUG] No case name match for citation: 166 Wash. 2d 974,216 P.3d 374
+[DEBUG] Citation: 216 P.3d 374
+[DEBUG] Context:
+d 974,
+---
+[DEBUG] No case name match for citation: 216 P.3d 374
+[DEBUG] Citation: 2 L. Ed. 60
+[DEBUG] Context:
+d 974,216 P.3d 374 (Wash. 2009) ..................................... .16, 19 Marbury v. Madison, 5 U.S. (1 Cranch) 137, 163, 2 L.Ed. 60 (1803)
+---
+[DEBUG] No case name match for citation: 2 L. Ed. 60
+[DEBUG] Citation: 187 Wn. 2d 542
+[DEBUG] Context:
+............... 16 Matter of Recall of Boldt, 187 Wn.2d 542, 548 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 542
+[DEBUG] Citation: 90 Wn. 2d 71
+[DEBUG] Context:
+............... 16 Matter of Recall of Boldt, 187 Wn.2d 542, 548 (2017) ..................................... 10-11 McCormick v. Okanogan County, 90 Wn.2d 71 ( 1978) 578 P.2d 1303 .................... .4 Murphy v. Spokane,
+---
+[DEBUG] No case name match for citation: 90 Wn. 2d 71
+[DEBUG] Citation: 578 P.2d 1303
+[DEBUG] Context:
+16 Matter of Recall of Boldt, 187 Wn.2d 542, 548 (2017) ..................................... 10-11 McCormick v. Okanogan County, 90 Wn.2d 71 ( 1978) 
+---
+[DEBUG] No case name match for citation: 578 P.2d 1303
+[DEBUG] Citation: 148 P.3d 993
+[DEBUG] Context:
+Williams, 
+---
+[DEBUG] No case name match for citation: 148 P.3d 993
+[DEBUG] Citation: 492 P.2d 536
+[DEBUG] Context:
+................................................................... 25 111 State ex rel. Citizens Against Mandatory Bussing v. Brooks, fs0 Wn.2d 121,
+---
+[DEBUG] No case name match for citation: 492 P.2d 536
+[DEBUG] Citation: 37 Wn. 2d 669,225 P.2d 1063
+[DEBUG] Context:
+v. Taxpayers, 37 Wn.2d 669,225 P.2d 1063 (1950)
+---
+[DEBUG] No case name match for citation: 37 Wn. 2d 669,225 P.2d 1063
+[DEBUG] Citation: 225 P.2d 1063
+[DEBUG] Context:
+v. Taxpayers, 37 Wn.2d 669,
+---
+[DEBUG] No case name match for citation: 225 P.2d 1063
+[DEBUG] Citation: 81 P.2d 808
+[DEBUG] Context:
+v. Taxpayers, 37 Wn.2d 669,225 P.2d 1063 (1950) ................... 3 Vickers v. Schultz, 195 Wash. 651, 
+---
+[DEBUG] No case name match for citation: 81 P.2d 808
+[DEBUG] Citation: 169 Wash.2d 152
+[DEBUG] Context:
+Yi, 
+---
+[DEBUG] No case name match for citation: 169 Wash.2d 152
+[DEBUG] Citation: 234 P.3d 187
+[DEBUG] Context:
+P.2d 808 (1938) ................................. .3 Waples v. Yi, 169 Wash.2d 152, 161, 
+---
+[DEBUG] No case name match for citation: 234 P.3d 187
+[DEBUG] Citation: 80 Wn. 2d 121, 492 P.2d 536
+[DEBUG] Context:
+ision of the state, from which he[/she] was elected." Wash. Const. Art. I§§ 3~ and 34. In State ex rel. Citizens Against Mandatory Bussing v. Brooks, 80 Wn.2d 121, 492 P.2d 536 (1972)
+---
+[DEBUG] No case name match for citation: 80 Wn. 2d 121, 492 P.2d 536
+[DEBUG] Citation: 103 Wn. 2d 268
+[DEBUG] Context:
+lways interpreted the recall provision broadly so as to allow the people to exercise their right of self-governance. [Fred J Dore - Chandler v. Otto, 103 Wn.2d 268 (1984)
+---
+[DEBUG] No case name match for citation: 103 Wn. 2d 268
+[DEBUG] Citation: 169 Wn. 2d 152
+[DEBUG] Context:
+"substantive right," not a "procedural" one. This misinterpretation of the law is flat out wrong on an issue that has been clear since Waples v. Yi, 169 Wn.2d 152 (2013)
+---
+[DEBUG] No case name match for citation: 169 Wn. 2d 152
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 372 U.S. 335
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 372 U.S. 335
+[DEBUG] Citation: 83 S. Ct. 792
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 83 S. Ct. 792
+[DEBUG] Citation: 9 L. Ed. 2d 799
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 9 L. Ed. 2d 799
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+This is a test citation: 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+This is a test citation: 123 F.3d 456. And another one: 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+This is a test citation: 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+This is a test citation: 123 F.3d 456. And another one: 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+This is a test citation: 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+This is a test citation: 123 F.3d 456. And another one: 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+This is a test citation: 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+This is a test citation: 123 F.3d 456. And another one: 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 171 Wash. 2d 486
+[DEBUG] Context:
+This is a test document containing several legal citations:
+1. 
+---
+[DEBUG] No case name match for citation: 171 Wash. 2d 486
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 987 F.2d 654
+[DEBUG] Context:
+d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 
+---
+[DEBUG] No case name match for citation: 987 F.2d 654
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 565 P.3d 921
+[DEBUG] Context:
+e repeatedly failed to meet filing deadlines and failed to respond to our clerk’s requests for information. In re Recall of Ruelas, 4 Wn.3d 565, 567, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 921
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+In re Recall of Ruelas, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+, No. 103542-0 2 “A case is moot if the appellate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+ate court can no longer provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+ger provide effective relief.” State v. Enriquez -Martinez , 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing State v. Gentry , 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 162 Wn. 2d 501
+[DEBUG] Context:
+or gathering signatures and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 173 P.3d 265 (2007)
+---
+[DEBUG] No case name match for citation: 162 Wn. 2d 501
+[DEBUG] Citation: 173 P.3d 265
+[DEBUG] Context:
+and the recall issue would not be on the ballot in November. See In re Recall Charges Against Seattle Sch. Dist. No. 1 Dir. , 162 Wn.2d 501, 506 n.2, 
+---
+[DEBUG] No case name match for citation: 173 P.3d 265
+[DEBUG] Citation: 141 Wn. 2d 756
+[DEBUG] Context:
+ion and recall statutes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 756
+[DEBUG] Citation: 10 P.3d 1034
+[DEBUG] Context:
+tes “‘contemplate that officials may be recalled for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 
+---
+[DEBUG] No case name match for citation: 10 P.3d 1034
+[DEBUG] Citation: 91 Wn. 2d 767
+[DEBUG] Context:
+for misconduct during a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 592 P.2d 1096 (1979)
+---
+[DEBUG] No case name match for citation: 91 Wn. 2d 767
+[DEBUG] Citation: 592 P.2d 1096
+[DEBUG] Context:
+ng a prior term of office.’” In re Recall of Pearsall-Stipek, 141 Wn.2d 756, 780, 10 P.3d 1034 (2000) (quoting Janovich v. Herron, 91 Wn.2d 767, 776, 
+---
+[DEBUG] No case name match for citation: 592 P.2d 1096
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+“A case is moot if the appellate court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+“A case is moot if the appellate court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+late court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing 
+State v. Gentry, 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+nger provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing 
+State v. Gentry, 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 198 Wn. 2d 98
+[DEBUG] Context:
+“A case is moot if the appellate court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 98
+[DEBUG] Citation: 492 P.3d 162
+[DEBUG] Context:
+“A case is moot if the appellate court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 
+---
+[DEBUG] No case name match for citation: 492 P.3d 162
+[DEBUG] Citation: 125 Wn. 2d 570
+[DEBUG] Context:
+late court can no longer provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing 
+State v. Gentry, 125 Wn.2d 570, 616, 888 P.2d 1105 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 570
+[DEBUG] Citation: 888 P.2d 1105
+[DEBUG] Context:
+nger provide effective relief.” 
+State v. Enriquez-Martinez, 198 Wn.2d 98, 103 n.1, 492 P.3d 162 (2021) (citing 
+State v. Gentry, 125 Wn.2d 570, 616, 
+---
+[DEBUG] No case name match for citation: 888 P.2d 1105
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 129 Wn. 2d 320
+[DEBUG] Context:
+omes.”4 We agree with Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt . Assocs. v. Barrett , 129 Wn.2d 320, 325 -26, 917 P.2d 100 (1996)
+---
+[DEBUG] No case name match for citation: 129 Wn. 2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+ea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt . Assocs. v. Barrett , 129 Wn.2d 320, 325 -26, 
+---
+[DEBUG] No case name match for citation: 917 P.2d 100
+[DEBUG] Citation: 496 P.3d 305
+[DEBUG] Context:
+d 357, 362, 
+---
+[DEBUG] No case name match for citation: 496 P.3d 305
+[DEBUG] Citation: 66 Wn. App. 134
+[DEBUG] Context:
+Marriage of King , 
+---
+[DEBUG] No case name match for citation: 66 Wn. App. 134
+[DEBUG] Citation: 8 P.2d 1094
+[DEBUG] Context:
+iew” of his CR 60(a) motion in the trial court. The order was not a substitute for the trial court’s proper application of CR 60(a) . No. 85399-6-I/8 
+---
+[DEBUG] No case name match for citation: 8 P.2d 1094
+[DEBUG] Citation: 68 Wn. App. 922
+[DEBUG] Context:
+Marriage of Stern , 
+---
+[DEBUG] No case name match for citation: 68 Wn. App. 922
+[DEBUG] Citation: 846 P.2d 1387
+[DEBUG] Context:
+plication of CR 60(a) . No. 85399-6-I/8 8 P.2d 1094 (1992). But a judicial error is one of substance. In re Marriage of Stern , 68 Wn. App. 922, 927, 
+---
+[DEBUG] No case name match for citation: 846 P.2d 1387
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+al schedule in the original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola , 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+riginal parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola , 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+). A court abuses its discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield , 133 Wn.2d 39, 46 -47, 940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield , 133 Wn.2d 39, 46 -47, 
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 622 P.2d 1288
+[DEBUG] Context:
+eflect consideration of the statutory elements, specific findings are not required on each factor.” In re Marriage of Murray , 28 Wn. Ap p. 187, 189, 
+---
+[DEBUG] No case name match for citation: 622 P.2d 1288
+[DEBUG] Citation: 170 P.3d 572
+[DEBUG] Context:
+ting marital property , and we will reverse only if there is a manifest abuse of discretion. In re Marriage of Rockwell , 141 Wn. App . 235, 242 -43, 
+---
+[DEBUG] No case name match for citation: 170 P.3d 572
+[DEBUG] Citation: 105 Wn. App. 545
+[DEBUG] Context:
+Marriage of White , 
+---
+[DEBUG] No case name match for citation: 105 Wn. App. 545
+[DEBUG] Citation: 20 P.3d 481
+[DEBUG] Context:
+le.”9 And to be community or separate property, one of the parties must have acquired the asset. See In re Marriage of White , 105 Wn. App. 545, 550, 
+---
+[DEBUG] No case name match for citation: 20 P.3d 481
+[DEBUG] Citation: 183 Wn. App. 503
+[DEBUG] Context:
+Marriage of Raskob , 
+---
+[DEBUG] No case name match for citation: 183 Wn. App. 503
+[DEBUG] Citation: 334 P.3d 30
+[DEBUG] Context:
+atutory costs. ” Id. When exercising that discretion, we consider the parties’ financial resources. In re Marriage of Raskob , 183 Wn. App. 503, 520, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 30
+[DEBUG] Citation: 90 Wn. App. 796
+[DEBUG] Context:
+Verhey , 
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 796
+[DEBUG] Citation: 954 P.2d 330
+[DEBUG] Context:
+P.3d 30 (2014). We balance the needs of the requesting party against the other party’s ability to pay. Leslie v. Verhey , 90 Wn. App. 796, 805, 
+---
+[DEBUG] No case name match for citation: 954 P.2d 330
+[DEBUG] Citation: 187 Wn. 2d 535
+[DEBUG] Context:
+s an appellate remedy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Soli s-Diaz, 187 Wn.2d 535, 540, 387 P.3d 703 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 535
+[DEBUG] Citation: 387 P.3d 703
+[DEBUG] Context:
+y when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Soli s-Diaz, 187 Wn.2d 535, 540, 
+---
+[DEBUG] No case name match for citation: 387 P.3d 703
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co ., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 

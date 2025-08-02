@@ -6,7 +6,11 @@ based on standard legal citation formats.
 """
 
 import json
+import logging
 import re
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 def load_unconfirmed_citations(

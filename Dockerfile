@@ -46,6 +46,9 @@ RUN mkdir -p /app/logs && chown app:app /app/logs
 # Create necessary directories as root
 RUN mkdir -p /home/app/data /home/app/logs /home/app/uploads /home/app/temp_uploads /app/citation_cache
 
+# Set ownership to app user
+RUN chown -R app:app /home/app/data /home/app/logs /home/app/uploads /home/app/temp_uploads /app/citation_cache
+
 # Switch to app user
 USER app
 

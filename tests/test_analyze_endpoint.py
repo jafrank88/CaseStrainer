@@ -1,78 +1,82 @@
 import requests
 import json
+import time
+import pytest
 
+# Suppress asyncio warning
+pytestmark = pytest.mark.filterwarnings(
+    "ignore::pytest.PytestUnhandledThreadExceptionWarning"
+)
+
+# Base URL for the API
+BASE_URL = "http://localhost:5000/casestrainer/api"
+
+# Test data
+TEST_TEXT = """
+This is a test document containing several legal citations:
+1. 171 Wash. 2d 486 - A Washington Supreme Court case
+2. 123 F.3d 456 - A federal case
+3. 987 F.2d 654 - Another federal case
+"""
 
 def test_analyze_text():
     """Test the analyze endpoint with text input"""
-    url = "http://localhost:5000/casestrainer/api/analyze"
-
-    # Test data
-    data = {
-        "text": "This is a test citation: 123 F.3d 456. And another one: 987 F.2d 654.",
-        "analysisType": "text",
-    }
-
-    headers = {"Content-Type": "application/json", "Accept": "application/json"}
-
+    analyze_url = f"{BASE_URL}/analyze"
+    
     print("=" * 80)
     print("TESTING ANALYZE ENDPOINT (TEXT INPUT)")
     print("=" * 80)
-    print(f"URL: {url}")
+    print(f"URL: {analyze_url}")
     print("Method: POST")
-    print(f"Headers: {json.dumps(headers, indent=2)}")
-    print(f"Request data: {json.dumps(data, indent=2)}")
+    print(f"Request data: {{'text': '...<truncated>...'}}")
     print("-" * 80)
 
     try:
-        # Send the request
-        print("Sending request...")
-        response = requests.post(url, json=data, headers=headers, timeout=30)
+        # Send the analysis request
+        print("Sending analysis request...")
+        response = requests.post(
+            analyze_url,
+            json={"text": TEST_TEXT},
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        
+        # Check if request was successful
+        assert response.status_code == 200, \
+            f"Expected status 200, got {response.status_code}"
+        
+        response_data = response.json()
+        print(f"Analysis completed. Status: {response_data.get('status')}")
+        
+        # Check if we have results
+        if 'results' in response_data:
+            results = response_data['results']
+            print(f"\nFound {len(results)} citations:")
+            for i, citation in enumerate(results, 1):
+                print(f"{i}. {citation.get('citation', 'N/A')} - {citation.get('case_name', 'N/A')}")
+        
+        return response_data
 
-        # Print response details
-        print("\nRESPONSE RECEIVED")
-        print("-" * 80)
-        print(f"Status Code: {response.status_code}")
-        print(f"Response Headers: {dict(response.headers)}")
-
-        # Try to parse JSON response
-        try:
-            json_response = response.json()
-            print("Response Body (JSON):")
-            print(json.dumps(json_response, indent=2))
-
-            # Print summary of citations found
-            if "citations" in json_response:
-                print(f"\nFound {len(json_response['citations'])} citations:")
-                for i, citation in enumerate(json_response["citations"], 1):
-                    print(
-                        f"{i}. {citation.get('citation', 'N/A')} - {citation.get('case_name', 'N/A')}"
-                    )
-
-        except ValueError:
-            print(f"Response Body (raw):\n{response.text}")
-
-        # Check for HTTP errors
-        response.raise_for_status()
-
-        print("\nTEST COMPLETED SUCCESSFULLY")
-
-    except requests.exceptions.Timeout:
-        print("\nERROR: Request timed out (30 seconds)")
-    except requests.exceptions.TooManyRedirects:
-        print("\nERROR: Too many redirects")
     except requests.exceptions.RequestException as e:
-        print(f"\nERROR: Request failed: {e}")
+        print(f"Request error: {str(e)}")
+        raise
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode JSON response: {e}")
+        if 'response' in locals():
+            print(f"Response content: {response.text}")
+        print(f"\nERROR: Failed to decode JSON: {e}")
         if hasattr(e, "response") and e.response is not None:
             print(f"Response status: {e.response.status_code}")
             try:
                 print(f"Response body: {e.response.json()}")
             except:
                 print(f"Response text: {e.response.text}")
+        raise
     except Exception as e:
         print(f"\nUNEXPECTED ERROR: {e}")
         import traceback
-
         traceback.print_exc()
+        raise
 
     print("=" * 80)
 

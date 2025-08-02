@@ -771,7 +771,7 @@ function Test-PostStartupValidation {
             text = "The court in Smith v. Jones, 123 U.S. 456 (2020) held that..."
         } | ConvertTo-Json
         
-        $testResponse = Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
+        $testResponse = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30 -ErrorAction Stop
         
         if ($testResponse.StatusCode -eq 200) {
             $result = $testResponse.Content | ConvertFrom-Json

@@ -4,8 +4,8 @@ import os
 import logging
 from redis import Redis
 from rq import Queue
-from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
-from database_manager import get_database_manager
+from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+from src.database_manager import get_database_manager
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -25,11 +25,14 @@ REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
 REDIS_DB = int(os.environ.get('REDIS_DB', 0))
 QUEUE_NAME = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
 
+# Task management settings
+TASK_TTL = int(os.environ.get('TASK_TTL', 3600))  # 1 hour default TTL for tasks
+
 
 def reprocess_parallel_citations(batch_size=BATCH_SIZE, sleep_time=SLEEP_BETWEEN, max_batches=None):
     """Reprocess citations missing parallel citations."""
     # Enable verification for background reprocessing
-    from models import ProcessingConfig
+    from src.models import ProcessingConfig
     config = ProcessingConfig(enable_verification=True, debug_mode=True)
     verifier = UnifiedCitationProcessor(config)
     db_manager = get_database_manager()
@@ -45,9 +48,24 @@ def reprocess_parallel_citations(batch_size=BATCH_SIZE, sleep_time=SLEEP_BETWEEN
         for row in rows:
             citation = row['citation_text']
             logger.info(f"[REPROCESS] Reprocessing: {citation}")
-            result = verifier._lookup_citation(citation)
-            if result and result.get('parallel_citations'):
-                verifier._save_to_database(citation, result)
+            
+            # Use the proper method to process citations
+            try:
+                # Process the citation using the unified processor (async method)
+                import asyncio
+                result = asyncio.run(verifier.process_document_citations(citation))
+                if result and result.get('citations'):
+                    # Update the database with the results
+                    for citation_result in result['citations']:
+                        if hasattr(citation_result, 'parallel_citations') and citation_result.parallel_citations:
+                            db_manager.execute_query(
+                                "UPDATE citations SET parallel_citations = ? WHERE citation_text = ?",
+                                (str(citation_result.parallel_citations), citation)
+                            )
+                            logger.info(f"[REPROCESS] Updated parallel citations for {citation}")
+            except Exception as e:
+                logger.error(f"[REPROCESS] Error processing {citation}: {e}")
+            
             processed += 1
             time.sleep(sleep_time)
         batch_num += 1
@@ -82,25 +100,9 @@ def database_backup_task():
 def cleanup_old_tasks():
     """Clean up old completed/failed tasks from memory and Redis."""
     try:
-        # Import here to avoid circular imports
-        from vue_api_endpoints import active_requests, TASK_TTL
-        
-        now = time.time()
-        to_delete = []
-        
-        # Clean up in-memory tasks
-        for task_id, task in list(active_requests.items()):
-            if task['status'] in ('completed', 'failed'):
-                end_time = task.get('end_time', task.get('start_time', now))
-                if now - end_time > TASK_TTL:
-                    to_delete.append(task_id)
-        
-        for task_id in to_delete:
-            del active_requests[task_id]
-            logger.debug(f"[CLEANUP] Removed task {task_id} from memory")
-        
-        if to_delete:
-            logger.info(f"[CLEANUP] Cleaned up {len(to_delete)} old tasks from memory")
+        # Since active_requests doesn't exist in vue_api_endpoints, we'll skip in-memory cleanup
+        # and focus on Redis cleanup
+        logger.debug("[CLEANUP] Skipping in-memory task cleanup (active_requests not available)")
         
         # Clean up Redis task results
         try:
