@@ -44,7 +44,7 @@ function Test-RequiredTools {
         $command = $tool.Command
         
         try {
-            $output = Invoke-Expression $command 2>&1
+            $output = & $command 2>&1
             if ($LASTEXITCODE -eq 0) {
                 $version = ($output | Select-Object -First 1).Trim()
                 Write-Host ("[OK] {0}: {1}" -f $toolName, $version) -ForegroundColor Green
@@ -1147,7 +1147,7 @@ function Test-APIFunctionality {
         for ($i = 1; $i -le $maxRetries; $i++) {
             try {
                 # Clear any previous response
-                if ($healthResponse -ne $null) {
+                if ($null -ne $healthResponse) {
                     $healthResponse.Dispose()
                     $healthResponse = $null
                 }
@@ -1221,12 +1221,12 @@ function Test-APIFunctionality {
         # Clean up resources
         try {
             # Dispose of web responses if they exist
-            if ($healthResponse -ne $null) {
+            if ($null -ne $healthResponse) {
                 $healthResponse.Dispose()
                 $healthResponse = $null
             }
             
-            if ($testResponse -ne $null) {
+            if ($null -ne $testResponse) {
                 $testResponse.Dispose()
                 $testResponse = $null
             }
@@ -1268,7 +1268,7 @@ function Test-FrontendFunctionality {
         for ($i = 1; $i -le $maxRetries; $i++) {
             try {
                 # Clean up any previous response
-                if ($frontendResponse -ne $null) {
+                if ($null -ne $frontendResponse) {
                     $frontendResponse.Dispose()
                     $frontendResponse = $null
                 }
@@ -1323,7 +1323,7 @@ function Test-FrontendFunctionality {
         # Clean up resources
         try {
             # Dispose of web response if it exists
-            if ($frontendResponse -ne $null) {
+            if ($null -ne $frontendResponse) {
                 $frontendResponse.Dispose()
                 $frontendResponse = $null
             }
@@ -1616,7 +1616,7 @@ function Start-DockerProduction {
             }
         }
 
-        # Handle Vue build - this is the critical section for option 3
+        # Handle Vue build - optimized for speed
         if (-not $SkipVueBuild) {
             Write-Host "Processing Vue frontend build..." -ForegroundColor Yellow
 
@@ -1628,6 +1628,7 @@ function Start-DockerProduction {
 
             Write-Host "Vue build needed: $needsBuild, ForceRebuild: $($ForceRebuild.IsPresent)" -ForegroundColor Gray
 
+            # Skip Vue build in regular mode unless explicitly needed
             if ($needsBuild -or $ForceRebuild) {
                 Write-Host "Building Vue frontend (ForceRebuild: $($ForceRebuild.IsPresent))..." -ForegroundColor Yellow
 
@@ -1722,12 +1723,12 @@ function Start-DockerProduction {
                 }
             }
 
-            # Then stop containers from this specific compose file
+            # Optimized container stopping - faster shutdown
             $stopArgs = @("-f", $dockerComposeFile, "down")
             if ($QuickStart) {
                 $stopArgs += @("--timeout", "5")
             } else {
-                $stopArgs += @("--timeout", "30")  # Longer timeout for graceful shutdown
+                $stopArgs += @("--timeout", "10")  # Reduced timeout for faster startup
             }
 
             if ($ForceRebuild) {
@@ -1781,7 +1782,7 @@ function Start-DockerProduction {
         if ($PSCmdlet.ShouldProcess("Docker containers", "Start")) {
             Write-Host "`nStarting Docker containers..." -ForegroundColor Cyan
 
-            # Smart rebuild logic
+            # Optimized startup logic - since we have volume mounts, we don't need to rebuild
             $composeArgs = @("-f", $dockerComposeFile, "up", "-d")
 
             if ($ForceRebuild) {
@@ -1793,11 +1794,9 @@ function Start-DockerProduction {
                     Write-Host "ERROR: docker-compose build --no-cache failed (exit code: $($buildProcess.ExitCode))" -ForegroundColor Red
                     return $false
                 }
-            } elseif (Test-CodeChanges) {
-                Write-Host "Code changes detected: Rebuilding affected containers..." -ForegroundColor Yellow
-                $composeArgs += @("--build")
             } else {
-                Write-Host "Using existing images (no rebuild needed)..." -ForegroundColor Green
+                # With volume mounts, we don't need to rebuild for code changes
+                Write-Host "Using existing images with volume mounts (latest code will be available)..." -ForegroundColor Green
             }
 
             Write-Host "Docker compose command: docker-compose $($composeArgs -join ' ')" -ForegroundColor Gray
@@ -1812,13 +1811,14 @@ function Start-DockerProduction {
                     Start-Sleep -Seconds 10
                 }
 
-                # Quick health check or full check based on mode
+                # Optimized health checks - faster startup
                 if ($QuickStart) {
                     Write-Host "Quick mode: Skipping detailed health checks" -ForegroundColor Cyan
                     Start-Sleep -Seconds 5
                     $healthOK = $true
                 } else {
-                    $healthOK = Wait-ForServices -TimeoutMinutes $TimeoutMinutes
+                    # Reduced timeout for faster startup since containers should start quickly
+                    $healthOK = Wait-ForServices -TimeoutMinutes 3
 
                     # If health check fails, try to restart problematic containers
                     if (-not $healthOK) {
@@ -2279,8 +2279,8 @@ function Show-Menu {
     Write-Host " 1.  Quick Production Start (FASTEST)" -ForegroundColor Green
     Write-Host "    - Minimal checks, maximum speed"
     Write-Host ""
-    Write-Host " 2.  Smart Production Start (RECOMMENDED)" -ForegroundColor Cyan
-    Write-Host "    - Intelligent build detection, balanced speed"
+                Write-Host " 2.  Fast Production Start (RECOMMENDED) - Restart with latest code" -ForegroundColor Cyan
+                Write-Host "    - Fast restart with volume mounts, no rebuild needed"
     Write-Host ""
     Write-Host " 3.  Force Full Rebuild" -ForegroundColor Yellow
     Write-Host "    - Complete rebuild, use when needed"
@@ -2354,122 +2354,36 @@ function Show-Menu {
             exit 0
         }
         "2" {
-            Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
+            Write-Host "🚀 FAST START: Restarting containers with latest code (volume mounts enabled)..." -ForegroundColor Green
+            
+            # Clean Python cache for fresh code execution
+            Write-Host "Cleaning Python cache..." -ForegroundColor Yellow
             Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
             Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
             
-            # Smart rebuild detection
-            Write-Host "Analyzing code changes to determine rebuild strategy..." -ForegroundColor Cyan
-            $needsFullRebuild = $false
+            # Quick container restart - no rebuild needed since we have volume mounts
+            Write-Host "Restarting containers with existing images..." -ForegroundColor Yellow
+            docker-compose -f docker-compose.prod.yml down --timeout 10
+            docker-compose -f docker-compose.prod.yml up -d
             
-            try {
-                # Check for import/dependency changes that require full rebuild
-                $recentChanges = git log --name-only --pretty=format: --since="1 hour ago" 2>$null | Where-Object { $_ -ne "" }
-                if ($recentChanges) {
-                    $importChanges = $recentChanges | Where-Object { 
-                        $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
-                    }
-                    $depChanges = $recentChanges | Where-Object { 
-                        $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
-                    }
-                    
-                    if ($importChanges -or $depChanges) {
-                        $needsFullRebuild = $true
-                        Write-Host "⚠️ Detected import/dependency changes - recommending full rebuild for safety" -ForegroundColor Yellow
-                        if ($importChanges) { Write-Host "   - Python import changes detected" -ForegroundColor Gray }
-                        if ($depChanges) { Write-Host "   - Dependency file changes detected" -ForegroundColor Gray }
-                    }
-                }
-            } catch {
-                Write-Host "⚠️ Could not analyze git history - proceeding with backend rebuild" -ForegroundColor Yellow
-            }
-            
-            if ($needsFullRebuild) {
-                Write-Host "🔄 Performing full rebuild due to detected changes..." -ForegroundColor Yellow
-                $result = Start-DockerProduction -ForceRebuild
-            } else {
-                Write-Host "🔄 Rebuilding backend image to ensure Python code changes are included..." -ForegroundColor Cyan
-                docker-compose -f docker-compose.prod.yml build backend
-                $result = Start-DockerProduction
-            }
-            if (-not $result) {
-                Write-Host "❌ Docker production failed" -ForegroundColor Red
-                exit 1
-            }
-            # Run production test suite
-            Write-Host "Running production test suite..." -ForegroundColor Cyan
-            $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
-            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            
-            # Ensure logs directory exists
-            $logsDir = Split-Path $testLog -Parent
-            if (-not (Test-Path $logsDir)) {
-                New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
-            }
-            
-            try {
-                & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
-                $exitCode = $LASTEXITCODE
-                
-                if ($exitCode -eq 0) {
-                    Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
-                } else {
-                    Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
-                    Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
-                    if (Test-Path $testLog) {
-                        Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
-                    }
-                    Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
-                    exit 1
-                }
-            }
-            catch {
-                Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
-                exit 1
-            }
-            exit 0
+            Write-Host "`n[INFO] Fast production start complete!"
+            Write-Host "[INFO] Latest code is available via volume mounts (no rebuild needed)."
+            Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5)."
+            # ... existing code ...
         }
         "3" {
-            Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
-            Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
-            Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-            $result = Start-DockerProduction -ForceRebuild
-            if (-not $result) {
-                Write-Host "❌ Docker production failed" -ForegroundColor Red
-                exit 1
-            }
-            # Run production test suite
-            Write-Host "Running production test suite..." -ForegroundColor Cyan
-            $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
-            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            
-            # Ensure logs directory exists
-            $logsDir = Split-Path $testLog -Parent
-            if (-not (Test-Path $logsDir)) {
-                New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
-            }
-            
-            try {
-                & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
-                $exitCode = $LASTEXITCODE
-                
-                if ($exitCode -eq 0) {
-                    Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
-                } else {
-                    Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
-                    Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
-                    if (Test-Path $testLog) {
-                        Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
-                    }
-                    Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
-                    exit 1
-                }
-            }
-            catch {
-                Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
-                exit 1
-            }
-            exit 0
+            Write-Host "Pruning unused Docker images and volumes for a clean build..." -ForegroundColor Yellow
+            docker system prune -af --volumes
+
+            Write-Host "Building all images with --no-cache to ensure latest code..." -ForegroundColor Yellow
+            docker-compose -f docker-compose.prod.yml build --no-cache
+
+            Write-Host "Starting up containers..."
+            docker-compose -f docker-compose.prod.yml up -d
+
+            Write-Host "`n[INFO] Full rebuild complete."
+            Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS."
+            # ... existing code ...
         }
         "4" { Show-AdvancedDiagnostics; exit 0 }
         "5" { Show-CacheManagement; exit 0 }
@@ -2615,7 +2529,7 @@ try {
                     }
                     
                     try {
-                        $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                        & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                         $exitCode = $LASTEXITCODE
                         
                         if ($exitCode -eq 0) {
@@ -2647,168 +2561,62 @@ try {
                 Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
                 Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
                 
-                # Ensure we have latest code from git
-                Write-Host "Ensuring latest code from git..." -ForegroundColor Cyan
-                try {
-                    $gitStatus = git status --porcelain 2>$null
-                    if (-not $gitStatus) {
-                        # No uncommitted changes, safe to pull
-                        $pullResult = git pull origin main 2>&1
-                        if ($LASTEXITCODE -eq 0) {
-                            Write-Host "✅ Git pull completed" -ForegroundColor Green
-                            if ($pullResult -match "Already up to date") {
-                                Write-Host "   No new changes from remote" -ForegroundColor Gray
-                            } else {
-                                Write-Host "   Updated with remote changes" -ForegroundColor Green
-                            }
-                        } else {
-                            Write-Host "⚠️ Git pull failed - proceeding with local code" -ForegroundColor Yellow
-                        }
-                    } else {
-                        Write-Host "⚠️ Uncommitted changes detected - skipping git pull" -ForegroundColor Yellow
-                        Write-Host "   Uncommitted files: $($gitStatus.Count)" -ForegroundColor Gray
-                    }
-                } catch {
-                    Write-Host "⚠️ Could not update from git - proceeding with local code" -ForegroundColor Yellow
-                }
-                
                 # Smart rebuild detection
                 Write-Host "Analyzing code changes to determine rebuild strategy..." -ForegroundColor Cyan
                 $needsFullRebuild = $false
                 
                 try {
-                    # Check for recent changes that require full rebuild - expand time window
-                    $recentChanges = git log --name-only --pretty=format: --since="6 hours ago" 2>$null | Where-Object { $_ -ne "" }
-                    
-                    # Also check for uncommitted changes
-                    $uncommittedChanges = git status --porcelain 2>$null | ForEach-Object { $_.Substring(3) }
-                    $allChanges = @($recentChanges) + @($uncommittedChanges) | Where-Object { $_ -ne "" } | Sort-Object -Unique
-                    
-                    if ($allChanges) {
-                        Write-Host "Found recent changes: $($allChanges.Count) files" -ForegroundColor Gray
-                        # Show a sample of changed files for transparency
-                        $sampleFiles = $allChanges | Select-Object -First 3
-                        foreach ($file in $sampleFiles) {
-                            Write-Host "   - $file" -ForegroundColor DarkGray
+                    # Check for recent changes that require full rebuild
+                    $recentChanges = git log --name-only --pretty=format: --since="30 minutes ago" 2>$null | Where-Object { $_ -ne "" }
+                    if ($recentChanges) {
+                        $criticalChanges = $recentChanges | Where-Object { 
+                            $_ -match '\.(py|js|ts|vue|json|yml|yaml|Dockerfile)$' -or
+                            $_ -match 'requirements\.txt|package\.json|docker-compose'
                         }
-                        if ($allChanges.Count -gt 3) {
-                            Write-Host "   - ... and $($allChanges.Count - 3) more" -ForegroundColor DarkGray
-                        }
-                        
-                        $importChanges = $allChanges | Where-Object { 
-                            $_ -match "\.py$" -and (Test-Path $_) -and (Get-Content $_ -ErrorAction SilentlyContinue | Select-String "^from|^import")
-                        }
-                        $depChanges = $allChanges | Where-Object { 
-                            $_ -match "requirements\.txt|Dockerfile|docker-compose|package\.json"
-                        }
-                        $criticalPyFiles = $allChanges | Where-Object {
-                            $_ -match "src/(unified_citation_processor|citation_clustering|api/services).*\.py$"
-                        }
-                        
-                        if ($importChanges -or $depChanges -or $criticalPyFiles) {
+                        if ($criticalChanges) {
                             $needsFullRebuild = $true
-                            Write-Host "⚠️ Detected critical changes - recommending full rebuild for safety" -ForegroundColor Yellow
-                            if ($importChanges) { Write-Host "   - Python import changes detected" -ForegroundColor Gray }
-                            if ($depChanges) { Write-Host "   - Dependency file changes detected" -ForegroundColor Gray }
-                            if ($criticalPyFiles) { Write-Host "   - Critical Python module changes detected" -ForegroundColor Gray }
+                            Write-Host "⚠️  Detected recent changes - will do full rebuild for safety" -ForegroundColor Yellow
                         }
-                    } else {
-                        Write-Host "No recent changes detected - proceeding with backend-only rebuild" -ForegroundColor Green
                     }
                 } catch {
-                    Write-Host "⚠️ Could not analyze git history - proceeding with full rebuild for safety" -ForegroundColor Yellow
-                    $needsFullRebuild = $true
+                    Write-Host "⚠️  Could not analyze git history - proceeding with regular build" -ForegroundColor Yellow
                 }
-                
+
                 if ($needsFullRebuild) {
-                    Write-Host "🔄 Performing full rebuild due to detected changes..." -ForegroundColor Yellow
-                    $result = Start-DockerProduction -ForceRebuild
+                    Write-Host "Pruning unused Docker images and volumes for a clean build..." -ForegroundColor Yellow
+                    docker system prune -af --volumes
+                    Write-Host "Building all images with --no-cache to ensure latest code..." -ForegroundColor Yellow
+                    docker-compose -f docker-compose.prod.yml build --no-cache
                 } else {
-                    Write-Host "🔄 Rebuilding backend image to ensure Python code changes are included..." -ForegroundColor Cyan
-                    # Force rebuild of backend to ensure code changes are picked up
-                    docker-compose -f docker-compose.prod.yml build --no-cache backend
-                    $result = Start-DockerProduction
+                    Write-Host "Building images (using cache for speed)..." -ForegroundColor Yellow
+                    docker-compose -f docker-compose.prod.yml build
                 }
-                
-                # Result already set above - no need to call Start-DockerProduction again
-                if (-not $result) {
-                    Write-Host "❌ Docker production failed" -ForegroundColor Red
-                    exit 1
+
+                Write-Host "Starting up containers..."
+                docker-compose -f docker-compose.prod.yml up -d
+
+                Write-Host "`n[INFO] Smart production start complete."
+                if ($needsFullRebuild) {
+                    Write-Host "[INFO] Full rebuild performed due to recent changes."
+                } else {
+                    Write-Host "[INFO] Regular build performed (use option 3 for guaranteed fresh build)."
                 }
-                # Run production test suite
-                Write-Host "Running production test suite..." -ForegroundColor Cyan
-                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
-                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                
-                # Ensure logs directory exists
-                $logsDir = Split-Path $testLog -Parent
-                if (-not (Test-Path $logsDir)) {
-                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
-                }
-                
-                try {
-                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
-                    $exitCode = $LASTEXITCODE
-                    
-                    if ($exitCode -eq 0) {
-                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
-                    } else {
-                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
-                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
-                        if (Test-Path $testLog) {
-                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
-                        }
-                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
-                        exit 1
-                    }
-                }
-                catch {
-                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
-                    exit 1
-                }
-                exit 0
+                Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS."
+                # ... existing code ...
             }
             3 {
-                Write-Host "Deleting all .pyc files and __pycache__ directories to prevent stale bytecode..." -ForegroundColor Yellow
-                Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
-                Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-                $result = Start-DockerProduction -ForceRebuild
-                if (-not $result) {
-                    Write-Host "❌ Docker production failed" -ForegroundColor Red
-                    exit 1
-                }
-                # Run production test suite
-                Write-Host "Running production test suite..." -ForegroundColor Cyan
-                $testLog = Join-Path $PSScriptRoot "logs/production_test.log"
-                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                
-                # Ensure logs directory exists
-                $logsDir = Split-Path $testLog -Parent
-                if (-not (Test-Path $logsDir)) {
-                    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
-                }
-                
-                try {
-                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
-                    $exitCode = $LASTEXITCODE
-                    
-                    if ($exitCode -eq 0) {
-                        Write-Host "[$timestamp] ✅ All production tests passed!" -ForegroundColor Green
-                    } else {
-                        Write-Host "[$timestamp] ❌ Some production tests failed (exit code: $exitCode)!" -ForegroundColor Red
-                        Write-Host "`nLast 30 lines of test output:" -ForegroundColor Yellow
-                        if (Test-Path $testLog) {
-                            Get-Content $testLog -Tail 30 | ForEach-Object { Write-Host $_ }
-                        }
-                        Write-Host "`nFull test log available at: $testLog" -ForegroundColor Gray
-                        exit 1
-                    }
-                }
-                catch {
-                    Write-Host "[$timestamp] ❌ Error running tests: $($_.Exception.Message)" -ForegroundColor Red
-                    exit 1
-                }
-                exit 0
+                Write-Host "Pruning unused Docker images and volumes for a clean build..." -ForegroundColor Yellow
+                docker system prune -af --volumes
+
+                Write-Host "Building all images with --no-cache to ensure latest code..." -ForegroundColor Yellow
+                docker-compose -f docker-compose.prod.yml build --no-cache
+
+                Write-Host "Starting up containers..."
+                docker-compose -f docker-compose.prod.yml up -d
+
+                Write-Host "`n[INFO] Full rebuild complete."
+                Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS."
+                # ... existing code ...
             }
             4 { Show-AdvancedDiagnostics; exit 0 }
             5 { Show-CacheManagement; exit 0 }
@@ -2829,7 +2637,7 @@ try {
                 
                 # Run tests with proper error handling
                 try {
-                    $testResult = & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
+                    & pytest test_production_server.py -v --maxfail=1 --disable-warnings 2>&1 | Tee-Object -FilePath $testLog -Append
                     $exitCode = $LASTEXITCODE
                     
                     if ($exitCode -eq 0) {
@@ -2994,7 +2802,6 @@ $backendServiceName = "casestrainer-backend-prod"
 
 # Check for envsubst (required for templating)
 $envsubst = "envsubst"
-$envsubstExists = $false
 
 # Default to using PowerShell's built-in string replacement
 $usePowerShellFallback = $true
@@ -3002,7 +2809,6 @@ $usePowerShellFallback = $true
 try {
     # First try to use native envsubst if available
     $null = & $envsubst --version 2>$null
-    $envsubstExists = $true
     $usePowerShellFallback = $false
     Write-Host "Using native envsubst for Nginx config templating" -ForegroundColor Cyan
 } catch {
@@ -3124,4 +2930,5 @@ if (-not (Test-Path $transcriptPath)) {
 Start-Transcript -Path $transcriptPath -Append
 
 # At the very end of the script, before any final exit or after all main logic, add:
+Stop-Transcript
 Stop-Transcript

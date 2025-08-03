@@ -38,6 +38,7 @@ services:
       - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
     volumes:
+      - ./src:/app/src
       - ./data:/app/data
       - ./logs:/app/logs
       - ./uploads:/app/uploads
@@ -79,6 +80,7 @@ services:
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
     volumes:
+      - ./src:/app/src
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
@@ -159,6 +161,7 @@ services:
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
     volumes:
+      - ./src:/app/src
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
