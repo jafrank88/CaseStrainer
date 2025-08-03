@@ -420,8 +420,8 @@ class UnifiedCitationProcessorV2:
     def _verify_citations_with_canonical_service(self, citations):
         return verify_citations_with_canonical_service(citations)
 
-    def _verify_citations_with_legal_websearch(self, citations):
-        return verify_citations_with_legal_websearch(citations)
+    async def _verify_citations_with_legal_websearch(self, citations):
+        return await verify_citations_with_legal_websearch(citations)
 
     async def _verify_citations(self, citations: List['CitationResult'], text: Optional[str] = None) -> List['CitationResult']:
         """
@@ -461,8 +461,8 @@ class UnifiedCitationProcessorV2:
         still_unverified = self._get_unverified_citations(citations)
         logger.info(f"[DEBUG PRINT] Step 3: {len(still_unverified)} still unverified citations after canonical service")
         if still_unverified and hasattr(self, '_verify_citations_with_legal_websearch'):
-            # _verify_citations_with_legal_websearch is not async, so call it directly
-            self._verify_citations_with_legal_websearch(still_unverified)
+            # _verify_citations_with_legal_websearch is now async, so await it
+            await self._verify_citations_with_legal_websearch(still_unverified)
         
         # Step 4: Mark remaining as fallback
         final_unverified = [c for c in citations if not getattr(c, 'verified', False)]
@@ -2415,6 +2415,11 @@ class UnifiedCitationProcessorV2:
         self.ensure_bidirectional_parallels(citations)
         logger.info(f"[DEBUG] After bidirectional parallels: {len(citations)} citations")
         
+        # Propagate canonical data to parallel citations
+        logger.info("[DEBUG] Propagating canonical data to parallel citations")
+        self.propagate_canonical_to_cluster(citations)
+        logger.info(f"[DEBUG] After canonical propagation: {len(citations)} citations")
+        
         # Cluster citations
         clusters = group_citations_into_clusters(citations, original_text=text)
         logger.info(f"[DEBUG] Created {len(clusters)} clusters")
@@ -2569,7 +2574,7 @@ class UnifiedCitationProcessorV2:
                         parallel_cite.canonical_date = citation.canonical_date
                         parallel_cite.url = citation.url
                         parallel_cite.source = citation.source
-                        # Mark as true_by_parallel
+                        # Mark as true_by_parallel in metadata only
                         if not hasattr(parallel_cite, 'metadata') or parallel_cite.metadata is None:
                             parallel_cite.metadata = {}
                         parallel_cite.metadata['true_by_parallel'] = True
