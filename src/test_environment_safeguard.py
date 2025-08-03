@@ -7,7 +7,7 @@ Prevents test code from running in production environment
 import os
 import sys
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class TestEnvironmentSafeguard:
         
         return False
     
-    def is_test_request(self, request_data: Dict[str, Any], headers: Dict[str, str] = None) -> bool:
+    def is_test_request(self, request_data: Dict[str, Any], headers: Optional[Dict[str, str]] = None) -> bool:
         """Check if a request contains test data"""
         
         # Check for test data in request
@@ -133,7 +133,7 @@ def check_test_environment():
     if test_safeguard.is_test_environment():
         test_safeguard.block_test_execution("Test environment detected")
 
-def validate_request(request_data: Dict[str, Any], headers: Dict[str, str] = None) -> bool:
+def validate_request(request_data: Dict[str, Any], headers: Optional[Dict[str, str]] = None) -> bool:
     """Validate that a request doesn't contain test data"""
     if test_safeguard.is_test_request(request_data, headers):
         test_safeguard.block_test_execution("Test data detected in request")

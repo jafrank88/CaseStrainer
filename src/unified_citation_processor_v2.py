@@ -2451,7 +2451,7 @@ class UnifiedCitationProcessorV2:
                 'canonical_name': citation.canonical_name,
                 'extracted_date': citation.extracted_date,
                 'canonical_date': citation.canonical_date,
-                'verified': citation.verified,
+                'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
                 'court': citation.court,
                 'confidence': citation.confidence,
                 'method': citation.method,
@@ -2462,7 +2462,7 @@ class UnifiedCitationProcessorV2:
                 'is_parallel': citation.is_parallel,
                 'is_cluster': citation.is_cluster,
                 'parallel_citations': citation.parallel_citations,
-                'cluster_members': citation.cluster_members,
+                'cluster_members': citation.metadata.get('cluster_members', []) if citation.metadata else [],
                 'pinpoint_pages': citation.pinpoint_pages,
                 'docket_numbers': citation.docket_numbers,
                 'case_history': citation.case_history,
@@ -2498,7 +2498,7 @@ class UnifiedCitationProcessorV2:
                 'canonical_name': citation.canonical_name,
                 'extracted_date': citation.extracted_date,
                 'canonical_date': citation.canonical_date,
-                'verified': citation.verified,
+                'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
                 'court': citation.court,
                 'confidence': citation.confidence,
                 'method': citation.method,
@@ -2509,7 +2509,7 @@ class UnifiedCitationProcessorV2:
                 'is_parallel': citation.is_parallel,
                 'is_cluster': citation.is_cluster,
                 'parallel_citations': citation.parallel_citations,
-                'cluster_members': citation.cluster_members,
+                'cluster_members': citation.metadata.get('cluster_members', []) if citation.metadata else [],
                 'pinpoint_pages': citation.pinpoint_pages,
                 'docket_numbers': citation.docket_numbers,
                 'case_history': citation.case_history,
@@ -2654,8 +2654,8 @@ class UnifiedCitationProcessorV2:
                         c.source = verified_member.source
                         # Mark as true_by_parallel if not directly verified
                         if not c.verified:
-                            c.verified = 'true_by_parallel'
-                            if not hasattr(c, 'metadata') or c.metadata is None:
+                            c.verified = "true_by_parallel"
+                            if not hasattr(c, 'metadata'):
                                 c.metadata = {}
                             c.metadata['true_by_parallel'] = True
                     visited.add(cite_str)

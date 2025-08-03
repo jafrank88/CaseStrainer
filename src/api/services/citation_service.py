@@ -22,10 +22,18 @@ class CitationService:
     
     def should_process_immediately(self, input_data: Dict) -> bool:
         """Determine if input should be processed immediately vs queued."""
-        if input_data.get('type') == 'text':
+        input_type = input_data.get('type')
+        
+        if input_type == 'text':
             text = input_data.get('text', '')
             # Process short texts immediately (< 10KB)
             return len(text) < 10 * 1024
+        elif input_type == 'file':
+            # Always queue file processing for better performance and resource management
+            return False
+        elif input_type == 'url':
+            # Always queue URL processing for better performance and resource management
+            return False
         
         return False
     

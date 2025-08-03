@@ -38,6 +38,10 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                         c.metadata = {}
                     c.metadata['is_in_cluster'] = True
                     c.metadata['cluster_id'] = cluster_id
+                    # Set cluster_members to all other citations in this cluster
+                    cluster_members = [other_c.citation for other_c in group_members if other_c.citation != c.citation]
+                    c.metadata['cluster_members'] = cluster_members
+                    c.metadata['cluster_size'] = len(group_members)
                 # Add to clusters_by_id if not already present
                 if cluster_id not in clusters_by_id:
                     clusters_by_id[cluster_id] = []
@@ -51,6 +55,10 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
         canonical_name = getattr(citation, 'canonical_name', None)
         canonical_date = getattr(citation, 'canonical_date', None)
         verified = getattr(citation, 'verified', False)
+        
+        # Handle string verification status
+        if isinstance(verified, str):
+            verified = verified.lower() in ['true', 'true_by_parallel']
         
         # Only cluster if canonical_name and canonical_date are present and verified
         # This prevents cross-contamination from incorrect canonical data
@@ -114,10 +122,25 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                     citation.metadata = citation.metadata or {}
                     citation.metadata['is_in_cluster'] = True
                     citation.metadata['cluster_id'] = cluster_id
+                    # Set cluster_members to all other citations in this cluster
+                    cluster_members = [c.citation for c in clusters_by_id[cluster_id] if c.citation != citation.citation]
+                    citation.metadata['cluster_members'] = cluster_members
+                    citation.metadata['cluster_size'] = len(clusters_by_id[cluster_id])
                 elif isinstance(citation, dict):
                     citation.setdefault('metadata', {})
                     citation['metadata']['is_in_cluster'] = True
                     citation['metadata']['cluster_id'] = cluster_id
+                    # Set cluster_members to all other citations in this cluster
+                    cluster_members = []
+                    for c in clusters_by_id[cluster_id]:
+                        if isinstance(c, dict):
+                            if c.get('citation') != citation.get('citation'):
+                                cluster_members.append(c.get('citation'))
+                        else:
+                            if c.citation != citation.get('citation'):
+                                cluster_members.append(c.citation)
+                    citation['metadata']['cluster_members'] = cluster_members
+                    citation['metadata']['cluster_size'] = len(clusters_by_id[cluster_id])
     
     # --- IMPROVED LOGIC: Merge unverified citations with existing canonical clusters ---
     # This handles cases where unverified citations belong to the same case as verified ones

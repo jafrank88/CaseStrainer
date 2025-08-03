@@ -803,39 +803,35 @@ async def _handle_file_upload(service, request_id):
             # Process the file using CitationService
             logger.info(f"[File Upload {request_id}] Starting file processing with CitationService")
             
-            # Check if we should process in background
-            process_async = options.get('async', True)
+            # Check if we should process immediately or queue using CitationService logic
+            input_data = {'type': 'file', 'file_path': file_path, 'filename': filename}
+            should_process_immediately = service.should_process_immediately(input_data)
             
-            if process_async:
-                # Enqueue for background processing
+            if not should_process_immediately:
+                # Enqueue for background processing using the proper RQ system
                 from rq import Queue
                 from redis import Redis
                 
-                redis_conn = Redis.from_url(current_app.config.get('REDIS_URL', 'redis://localhost:6379/0'))
-                task_queue = Queue('default', connection=redis_conn)
+                # Connect to Redis using environment variable or default
+                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+                redis_conn = Redis.from_url(redis_url)
+                queue = Queue('casestrainer', connection=redis_conn)
                 
-                # Enqueue the task for processing
-                task = task_queue.enqueue(
-                    'src.tasks.process_uploaded_file',
-                    filepath=file_path,
-                    original_filename=filename,
-                    options=options,
-                    job_timeout=3600,  # 1 hour timeout
-                    result_ttl=86400,  # Keep results for 24 hours
-                    failure_ttl=86400,  # Keep failed jobs for 24 hours
-                    job_id=f"file_{request_id}"
+                # Enqueue the file processing task using the wrapper function
+                job = queue.enqueue(
+                    'src.rq_worker.process_citation_task_direct',
+                    args=[request_id, 'file', {'file_path': file_path, 'filename': filename}],
+                    job_id=request_id,
+                    job_timeout='10m'
                 )
                 
-                if not task:
-                    raise RuntimeError("Failed to enqueue task")
-                
-                logger.info(f"[File Upload {request_id}] Task enqueued with ID: {task.get_id()}")
+                logger.info(f"[File Upload {request_id}] File processing task enqueued with job_id: {job.id}")
                 
                 return {
+                    'task_id': request_id,
                     'status': 'processing',
-                    'task_id': task.get_id(),
+                    'message': 'File processing started',
                     'request_id': request_id,
-                    'message': 'File upload received and queued for processing',
                     'success': True,
                     'citations': [],
                     'clusters': [],
@@ -843,7 +839,7 @@ async def _handle_file_upload(service, request_id):
                         'filename': filename,
                         'file_size': os.path.getsize(file_path),
                         'content_type': file.content_type,
-                        'processing_mode': 'async'
+                        'processing_mode': 'queued'
                     }
                 }
             else:
@@ -1165,7 +1161,7 @@ async def _handle_form_input(service, request_id):
         }
 
 async def _process_text_input(service, request_id, text, source_name="form-input"):
-    """Process text input with citation service."""
+    """Process text input with citation service using async queue."""
     try:
         logger.info(f"[Text Input {request_id}] Processing text of length: {len(text)}")
         
@@ -1187,20 +1183,60 @@ async def _process_text_input(service, request_id, text, source_name="form-input
                 }
             }
         
-        # Process text with citation service
-        result = await service.process_citations_from_text(text)
-        
-        return {
-            'citations': result.get('citations', []),
-            'clusters': result.get('clusters', []),
-            'request_id': request_id,
-            'success': True,
-            'metadata': {
-                'source': source_name,
-                'text_length': len(text),
-                'processing_time': time.time()
+        # Check if we should process immediately or queue
+        input_data = {'type': 'text', 'text': text}
+        if service.should_process_immediately(input_data):
+            logger.info(f"[Text Input {request_id}] Processing text immediately (short text)")
+            result = await service.process_immediately(input_data)
+            
+            return {
+                'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),
+                'request_id': request_id,
+                'success': True,
+                'metadata': {
+                    'source': source_name,
+                    'text_length': len(text),
+                    'processing_time': time.time(),
+                    'processing_mode': 'immediate'
+                }
             }
-        }
+        else:
+            logger.info(f"[Text Input {request_id}] Queuing text for async processing")
+            
+            # Import RQ for async task processing
+            from rq import Queue
+            from redis import Redis
+            
+            # Connect to Redis using environment variable or default
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+            redis_conn = Redis.from_url(redis_url)
+            queue = Queue('casestrainer', connection=redis_conn)
+            
+            # Enqueue the text processing task
+            job = queue.enqueue(
+                'src.rq_worker.process_citation_task_direct',
+                args=[request_id, 'text', {'text': text}],
+                job_id=request_id,
+                job_timeout='10m'
+            )
+            
+            logger.info(f"[Text Input {request_id}] Text processing task enqueued with job_id: {job.id}")
+            
+            # Return task_id for frontend polling
+            return {
+                'task_id': request_id,
+                'status': 'processing',
+                'message': 'Text processing started',
+                'request_id': request_id,
+                'success': True,
+                'metadata': {
+                    'source': source_name,
+                    'text_length': len(text),
+                    'processing_mode': 'queued'
+                }
+            }
+            
     except Exception as e:
         logger.error(f"[Text Input {request_id}] Error: {str(e)}", exc_info=True)
         raise
@@ -1455,24 +1491,66 @@ async def _process_url_input(url, request_id=None):
                 }
             }
         
-        # Process the fetched content using the same logic as text input
+        # Process the fetched content using the queue system
         logger.info(f"[URL Input {request_id}] Processing fetched content with citation service")
-        result = await _process_text_input(
-            service=service,
-            request_id=request_id,
-            text=content,
-            source_name="url-input"
-        )
         
-        # Update metadata to include URL-specific information
-        result['metadata'].update({
-            'url': url,
-            'url_domain': urlparse(url).netloc,
-            'content_length': len(content),
-            'processing_time': time.time()
-        })
-        
-        return result
+        # Check if we should process immediately or queue
+        input_data = {'type': 'text', 'text': content}
+        if service.should_process_immediately(input_data):
+            logger.info(f"[URL Input {request_id}] Processing URL content immediately (short content)")
+            result = await service.process_immediately(input_data)
+            
+            return {
+                'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),
+                'request_id': request_id,
+                'success': True,
+                'metadata': {
+                    'source': 'url-input',
+                    'url': url,
+                    'url_domain': urlparse(url).netloc,
+                    'content_length': len(content),
+                    'processing_time': time.time(),
+                    'processing_mode': 'immediate'
+                }
+            }
+        else:
+            logger.info(f"[URL Input {request_id}] Queuing URL content for async processing")
+            
+            # Import RQ for async task processing
+            from rq import Queue
+            from redis import Redis
+            
+            # Connect to Redis using environment variable or default
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+            redis_conn = Redis.from_url(redis_url)
+            queue = Queue('casestrainer', connection=redis_conn)
+            
+            # Enqueue the URL processing task
+            job = queue.enqueue(
+                'src.rq_worker.process_citation_task_direct',
+                args=[request_id, 'url', {'url': url, 'content': content}],
+                job_id=request_id,
+                job_timeout='10m'
+            )
+            
+            logger.info(f"[URL Input {request_id}] URL processing task enqueued with job_id: {job.id}")
+            
+            # Return task_id for frontend polling
+            return {
+                'task_id': request_id,
+                'status': 'processing',
+                'message': 'URL processing started',
+                'request_id': request_id,
+                'success': True,
+                'metadata': {
+                    'source': 'url-input',
+                    'url': url,
+                    'url_domain': urlparse(url).netloc,
+                    'content_length': len(content),
+                    'processing_mode': 'queued'
+                }
+            }
         
     except Exception as e:
         logger.error(f"[URL Input {request_id}] Error: {str(e)}", exc_info=True)
