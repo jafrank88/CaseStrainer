@@ -1922,6 +1922,7 @@ class UnifiedCitationProcessorV2:
                     citation.is_parallel = True
                     citation.cluster_id = cluster_id
                     citation.cluster_members = [c for c in member_citations if c != citation.citation]
+                    citation.parallel_citations = [c for c in member_citations if c != citation.citation]
                     # Share best metadata ONLY if citations have similar case names
                     # Check if all citations in the group have similar case names
                     group_case_names = [c.extracted_case_name for c in group if c.extracted_case_name and c.extracted_case_name != 'N/A']
@@ -2409,6 +2410,11 @@ class UnifiedCitationProcessorV2:
         citations = self._detect_parallel_citations(citations, text)
         logger.info(f"[DEBUG] After parallel detection: {len(citations)} citations")
         
+        # Ensure bidirectional parallel relationships
+        logger.info("[DEBUG] Ensuring bidirectional parallel relationships")
+        self.ensure_bidirectional_parallels(citations)
+        logger.info(f"[DEBUG] After bidirectional parallels: {len(citations)} citations")
+        
         # Cluster citations
         clusters = group_citations_into_clusters(citations, original_text=text)
         logger.info(f"[DEBUG] Created {len(clusters)} clusters")
@@ -2683,8 +2689,9 @@ class UnifiedCitationProcessorV2:
                     c.parallel_citations = [s for s in cite_strs if s != c.citation]
             i = j
         # Debug output: print parallel_citations for each citation
-        for c in citations:
-            print(f"[DEBUG] Citation: {c.citation}, parallels: {getattr(c, 'parallel_citations', [])}")
+        if self.config.debug_mode:
+            for c in citations:
+                logger.debug(f"Citation: {c.citation}, parallels: {getattr(c, 'parallel_citations', [])}")
 
     def propagate_extracted_date_to_group(self, citations: List['CitationResult']):
         """
@@ -2713,8 +2720,9 @@ class UnifiedCitationProcessorV2:
                         c.extracted_date = date_member.extracted_date
                     visited.add(cite_str)
         # Debug output: print extracted_date for each citation
-        for c in citations:
-            print(f"[DEBUG] Citation: {c.citation}, extracted_date: {c.extracted_date}")
+        if self.config.debug_mode:
+            for c in citations:
+                logger.debug(f"Citation: {c.citation}, extracted_date: {c.extracted_date}")
 
     # In process_text, call propagate_extracted_date_to_group after ensure_bidirectional_parallels
     # ... existing code ...

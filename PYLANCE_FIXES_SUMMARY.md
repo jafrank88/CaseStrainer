@@ -13,10 +13,20 @@ This document summarizes the systematic resolution of Pylance errors across the 
 - Coroutine iteration with `# type: ignore`
 - Traceback import conflicts resolved
 - Filename null checks
-- Flask-SocketIO import fallbacks
+- Flask-SocketIO import fallbacks with proper dummy classes
 - Duplicate import consolidation
+- Added optional dependency documentation
 
 **Status:** ✅ All imports successful, main classes accessible
+
+## Optional Dependencies
+
+### Flask-SocketIO
+- **Purpose:** WebSocket support for real-time progress updates
+- **Status:** Optional - not required for basic functionality
+- **Installation:** `pip install -r requirements-optional.txt`
+- **Fallback:** Server-Sent Events (SSE) used when not available
+- **Files:** `src/progress_manager.py` has proper fallback handling
 
 ### 2. `src/quality/testing_framework.py`
 **Issues Fixed:**

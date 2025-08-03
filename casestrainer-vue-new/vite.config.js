@@ -131,7 +131,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
         env.VITE_APP_ENV === 'production' 
           ? '/casestrainer/api' 
-          : '/casestrainer/api'
+          : 'http://localhost:5000/casestrainer/api'
       ),
       'import.meta.env.DEV_FRONTEND_PORT': JSON.stringify(process.env.DEV_FRONTEND_PORT || '5000'),
       'import.meta.env.DEV_BACKEND_PORT': JSON.stringify(process.env.DEV_BACKEND_PORT || '5001'),

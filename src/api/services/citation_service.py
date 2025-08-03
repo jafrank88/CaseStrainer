@@ -121,6 +121,14 @@ class CitationService:
                 'task_id': task_id,
                 'processing_time': time.time() - start_time
             }
+        finally:
+            # Clean up temporary file
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    logger.info(f"[DEBUG] Cleaned up temporary file: {file_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"[DEBUG] Failed to clean up file {file_path}: {cleanup_error}")
     
     async def _process_url_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:
         """Process URL input task."""
@@ -224,125 +232,85 @@ class CitationService:
             text: The input text to process for citations
             
         Returns:
-            Dict containing citation results and metadata
-            
-        Raises:
-            Exception: If any error occurs during processing
+            Dict containing citations, clusters, and processing metadata
         """
-        request_id = str(uuid.uuid4())
         start_time = time.time()
+        logger.info(f"[Request {uuid.uuid4()}] Starting citation processing for text (length: {len(text)})")
         
         try:
-            # Input validation
-            if text is None:
-                error_msg = f"[Request {request_id}] Invalid input text. Text is None"
-                logger.error(error_msg)
-                return {
-                    'status': 'error',
-                    'error': 'Invalid input: text cannot be None',
-                    'request_id': request_id
-                }
-            
-            if not isinstance(text, str):
-                error_msg = f"[Request {request_id}] Invalid input text. Expected string, got {type(text)}"
-                logger.error(error_msg)
-                return {
-                    'status': 'error',
-                    'error': 'Invalid input: text must be a string',
-                    'request_id': request_id
-                }
-            
-            if not text.strip():
-                error_msg = f"[Request {request_id}] Invalid input text. Text is empty or whitespace only"
-                logger.error(error_msg)
-                return {
-                    'status': 'error',
-                    'error': 'Invalid input: text must not be empty',
-                    'request_id': request_id
-                }
-            
-            logger.info(f"[Request {request_id}] Starting citation processing for text (length: {len(text)})")
-                
-            logger.debug(f"[Request {request_id}] Importing required modules")
-            try:
-                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                from src.citation_clustering import group_citations_into_clusters
-                logger.debug(f"[Request {request_id}] Successfully imported required modules")
-            except ImportError as ie:
-                error_msg = f"[Request {request_id}] Failed to import required modules: {str(ie)}"
-                logger.error(error_msg, exc_info=True)
-                return {
-                    'status': 'error',
-                    'error': 'Service configuration error',
-                    'details': str(ie) if os.getenv('FLASK_ENV') == 'development' else None,
-                    'request_id': request_id
-                }
+            # Import required modules
+            logger.debug(f"[Request {uuid.uuid4()}] Importing required modules")
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            from src.services.citation_clusterer import CitationClusterer
+            logger.debug(f"[Request {uuid.uuid4()}] Successfully imported required modules")
             
             # Initialize processor
-            try:
-                logger.debug(f"[Request {request_id}] Initializing UnifiedCitationProcessorV2")
-                processor = UnifiedCitationProcessorV2()
-                logger.debug(f"[Request {request_id}] Successfully initialized processor")
-            except Exception as e:
-                error_msg = f"[Request {request_id}] Failed to initialize citation processor: {str(e)}"
-                logger.error(error_msg, exc_info=True)
-                return {
-                    'status': 'error',
-                    'error': 'Failed to initialize citation processor',
-                    'details': str(e) if os.getenv('FLASK_ENV') == 'development' else None,
-                    'request_id': request_id
-                }
+            logger.debug(f"[Request {uuid.uuid4()}] Initializing UnifiedCitationProcessorV2")
+            processor = UnifiedCitationProcessorV2()
+            logger.debug(f"[Request {uuid.uuid4()}] Successfully initialized processor")
             
             # Process text
-            try:
-                logger.debug(f"[Request {request_id}] Starting text processing")
-                # Use the async process_document_citations method which performs real citation extraction
-                citation_results = await processor.process_document_citations(text)
-                logger.info(f"[Request {request_id}] Processed text, found {len(citation_results.get('citations', []))} citations")
-                
-                # Ensure we have a valid citations list
-                if 'citations' not in citation_results:
-                    citation_results['citations'] = []
-                    
-                # Process clusters
-                try:
-                    if 'clusters' not in citation_results or not citation_results['clusters']:
-                        logger.debug(f"[Request {request_id}] No clusters found, running clustering")
-                        citation_results['clusters'] = group_citations_into_clusters(
-                            citation_results['citations'], 
-                            original_text=text
-                        )
-                    logger.debug(f"[Request {request_id}] Found {len(citation_results['clusters'])} clusters")
-                except Exception as cluster_error:
-                    logger.error(
-                        f"[Request {request_id}] Error in clustering: {str(cluster_error)}", 
-                        exc_info=True
-                    )
-                    citation_results['clusters'] = []
-                
-                # Add processing metadata
-                citation_results['status'] = 'success'
-                citation_results['request_id'] = request_id
-                citation_results['processing_time'] = time.time() - start_time
-                
-                return citation_results
-                
-            except Exception as process_error:
-                error_msg = f"[Request {request_id}] Error processing text: {str(process_error)}"
-                logger.error(error_msg, exc_info=True)
-                return {
-                    'status': 'error',
-                    'error': 'Failed to process text',
-                    'details': str(process_error) if os.getenv('FLASK_ENV') == 'development' else None,
-                    'request_id': request_id
-                }
-                
-        except Exception as unexpected_error:
-            error_msg = f"[Request {request_id}] Unexpected error in process_citations_from_text: {str(unexpected_error)}"
-            logger.error(error_msg, exc_info=True)
+            logger.debug(f"[Request {uuid.uuid4()}] Starting text processing")
+            result = await processor.process_text(text)
+            logger.info(f"[Request {uuid.uuid4()}] Processed text, found {len(result.get('citations', []))} citations")
+            
+            # Run clustering if no clusters found
+            if not result.get('clusters'):
+                logger.debug(f"[Request {uuid.uuid4()}] No clusters found, running clustering")
+                clusterer = CitationClusterer()
+                clusters = clusterer.cluster_citations(result.get('citations', []))
+                result['clusters'] = clusters
+                logger.debug(f"[Request {uuid.uuid4()}] Found {len(clusters)} clusters")
+            
+            # Add processing time
+            processing_time = time.time() - start_time
+            result['processing_time'] = processing_time
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"[Request {uuid.uuid4()}] Error processing text: {str(e)}", exc_info=True)
             return {
                 'status': 'error',
-                'error': 'Unexpected error during processing',
-                'details': str(unexpected_error) if os.getenv('FLASK_ENV') == 'development' else None,
-                'request_id': request_id
+                'error': str(e),
+                'citations': [],
+                'clusters': [],
+                'processing_time': time.time() - start_time
+            }
+
+    async def process_citations_from_url(self, url: str) -> Dict[str, Any]:
+        """
+        Process URL to extract and analyze citations.
+        
+        Args:
+            url: The URL to process for citations
+            
+        Returns:
+            Dict containing citations, clusters, and processing metadata
+        """
+        start_time = time.time()
+        logger.info(f"[Request {uuid.uuid4()}] Starting URL processing: {url}")
+        
+        try:
+            # Create a task-like input data structure
+            input_data = {'url': url}
+            task_id = str(uuid.uuid4())
+            
+            # Use the existing URL processing logic
+            result = await self._process_url_task(task_id, input_data)
+            
+            # Add processing time
+            processing_time = time.time() - start_time
+            result['processing_time'] = processing_time
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"[Request {uuid.uuid4()}] Error processing URL: {str(e)}", exc_info=True)
+            return {
+                'status': 'error',
+                'error': str(e),
+                'citations': [],
+                'clusters': [],
+                'processing_time': time.time() - start_time
             } 

@@ -38,11 +38,34 @@ def register_worker_functions():
     worker_functions = [
         'extract_pdf_pages',
         'extract_pdf_optimized',
-        'src.api.services.citation_service.CitationService.process_citation_task'
+        'process_citation_task_direct',
+        'src.redis_distributed_processor.DockerOptimizedProcessor.process_document'
     ]
     
     logger.info(f"Registered worker functions: {worker_functions}")
     return worker_functions
+
+def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
+    """Direct wrapper function to create CitationService instance and call process_citation_task."""
+    from src.api.services.citation_service import CitationService
+    import asyncio
+    
+    service = CitationService()
+    
+    # Create event loop for async processing
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    try:
+        # Process the task
+        result = loop.run_until_complete(service.process_citation_task(task_id, input_type, input_data))
+        logger.info(f"Task {task_id} completed successfully")
+        return result
+    except Exception as e:
+        logger.error(f"Task {task_id} failed: {e}")
+        raise
+    finally:
+        loop.close()
 
 class RobustWorker(Worker):
     """Enhanced RQ worker with memory management and graceful shutdown."""

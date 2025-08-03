@@ -59,7 +59,7 @@ class Config:
     # Application settings
     ENV = os.environ.get('FLASK_ENV', 'production')
     APP_NAME = "CaseStrainer"
-    APP_VERSION = "0.6.1"
+    APP_VERSION = "0.6.4"
     
     # Static files
     STATIC_FOLDER = '../static/vue'

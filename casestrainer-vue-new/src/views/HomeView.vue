@@ -476,7 +476,8 @@ const formatFileSize = (bytes) => {
 };
 
 const formatTime = (seconds) => {
-  if (!seconds || seconds < 0) return '0s';
+  console.log('formatTime called with:', seconds);
+  if (!seconds || seconds < 0) return '00:00';
   
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -490,13 +491,16 @@ const formatTime = (seconds) => {
 };
 
 const startProgressTracking = () => {
+  console.log('Starting progress tracking...');
   startTime.value = Date.now();
   progressCurrent.value = 0;
   progressTotal.value = estimatedCitations.value || 10; // Use estimated citations or default to 10
   
   // Start elapsed time tracking
   progressTimer.value = setInterval(() => {
-    elapsedTime.value = Math.floor((Date.now() - startTime.value) / 1000);
+    const newElapsedTime = Math.floor((Date.now() - startTime.value) / 1000);
+    console.log('Timer update:', newElapsedTime, 'seconds');
+    elapsedTime.value = newElapsedTime;
   }, 1000);
   
   // Simulate progress for better UX

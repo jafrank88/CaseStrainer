@@ -153814,3 +153814,938 @@ Jones,
 
 ---
 [DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court's parenting plan for abuse of discretion. In re 
+    Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court's parenting plan for abuse of discretion. In re 
+    Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+t 
+    abuses its discretion if its decision is manifestly unreasonable or based on 
+    untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+    940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+on if its decision is manifestly unreasonable or based on 
+    untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+    
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+ient Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+ient Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 146 Wn. 2d 1
+[DEBUG] Context:
+ient Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 43 P.3d 4 (2003)
+---
+[DEBUG] No case name match for citation: 146 Wn. 2d 1
+[DEBUG] Citation: 43 P.3d 4
+[DEBUG] Context:
+171 Wn.2d 486, 493, 256 P.3d 321 (2011). We also review the meaning of a statute de novo. Dep't of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9, 
+---
+[DEBUG] No case name match for citation: 43 P.3d 4
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 200 Wn. 2d 72
+[DEBUG] Context:
+ngton law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+esolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 171 Wn. 2d 486
+[DEBUG] Context:
+eepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 486
+[DEBUG] Citation: 256 P.3d 321
+[DEBUG] Context:
+n.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlson v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 
+---
+[DEBUG] No case name match for citation: 256 P.3d 321
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 999 U.S. 999
+[DEBUG] Context:
+Roe, 
+---
+[DEBUG] No case name match for citation: 999 U.S. 999
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 200 Wn. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+See Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 514 P.3d 643 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+See Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456

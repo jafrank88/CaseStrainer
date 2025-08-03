@@ -2392,8 +2392,6 @@ function Show-Menu {
                 docker-compose -f docker-compose.prod.yml build backend
                 $result = Start-DockerProduction
             }
-
-            $result = Start-DockerProduction
             if (-not $result) {
                 Write-Host "❌ Docker production failed" -ForegroundColor Red
                 exit 1

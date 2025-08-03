@@ -351,17 +351,31 @@ class CitationClusterer(ICitationClusterer):
             # Format citations for output
             formatted_citations = []
             for citation in cluster_members:
+                # Check if this citation is true_by_parallel
+                is_true_by_parallel = citation.metadata and citation.metadata.get('true_by_parallel', False)
+                
+                # Determine the verification status
+                if is_true_by_parallel:
+                    verified_status = 'true_by_parallel'
+                else:
+                    verified_status = citation.verified
+                
                 citation_dict = {
                     'citation': citation.citation,
                     'canonical_name': citation.canonical_name or 'N/A',
                     'canonical_date': citation.canonical_date or 'N/A',
                     'extracted_case_name': citation.extracted_case_name or 'N/A',
                     'extracted_date': citation.extracted_date or 'N/A',
-                    'verified': citation.verified,
+                    'verified': verified_status,
                     'confidence': citation.confidence,
                     'context': citation.context or '',
                     'parallel_citations': citation.parallel_citations or []
                 }
+                
+                # Add true_by_parallel flag if applicable
+                if is_true_by_parallel:
+                    citation_dict['true_by_parallel'] = True
+                
                 formatted_citations.append(citation_dict)
             
             # Create cluster dictionary

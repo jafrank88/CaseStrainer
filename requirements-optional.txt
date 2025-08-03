@@ -1,0 +1,7 @@
+# Optional dependencies for CaseStrainer
+# These are not required for basic functionality but provide additional features
+
+# Flask-SocketIO for WebSocket support (alternative to Server-Sent Events)
+flask-socketio==5.3.6
+
+# Additional optional packages can be added here as needed 

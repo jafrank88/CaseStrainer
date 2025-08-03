@@ -30,16 +30,19 @@ from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor
 
 # Flask-SocketIO import with proper fallback
-if TYPE_CHECKING:
-    from flask_socketio import SocketIO, emit
-
+# Note: flask-socketio is optional and not required for basic functionality
 try:
     from flask_socketio import SocketIO, emit  # type: ignore
     FLASK_SOCKETIO_AVAILABLE = True
 except ImportError:
     FLASK_SOCKETIO_AVAILABLE = False
-    SocketIO = None  # type: ignore
-    emit = None  # type: ignore
+    # Create dummy classes for type checking when flask_socketio is not available
+    class SocketIO:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    def emit(*args, **kwargs):  # type: ignore
+        pass
 
 # Redis import with proper fallback
 try:
