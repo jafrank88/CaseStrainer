@@ -594,11 +594,29 @@ const analyzeContent = async () => {
 
     if (response && response.task_id) {
       console.log('Navigating to enhanced-validator with task_id:', response.task_id);
-      router.push({
-        name: 'EnhancedValidator',
-        query: { task_id: response.task_id }
-      });
-      return;
+      try {
+        await router.push({
+          name: 'EnhancedValidator',
+          query: { task_id: response.task_id }
+        });
+        console.log('Navigation successful');
+        return;
+      } catch (navigationError) {
+        console.error('Navigation failed:', navigationError);
+        // Fallback: try using path instead of name
+        try {
+          await router.push({
+            path: '/enhanced-validator',
+            query: { task_id: response.task_id }
+          });
+          console.log('Fallback navigation successful');
+          return;
+        } catch (fallbackError) {
+          console.error('Fallback navigation also failed:', fallbackError);
+          // Don't let the error propagate - just show results on current page
+          console.log('Using current page for results');
+        }
+      }
     }
 
     if (response) {

@@ -241,7 +241,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
       console.log('Task completed:', {
         taskId: requestId,
         elapsed: Date.now() - startTime,
-        citations: response.data.citations?.length || 0
+        citations: response.data.result?.citations?.length || 0
       });
       return response.data;
     } else if (response.data.status === 'failed') {
@@ -320,12 +320,147 @@ async function pollForResults(requestId, startTime = Date.now()) {
   }
 }
 
+// Test data detection function
+const isTestData = (data) => {
+    if (!data) return false;
+    
+    // Check if it's a text request with test data
+    if (data.text) {
+        const text = data.text.toLowerCase();
+        const testPatterns = [
+            'smith v. jones',
+            '123 f.3d 456',
+            '999 u.s. 999',
+            'test citation',
+            'sample citation',
+            'fake citation'
+        ];
+        
+        return testPatterns.some(pattern => text.includes(pattern));
+    }
+    
+    // Check if it's a URL request with test URLs
+    if (data.url) {
+        return isTestUrl(data.url);
+    }
+    
+    return false;
+};
+
+// URL validation function to detect test and problematic URLs
+const isTestUrl = (url) => {
+    if (!url || typeof url !== 'string') return false;
+    
+    const urlLower = url.toLowerCase();
+    
+    // Test URL patterns
+    const testUrlPatterns = [
+        'example.com',
+        'test.com',
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '::1',
+        'test.local',
+        'dev.local',
+        'staging.local',
+        'mock.com',
+        'fake.com',
+        'dummy.com',
+        'sample.com'
+    ];
+    
+    // Check for test URL patterns
+    for (const pattern of testUrlPatterns) {
+        if (urlLower.includes(pattern)) {
+            console.warn(`Test URL detected: ${url} (pattern: ${pattern})`);
+            return true;
+        }
+    }
+    
+    // Check for local development URLs
+    if (urlLower.includes('localhost') || urlLower.includes('127.0.0.1')) {
+        console.warn(`Local URL detected: ${url}`);
+        return true;
+    }
+    
+    // Check for potentially problematic URLs
+    const problematicPatterns = [
+        'file://',
+        'ftp://',
+        'mailto:',
+        'tel:',
+        'javascript:',
+        'data:',
+        'chrome://',
+        'about:',
+        'moz-extension://'
+    ];
+    
+    for (const pattern of problematicPatterns) {
+        if (urlLower.startsWith(pattern)) {
+            console.warn(`Problematic URL protocol detected: ${url} (protocol: ${pattern})`);
+            return true;
+        }
+    }
+    
+    return false;
+};
+
+// URL validation function for general use
+const validateUrl = (url) => {
+    if (!url || typeof url !== 'string') {
+        throw new Error('URL must be a non-empty string');
+    }
+    
+    if (url.length > 2048) {
+        throw new Error('URL is too long (maximum 2048 characters)');
+    }
+    
+    try {
+        const urlObj = new URL(url);
+        
+        // Check protocol
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+            throw new Error('Only HTTP and HTTPS URLs are supported');
+        }
+        
+        // Check for test URLs
+        if (isTestUrl(url)) {
+            throw new Error('Test or local URLs are not allowed');
+        }
+        
+        return true;
+    } catch (error) {
+        if (error.message.includes('Only HTTP and HTTPS') || error.message.includes('Test or local URLs')) {
+            throw error;
+        }
+        throw new Error('Invalid URL format');
+    }
+};
+
 // Update the analyze function to use the consolidated /analyze endpoint
 export const analyze = async (requestData) => {
     console.log('=== ANALYZE FUNCTION CALLED ===');
     console.log('Request data:', requestData);
     console.log('Request data type:', typeof requestData);
     console.log('Is FormData:', requestData instanceof FormData);
+    
+    // Check for test data and reject it
+    if (isTestData(requestData)) {
+        console.error('Test data detected and rejected:', requestData);
+        throw new Error('Test data detected. Please provide actual document content.');
+    }
+    
+    // Validate URL if present
+    if (requestData.url) {
+        try {
+            validateUrl(requestData.url);
+        } catch (error) {
+            console.error('URL validation failed:', error.message);
+            throw new Error(`URL validation failed: ${error.message}`);
+        }
+    }
     
     // Set appropriate timeout based on input type
     let timeout;

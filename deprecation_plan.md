@@ -1,193 +1,117 @@
-# Citation Extraction Function Deprecation Plan
+# CaseStrainer Deprecation Plan
 
-## Overview
-This document outlines the plan to deprecate inferior citation extraction functions that use fixed context windows instead of sophisticated isolation logic, and replace them with improved versions.
+## 🚨 CRITICAL: Debug API Removed from Production
 
-## Functions to Deprecate
+**Issue Fixed**: The `src/debug_test_api.py` was being registered as a fallback in production, causing mock data to be served instead of real citation processing.
 
-### 1. Inferior Context Extraction Functions
+**Action Taken**: Removed the debug API fallback registration from `src/app_final_vue.py`.
 
-#### **Production Files (High Priority)**
-- `src/unified_citation_processor_v2.py:1608` - `context_start = max(0, citation.start_index - 100)`
-- `src/unified_citation_processor.py:194` - `context_start = max(0, citation_start - 100)`
-- `src/unified_citation_processor.py:488` - `context_start = max(0, match.start() - 300)`
-- `src/unified_citation_processor.py:1006` - `context_start = max(0, start - 200)`
-- `src/standalone_citation_parser.py:95` - `context_start = max(0, citation_index - 500)`
-- `src/standalone_citation_parser.py:655` - `context_start = max(0, citation_index - 200)`
-- `src/standalone_citation_parser.py:882` - `context_start = max(0, citation_start - 100)`
-- `src/safe_citation_processor.py:256` - `context_start = max(0, start - 100)`
-- `src/enhanced_unified_citation_processor.py:598` - `context_start = max(0, start - 150)`
-- `src/enhanced_extraction_utils.py:129` - `context_start = max(0, citation_index - 200)`
-- `src/enhanced_extraction_utils.py:329` - `context_start = max(0, citation_index - 200)`
-- `src/enhanced_extraction_utils.py:1199` - `context_start = max(0, start - 200)`
-- `src/citation_services.py:543` - `context_start = max(0, span.start - 100)`
+## 📋 Files to Deprecate/Move
 
-#### **Script Files (Medium Priority)**
-- `scripts/adaptive_learning_pipeline.py:296` - `context_start = max(0, start - 100)`
-- `scripts/enhanced_adaptive_processor.py:304` - `context_start = max(0, start - 100)`
-- `scripts/enhance_case_extraction.py:153` - `context_start = max(0, pos - 200)`
-- `scripts/california_citation_handler.py:167` - `context_start = max(0, match.start() - 200)`
+### 🔴 **IMMEDIATE DEPRECATION (Production Risk)**
 
-#### **Test/Debug Files (Low Priority)**
-- Various test files with fixed context windows (can be updated later)
+#### Debug/Test APIs (Should be moved to `deprecated_scripts/`)
+- `src/debug_test_api.py` - **CRITICAL**: Was causing mock data in production
+- `src/simple_test_api.py` - Test API with mock responses
+- `src/debug_endpoint.py` - Debug endpoint for testing
+- `src/debug_api_call.py` - Debug script for API calls
+- `src/debug_complex_citation.py` - Debug script for citation processing
+- `src/debug_routes.py` - Debug routes for testing
 
-### 2. Inferior Date Extraction Functions
+#### Test/Utility Scripts (Should be moved to `deprecated_scripts/`)
+- `src/test_toa_vs_analyze_endpoint.py` - Test script
+- `src/standalone_test_verifier.py` - Standalone test verifier
+- `src/test_utilities_consolidated.py` - Test utilities
+- `src/test_production_readiness.py` - Production readiness tests
+- `src/healthcheck_robust.py` - Health check utility
+- `src/healthcheck_rq.py` - RQ health check
 
-#### **Production Files (High Priority)**
-- `src/unified_citation_processor.py:437` - `DateExtractor.extract_date_from_context(text, start, end)`
-- `src/unified_citation_processor.py:1011` - `DateExtractor.extract_date_from_context(text, start, end)`
-- `src/standalone_citation_parser.py:855` - `extract_date_from_context_precise()`
-- `src/standalone_citation_parser.py:894` - `extract_date_from_context()`
+### 🟡 **DEPRECATION CANDIDATES (Review Required)**
 
-## Recommended Actions
+#### Duplicate/Outdated Files
+- `src/vue_api_endpoints_updated.py` - Updated version of vue_api_endpoints.py
+- `src/vue_api.py` - Alternative Vue API implementation
+- `src/rq_worker_windows.py` - Windows-specific RQ worker
+- `src/rq_windows_patch.py` - Windows patch for RQ
+- `src/unified_citation_processor_v2_refactored.py` - Refactored version
+- `src/enhanced_validator_production.py` - Production validator
 
-### Phase 1: Create Improved Versions (High Priority)
+#### Legacy/Consolidated Files
+- `src/citation_utils.py` - Legacy citation utilities (consolidated version exists)
+- `src/validate_citation.py` - DEPRECATED (marked in file)
+- `src/simple_server.py` - DEPRECATED (marked in file)
+- `src/citation_verification.py` - Contains deprecated functions
 
-#### 1.1 Create `_get_isolated_context_for_citation` Helper
-```python
-def _get_isolated_context_for_citation(self, text: str, citation_start: int, citation_end: int, all_citations: List[CitationResult] = None) -> tuple[int, int]:
-    """Get isolated context boundaries for a citation using start/end positions."""
-    # Create a temporary CitationResult for compatibility
-    temp_citation = CitationResult(
-        citation=text[citation_start:citation_end],
-        start_index=citation_start,
-        end_index=citation_end
-    )
-    return self._get_isolated_context(text, temp_citation, all_citations)
+### 🟢 **KEEP (Production Files)**
+
+#### Core Production Files
+- `src/app_final_vue.py` - Main Flask application
+- `src/vue_api_endpoints.py` - Production Vue API endpoints
+- `src/rq_worker.py` - Production RQ worker
+- `src/unified_citation_processor_v2.py` - Main citation processor
+- `src/citation_utils_consolidated.py` - Consolidated citation utilities
+- `src/case_name_extraction_core.py` - Core case name extraction
+- `src/courtlistener_verification.py` - CourtListener verification
+- `src/citation_clustering.py` - Citation clustering logic
+- `src/document_processing_unified.py` - Document processing
+- `src/standalone_citation_parser.py` - Standalone citation parser
+
+## 🛠️ **Implementation Plan**
+
+### Phase 1: Critical Cleanup (IMMEDIATE)
+1. ✅ Remove debug API fallback from production
+2. Move debug/test APIs to `deprecated_scripts/`
+3. Remove deprecated imports
+
+### Phase 2: File Organization (NEXT)
+1. Move test utilities to `deprecated_scripts/`
+2. Review and consolidate duplicate files
+3. Update imports and references
+
+### Phase 3: Documentation (FINAL)
+1. Update documentation to reflect changes
+2. Remove references to deprecated files
+3. Update .gitignore and .dockerignore
+
+## 📝 **Commands to Execute**
+
+```bash
+# Create deprecated_scripts directory if it doesn't exist
+mkdir -p deprecated_scripts
+
+# Move debug/test APIs
+mv src/debug_test_api.py deprecated_scripts/
+mv src/simple_test_api.py deprecated_scripts/
+mv src/debug_endpoint.py deprecated_scripts/
+mv src/debug_api_call.py deprecated_scripts/
+mv src/debug_complex_citation.py deprecated_scripts/
+mv src/debug_routes.py deprecated_scripts/
+
+# Move test utilities
+mv src/test_toa_vs_analyze_endpoint.py deprecated_scripts/
+mv src/standalone_test_verifier.py deprecated_scripts/
+mv src/test_utilities_consolidated.py deprecated_scripts/
+mv src/test_production_readiness.py deprecated_scripts/
+mv src/healthcheck_robust.py deprecated_scripts/
+mv src/healthcheck_rq.py deprecated_scripts/
+
+# Move deprecated files
+mv src/validate_citation.py deprecated_scripts/
+mv src/simple_server.py deprecated_scripts/
 ```
 
-#### 1.2 Create `extract_date_from_context_isolated` Helper
-```python
-def extract_date_from_context_isolated(self, text: str, citation_start: int, citation_end: int) -> Optional[str]:
-    """Extract date using isolated context to prevent cross-contamination."""
-    # Use isolated context extraction
-    context_start, context_end = self._get_isolated_context_for_citation(text, citation_start, citation_end)
-    if context_start is None or context_end is None:
-        # Fallback to reasonable window
-        context_start = max(0, citation_start - 200)
-        context_end = min(len(text), citation_end + 100)
-    
-    context = text[context_start:context_end]
-    return self._extract_date_from_text(context)
-```
+## ⚠️ **Warnings**
 
-### Phase 2: Update Production Files (High Priority)
+1. **Never register debug APIs in production** - This was causing mock data to be served
+2. **Test thoroughly** after moving files to ensure no broken imports
+3. **Update documentation** to reflect the new file structure
+4. **Monitor logs** for any missing import errors after cleanup
 
-#### 2.1 Update `src/unified_citation_processor_v2.py`
-- Replace line 1608 with isolated context logic
-- Update all `_extract_context` calls to use isolation
+## 🎯 **Success Criteria**
 
-#### 2.2 Update `src/unified_citation_processor.py`
-- Replace fixed context windows with isolated context
-- Update date extraction calls to use isolated versions
-
-#### 2.3 Update `src/standalone_citation_parser.py`
-- Replace fixed context windows with isolated context
-- Update date extraction methods
-
-#### 2.4 Update `src/enhanced_extraction_utils.py`
-- Replace fixed context windows with isolated context
-
-### Phase 3: Update Script Files (Medium Priority)
-
-#### 3.1 Update Script Files
-- Replace fixed context windows in adaptive learning pipeline
-- Update enhanced adaptive processor
-- Update case extraction scripts
-
-### Phase 4: Deprecation Warnings (Low Priority)
-
-#### 4.1 Add Deprecation Warnings
-```python
-import warnings
-
-def extract_date_from_context_old(text: str, citation_start: int, citation_end: int, context_window: int = 300) -> Optional[str]:
-    """DEPRECATED: Use extract_date_from_context_isolated instead."""
-    warnings.warn(
-        "extract_date_from_context_old is deprecated. Use extract_date_from_context_isolated instead.",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    return extract_date_from_context_isolated(text, citation_start, citation_end)
-```
-
-## Implementation Strategy
-
-### Step 1: Create Helper Functions
-1. Create `_get_isolated_context_for_citation` helper
-2. Create `extract_date_from_context_isolated` helper
-3. Test helper functions thoroughly
-
-### Step 2: Update Core Files
-1. Update `unified_citation_processor_v2.py`
-2. Update `unified_citation_processor.py`
-3. Update `standalone_citation_parser.py`
-4. Update `enhanced_extraction_utils.py`
-
-### Step 3: Update Script Files
-1. Update adaptive learning pipeline
-2. Update enhanced adaptive processor
-3. Update other script files
-
-### Step 4: Add Deprecation Warnings
-1. Add deprecation warnings to old functions
-2. Update documentation
-3. Create migration guide
-
-## Benefits
-
-### 1. Consistent Isolation Logic
-- All context extraction will use the same sophisticated isolation logic
-- Prevents cross-contamination between citations
-- Improves accuracy across all extraction methods
-
-### 2. Better Context Windows
-- Increased context windows (200-300 characters instead of 100-150)
-- Better coverage for long case names and complex citations
-- Improved year extraction from parentheses
-
-### 3. Maintainability
-- Single source of truth for context isolation logic
-- Easier to maintain and improve
-- Consistent behavior across all extraction methods
-
-### 4. Performance
-- More efficient context extraction
-- Reduced redundant code
-- Better caching opportunities
-
-## Risk Assessment
-
-### Low Risk
-- Helper functions are additive and don't break existing functionality
-- Gradual migration allows for testing at each step
-- Fallback logic ensures backward compatibility
-
-### Medium Risk
-- Some script files may need updates to function signatures
-- Test files may need updates to match new behavior
-
-### Mitigation
-- Comprehensive testing at each phase
-- Gradual rollout with deprecation warnings
-- Maintain backward compatibility during transition
-
-## Timeline
-
-### Week 1: Helper Functions
-- Create and test helper functions
-- Update core files (unified_citation_processor_v2.py)
-
-### Week 2: Core Files
-- Update remaining core files
-- Update script files
-
-### Week 3: Testing & Documentation
-- Comprehensive testing
-- Add deprecation warnings
-- Update documentation
-
-### Week 4: Cleanup
-- Remove deprecated functions
-- Update test files
-- Final validation 
+- [ ] No debug APIs registered in production
+- [ ] No mock data being served
+- [ ] All deprecated files moved to appropriate locations
+- [ ] No broken imports or references
+- [ ] Production tests pass
+- [ ] Documentation updated 

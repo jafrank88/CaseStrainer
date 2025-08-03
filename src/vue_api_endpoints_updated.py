@@ -11,10 +11,12 @@ import traceback
 import time
 import json
 from datetime import datetime
+from urllib.parse import urlparse
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
+from src.test_environment_safeguard import validate_request, check_test_environment
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +147,46 @@ async def analyze():
     # Generate a unique request ID for tracking
     request_id = str(uuid.uuid4())
     
+    # Check for test environment indicators to prevent test code interference
+    if _is_test_environment_request(request):
+        error_msg = 'Test environment detected. Please use the production interface.'
+        logger.warning(f"[Request {request_id}] Test environment request detected and rejected")
+        return jsonify({
+            'error': error_msg,
+            'citations': [],
+            'clusters': [],
+            'request_id': request_id,
+            'success': False,
+            'metadata': {
+                'rejected_reason': 'test_environment_detected',
+                'user_agent': request.headers.get('User-Agent', 'unknown'),
+                'referer': request.headers.get('Referer', 'unknown')
+            }
+        }), 403
+    
+    # Additional safeguard: Check for test environment and validate request
+    try:
+        check_test_environment()
+        # Validate request data if it's JSON
+        if request.is_json:
+            json_data = request.get_json(silent=True)
+            if json_data:
+                validate_request(json_data, dict(request.headers))
+    except RuntimeError as e:
+        error_msg = f'Test execution blocked: {str(e)}'
+        logger.warning(f"[Request {request_id}] {error_msg}")
+        return jsonify({
+            'error': error_msg,
+            'citations': [],
+            'clusters': [],
+            'request_id': request_id,
+            'success': False,
+            'metadata': {
+                'rejected_reason': 'test_execution_blocked',
+                'block_reason': str(e)
+            }
+        }), 403
+    
     # Log request details
     logger.info(f"=== ANALYZE ENDPOINT CALLED [Request ID: {request_id}] ===")
     logger.info(f"[Request {request_id}] Method: {request.method}")
@@ -159,7 +201,6 @@ async def analyze():
         'endpoint': '/analyze',
         'timestamp': datetime.utcnow().isoformat(),
         'processing_mode': 'unknown',
-        'source': 'direct_api',
         'input_type': 'unknown',
         'input_size': len(request.data) if request.data else 0,
         'content_type': request.content_type or 'not_specified'
@@ -232,6 +273,17 @@ async def analyze():
             
             try:
                 result = await _handle_json_input(service, request_id, json_data or request.get_json())
+                # Check if result indicates an error
+                if result.get('success') is False or result.get('error'):
+                    return _format_error(
+                        result.get('error', 'Unknown error'),
+                        status_code=400,
+                        request_id=request_id,
+                        metadata={
+                            **metadata,
+                            **result.get('metadata', {})
+                        }
+                    )
                 return _format_response(result, request_id, metadata, start_time)
                 
             except Exception as e:
@@ -258,6 +310,17 @@ async def analyze():
             
             try:
                 result = await _handle_form_input(service, request_id)
+                # Check if result indicates an error
+                if result.get('success') is False or result.get('error'):
+                    return _format_error(
+                        result.get('error', 'Unknown error'),
+                        status_code=400,
+                        request_id=request_id,
+                        metadata={
+                            **metadata,
+                            **result.get('metadata', {})
+                        }
+                    )
                 return _format_response(result, request_id, metadata, start_time)
                 
             except Exception as e:
@@ -280,6 +343,23 @@ async def analyze():
                 url = request.data.decode('utf-8').strip() if isinstance(request.data, bytes) else request.data.strip()
                 if url.startswith(('http://', 'https://')):
                     logger.info(f"[Request {request_id}] Detected raw URL input: {url}")
+                    
+                    # Validate URL before processing
+                    if not _validate_url(url):
+                        error_msg = 'Invalid or unsafe URL provided'
+                        logger.warning(f"[Request {request_id}] URL validation failed: {url}")
+                        return _format_error(
+                            error_msg,
+                            status_code=400,
+                            request_id=request_id,
+                            metadata={
+                                **metadata,
+                                'input_type': 'url',
+                                'url': url,
+                                'rejected_reason': 'url_validation_failed'
+                            }
+                        )
+                    
                     metadata.update({
                         'input_type': 'url',
                         'url': url
@@ -348,9 +428,11 @@ def _format_response(result, request_id, metadata, start_time):
     
     # Ensure required fields are present
     response_data = {
-        'citations': result.get('citations', []),
-        'clusters': result.get('clusters', []),
-        'statistics': result.get('statistics', {}),
+        'result': {
+            'citations': result.get('citations', []),
+            'clusters': result.get('clusters', []),
+            'statistics': result.get('statistics', {}),
+        },
         'request_id': request_id,
         'success': result.get('success', True),
         'metadata': {**result.get('metadata', {}), **metadata}
@@ -371,10 +453,12 @@ def _format_response(result, request_id, metadata, start_time):
     
     # Log successful response (without large data)
     log_data = response_data.copy()
-    if 'citations' in log_data and len(log_data['citations']) > 5:
-        log_data['citations'] = f"[list of {len(log_data['citations'])} citations]"
-    if 'clusters' in log_data and len(log_data['clusters']) > 3:
-        log_data['clusters'] = f"[list of {len(log_data['clusters'])} clusters]"
+    if 'result' in log_data:
+        result_data = log_data['result']
+        if 'citations' in result_data and len(result_data['citations']) > 5:
+            result_data['citations'] = f"[list of {len(result_data['citations'])} citations]"
+        if 'clusters' in result_data and len(result_data['clusters']) > 3:
+            result_data['clusters'] = f"[list of {len(result_data['clusters'])} clusters]"
     
     logger.info(f"[Request {request_id}] Request completed successfully in {processing_time_ms}ms")
     logger.debug(f"[Request {request_id}] Response data: {log_data}")
@@ -615,6 +699,16 @@ def task_status(task_id):
             'clusters': []
         }), 500
 
+@vue_api.route('/processing_progress', methods=['GET'])
+def processing_progress():
+    """Legacy endpoint for processing progress - redirects to task_status."""
+    task_id = request.args.get('task_id')
+    if not task_id:
+        return jsonify({'error': 'Missing task_id parameter'}), 400
+
+    # Redirect to the existing task_status endpoint
+    return task_status(task_id)
+
 async def _handle_file_upload(service, request_id):
     """
     Handle file upload with proper async processing and CitationService integration
@@ -664,7 +758,7 @@ async def _handle_file_upload(service, request_id):
         file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
         
         if file_ext not in allowed_extensions:
-            error_msg = f'File type not allowed. Allowed types: {', '.join(allowed_extensions)}. Got: {file_ext}'
+            error_msg = f'File type not allowed. Allowed types: {", ".join(allowed_extensions)}. Got: {file_ext}'
             logger.error(f"[File Upload {request_id}] {error_msg}")
             return {
                 'error': error_msg,
@@ -906,10 +1000,26 @@ async def _handle_json_input(service, request_id, data=None):
                     'success': False,
                     'metadata': {}
                 }
+            
+            # Check for test citations to prevent test data processing
+            if _is_test_citation_text(text):
+                error_msg = 'Test citation detected. Please provide actual document content.'
+                logger.warning(f"[JSON Input {request_id}] Test citation detected and rejected: {text[:100]}...")
+                return {
+                    'error': error_msg,
+                    'citations': [],
+                    'clusters': [],
+                    'request_id': request_id,
+                    'success': False,
+                    'metadata': {
+                        'rejected_reason': 'test_citation_detected',
+                        'test_pattern_found': _extract_test_pattern(text)
+                    }
+                }
                 
             logger.info(f"[JSON Input {request_id}] Processing text input...")
             try:
-                result = _process_text_input(
+                result = await _process_text_input(
                     service=service,
                     request_id=request_id,
                     text=text,
@@ -927,16 +1037,33 @@ async def _handle_json_input(service, request_id, data=None):
             
             if not url:
                 logger.error(f"[_handle_json_input] [Request {request_id}] No URL provided")
-                return jsonify({
+                return {
                     'error': 'No URL provided', 
                     'citations': [], 
                     'clusters': [],
-                    'request_id': request_id
-                }), 400
+                    'request_id': request_id,
+                    'success': False
+                }
+            
+            # Validate URL before processing
+            if not _validate_url(url):
+                error_msg = 'Invalid or unsafe URL provided'
+                logger.warning(f"[_handle_json_input] [Request {request_id}] URL validation failed: {url}")
+                return {
+                    'error': error_msg,
+                    'citations': [],
+                    'clusters': [],
+                    'request_id': request_id,
+                    'success': False,
+                    'metadata': {
+                        'rejected_reason': 'url_validation_failed',
+                        'url': url
+                    }
+                }
                 
             logger.info(f"[_handle_json_input] [Request {request_id}] Processing URL input...")
             try:
-                result = await _process_url_input(url)
+                result = await _process_url_input(url, request_id)
                 logger.info(f"[_handle_json_input] [Request {request_id}] URL processing completed successfully")
                 return result
             except Exception as e:
@@ -946,12 +1073,13 @@ async def _handle_json_input(service, request_id, data=None):
         else:
             error_msg = f"Invalid input type: {input_type}"
             logger.error(f"[_handle_json_input] [Request {request_id}] {error_msg}")
-            return jsonify({
+            return {
                 'error': error_msg,
                 'citations': [], 
                 'clusters': [],
-                'request_id': request_id
-            }), 400
+                'request_id': request_id,
+                'success': False
+            }
             
     except Exception as e:
         error_msg = f"Error processing JSON input: {str(e)}"
@@ -986,14 +1114,41 @@ async def _handle_form_input(service, request_id):
         # Handle form data processing
         form_data = request.form.to_dict()
         text = form_data.get('text', '')
+        url = form_data.get('url', '')
         
+        # Check for URL input first
+        if url:
+            logger.info(f"[Form Input {request_id}] Processing URL from form: {url}")
+            
+            # Validate URL before processing
+            if not _validate_url(url):
+                error_msg = 'Invalid or unsafe URL provided'
+                logger.warning(f"[Form Input {request_id}] URL validation failed: {url}")
+                return {
+                    'error': error_msg,
+                    'citations': [],
+                    'clusters': [],
+                    'request_id': request_id,
+                    'success': False,
+                    'metadata': {
+                        'rejected_reason': 'url_validation_failed',
+                        'url': url
+                    }
+                }
+            
+            # Process URL input
+            result = await _process_url_input(url)
+            return result
+        
+        # Check for text input
         if not text:
-            return jsonify({
-                'error': 'No text provided in form data',
+            return {
+                'error': 'No text or URL provided in form data',
                 'citations': [],
                 'clusters': [],
-                'request_id': request_id
-            }), 400
+                'request_id': request_id,
+                'success': False
+            }
         
         # Process text input
         result = await _process_text_input(service, request_id, text)
@@ -1001,20 +1156,39 @@ async def _handle_form_input(service, request_id):
         
     except Exception as e:
         logger.error(f"[Form Input {request_id}] Error: {str(e)}", exc_info=True)
-        return jsonify({
+        return {
             'error': f'Error processing form input: {str(e)}',
             'citations': [],
             'clusters': [],
-            'request_id': request_id
-        }), 500
+            'request_id': request_id,
+            'success': False
+        }
 
 async def _process_text_input(service, request_id, text, source_name="form-input"):
     """Process text input with citation service."""
     try:
         logger.info(f"[Text Input {request_id}] Processing text of length: {len(text)}")
         
+        # Check for test citations to prevent test data processing
+        if _is_test_citation_text(text):
+            error_msg = 'Test citation detected. Please provide actual document content.'
+            logger.warning(f"[Text Input {request_id}] Test citation detected and rejected: {text[:100]}...")
+            return {
+                'error': error_msg,
+                'citations': [],
+                'clusters': [],
+                'request_id': request_id,
+                'success': False,
+                'metadata': {
+                    'source': source_name,
+                    'rejected_reason': 'test_citation_detected',
+                    'test_pattern_found': _extract_test_pattern(text),
+                    'text_length': len(text)
+                }
+            }
+        
         # Process text with citation service
-        result = await service.process_text(text)
+        result = await service.process_citations_from_text(text)
         
         return {
             'citations': result.get('citations', []),
@@ -1031,29 +1205,275 @@ async def _process_text_input(service, request_id, text, source_name="form-input
         logger.error(f"[Text Input {request_id}] Error: {str(e)}", exc_info=True)
         raise
 
-async def _process_url_input(url):
-    """Process URL input with citation service."""
+def _is_test_citation_text(text: str) -> bool:
+    """Check if text contains known test citations that should be rejected."""
+    if not text:
+        return False
+    
+    # Normalize text for comparison
+    text_norm = text.strip().lower()
+    
+    # Known test citation patterns that should be rejected
+    test_patterns = [
+        r"smith v\. jones.*123 f\.3d 456",
+        r"123 f\.3d 456.*smith v\. jones",
+        r"123 f\.\d+d 456",
+        r"999 u\.s\. 999",
+        r"123 invalid 456",
+        r"123 fake 456",
+        r"test citation",
+        r"sample citation",
+        r"fake citation",
+        r"invalid citation"
+    ]
+    
+    import re
+    for pattern in test_patterns:
+        if re.search(pattern, text_norm):
+            return True
+    
+    # Check for exact test strings
+    test_strings = [
+        "see smith v. jones, 123 f.3d 456",
+        "smith v. jones, 123 f.3d 456",
+        "123 f.3d 456",
+        "999 u.s. 999",
+        "test citation",
+        "sample citation"
+    ]
+    
+    for test_string in test_strings:
+        if test_string in text_norm:
+            return True
+    
+    return False
+
+def _extract_test_pattern(text: str) -> str:
+    """Extract the test pattern that was detected."""
+    if not text:
+        return "no_text"
+    
+    text_norm = text.strip().lower()
+    
+    # Check for specific patterns
+    if "smith v. jones" in text_norm and "123 f.3d 456" in text_norm:
+        return "smith_v_jones_123_f3d_456"
+    elif "123 f.3d 456" in text_norm:
+        return "123_f3d_456_pattern"
+    elif "999 u.s. 999" in text_norm:
+        return "999_us_999_pattern"
+    elif "test citation" in text_norm:
+        return "test_citation_string"
+    elif "sample citation" in text_norm:
+        return "sample_citation_string"
+    
+    return "unknown_test_pattern"
+
+def _is_test_environment_request(request) -> bool:
+    """Check if the request appears to be from a test environment."""
+    user_agent = request.headers.get('User-Agent', '').lower()
+    referer = request.headers.get('Referer', '').lower()
+    
+    # Check for test indicators in User-Agent
+    test_user_agents = [
+        'casestrainer-production-test',
+        'test',
+        'pytest',
+        'unittest',
+        'selenium',
+        'cypress',
+        'playwright'
+    ]
+    
+    for test_ua in test_user_agents:
+        if test_ua in user_agent:
+            return True
+    
+    # Check for test indicators in Referer
+    test_referers = [
+        'localhost',
+        '127.0.0.1',
+        'test',
+        'dev',
+        'staging'
+    ]
+    
+    for test_ref in test_referers:
+        if test_ref in referer:
+            return True
+    
+    # Check for test API keys or headers
+    api_key = request.headers.get('X-Api-Key', '')
+    if api_key and 'test' in api_key.lower():
+        return True
+    
+    return False
+
+def _is_test_url(url: str) -> bool:
+    """Check if a URL is a test URL that should be rejected."""
+    if not url:
+        return False
+    
+    url_lower = url.lower()
+    
+    # Test URL patterns
+    test_url_patterns = [
+        'example.com',
+        'test.com',
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '::1',
+        'test.local',
+        'dev.local',
+        'staging.local',
+        'mock.com',
+        'fake.com',
+        'dummy.com',
+        'sample.com'
+    ]
+    
+    # Check for test URL patterns
+    for pattern in test_url_patterns:
+        if pattern in url_lower:
+            logger.warning(f"Test URL detected: {url} (pattern: {pattern})")
+            return True
+    
+    # Check for potentially problematic protocols
+    problematic_protocols = [
+        'file://',
+        'ftp://',
+        'mailto:',
+        'tel:',
+        'javascript:',
+        'data:',
+        'chrome://',
+        'about:',
+        'moz-extension://'
+    ]
+    
+    for protocol in problematic_protocols:
+        if url_lower.startswith(protocol):
+            logger.warning(f"Problematic URL protocol detected: {url} (protocol: {protocol})")
+            return True
+    
+    return False
+
+def _validate_url(url: str) -> bool:
+    """Validate that a URL is safe and properly formatted."""
+    if not url or not isinstance(url, str):
+        return False
+    
+    if len(url) > 2048:
+        logger.warning(f"URL too long: {len(url)} characters")
+        return False
+    
     try:
-        logger.info(f"[URL Input] Processing URL: {url}")
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
         
-        # Import citation service
+        # Check protocol
+        if parsed.scheme not in ['http', 'https']:
+            logger.warning(f"Unsupported protocol: {parsed.scheme}")
+            return False
+        
+        # Check for test URLs
+        if _is_test_url(url):
+            return False
+        
+        return True
+    except Exception as e:
+        logger.warning(f"URL validation error: {str(e)}")
+        return False
+
+async def _process_url_input(url, request_id=None):
+    """Process URL input by fetching content and processing it with citation service."""
+    try:
+        # Generate request_id if not provided
+        if request_id is None:
+            request_id = f"url_{int(time.time())}"
+        
+        logger.info(f"[URL Input {request_id}] Processing URL: {url}")
+        
+        # Validate URL first
+        if not _validate_url(url):
+            error_msg = 'Invalid or unsafe URL provided'
+            logger.warning(f"[URL Input {request_id}] URL validation failed: {url}")
+            return {
+                'citations': [],
+                'clusters': [],
+                'success': False,
+                'error': error_msg,
+                'metadata': {
+                    'source': 'url-input',
+                    'url': url,
+                    'rejected_reason': 'url_validation_failed'
+                }
+            }
+        
+        # Import required modules
         from src.api.services.citation_service import CitationService
+        from src.progress_manager import fetch_url_content
+        
         service = CitationService()
         
-        # Process URL with citation service - use text processing for now
-        # TODO: Implement proper URL processing
-        result = await service.process_citations_from_text(f"URL content from: {url}")
-        
-        return {
-            'citations': result.get('citations', []),
-            'clusters': result.get('clusters', []),
-            'success': True,
-            'metadata': {
-                'source': 'url-input',
-                'url': url,
-                'processing_time': time.time()
+        # Fetch content from URL
+        logger.info(f"[URL Input {request_id}] Fetching content from URL: {url}")
+        try:
+            content = fetch_url_content(url)
+            logger.info(f"[URL Input {request_id}] Successfully fetched {len(content)} characters from URL")
+        except Exception as fetch_error:
+            error_msg = f'Failed to fetch content from URL: {str(fetch_error)}'
+            logger.error(f"[URL Input {request_id}] {error_msg}", exc_info=True)
+            return {
+                'citations': [],
+                'clusters': [],
+                'success': False,
+                'error': error_msg,
+                'metadata': {
+                    'source': 'url-input',
+                    'url': url,
+                    'rejected_reason': 'url_fetch_failed',
+                    'fetch_error': str(fetch_error)
+                }
             }
-        }
+        
+        # Check if content is empty or too short
+        if not content or len(content.strip()) < 10:
+            error_msg = 'URL returned empty or insufficient content for analysis'
+            logger.warning(f"[URL Input {request_id}] {error_msg} - Content length: {len(content)}")
+            return {
+                'citations': [],
+                'clusters': [],
+                'success': False,
+                'error': error_msg,
+                'metadata': {
+                    'source': 'url-input',
+                    'url': url,
+                    'rejected_reason': 'insufficient_content',
+                    'content_length': len(content)
+                }
+            }
+        
+        # Process the fetched content using the same logic as text input
+        logger.info(f"[URL Input {request_id}] Processing fetched content with citation service")
+        result = await _process_text_input(
+            service=service,
+            request_id=request_id,
+            text=content,
+            source_name="url-input"
+        )
+        
+        # Update metadata to include URL-specific information
+        result['metadata'].update({
+            'url': url,
+            'url_domain': urlparse(url).netloc,
+            'content_length': len(content),
+            'processing_time': time.time()
+        })
+        
+        return result
+        
     except Exception as e:
-        logger.error(f"[URL Input] Error: {str(e)}", exc_info=True)
+        logger.error(f"[URL Input {request_id}] Error: {str(e)}", exc_info=True)
         raise

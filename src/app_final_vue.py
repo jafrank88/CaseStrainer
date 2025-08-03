@@ -538,22 +538,9 @@ class ApplicationFactory:
         except Exception as e:
             self.logger.error(f"❌ Error registering blueprints: {e}", exc_info=True)
             
-            # Fall back to debug API if registration fails
-            try:
-                self.logger.warning("Falling back to debug API...")
-                from src.debug_test_api import debug_api
-                app.register_blueprint(debug_api, url_prefix='/casestrainer/api')
-                self.logger.warning("⚠️  Debug API registered as fallback - THIS SHOULD NOT HAPPEN IN PRODUCTION")
-                
-                # Log debug API registration
-                self.logger.info("=== DEBUG API REGISTERED ===")
-                for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
-                    if 'debug_api' in rule.endpoint:
-                        self.logger.info(f"- {rule.endpoint}: {rule.rule} ({', '.join(rule.methods)})")
-                        
-            except Exception as e2:
-                self.logger.critical(f"❌ FATAL: Could not register any API endpoints: {e2}")
-                raise RuntimeError(f"No API endpoints could be registered: {e}, Debug API failed with {e2}")
+            # Remove debug API fallback - this should not happen in production
+            self.logger.critical(f"❌ FATAL: Could not register Vue API endpoints: {e}")
+            raise RuntimeError(f"Vue API endpoints could not be registered: {e}")
 
     def _configure_cors(self, app: Any) -> None:
         """Configure CORS with security considerations"""

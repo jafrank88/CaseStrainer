@@ -371,17 +371,30 @@ export default {
         const data = statusResponse.status === 'fulfilled' ? statusResponse.value.data : {};
         const progressData = progressResponse.status === 'fulfilled' ? progressResponse.value.data : {};
         
+        // DEBUG: Log the raw responses to see what we're getting
+        console.log('🔍 RAW RESPONSE DEBUG:', {
+          statusResponse: statusResponse,
+          progressResponse: progressResponse,
+          statusResponseValue: statusResponse.status === 'fulfilled' ? statusResponse.value : null,
+          progressResponseValue: progressResponse.status === 'fulfilled' ? progressResponse.value : null,
+          data: data,
+          progressData: progressData
+        });
+        
         if (data.status === 'completed') {
           // Task completed successfully
           // DEBUG: Log the actual backend response structure
           console.log('🔍 BACKEND RESPONSE DEBUG:', {
             dataKeys: Object.keys(data),
+            hasResult: !!data.result,
             hasResults: !!data.results,
             hasCitations: !!data.citations,
             hasClusters: !!data.clusters,
+            resultType: typeof data.result,
             resultsType: Array.isArray(data.results) ? 'array' : typeof data.results,
             citationsType: Array.isArray(data.citations) ? 'array' : typeof data.citations,
             clustersType: Array.isArray(data.clusters) ? 'array' : typeof data.clusters,
+            resultKeys: data.result ? Object.keys(data.result) : [],
             resultsLength: data.results?.length || 0,
             citationsLength: data.citations?.length || 0,
             clustersLength: data.clusters?.length || 0,
@@ -392,8 +405,17 @@ export default {
             }
           });
           
-          // Use the 'results' field directly, fallback to 'citations' for legacy
-          const citationResults = Array.isArray(data.results) ? data.results : (data.citations || []);
+          // Backend returns data in the 'result' field, not directly in 'citations'
+          const resultData = data.result || data;
+          const citationResults = Array.isArray(resultData.citations) ? resultData.citations : (resultData.results || []);
+          
+          // DEBUG: Log the result data structure
+          console.log('🔍 RESULT DATA DEBUG:', {
+            resultData: resultData,
+            citationResults: citationResults,
+            citationResultsLength: citationResults.length,
+            citationResultsType: Array.isArray(citationResults) ? 'array' : typeof citationResults
+          });
           
           // DEBUG: Log citation processing
           console.log('🔍 CITATION PROCESSING DEBUG:', {
@@ -407,8 +429,8 @@ export default {
           
           results.value = {
             citations: normalizedCitations,
-            clusters: data.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
-            metadata: data.metadata || {},
+            clusters: resultData.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
+            metadata: resultData.metadata || {},
             total_citations: citationResults.length,
             verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
             unverified_count: citationResults.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
@@ -585,11 +607,12 @@ export default {
           
         } else {
           // Direct response (no async task)
-          const citationResults = response?.citations || [];
+          const responseData = response?.result || response;
+          const citationResults = responseData?.citations || [];
           results.value = {
             citations: normalizeCitations(citationResults),
-            clusters: response?.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
-            metadata: response?.metadata || {},
+            clusters: responseData?.clusters || createClustersFromCitations(citationResults), // Use backend clusters first
+            metadata: responseData?.metadata || {},
             total_citations: citationResults.length,
             verified_count: citationResults.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
             unverified_count: citationResults.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length
@@ -657,9 +680,11 @@ export default {
       try {
         console.log('handleResults called with:', responseData);
         
-        // --- FIX: Always use citations or validation_results ---
+        // --- FIX: Handle new API response structure with result field ---
         let rawCitations = [];
-        if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
+        if (responseData.result && Array.isArray(responseData.result.citations) && responseData.result.citations.length > 0) {
+          rawCitations = responseData.result.citations;
+        } else if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
           rawCitations = responseData.citations;
         } else if (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0) {
           rawCitations = responseData.validation_results;
@@ -668,7 +693,7 @@ export default {
         results.value = {
           ...responseData,
           citations: normalizeCitations(rawCitations),
-          clusters: responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
+          clusters: (responseData.result && responseData.result.clusters) || responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
           total_citations: rawCitations.length,
           verified_count: rawCitations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
           unverified_count: rawCitations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length,
@@ -879,9 +904,11 @@ export default {
       if (router.currentRoute.value.state && router.currentRoute.value.state.results) {
         console.log('[EnhancedValidator] Using results from router state, skipping new analysis.');
         const responseData = router.currentRoute.value.state.results;
-        // --- FIX: Always use citations or validation_results ---
+        // --- FIX: Handle new API response structure with result field ---
         let rawCitations = [];
-        if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
+        if (responseData.result && Array.isArray(responseData.result.citations) && responseData.result.citations.length > 0) {
+          rawCitations = responseData.result.citations;
+        } else if (Array.isArray(responseData.citations) && responseData.citations.length > 0) {
           rawCitations = responseData.citations;
         } else if (Array.isArray(responseData.validation_results) && responseData.validation_results.length > 0) {
           rawCitations = responseData.validation_results;
@@ -890,7 +917,7 @@ export default {
           results.value = {
             ...responseData,
             citations: normalizeCitations(rawCitations),
-            clusters: responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
+            clusters: (responseData.result && responseData.result.clusters) || responseData.clusters || createClustersFromCitations(rawCitations), // Use backend clusters first
             total_citations: rawCitations.length,
             verified_count: rawCitations.filter(c => c.verified || c.valid || c.data?.valid || c.data?.found).length,
             unverified_count: rawCitations.filter(c => !(c.verified || c.valid || c.data?.valid || c.data?.found)).length

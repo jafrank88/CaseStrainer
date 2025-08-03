@@ -370,8 +370,18 @@ const getError = (citation) => {
 }
 
 const getVerificationStatus = (citation) => {
+  // Check if verified is true (direct verification)
   if (citation.verified === 'true' || citation.verified === true) return 'verified'
+  
+  // Check if verified is 'true_by_parallel' (string from backend)
   if (citation.verified === 'true_by_parallel') return 'true_by_parallel'
+  
+  // Check if true_by_parallel field is true (boolean from backend)
+  if (citation.true_by_parallel === true) return 'true_by_parallel'
+  
+  // Check if metadata contains true_by_parallel flag
+  if (citation.metadata && citation.metadata.true_by_parallel === true) return 'true_by_parallel'
+  
   return 'unverified'
 }
 
