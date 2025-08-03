@@ -154749,3 +154749,35 @@ Jones,
 Jones, 
 ---
 [DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362

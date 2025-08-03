@@ -272,6 +272,16 @@ def analyze_text():
         }), 500
 
 
+@vue_api.route('/processing_progress', methods=['GET'])
+def processing_progress():
+    """Legacy endpoint for processing progress - redirects to task_status."""
+    task_id = request.args.get('task_id')
+    if not task_id:
+        return jsonify({'error': 'Missing task_id parameter'}), 400
+    
+    # Redirect to the existing task_status endpoint
+    return get_task_status(task_id)
+
 @vue_api.route('/task_status/<task_id>', methods=['GET'])
 def get_task_status(task_id):
     """
