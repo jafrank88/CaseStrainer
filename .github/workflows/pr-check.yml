@@ -52,7 +52,7 @@ jobs:
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         pytest src/ --cov=src --cov-report=term-missing -v
-        pytest test_citation_extraction.py test_clustering_fix.py -v
+        pytest scripts/test_citation_extraction.py tests/test_backend_api.py tests/test_cluster_api.py -v
 
     - name: Run linting
       run: |

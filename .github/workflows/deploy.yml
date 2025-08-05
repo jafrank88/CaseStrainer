@@ -36,7 +36,7 @@ jobs:
 
     - name: Run critical tests
       run: |
-        pytest test_citation_extraction.py test_clustering_fix.py test_backend_api.py -v
+        pytest scripts/test_citation_extraction.py tests/test_backend_api.py tests/test_cluster_api.py -v
 
     - name: Security scan
       run: |
