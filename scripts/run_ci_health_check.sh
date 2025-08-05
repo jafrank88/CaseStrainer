@@ -32,7 +32,7 @@ fi
 
 # Test main application endpoint
 echo "Testing main application endpoint..."
-if curl -f http://localhost:5000/; then
+if curl -f http://localhost:5000/casestrainer/; then
     echo "✅ Main application endpoint is working"
 else
     echo "❌ Main application endpoint failed"
@@ -43,7 +43,7 @@ fi
 echo "Testing analyze endpoint..."
 if curl -f -X POST http://localhost:5000/casestrainer/api/analyze \
     -H "Content-Type: application/json" \
-    -d '{"text": "Test citation: 410 U.S. 113 (1973)", "type": "text"}'; then
+    -d '{"text": "This is a test document with a citation: Roe v. Wade, 410 U.S. 113 (1973).", "type": "text"}'; then
     echo "✅ Analyze endpoint is working"
 else
     echo "❌ Analyze endpoint failed"
