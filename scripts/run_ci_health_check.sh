@@ -39,14 +39,27 @@ else
     exit 1
 fi
 
-# Test analyze endpoint with simple data
+# Test analyze endpoint with realistic data
 echo "Testing analyze endpoint..."
-if curl -f -X POST http://localhost:5000/casestrainer/api/analyze \
+echo "Environment variables:"
+echo "CI=$CI"
+echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
+
+response=$(curl -s -w "%{http_code}" -X POST http://localhost:5000/casestrainer/api/analyze \
     -H "Content-Type: application/json" \
-    -d '{"text": "This is a test document with a citation: Roe v. Wade, 410 U.S. 113 (1973).", "type": "text"}'; then
+    -d '{"text": "The court considered the precedent established in Miranda v. Arizona, 384 U.S. 436 (1966) regarding procedural rights. This case established important constitutional protections.", "type": "text"}')
+
+http_code="${response: -3}"
+response_body="${response%???}"
+
+echo "Response code: $http_code"
+echo "Response body: $response_body"
+
+if [ "$http_code" = "200" ]; then
     echo "✅ Analyze endpoint is working"
 else
-    echo "❌ Analyze endpoint failed"
+    echo "❌ Analyze endpoint failed with code $http_code"
+    echo "Response: $response_body"
     exit 1
 fi
 
