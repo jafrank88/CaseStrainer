@@ -164412,3 +164412,201 @@ d 357, 362, 496 P.3d 305 (2021).
     In re Marriage of King, 66 Wn. App. 134, 138, 
 ---
 [DEBUG] No case name match for citation: 831 P.2d 1288
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
