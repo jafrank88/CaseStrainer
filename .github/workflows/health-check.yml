@@ -12,6 +12,8 @@ env:
   PYTHONUNBUFFERED: 1
   FLASK_DEBUG: 0
   FLASK_ENV: production
+  REDIS_URL: redis://localhost:6379/0
+  COURTLISTENER_API_KEY: ***REDACTED_COURTLISTENER_KEY***
 
 jobs:
   health-check:
@@ -58,7 +60,12 @@ jobs:
     - name: Start application
       run: |
         echo "Starting application..."
-        nohup python app_final_vue.py > app.log 2>&1 &
+        echo "Current directory: $(pwd)"
+        echo "Python path: $(which python)"
+        echo "Waitress path: $(which waitress-serve)"
+        
+        # Start the application
+        nohup waitress-serve --host=0.0.0.0 --port=5000 --threads=2 src.app_final_vue:app > app.log 2>&1 &
         echo "Application started in background"
         
         # Wait for the application to start
@@ -66,7 +73,18 @@ jobs:
         sleep 30
         
         # Check if the application process is running
-        ps aux | grep python
+        echo "Checking processes..."
+        ps aux | grep waitress || echo "No waitress processes found"
+        
+        # Check if port is listening
+        echo "Checking if port 5000 is listening..."
+        netstat -tlnp | grep :5000 || echo "Port 5000 not listening"
+        
+        # Show logs if available
+        if [ -f "app.log" ]; then
+          echo "Application logs:"
+          tail -20 app.log
+        fi
     
     - name: Run CI health checks
       run: |

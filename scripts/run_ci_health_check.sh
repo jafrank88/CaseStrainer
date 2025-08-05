@@ -7,7 +7,19 @@ echo "Starting CI health checks..."
 
 # Wait for application to be ready
 echo "Waiting for application to start..."
-sleep 10
+sleep 45
+
+# Check if the application is actually running
+echo "Checking if application is running..."
+if ! pgrep -f "waitress-serve" > /dev/null; then
+    echo "❌ Application is not running"
+    echo "Checking logs..."
+    if [ -f "app.log" ]; then
+        cat app.log
+    fi
+    exit 1
+fi
+echo "✅ Application process is running"
 
 # Test basic health endpoint
 echo "Testing health endpoint..."
