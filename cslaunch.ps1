@@ -2354,21 +2354,69 @@ function Show-Menu {
             exit 0
         }
         "2" {
-            Write-Host "🚀 FAST START: Restarting containers with latest code (volume mounts enabled)..." -ForegroundColor Green
+            Write-Host "🚀 FAST START: Restarting containers with latest code and front-end..." -ForegroundColor Green
             
             # Clean Python cache for fresh code execution
             Write-Host "Cleaning Python cache..." -ForegroundColor Yellow
             Get-ChildItem -Path . -Recurse -Include *.pyc | Remove-Item -Force -ErrorAction SilentlyContinue
             Get-ChildItem -Path . -Recurse -Directory -Include __pycache__ | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
             
-            # Quick container restart - no rebuild needed since we have volume mounts
-            Write-Host "Restarting containers with existing images..." -ForegroundColor Yellow
-            docker-compose -f docker-compose.prod.yml down --timeout 10
-            docker-compose -f docker-compose.prod.yml up -d
+            # Check if front-end rebuild is needed
+            Write-Host "Checking if front-end rebuild is needed..." -ForegroundColor Yellow
+            $needsFrontendRebuild = $false
+            try {
+                $needsVueBuild = Test-VueBuildNeeded -Force:$false
+                if ($needsVueBuild) {
+                    Write-Host "Front-end changes detected. Building Vue frontend..." -ForegroundColor Cyan
+                    Invoke-VueFrontendBuild -Quick:$true -ForceRebuild:$false
+                    Write-Host "Front-end build complete!" -ForegroundColor Green
+                    
+                    # Copy built front-end files to static directory for container
+                    Write-Host "Deploying front-end to production..." -ForegroundColor Yellow
+                    $vueDistDir = Join-Path $PSScriptRoot "casestrainer-vue-new\dist"
+                    $staticDir = Join-Path $PSScriptRoot "static"
+                    
+                    if (Test-Path $vueDistDir) {
+                        # Ensure static directory exists
+                        if (-not (Test-Path $staticDir)) {
+                            New-Item -ItemType Directory -Path $staticDir -Force | Out-Null
+                        }
+                        
+                        # Copy all files from dist to static
+                        Copy-Item -Path "$vueDistDir\*" -Destination $staticDir -Recurse -Force
+                        Write-Host "Front-end files deployed to static directory" -ForegroundColor Green
+                        $needsFrontendRebuild = $true
+                    } else {
+                        Write-Host "Warning: Vue dist directory not found at $vueDistDir" -ForegroundColor Yellow
+                    }
+                } else {
+                    Write-Host "Front-end is up to date (no rebuild needed)" -ForegroundColor Green
+                }
+            } catch {
+                Write-Host "Error building/deploying front-end: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "Continuing with container restart..." -ForegroundColor Yellow
+            }
+            
+            # Restart containers - rebuild only if frontend changed
+            if ($needsFrontendRebuild) {
+                Write-Host "Building containers with latest front-end..." -ForegroundColor Yellow
+                docker-compose -f docker-compose.prod.yml down --timeout 10
+                docker-compose -f docker-compose.prod.yml build --no-cache
+                docker-compose -f docker-compose.prod.yml up -d
+            } else {
+                Write-Host "Restarting containers with existing images..." -ForegroundColor Yellow
+                docker-compose -f docker-compose.prod.yml down --timeout 10
+                docker-compose -f docker-compose.prod.yml up -d
+            }
             
             Write-Host "`n[INFO] Fast production start complete!"
-            Write-Host "[INFO] Latest code is available via volume mounts (no rebuild needed)."
-            Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5)."
+            if ($needsFrontendRebuild) {
+                Write-Host "[INFO] Latest code and UI are now deployed."
+                Write-Host "[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5)."
+            } else {
+                Write-Host "[INFO] Latest code is available via volume mounts (no rebuild needed)."
+                Write-Host "[INFO] Front-end was up to date."
+            }
             # ... existing code ...
         }
         "3" {
