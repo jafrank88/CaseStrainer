@@ -486,6 +486,9 @@ function onModeChange() {
 .unified-input {
   max-width: 800px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
  .input-methods-single {
@@ -493,6 +496,7 @@ function onModeChange() {
    gap: 0.75rem;
    margin-bottom: 1.5rem;
    flex-wrap: wrap;
+   width: 100%;
  }
 
 .input-method-card {
@@ -508,7 +512,7 @@ function onModeChange() {
   gap: 0.5rem;
   flex: 1;
   min-width: 140px;
-  max-width: 180px;
+  max-width: none;
 }
 
 .input-method-card:hover:not(.disabled) {
@@ -572,6 +576,7 @@ function onModeChange() {
    margin-bottom: 1.5rem;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
    animation: slideDown 0.3s ease-out;
+   width: 100%;
  }
 
 @keyframes slideDown {
@@ -872,6 +877,7 @@ function onModeChange() {
   background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
   border-radius: 16px;
   border: 2px solid #e3f2fd;
+  width: 100%;
 }
 
 .analyze-btn {
@@ -993,17 +999,19 @@ embed, object, iframe {
 }
 
  /* Responsive design */
- @media (max-width: 768px) {
-   .input-methods-single {
-     flex-direction: column;
-     gap: 0.75rem;
+   @media (max-width: 768px) {
+    .input-methods-single {
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+    }
+   
+   .input-method-card {
+     min-width: auto;
+     max-width: none;
+     padding: 1rem;
+     width: 100%;
    }
-  
-  .input-method-card {
-    min-width: auto;
-    max-width: none;
-    padding: 1rem;
-  }
   
   .method-icon {
     font-size: 1.5rem;
@@ -1017,15 +1025,17 @@ embed, object, iframe {
     font-size: 0.8rem;
   }
   
-     .input-area-single {
+           .input-area-single {
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+   
+   .analyze-section {
      padding: 1.5rem;
-     margin-bottom: 1.5rem;
+     margin: 1rem 0 1.5rem 0;
+     width: 100%;
    }
-  
-  .analyze-section {
-    padding: 1.5rem;
-    margin: 1rem 0 1.5rem 0;
-  }
   
   .analyze-btn {
     padding: 1rem 2rem;
@@ -1062,19 +1072,22 @@ embed, object, iframe {
   .unified-input {
     max-width: 100%;
     padding: 0 1rem;
+    width: 100%;
   }
   
   .input-method-card {
     padding: 0.875rem;
+    width: 100%;
   }
   
   .method-icon {
     font-size: 1.25rem;
   }
   
-     .input-area-single {
-     padding: 1rem;
-   }
+           .input-area-single {
+      padding: 1rem;
+      width: 100%;
+    }
   
   .text-input-field,
   .url-input-field,
