@@ -70,4 +70,16 @@ def test_data_dir():
 def sample_pdf_path():
     """Path to a sample PDF file for testing"""
     # This would point to an actual test PDF file
-    return Path(__file__).parent / "data" / "sample.pdf" 
+    return Path(__file__).parent / "data" / "sample.pdf"
+
+
+@pytest.fixture
+def api_key():
+    """API key for testing"""
+    return "***REDACTED_COURTLISTENER_KEY***"
+
+
+@pytest.fixture
+def cluster_id():
+    """Sample cluster ID for testing"""
+    return "12345" 
