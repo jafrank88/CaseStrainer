@@ -16,7 +16,7 @@ env:
 jobs:
   health-check:
     name: Health Check
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     services:
       redis:
@@ -41,12 +41,12 @@ jobs:
     
     - name: Validate requirements.txt
       run: |
-        if (!(Test-Path "requirements.txt")) {
-          Write-Error "requirements.txt not found"
+        if [ ! -f "requirements.txt" ]; then
+          echo "Error: requirements.txt not found"
           exit 1
-        }
-        Write-Host "requirements.txt found and validated"
-        Get-Content requirements.txt | Measure-Object -Line | Select-Object -ExpandProperty Lines
+        fi
+        echo "requirements.txt found and validated"
+        wc -l requirements.txt
     
     - name: Install dependencies
       run: |
@@ -58,21 +58,28 @@ jobs:
     - name: Start application
       run: |
         echo "Starting application..."
-        start "" /B python app_final_vue.py
+        nohup python app_final_vue.py > app.log 2>&1 &
         echo "Application started in background"
         
         # Wait for the application to start
         echo "Waiting for application to be ready..."
-        timeout /t 30 /nobreak
+        sleep 30
         
         # Check if the application process is running
-        tasklist /FI "IMAGENAME eq python.exe" /FO LIST
+        ps aux | grep python
     
     - name: Run CI health checks
-      run: scripts\run_ci_health_check.bat
+      run: |
+        if [ -f "scripts/run_ci_health_check.sh" ]; then
+          chmod +x scripts/run_ci_health_check.sh
+          ./scripts/run_ci_health_check.sh
+        else
+          echo "Health check script not found, running basic health check..."
+          curl -f http://localhost:5000/casestrainer/api/health || exit 1
+        fi
       env:
         CI: 'true'
-        SERVICE_HOST: 'host.docker.internal'
+        SERVICE_HOST: 'localhost'
         
     - name: Upload logs
       if: always()
