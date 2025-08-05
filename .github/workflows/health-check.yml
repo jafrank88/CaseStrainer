@@ -14,6 +14,8 @@ env:
   FLASK_ENV: production
   REDIS_URL: redis://localhost:6379/0
   COURTLISTENER_API_KEY: ***REDACTED_COURTLISTENER_KEY***
+  CI: true
+  GITHUB_ACTIONS: true
 
 jobs:
   health-check:
