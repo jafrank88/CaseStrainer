@@ -1323,58 +1323,8 @@ async def _process_text_input(service, request_id, text, source_name="form-input
 
 def _is_test_citation_text(text: str) -> bool:
     """Check if text contains known test citations that should be rejected."""
-    if not text:
-        return False
-    
-    # Bypass test detection for CI environment
-    import os
-    ci_env = os.environ.get('CI')
-    github_actions = os.environ.get('GITHUB_ACTIONS')
-    
-    if ci_env == 'true' or github_actions == 'true':
-        logger.info(f"[TEST_DETECTION] CI bypass active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
-        return False
-    
-    logger.info(f"[TEST_DETECTION] CI bypass not active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
-    
-    # Normalize text for comparison
-    text_norm = text.strip().lower()
-    
-    # Only block very specific test patterns that are clearly fake
-    # This allows legitimate cases like "Roe v. Wade" to be processed
-    test_patterns = [
-        r"smith v\. jones.*123 f\.3d 456",  # Specific fake case
-        r"123 f\.3d 456.*smith v\. jones",  # Specific fake case
-        r"999 u\.s\. 999",                   # Obviously fake citation
-        r"123 invalid 456",                  # Obviously fake citation
-        r"123 fake 456",                     # Obviously fake citation
-        r"test citation",                    # Explicit test marker
-        r"sample citation",                  # Explicit test marker
-        r"fake citation",                    # Explicit test marker
-        r"invalid citation"                  # Explicit test marker
-    ]
-    
-    import re
-    for pattern in test_patterns:
-        if re.search(pattern, text_norm):
-            logger.info(f"[TEST_DETECTION] Blocked by pattern: {pattern}")
-            return True
-    
-    # Check for exact test strings (very specific)
-    test_strings = [
-        "see smith v. jones, 123 f.3d 456",
-        "smith v. jones, 123 f.3d 456",
-        "123 f.3d 456",
-        "999 u.s. 999",
-        "test citation",
-        "sample citation"
-    ]
-    
-    for test_string in test_strings:
-        if test_string in text_norm:
-            logger.info(f"[TEST_DETECTION] Blocked by exact string: {test_string}")
-            return True
-    
+    # Disabled test detection to allow all legitimate cases
+    # Users should be able to research any legal case without restrictions
     return False
 
 def _extract_test_pattern(text: str) -> str:
@@ -1400,53 +1350,8 @@ def _extract_test_pattern(text: str) -> str:
 
 def _is_test_environment_request(request) -> bool:
     """Check if the request appears to be from a test environment."""
-    # Bypass test environment detection for CI
-    import os
-    ci_env = os.environ.get('CI')
-    github_actions = os.environ.get('GITHUB_ACTIONS')
-    
-    if ci_env == 'true' or github_actions == 'true':
-        logger.info(f"[TEST_ENV_DETECTION] CI bypass active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
-        return False
-    
-    logger.info(f"[TEST_ENV_DETECTION] CI bypass not active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
-    
-    user_agent = request.headers.get('User-Agent', '').lower()
-    referer = request.headers.get('Referer', '').lower()
-    
-    # Check for test indicators in User-Agent
-    test_user_agents = [
-        'casestrainer-production-test',
-        'test',
-        'pytest',
-        'unittest',
-        'selenium',
-        'cypress',
-        'playwright'
-    ]
-    
-    for test_ua in test_user_agents:
-        if test_ua in user_agent:
-            return True
-    
-    # Check for test indicators in Referer
-    test_referers = [
-        'localhost',
-        '127.0.0.1',
-        'test',
-        'dev',
-        'staging'
-    ]
-    
-    for test_ref in test_referers:
-        if test_ref in referer:
-            return True
-    
-    # Check for test API keys or headers
-    api_key = request.headers.get('X-Api-Key', '')
-    if api_key and 'test' in api_key.lower():
-        return True
-    
+    # Disabled test environment detection to allow all legitimate requests
+    # Users should be able to access the system from any environment
     return False
 
 def _is_test_url(url: str) -> bool:
