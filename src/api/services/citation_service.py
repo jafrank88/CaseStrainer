@@ -272,6 +272,123 @@ class CitationService:
                 result['clusters'] = clusters
                 logger.debug(f"[Request {uuid.uuid4()}] Found {len(clusters)} clusters")
             
+            # Convert CitationResult objects in citations array to dictionaries for JSON serialization
+            if result.get('citations'):
+                logger.debug(f"[Request {uuid.uuid4()}] Converting CitationResult objects in citations array to dictionaries")
+                converted_citations = []
+                for citation in result['citations']:
+                    if hasattr(citation, 'citation'):  # CitationResult object
+                        citation_dict = {
+                            'citation': citation.citation,
+                            'case_name': citation.extracted_case_name or citation.case_name,
+                            'extracted_case_name': citation.extracted_case_name,
+                            'canonical_name': citation.canonical_name,
+                            'extracted_date': citation.extracted_date,
+                            'canonical_date': citation.canonical_date,
+                            'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
+                            'court': citation.court,
+                            'confidence': citation.confidence,
+                            'method': citation.method,
+                            'pattern': citation.pattern,
+                            'context': citation.context,
+                            'start_index': citation.start_index,
+                            'end_index': citation.end_index,
+                            'is_parallel': citation.is_parallel,
+                            'is_cluster': citation.is_cluster,
+                            'parallel_citations': citation.parallel_citations,
+                            'cluster_members': citation.metadata.get('cluster_members', []) if citation.metadata else [],
+                            'pinpoint_pages': citation.pinpoint_pages,
+                            'docket_numbers': citation.docket_numbers,
+                            'case_history': citation.case_history,
+                            'publication_status': citation.publication_status,
+                            'url': citation.url,
+                            'source': citation.source,
+                            'error': citation.error,
+                            'metadata': citation.metadata or {},
+                            'extraction_method': getattr(citation, 'extraction_method', None),
+                        }
+                        # Ensure cluster metadata is properly included
+                        if citation.metadata:
+                            citation_dict['metadata'].update({
+                                'cluster_extracted_case_name': citation.metadata.get('cluster_extracted_case_name'),
+                                'cluster_extracted_date': citation.metadata.get('cluster_extracted_date'),
+                                'cluster_canonical_name': citation.metadata.get('cluster_canonical_name'),
+                                'cluster_canonical_date': citation.metadata.get('cluster_canonical_date'),
+                                'cluster_url': citation.metadata.get('cluster_url'),
+                                'is_in_cluster': citation.metadata.get('is_in_cluster', False),
+                                'cluster_id': citation.metadata.get('cluster_id'),
+                                'cluster_size': citation.metadata.get('cluster_size', 0),
+                                'cluster_members': citation.metadata.get('cluster_members', [])
+                            })
+                        converted_citations.append(citation_dict)
+                    else:
+                        converted_citations.append(citation)  # Already a dict
+                result['citations'] = converted_citations
+                logger.debug(f"[Request {uuid.uuid4()}] Converted {len(converted_citations)} citations")
+            
+            # Convert CitationResult objects in clusters to dictionaries for JSON serialization
+            if result.get('clusters'):
+                logger.debug(f"[Request {uuid.uuid4()}] Converting CitationResult objects in clusters to dictionaries")
+                converted_clusters = []
+                for cluster in result['clusters']:
+                    if isinstance(cluster, dict):
+                        # Convert CitationResult objects in cluster['citations'] to dictionaries
+                        if 'citations' in cluster and isinstance(cluster['citations'], list):
+                            converted_citations_in_cluster = []
+                            for citation in cluster['citations']:
+                                if hasattr(citation, 'citation'):  # CitationResult object
+                                    citation_dict = {
+                                        'citation': citation.citation,
+                                        'case_name': citation.extracted_case_name or citation.case_name,
+                                        'extracted_case_name': citation.extracted_case_name,
+                                        'canonical_name': citation.canonical_name,
+                                        'extracted_date': citation.extracted_date,
+                                        'canonical_date': citation.canonical_date,
+                                        'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
+                                        'court': citation.court,
+                                        'confidence': citation.confidence,
+                                        'method': citation.method,
+                                        'pattern': citation.pattern,
+                                        'context': citation.context,
+                                        'start_index': citation.start_index,
+                                        'end_index': citation.end_index,
+                                        'is_parallel': citation.is_parallel,
+                                        'is_cluster': citation.is_cluster,
+                                        'parallel_citations': citation.parallel_citations,
+                                        'cluster_members': citation.metadata.get('cluster_members', []) if citation.metadata else [],
+                                        'pinpoint_pages': citation.pinpoint_pages,
+                                        'docket_numbers': citation.docket_numbers,
+                                        'case_history': citation.case_history,
+                                        'publication_status': citation.publication_status,
+                                        'url': citation.url,
+                                        'source': citation.source,
+                                        'error': citation.error,
+                                        'metadata': citation.metadata or {},
+                                        'extraction_method': getattr(citation, 'extraction_method', None),
+                                    }
+                                    # Ensure cluster metadata is properly included
+                                    if citation.metadata:
+                                        citation_dict['metadata'].update({
+                                            'cluster_extracted_case_name': citation.metadata.get('cluster_extracted_case_name'),
+                                            'cluster_extracted_date': citation.metadata.get('cluster_extracted_date'),
+                                            'cluster_canonical_name': citation.metadata.get('cluster_canonical_name'),
+                                            'cluster_canonical_date': citation.metadata.get('cluster_canonical_date'),
+                                            'cluster_url': citation.metadata.get('cluster_url'),
+                                            'is_in_cluster': citation.metadata.get('is_in_cluster', False),
+                                            'cluster_id': citation.metadata.get('cluster_id'),
+                                            'cluster_size': citation.metadata.get('cluster_size', 0),
+                                            'cluster_members': citation.metadata.get('cluster_members', [])
+                                        })
+                                    converted_citations_in_cluster.append(citation_dict)
+                                else:
+                                    converted_citations_in_cluster.append(citation)  # Already a dict
+                            cluster['citations'] = converted_citations_in_cluster
+                        converted_clusters.append(cluster)
+                    else:
+                        converted_clusters.append(cluster)
+                result['clusters'] = converted_clusters
+                logger.debug(f"[Request {uuid.uuid4()}] Converted {len(converted_clusters)} clusters")
+            
             # Add processing time
             processing_time = time.time() - start_time
             result['processing_time'] = processing_time

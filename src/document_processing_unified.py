@@ -1111,7 +1111,7 @@ class UnifiedDocumentProcessor:
             # Handle document types by downloading to temp file
             content_type_to_extension = {
                 'application/pdf': '.pdf',
-                'application/msword': '.doc',
+                # 'application/msword': '.doc',  # DOC files not supported
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
                 'application/rtf': '.rtf',
                 'application/vnd.oasis.opendocument.text': '.odt'

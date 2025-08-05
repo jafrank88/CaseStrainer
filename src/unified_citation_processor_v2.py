@@ -1098,20 +1098,41 @@ class UnifiedCitationProcessorV2:
                                     citation.extracted_date = str(case_name_result[1])
                                 logger.debug(f"✅ Extracted case name: '{clean_case_name}' for citation: '{citation.citation}'")
                             else:
+                                # Fallback: try manual extraction method
+                                manual_case_name = self._extract_case_name_from_context(text, citation)
+                                if manual_case_name:
+                                    citation.extracted_case_name = manual_case_name
+                                    citation.case_name = manual_case_name
+                                    logger.debug(f"✅ Manual extraction found case name: '{manual_case_name}' for citation: '{citation.citation}'")
+                                else:
+                                    citation.extracted_case_name = "N/A"
+                                    citation.case_name = "N/A"
+                                    if clean_case_name == "":
+                                        logger.debug(f"❌ Case name rejected as contaminated for citation: '{citation.citation}', raw: '{raw_case_name[:100]}...'")
+                                    else:
+                                        logger.debug(f"❌ Case name cleaning resulted in empty name for citation: '{citation.citation}'")
+                        else:
+                            # Fallback: try manual extraction method
+                            manual_case_name = self._extract_case_name_from_context(text, citation)
+                            if manual_case_name:
+                                citation.extracted_case_name = manual_case_name
+                                citation.case_name = manual_case_name
+                                logger.debug(f"✅ Manual extraction found case name: '{manual_case_name}' for citation: '{citation.citation}'")
+                            else:
                                 citation.extracted_case_name = "N/A"
                                 citation.case_name = "N/A"
-                                if clean_case_name == "":
-                                    logger.debug(f"❌ Case name rejected as contaminated for citation: '{citation.citation}', raw: '{raw_case_name[:100]}...'")
-                                else:
-                                    logger.debug(f"❌ Case name cleaning resulted in empty name for citation: '{citation.citation}'")
+                                logger.debug(f"❌ No case name found for citation: '{citation.citation}'")
+                    else:
+                        # Fallback: try manual extraction method
+                        manual_case_name = self._extract_case_name_from_context(text, citation)
+                        if manual_case_name:
+                            citation.extracted_case_name = manual_case_name
+                            citation.case_name = manual_case_name
+                            logger.debug(f"✅ Manual extraction found case name: '{manual_case_name}' for citation: '{citation.citation}'")
                         else:
                             citation.extracted_case_name = "N/A"
                             citation.case_name = "N/A"
-                            logger.debug(f"❌ No case name found for citation: '{citation.citation}'")
-                    else:
-                        citation.extracted_case_name = "N/A"
-                        citation.case_name = "N/A"
-                        logger.debug(f"❌ No isolated context found for citation: '{citation.citation}'")
+                            logger.debug(f"❌ No isolated context found for citation: '{citation.citation}'")
                 except Exception as e:
                     logger.debug(f"Error extracting case name (canonical): {e}")
                     citation.extracted_case_name = None
@@ -1363,7 +1384,7 @@ class UnifiedCitationProcessorV2:
         # Only match case names that start at the beginning, after newline, or after sentence-ending punctuation
         patterns = [
             r'(?:^|[\n\r\.;!\?])\s*([A-Z][A-Za-z0-9&.,\'\s\-]+\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\s\-]+)',
-            r'(?:^|[\n\r\.;!\?])\s*(In\s+re\s+[A-Z][A-Za-z0-9&.,\'\s\-]+)',
+            r'(?:^|[\n\r\.;!\?])\s*(In\s+re\s+[A-Z][A-Za-z0-9&.,\'\s\-]+(?:\s+[A-Za-z0-9&.,\'\s\-]+)*)',
             r'(?:^|[\n\r\.;!\?])\s*(State\s+v\.\s+[A-Z][A-Za-z0-9&.,\'\s\-]+)'
         ]
         for pattern in patterns:
@@ -1376,7 +1397,9 @@ class UnifiedCitationProcessorV2:
                 case_name = re.sub(r'[,;\.]\s*$', '', case_name)
                 case_name = re.sub(r'\s+', ' ', case_name).strip()
                 # Validation: must start with capital, not a fragment, and match a case name pattern
-                if 5 <= len(case_name) <= 150 and re.match(r'^[A-Z]', case_name) and ' v.' in case_name:
+                if (5 <= len(case_name) <= 150 and 
+                    re.match(r'^[A-Z]', case_name) and 
+                    (' v.' in case_name or case_name.startswith('In re ') or case_name.startswith('State v. '))):
                     return case_name
         return None
 
@@ -1913,8 +1936,22 @@ class UnifiedCitationProcessorV2:
                 curr.start_index - prev.end_index <= 100):
                 text_between = text[prev.end_index:curr.start_index]
                 if ',' in text_between and len(text_between.strip()) < 50:
-                    current_group.append(curr)
-                    continue
+                    # ADDITIONAL VALIDATION: Only group if citations have similar case names
+                    if (prev.extracted_case_name and curr.extracted_case_name and
+                        prev.extracted_case_name != 'N/A' and curr.extracted_case_name != 'N/A'):
+                        # Check if case names are similar
+                        name1 = self._normalize_case_name_for_clustering(prev.extracted_case_name)
+                        name2 = self._normalize_case_name_for_clustering(curr.extracted_case_name)
+                        similarity = self._calculate_case_name_similarity(name1, name2)
+                        if similarity > 0.8:  # Only group if very similar
+                            current_group.append(curr)
+                            continue
+                    # If no case names or not similar, don't group
+                # Start new group
+                if len(current_group) > 1:
+                    groups.append(current_group)
+                current_group = [curr]
+                continue
             # Start new group
             if len(current_group) > 1:
                 groups.append(current_group)

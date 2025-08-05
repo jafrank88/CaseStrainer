@@ -48,31 +48,29 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                 for c in group_members:
                     if c not in clusters_by_id[cluster_id]:
                         clusters_by_id[cluster_id].append(c)
-    # --- IMPROVED LOGIC: Group by canonical name/date with better validation ---
-    # Build a mapping from (canonical_name, canonical_date) to citations
-    canonical_clusters = {}
+    # --- IMPROVED LOGIC: Group by extracted name/date for clustering (canonical for verification only) ---
+    # Build a mapping from (extracted_case_name, extracted_date) to citations
+    extracted_clusters = {}
     for citation in citations:
-        canonical_name = getattr(citation, 'canonical_name', None)
-        canonical_date = getattr(citation, 'canonical_date', None)
-        verified = getattr(citation, 'verified', False)
+        extracted_name = getattr(citation, 'extracted_case_name', None)
+        extracted_date = getattr(citation, 'extracted_date', None)
         
-        # Handle string verification status
-        if isinstance(verified, str):
-            verified = verified.lower() in ['true', 'true_by_parallel']
-        
-        # Only cluster if canonical_name and canonical_date are present and verified
-        # This prevents cross-contamination from incorrect canonical data
-        if canonical_name and canonical_date and verified:
-            key = (canonical_name, canonical_date)
-            if key not in canonical_clusters:
-                canonical_clusters[key] = []
-            canonical_clusters[key].append(citation)
+        # Cluster by extracted name and date from the document (not canonical)
+        # This ensures citations with the same case name and year from the document are grouped together
+        # Skip citations with N/A values to prevent meaningless clustering
+        if (extracted_name and extracted_date and 
+            extracted_name.strip().upper() != 'N/A' and 
+            extracted_date.strip().upper() != 'N/A'):
+            key = (extracted_name, extracted_date)
+            if key not in extracted_clusters:
+                extracted_clusters[key] = []
+            extracted_clusters[key].append(citation)
     
-    # Add canonical clusters to clusters_by_id, merging with existing clusters if needed
-    for key, members in canonical_clusters.items():
+    # Add extracted clusters to clusters_by_id, merging with existing clusters if needed
+    for key, members in extracted_clusters.items():
         if len(members) > 1:
-            canonical_name, canonical_date = key
-            cluster_id = f"canonical_{canonical_name.replace(' ', '_')}_{canonical_date}"
+            extracted_name, extracted_date = key
+            cluster_id = f"extracted_{extracted_name.replace(' ', '_')}_{extracted_date}"
             
             # Check if any of these citations are already in a cluster
             existing_cluster_ids = set()
@@ -582,7 +580,10 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                     clusters_by_id[cluster_id].append(citation)
     
     # Call the canonical date propagation function AFTER all clusters (including fallback) are processed
-    propagate_canonical_date_within_clusters()
+    # Only call if we have citations with start_index
+    citations_with_index = [c for c in citations if hasattr(c, 'start_index') and c.start_index is not None]
+    if citations_with_index:
+        propagate_canonical_date_within_clusters()
     
     # Ensure all clusters in clusters_by_id are included in result_clusters
     result_clusters = []

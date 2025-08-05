@@ -196,45 +196,26 @@
             {{ error }}
           </div>
         </div>
-      </div>
-
-      
-       
-       <!-- Analyze Button -->
-       <div class="analyze-section">
-         <button 
-           :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
-           :disabled="!canAnalyze || isAnalyzing" 
-           @click="emitAnalyze"
-         >
-           <span v-if="isAnalyzing" class="analyzing-spinner"></span>
-           <span v-else class="analyze-icon">🔍</span>
-           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
-         </button>
-         <!-- Validation Summary -->
-         <div v-if="showValidationWarning && hasErrors" class="validation-summary">
-           <p>Please fix the errors above before analyzing</p>
-         </div>
-       </div>
-       
-       <!-- Analyze Button -->
-       <div class="analyze-section">
-         <button 
-           :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
-           :disabled="!canAnalyze || isAnalyzing" 
-           @click="emitAnalyze"
-         >
-           <span v-if="isAnalyzing" class="analyzing-spinner"></span>
-           <span v-else class="analyze-icon">🔍</span>
-           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
-         </button>
-         <!-- Validation Summary -->
-         <div v-if="showValidationWarning && hasErrors" class="validation-summary">
-           <p>Please fix the errors above before analyzing</p>
-         </div>
-       </div>
+             </div>
      </div>
    </div>
+   
+   <!-- Analyze Button - Outside input areas so it appears for all input types -->
+   <div class="analyze-section" v-if="inputMode === 'file' || inputMode === 'url' || inputMode === 'text'">
+     <button 
+       :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
+       :disabled="!canAnalyze || isAnalyzing" 
+       @click="emitAnalyze"
+     >
+       <span v-if="isAnalyzing" class="analyzing-spinner"></span>
+       <span v-else class="analyze-icon">🔍</span>
+       {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
+     </button>
+     <!-- Validation Summary -->
+     <div v-if="showValidationWarning && hasErrors" class="validation-summary">
+       <p>Please fix the errors above before analyzing</p>
+     </div>
+ </div>
  </template>
 
 <script setup>

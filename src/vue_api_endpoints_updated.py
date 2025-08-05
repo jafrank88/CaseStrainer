@@ -883,16 +883,9 @@ async def _handle_file_upload(service, request_id):
                         text = f"[Error extracting DOCX content: {str(e)}]"
                         logger.error(f"[File Upload {request_id}] DOCX processing error: {e}")
                 elif file_ext == 'doc':
-                    try:
-                        import textract
-                        text = textract.process(file_path).decode('utf-8')
-                    except ImportError:
-                        # Fallback if textract is not available
-                        text = f"[DOC file content could not be extracted - {filename}]"
-                        logger.warning(f"[File Upload {request_id}] textract not available for DOC processing")
-                    except Exception as e:
-                        text = f"[Error extracting DOC content: {str(e)}]"
-                        logger.error(f"[File Upload {request_id}] DOC processing error: {e}")
+                    # DOC files are not supported - legacy format
+                    text = f"[DOC files are not supported - {filename}. Please convert to DOCX or PDF.]"
+                    logger.warning(f"[File Upload {request_id}] DOC file not supported: {filename}")
                 elif file_ext in ['html', 'htm', 'xhtml']:
                     try:
                         from bs4 import BeautifulSoup

@@ -176,7 +176,7 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
             file_ext = f".{file_ext}"
         
         # Binary file extensions that need special handling
-        BINARY_EXTS = ['.pdf', '.doc', '.docx', '.rtf', '.odt', '.docm', '.dotx', '.dotm']
+        BINARY_EXTS = ['.pdf', '.docx', '.rtf', '.odt', '.docm', '.dotx', '.dotm']  # .doc removed - not supported
         
         # Check if file exists and is readable
         if not os.path.exists(file_path):
@@ -263,19 +263,9 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
         # Handle DOC files
         elif file_ext == '.doc':
             print("\nProcessing DOC file...")
-            try:
-                import textract  # type: ignore
-                text = textract.process(file_path).decode('utf-8')
-                print(f"Successfully extracted {len(text)} characters from DOC")
-                return text
-            except ImportError:
-                error_msg = "textract is not installed. Please install it to process DOC files."
-                print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
-            except Exception as e:
-                error_msg = f"Error processing DOC file: {str(e)}"
-                print(f"ERROR: {error_msg}")
-                return f"Error: {error_msg}"
+            error_msg = "DOC files are not supported. Please convert to DOCX or PDF."
+            print(f"ERROR: {error_msg}")
+            return f"Error: {error_msg}"
         # Handle RTF files
         elif file_ext == '.rtf':
             print("\nProcessing RTF file...")

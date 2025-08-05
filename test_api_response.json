@@ -1,0 +1,394 @@
+{
+  "result": {
+    "citations": [
+      {
+        "citation": "129 Wn. 2d 320",
+        "case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+        "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
+        "extracted_date": "1996",
+        "canonical_date": "1996-05-30",
+        "verified": true,
+        "court": null,
+        "confidence": 1.0,
+        "method": "regex",
+        "pattern": "parallel_citation_cluster",
+        "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
+        "start_index": 125,
+        "end_index": 138,
+        "is_parallel": true,
+        "is_cluster": false,
+        "parallel_citations": [
+          "917 P.2d 100"
+        ],
+        "cluster_members": [
+          "917 P.2d 100"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
+        "source": "CourtListener-lookup-validated",
+        "error": null,
+        "metadata": {
+          "courtlistener_source": "CourtListener-lookup-validated",
+          "is_in_cluster": true,
+          "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
+          "cluster_members": [
+            "917 P.2d 100"
+          ],
+          "cluster_size": 2,
+          "cluster_extracted_case_name": null,
+          "cluster_extracted_date": null,
+          "cluster_canonical_name": null,
+          "cluster_canonical_date": null,
+          "cluster_url": null
+        },
+        "extraction_method": null
+      },
+      {
+        "citation": "917 P.2d 100",
+        "case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+        "canonical_name": "PRESIDENTIAL ESTATES APT. v. Barrett",
+        "extracted_date": "1996",
+        "canonical_date": "1996-05-30",
+        "verified": true,
+        "court": null,
+        "confidence": 1.0,
+        "method": "regex",
+        "pattern": "flexible_p2d",
+        "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
+        "start_index": 148,
+        "end_index": 160,
+        "is_parallel": true,
+        "is_cluster": false,
+        "parallel_citations": [
+          "129 Wn. 2d 320"
+        ],
+        "cluster_members": [
+          "129 Wn. 2d 320"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "url": "https://www.courtlistener.com/opinion/1135857/presidential-estates-apt-v-barrett/",
+        "source": "CourtListener-search-validated",
+        "error": null,
+        "metadata": {
+          "courtlistener_source": "CourtListener-search-validated",
+          "is_in_cluster": true,
+          "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
+          "cluster_members": [
+            "129 Wn. 2d 320"
+          ],
+          "cluster_size": 2,
+          "cluster_extracted_case_name": null,
+          "cluster_extracted_date": null,
+          "cluster_canonical_name": null,
+          "cluster_canonical_date": null,
+          "cluster_url": null
+        },
+        "extraction_method": null
+      },
+      {
+        "citation": "496 P.3d 305",
+        "case_name": "Matter of Marriage of King",
+        "extracted_case_name": "Matter of Marriage of King",
+        "canonical_name": "Matter of Marriage of King",
+        "extracted_date": "2021",
+        "canonical_date": "1992-05-04",
+        "verified": true,
+        "court": null,
+        "confidence": 0.9,
+        "method": "regex",
+        "pattern": "flexible_p3d",
+        "context": "d 357, 362, 496 P.3d 305 (2021)",
+        "start_index": 229,
+        "end_index": 241,
+        "is_parallel": true,
+        "is_cluster": false,
+        "parallel_citations": [
+          "66 Wn. App. 134",
+          "831 P.2d 1288"
+        ],
+        "cluster_members": [
+          "66 Wn. App. 134",
+          "831 P.2d 1288"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+        "source": "CourtListener-lookup-validated",
+        "error": null,
+        "metadata": {
+          "is_in_cluster": true,
+          "cluster_id": "fallback_parallel_496 P.3d 305_66 Wn. App. 134_831 P.2d 1288",
+          "cluster_members": [
+            "66 Wn. App. 134",
+            "831 P.2d 1288"
+          ],
+          "cluster_size": 3,
+          "cluster_extracted_case_name": null,
+          "cluster_extracted_date": null,
+          "cluster_canonical_name": null,
+          "cluster_canonical_date": null,
+          "cluster_url": null
+        },
+        "extraction_method": null
+      },
+      {
+        "citation": "66 Wn. App. 134",
+        "case_name": "Matter of Marriage of King",
+        "extracted_case_name": "Matter of Marriage of King",
+        "canonical_name": "Matter of Marriage of King",
+        "extracted_date": "1992",
+        "canonical_date": "1992-05-04",
+        "verified": true,
+        "court": null,
+        "confidence": 1.0,
+        "method": "regex",
+        "pattern": "wash_complete",
+        "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+        "start_index": 283,
+        "end_index": 298,
+        "is_parallel": true,
+        "is_cluster": false,
+        "parallel_citations": [
+          "831 P.2d 1288"
+        ],
+        "cluster_members": [
+          "831 P.2d 1288"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+        "source": "CourtListener-lookup-validated",
+        "error": null,
+        "metadata": {
+          "courtlistener_source": "CourtListener-lookup-validated",
+          "is_in_cluster": true,
+          "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
+          "cluster_members": [
+            "831 P.2d 1288"
+          ],
+          "cluster_size": 2,
+          "cluster_extracted_case_name": null,
+          "cluster_extracted_date": null,
+          "cluster_canonical_name": null,
+          "cluster_canonical_date": null,
+          "cluster_url": null
+        },
+        "extraction_method": null
+      },
+      {
+        "citation": "831 P.2d 1288",
+        "case_name": "Matter of Marriage of King",
+        "extracted_case_name": "Matter of Marriage of King",
+        "canonical_name": "Matter of Marriage of King",
+        "extracted_date": "1992",
+        "canonical_date": "1992-05-04",
+        "verified": true,
+        "court": null,
+        "confidence": 1.0,
+        "method": "regex",
+        "pattern": "flexible_p2d",
+        "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+        "start_index": 305,
+        "end_index": 318,
+        "is_parallel": true,
+        "is_cluster": false,
+        "parallel_citations": [
+          "66 Wn. App. 134"
+        ],
+        "cluster_members": [
+          "66 Wn. App. 134"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+        "source": "CourtListener-lookup-validated",
+        "error": null,
+        "metadata": {
+          "is_in_cluster": true,
+          "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
+          "cluster_members": [
+            "66 Wn. App. 134"
+          ],
+          "cluster_size": 2,
+          "cluster_extracted_case_name": null,
+          "cluster_extracted_date": null,
+          "cluster_canonical_name": null,
+          "cluster_canonical_date": null,
+          "cluster_url": null
+        },
+        "extraction_method": null
+      }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
+        "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
+        "canonical_date": "1996-05-30",
+        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+        "extracted_date": "1996",
+        "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
+        "source": "citation_clustering",
+        "citations": [
+          {
+            "citation": "129 Wn. 2d 320",
+            "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+            "extracted_date": "1996",
+            "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
+            "canonical_date": "1996-05-30",
+            "confidence": 1.0,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
+            "court": null,
+            "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
+            "verified": true,
+            "parallel_citations": [
+              "917 P.2d 100"
+            ]
+          },
+          {
+            "citation": "917 P.2d 100",
+            "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
+            "extracted_date": "1996",
+            "canonical_name": "PRESIDENTIAL ESTATES APT. v. Barrett",
+            "canonical_date": "1996-05-30",
+            "confidence": 1.0,
+            "source": "CourtListener-search-validated",
+            "url": "https://www.courtlistener.com/opinion/1135857/presidential-estates-apt-v-barrett/",
+            "court": null,
+            "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
+            "verified": true,
+            "parallel_citations": [
+              "129 Wn. 2d 320"
+            ]
+          }
+        ],
+        "has_parallel_citations": true,
+        "size": 2
+      },
+      {
+        "cluster_id": "fallback_parallel_496 P.3d 305_66 Wn. App. 134_831 P.2d 1288",
+        "canonical_name": "Matter of Marriage of King",
+        "canonical_date": "1992-05-04",
+        "extracted_case_name": "Matter of Marriage of King",
+        "extracted_date": "2021",
+        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+        "source": "citation_clustering",
+        "citations": [
+          {
+            "citation": "496 P.3d 305",
+            "extracted_case_name": "Matter of Marriage of King",
+            "extracted_date": "2021",
+            "canonical_name": "Matter of Marriage of King",
+            "canonical_date": "1992-05-04",
+            "confidence": 0.9,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+            "court": null,
+            "context": "d 357, 362, 496 P.3d 305 (2021)",
+            "verified": true,
+            "parallel_citations": [
+              "66 Wn. App. 134",
+              "831 P.2d 1288"
+            ]
+          },
+          {
+            "citation": "66 Wn. App. 134",
+            "extracted_case_name": "Matter of Marriage of King",
+            "extracted_date": "1992",
+            "canonical_name": "Matter of Marriage of King",
+            "canonical_date": "1992-05-04",
+            "confidence": 1.0,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+            "court": null,
+            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+            "verified": true,
+            "parallel_citations": [
+              "831 P.2d 1288"
+            ]
+          },
+          {
+            "citation": "831 P.2d 1288",
+            "extracted_case_name": "Matter of Marriage of King",
+            "extracted_date": "1992",
+            "canonical_name": "Matter of Marriage of King",
+            "canonical_date": "1992-05-04",
+            "confidence": 1.0,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+            "court": null,
+            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+            "verified": true,
+            "parallel_citations": [
+              "66 Wn. App. 134"
+            ]
+          }
+        ],
+        "has_parallel_citations": true,
+        "size": 3
+      },
+      {
+        "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
+        "canonical_name": "Matter of Marriage of King",
+        "canonical_date": "1992-05-04",
+        "extracted_case_name": "Matter of Marriage of King",
+        "extracted_date": "1992",
+        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+        "source": "citation_clustering",
+        "citations": [
+          {
+            "citation": "66 Wn. App. 134",
+            "extracted_case_name": "Matter of Marriage of King",
+            "extracted_date": "1992",
+            "canonical_name": "Matter of Marriage of King",
+            "canonical_date": "1992-05-04",
+            "confidence": 1.0,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+            "court": null,
+            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+            "verified": true,
+            "parallel_citations": [
+              "831 P.2d 1288"
+            ]
+          },
+          {
+            "citation": "831 P.2d 1288",
+            "extracted_case_name": "Matter of Marriage of King",
+            "extracted_date": "1992",
+            "canonical_name": "Matter of Marriage of King",
+            "canonical_date": "1992-05-04",
+            "confidence": 1.0,
+            "source": "CourtListener-lookup-validated",
+            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+            "court": null,
+            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
+            "verified": true,
+            "parallel_citations": [
+              "66 Wn. App. 134"
+            ]
+          }
+        ],
+        "has_parallel_citations": true,
+        "size": 2
+      }
+    ],
+    "statistics": {}
+  },
+  "success": true,
+  "metadata": {}
+}

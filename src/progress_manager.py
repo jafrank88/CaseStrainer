@@ -356,7 +356,7 @@ class ChunkedCitationProcessor:
                 use_regex=True,
                 extract_case_names=True,
                 extract_dates=True,
-                enable_clustering=False,  # Disable clustering for chunk processing
+                enable_clustering=True,  # Enable clustering to detect parallel citations
                 enable_verification=False  # Disable verification for faster processing
             )
             
@@ -368,6 +368,7 @@ class ChunkedCitationProcessor:
             for result in results:  # type: ignore
                 citations.append({
                     'id': len(citations) + 1,
+                    'citation': result.citation,
                     'raw_text': result.citation,
                     'case_name': result.canonical_name or result.extracted_case_name or 'Unknown Case',
                     'year': result.canonical_date or result.extracted_date or 'No year',
@@ -379,7 +380,14 @@ class ChunkedCitationProcessor:
                     'canonical_date': result.canonical_date,
                     'verified': result.verified,
                     'source': result.source,
-                    'method': result.method
+                    'method': result.method,
+                    'is_parallel': result.is_parallel,
+                    'parallel_citations': result.parallel_citations or [],
+                    'start_index': result.start_index,
+                    'end_index': result.end_index,
+                    'context': result.context,
+                    'url': result.url,
+                    'metadata': result.metadata or {}
                 })
             
             return citations
@@ -505,10 +513,40 @@ class ChunkedCitationProcessor:
             raise
     
     async def _perform_final_analysis(self, citations: List[Dict]) -> Dict:
-        """Perform final analysis on all collected citations"""
+        """Perform final analysis on all collected citations with proper clustering"""
         await asyncio.sleep(0.2)  # Simulate analysis time
         
+        # Convert dict citations back to CitationResult objects for clustering
+        from src.models import CitationResult
+        from src.citation_clustering import group_citations_into_clusters
+        
+        citation_objects = []
+        for citation_dict in citations:
+            # Create CitationResult object from dict
+            citation_obj = CitationResult(
+                citation=citation_dict.get('citation', ''),
+                extracted_case_name=citation_dict.get('extracted_case_name'),
+                extracted_date=citation_dict.get('extracted_date'),
+                canonical_name=citation_dict.get('canonical_name'),
+                canonical_date=citation_dict.get('canonical_date'),
+                verified=citation_dict.get('verified', False),
+                is_parallel=citation_dict.get('is_parallel', False),
+                parallel_citations=citation_dict.get('parallel_citations', []),
+                start_index=citation_dict.get('start_index', 0),
+                end_index=citation_dict.get('end_index', 0),
+                context=citation_dict.get('context', ''),
+                source=citation_dict.get('source', ''),
+                url=citation_dict.get('url'),
+                metadata=citation_dict.get('metadata', {})
+            )
+            citation_objects.append(citation_obj)
+        
+        # Perform clustering
+        clusters = group_citations_into_clusters(citation_objects)
+        
         return {
+            'citations': citations,
+            'clusters': clusters,
             'total_citations': len(citations),
             'high_confidence': len([c for c in citations if c.get('confidence_score', 0) > 0.8]),
             'needs_review': len([c for c in citations if c.get('confidence_score', 0) < 0.6])

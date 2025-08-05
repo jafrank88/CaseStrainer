@@ -146,47 +146,117 @@ class ComprehensiveWebSearchEngine:
         # Generate citation variants
         citation_variants = self.citation_normalizer.generate_variants(citation)
         
-        # Generate case name variants
+        # Extract individual citations from complex citations (e.g., "19 Wn. App. 2d 357, 362, 496 P.3d 305 (2021)")
+        individual_citations = self._extract_individual_citations(citation)
+        if individual_citations:
+            # Generate variants for each individual citation
+            for individual_citation in individual_citations:
+                individual_variants = self.citation_normalizer.generate_variants(individual_citation)
+                citation_variants.extend(individual_variants)
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_variants = []
+        for variant in citation_variants:
+            if variant not in seen:
+                seen.add(variant)
+                unique_variants.append(variant)
+        
+        citation_variants = unique_variants
+        
+        # Generate case name variants (only as fallback)
         case_name_variants = list(self.extract_case_name_variants(case_name)) if case_name else []
         
-        # Create query combinations
-        for citation_variant in citation_variants[:3]:  # Limit to top 3 citation variants
-            # Citation-only queries
+        # PRIORITY 1: Citation-based queries (most reliable)
+        for citation_variant in citation_variants[:8]:  # Increased from 5 to 8 to get more variants
+            # Exact citation match (highest priority)
             queries.append({
                 'query': f'"{citation_variant}"',
                 'type': 'citation_exact',
                 'citation': citation_variant,
-                'case_name': None
+                'case_name': None,
+                'priority': 1
             })
             
-            # Citation with "case" or "opinion"
+            # Citation with legal context terms
             queries.append({
                 'query': f'"{citation_variant}" case opinion',
                 'type': 'citation_with_context',
                 'citation': citation_variant,
-                'case_name': None
+                'case_name': None,
+                'priority': 2
             })
             
-            # Add case name variants if available
-            for case_variant in case_name_variants[:2]:  # Limit to top 2 case name variants
+            # Citation with court/jurisdiction terms
+            queries.append({
+                'query': f'"{citation_variant}" court decision',
+                'type': 'citation_with_court',
+                'citation': citation_variant,
+                'case_name': None,
+                'priority': 3
+            })
+            
+            # Citation with year (if available)
+            if re.search(r'\(\d{4}\)', citation_variant):
                 queries.append({
-                    'query': f'"{case_variant}" "{citation_variant}"',
-                    'type': 'case_and_citation',
+                    'query': f'"{citation_variant}"',
+                    'type': 'citation_with_year',
                     'citation': citation_variant,
-                    'case_name': case_variant
+                    'case_name': None,
+                    'priority': 1
                 })
         
-        # Add case name only queries if no citation variants found
+        # PRIORITY 2: Citation + Case Name combinations (medium reliability)
+        if case_name_variants:
+            for citation_variant in citation_variants[:4]:  # Increased from 3 to 4
+                for case_variant in case_name_variants[:2]:
+                    queries.append({
+                        'query': f'"{case_variant}" "{citation_variant}"',
+                        'type': 'case_and_citation',
+                        'citation': citation_variant,
+                        'case_name': case_variant,
+                        'priority': 4
+                    })
+        
+        # PRIORITY 3: Case name only queries (lowest priority - fallback)
         if not citation_variants and case_name_variants:
-            for case_variant in case_name_variants[:3]:
+            for case_variant in case_name_variants[:2]:  # Reduced from 3 to 2
                 queries.append({
                     'query': f'"{case_variant}"',
                     'type': 'case_name_only',
                     'citation': None,
-                    'case_name': case_variant
+                    'case_name': case_variant,
+                    'priority': 5
                 })
         
+        # Sort by priority (citation-based first)
+        queries.sort(key=lambda x: x.get('priority', 999))
+        
         return queries
+    
+    def _extract_individual_citations(self, citation: str) -> List[str]:
+        """Extract individual citations from a complex citation string."""
+        if not citation:
+            return []
+        
+        # Pattern to match individual citations (volume reporter series page)
+        # This handles patterns like "19 Wn. App. 2d 357" and "496 P.3d 305"
+        # Updated to handle more complex patterns with commas and page numbers
+        pattern = r'\d+\s+[A-Za-z\.]+\s+\d+[a-z]?\s+\d+(?:\s*,\s*\d+)*'
+        
+        matches = re.findall(pattern, citation)
+        
+        # Clean up matches to get individual citations
+        individual_citations = []
+        for match in matches:
+            # Split by comma to get individual citations
+            parts = re.split(r'\s*,\s*', match)
+            for part in parts:
+                # Check if this part looks like a citation (volume reporter series page)
+                if re.match(r'\d+\s+[A-Za-z\.]+\s+\d+[a-z]?\s+\d+', part):
+                    individual_citations.append(part.strip())
+        
+        return individual_citations
     
     def extract_case_name_variants(self, case_name: str) -> Set[str]:
         """Extract case name variants for search."""
@@ -216,6 +286,24 @@ class ComprehensiveWebSearchEngine:
             variants.add(case_name.replace(' v ', ' vs. '))
             variants.add(case_name.replace(' v ', ' versus '))
         
+        # Handle "In re" variations
+        if case_name.startswith('In re '):
+            # "In re Marriage of Niemi" -> "In the Matter of the Marriage of Niemi"
+            rest_of_name = case_name[6:]  # Remove "In re "
+            variants.add(f"In the Matter of the {rest_of_name}")
+            variants.add(f"In the Matter of {rest_of_name}")
+            # Also try without "the"
+            if rest_of_name.startswith('the '):
+                variants.add(f"In the Matter of {rest_of_name[4:]}")
+        
+        # Handle "In the Matter of" variations
+        if case_name.startswith('In the Matter of '):
+            # "In the Matter of the Marriage of Niemi" -> "In re Marriage of Niemi"
+            rest_of_name = case_name[18:]  # Remove "In the Matter of "
+            if rest_of_name.startswith('the '):
+                rest_of_name = rest_of_name[4:]  # Remove "the "
+            variants.add(f"In re {rest_of_name}")
+        
         return variants
     
     def score_result_reliability(self, result: Dict, query_info: Dict) -> float:
@@ -230,6 +318,8 @@ class ComprehensiveWebSearchEngine:
             'leagle': 0.8,
             'casetext': 0.75,
             'vlex': 0.7,
+            'casemine': 0.8,  # Added Casemine
+            'openjurist': 0.7,  # Added OpenJurist
             'google_scholar': 0.6,
             'bing': 0.4,
             'duckduckgo': 0.4
@@ -238,24 +328,35 @@ class ComprehensiveWebSearchEngine:
         source = result.get('source', '').lower()
         score += source_scores.get(source, 0.3)
         
-        # Citation match
+        # Query type bonus (citation-based searches get higher scores)
+        query_type = query_info.get('type', '')
+        if query_type.startswith('citation_'):
+            score += 0.2  # Bonus for citation-based searches
+        elif query_type == 'case_and_citation':
+            score += 0.1  # Medium bonus for combined searches
+        # No bonus for case_name_only searches
+        
+        # Citation match (highest priority)
         citation = query_info.get('citation', '')
         if citation and result.get('title'):
             title_text = result['title'].lower()
-            if citation.lower() in title_text:
-                score += 0.3
+            citation_lower = citation.lower()
+            if citation_lower in title_text:
+                score += 0.4  # Increased from 0.3 to 0.4
+            elif any(part in title_text for part in citation_lower.split()):
+                score += 0.2  # Partial citation match
         
-        # Case name match
+        # Case name match (lower priority)
         case_name = query_info.get('case_name', '')
         if case_name and result.get('title'):
             similarity = self.semantic_matcher.calculate_similarity(result['title'], case_name)
-            score += similarity * 0.2
+            score += similarity * 0.15  # Reduced from 0.2 to 0.15
         
         # URL quality
         url = result.get('url', '')
         if url:
             domain = urlparse(url).netloc.lower()
-            if any(legal_domain in domain for legal_domain in ['justia.com', 'findlaw.com', 'courtlistener.com']):
+            if any(legal_domain in domain for legal_domain in ['justia.com', 'findlaw.com', 'courtlistener.com', 'casemine.com']):
                 score += 0.1
         
         return min(1.0, score)
@@ -387,49 +488,286 @@ class ComprehensiveWebSearchEngine:
         return {'source': 'casetext', 'results': []}
     
     async def search_justia(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Justia for legal documents."""
-        # Implementation would go here
-        return {'source': 'justia', 'results': []}
+        """Search Justia for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'justia', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'justia',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'justia', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"Justia search failed for {citation}: {e}")
+            return {'source': 'justia', 'verified': False, 'results': []}
     
     async def search_courtlistener_web(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search CourtListener web for legal documents."""
-        # Implementation would go here
-        return {'source': 'courtlistener_web', 'results': []}
+        """Search CourtListener web for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'courtlistener_web', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'courtlistener_web',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'courtlistener_web', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"CourtListener web search failed for {citation}: {e}")
+            return {'source': 'courtlistener_web', 'verified': False, 'results': []}
     
     async def search_findlaw(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search FindLaw for legal documents."""
-        # Implementation would go here
-        return {'source': 'findlaw', 'results': []}
+        """Search FindLaw for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'findlaw', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'findlaw',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'findlaw', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"FindLaw search failed for {citation}: {e}")
+            return {'source': 'findlaw', 'verified': False, 'results': []}
     
     async def search_leagle(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Leagle for legal documents."""
-        # Implementation would go here
-        return {'source': 'leagle', 'results': []}
+        """Search Leagle for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'leagle', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'leagle',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'leagle', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"Leagle search failed for {citation}: {e}")
+            return {'source': 'leagle', 'verified': False, 'results': []}
     
     async def search_openjurist(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search OpenJurist for legal documents."""
-        # Implementation would go here
-        return {'source': 'openjurist', 'results': []}
+        """Search OpenJurist for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'openjurist', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'openjurist',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'openjurist', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"OpenJurist search failed for {citation}: {e}")
+            return {'source': 'openjurist', 'verified': False, 'results': []}
     
     async def search_casemine(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Casemine for legal documents."""
-        # Implementation would go here
-        return {'source': 'casemine', 'results': []}
+        """Search Casemine for legal documents using citation-first approach."""
+        try:
+            # Create a cluster for the citation
+            cluster = {
+                'citation': citation,
+                'case_name': case_name or ''
+            }
+            
+            # Generate strategic queries for this citation
+            queries = self.generate_strategic_queries(cluster)
+            
+            # Try the first few citation-based queries
+            for query_info in queries[:3]:  # Try top 3 queries
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                # Only try citation-based queries for Casemine
+                if query_type.startswith('citation_'):
+                    # Use the search_with_engine method for actual search
+                    results = self.search_with_engine(query, 'casemine', num_results=3)
+                    
+                    if results:
+                        # Return the best result as verified
+                        best_result = results[0]
+                        return {
+                            'source': 'casemine',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            # If no results found
+            return {'source': 'casemine', 'verified': False, 'results': []}
+                
+        except Exception as e:
+            logger.warning(f"Casemine search failed for {citation}: {e}")
+            return {'source': 'casemine', 'verified': False, 'results': []}
     
     async def search_google_scholar(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Google Scholar for legal documents."""
-        # Implementation would go here
-        return {'source': 'google_scholar', 'results': []}
+        """Search Google Scholar for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'google_scholar', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'google_scholar',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'google_scholar', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"Google Scholar search failed for {citation}: {e}")
+            return {'source': 'google_scholar', 'verified': False, 'results': []}
     
     async def search_bing(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Bing for legal documents."""
-        # Implementation would go here
-        return {'source': 'bing', 'results': []}
+        """Search Bing for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'bing', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'bing',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'bing', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"Bing search failed for {citation}: {e}")
+            return {'source': 'bing', 'verified': False, 'results': []}
     
     async def search_duckduckgo(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search DuckDuckGo for legal documents."""
-        # Implementation would go here
-        return {'source': 'duckduckgo', 'results': []}
+        """Search DuckDuckGo for legal documents using citation-first approach."""
+        try:
+            cluster = {'citation': citation, 'case_name': case_name or ''}
+            queries = self.generate_strategic_queries(cluster)
+            
+            for query_info in queries[:3]:
+                query = query_info['query']
+                query_type = query_info.get('type', '')
+                
+                if query_type.startswith('citation_'):
+                    results = self.search_with_engine(query, 'duckduckgo', num_results=3)
+                    
+                    if results:
+                        best_result = results[0]
+                        return {
+                            'source': 'duckduckgo',
+                            'verified': True,
+                            'url': best_result.get('url', ''),
+                            'title': best_result.get('title', ''),
+                            'canonical_name': case_name,
+                            'canonical_date': None,
+                            'results': results
+                        }
+            
+            return {'source': 'duckduckgo', 'verified': False, 'results': []}
+        except Exception as e:
+            logger.warning(f"DuckDuckGo search failed for {citation}: {e}")
+            return {'source': 'duckduckgo', 'verified': False, 'results': []}
     
     async def search_multiple_sources(self, citation: str, case_name: Optional[str] = None, max_concurrent: int = 3) -> Dict:
         """Search multiple sources concurrently."""
@@ -487,24 +825,45 @@ class ComprehensiveWebSearchEngine:
     
     async def _fallback_search(self, citation: str, case_name: Optional[str] = None) -> Dict:
         """Perform fallback search when primary sources fail."""
-        # Try general search engines
+        # Try general search engines with citation-focused queries
         fallback_sources = ['google_scholar', 'bing', 'duckduckgo']
         
         results = []
         for source in fallback_sources:
             try:
-                if source == 'google_scholar':
-                    result = await self.search_google_scholar(citation, case_name)
-                elif source == 'bing':
-                    result = await self.search_bing(citation, case_name)
-                elif source == 'duckduckgo':
-                    result = await self.search_duckduckgo(citation, case_name)
-                else:
-                    continue
+                # Create citation-focused queries for fallback
+                queries = []
+                if citation:
+                    # Exact citation match (highest priority)
+                    queries.append(f'"{citation}"')
+                    # Citation with legal terms
+                    queries.append(f'"{citation}" case opinion')
+                    # Citation with court terms
+                    queries.append(f'"{citation}" court decision')
                 
-                if result.get('results'):
-                    results.extend(result['results'])
+                # Only add case name queries if no citation available
+                if not citation and case_name:
+                    queries.append(f'"{case_name}"')
+                
+                # Try each query
+                for query in queries[:2]:  # Limit to top 2 queries
+                    if source == 'google_scholar':
+                        result = await self.search_google_scholar(citation, case_name)
+                    elif source == 'bing':
+                        result = await self.search_bing(citation, case_name)
+                    elif source == 'duckduckgo':
+                        result = await self.search_duckduckgo(citation, case_name)
+                    else:
+                        continue
                     
+                    if result.get('results'):
+                        # Add query context
+                        for res in result['results']:
+                            res['query_used'] = query
+                            res['query_type'] = 'fallback_citation' if citation else 'fallback_case_name'
+                            res['source'] = source
+                        results.extend(result['results'])
+                        
             except Exception as e:
                 logger.debug(f"Fallback search failed for {source}: {e}")
                 continue
@@ -523,14 +882,22 @@ class ComprehensiveWebSearchEngine:
         if not citation:
             return []
         
-        # Generate strategic queries
+        # Generate strategic queries (prioritized by citation-based searches)
         queries = self.generate_strategic_queries(cluster)
         
         all_results = []
         
-        # Search with each query
-        for query_info in queries[:5]:  # Limit to top 5 queries
+        # Search with each query in priority order
+        for query_info in queries[:8]:  # Increased from 5 to 8 to get more citation-based queries
             query = query_info['query']
+            query_type = query_info.get('type', 'unknown')
+            priority = query_info.get('priority', 999)
+            
+            # Prioritize citation-based searches
+            if query_type.startswith('citation_'):
+                max_sources_per_query = 4  # More sources for citation-based searches
+            else:
+                max_sources_per_query = 2  # Fewer sources for case name searches
             
             # Get recommended sources for this query
             recommended_sources = self.source_predictor.predict_best_sources(
@@ -539,7 +906,7 @@ class ComprehensiveWebSearchEngine:
             )
             
             # Search with each source
-            for source in recommended_sources[:3]:  # Limit to top 3 sources per query
+            for source in recommended_sources[:max_sources_per_query]:
                 try:
                     if source == 'justia':
                         result = await self.search_justia(citation, case_name)
@@ -553,6 +920,10 @@ class ComprehensiveWebSearchEngine:
                         result = await self.search_casetext(citation, case_name)
                     elif source == 'vlex':
                         result = await self.search_vlex(citation, case_name)
+                    elif source == 'casemine':
+                        result = await self.search_casemine(citation, case_name)
+                    elif source == 'openjurist':
+                        result = await self.search_openjurist(citation, case_name)
                     else:
                         continue
                     
@@ -560,7 +931,8 @@ class ComprehensiveWebSearchEngine:
                         # Add query context to results
                         for res in result['results']:
                             res['query_used'] = query
-                            res['query_type'] = query_info['type']
+                            res['query_type'] = query_type
+                            res['query_priority'] = priority
                             res['reliability_score'] = self.score_result_reliability(res, query_info)
                         
                         all_results.extend(result['results'])
@@ -569,7 +941,7 @@ class ComprehensiveWebSearchEngine:
                     logger.debug(f"Search failed for {source}: {e}")
                     continue
         
-        # Remove duplicates and sort by reliability
+        # Remove duplicates and sort by reliability and priority
         unique_results = {}
         for result in all_results:
             url = result.get('url', '')
@@ -581,11 +953,11 @@ class ComprehensiveWebSearchEngine:
                 if title and title not in unique_results:
                     unique_results[title] = result
         
-        # Sort by reliability score
+        # Sort by priority first, then by reliability score
         sorted_results = sorted(
             unique_results.values(), 
-            key=lambda x: x.get('reliability_score', 0), 
-            reverse=True
+            key=lambda x: (x.get('query_priority', 999), -x.get('reliability_score', 0)), 
+            reverse=False  # Lower priority numbers first
         )
         
         return sorted_results[:max_results]
@@ -643,6 +1015,8 @@ class ComprehensiveWebSearchEngine:
             'leagle',
             'casetext',
             'vlex',
+            'casemine',  # Added Casemine
+            'openjurist',  # Added OpenJurist
             'google_scholar',
             'bing',
             'duckduckgo'
