@@ -29,8 +29,10 @@ class CitationService:
             # Process short texts immediately (< 10KB)
             return len(text) < 10 * 1024
         elif input_type == 'file':
-            # Always queue file processing for better performance and resource management
-            return False
+            # Check file size - queue large files for async processing
+            file_size = input_data.get('file_size', 0)
+            # Queue files larger than 5MB for async processing
+            return file_size < 5 * 1024 * 1024  # 5MB threshold
         elif input_type == 'url':
             # Always queue URL processing for better performance and resource management
             return False

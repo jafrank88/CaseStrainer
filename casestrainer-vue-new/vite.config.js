@@ -16,6 +16,20 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
+      // Add HTML cache busting plugin
+      {
+        name: 'html-cache-bust',
+        generateBundle(options, bundle) {
+          // Add timestamp to HTML file
+          const htmlFile = bundle['index.html'];
+          if (htmlFile) {
+            htmlFile.code = htmlFile.code.replace(
+              /<script type="module" crossorigin src="([^"]+)"><\/script>/g,
+              `<script type="module" crossorigin src="$1?v=${Date.now()}"></script>`
+            );
+          }
+        }
+      }
       // Optional: Legacy browser support
       // legacy({
       //   targets: ['defaults', 'not IE 11']
@@ -83,16 +97,23 @@ export default defineConfig(({ mode }) => {
       sourcemap: env.VITE_APP_ENV !== 'production',
       minify: env.VITE_APP_ENV === 'production' ? 'terser' : false,
       chunkSizeWarningLimit: 1600,
-      // Optional: Rollup options
+      // Add cache busting with timestamp
       rollupOptions: {
         output: {
           manualChunks: {
             vendor: ['vue', 'vue-router'],
             // Add other manual chunks as needed
-          }
+          },
+          // Add timestamp to file names for cache busting
+          entryFileNames: `assets/[name]-[hash]-${Date.now()}-${Math.random().toString(36).substring(7)}.js`,
+          chunkFileNames: `assets/[name]-[hash]-${Date.now()}-${Math.random().toString(36).substring(7)}.js`,
+          assetFileNames: `assets/[name]-[hash]-${Date.now()}-${Math.random().toString(36).substring(7)}.[ext]`
         }
       }
     },
+    
+    // Add cache busting for HTML
+    // Note: This is handled by the rollupOptions above
     
     // Resolve aliases
     resolve: {

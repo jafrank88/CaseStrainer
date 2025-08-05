@@ -208,9 +208,9 @@ export default {
         return;
       }
       
-      // Validate file size (50MB)
-      if (selectedFile.size > 50 * 1024 * 1024) {
-        fileError.value = 'File size must be less than 50MB';
+      // Validate file size (100MB)
+      if (selectedFile.size > 100 * 1024 * 1024) {
+        fileError.value = 'File size must be less than 100MB';
         return;
       }
       
@@ -273,16 +273,71 @@ export default {
       return typeMap[extension] || 'Document';
     };
     
-    const emitAnalyze = () => {
+    const emitAnalyze = async () => {
       if (!file.value || fileError.value) return;
       
-      const formData = new FormData();
-      formData.append('file', file.value);
-      formData.append('type', 'file');
-      formData.append('fileName', file.value.name);
-      formData.append('fileSize', file.value.size.toString());
+      console.log('🔍 FileUpload: Starting text extraction process');
       
-      emit('analyze', formData);
+      try {
+        // Step 1: Extract text from the file
+        let extractedText = '';
+        
+        if (file.value.type === 'text/plain' || file.value.name.endsWith('.txt')) {
+          // For text files, read directly
+          extractedText = await file.value.text();
+        } else if (file.value.type === 'application/pdf' || file.value.name.endsWith('.pdf')) {
+          // For PDFs, we'll need to send to backend for extraction
+          console.log('🔍 FileUpload: PDF detected, sending to backend for text extraction');
+          const formData = new FormData();
+          formData.append('file', file.value);
+          formData.append('type', 'file');
+          formData.append('fileName', file.value.name);
+          formData.append('fileSize', file.value.size.toString());
+          formData.append('extractText', 'true');
+          
+          emit('analyze', formData);
+          return;
+        } else {
+          // For other file types, try to read as text
+          try {
+            extractedText = await file.value.text();
+          } catch (error) {
+            console.error('🔍 FileUpload: Error reading file as text:', error);
+            // Fallback to original file upload
+            const formData = new FormData();
+            formData.append('file', file.value);
+            formData.append('type', 'file');
+            formData.append('fileName', file.value.name);
+            formData.append('fileSize', file.value.size.toString());
+            emit('analyze', formData);
+            return;
+          }
+        }
+        
+        console.log('🔍 FileUpload: Text extracted successfully, length:', extractedText.length);
+        
+        // Step 2: Pass extracted text to text processing
+        const textData = {
+          text: extractedText,
+          type: 'text',
+          source: 'file',
+          fileName: file.value.name,
+          fileSize: file.value.size
+        };
+        
+        console.log('🔍 FileUpload: Emitting text data for processing');
+        emit('analyze', textData);
+        
+      } catch (error) {
+        console.error('🔍 FileUpload: Error in text extraction:', error);
+        // Fallback to original file upload
+        const formData = new FormData();
+        formData.append('file', file.value);
+        formData.append('type', 'file');
+        formData.append('fileName', file.value.name);
+        formData.append('fileSize', file.value.size.toString());
+        emit('analyze', formData);
+      }
     };
     
     return {

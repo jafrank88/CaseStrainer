@@ -1,5 +1,12 @@
 <template>
   <div class="home">
+      <div style="position:fixed;top:0;left:0;right:0;z-index:999999;background:magenta;color:white;font-size:32px;text-align:center;padding:20px;">
+    HOME VIEW IS RENDERED - URL: {{ $route.path }} - Should NOT be here!
+  </div>
+    <!-- DEBUG: Test banner to verify Vue is working -->
+    <div style="background: red !important; color: white !important; padding: 20px !important; text-align: center !important; font-weight: bold !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 99999 !important; font-size: 20px !important; border: 5px solid yellow !important; box-shadow: 0 0 20px black !important;">
+      🚨🚨🚨 HOME VIEW DEBUG BANNER - Vue is working! 🚨🚨🚨
+    </div>
     <div class="background-pattern"></div>
     
     <!-- Main Content Section -->
@@ -113,7 +120,11 @@
               </div>
 
               <!-- File Input Tab -->
-              <div v-if="activeTab === 'file'" class="input-tab-content">
+              <div v-if="activeTab === 'file' && !isOnEnhancedValidatorPage" class="input-tab-content">
+                <!-- DEBUG: File Upload Debug Banner -->
+                <div style="background: blue !important; color: white !important; padding: 20px !important; text-align: center !important; font-weight: bold !important; margin-bottom: 20px !important; font-size: 18px !important; border: 5px solid yellow !important; box-shadow: 0 0 20px black !important;">
+                  📁 FILE UPLOAD DEBUG: selectedFile={{ !!selectedFile }} | fileError={{ !!fileError }} | isAnalyzing={{ isAnalyzing }}
+                </div>
                 <div class="form-group">
                   <label class="form-label">
                     <i class="bi bi-file-earmark-text me-2"></i>
@@ -141,6 +152,8 @@
                       class="file-input-hidden"
                       accept=".pdf,.doc,.docx,.txt"
                       @change="onFileChange"
+                      :disabled="isOnEnhancedValidatorPage"
+                      :style="{ display: isOnEnhancedValidatorPage ? 'none' : 'block' }"
                     />
                   </div>
                   
@@ -391,6 +404,13 @@ const progressBarClass = computed(() => {
   return 'bg-danger';
 });
 
+// Check if we're on the EnhancedValidator page
+    const isOnEnhancedValidatorPage = computed(() => {
+      const currentPath = router.currentRoute.value.path;
+      const fullPath = window.location.pathname;
+      return currentPath === '/' || fullPath.includes('/casestrainer/') || fullPath.includes('/casestrainer');
+    });
+
 // Methods
 const validateInput = () => {
   fileError.value = '';
@@ -419,6 +439,29 @@ const validateInput = () => {
 // };
 
 const onFileChange = (event) => {
+  // NUCLEAR OPTION: Completely disable file handling if we're on EnhancedValidator page
+  const currentPath = router.currentRoute.value.path;
+  const fullPath = window.location.pathname;
+  const isEnhancedValidatorPage = currentPath === '/enhanced-validator' || fullPath.includes('enhanced-validator');
+  
+  console.log('🔍 HomeView onFileChange called!');
+  console.log('🔍 Router path:', currentPath);
+  console.log('🔍 Full URL path:', fullPath);
+  console.log('🔍 Is EnhancedValidator page:', isEnhancedValidatorPage);
+  
+  // NUCLEAR BLOCK: Prevent ANY file handling if on EnhancedValidator page
+  if (isEnhancedValidatorPage) {
+    console.log('🔍 NUCLEAR BLOCK: HomeView file handling completely disabled!');
+    alert('🔍 NUCLEAR BLOCK: HomeView file handling completely disabled on EnhancedValidator page!');
+    // Clear the file input to prevent any further processing
+    if (event.target) {
+      event.target.value = '';
+    }
+    selectedFile.value = null;
+    return;
+  }
+  
+  console.log('🔍 Proceeding with HomeView file handling');
   const file = event.target.files[0];
   if (file) {
     handleFile(file);
@@ -454,6 +497,13 @@ const handleFile = (file) => {
 const fileInput = ref(null);
 
 const triggerFileInput = () => {
+  // NUCLEAR BLOCK: Completely disable file input trigger on EnhancedValidator page
+  if (isOnEnhancedValidatorPage.value) {
+    console.log('🔍 NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
+    alert('🔍 NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
+    return;
+  }
+  
   if (!isAnalyzing.value && fileInput.value) {
     fileInput.value.click();
   }
@@ -525,6 +575,19 @@ const stopProgressTracking = () => {
 };
 
 const analyzeContent = async () => {
+  // CRITICAL: Check if we're on EnhancedValidator page and block execution
+  const currentPath = router.currentRoute.value.path;
+  const fullPath = window.location.pathname;
+  console.log('🔍 analyzeContent called!');
+  console.log('🔍 Router path:', currentPath);
+  console.log('🔍 Full URL path:', fullPath);
+  
+  if (currentPath === '/' || fullPath.includes('/casestrainer/') || fullPath.includes('/casestrainer')) {
+    console.log('🔍 BLOCKING analyzeContent - on main page!');
+    alert('🔍 BLOCKED: HomeView analyzeContent on main page!');
+    return;
+  }
+  
   if (!canAnalyze.value || isAnalyzing.value) return;
 
   console.log('=== ANALYZE CONTENT STARTED ===');
@@ -550,9 +613,9 @@ const analyzeContent = async () => {
     let response;
     
     if (activeTab.value === 'url' && urlContent.value.trim()) {
-      console.log('Navigating to enhanced-validator for URL input');
+      console.log('Navigating to main page for URL input');
       router.push({ 
-        path: '/enhanced-validator', 
+        path: '/', 
         query: { 
           tab: activeTab.value,
           url: urlContent.value.trim()
@@ -579,8 +642,38 @@ const analyzeContent = async () => {
           const formData = new FormData();
           formData.append('file', selectedFile.value);
           formData.append('type', 'file');
-          response = await analyze(formData);
-          console.log('API response received:', response);
+          console.log('🔍 About to call analyze function in HomeView');
+          try {
+            response = await analyze(formData);
+            console.log('🔍 analyze function returned successfully');
+            console.log('API response received:', response);
+          } catch (analyzeError) {
+            console.error('🔍 analyze function failed:', analyzeError);
+            alert('🔍 ANALYZE FUNCTION FAILED: ' + analyzeError.message);
+            throw analyzeError;
+          }
+          console.log('🔍 HomeView analyze response details:', {
+            hasResponse: !!response,
+            responseType: typeof response,
+            hasTaskId: !!response?.task_id,
+            hasStatus: !!response?.status,
+            status: response?.status,
+            hasCitations: !!response?.citations,
+            citationsCount: response?.citations?.length || 0,
+            hasResult: !!response?.result,
+            resultCitationsCount: response?.result?.citations?.length || 0,
+            responseKeys: response ? Object.keys(response) : []
+          });
+          console.log('🔍 HomeView: Response details:', {
+            hasResponse: !!response,
+            hasTaskId: !!response?.task_id,
+            hasStatus: !!response?.status,
+            status: response?.status,
+            hasCitations: !!response?.citations,
+            citationsCount: response?.citations?.length || 0,
+            hasResult: !!response?.result,
+            resultCitationsCount: response?.result?.citations?.length || 0
+          });
         }
         break;
     }
@@ -606,7 +699,7 @@ const analyzeContent = async () => {
         // Fallback: try using path instead of name
         try {
           await router.push({
-            path: '/enhanced-validator',
+            path: '/',
             query: { task_id: response.task_id }
           });
           console.log('Fallback navigation successful');
@@ -620,9 +713,16 @@ const analyzeContent = async () => {
     }
 
     if (response) {
-      console.log('Navigating to enhanced-validator with results in state');
+      console.log('Navigating to main page with results in state');
+      // DEBUG: Show navigation banner
+      alert('🎉 RESULTS RECEIVED! Navigating to results page... Citations: ' + (response.citations?.length || 0));
+      
+      // Check if we're already on the main page
+      const currentPath = router.currentRoute.value.path;
+      console.log('🔍 Current path:', currentPath, 'Target path: /');
+      
       const navigationData = { 
-        path: '/enhanced-validator', 
+        path: '/', 
         query: { 
           tab: activeTab.value,
           ...(activeTab.value === 'paste' && textContent.value.trim() ? { text: textContent.value.trim() } : {})
@@ -632,10 +732,31 @@ const analyzeContent = async () => {
         }
       };
       console.log('Navigation data:', navigationData);
-      router.push(navigationData);
-      console.log('Navigation completed');
+      
+      // If we're already on the target page, try to trigger a route update
+      if (currentPath === '/') {
+        console.log('🔍 Already on main page - triggering route update');
+        try {
+          await router.replace(navigationData);
+          console.log('Route update completed successfully');
+          alert('✅ Route update to main page completed!');
+        } catch (updateError) {
+          console.error('Route update failed:', updateError);
+          alert('❌ Route update failed: ' + updateError.message);
+        }
+      } else {
+        try {
+          await router.push(navigationData);
+          console.log('Navigation completed successfully');
+          alert('✅ Navigation to main page completed!');
+        } catch (navigationError) {
+          console.error('Navigation failed:', navigationError);
+          alert('❌ Navigation failed: ' + navigationError.message);
+        }
+      }
     } else {
       console.log('No response received - no navigation');
+      alert('❌ No response received - no navigation');
     }
   } catch (error) {
     console.error('=== ANALYSIS ERROR ===');

@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('file', file);
 
             // Make API request
-            fetch(`${basePath}/api/enhanced/analyze`, {
+            fetch(`${basePath}/api/analyze_enhanced`, {
                 method: 'POST',
                 body: formData
             })

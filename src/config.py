@@ -193,7 +193,7 @@ def get_external_api_config() -> dict:
 def get_file_config() -> dict:
     """Get file processing configuration for CitationService."""
     return {
-        'max_file_size': int(get_config_value('MAX_FILE_SIZE', 50 * 1024 * 1024)),  # 50MB
+        'max_file_size': int(get_config_value('MAX_FILE_SIZE', 100 * 1024 * 1024)),  # 100MB
         'allowed_extensions': get_config_value('ALLOWED_EXTENSIONS', '.pdf,.txt,.docx').split(','),
         'upload_folder': get_config_value('UPLOAD_FOLDER', os.path.join(BASE_DIR, 'uploads')),
         'temp_folder': get_config_value('TEMP_FOLDER', os.path.join(BASE_DIR, 'temp'))

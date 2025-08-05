@@ -195,7 +195,7 @@ const MAX_RETRIES = 3;
 const activeRequests = new Map();
 
 // Helper function to poll for results
-async function pollForResults(requestId, startTime = Date.now()) {
+async function pollForResults(requestId, clientRequestId = null, startTime = Date.now()) {
   if (Date.now() - startTime > MAX_POLLING_TIME) {
     throw new Error('Request timed out after 10 minutes');
   }
@@ -204,6 +204,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
     // Log the polling attempt
     console.log('Polling for results:', {
       taskId: requestId,
+      clientRequestId: clientRequestId,
       endpoint: `/task_status/${requestId}`,
       elapsed: Date.now() - startTime,
       baseURL
@@ -220,6 +221,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
     // Log the response
     console.log('Status check response:', {
       taskId: requestId,
+      clientRequestId: clientRequestId,
       status: response.status,
       data: response.data,
       headers: response.headers
@@ -230,23 +232,30 @@ async function pollForResults(requestId, startTime = Date.now()) {
       // If we get a 404, the task might not be ready yet
       console.log('Task not ready yet, retrying...', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         elapsed: Date.now() - startTime,
         endpoint: `/task_status/${requestId}`
       });
       await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-      return pollForResults(requestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime);
     }
     
     if (response.data.status === 'completed') {
-      console.log('Task completed:', {
+            console.log('Task completed:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         elapsed: Date.now() - startTime,
         citations: response.data.result?.citations?.length || 0
       });
-      return response.data;
+      
+      // DEBUG: Alert when task is completed
+      alert(`🎉 TASK COMPLETED! Citations: ${response.data.result?.citations?.length || 0}`);
+      
+      return { ...response.data, requestId: clientRequestId };
     } else if (response.data.status === 'failed') {
       console.error('Task failed:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         error: response.data.error,
         elapsed: Date.now() - startTime
       });
@@ -255,6 +264,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
       // Log processing status for debugging
       console.log('Processing status:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         status: response.data.status,
         progress: response.data.progress,
         message: response.data.message,
@@ -263,18 +273,22 @@ async function pollForResults(requestId, startTime = Date.now()) {
         citations: response.data.citations?.length || 0
       });
       
+      // DEBUG: Alert for processing status
+      console.log(`🔄 POLLING: Status=${response.data.status}, Citations=${response.data.citations?.length || 0}`);
+      
       // Continue polling
       await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-      return pollForResults(requestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime);
     } else {
       // Handle unknown status
       console.warn('Unknown status received:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         status: response.data.status,
         data: response.data
       });
       await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-      return pollForResults(requestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime);
     }
   } catch (error) {
     // Enhanced error handling with detailed logging
@@ -282,16 +296,18 @@ async function pollForResults(requestId, startTime = Date.now()) {
       if (error.response.status === 404) {
         console.log('Status endpoint not found, retrying...', {
           taskId: requestId,
+          clientRequestId: clientRequestId,
           elapsed: Date.now() - startTime,
           endpoint: `/task_status/${requestId}`,
           baseURL,
           response: error.response.data
         });
         await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-        return pollForResults(requestId, startTime);
+        return pollForResults(requestId, clientRequestId, startTime);
       } else {
         console.error('Status check failed:', {
           taskId: requestId,
+          clientRequestId: clientRequestId,
           status: error.response.status,
           data: error.response.data,
           headers: error.response.headers,
@@ -303,6 +319,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
     } else if (error.request) {
       console.error('No response received for status check:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         message: error.message,
         endpoint: `/task_status/${requestId}`,
         baseURL
@@ -311,6 +328,7 @@ async function pollForResults(requestId, startTime = Date.now()) {
     } else {
       console.error('Error checking status:', {
         taskId: requestId,
+        clientRequestId: clientRequestId,
         message: error.message,
         endpoint: `/task_status/${requestId}`,
         baseURL
@@ -440,14 +458,44 @@ const validateUrl = (url) => {
 };
 
 // Update the analyze function to use the consolidated /analyze endpoint
-export const analyze = async (requestData) => {
+export const analyze = async (requestData, requestId = null) => {
+    // NUCLEAR OPTION: Global route check to prevent HomeView from calling analyze on EnhancedValidator page
+    const currentPath = window.location.pathname;
+    const isEnhancedValidatorPage = currentPath.includes('enhanced-validator');
+    
     console.log('=== ANALYZE FUNCTION CALLED ===');
+    console.log('🔍 Current path:', currentPath);
+    console.log('🔍 Is EnhancedValidator page:', isEnhancedValidatorPage);
     console.log('Request data:', requestData);
+    console.log('Request ID:', requestId);
     console.log('Request data type:', typeof requestData);
     console.log('Is FormData:', requestData instanceof FormData);
     
-    // Check for test data and reject it
-    if (isTestData(requestData)) {
+    // NUCLEAR BLOCK: If on EnhancedValidator page and this is a file upload, block HomeView calls
+    if (isEnhancedValidatorPage && requestData instanceof FormData) {
+        console.log('🔍 NUCLEAR BLOCK: analyze function blocked on EnhancedValidator page for file uploads!');
+        alert('🔍 NUCLEAR BLOCK: analyze function blocked on EnhancedValidator page! Only EnhancedValidator should handle file uploads!');
+        throw new Error('File uploads are blocked on EnhancedValidator page. Only EnhancedValidator should handle file uploads.');
+    }
+    
+    // DEBUG: Alert when analyze function is called
+    let typeInfo = 'unknown';
+    if (requestData instanceof FormData) {
+      typeInfo = requestData.has('type') ? requestData.get('type') : 'missing';
+    } else {
+      typeInfo = requestData.type || 'unknown';
+    }
+    
+    // Get stack trace to see where analyze is called from
+    const stackTrace = new Error().stack;
+    console.log('🔍 ANALYZE FUNCTION CALLED FROM:', stackTrace);
+    
+    // Show stack trace in alert to see where it's called from
+    const stackLines = stackTrace.split('\n').slice(1, 4).join('\n'); // Get first 3 lines of stack
+    alert('🔍 ANALYZE FUNCTION CALLED! Type: ' + typeInfo + ' | IsFormData: ' + (requestData instanceof FormData) + '\n\nStack:\n' + stackLines);
+    
+    // Check for test data and reject it (only for text and URL inputs, not file uploads)
+    if (!(requestData instanceof FormData) && isTestData(requestData)) {
         console.error('Test data detected and rejected:', requestData);
         throw new Error('Test data detected. Please provide actual document content.');
     }
@@ -478,6 +526,7 @@ export const analyze = async (requestData) => {
         // Log the analyze request
         console.log('Starting analysis:', {
             type: requestData.type,
+            requestId: requestId,
             isFormData: requestData instanceof FormData,
             baseURL,
             endpoint: '/analyze'
@@ -538,18 +587,21 @@ export const analyze = async (requestData) => {
         if (response.data.status === 'processing' && response.data.task_id) {
             console.log('Starting polling for task:', {
                 taskId: response.data.task_id,
+                requestId: requestId,
                 status: response.data.status,
                 message: response.data.message
             });
-            return await pollForResults(response.data.task_id);
+            const polledResults = await pollForResults(response.data.task_id, requestId);
+            return { ...polledResults, requestId: requestId };
         }
         
         console.log('Returning response data:', response.data);
-        return response.data;
+        return { ...response.data, requestId: requestId };
     } catch (error) {
         console.error('=== ANALYZE FUNCTION ERROR ===');
         console.error('Error in analyze request:', {
             error,
+            requestId: requestId,
             type: requestData.type,
             isFormData: requestData instanceof FormData,
             baseURL,

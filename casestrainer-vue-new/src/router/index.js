@@ -4,8 +4,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 const BASE_PATH = '/casestrainer/';
 
 // Import views directly
-const HomeView = () => import('@/views/HomeView.vue');
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
+const MinimalTest = () => import('@/views/MinimalTest.vue');
 const NotFound = () => import('@/views/NotFound.vue');
 const BrowserExtension = () => import('@/views/BrowserExtension.vue');
 const WordPlugin = () => import('@/views/WordPlugin.vue');
@@ -16,7 +16,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView,
+    component: EnhancedValidator,
     meta: {
       title: 'CaseStrainer - Legal Citation Validator',
       metaTags: [
@@ -83,17 +83,7 @@ const routes = [
       ]
     }
   },
-  {
-    path: '/enhanced-validator',
-    name: 'EnhancedValidator',
-    component: EnhancedValidator,
-    meta: {
-      title: 'Enhanced Validator | CaseStrainer',
-      metaTags: [
-        { name: 'description', content: 'Advanced citation validation and analysis tools.' }
-      ]
-    }
-  },
+
   // Catch-all route for 404s
   {
     path: '/:pathMatch(.*)*',

@@ -1,34 +1,46 @@
 <template>
   <div class="unified-input">
-    <!-- Top Row: File Upload and URL Upload -->
-    <div class="input-methods-top">
-      <div 
-        :class="['input-method-card', { active: inputMode === 'file', disabled: isAnalyzing }]"
-        @click="!isAnalyzing && (inputMode = 'file', onModeChange())"
-      >
-        <div class="method-icon">{{ methodIcons.file }}</div>
-        <div class="method-content">
-          <h4>{{ modeLabels.file }}</h4>
-          <p>{{ modeDescriptions.file }}</p>
-        </div>
-        <div v-if="inputMode === 'file'" class="active-indicator">✓</div>
-      </div>
-
-      <div 
-        :class="['input-method-card', { active: inputMode === 'url', disabled: isAnalyzing }]"
-        @click="!isAnalyzing && (inputMode = 'url', onModeChange())"
-      >
-        <div class="method-icon">{{ methodIcons.url }}</div>
-        <div class="method-content">
-          <h4>{{ modeLabels.url }}</h4>
-          <p>{{ modeDescriptions.url }}</p>
-        </div>
-        <div v-if="inputMode === 'url'" class="active-indicator">✓</div>
-      </div>
-    </div>
-
-    <!-- Input Area for File and URL -->
-    <div class="input-area-top" v-if="inputMode === 'file' || inputMode === 'url'">
+         <!-- Single Row: File Upload, URL, and Paste Text -->
+     <div class="input-methods-single">
+       <div 
+         :class="['input-method-card', { active: inputMode === 'file', disabled: isAnalyzing }]"
+         @click="!isAnalyzing && (inputMode = 'file', onModeChange())"
+       >
+         <div class="method-icon">{{ methodIcons.file }}</div>
+         <div class="method-content">
+           <h4>{{ modeLabels.file }}</h4>
+           <p>{{ modeDescriptions.file }}</p>
+         </div>
+         <div v-if="inputMode === 'file'" class="active-indicator">✓</div>
+       </div>
+ 
+       <div 
+         :class="['input-method-card', { active: inputMode === 'url', disabled: isAnalyzing }]"
+         @click="!isAnalyzing && (inputMode = 'url', onModeChange())"
+       >
+         <div class="method-icon">{{ methodIcons.url }}</div>
+         <div class="method-content">
+           <h4>{{ modeLabels.url }}</h4>
+           <p>{{ modeDescriptions.url }}</p>
+         </div>
+         <div v-if="inputMode === 'url'" class="active-indicator">✓</div>
+       </div>
+ 
+       <div 
+         :class="['input-method-card', { active: inputMode === 'text', disabled: isAnalyzing }]"
+         @click="!isAnalyzing && (inputMode = 'text', onModeChange())"
+       >
+         <div class="method-icon">{{ methodIcons.text }}</div>
+         <div class="method-content">
+           <h4>{{ modeLabels.text }}</h4>
+           <p>{{ modeDescriptions.text }}</p>
+         </div>
+         <div v-if="inputMode === 'text'" class="active-indicator">✓</div>
+       </div>
+     </div>
+ 
+     <!-- Input Area for File, URL, and Text -->
+     <div class="input-area-single" v-if="inputMode === 'file' || inputMode === 'url' || inputMode === 'text'">
       <!-- File Input -->
       <div v-if="inputMode === 'file'" class="file-input">
         <label class="input-label">
@@ -138,58 +150,14 @@
             {{ error }}
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Bottom Row: Quick Citation and Paste Text -->
-    <div class="input-methods-bottom">
-      <div 
-        :class="['input-method-card', { active: inputMode === 'quick', disabled: isAnalyzing }]"
-        @click="!isAnalyzing && (inputMode = 'quick', onModeChange())"
-      >
-        <div class="method-icon">{{ methodIcons.quick }}</div>
-        <div class="method-content">
-          <h4>{{ modeLabels.quick }}</h4>
-          <p>{{ modeDescriptions.quick }}</p>
-        </div>
-        <div v-if="inputMode === 'quick'" class="active-indicator">✓</div>
-      </div>
-
-      <div 
-        :class="['input-method-card', { active: inputMode === 'text', disabled: isAnalyzing }]"
-        @click="!isAnalyzing && (inputMode = 'text', onModeChange())"
-      >
-        <div class="method-icon">{{ methodIcons.text }}</div>
-        <div class="method-content">
-          <h4>{{ modeLabels.text }}</h4>
-          <p>{{ modeDescriptions.text }}</p>
-        </div>
-        <div v-if="inputMode === 'text'" class="active-indicator">✓</div>
-      </div>
-    </div>
-
-    <!-- Recent Inputs Section - Temporarily Hidden -->
-    <!-- <RecentInputs @load-input="loadRecentInput" /> -->
-    
-    <!-- Analyze Button -->
-    <div class="analyze-section">
-      <button 
-        :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
-        :disabled="!canAnalyze || isAnalyzing" 
-        @click="emitAnalyze"
-      >
-        <span v-if="isAnalyzing" class="analyzing-spinner"></span>
-        <span v-else class="analyze-icon">🔍</span>
-        {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
-      </button>
-      <!-- Validation Summary -->
-      <div v-if="showValidationWarning && hasErrors" class="validation-summary">
-        <p>Please fix the errors above before analyzing</p>
-      </div>
-    </div>
-    
-    <!-- Input Area for Quick Citation and Text -->
-    <div class="input-area-bottom" v-if="inputMode === 'text' || inputMode === 'quick'">
+             </div>
+     </div>
+ 
+     <!-- Recent Inputs Section - Temporarily Hidden -->
+     <!-- <RecentInputs @load-input="loadRecentInput" /> -->
+     
+     <!-- Input Area for Text (moved from bottom) -->
+     <div class="input-area-single" v-if="inputMode === 'text'">
       <!-- Text Input -->
       <div v-if="inputMode === 'text'" class="text-input">
         <label class="input-label">
@@ -230,40 +198,44 @@
         </div>
       </div>
 
-      <!-- Quick Citation Input -->
-      <div v-else-if="inputMode === 'quick'" class="quick-citation-input-area">
-        <label class="input-label">
-          <i class="bi bi-lightning me-2"></i>
-          Enter a single citation
-        </label>
-        <div class="quick-input-container">
-          <div class="input-wrapper">
-            <div class="input-icon">
-              <i class="bi bi-quote"></i>
-            </div>
-            <input
-              v-model="quickCitation"
-              type="text"
-              placeholder="e.g., 410 U.S. 113 (1973) or Roe v. Wade"
-              :disabled="isAnalyzing"
-              @keyup.enter="emitAnalyze"
-              class="quick-citation-input"
-            />
-            <div v-if="quickCitation" class="input-status valid">
-              <i class="bi bi-check-circle-fill"></i>
-            </div>
-          </div>
-        </div>
-        <div class="input-footer">
-          <span class="citation-hint">
-            <i class="bi bi-info-circle me-1"></i>
-            Enter a legal citation to verify quickly
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+      
+       
+       <!-- Analyze Button -->
+       <div class="analyze-section">
+         <button 
+           :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
+           :disabled="!canAnalyze || isAnalyzing" 
+           @click="emitAnalyze"
+         >
+           <span v-if="isAnalyzing" class="analyzing-spinner"></span>
+           <span v-else class="analyze-icon">🔍</span>
+           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
+         </button>
+         <!-- Validation Summary -->
+         <div v-if="showValidationWarning && hasErrors" class="validation-summary">
+           <p>Please fix the errors above before analyzing</p>
+         </div>
+       </div>
+       
+       <!-- Analyze Button -->
+       <div class="analyze-section">
+         <button 
+           :class="['analyze-btn', { disabled: !canAnalyze || isAnalyzing }]"
+           :disabled="!canAnalyze || isAnalyzing" 
+           @click="emitAnalyze"
+         >
+           <span v-if="isAnalyzing" class="analyzing-spinner"></span>
+           <span v-else class="analyze-icon">🔍</span>
+           {{ isAnalyzing ? 'Analyzing...' : 'Analyze Content' }}
+         </button>
+         <!-- Validation Summary -->
+         <div v-if="showValidationWarning && hasErrors" class="validation-summary">
+           <p>Please fix the errors above before analyzing</p>
+         </div>
+       </div>
+     </div>
+   </div>
+ </template>
 
 <script setup>
 import { ref, computed } from 'vue';
@@ -275,25 +247,22 @@ const props = defineProps({
 
 const emit = defineEmits(['analyze']);
 
-const modes = ['text', 'url', 'file', 'quick'];
-const modeLabels = { 
-  text: 'Paste Text', 
-  url: 'URL', 
-  file: 'Upload File',
-  quick: 'Quick Citation'
-};
-const modeDescriptions = {
-  text: 'Paste legal text or citations directly',
-  url: 'Analyze content from a web URL',
-  file: 'Upload a document for analysis',
-  quick: 'Enter a single citation and analyze instantly'
-};
-const methodIcons = {
-  text: '📝',
-  url: '🔗',
-  file: '📁',
-  quick: '🔎'
-};
+ const modes = ['text', 'url', 'file'];
+ const modeLabels = { 
+   text: 'Paste Text', 
+   url: 'URL', 
+   file: 'Upload File'
+ };
+ const modeDescriptions = {
+   text: 'Paste legal text or citations directly',
+   url: 'Analyze content from a web URL',
+   file: 'Upload a document for analysis'
+ };
+ const methodIcons = {
+   text: '📝',
+   url: '🔗',
+   file: '📁'
+ };
 
 // Validation constants
 const VALIDATION_RULES = {
@@ -318,14 +287,13 @@ const VALIDATION_RULES = {
 const inputMode = ref('text');
 const text = ref('');
 const url = ref('');
-const file = ref(null);
-const isDragOver = ref(false);
-const fileInput = ref(null);
-const quickCitation = ref('');
+ const file = ref(null);
+ const isDragOver = ref(false);
+ const fileInput = ref(null);
 
 // Validation state
 const validationErrors = ref({});
-const isDirty = ref({ text: false, url: false, file: false, quick: false });
+ const isDirty = ref({ text: false, url: false, file: false });
 const showValidationWarning = ref(false);
 
 // Validation functions
@@ -434,9 +402,8 @@ const canAnalyze = computed(() => {
   } else if (inputMode.value === 'file') {
     // TEMP: Only require a file for debugging
     result = !!file.value;
-  } else if (inputMode.value === 'quick') {
-    result = quickCitation.value.trim().length > 0;
   }
+  
   console.log('[canAnalyze] mode:', inputMode.value, 'result:', result, 'file:', file.value, 'url:', url.value, 'hasErrors:', hasErrors.value, 'currentErrors:', currentErrors.value);
   return result;
 });
@@ -493,9 +460,6 @@ function emitAnalyze() {
     // If you have options, add them here (example: analysis options)
     // formData.append('options', JSON.stringify(options));
     emit('analyze', formData);
-  } else if (inputMode.value === 'quick') {
-    emit('analyze', { text: quickCitation.value.trim(), type: 'text', quick: true });
-    quickCitation.value = '';
   }
 }
 
@@ -530,7 +494,7 @@ function formatFileSize(bytes) {
 // Watch for mode changes to reset validation and force validation
 function onModeChange() {
   validationErrors.value = {};
-  isDirty.value = { text: false, url: false, file: false, quick: false };
+  isDirty.value = { text: false, url: false, file: false };
   showValidationWarning.value = false;
   validateCurrentInput();
   console.log('[onModeChange] inputMode:', inputMode.value, 'file:', file.value, 'url:', url.value, 'hasErrors:', hasErrors.value, 'currentErrors:', currentErrors.value);
@@ -543,34 +507,27 @@ function onModeChange() {
   margin: 0 auto;
 }
 
-.input-methods-top {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.input-methods-bottom {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
+ .input-methods-single {
+   display: flex;
+   gap: 1rem;
+   margin-bottom: 2rem;
+   flex-wrap: wrap;
+ }
 
 .input-method-card {
   background: white;
   border: 2px solid #e9ecef;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   flex: 1;
-  min-width: 200px;
-  max-width: 300px;
+  min-width: 150px;
+  max-width: 200px;
 }
 
 .input-method-card:hover:not(.disabled) {
@@ -590,7 +547,7 @@ function onModeChange() {
 }
 
 .method-icon {
-  font-size: 2rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
 }
 
@@ -600,16 +557,16 @@ function onModeChange() {
 }
 
 .method-content h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .method-content p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #6c757d;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .active-indicator {
@@ -627,23 +584,14 @@ function onModeChange() {
   font-size: 0.8rem;
 }
 
-.input-area-top {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s ease-out;
-}
-
-.input-area-bottom {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-top: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s ease-out;
-}
+ .input-area-single {
+   background: white;
+   border-radius: 12px;
+   padding: 2rem;
+   margin-bottom: 2rem;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   animation: slideDown 0.3s ease-out;
+ }
 
 @keyframes slideDown {
   from {
@@ -1063,13 +1011,12 @@ embed, object, iframe {
   display: none !important;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .input-methods-top,
-  .input-methods-bottom {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+ /* Responsive design */
+ @media (max-width: 768px) {
+   .input-methods-single {
+     flex-direction: column;
+     gap: 0.75rem;
+   }
   
   .input-method-card {
     min-width: auto;
@@ -1089,12 +1036,10 @@ embed, object, iframe {
     font-size: 0.8rem;
   }
   
-  .input-area-top,
-  .input-area-bottom {
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    margin-top: 1.5rem;
-  }
+     .input-area-single {
+     padding: 1.5rem;
+     margin-bottom: 1.5rem;
+   }
   
   .analyze-section {
     padding: 1.5rem;
@@ -1146,10 +1091,9 @@ embed, object, iframe {
     font-size: 1.25rem;
   }
   
-  .input-area-top,
-  .input-area-bottom {
-    padding: 1rem;
-  }
+     .input-area-single {
+     padding: 1rem;
+   }
   
   .text-input-field,
   .url-input-field,

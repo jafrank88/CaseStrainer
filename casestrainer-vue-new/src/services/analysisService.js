@@ -285,11 +285,11 @@ export const useAnalysisService = () => {
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Poll for results
-          const pollResponse = await currentApi.get(`/casestrainer/api/analyze/progress/${responseData.task_id}`);
+          const pollResponse = await currentApi.get(`/casestrainer/api/task_status/${responseData.task_id}`);
           
           if (pollResponse.data && pollResponse.data.status === 'completed') {
             console.log('Task completed, returning results');
-            const completedData = pollResponse.data;
+            const completedData = pollResponse.data.result || pollResponse.data;
             const processedCitations = completedData.citations || [];
             const status = processedCitations.some(c => c.data?.valid || c.data?.found) ? 'Valid' : 'Invalid';
             

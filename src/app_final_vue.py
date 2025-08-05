@@ -605,6 +605,23 @@ class ApplicationFactory:
                     'traceback': traceback.format_exc()
                 }), 500
         
+        # Add progress manager routes
+        try:
+            from src.progress_manager import create_progress_routes, SSEProgressManager, ChunkedCitationProcessor
+            self.logger.info("Importing progress manager components...")
+            
+            # Create progress manager instances
+            progress_manager = SSEProgressManager()
+            citation_processor = ChunkedCitationProcessor(progress_manager)
+            
+            # Register progress routes
+            create_progress_routes(app, progress_manager, citation_processor)
+            self.logger.info("✅ Progress manager routes registered successfully")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Failed to register progress manager routes: {e}", exc_info=True)
+            # Don't fail the entire app, just log the error
+        
         self.logger.info("Application routes registered")
         # Log all registered routes for debugging
         self.logger.info("=== REGISTERED ROUTES ===")

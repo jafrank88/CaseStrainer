@@ -360,16 +360,60 @@ export default {
       return 'Analyze URL Content';
     };
     
-    const emitAnalyze = () => {
+    const emitAnalyze = async () => {
       if (!isValidUrl.value || isAnalyzing.value) return;
       
-      const analysisData = {
-        url: url.value,
-        options: options.value,
-        type: 'url'
-      };
+      console.log('🔍 UrlUpload: Starting URL download process');
       
-      emit('analyze', analysisData);
+      try {
+        // Step 1: Download the file from URL
+        const response = await fetch(url.value);
+        if (!response.ok) {
+          throw new Error(`Failed to download: ${response.status} ${response.statusText}`);
+        }
+        
+        // Get the content type and filename
+        const contentType = response.headers.get('content-type') || 'application/octet-stream';
+        const contentDisposition = response.headers.get('content-disposition');
+        let filename = 'downloaded_file';
+        
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch) {
+            filename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        }
+        
+        // Create a File object from the response
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: contentType });
+        
+        console.log('🔍 UrlUpload: File downloaded successfully:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+        
+        // Step 2: Create FormData and emit as file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'file');
+        formData.append('source', 'url');
+        formData.append('originalUrl', url.value);
+        
+        console.log('🔍 UrlUpload: Emitting FormData for file processing');
+        emit('analyze', formData);
+        
+      } catch (error) {
+        console.error('🔍 UrlUpload: Error downloading file:', error);
+        // Fallback to original URL processing if download fails
+        const analysisData = {
+          url: url.value,
+          options: options.value,
+          type: 'url'
+        };
+        emit('analyze', analysisData);
+      }
     };
     
     // Simulate progress steps when analyzing

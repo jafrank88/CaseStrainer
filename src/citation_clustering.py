@@ -586,7 +586,7 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
     
     # Ensure all clusters in clusters_by_id are included in result_clusters
     result_clusters = []
-    clustered_citations = set(getattr(c, 'citation', None) for c in citations)
+    clustered_citations = set()  # Start with empty set, add citations as they get clustered
     for cluster_id, cluster_citations in clusters_by_id.items():
         try:
             print(f"[DEBUG] Adding cluster to result_clusters: {cluster_id} | Members: {[getattr(c, 'citation', None) for c in cluster_citations]}")
@@ -661,13 +661,24 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
             logger.error(f"[ERROR] Exception while formatting cluster {cluster_id}: {e}")
             logger.error(f"[ERROR] Cluster citations: {cluster_citations}")
             import traceback; traceback.print_exc()
-    # NEW: Add singleton clusters for any citation not already in a cluster
+    # NEW: Group unclustered citations by citation string to deduplicate identical citations
+    unclustered_citations = [c for c in citations if getattr(c, 'citation', None) not in clustered_citations]
+    citation_groups = {}
+    
+    for citation in unclustered_citations:
+        citation_str = getattr(citation, 'citation', None)
+        if citation_str:
+            if citation_str not in citation_groups:
+                citation_groups[citation_str] = []
+            citation_groups[citation_str].append(citation)
+    
+    # Create clusters for grouped citations
     singleton_count = 0
-    all_citations_set = set(getattr(c, 'citation', None) for c in citations)
-    for citation in citations:
-        if getattr(citation, 'citation', None) not in clustered_citations:
-            # Build a singleton cluster
-            cluster_id = f"singleton_{getattr(citation, 'citation', 'unknown')}"
+    for citation_str, group_citations in citation_groups.items():
+        if len(group_citations) == 1:
+            # Single citation - create singleton cluster
+            citation = group_citations[0]
+            cluster_id = f"singleton_{citation_str}"
             cluster_dict = {
                 'cluster_id': cluster_id,
                 'canonical_name': citation.canonical_name or citation.extracted_case_name,
@@ -692,6 +703,43 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                 }],
                 'has_parallel_citations': False,
                 'size': 1
+            }
+            result_clusters.append(cluster_dict)
+            singleton_count += 1
+        else:
+            # Multiple citations with same string - create deduplication cluster
+            cluster_id = f"dedup_{citation_str}"
+            citation_dicts = []
+            for citation in group_citations:
+                citation_dict = {
+                    'citation': citation.citation,
+                    'extracted_case_name': citation.extracted_case_name or 'N/A',
+                    'extracted_date': citation.extracted_date or 'N/A',
+                    'canonical_name': citation.canonical_name or 'N/A',
+                    'canonical_date': citation.canonical_date,
+                    'confidence': citation.confidence,
+                    'source': citation.source,
+                    'url': citation.url,
+                    'court': citation.court,
+                    'context': citation.context,
+                    'verified': citation.verified,
+                    'parallel_citations': citation.parallel_citations or []
+                }
+                citation_dicts.append(citation_dict)
+            
+            # Use the first citation for cluster metadata
+            first_citation = group_citations[0]
+            cluster_dict = {
+                'cluster_id': cluster_id,
+                'canonical_name': first_citation.canonical_name or first_citation.extracted_case_name,
+                'canonical_date': first_citation.canonical_date or first_citation.extracted_date,
+                'extracted_case_name': first_citation.extracted_case_name,
+                'extracted_date': first_citation.extracted_date,
+                'url': first_citation.url,
+                'source': first_citation.source,
+                'citations': citation_dicts,
+                'has_parallel_citations': len(citation_dicts) > 1,
+                'size': len(citation_dicts)
             }
             result_clusters.append(cluster_dict)
             singleton_count += 1

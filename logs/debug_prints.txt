@@ -157133,3 +157133,6228 @@ dy when we offer “sufficient guidance to effectively limit trial court discret
 Arizona, 
 ---
 [DEBUG] No case name match for citation: 384 U.S. 436
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Johnson, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Context:
+Johnson, 
+---
+[DEBUG] No case name match for citation: 200 Wash. 2d 72, 514 P.3d 643
+[DEBUG] Citation: 514 P.3d 643
+[DEBUG] Context:
+d 72, 
+---
+[DEBUG] No case name match for citation: 514 P.3d 643
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. Department of Energy, 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller, 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove, 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461
+[DEBUG] Context:
+City of Cheyenne, 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461
+[DEBUG] Citation: 3461 U.S. 5
+[DEBUG] Context:
+WL 
+---
+[DEBUG] No case name match for citation: 3461 U.S. 5
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway, 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming, 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+BNSF Railway Co., 
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York, 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 410 U.S. 113
+[DEBUG] Context:
+Wade, 
+---
+[DEBUG] No case name match for citation: 410 U.S. 113
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+We review a trial court’s parenting plan for abuse of discretion. In re 
+Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+. A court 
+abuses its discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+discretion if its decision is manifestly unreasonable or based on 
+untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+180 Wn.2d 632
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 129 Wn. 2d 320
+[DEBUG] Context:
+tcomes.”4 We agree with Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)
+---
+[DEBUG] No case name match for citation: 129 Wn. 2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 
+---
+[DEBUG] No case name match for citation: 917 P.2d 100
+[DEBUG] Citation: 496 P.3d 305
+[DEBUG] Context:
+d 357, 362, 
+---
+[DEBUG] No case name match for citation: 496 P.3d 305
+[DEBUG] Citation: 66 Wn. App. 134
+[DEBUG] Context:
+Marriage of King, 
+---
+[DEBUG] No case name match for citation: 66 Wn. App. 134
+[DEBUG] Citation: 8 P.2d 1094
+[DEBUG] Context:
+I/
+---
+[DEBUG] No case name match for citation: 8 P.2d 1094
+[DEBUG] Citation: 68 Wn. App. 922
+[DEBUG] Context:
+Marriage of Stern, 
+---
+[DEBUG] No case name match for citation: 68 Wn. App. 922
+[DEBUG] Citation: 846 P.2d 1387
+[DEBUG] Context:
+-6-I/8 P.2d 1094 (1992). But a judicial error is one of substance. In re Marriage of Stern, 68 Wn. App. 922, 927, 
+---
+[DEBUG] No case name match for citation: 846 P.2d 1387
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+ial schedule in the original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+4). A court abuses its discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+s discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 28 Wn. App. 187
+[DEBUG] Context:
+Marriage of Murray, 
+---
+[DEBUG] No case name match for citation: 28 Wn. App. 187
+[DEBUG] Citation: 622 P.2d 1288
+[DEBUG] Context:
+reflect consideration of the statutory elements, specific findings are not required on each factor.” In re Marriage of Murray, 28 Wn. App. 187, 189, 
+---
+[DEBUG] No case name match for citation: 622 P.2d 1288
+[DEBUG] Citation: 141 Wn. App. 235
+[DEBUG] Context:
+Marriage of Rockwell, 
+---
+[DEBUG] No case name match for citation: 141 Wn. App. 235
+[DEBUG] Citation: 170 P.3d 572
+[DEBUG] Context:
+-43, 
+---
+[DEBUG] No case name match for citation: 170 P.3d 572
+[DEBUG] Citation: 105 Wn. App. 545
+[DEBUG] Context:
+Marriage of White, 
+---
+[DEBUG] No case name match for citation: 105 Wn. App. 545
+[DEBUG] Citation: 20 P.3d 481
+[DEBUG] Context:
+ble.”9 And to be community or separate property, one of the parties must have acquired the asset. See In re Marriage of White, 105 Wn. App. 545, 550, 
+---
+[DEBUG] No case name match for citation: 20 P.3d 481
+[DEBUG] Citation: 183 Wn. App. 503
+[DEBUG] Context:
+Marriage of Raskob, 
+---
+[DEBUG] No case name match for citation: 183 Wn. App. 503
+[DEBUG] Citation: 334 P.3d 30
+[DEBUG] Context:
+statutory costs.” Id. When exercising that discretion, we consider the parties’ financial resources. In re Marriage of Raskob, 183 Wn. App. 503, 520, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 30
+[DEBUG] Citation: 90 Wn. App. 796
+[DEBUG] Context:
+Verhey, 
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 796
+[DEBUG] Citation: 8 U.S. 954
+[DEBUG] Context:
+P.3d 30 (2014). We balance the needs of the requesting party against the other party’s ability to pay. Leslie v. Verhey, 90 Wn. App. 796, 
+---
+[DEBUG] No case name match for citation: 8 U.S. 954
+[DEBUG] Citation: 954 P.2d 330
+[DEBUG] Context:
+U.S. 
+---
+[DEBUG] No case name match for citation: 954 P.2d 330
+[DEBUG] Citation: 187 Wn. 2d 535
+[DEBUG] Context:
+as an appellate remedy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 387 P.3d 703 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 535
+[DEBUG] Citation: 387 P.3d 703
+[DEBUG] Context:
+dy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 
+---
+[DEBUG] No case name match for citation: 387 P.3d 703

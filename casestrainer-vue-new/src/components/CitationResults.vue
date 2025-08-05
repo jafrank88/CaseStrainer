@@ -1,4 +1,5 @@
 <script setup>
+console.log('🚀 CitationResults.vue props.results:', defineProps().results)
 console.log('🚀 Citation Results Component Loaded!')
 
 import { ref, computed, watch } from 'vue'
@@ -21,7 +22,7 @@ const props = defineProps({
   timeout: { type: Number, default: null }
 })
 
-const emit = defineEmits(['copy-results', 'download-results', 'toast'])
+const emit = defineEmits(['copy-results', 'download-results', 'toast', 'new-analysis'])
 
 const activeFilter = ref('all')
 const searchQuery = ref('')
@@ -106,7 +107,7 @@ watch(() => props.results, (newVal, oldVal) => {
 }, { immediate: true, deep: true })
 
 const shouldShowProgressBar = computed(() => {
-  return props.showLoading
+  return props.showLoading || (props.results && props.results.status === 'processing')
 })
 
 const validCount = computed(() => {
@@ -211,21 +212,28 @@ const calculateCitationScore = (citation) => {
 
 // Filter clusters to only show those that don't have perfect 4/4 scores
 const citationsNeedingAttention = computed(() => {
+  console.log('🔍 citationsNeedingAttention computed - props.results:', props.results);
+  
   if (props.results?.clusters && props.results.clusters.length > 0) {
-    return props.results.clusters.filter(cluster => {
+    const filteredClusters = props.results.clusters.filter(cluster => {
       // Check if any citation in the cluster doesn't have a perfect score
       return cluster.citations.some(citation => {
         const score = calculateCitationScore(citation)
         return score < 4
       })
     })
+    console.log('🔍 Filtered clusters:', filteredClusters);
+    return filteredClusters;
   }
   // For individual citations (no clusters)
   if (props.results?.citations) {
+    console.log('🔍 Processing individual citations, count:', props.results.citations.length);
     const imperfectCitations = props.results.citations.filter(citation => {
       const score = calculateCitationScore(citation)
+      console.log('🔍 Citation score:', citation.citation, score);
       return score < 4
     })
+    console.log('🔍 Imperfect citations:', imperfectCitations.length);
     // Group by extracted_case_name + extracted_date
     const grouped = {};
     imperfectCitations.forEach(c => {
@@ -233,8 +241,11 @@ const citationsNeedingAttention = computed(() => {
       if (!grouped[key]) grouped[key] = [];
       grouped[key].push(c);
     });
-    return Object.values(grouped).map(citations => ({ citations }));
+    const result = Object.values(grouped).map(citations => ({ citations }));
+    console.log('🔍 Grouped result:', result);
+    return result;
   }
+  console.log('🔍 No citations found in citationsNeedingAttention');
   return []
 })
 
@@ -660,6 +671,27 @@ function downloadAllCitations() {
   URL.revokeObjectURL(url)
   emit('toast', { type: 'success', message: 'All citation data downloaded!' })
 }
+
+// Helper function to deduplicate citations within a cluster by citation string
+function getUniqueCitations(citations) {
+  const seen = new Set()
+  const unique = []
+  for (const citation of citations) {
+    const citationStr = getCitation(citation)
+    if (!seen.has(citationStr)) {
+      seen.add(citationStr)
+      unique.push(citation)
+    }
+  }
+  return unique
+}
+
+// Handle new analysis button click
+function handleNewAnalysis() {
+  console.log('🔄 New Analysis button clicked in CitationResults');
+  alert('🔄 New Analysis button clicked in CitationResults!');
+  emit('new-analysis');
+}
 </script>
 
 <template>
@@ -668,10 +700,10 @@ function downloadAllCitations() {
     <p>Processing citations...</p>
     <ProcessingProgress 
       v-if="shouldShowProgressBar"
-      :elapsed-time="props.elapsedTime"
-      :remaining-time="props.remainingTime"
-      :total-progress="props.totalProgress"
-      :current-step="props.currentStep"
+      :elapsed-time="props.results?.elapsedTime || props.elapsedTime || 0"
+      :remaining-time="props.results?.remainingTime || props.remainingTime || 0"
+      :total-progress="props.results?.progress || props.totalProgress || 0"
+      :current-step="props.results?.message || props.currentStep || 'Processing...'"
       :current-step-progress="props.currentStepProgress"
       :processing-steps="props.processingSteps"
       :citation-info="props.citationInfo"
@@ -758,9 +790,9 @@ function downloadAllCitations() {
                     </template>
                   </span>
                 </div>
-                <!-- Line 3+: Each citation in the cluster, one per line, with status -->
+                <!-- Line 3+: Each unique citation in the cluster, one per line, with status -->
                 <div class="citations-list-vertical">
-                  <div v-for="(citation, idx) in cluster.citations" :key="idx" class="citation-row-item">
+                  <div v-for="(citation, idx) in getUniqueCitations(cluster.citations)" :key="idx" class="citation-row-item">
                     <span class="citation-text">{{ getCitation(citation) }}</span>
                     <span class="verification-badge" :class="getVerificationStatus(citation)">
                       <template v-if="getVerificationStatus(citation) === 'verified'">VERIFIED</template>
@@ -810,6 +842,9 @@ function downloadAllCitations() {
           </div>
         </div>
         <div class="action-buttons">
+          <button class="action-btn new-analysis-btn" @click="handleNewAnalysis">
+            🔄 New Analysis
+          </button>
           <button class="action-btn copy-btn" @click="copyAllCitations">
             Copy Results
           </button>
@@ -2313,5 +2348,22 @@ function downloadAllCitations() {
   background: #198754;
   color: white;
   border-color: #198754;
+}
+
+.new-analysis-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  margin-right: 0.5rem;
+}
+
+.new-analysis-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
 }
 </style>

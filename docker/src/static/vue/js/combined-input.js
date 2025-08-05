@@ -147,17 +147,31 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Analysis results:', data);
                 
-                // Store the analysis results
-                window.analysisResults = data;
-                
-                // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
+                // Check if this is an async response with task_id
+                if (data.task_id && (data.status === 'processing' || data.status === 'queued')) {
+                    console.log('Async job started, task_id:', data.task_id);
+                    
+                    // Start polling for task status
+                    pollTaskStatus(data.task_id, uploadProgress, uploadProgressBar, submitButton);
+                } else {
+                    // Direct response with results
+                    console.log('Direct response received');
+                    
+                    // Store the analysis results
+                    window.analysisResults = data;
+                    
+                    // Update citation count for progress tracking
+                    if (data.citations_count) {
+                        window.citationProcessing.totalCitations = data.citations_count;
+                    }
+                    
+                    // Reset button
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Analyze Citations';
+                    
+                    // Switch to results tab
+                    switchToResultsTab();
                 }
-                
-                // Reset button
-                submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
             })
             .catch(error => {
                 console.error('Error analyzing file:', error);
@@ -313,5 +327,103 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(progressInterval);
             });
         });
+    }
+    
+    // Function to poll task status
+    function pollTaskStatus(taskId, progressElement, progressBar, submitButton) {
+        const maxAttempts = 60; // 5 minutes with 5-second intervals
+        let attempts = 0;
+        
+        const pollInterval = setInterval(() => {
+            attempts++;
+            
+            fetch(`${basePath}/api/task_status/${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Task status:', data);
+                    console.log('Task status type:', typeof data.status);
+                    console.log('Task status value:', data.status);
+                    console.log('Task citations:', data.citations);
+                    console.log('Task clusters:', data.clusters);
+                    console.log('Task result:', data.result);
+                    console.log('Task success:', data.success);
+                    console.log('Full response data:', JSON.stringify(data, null, 2));
+                    console.log('Checking condition:', (data.status === 'finished' || data.status === 'completed') && (data.citations || data.clusters));
+                    console.log('Status check:', data.status === 'finished' || data.status === 'completed');
+                    console.log('Data check:', data.citations || data.clusters);
+                    
+                    if ((data.status === 'finished' || data.status === 'completed') && (data.citations !== undefined || data.clusters !== undefined)) {
+                        clearInterval(pollInterval);
+                        
+                        // Update progress to complete
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = '100%';
+                        progressBar.className = 'progress-bar bg-success progress-bar-striped progress-bar-animated';
+                        
+                        // Store the analysis results
+                        window.analysisResults = data;
+                        
+                        // Reset button
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Analyze Citations';
+                        
+                        // Switch to results tab
+                        switchToResultsTab();
+                        
+                        // Hide progress bar
+                        progressElement.style.display = 'none';
+                    } else if (data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        
+                        progressBar.style.width = '100%';
+                        progressBar.textContent = 'Error';
+                        progressBar.className = 'progress-bar bg-danger progress-bar-striped';
+                        
+                        alert('Task failed: ' + (data.error || 'Unknown error'));
+                        
+                        // Reset button
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Analyze Citations';
+                        
+                        // Hide progress bar
+                        progressElement.style.display = 'none';
+                    } else {
+                        // Still processing - update progress
+                        const progress = Math.min(90, attempts * 2); // Show progress up to 90%
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.textContent = `${progress}%`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error polling task status:', error);
+                    alert('Error checking task status: ' + error.message);
+                    
+                    // Reset button
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Analyze Citations';
+                    
+                    // Hide progress bar
+                    progressElement.style.display = 'none';
+                    
+                    clearInterval(pollInterval);
+                });
+            
+            // Stop polling after max attempts
+            if (attempts >= maxAttempts) {
+                clearInterval(pollInterval);
+                progressBar.style.width = '100%';
+                progressBar.textContent = 'Timeout';
+                progressBar.className = 'progress-bar bg-warning progress-bar-striped';
+                
+                alert('Processing is taking longer than expected. Please check back later.');
+                
+                // Reset button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Analyze Citations';
+                
+                // Hide progress bar
+                progressElement.style.display = 'none';
+            }
+        }, 5000); // Poll every 5 seconds
     }
 });

@@ -104,19 +104,31 @@ class TestEnvironmentSafeguard:
         
         text_lower = text.lower()
         
-        # Check for exact test strings
-        test_strings = [
-            'smith v. jones',
-            '123 f.3d 456',
+        # Only check for exact test patterns that are clearly test data
+        # These are the specific patterns used in our test files
+        exact_test_patterns = [
+            'smith v. jones, 123 f.3d 456',
+            '123 f.3d 456, smith v. jones',
+            'smith v. jones 123 f.3d 456',
+            '123 f.3d 456 smith v. jones',
             '999 u.s. 999',
             'test citation',
             'sample citation',
             'fake citation'
         ]
         
-        for test_string in test_strings:
-            if test_string in text_lower:
+        # Only flag if the text contains one of these exact patterns
+        for pattern in exact_test_patterns:
+            if pattern in text_lower:
                 return True
+        
+        # Don't flag real legal documents that happen to contain similar text
+        # If the text is longer than 50 characters and contains legal context,
+        # it's probably a real document, not test data
+        if len(text.strip()) > 50:
+            legal_indicators = ['court', 'case', 'legal', 'precedent', 'decision', 'opinion', 'judgment', 'held', 'ruled', 'determined']
+            if any(indicator in text_lower for indicator in legal_indicators):
+                return False
         
         return False
     

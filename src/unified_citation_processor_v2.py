@@ -1081,33 +1081,37 @@ class UnifiedCitationProcessorV2:
                     isolated_context = self._extract_isolated_citation_context(text, citation)
                     
                     if isolated_context:
+                        logger.debug(f"🔍 Case name extraction for '{citation.citation}': isolated_context='{isolated_context[:200]}...'")
                         case_name_result = extract_case_name_triple_comprehensive(isolated_context)
+                        logger.debug(f"🔍 Case name result for '{citation.citation}': {case_name_result}")
                         
                         if case_name_result and len(case_name_result) >= 3:
                             raw_case_name = case_name_result[0]
+                            logger.debug(f"🔍 Raw case name for '{citation.citation}': '{raw_case_name}'")
                             # Apply cleaning to remove contamination
                             clean_case_name = self._clean_extracted_case_name(raw_case_name)
+                            logger.debug(f"🔍 Clean case name for '{citation.citation}': '{clean_case_name}'")
                             if clean_case_name and len(clean_case_name.strip()) > 3:
                                 citation.extracted_case_name = clean_case_name
                                 citation.case_name = clean_case_name
                                 if case_name_result[1]:  # date (fix: was [2] which is confidence)
                                     citation.extracted_date = str(case_name_result[1])
-                                logger.debug(f"Extracted case name: '{clean_case_name}' for citation: '{citation.citation}'")
+                                logger.debug(f"✅ Extracted case name: '{clean_case_name}' for citation: '{citation.citation}'")
                             else:
                                 citation.extracted_case_name = "N/A"
                                 citation.case_name = "N/A"
                                 if clean_case_name == "":
-                                    logger.debug(f"Case name rejected as contaminated for citation: '{citation.citation}', raw: '{raw_case_name[:100]}...'")
+                                    logger.debug(f"❌ Case name rejected as contaminated for citation: '{citation.citation}', raw: '{raw_case_name[:100]}...'")
                                 else:
-                                    logger.debug(f"Case name cleaning resulted in empty name for citation: '{citation.citation}'")
+                                    logger.debug(f"❌ Case name cleaning resulted in empty name for citation: '{citation.citation}'")
                         else:
                             citation.extracted_case_name = "N/A"
                             citation.case_name = "N/A"
-                            logger.debug(f"No case name found for citation: '{citation.citation}'")
+                            logger.debug(f"❌ No case name found for citation: '{citation.citation}'")
                     else:
                         citation.extracted_case_name = "N/A"
                         citation.case_name = "N/A"
-                        logger.debug(f"No isolated context found for citation: '{citation.citation}'")
+                        logger.debug(f"❌ No isolated context found for citation: '{citation.citation}'")
                 except Exception as e:
                     logger.debug(f"Error extracting case name (canonical): {e}")
                     citation.extracted_case_name = None
@@ -1258,8 +1262,19 @@ class UnifiedCitationProcessorV2:
             'citing',
             'see id',
             'internal quotation marks',
-            'alteration in original'
+            'alteration in original',
+            'similarly'
         ]
+        
+        # IMPROVED: Better extraction for Westlaw citations with contamination
+        # Look for "Party v. Party" pattern even in contaminated text
+        v_pattern_improved = r'([A-Z][A-Za-z\s\'\.&,]{1,60}\s+v\.\s+[A-Z][A-Za-z\s\'\.&,]{1,60})(?:\s*,|\s*\(|\s*$)'
+        match = re.search(v_pattern_improved, case_name)
+        if match:
+            extracted = match.group(1).strip()
+            # Additional validation: ensure it's a reasonable case name
+            if len(extracted) < 120 and ' v. ' in extracted:
+                return extracted
         
         case_name_lower = case_name.lower()
         for indicator in contamination_indicators:

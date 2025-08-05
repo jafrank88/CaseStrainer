@@ -22,7 +22,7 @@
           <div class="mt-5 pt-5">
             <h3 class="h5 mb-3">Or try these helpful links:</h3>
             <div class="d-flex flex-wrap justify-content-center gap-3">
-              <router-link to="/enhanced-validator" class="btn btn-outline-primary">
+              <router-link to="/" class="btn btn-outline-primary">
                 <i class="bi bi-shield-check me-2"></i> Enhanced Validator
               </router-link>
               <a href="#" class="btn btn-outline-secondary">

@@ -152,9 +152,9 @@ def validate_file_direct(file: Any) -> Tuple[bool, str]:
     ):
         return False, f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
     
-    # Check file size (50MB limit)
-    if hasattr(file, 'content_length') and file.content_length > 50 * 1024 * 1024:
-        return False, "File size must be less than 50MB"
+    # Check file size (100MB limit)
+    if hasattr(file, 'content_length') and file.content_length > 100 * 1024 * 1024:
+        return False, "File size must be less than 100MB"
     
     return True, ""
 

@@ -45,6 +45,9 @@ def register_worker_functions():
     logger.info(f"Registered worker functions: {worker_functions}")
     return worker_functions
 
+# Make the function available at module level for RQ to find
+__all__ = ['process_citation_task_direct', 'extract_pdf_pages', 'extract_pdf_optimized']
+
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
     """Direct wrapper function to create CitationService instance and call process_citation_task."""
     from src.api.services.citation_service import CitationService

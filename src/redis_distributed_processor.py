@@ -307,9 +307,32 @@ class RedisDistributedPDFSystem:
     
     def _smart_pdf_extraction_strategy(self, file_path: str) -> Tuple[str, str]:
         """
-        Smart PDF extraction strategy.
-        Tries multiple methods in order of speed and reliability.
+        Smart file extraction strategy.
+        Handles both PDF and text files appropriately.
         """
+        # Check file extension to determine type
+        file_ext = file_path.lower().split('.')[-1] if '.' in file_path else ''
+        
+        # Handle text files
+        if file_ext in ['txt', 'text', 'md', 'rtf', 'html', 'htm', 'xhtml', 'xml']:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                return text, "TextFileProcessor"
+            except UnicodeDecodeError:
+                # Try with different encoding
+                try:
+                    with open(file_path, 'r', encoding='latin-1') as f:
+                        text = f.read()
+                    return text, "TextFileProcessor"
+                except Exception as e:
+                    logger.warning(f"Text file reading failed: {e}")
+                    return "", "TextFileProcessor"
+            except Exception as e:
+                logger.warning(f"Text file reading failed: {e}")
+                return "", "TextFileProcessor"
+        
+        # Handle PDF files
         # Try pdfplumber first (fast and reliable)
         text = self._extract_with_pdfplumber(file_path)
         if text:
@@ -451,15 +474,11 @@ class DockerOptimizedProcessor:
             # Use the async process_document_citations method
             citation_result = await processor.process_document_citations(text)
             
-            print(f"[DEBUG PRINT] Successfully processed citations for file_path={file_path}, "
-                  f"citations_count={len(citation_result.get('citations', []))}")
-            logging.info(f"[DEBUG] Successfully processed citations for file_path={file_path}, "
-                       f"citations_count={len(citation_result.get('citations', []))}")
-            
-            return {
-                'success': True,
+            result = {
+                'status': 'completed',
                 'text_length': len(text),
                 'citations': citation_result.get('citations', []),
+                'clusters': citation_result.get('clusters', []),
                 'statistics': {
                     'total_citations': len(citation_result.get('citations', [])),
                     'processor_used': extraction_result.processor_used,
@@ -467,6 +486,23 @@ class DockerOptimizedProcessor:
                 },
                 'processing_time': time.time() - start_time
             }
+            
+            print(f"[DEBUG PRINT] Successfully processed citations for file_path={file_path}, "
+                  f"citations_count={len(citation_result.get('citations', []))}")
+            logging.info(f"[DEBUG] Successfully processed citations for file_path={file_path}, "
+                       f"citations_count={len(citation_result.get('citations', []))}")
+            
+            # Test serialization
+            try:
+                import json
+                json.dumps(result)
+                print(f"[DEBUG PRINT] Result is JSON serializable")
+                logging.info(f"[DEBUG] Result is JSON serializable")
+            except Exception as e:
+                print(f"[DEBUG PRINT] Result is NOT JSON serializable: {e}")
+                logging.error(f"[DEBUG] Result is NOT JSON serializable: {e}")
+            
+            return result
             
         except Exception as e:
             error_msg = f"Error processing citations: {str(e)}"

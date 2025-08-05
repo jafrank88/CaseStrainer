@@ -199,8 +199,6 @@ services:
     environment:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
-    volumes:
-      - ./casestrainer-vue-new/dist:/usr/share/nginx/html:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
