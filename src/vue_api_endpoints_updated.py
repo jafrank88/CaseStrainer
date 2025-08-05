@@ -1340,26 +1340,27 @@ def _is_test_citation_text(text: str) -> bool:
     # Normalize text for comparison
     text_norm = text.strip().lower()
     
-    # Known test citation patterns that should be rejected
+    # Only block very specific test patterns that are clearly fake
+    # This allows legitimate cases like "Roe v. Wade" to be processed
     test_patterns = [
-        r"smith v\. jones.*123 f\.3d 456",
-        r"123 f\.3d 456.*smith v\. jones",
-        r"123 f\.\d+d 456",
-        r"999 u\.s\. 999",
-        r"123 invalid 456",
-        r"123 fake 456",
-        r"test citation",
-        r"sample citation",
-        r"fake citation",
-        r"invalid citation"
+        r"smith v\. jones.*123 f\.3d 456",  # Specific fake case
+        r"123 f\.3d 456.*smith v\. jones",  # Specific fake case
+        r"999 u\.s\. 999",                   # Obviously fake citation
+        r"123 invalid 456",                  # Obviously fake citation
+        r"123 fake 456",                     # Obviously fake citation
+        r"test citation",                    # Explicit test marker
+        r"sample citation",                  # Explicit test marker
+        r"fake citation",                    # Explicit test marker
+        r"invalid citation"                  # Explicit test marker
     ]
     
     import re
     for pattern in test_patterns:
         if re.search(pattern, text_norm):
+            logger.info(f"[TEST_DETECTION] Blocked by pattern: {pattern}")
             return True
     
-    # Check for exact test strings
+    # Check for exact test strings (very specific)
     test_strings = [
         "see smith v. jones, 123 f.3d 456",
         "smith v. jones, 123 f.3d 456",
@@ -1371,6 +1372,7 @@ def _is_test_citation_text(text: str) -> bool:
     
     for test_string in test_strings:
         if test_string in text_norm:
+            logger.info(f"[TEST_DETECTION] Blocked by exact string: {test_string}")
             return True
     
     return False

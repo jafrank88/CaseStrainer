@@ -39,7 +39,7 @@ else
     exit 1
 fi
 
-# Test analyze endpoint with realistic data
+# Test analyze endpoint with realistic data (including Roe v. Wade)
 echo "Testing analyze endpoint..."
 echo "Environment variables:"
 echo "CI=$CI"
@@ -47,7 +47,7 @@ echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
 
 response=$(curl -s -w "%{http_code}" -X POST http://localhost:5000/casestrainer/api/analyze \
     -H "Content-Type: application/json" \
-    -d '{"text": "The court considered the precedent established in Miranda v. Arizona, 384 U.S. 436 (1966) regarding procedural rights. This case established important constitutional protections.", "type": "text"}')
+    -d '{"text": "This is a test document with a citation: Roe v. Wade, 410 U.S. 113 (1973).", "type": "text"}')
 
 http_code="${response: -3}"
 response_body="${response%???}"
