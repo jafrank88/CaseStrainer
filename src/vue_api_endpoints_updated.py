@@ -1328,8 +1328,14 @@ def _is_test_citation_text(text: str) -> bool:
     
     # Bypass test detection for CI environment
     import os
-    if os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true':
+    ci_env = os.environ.get('CI')
+    github_actions = os.environ.get('GITHUB_ACTIONS')
+    
+    if ci_env == 'true' or github_actions == 'true':
+        logger.info(f"[TEST_DETECTION] CI bypass active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
         return False
+    
+    logger.info(f"[TEST_DETECTION] CI bypass not active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
     
     # Normalize text for comparison
     text_norm = text.strip().lower()
@@ -1394,8 +1400,14 @@ def _is_test_environment_request(request) -> bool:
     """Check if the request appears to be from a test environment."""
     # Bypass test environment detection for CI
     import os
-    if os.environ.get('CI') == 'true' or os.environ.get('GITHUB_ACTIONS') == 'true':
+    ci_env = os.environ.get('CI')
+    github_actions = os.environ.get('GITHUB_ACTIONS')
+    
+    if ci_env == 'true' or github_actions == 'true':
+        logger.info(f"[TEST_ENV_DETECTION] CI bypass active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
         return False
+    
+    logger.info(f"[TEST_ENV_DETECTION] CI bypass not active - CI={ci_env}, GITHUB_ACTIONS={github_actions}")
     
     user_agent = request.headers.get('User-Agent', '').lower()
     referer = request.headers.get('Referer', '').lower()
