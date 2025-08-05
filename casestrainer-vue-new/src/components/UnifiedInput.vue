@@ -495,7 +495,7 @@ function onModeChange() {
    display: flex;
    gap: 0.75rem;
    margin-bottom: 1.5rem;
-   flex-wrap: wrap;
+   flex-wrap: nowrap;
    width: 100%;
  }
 
@@ -511,7 +511,7 @@ function onModeChange() {
   align-items: center;
   gap: 0.5rem;
   flex: 1;
-  min-width: 140px;
+  min-width: 0;
   max-width: none;
 }
 
@@ -1001,29 +1001,31 @@ embed, object, iframe {
  /* Responsive design */
    @media (max-width: 768px) {
     .input-methods-single {
-      flex-direction: column;
-      gap: 0.75rem;
+      flex-direction: row;
+      gap: 0.5rem;
       width: 100%;
+      flex-wrap: nowrap;
     }
    
    .input-method-card {
-     min-width: auto;
+     min-width: 0;
      max-width: none;
-     padding: 1rem;
+     padding: 0.75rem;
      width: 100%;
+     flex: 1;
    }
   
   .method-icon {
     font-size: 1.5rem;
   }
   
-  .method-content h4 {
-    font-size: 1rem;
-  }
-  
-  .method-content p {
-    font-size: 0.8rem;
-  }
+     .method-content h4 {
+     font-size: 0.85rem;
+   }
+   
+   .method-content p {
+     font-size: 0.7rem;
+   }
   
            .input-area-single {
       padding: 1.5rem;
@@ -1071,18 +1073,19 @@ embed, object, iframe {
 @media (max-width: 480px) {
   .unified-input {
     max-width: 100%;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     width: 100%;
   }
   
   .input-method-card {
-    padding: 0.875rem;
+    padding: 0.5rem;
     width: 100%;
+    flex: 1;
   }
   
-  .method-icon {
-    font-size: 1.25rem;
-  }
+     .method-icon {
+     font-size: 1rem;
+   }
   
            .input-area-single {
       padding: 1rem;
