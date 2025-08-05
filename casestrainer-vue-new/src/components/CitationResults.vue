@@ -1117,8 +1117,8 @@ function handleNewAnalysis() {
 
 /* Prominent Citations Section at Top */
 .prominent-citations-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
@@ -1127,7 +1127,7 @@ function handleNewAnalysis() {
 /* Perfect Score Celebration */
 .perfect-score-celebration {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   border-radius: 12px;
   border: 2px solid #28a745;
@@ -1140,23 +1140,23 @@ function handleNewAnalysis() {
 }
 
 .celebration-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
   animation: bounce 2s infinite;
 }
 
 .celebration-title {
   color: #155724;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .celebration-message {
   color: #155724;
-  font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  margin-bottom: 1.25rem;
   line-height: 1.5;
 }
 
@@ -1198,7 +1198,7 @@ function handleNewAnalysis() {
 .citations-grid {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .citation-comparison-card {
@@ -1219,7 +1219,7 @@ function handleNewAnalysis() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -1247,7 +1247,7 @@ function handleNewAnalysis() {
 }
 
 .citation-details {
-  padding: 1rem;
+  padding: 0.75rem;
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;
 }

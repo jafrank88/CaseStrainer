@@ -490,8 +490,8 @@ function onModeChange() {
 
  .input-methods-single {
    display: flex;
-   gap: 1rem;
-   margin-bottom: 2rem;
+   gap: 0.75rem;
+   margin-bottom: 1.5rem;
    flex-wrap: wrap;
  }
 
@@ -499,16 +499,16 @@ function onModeChange() {
   background: white;
   border: 2px solid #e9ecef;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
-  min-width: 150px;
-  max-width: 200px;
+  min-width: 140px;
+  max-width: 180px;
 }
 
 .input-method-card:hover:not(.disabled) {
@@ -538,16 +538,16 @@ function onModeChange() {
 }
 
 .method-content h4 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1rem;
+  margin: 0 0 0.2rem 0;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .method-content p {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #6c757d;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .active-indicator {
@@ -568,8 +568,8 @@ function onModeChange() {
  .input-area-single {
    background: white;
    border-radius: 12px;
-   padding: 2rem;
-   margin-bottom: 2rem;
+   padding: 1.5rem;
+   margin-bottom: 1.5rem;
    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
    animation: slideDown 0.3s ease-out;
  }
@@ -666,13 +666,13 @@ function onModeChange() {
 
 .text-input-field {
   width: 100%;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border: 2px solid #e9ecef;
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.2s ease;
   resize: vertical;
-  min-height: 200px;
+  min-height: 180px;
   background: white;
 }
 
@@ -800,30 +800,30 @@ function onModeChange() {
 }
 
 .drop-zone-title {
-  margin: 1rem 0 0.5rem 0;
+  margin: 0.75rem 0 0.4rem 0;
   font-weight: 600;
   color: #495057;
 }
 
 .upload-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
   opacity: 0.7;
 }
 
 .file-types {
-  font-size: 0.9rem;
-  margin: 1rem 0;
+  font-size: 0.85rem;
+  margin: 0.75rem 0;
   color: #6c757d;
   background: rgba(0, 123, 255, 0.1);
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 20px;
   display: inline-block;
 }
 
 .drop-zone-hint {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
   background: rgba(0, 123, 255, 0.1);
   border-radius: 8px;
   color: #007bff;
@@ -867,8 +867,8 @@ function onModeChange() {
 
 .analyze-section {
   text-align: center;
-  margin: 1rem 0 2rem 0;
-  padding: 1.5rem;
+  margin: 0.75rem 0 1.5rem 0;
+  padding: 1.25rem;
   background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
   border-radius: 16px;
   border: 2px solid #e3f2fd;
@@ -879,14 +879,14 @@ function onModeChange() {
   color: white;
   border: none;
   border-radius: 16px;
-  padding: 1.25rem 3rem;
-  font-size: 1.2rem;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
   position: relative;
   overflow: hidden;

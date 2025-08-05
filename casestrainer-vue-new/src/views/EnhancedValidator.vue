@@ -314,31 +314,31 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 2rem 1rem;
+  padding: 1rem 0.5rem;
 }
 
 .header {
   background: #f8f9fa;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
   border-radius: 8px;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60vh;
+  min-height: 40vh;
   text-align: center;
 }
 
 .loading-content {
-  max-width: 500px;
+  max-width: 400px;
 }
 
 .spinner-container {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .spinner-border {
@@ -369,35 +369,35 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60vh;
+  min-height: 40vh;
   text-align: center;
 }
 
 .error-content {
-  max-width: 500px;
+  max-width: 400px;
 }
 
 .error-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: #dc3545;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .main-content-wrapper {
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .input-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .results-section {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .results-title {
   color: #333;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .visually-hidden {

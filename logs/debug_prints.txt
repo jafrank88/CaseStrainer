@@ -164874,3 +164874,173 @@ product's sa
 City of New York , 
 ---
 [DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 573 U.S. 2
+[DEBUG] Context:
+referred to as the “Alice” test, for ex- amining whether a patent claims patent-ineligible subject matter. Alice Corp. Pty. Ltd. v. CLS Bank Intern., 573 U.S.
+
+
+2 This appeal was originally consolidated and in- cluded an original appeal by EcoFactor and cross-ap
+---
+[DEBUG] No case name match for citation: 573 U.S. 2
+[DEBUG] Citation: 944 F.3d 1344
+[DEBUG] Context:
+Willowood, LLC, 
+---
+[DEBUG] No case name match for citation: 944 F.3d 1344
+[DEBUG] Citation: 562 U.S. 180
+[DEBUG] Context:
+pealable after a trial on the merits. Syngenta Crop Prot., LLC v. Willowood, LLC, 944 F.3d 1344, 1364 n.7 (Fed. Cir. 2019) (citing Ortiz v. Jor-
+dan, 
+---
+[DEBUG] No case name match for citation: 562 U.S. 180
+[DEBUG] Citation: 797 F.2d 1564
+[DEBUG] Context:
+H.H. Robertson Co., 
+---
+[DEBUG] No case name match for citation: 797 F.2d 1564
+[DEBUG] Citation: 697 F.3d 1342
+[DEBUG] Context:
+William Demant Holding A/S, 
+---
+[DEBUG] No case name match for citation: 697 F.3d 1342
+[DEBUG] Citation: 668 F.3d 1340
+[DEBUG] Context:
+Pearl River Polymers, Inc., 
+---
+[DEBUG] No case name match for citation: 668 F.3d 1340
+[DEBUG] Citation: 341 F.3d 415
+[DEBUG] Context:
+Union Fire Ins. Co., 
+---
+[DEBUG] No case name match for citation: 341 F.3d 415
+[DEBUG] Citation: 686 F.3d 1322
+[DEBUG] Context:
+Mouttet, 
+---
+[DEBUG] No case name match for citation: 686 F.3d 1322
+[DEBUG] Citation: 609 F.3d 1308
+[DEBUG] Context:
+Sols., Inc., 
+---
+[DEBUG] No case name match for citation: 609 F.3d 1308
+[DEBUG] Citation: 897 F.3d 624
+[DEBUG] Context:
+Fifth Third Mortg. Co., 
+---
+[DEBUG] No case name match for citation: 897 F.3d 624
+[DEBUG] Citation: 923 F.2d 1134
+[DEBUG] Context:
+Am. Airlines, Inc., 
+---
+[DEBUG] No case name match for citation: 923 F.2d 1134
+[DEBUG] Citation: 977 F.3d 412
+[DEBUG] Context:
+Maxfield & Oberton Holdings, L.L.C., 
+---
+[DEBUG] No case name match for citation: 977 F.3d 412
+[DEBUG] Citation: 580 F.3d 1301
+[DEBUG] Context:
+Gateway, Inc., 
+---
+[DEBUG] No case name match for citation: 580 F.3d 1301
+[DEBUG] Citation: 802 F.3d 1283
+[DEBUG] Context:
+Samsung Elecs. Co., 
+---
+[DEBUG] No case name match for citation: 802 F.3d 1283
+[DEBUG] Citation: 767 F.3d 1308
+[DEBUG] Context:
+Cisco Sys., Inc., 
+---
+[DEBUG] No case name match for citation: 767 F.3d 1308
+[DEBUG] Citation: 694 F.3d 10
+[DEBUG] Context:
+Comput. Packages, Inc., 
+---
+[DEBUG] No case name match for citation: 694 F.3d 10
+[DEBUG] Citation: 626 F.3d 1197
+[DEBUG] Context:
+Corp., 
+---
+[DEBUG] No case name match for citation: 626 F.3d 1197
+[DEBUG] Citation: 224 F.3d 1296
+[DEBUG] Context:
+IBP, Inc., 
+---
+[DEBUG] No case name match for citation: 224 F.3d 1296
+[DEBUG] Citation: 694 F.3d 1312
+[DEBUG] Context:
+Inc., 
+---
+[DEBUG] No case name match for citation: 694 F.3d 1312
+[DEBUG] Citation: 967 F.3d 1353
+[DEBUG] Context:
+Genomics Inc., 
+---
+[DEBUG] No case name match for citation: 967 F.3d 1353
+[DEBUG] Citation: 773 F.3d 1201
+[DEBUG] Context:
+D-Link Sys., Inc., 
+---
+[DEBUG] No case name match for citation: 773 F.3d 1201
+[DEBUG] Citation: 594 F.3d 860
+[DEBUG] Context:
+Lansa, Inc., 
+---
+[DEBUG] No case name match for citation: 594 F.3d 860
+[DEBUG] Citation: 530 U.S. 133
+[DEBUG] Context:
+Sanderson Plumbing Prods., Inc., 
+---
+[DEBUG] No case name match for citation: 530 U.S. 133
+[DEBUG] Citation: 598 F.3d 831
+[DEBUG] Context:
+Microsoft Corp., 
+---
+[DEBUG] No case name match for citation: 598 F.3d 831
+[DEBUG] Citation: 564 U.S. 91
+[DEBUG] Context:
+e evidence relied upon [is] sufficiently related to the case at hand.” i4i Ltd. P’Ship v. Microsoft Corp., 598 F.3d 831, 852 (Fed. Cir. 2010), aff’d, 
+---
+[DEBUG] No case name match for citation: 564 U.S. 91
+[DEBUG] Citation: 111 U.S. 120
+[DEBUG] Context:
+Clark, 
+---
+[DEBUG] No case name match for citation: 111 U.S. 120
+[DEBUG] Citation: 632 F.3d 1292
+[DEBUG] Context:
+Microsoft Corp., 
+---
+[DEBUG] No case name match for citation: 632 F.3d 1292
+[DEBUG] Citation: 522 U.S. 136
+[DEBUG] Context:
+Joiner, 
+---
+[DEBUG] No case name match for citation: 522 U.S. 136
+[DEBUG] Citation: 526 U.S. 137
+[DEBUG] Context:
+Carmichael, 
+---
+[DEBUG] No case name match for citation: 526 U.S. 137
+[DEBUG] Citation: 2024 WL 3361604
+[DEBUG] Context:
+rder, barring it from importing, marketing, selling, or distributing its accused product. J.A. 1-2; see FMC Corp. v. Sharda USA LLC, No. 24-cv-02419, 
+---
+[DEBUG] No case name match for citation: 2024 WL 3361604
+[DEBUG] Citation: 2024 WL 3850811
+[DEBUG] Context:
+(E.D. Pa. July 10, 2024) (First Memorandum);
+FMC Corp. v. Sharda USA LLC, No. 24-cv-02419, 
+---
+[DEBUG] No case name match for citation: 2024 WL 3850811
+[DEBUG] Citation: 385 F.Supp.3d 1022
+[DEBUG] Context:
+Kiloo APs, 
+---
+[DEBUG] No case name match for citation: 385 F.Supp.3d 1022
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
