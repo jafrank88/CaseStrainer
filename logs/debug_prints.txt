@@ -165044,3 +165044,176 @@ Kiloo APs,
 
 ---
 [DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 410 U.S. 113
+[DEBUG] Context:
+Wade, 
+---
+[DEBUG] No case name match for citation: 410 U.S. 113
+[DEBUG] Citation: 384 U.S. 436
+[DEBUG] Context:
+Arizona, 
+---
+[DEBUG] No case name match for citation: 384 U.S. 436
+[DEBUG] Citation: 123 F.3d 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 F.3d 456
+[DEBUG] Citation: 123 f.3d 456
+[DEBUG] Context:
+This is test data: smith v. jones, 
+---
+[DEBUG] No case name match for citation: 123 f.3d 456
+[DEBUG] Citation: 123 f.3d 456
+[DEBUG] Context:
+This is test data: smith v. jones, 
+---
+[DEBUG] No case name match for citation: 123 f.3d 456
+[DEBUG] Citation: 328 U.S. 293
+[DEBUG] Context:
+W.J. Howey Co ., 
+---
+[DEBUG] No case name match for citation: 328 U.S. 293
+[DEBUG] Citation: 196 F.3d 1195
+[DEBUG] Context:
+Unique Fin. Concepts, Inc. , 
+---
+[DEBUG] No case name match for citation: 196 F.3d 1195
+[DEBUG] Citation: 763 F. Supp. 2d 1128
+[DEBUG] Context:
+Select Comfort Retail Corp ., 
+---
+[DEBUG] No case name match for citation: 763 F. Supp. 2d 1128
+[DEBUG] Citation: 973 P.2d 527
+[DEBUG] Context:
+th 163, 180, 
+---
+[DEBUG] No case name match for citation: 973 P.2d 527
+[DEBUG] Citation: 847 P.2d 1044
+[DEBUG] Context:
+th 163, 180, 973 P.2d 527, 539 (1999)  (quoting Rubin v. 
+Green   4 Cal.4th 1187, 1200, 17 Cal.Rptr.2d 828, 847 P.2d  1044 (1993)
+---
+[DEBUG] No case name match for citation: 847 P.2d 1044
+[DEBUG] Citation: 780 F.3d 952
+[DEBUG] Context:
+Johnson & 
+Johnson , 
+---
+[DEBUG] No case name match for citation: 780 F.3d 952
+[DEBUG] Citation: 718 F.3d 1098
+[DEBUG] Context:
+Corp.,  
+---
+[DEBUG] No case name match for citation: 718 F.3d 1098
+[DEBUG] Citation: 68 F.3d 285
+[DEBUG] Context:
+(9th Cir.2013) ).  
+138. A plaintiff’s claims under this California statute are governed by the “reasonable 
+consumer” test. Freeman v. Time, Inc ., 68 F.3d  285, 289 (9th Cir. 1995) (noting that the “‘unfair 
+business practices claim must be evaluated from the
+---
+[DEBUG] No case name match for citation: 68 F.3d 285
+[DEBUG] Citation: 857 F. Supp. 1392
+[DEBUG] Context:
+Time, Inc. , 
+---
+[DEBUG] No case name match for citation: 857 F. Supp. 1392
+[DEBUG] Citation: 78 F. Supp. 3d 1051
+[DEBUG] Context:
+hat information, and by failing to disclose 
+that information, Defendants are liable for a UCL fraud by omission claim. S ee In re Carrier IQ, 
+Inc., 78 F. Supp. 3d  1051, 1113 -14 (N.D. Cal. 2015) (“Finally, Plaintiffs have alleged that the 
+information regarding the C
+---
+[DEBUG] No case name match for citation: 78 F. Supp. 3d 1051
+[DEBUG] Citation: 613 F. Supp. 3d 1284
+[DEBUG] Context:
+d a duty to disclose but chose to omit .”) (internal citation omitted) ; 
+see also In re Solara Med. Supplies, LLC Customer Data Sec. Breach Litig ., 613 F. Supp. 3d 
+1284, 1303 (S.D. Cal. 2020) ( “a duty to disclose based upon Defendant’s exclusive knowledge 
+of the all
+---
+[DEBUG] No case name match for citation: 613 F. Supp. 3d 1284
+[DEBUG] Citation: 891 F.3d 857
+[DEBUG] Context:
+Mars, Inc ., 
+---
+[DEBUG] No case name match for citation: 891 F.3d 857
+[DEBUG] Citation: 500 F. Supp. 3d 993
+[DEBUG] Context:
+Apple Inc ., 
+---
+[DEBUG] No case name match for citation: 500 F. Supp. 3d 993
+[DEBUG] Citation: 300 U.S. 203
+[DEBUG] Context:
+Stewart , 
+---
+[DEBUG] No case name match for citation: 300 U.S. 203
+[DEBUG] Citation: 317 F.3d 1097
+[DEBUG] Context:
+Ciba -Geigy Corp. USA , 
+---
+[DEBUG] No case name match for citation: 317 F.3d 1097
+[DEBUG] Citation: 137 F.3d 616
+[DEBUG] Context:
+Pickett,  
+---
+[DEBUG] No case name match for citation: 137 F.3d 616
+[DEBUG] Citation: 591 So. 2d 904
+[DEBUG] Context:
+Ainsworth , 
+---
+[DEBUG] No case name match for citation: 591 So. 2d 904
+[DEBUG] Citation: 839 F. Supp. 2d 1281
+[DEBUG] Context:
+McFall , 
+---
+[DEBUG] No case name match for citation: 839 F. Supp. 2d 1281
+[DEBUG] Citation: 357 F.3d 1218
+[DEBUG] Context:
+Perazzo , 
+---
+[DEBUG] No case name match for citation: 357 F.3d 1218
+[DEBUG] Citation: 823 F.3d 977
+[DEBUG] Context:
+Gen. 
+Motors Co. , 
+---
+[DEBUG] No case name match for citation: 823 F.3d 977
+[DEBUG] Citation: 988 So. 2d 82
+[DEBUG] Context:
+causation; and (3) actual damages.”  Carriuolo v. Gen. 
+Motors Co. , 823 F.3d 977, 983 (11th Cir. 2016)  (citing City First Mortg. Corp. v. Barton , 988 
+So. 2d 82, 86 (Fla. Dist. Ct. App. 2008)).  
+280. Under FDUTPA, “ The Florida Supreme Court has noted that ‘d
+---
+[DEBUG] No case name match for citation: 988 So. 2d 82
+[DEBUG] Citation: 480 F.3d 1281
+[DEBUG] Context:
+Premier Sales Grp., 
+Inc., 
+---
+[DEBUG] No case name match for citation: 480 F.3d 1281
+[DEBUG] Citation: 842 So. 2d 773
+[DEBUG] Context:
+onsumer's detriment.’”  Zlotnick v. Premier Sales Grp., 
+Inc., 480 F.3d 1281, 1284 (11th Cir. 2007)  (quoting PNR, Inc. v. Beacon Prop. Mgmt., Inc ., 842 
+So. 2d 773, 777 (Fla. 2003)). “Under Florida law, an objective test is employed in determining Case 3:24-cv-03
+---
+[DEBUG] No case name match for citation: 842 So. 2d 773
+[DEBUG] Citation: 776 So. 2d 971
+[DEBUG] Context:
+Powertel, Inc ., 
+---
+[DEBUG] No case name match for citation: 776 So. 2d 971
+[DEBUG] Citation: 576 F. Supp. 3d 1125
+[DEBUG] Context:
+CVS Pharmacy, Inc ., 
+---
+[DEBUG] No case name match for citation: 576 F. Supp. 3d 1125
+[DEBUG] Citation: 2022 WL 3012298
+[DEBUG] Context:
+UCMS, LLC , 
+---
+[DEBUG] No case name match for citation: 2022 WL 3012298

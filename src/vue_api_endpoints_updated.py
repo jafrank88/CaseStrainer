@@ -17,7 +17,7 @@ from flask import Blueprint, request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
-from src.test_environment_safeguard import validate_request, check_test_environment
+from src.test_environment_safeguard import validate_request, check_test_environment, test_safeguard
 
 logger = logging.getLogger(__name__)
 
@@ -168,14 +168,19 @@ async def analyze():
     
     # Additional safeguard: Check for test environment and validate request
     try:
-        check_test_environment()
-        # Validate request data if it's JSON
+        # Check for test environment, but allow CI health checks with legitimate content
         if request.is_json:
             json_data = request.get_json(silent=True)
-            if json_data:
-                # Check for test data/environment (temporarily disabled for file uploads)
-                # validate_request(json_data, dict(request.headers))
-                pass # Temporarily disable validation for file uploads
+            if json_data and test_safeguard.is_ci_health_check(json_data, dict(request.headers)):
+                logger.info(f"[Request {request_id}] Allowing CI health check with legitimate content")
+            else:
+                check_test_environment()
+                # Validate request data if it's JSON
+                if json_data:
+                                        # Check for test data/environment (enabled for JSON requests)
+                    validate_request(json_data, dict(request.headers))
+        else:
+            check_test_environment()
     except RuntimeError as e:
         error_msg = f'Test execution blocked: {str(e)}'
         logger.warning(f"[Request {request_id}] {error_msg}")

@@ -16,6 +16,20 @@ from flask import Flask, request, json, Response, send_file, send_from_directory
 import argparse
 from datetime import datetime
 
+# Memory monitoring
+try:
+    from src.memory_monitor import start_memory_monitoring, get_memory_stats, force_gc
+    memory_monitor_available = True
+except ImportError:
+    memory_monitor_available = False
+    # Fallback functions that do nothing
+    def start_memory_monitoring(threshold_mb: int = 1024, check_interval: int = 60):
+        pass
+    def get_memory_stats():
+        return {}
+    def force_gc():
+        return 0
+
 # Add the project root and src directory to the Python path
 project_root = Path(__file__).parent.parent.resolve()
 src_dir = project_root / 'src'
@@ -464,6 +478,14 @@ class ApplicationFactory:
         
         self.logger.info("Creating new Flask application instance")
         
+        # Start memory monitoring if available
+        if memory_monitor_available:
+            self.logger.info("🔍 Starting memory monitoring...")
+            start_memory_monitoring(threshold_mb=1024, check_interval=60)
+            self.logger.info("✅ Memory monitoring started")
+        else:
+            self.logger.warning("⚠️ Memory monitoring not available")
+        
         try:
             app = self._configure_flask_app()
             self._register_blueprints(app)
@@ -621,6 +643,38 @@ class ApplicationFactory:
         except Exception as e:
             self.logger.error(f"❌ Failed to register progress manager routes: {e}", exc_info=True)
             # Don't fail the entire app, just log the error
+        
+        # Add memory monitoring routes
+        @app.route('/casestrainer/api/memory')
+        def memory_status():
+            """Get memory usage statistics"""
+            if memory_monitor_available:
+                stats = get_memory_stats()
+                return jsonify({
+                    'memory_monitor_available': True,
+                    'stats': stats
+                })
+            else:
+                return jsonify({
+                    'memory_monitor_available': False,
+                    'message': 'Memory monitoring not available'
+                })
+        
+        @app.route('/casestrainer/api/memory/force-gc', methods=['POST'])
+        def force_garbage_collection():
+            """Force garbage collection to free memory"""
+            if memory_monitor_available:
+                freed_mb = force_gc()
+                return jsonify({
+                    'success': True,
+                    'freed_mb': freed_mb,
+                    'message': f'Freed {freed_mb:.1f}MB of memory'
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Memory monitoring not available'
+                })
         
         self.logger.info("Application routes registered")
         # Log all registered routes for debugging

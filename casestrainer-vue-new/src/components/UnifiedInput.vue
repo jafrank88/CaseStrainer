@@ -494,7 +494,7 @@ function onModeChange() {
  .input-methods-single {
    display: flex;
    gap: 0.75rem;
-   margin-bottom: 1.5rem;
+   margin-bottom: 0;
    flex-wrap: nowrap;
    width: 100%;
  }
@@ -878,6 +878,9 @@ function onModeChange() {
   border-radius: 16px;
   border: 2px solid #e3f2fd;
   width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .analyze-btn {
@@ -890,12 +893,14 @@ function onModeChange() {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.6rem;
   box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 
 .analyze-btn::before {
