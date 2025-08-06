@@ -165217,3 +165217,865 @@ CVS Pharmacy, Inc .,
 UCMS, LLC , 
 ---
 [DEBUG] No case name match for citation: 2022 WL 3012298
+[DEBUG] Citation: 455 F. Supp. 3d 792
+[DEBUG] Context:
+f
+ 
+any
+ 
+trade
+ 
+secrets
+ 
+claim
+ 
+turns
+ 
+upon
+ 
+the
+ 
+identification
+ 
+of
+ 
+a
+ 
+trade
+ 
+secret.”
+  
+Ligtel
+ 
+Communs.
+ 
+v.
+ 
+Baicells
+ 
+Techs.
+,
+ 
+455
+ 
+F.
+ 
+Supp.
+ 
+3d
+ 
+792,
+ 
+807
+ 
+(N.D.
+ 
+Ind.
+ 
+2020).
+ 
+A
+ 
+“plaintif f
+ 
+who
+ 
+seeks
+ 
+relief
+ 
+for
+ 
+misappropriation
+---
+[DEBUG] No case name match for citation: 455 F. Supp. 3d 792
+[DEBUG] Citation: 285 F.3d 581
+[DEBUG] Context:
+details
+ 
+in
+ 
+search
+ 
+of
+ 
+items
+ 
+meeting
+ 
+the
+ 
+statutory
+ 
+definition.”
+ 
+Id.
+ 
+(quoting
+ 
+IDX
+ 
+Sys.
+ 
+Corp.
+ 
+v.
+ 
+Epic
+ 
+Sys.
+ 
+Corp.
+,
+ 
+285
+ 
+F.3d
+ 
+581,
+ 
+584
+ 
+(7th
+ 
+Cir.
+ 
+2002)).
+---
+[DEBUG] No case name match for citation: 285 F.3d 581
+[DEBUG] Citation: 2012 U.S. Dist. LEXIS 106725
+[DEBUG] Context:
+ng
+ 
+discovery
+ 
+from
+ 
+defendants.
+ 
+See,
+ 
+e.g.
+:
+ 
+●
+ 
+Powerweb
+ 
+Energy ,
+ 
+Inc.
+ 
+v.
+ 
+Hubbell
+ 
+Lighting,
+ 
+Inc.
+,
+ 
+No.
+ 
+3:12CV220
+ 
+(WWE),
+ 
+2012
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+106725,
+ 
+at
+ 
+*4-5
+ 
+(D.
+ 
+Conn.
+ 
+July
+ 
+31,
+ 
+2012)
+ 
+("[T]he
+ 
+Court
+ 
+finds
+---
+[DEBUG] No case name match for citation: 2012 U.S. Dist. LEXIS 106725
+[DEBUG] Citation: 2012 U.S. Dist. LEXIS 85148
+[DEBUG] Context:
+intif f
+ 
+gets
+ 
+the
+ 
+benefit
+ 
+of
+ 
+defendants'
+ 
+discovery .")
+ 
+ 
+●
+ 
+Switch
+ 
+Communs.
+ 
+Grp.
+ 
+v.
+ 
+Ballard
+,
+ 
+No.
+ 
+2:11-cv-00285-KJD-GWF ,
+ 
+2012
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+85148,
+ 
+at
+ 
+*16-17
+ 
+(D.
+ 
+Nev.
+ 
+June
+ 
+19,
+ 
+2012)
+ 
+("In
+ 
+order
+ 
+to
+ 
+meet
+ 
+its
+ 
+burden
+ 
+of
+ 
+d
+---
+[DEBUG] No case name match for citation: 2012 U.S. Dist. LEXIS 85148
+[DEBUG] Citation: 2011 U.S. Dist. LEXIS 119896
+[DEBUG] Context:
+eged
+ 
+trade
+ 
+secrets
+ 
+with
+ 
+reasonable
+ 
+particularity .”)
+ 
+ 
+●
+ 
+Avaya
+ 
+Inc.
+ 
+v.
+ 
+Cisco
+ 
+Sys.
+,
+ 
+Civil
+ 
+Action
+ 
+No.
+ 
+10-5881
+ 
+(FLW),
+ 
+2011
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+119896,
+ 
+at
+ 
+*6
+ 
+(D.N.J.
+ 
+Oct.
+ 
+17,
+ 
+2011)
+ 
+(“[I]dentification
+ 
+of
+ 
+a
+ 
+trade
+ 
+secret
+ 
+is
+ 
+par
+---
+[DEBUG] No case name match for citation: 2011 U.S. Dist. LEXIS 119896
+[DEBUG] Citation: 2011 U.S. Dist. LEXIS 117757
+[DEBUG] Context:
+conducting
+ 
+discovery .")
+ 
+●
+ 
+L-3
+ 
+Communs.
+ 
+Corp.
+ 
+v.
+ 
+Jaxon
+ 
+Eng'g
+ 
+&
+ 
+Maint.,
+ 
+Inc.
+,
+ 
+Civil
+ 
+Action
+ 
+No.
+ 
+10-cv-02868-MSK-KMT ,
+ 
+2011
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+117757,
+ 
+at
+ 
+*4
+ 
+(D.
+ 
+Colo.
+ 
+Oct.
+ 
+12,
+ 
+2011)
+ 
+("To
+ 
+ensure
+ 
+that
+ 
+plaintif fs
+ 
+adequately
+ 
+d
+---
+[DEBUG] No case name match for citation: 2011 U.S. Dist. LEXIS 117757
+[DEBUG] Citation: 2009 U.S. Dist. LEXIS 116372
+[DEBUG] Context:
+the
+ 
+litigation.")
+ 
+●
+ 
+Ikon
+ 
+Office
+ 
+Sols.,
+ 
+Inc.
+ 
+v.
+ 
+Konica
+ 
+Minolta
+ 
+Bus.
+ 
+Sols.,
+ 
+U.S.A.,
+ 
+Inc.
+,
+ 
+No.
+ 
+3:08-CV -539-RL V-DCK,
+ 
+2009
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+116372,
+ 
+at
+ 
+*11,
+ 
+14
+ 
+(W.D.N.C.
+ 
+Nov.
+ 
+25,
+ 
+2009)
+ 
+("Pursuant
+ 
+to
+ 
+Rule
+ 
+26(c),
+ 
+Minolta
+ 
+se
+---
+[DEBUG] No case name match for citation: 2009 U.S. Dist. LEXIS 116372
+[DEBUG] Citation: 2009 U.S. Dist. LEXIS 40764
+[DEBUG] Context:
+.…
+ 
+Minolta
+ 
+is
+ 
+entitled
+ 
+to
+ 
+a
+ 
+protective
+ 
+order .").
+ 
+●
+ 
+Giasson
+ 
+Aero.
+ 
+Sci.,
+ 
+Inc.
+ 
+v.
+ 
+RCO
+ 
+Eng'g,
+ 
+Inc.
+,
+ 
+No.
+ 
+08-13667,
+ 
+2009
+ 
+U.S.
+ 
+Dist.
+ 
+LEXIS
+ 
+40764,
+ 
+at
+ 
+*5-6
+ 
+(E.D.
+ 
+Mich.
+ 
+May
+ 
+14,
+ 
+2009)
+ 
+("Defendant
+ 
+objects
+ 
+to
+ 
+Plaintif fs
+ 
+propo
+---
+[DEBUG] No case name match for citation: 2009 U.S. Dist. LEXIS 40764
+[DEBUG] Citation: 376 U.S. 254
+[DEBUG] Context:
+Sullivan, 
+---
+[DEBUG] No case name match for citation: 376 U.S. 254
+[DEBUG] Citation: 250 U.S. 616
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 250 U.S. 616
+[DEBUG] Citation: 116 U.S. 616
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 116 U.S. 616
+[DEBUG] Citation: 277 U.S. 438
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 277 U.S. 438
+[DEBUG] Citation: 558 U.S. 310
+[DEBUG] Context:
+Federal Election Commission, 
+---
+[DEBUG] No case name match for citation: 558 U.S. 310
+[DEBUG] Citation: 442 U.S. 735
+[DEBUG] Context:
+Maryland, 
+---
+[DEBUG] No case name match for citation: 442 U.S. 735
+[DEBUG] Citation: 138 S. Ct. 2206
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 138 S. Ct. 2206
+[DEBUG] Citation: 565 U.S. 400
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 565 U.S. 400
+[DEBUG] Citation: 376 U.S. 254
+[DEBUG] Context:
+Sullivan, 
+---
+[DEBUG] No case name match for citation: 376 U.S. 254
+[DEBUG] Citation: 250 U.S. 616
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 250 U.S. 616
+[DEBUG] Citation: 116 U.S. 616
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 116 U.S. 616
+[DEBUG] Citation: 277 U.S. 438
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 277 U.S. 438
+[DEBUG] Citation: 558 U.S. 310
+[DEBUG] Context:
+Federal Election Commission, 
+---
+[DEBUG] No case name match for citation: 558 U.S. 310
+[DEBUG] Citation: 442 U.S. 735
+[DEBUG] Context:
+Maryland, 
+---
+[DEBUG] No case name match for citation: 442 U.S. 735
+[DEBUG] Citation: 138 S. Ct. 2206
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 138 S. Ct. 2206
+[DEBUG] Citation: 565 U.S. 400
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 565 U.S. 400
+[DEBUG] Citation: 460 U.S. 780
+[DEBUG] Context:
+Celebrezze, 
+---
+[DEBUG] No case name match for citation: 460 U.S. 780
+[DEBUG] Citation: 426 U.S. 435
+[DEBUG] Context:
+Miller, 
+---
+[DEBUG] No case name match for citation: 426 U.S. 435
+[DEBUG] Citation: 457 U.S. 922
+[DEBUG] Context:
+Edmondson Oil Co., 
+---
+[DEBUG] No case name match for citation: 457 U.S. 922
+[DEBUG] Citation: 487 U.S. 42
+[DEBUG] Context:
+Atkins, 
+---
+[DEBUG] No case name match for citation: 487 U.S. 42
+[DEBUG] Citation: 365 U.S. 715
+[DEBUG] Context:
+Wilmington Parking Authority. [
+---
+[DEBUG] No case name match for citation: 365 U.S. 715
+[DEBUG] Citation: 326 U.S. 501
+[DEBUG] Context:
+Alabama, 
+---
+[DEBUG] No case name match for citation: 326 U.S. 501
+[DEBUG] Citation: 345 U.S. 461
+[DEBUG] Context:
+ns cannot circumvent constitutional requirements by formally separating from government while performing electoral functions supports this analysis. [
+---
+[DEBUG] No case name match for citation: 345 U.S. 461
+[DEBUG] Citation: 334 U.S. 1
+[DEBUG] Context:
+Kraemer, 
+---
+[DEBUG] No case name match for citation: 334 U.S. 1
+[DEBUG] Citation: 317 U.S. 111
+[DEBUG] Context:
+Filburn, 
+---
+[DEBUG] No case name match for citation: 317 U.S. 111
+[DEBUG] Citation: 570 U.S. 1
+[DEBUG] Context:
+Inter Tribal Council of Arizona, 
+---
+[DEBUG] No case name match for citation: 570 U.S. 1
+[DEBUG] Citation: 480 U.S. 79
+[DEBUG] Context:
+Garrison, 
+---
+[DEBUG] No case name match for citation: 480 U.S. 79
+[DEBUG] Citation: 392 U.S. 1
+[DEBUG] Context:
+Ohio, 
+---
+[DEBUG] No case name match for citation: 392 U.S. 1
+[DEBUG] Citation: 412 U.S. 218
+[DEBUG] Context:
+Bustamonte, 
+---
+[DEBUG] No case name match for citation: 412 U.S. 218
+[DEBUG] Citation: 512 U.S. 622
+[DEBUG] Context:
+FCC, 
+---
+[DEBUG] No case name match for citation: 512 U.S. 622
+[DEBUG] Citation: 391 U.S. 367
+[DEBUG] Context:
+O'Brien, 
+---
+[DEBUG] No case name match for citation: 391 U.S. 367
+[DEBUG] Citation: 521 U.S. 844
+[DEBUG] Context:
+American Civil Liberties Union, 
+---
+[DEBUG] No case name match for citation: 521 U.S. 844
+[DEBUG] Citation: 576 U.S. 155
+[DEBUG] Context:
+Town of Gilbert, 
+---
+[DEBUG] No case name match for citation: 576 U.S. 155
+[DEBUG] Citation: 424 U.S. 1
+[DEBUG] Context:
+Valeo, 
+---
+[DEBUG] No case name match for citation: 424 U.S. 1
+[DEBUG] Citation: 540 U.S. 93
+[DEBUG] Context:
+Federal Election Commission, 
+---
+[DEBUG] No case name match for citation: 540 U.S. 93
+[DEBUG] Citation: 575 U.S. 433
+[DEBUG] Context:
+have compelling interests in protecting "public confidence in judicial integrity" applies with equal force to broader electoral integrity concerns. [
+---
+[DEBUG] No case name match for citation: 575 U.S. 433
+[DEBUG] Citation: 572 U.S. 185
+[DEBUG] Context:
+Federal Election Commission, 
+---
+[DEBUG] No case name match for citation: 572 U.S. 185
+[DEBUG] Citation: 397 U.S. 728
+[DEBUG] Context:
+recognition in Rowan v. United States Post Office Department that individuals have rights to avoid unwanted communications in certain circumstances. [
+---
+[DEBUG] No case name match for citation: 397 U.S. 728
+[DEBUG] Citation: 377 U.S. 533
+[DEBUG] Context:
+Sims, 
+---
+[DEBUG] No case name match for citation: 377 U.S. 533
+[DEBUG] Citation: 534 U.S. 266
+[DEBUG] Context:
+Arvizu, 
+---
+[DEBUG] No case name match for citation: 534 U.S. 266
+[DEBUG] Citation: 449 U.S. 411
+[DEBUG] Context:
+(quoting United States v. Cortez, 449
+U.S. 411, 417 (1981)
+---
+[DEBUG] No case name match for citation: 449 U.S. 411
+[DEBUG] Citation: 738 F.3d 1074
+[DEBUG] Context:
+Valdes-Vega, 
+---
+[DEBUG] No case name match for citation: 738 F.3d 1074
+[DEBUG] Citation: 517 U.S. 690
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 517 U.S. 690
+[DEBUG] Citation: 422 U.S. 873
+[DEBUG] Context:
+Brignoni-Ponce, 
+---
+[DEBUG] No case name match for citation: 422 U.S. 873
+[DEBUG] Citation: 208 F.3d 1122
+[DEBUG] Context:
+Montero-Camargo, 
+---
+[DEBUG] No case name match for citation: 208 F.3d 1122
+[DEBUG] Citation: 443 U.S. 47
+[DEBUG] Context:
+Texas, 
+---
+[DEBUG] No case name match for citation: 443 U.S. 47
+[DEBUG] Citation: 457 F.3d 928
+[DEBUG] Context:
+Manzo-Jurado,
+
+---
+[DEBUG] No case name match for citation: 457 F.3d 928
+[DEBUG] Citation: 38 F.3d 488
+[DEBUG] Context:
+INS, 
+---
+[DEBUG] No case name match for citation: 38 F.3d 488
+[DEBUG] Citation: 285 F.3d 1117
+[DEBUG] Context:
+Sigmond-Ballesteros, 
+---
+[DEBUG] No case name match for citation: 285 F.3d 1117
+[DEBUG] Citation: 926 F.3d 1128
+[DEBUG] Context:
+Barr, 
+---
+[DEBUG] No case name match for citation: 926 F.3d 1128
+[DEBUG] Citation: 299 F.3d 1138
+[DEBUG] Context:
+Diaz-Juarez, 
+---
+[DEBUG] No case name match for citation: 299 F.3d 1138
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+This is a test document with citation 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 2021 WL 1118031
+[DEBUG] Context:
+City of 
+Birmingham, 
+---
+[DEBUG] No case name match for citation: 2021 WL 1118031
+[DEBUG] Citation: 2020 WL 3060362
+[DEBUG] Context:
+Warden, FCC Coleman I, 
+
+---
+[DEBUG] No case name match for citation: 2020 WL 3060362
+[DEBUG] Citation: 2006 WL 8438651
+[DEBUG] Context:
+, at *2 (M.D. Fla. June 9, 2020) (rejecting inmate’s request to 
+delay deposition until additional discovery was completed); Wilson v. Jackson, 2006 
+WL 8438651, at *2 (N.D. Ala. Feb. 27, 2006) (granting Rule 30(a)(2)(B) motion and 
+finding no good cause to de
+---
+[DEBUG] No case name match for citation: 2006 WL 8438651

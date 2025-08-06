@@ -160,14 +160,9 @@
      <div class="input-area-single" v-if="inputMode === 'text'">
       <!-- Text Input -->
       <div v-if="inputMode === 'text'" class="text-input">
-        <label class="input-label">
-          <i class="bi bi-text-paragraph me-2"></i>
-          Paste your text here
-        </label>
         <div class="textarea-container">
           <textarea 
             v-model="text" 
-            placeholder="Paste legal text, citations, or document content here..."
             :disabled="isAnalyzing"
             rows="8"
             @input="handleInputChange"
@@ -176,7 +171,7 @@
           ></textarea>
           <div class="textarea-overlay" v-if="!text">
             <i class="bi bi-clipboard"></i>
-            <span>Paste your content here</span>
+            <span>Paste briefs, opposition briefs, cases, citations, or other legal texts here</span>
           </div>
         </div>
         <div class="input-footer">

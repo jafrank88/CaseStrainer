@@ -27,22 +27,22 @@ _unified_processor_available = False
 _enhanced_processor_available = False
 
 try:
-    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
     _unified_processor_available = True
 except ImportError:
     try:
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
         _unified_processor_available = True
     except ImportError:
         logger.warning("Unified citation processor v2 not available")
 
 # Try to import the enhanced processor as fallback
 try:
-    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
     _enhanced_processor_available = True
 except ImportError:
     try:
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedCitationProcessor
         _enhanced_processor_available = True
     except ImportError:
         try:
@@ -54,15 +54,29 @@ except ImportError:
 
 # Try to import the unified citation processor v2 (replaces enhanced_v2_processor)
 try:
-    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2
     _enhanced_v2_processor_available = True
 except ImportError:
     try:
-        from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+        from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
         _enhanced_v2_processor_available = True
     except ImportError:
         _enhanced_v2_processor_available = False
         logger.warning("UnifiedCitationProcessorV2 not available")
+
+# Try to import optimized PDF extraction
+try:
+    from pdf_extraction_optimized import extract_text_from_pdf_ultra_fast, extract_text_from_pdf_smart
+    _optimized_pdf_available = True
+    logger.info("Optimized PDF extraction modules loaded successfully")
+except ImportError:
+    try:
+        from .pdf_extraction_optimized import extract_text_from_pdf_ultra_fast, extract_text_from_pdf_smart
+        _optimized_pdf_available = True
+        logger.info("Optimized PDF extraction modules loaded successfully")
+    except ImportError:
+        _optimized_pdf_available = False
+        logger.warning("Optimized PDF extraction modules not available - using fallback methods")
 
 # Public constants (read-only) - use different names to avoid conflicts
 UNIFIED_PROCESSOR_AVAILABLE_UNIFIED = _unified_processor_available
@@ -669,6 +683,15 @@ def extract_text_from_pdf_ULTRA_FAST(file_path: str) -> str:
     Ultra-fast replacement that eliminates all performance bottlenecks.
     This should be 10-50x faster than the original.
     """
+    # Try optimized extraction first if available
+    if _optimized_pdf_available:
+        try:
+            logger.info(f"Using optimized PDF extraction for: {file_path}")
+            return extract_text_from_pdf_ultra_fast(file_path)
+        except Exception as e:
+            logger.warning(f"Optimized extraction failed, falling back to original: {e}")
+    
+    # Fallback to original ultra-fast method
     processor = UltraFastPDFProcessor()
     return processor.extract_text_super_fast(file_path)
 
@@ -771,16 +794,21 @@ class UnifiedDocumentProcessor:
         if UNIFIED_PROCESSOR_AVAILABLE:
             # Use enhanced v2 processor for better accuracy
             try:
-                from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                from unified_citation_processor_v2 import UnifiedCitationProcessorV2
                 self.citation_processor = UnifiedCitationProcessorV2()  # Already has verification enabled
                 logger.info("Using UnifiedCitationProcessorV2 for improved accuracy")
             except ImportError:
-                from .models import ProcessingConfig
-                config = ProcessingConfig(enable_verification=True, debug_mode=True)
-                self.citation_processor = UnifiedCitationProcessorV2(config)
-                logger.info("Using standard UnifiedCitationProcessorV2 with verification enabled")
+                try:
+                    from .unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                    self.citation_processor = UnifiedCitationProcessorV2()  # Already has verification enabled
+                    logger.info("Using UnifiedCitationProcessorV2 for improved accuracy")
+                except ImportError:
+                    from models import ProcessingConfig
+                    config = ProcessingConfig(enable_verification=True, debug_mode=True)
+                    self.citation_processor = UnifiedCitationProcessorV2(config)
+                    logger.info("Using standard UnifiedCitationProcessorV2 with verification enabled")
         elif ENHANCED_PROCESSOR_AVAILABLE:
-            from .models import ProcessingConfig
+            from models import ProcessingConfig
             config = ProcessingConfig(enable_verification=True, debug_mode=True)
             self.citation_processor = UnifiedCitationProcessor(config)
         else:
@@ -990,9 +1018,10 @@ class UnifiedDocumentProcessor:
         Smart PDF text extraction with OCR detection and ultra-fast fallback.
         
         This uses intelligent strategies to choose the best extraction method:
-        1. OCR-optimized extraction for scanned documents
-        2. Ultra-fast extraction for born-digital PDFs
-        3. Smart fallback strategies for maximum performance
+        1. Optimized extraction for maximum performance
+        2. OCR-optimized extraction for scanned documents
+        3. Ultra-fast extraction for born-digital PDFs
+        4. Smart fallback strategies for maximum performance
         """
         # Optionally convert to markdown
         if convert_to_md:
@@ -1003,7 +1032,24 @@ class UnifiedDocumentProcessor:
             else:
                 logger.warning("PDF to Markdown conversion failed, falling back to text extraction.")
         
-        # Use smart strategy - assumes OCR first, then falls back to ultra-fast
+        # Try optimized extraction first if available
+        if _optimized_pdf_available:
+            try:
+                logger.info(f"Using optimized PDF extraction for: {file_path}")
+                file_size = os.path.getsize(file_path)
+                
+                # Use smart extraction for larger files, ultra-fast for smaller files
+                if file_size < 1024 * 1024:  # < 1MB
+                    logger.info(f"Small file ({file_size} bytes), using ultra-fast extraction")
+                    return extract_text_from_pdf_ultra_fast(file_path)
+                else:
+                    logger.info(f"Large file ({file_size} bytes), using smart extraction")
+                    return extract_text_from_pdf_smart(file_path)
+                    
+            except Exception as e:
+                logger.warning(f"Optimized extraction failed, falling back to original: {e}")
+        
+        # Fallback to original smart strategy
         return extract_text_smart_strategy(file_path, assume_ocr=True)
 
     def extract_text_from_file(self, file_path: str, convert_pdf_to_md: bool = False) -> str:
@@ -1475,8 +1521,25 @@ def extract_text_from_file(file_path: str) -> str:
     """Convenience function for text extraction from file."""
     processor = UnifiedDocumentProcessor()
     
-    # Use smart PDF extraction strategy for better performance
+    # Use optimized PDF extraction for better performance
     if file_path.lower().endswith('.pdf'):
+        if _optimized_pdf_available:
+            try:
+                logger.info(f"Using optimized PDF extraction for: {file_path}")
+                file_size = os.path.getsize(file_path)
+                
+                # Use smart extraction for larger files, ultra-fast for smaller files
+                if file_size < 1024 * 1024:  # < 1MB
+                    logger.info(f"Small file ({file_size} bytes), using ultra-fast extraction")
+                    return extract_text_from_pdf_ultra_fast(file_path)
+                else:
+                    logger.info(f"Large file ({file_size} bytes), using smart extraction")
+                    return extract_text_from_pdf_smart(file_path)
+                    
+            except Exception as e:
+                logger.warning(f"Optimized extraction failed, falling back to original: {e}")
+        
+        # Fallback to original smart strategy
         return extract_text_smart_strategy(file_path, assume_ocr=True)
     
     return processor.extract_text_from_file(file_path)
